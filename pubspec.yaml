@@ -66,7 +66,7 @@ dependencies:
   flutter_dotenv: ^6.0.0
   
   # Security
-  flutter_secure_storage: ^4.2.1
+  flutter_secure_storage: ^9.2.4
   
   # Utilities
   intl: ^0.20.2

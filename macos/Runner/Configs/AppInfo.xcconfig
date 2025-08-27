@@ -11,4 +11,4 @@ PRODUCT_NAME = The Accountant
 PRODUCT_BUNDLE_IDENTIFIER = com.pranta.theaccountant
 
 // The copyright displayed in application information
-PRODUCT_COPYRIGHT = Copyright © 2025 com.example. All rights reserved.
+PRODUCT_COPYRIGHT = Copyright © 2025 com.pranta. All rights reserved.

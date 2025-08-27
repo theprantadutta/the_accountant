@@ -6,6 +6,7 @@ import 'package:the_accountant/core/themes/app_theme.dart';
 import 'package:the_accountant/features/onboarding/onboarding_screen.dart';
 import 'package:the_accountant/features/premium/screens/premium_screen.dart';
 import 'package:the_accountant/features/support/screens/support_screen.dart';
+import 'package:the_accountant/shared/widgets/main_navigation_container.dart';
 
 class MyApp extends ConsumerWidget {
   const MyApp({super.key});
@@ -27,6 +28,7 @@ class MyApp extends ConsumerWidget {
       initialRoute: '/onboarding',
       routes: {
         '/onboarding': (context) => const OnboardingScreen(),
+        '/dashboard': (context) => const MainNavigationContainer(),
         '/premium': (context) => const PremiumScreen(),
         '/support': (context) {
           final args = ModalRoute.of(context)!.settings.arguments as String?;

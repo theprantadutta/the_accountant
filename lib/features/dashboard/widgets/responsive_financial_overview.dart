@@ -1,621 +1,771 @@
 import 'package:flutter/material.dart';
-import 'package:the_accountant/shared/widgets/summary_card.dart';
-import 'package:the_accountant/features/dashboard/widgets/advanced_chart.dart';
-import 'package:the_accountant/shared/widgets/budget_progress.dart';
-import 'package:the_accountant/features/transactions/providers/transaction_provider.dart';
-import 'package:the_accountant/features/budgets/providers/budget_provider.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:fl_chart/fl_chart.dart';
+import 'package:the_accountant/core/themes/app_theme.dart';
+import 'package:the_accountant/core/utils/animation_utils.dart';
+// import 'package:the_accountant/features/transactions/providers/transaction_provider.dart';
+// import 'package:the_accountant/features/budgets/providers/budget_provider.dart';
 
-class ResponsiveFinancialOverview extends ConsumerWidget {
+class ResponsiveFinancialOverview extends ConsumerStatefulWidget {
   const ResponsiveFinancialOverview({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final transactionState = ref.watch(transactionProvider);
-    final budgetState = ref.watch(budgetProvider);
+  ConsumerState<ResponsiveFinancialOverview> createState() => _ResponsiveFinancialOverviewState();
+}
+
+class _ResponsiveFinancialOverviewState extends ConsumerState<ResponsiveFinancialOverview>
+    with TickerProviderStateMixin {
+  
+  late AnimationController _animationController;
+  late AnimationController _balanceAnimationController;
+  late Animation<double> _slideAnimation;
+  late Animation<double> _balanceAnimation;
+
+  @override
+  void initState() {
+    super.initState();
     
-    // Calculate financial metrics
-    final totalIncome = transactionState.transactions
-        .where((t) => t.type == 'income')
-        .fold(0.0, (sum, t) => sum + t.amount);
-    final totalExpenses = transactionState.transactions
-        .where((t) => t.type == 'expense')
-        .fold(0.0, (sum, t) => sum + t.amount);
-    final netBalance = totalIncome - totalExpenses;
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 1200),
+      vsync: this,
+    );
     
-    // Get recent transactions
-    final recentTransactions = transactionState.transactions.take(5).toList();
+    _balanceAnimationController = AnimationController(
+      duration: const Duration(milliseconds: 2000),
+      vsync: this,
+    );
     
-    // Get active budgets
-    final now = DateTime.now();
-    final activeBudgets = budgetState.budgets
-        .where((budget) => budget.startDate.isBefore(now) && budget.endDate.isAfter(now))
-        .toList();
     
-    // Prepare chart data
-    final expenseData = _prepareExpenseData(transactionState);
-    final incomeData = _prepareIncomeData(transactionState);
+    _slideAnimation = CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.elasticOut,
+    );
     
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        // Check if we're on a tablet (width > 600)
-        final isTablet = constraints.maxWidth > 600;
-        
-        if (isTablet) {
-          // Tablet layout - two columns
-          return _buildTabletLayout(
-            context,
-            transactionState,
-            budgetState,
-            totalIncome,
-            totalExpenses,
-            netBalance,
-            recentTransactions,
-            activeBudgets,
-            expenseData,
-            incomeData,
-          );
-        } else {
-          // Mobile layout - single column
-          return _buildMobileLayout(
-            context,
-            transactionState,
-            budgetState,
-            totalIncome,
-            totalExpenses,
-            netBalance,
-            recentTransactions,
-            activeBudgets,
-            expenseData,
-            incomeData,
-          );
-        }
-      },
+    _balanceAnimation = CurvedAnimation(
+      parent: _balanceAnimationController,
+      curve: Curves.easeOutCubic,
+    );
+    
+    _animationController.forward();
+    _balanceAnimationController.forward();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    _balanceAnimationController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // For demo purposes, using mock data
+    final mockBalance = 15420.50;
+    final mockIncome = 8540.00;
+    final mockExpenses = 3210.75;
+    
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 20),
+              
+              // Greeting Section
+              AnimationUtils.slideTransition(
+                animation: _slideAnimation,
+                begin: const Offset(-1, 0),
+                child: _buildGreetingSection(),
+              ),
+              
+              const SizedBox(height: 32),
+              
+              // Balance Card
+              AnimationUtils.scaleTransition(
+                animation: AnimationUtils.createStaggeredAnimation(
+                  controller: _animationController,
+                  startFraction: 0.1,
+                  endFraction: 0.4,
+                ),
+                child: _buildBalanceCard(mockBalance),
+              ),
+              
+              const SizedBox(height: 24),
+              
+              // Quick Actions
+              AnimationUtils.slideTransition(
+                animation: AnimationUtils.createStaggeredAnimation(
+                  controller: _animationController,
+                  startFraction: 0.2,
+                  endFraction: 0.5,
+                ),
+                begin: const Offset(1, 0),
+                child: _buildQuickActions(),
+              ),
+              
+              const SizedBox(height: 32),
+              
+              // Income/Expense Overview
+              AnimationUtils.slideTransition(
+                animation: AnimationUtils.createStaggeredAnimation(
+                  controller: _animationController,
+                  startFraction: 0.3,
+                  endFraction: 0.6,
+                ),
+                begin: const Offset(0, 1),
+                child: _buildIncomeExpenseOverview(mockIncome, mockExpenses),
+              ),
+              
+              const SizedBox(height: 24),
+              
+              // Spending Chart
+              AnimationUtils.fadeTransition(
+                animation: AnimationUtils.createStaggeredAnimation(
+                  controller: _animationController,
+                  startFraction: 0.4,
+                  endFraction: 0.7,
+                ),
+                child: _buildSpendingChart(),
+              ),
+              
+              const SizedBox(height: 24),
+              
+              // Recent Transactions
+              AnimationUtils.slideTransition(
+                animation: AnimationUtils.createStaggeredAnimation(
+                  controller: _animationController,
+                  startFraction: 0.5,
+                  endFraction: 0.8,
+                ),
+                begin: const Offset(0, 1),
+                child: _buildRecentTransactions(),
+              ),
+              
+              const SizedBox(height: 24),
+              
+              // Budget Progress
+              AnimationUtils.slideTransition(
+                animation: AnimationUtils.createStaggeredAnimation(
+                  controller: _animationController,
+                  startFraction: 0.6,
+                  endFraction: 0.9,
+                ),
+                begin: const Offset(0, 1),
+                child: _buildBudgetProgress(),
+              ),
+              
+              const SizedBox(height: 100), // Bottom padding for nav bar
+            ],
+          ),
+        ),
+      ),
     );
   }
-  
-  Widget _buildMobileLayout(
-    BuildContext context,
-    TransactionState transactionState,
-    BudgetState budgetState,
-    double totalIncome,
-    double totalExpenses,
-    double netBalance,
-    List<dynamic> recentTransactions,
-    List<dynamic> activeBudgets,
-    List<Map<String, dynamic>> expenseData,
-    List<Map<String, dynamic>> incomeData,
-  ) {
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Summary cards
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
+
+  Widget _buildGreetingSection() {
+    return Row(
+      children: [
+        AppTheme.gradientContainer(
+          gradient: AppTheme.primaryGradient,
+          width: 48,
+          height: 48,
+          borderRadius: BorderRadius.circular(16),
+          child: const Icon(
+            Icons.waving_hand,
+            color: Colors.white,
+            size: 24,
+          ),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Good ${_getTimeOfDay()}!',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(
+                'Ready to manage your finances?',
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.8),
+                  fontSize: 16,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  String _getTimeOfDay() {
+    final hour = DateTime.now().hour;
+    if (hour < 12) return 'Morning';
+    if (hour < 17) return 'Afternoon';
+    return 'Evening';
+  }
+
+  Widget _buildBalanceCard(double balance) {
+    return AppTheme.gradientContainer(
+      gradient: AppTheme.primaryGradient,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Expanded(
-                  child: SummaryCard(
-                    title: 'Total Balance',
-                    amount: netBalance,
-                    currency: 'USD',
-                    icon: Icons.account_balance_wallet,
-                    iconColor: Colors.blue,
-                    isPositive: netBalance >= 0,
+                const Text(
+                  'Total Balance',
+                  style: TextStyle(
+                    color: Colors.white70,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: SummaryCard(
-                    title: 'This Month',
-                    amount: totalExpenses,
-                    currency: 'USD',
-                    icon: Icons.trending_down,
-                    iconColor: Colors.red,
-                    isPositive: false,
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.visibility,
+                        color: Colors.white,
+                        size: 16,
+                      ),
+                      const SizedBox(width: 4),
+                      const Text(
+                        'Show',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
-          ),
-          
-          // Income vs Expenses card
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
+            const SizedBox(height: 12),
+            AnimatedBuilder(
+              animation: _balanceAnimation,
+              builder: (context, child) {
+                final animatedBalance = balance * _balanceAnimation.value;
+                return Text(
+                  '\$${NumberFormat('#,##0.00').format(animatedBalance)}',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 36,
+                    fontWeight: FontWeight.bold,
+                  ),
+                );
+              },
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.green.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.trending_up,
+                        color: Colors.greenAccent,
+                        size: 16,
+                      ),
+                      const SizedBox(width: 4),
+                      const Text(
+                        '+12.3%',
+                        style: TextStyle(
+                          color: Colors.greenAccent,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'from last month',
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.7),
+                    fontSize: 14,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildQuickActions() {
+    final actions = [
+      {'icon': Icons.arrow_upward, 'label': 'Send', 'color': const Color(0xFF667eea)},
+      {'icon': Icons.arrow_downward, 'label': 'Receive', 'color': const Color(0xFF11998e)},
+      {'icon': Icons.credit_card, 'label': 'Cards', 'color': const Color(0xFFFF6B6B)},
+      {'icon': Icons.more_horiz, 'label': 'More', 'color': const Color(0xFF4ECDC4)},
+    ];
+
+    return SizedBox(
+      height: 90,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: actions.length,
+        itemBuilder: (context, index) {
+          final action = actions[index];
+          return Container(
+            margin: const EdgeInsets.only(right: 16),
+            child: GestureDetector(
+              onTap: () => HapticFeedback.lightImpact(),
+              child: AppTheme.glassmorphicContainer(
+                width: 80,
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text(
-                      'Income vs Expenses',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: action['color'] as Color,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(
+                        action['icon'] as IconData,
+                        color: Colors.white,
+                        size: 20,
                       ),
                     ),
-                    const SizedBox(height: 16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        _FinancialItem(
-                          title: 'Income',
-                          amount: totalIncome,
-                          color: Colors.green,
-                          icon: Icons.trending_up,
-                        ),
-                        _FinancialItem(
-                          title: 'Expenses',
-                          amount: totalExpenses,
-                          color: Colors.red,
-                          icon: Icons.trending_down,
-                        ),
-                        _FinancialItem(
-                          title: 'Net',
-                          amount: netBalance,
-                          color: netBalance >= 0 ? Colors.green : Colors.red,
-                          icon: netBalance >= 0 ? Icons.add : Icons.remove,
-                        ),
-                      ],
+                    const SizedBox(height: 8),
+                    Text(
+                      action['label'] as String,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ],
                 ),
               ),
             ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildIncomeExpenseOverview(double income, double expenses) {
+    return Row(
+      children: [
+        Expanded(
+          child: AppTheme.glassmorphicContainer(
+            child: Container(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        width: 32,
+                        height: 32,
+                        decoration: BoxDecoration(
+                          color: Colors.green.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Icon(
+                          Icons.trending_up,
+                          color: Colors.green,
+                          size: 16,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      const Text(
+                        'Income',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    '\$${NumberFormat('#,##0.00').format(income)}',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    'This month',
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.7),
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
-          
-          // Expense distribution chart
-          AdvancedChart(
-            data: expenseData,
-            title: 'Expense Distribution',
-            chartType: ChartType.pie,
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: AppTheme.glassmorphicContainer(
+            child: Container(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        width: 32,
+                        height: 32,
+                        decoration: BoxDecoration(
+                          color: Colors.red.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Icon(
+                          Icons.trending_down,
+                          color: Colors.red,
+                          size: 16,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      const Text(
+                        'Expenses',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    '\$${NumberFormat('#,##0.00').format(expenses)}',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    'This month',
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.7),
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
-          
-          // Income sources chart
-          AdvancedChart(
-            data: incomeData,
-            title: 'Income Sources',
-            chartType: ChartType.bar,
-          ),
-          
-          // Recent transactions
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSpendingChart() {
+    return AppTheme.glassmorphicContainer(
+      height: 300,
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Spending Overview',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 20),
+            Expanded(
+              child: LineChart(
+                LineChartData(
+                  gridData: FlGridData(show: false),
+                  titlesData: FlTitlesData(show: false),
+                  borderData: FlBorderData(show: false),
+                  lineBarsData: [
+                    LineChartBarData(
+                      spots: const [
+                        FlSpot(0, 3),
+                        FlSpot(1, 1.5),
+                        FlSpot(2, 4),
+                        FlSpot(3, 3.1),
+                        FlSpot(4, 4.8),
+                        FlSpot(5, 3.5),
+                        FlSpot(6, 5),
+                      ],
+                      isCurved: true,
+                      gradient: AppTheme.primaryGradient,
+                      barWidth: 3,
+                      isStrokeCapRound: true,
+                      dotData: FlDotData(show: false),
+                      belowBarData: BarAreaData(
+                        show: true,
+                        gradient: LinearGradient(
+                          colors: [
+                            const Color(0xFF667eea).withValues(alpha: 0.3),
+                            const Color(0xFF764ba2).withValues(alpha: 0.1),
+                          ],
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRecentTransactions() {
+    final mockTransactions = [
+      {'title': 'Starbucks Coffee', 'category': 'Food & Dining', 'amount': -5.50, 'icon': Icons.coffee, 'color': const Color(0xFFFF6B6B)},
+      {'title': 'Salary Deposit', 'category': 'Income', 'amount': 3500.00, 'icon': Icons.work, 'color': const Color(0xFF4ECDC4)},
+      {'title': 'Uber Ride', 'category': 'Transportation', 'amount': -12.30, 'icon': Icons.directions_car, 'color': const Color(0xFF45B7D1)},
+      {'title': 'Grocery Shopping', 'category': 'Shopping', 'amount': -89.45, 'icon': Icons.shopping_cart, 'color': const Color(0xFF96CEB4)},
+      {'title': 'Netflix Subscription', 'category': 'Entertainment', 'amount': -15.99, 'icon': Icons.movie, 'color': const Color(0xFFFFA07A)},
+    ];
+
+    return AppTheme.glassmorphicContainer(
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text(
                   'Recent Transactions',
                   style: TextStyle(
+                    color: Colors.white,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: 8),
-                if (recentTransactions.isEmpty)
-                  const Center(
-                    child: Text('No transactions yet'),
-                  )
-                else
-                  ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: recentTransactions.length,
-                    itemBuilder: (context, index) {
-                      final transaction = recentTransactions[index];
-                      return Card(
-                        margin: const EdgeInsets.symmetric(vertical: 4),
-                        child: ListTile(
-                          leading: Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: transaction.type == 'income' 
-                                ? Colors.green.withValues(alpha: 0.2)
-                                : Colors.red.withValues(alpha: 0.2),
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              transaction.type == 'income' 
-                                ? Icons.arrow_downward
-                                : Icons.arrow_upward,
-                              color: transaction.type == 'income' 
-                                ? Colors.green
-                                : Colors.red,
-                            ),
-                          ),
-                          title: Text(transaction.category),
-                          subtitle: Text(
-                            DateFormat('MMM dd, yyyy').format(transaction.date),
-                          ),
-                          trailing: Text(
-                            '${transaction.type == 'income' ? '+' : '-'}'
-                            '${NumberFormat.currency(symbol: '\$').format(transaction.amount)}',
-                            style: TextStyle(
-                              color: transaction.type == 'income' 
-                                ? Colors.green
-                                : Colors.red,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      );
-                    },
+                TextButton(
+                  onPressed: () => HapticFeedback.lightImpact(),
+                  child: Text(
+                    'View All',
+                    style: TextStyle(
+                      color: const Color(0xFF667eea),
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
+                ),
               ],
             ),
-          ),
-          
-          // Active budgets
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            const SizedBox(height: 16),
+            ...mockTransactions.map((transaction) {
+              final isIncome = (transaction['amount'] as double) > 0;
+              return Container(
+                margin: const EdgeInsets.only(bottom: 16),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        color: (transaction['color'] as Color).withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(
+                        transaction['icon'] as IconData,
+                        color: transaction['color'] as Color,
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            transaction['title'] as String,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          Text(
+                            transaction['category'] as String,
+                            style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.7),
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Text(
+                      '${isIncome ? '+' : ''}\$${NumberFormat('#,##0.00').format((transaction['amount'] as double).abs())}',
+                      style: TextStyle(
+                        color: isIncome ? Colors.green : Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBudgetProgress() {
+    final mockBudgets = [
+      {'name': 'Food & Dining', 'spent': 850.0, 'limit': 1200.0, 'color': const Color(0xFFFF6B6B)},
+      {'name': 'Transportation', 'spent': 320.0, 'limit': 500.0, 'color': const Color(0xFF45B7D1)},
+      {'name': 'Entertainment', 'spent': 180.0, 'limit': 300.0, 'color': const Color(0xFFFFA07A)},
+    ];
+
+    return AppTheme.glassmorphicContainer(
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text(
-                  'Active Budgets',
+                  'Budget Progress',
                   style: TextStyle(
+                    color: Colors.white,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: 8),
-                if (activeBudgets.isEmpty)
-                  const Center(
-                    child: Text('No active budgets'),
-                  )
-                else
-                  ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: activeBudgets.length,
-                    itemBuilder: (context, index) {
-                      final budget = activeBudgets[index];
-                      return BudgetProgress(
-                        budgetName: budget.name,
-                        categoryId: '', // This would be the actual category ID
-                        limit: budget.limit,
-                        startDate: budget.startDate,
-                        endDate: budget.endDate,
-                        currency: 'USD',
-                      );
-                    },
+                TextButton(
+                  onPressed: () => HapticFeedback.lightImpact(),
+                  child: Text(
+                    'Manage',
+                    style: TextStyle(
+                      color: const Color(0xFF667eea),
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
+                ),
               ],
             ),
-          ),
-        ],
+            const SizedBox(height: 16),
+            ...mockBudgets.map((budget) {
+              final spent = budget['spent'] as double;
+              final limit = budget['limit'] as double;
+              final percentage = spent / limit;
+              final isOverBudget = percentage > 1.0;
+              
+              return Container(
+                margin: const EdgeInsets.only(bottom: 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          budget['name'] as String,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        Text(
+                          '\$${NumberFormat('#,##0.00').format(spent)} / \$${NumberFormat('#,##0.00').format(limit)}',
+                          style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.8),
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Stack(
+                      children: [
+                        Container(
+                          width: double.infinity,
+                          height: 6,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(3),
+                          ),
+                        ),
+                        Container(
+                          width: MediaQuery.of(context).size.width * 
+                                 (percentage > 1.0 ? 1.0 : percentage) * 0.8,
+                          height: 6,
+                          decoration: BoxDecoration(
+                            color: isOverBudget ? Colors.red : (budget['color'] as Color),
+                            borderRadius: BorderRadius.circular(3),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      isOverBudget 
+                        ? 'Over budget by \$${NumberFormat('#,##0.00').format(spent - limit)}'
+                        : '${((1 - percentage) * 100).toStringAsFixed(0)}% remaining',
+                      style: TextStyle(
+                        color: isOverBudget 
+                          ? Colors.red 
+                          : Colors.white.withValues(alpha: 0.7),
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
+          ],
+        ),
       ),
-    );
-  }
-  
-  Widget _buildTabletLayout(
-    BuildContext context,
-    TransactionState transactionState,
-    BudgetState budgetState,
-    double totalIncome,
-    double totalExpenses,
-    double netBalance,
-    List<dynamic> recentTransactions,
-    List<dynamic> activeBudgets,
-    List<Map<String, dynamic>> expenseData,
-    List<Map<String, dynamic>> incomeData,
-  ) {
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Summary cards
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                Expanded(
-                  child: SummaryCard(
-                    title: 'Total Balance',
-                    amount: netBalance,
-                    currency: 'USD',
-                    icon: Icons.account_balance_wallet,
-                    iconColor: Colors.blue,
-                    isPositive: netBalance >= 0,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: SummaryCard(
-                    title: 'This Month',
-                    amount: totalExpenses,
-                    currency: 'USD',
-                    icon: Icons.trending_down,
-                    iconColor: Colors.red,
-                    isPositive: false,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          
-          // Two-column layout for charts and details
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Left column - charts
-                Expanded(
-                  flex: 2,
-                  child: Column(
-                    children: [
-                      // Income vs Expenses card
-                      Card(
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                'Income vs Expenses',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                children: [
-                                  _FinancialItem(
-                                    title: 'Income',
-                                    amount: totalIncome,
-                                    color: Colors.green,
-                                    icon: Icons.trending_up,
-                                  ),
-                                  _FinancialItem(
-                                    title: 'Expenses',
-                                    amount: totalExpenses,
-                                    color: Colors.red,
-                                    icon: Icons.trending_down,
-                                  ),
-                                  _FinancialItem(
-                                    title: 'Net',
-                                    amount: netBalance,
-                                    color: netBalance >= 0 ? Colors.green : Colors.red,
-                                    icon: netBalance >= 0 ? Icons.add : Icons.remove,
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      
-                      // Expense distribution chart
-                      AdvancedChart(
-                        data: expenseData,
-                        title: 'Expense Distribution',
-                        chartType: ChartType.pie,
-                      ),
-                      
-                      // Income sources chart
-                      AdvancedChart(
-                        data: incomeData,
-                        title: 'Income Sources',
-                        chartType: ChartType.bar,
-                      ),
-                    ],
-                  ),
-                ),
-                
-                const SizedBox(width: 16),
-                
-                // Right column - transactions and budgets
-                Expanded(
-                  flex: 1,
-                  child: Column(
-                    children: [
-                      // Recent transactions
-                      Card(
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                'Recent Transactions',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              if (recentTransactions.isEmpty)
-                                const Center(
-                                  child: Text('No transactions yet'),
-                                )
-                              else
-                                ListView.builder(
-                                  shrinkWrap: true,
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  itemCount: recentTransactions.length,
-                                  itemBuilder: (context, index) {
-                                    final transaction = recentTransactions[index];
-                                    return ListTile(
-                                      leading: Container(
-                                        padding: const EdgeInsets.all(8),
-                                        decoration: BoxDecoration(
-                                          color: transaction.type == 'income' 
-                                            ? Colors.green.withValues(alpha: 0.2)
-                                            : Colors.red.withValues(alpha: 0.2),
-                                          shape: BoxShape.circle,
-                                        ),
-                                        child: Icon(
-                                          transaction.type == 'income' 
-                                            ? Icons.arrow_downward
-                                            : Icons.arrow_upward,
-                                          color: transaction.type == 'income' 
-                                            ? Colors.green
-                                            : Colors.red,
-                                        ),
-                                      ),
-                                      title: Text(transaction.category),
-                                      subtitle: Text(
-                                        DateFormat('MMM dd, yyyy').format(transaction.date),
-                                      ),
-                                      trailing: Text(
-                                        '${transaction.type == 'income' ? '+' : '-'}'
-                                        '${NumberFormat.currency(symbol: '\$').format(transaction.amount)}',
-                                        style: TextStyle(
-                                          color: transaction.type == 'income' 
-                                            ? Colors.green
-                                            : Colors.red,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      
-                      const SizedBox(height: 16),
-                      
-                      // Active budgets
-                      Card(
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                'Active Budgets',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              if (activeBudgets.isEmpty)
-                                const Center(
-                                  child: Text('No active budgets'),
-                                )
-                              else
-                                ListView.builder(
-                                  shrinkWrap: true,
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  itemCount: activeBudgets.length,
-                                  itemBuilder: (context, index) {
-                                    final budget = activeBudgets[index];
-                                    return BudgetProgress(
-                                      budgetName: budget.name,
-                                      categoryId: '', // This would be the actual category ID
-                                      limit: budget.limit,
-                                      startDate: budget.startDate,
-                                      endDate: budget.endDate,
-                                      currency: 'USD',
-                                    );
-                                  },
-                                ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-  
-  List<Map<String, dynamic>> _prepareExpenseData(TransactionState transactionState) {
-    // For demo purposes, we'll use predefined categories
-    final categories = [
-      {'name': 'Food & Dining', 'color': Colors.red, 'value': 35.0},
-      {'name': 'Transportation', 'color': Colors.blue, 'value': 25.0},
-      {'name': 'Entertainment', 'color': Colors.green, 'value': 20.0},
-      {'name': 'Shopping', 'color': Colors.orange, 'value': 15.0},
-      {'name': 'Utilities', 'color': Colors.purple, 'value': 5.0},
-    ];
-    
-    return categories.map((category) {
-      final percentage = category['value'] as double;
-      return {
-        'label': category['name'],
-        'color': category['color'],
-        'value': percentage,
-        'percentage': percentage.toInt(),
-      };
-    }).toList();
-  }
-  
-  List<Map<String, dynamic>> _prepareIncomeData(TransactionState transactionState) {
-    // For demo purposes, we'll use predefined income sources
-    final sources = [
-      {'name': 'Salary', 'color': Colors.green, 'value': 50.0},
-      {'name': 'Freelance', 'color': Colors.blue, 'value': 30.0},
-      {'name': 'Investments', 'color': Colors.purple, 'value': 15.0},
-      {'name': 'Other', 'color': Colors.grey, 'value': 5.0},
-    ];
-    
-    return sources.map((source) {
-      final value = source['value'] as double;
-      return {
-        'label': source['name'],
-        'color': source['color'],
-        'value': value,
-        'percentage': value.toInt(),
-      };
-    }).toList();
-  }
-}
-
-class _FinancialItem extends StatelessWidget {
-  final String title;
-  final double amount;
-  final Color color;
-  final IconData icon;
-
-  const _FinancialItem({
-    required this.title,
-    required this.amount,
-    required this.color,
-    required this.icon,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.2),
-            shape: BoxShape.circle,
-          ),
-          child: Icon(icon, color: color),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          title,
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        Text(
-          NumberFormat.currency(symbol: '\$').format(amount),
-          style: TextStyle(
-            color: color,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ],
     );
   }
 }
