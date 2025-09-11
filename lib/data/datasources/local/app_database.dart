@@ -30,50 +30,57 @@ class AppDatabase extends _$AppDatabase {
 
   // Settings DAO methods
   Future<Setting?> getSettings() => select(settings).getSingleOrNull();
-  
-  Future<int> insertSettings(SettingsCompanion entry) => into(settings).insert(entry);
-  
-  Future<bool> updateSettings(SettingsCompanion entry) => update(settings).replace(entry);
+
+  Future<int> insertSettings(SettingsCompanion entry) =>
+      into(settings).insert(entry);
+
+  Future<bool> updateSettings(SettingsCompanion entry) =>
+      update(settings).replace(entry);
 
   // Transaction DAO methods
   Future<List<Transaction>> getAllTransactions() => select(transactions).get();
 
-  Future<Transaction?> findTransactionById(String id) => 
+  Future<Transaction?> findTransactionById(String id) =>
       (select(transactions)..where((t) => t.id.equals(id))).getSingleOrNull();
 
-  Future<int> addTransaction(TransactionsCompanion entry) => 
+  Future<int> addTransaction(TransactionsCompanion entry) =>
       into(transactions).insert(entry);
 
-  Future<bool> updateTransaction(TransactionsCompanion entry) => 
+  Future<bool> updateTransaction(TransactionsCompanion entry) =>
       update(transactions).replace(entry);
 
-  Future<int> deleteTransaction(String id) => 
+  Future<int> deleteTransaction(String id) =>
       (delete(transactions)..where((t) => t.id.equals(id))).go();
 
   Future<List<Transaction>> getTransactionsByType(String type) =>
       (select(transactions)..where((t) => t.type.equals(type))).get();
 
   Future<List<Transaction>> getTransactionsByCategory(String categoryId) =>
-      (select(transactions)..where((t) => t.categoryId.equals(categoryId))).get();
+      (select(
+        transactions,
+      )..where((t) => t.categoryId.equals(categoryId))).get();
 
-  Future<List<Transaction>> getTransactionsByDateRange(DateTime start, DateTime end) =>
-      (select(transactions)
-        ..where((t) => t.date.isBetweenValues(start, end)))
-        .get();
+  Future<List<Transaction>> getTransactionsByDateRange(
+    DateTime start,
+    DateTime end,
+  ) => (select(
+    transactions,
+  )..where((t) => t.date.isBetweenValues(start, end))).get();
 
   // Payment Method DAO methods
-  Future<List<PaymentMethod>> getAllPaymentMethods() => select(paymentMethods).get();
+  Future<List<PaymentMethod>> getAllPaymentMethods() =>
+      select(paymentMethods).get();
 
-  Future<PaymentMethod?> findPaymentMethodById(String id) => 
+  Future<PaymentMethod?> findPaymentMethodById(String id) =>
       (select(paymentMethods)..where((p) => p.id.equals(id))).getSingleOrNull();
 
-  Future<int> addPaymentMethod(PaymentMethodsCompanion entry) => 
+  Future<int> addPaymentMethod(PaymentMethodsCompanion entry) =>
       into(paymentMethods).insert(entry);
 
-  Future<bool> updatePaymentMethod(PaymentMethodsCompanion entry) => 
+  Future<bool> updatePaymentMethod(PaymentMethodsCompanion entry) =>
       update(paymentMethods).replace(entry);
 
-  Future<int> deletePaymentMethod(String id) => 
+  Future<int> deletePaymentMethod(String id) =>
       (delete(paymentMethods)..where((p) => p.id.equals(id))).go();
 
   Future<List<PaymentMethod>> getDefaultPaymentMethods() =>
@@ -82,37 +89,36 @@ class AppDatabase extends _$AppDatabase {
   // Budget DAO methods
   Future<List<Budget>> getAllBudgets() => select(budgets).get();
 
-  Future<Budget?> findBudgetById(String id) => 
+  Future<Budget?> findBudgetById(String id) =>
       (select(budgets)..where((b) => b.id.equals(id))).getSingleOrNull();
 
-  Future<int> addBudget(BudgetsCompanion entry) => 
-      into(budgets).insert(entry);
+  Future<int> addBudget(BudgetsCompanion entry) => into(budgets).insert(entry);
 
-  Future<bool> updateBudget(BudgetsCompanion entry) => 
+  Future<bool> updateBudget(BudgetsCompanion entry) =>
       update(budgets).replace(entry);
 
-  Future<int> deleteBudget(String id) => 
+  Future<int> deleteBudget(String id) =>
       (delete(budgets)..where((b) => b.id.equals(id))).go();
 
   Future<List<Budget>> getActiveBudgets() =>
       (select(budgets)
-        ..where((b) => b.startDate.isSmallerThanValue(DateTime.now()))
-        ..where((b) => b.endDate.isBiggerOrEqualValue(DateTime.now())))
-        .get();
+            ..where((b) => b.startDate.isSmallerThanValue(DateTime.now()))
+            ..where((b) => b.endDate.isBiggerOrEqualValue(DateTime.now())))
+          .get();
 
   // Category DAO methods
   Future<List<Category>> getAllCategories() => select(categories).get();
 
-  Future<Category?> findCategoryById(String id) => 
+  Future<Category?> findCategoryById(String id) =>
       (select(categories)..where((c) => c.id.equals(id))).getSingleOrNull();
 
-  Future<int> addCategory(CategoriesCompanion entry) => 
+  Future<int> addCategory(CategoriesCompanion entry) =>
       into(categories).insert(entry);
 
-  Future<bool> updateCategory(CategoriesCompanion entry) => 
+  Future<bool> updateCategory(CategoriesCompanion entry) =>
       update(categories).replace(entry);
 
-  Future<int> deleteCategory(String id) => 
+  Future<int> deleteCategory(String id) =>
       (delete(categories)..where((c) => c.id.equals(id))).go();
 
   Future<List<Category>> getCategoriesByType(String type) =>
@@ -121,16 +127,15 @@ class AppDatabase extends _$AppDatabase {
   // Wallet DAO methods
   Future<List<Wallet>> getAllWallets() => select(wallets).get();
 
-  Future<Wallet?> findWalletById(String id) => 
+  Future<Wallet?> findWalletById(String id) =>
       (select(wallets)..where((w) => w.id.equals(id))).getSingleOrNull();
 
-  Future<int> addWallet(WalletsCompanion entry) => 
-      into(wallets).insert(entry);
+  Future<int> addWallet(WalletsCompanion entry) => into(wallets).insert(entry);
 
-  Future<bool> updateWallet(WalletsCompanion entry) => 
+  Future<bool> updateWallet(WalletsCompanion entry) =>
       update(wallets).replace(entry);
 
-  Future<int> deleteWallet(String id) => 
+  Future<int> deleteWallet(String id) =>
       (delete(wallets)..where((w) => w.id.equals(id))).go();
 
   Future<List<Wallet>> getDefaultWallets() =>
@@ -139,16 +144,16 @@ class AppDatabase extends _$AppDatabase {
   // User Profile DAO methods
   Future<List<UserProfile>> getAllUserProfiles() => select(userProfiles).get();
 
-  Future<UserProfile?> findUserProfileById(String userId) => 
-      (select(userProfiles)..where((u) => u.userId.equals(userId))).getSingleOrNull();
+  Future<UserProfile?> findUserProfileById(String userId) => (select(
+    userProfiles,
+  )..where((u) => u.userId.equals(userId))).getSingleOrNull();
 
-  Future<int> addUserProfile(UserProfilesCompanion entry) => 
+  Future<int> addUserProfile(UserProfilesCompanion entry) =>
       into(userProfiles).insert(entry);
 
-  Future<bool> updateUserProfile(UserProfilesCompanion entry) => 
+  Future<bool> updateUserProfile(UserProfilesCompanion entry) =>
       update(userProfiles).replace(entry);
 
-  Future<int> deleteUserProfile(String userId) => 
+  Future<int> deleteUserProfile(String userId) =>
       (delete(userProfiles)..where((u) => u.userId.equals(userId))).go();
-
 }

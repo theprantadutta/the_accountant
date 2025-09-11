@@ -1,4 +1,4 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import 'package:the_accountant/features/ai_assistant/services/gemini_service.dart';
 import 'package:the_accountant/features/transactions/providers/transaction_provider.dart';
 
@@ -33,26 +33,21 @@ class GeminiInsightsState {
 class GeminiInsightsNotifier extends StateNotifier<GeminiInsightsState> {
   final GeminiService _geminiService;
 
-  GeminiInsightsNotifier() 
-      : _geminiService = GeminiService(),
-        super(GeminiInsightsState());
+  GeminiInsightsNotifier()
+    : _geminiService = GeminiService(),
+      super(GeminiInsightsState());
 
   /// Generate financial insights from transaction data
   Future<void> generateInsights(List<Transaction> transactions) async {
     state = state.copyWith(isLoading: true, errorMessage: null);
 
     try {
-      final insights = await _geminiService.generateFinancialInsightsFromTransactions(transactions);
-      
-      state = state.copyWith(
-        isLoading: false,
-        insights: insights,
-      );
+      final insights = await _geminiService
+          .generateFinancialInsightsFromTransactions(transactions);
+
+      state = state.copyWith(isLoading: false, insights: insights);
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: e.toString(),
-      );
+      state = state.copyWith(isLoading: false, errorMessage: e.toString());
     }
   }
 
@@ -70,16 +65,10 @@ class GeminiInsightsNotifier extends StateNotifier<GeminiInsightsState> {
         monthlyIncome: monthlyIncome,
         financialGoals: financialGoals,
       );
-      
-      state = state.copyWith(
-        isLoading: false,
-        personalizedAdvice: advice,
-      );
+
+      state = state.copyWith(isLoading: false, personalizedAdvice: advice);
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: e.toString(),
-      );
+      state = state.copyWith(isLoading: false, errorMessage: e.toString());
     }
   }
 
@@ -94,6 +83,7 @@ class GeminiInsightsNotifier extends StateNotifier<GeminiInsightsState> {
   }
 }
 
-final geminiInsightsProvider = StateNotifierProvider<GeminiInsightsNotifier, GeminiInsightsState>((ref) {
-  return GeminiInsightsNotifier();
-});
+final geminiInsightsProvider =
+    StateNotifierProvider<GeminiInsightsNotifier, GeminiInsightsState>((ref) {
+      return GeminiInsightsNotifier();
+    });

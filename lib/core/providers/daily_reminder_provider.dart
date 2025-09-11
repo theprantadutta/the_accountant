@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import 'package:the_accountant/core/services/daily_reminder_service.dart';
 import 'package:the_accountant/core/providers/notification_provider.dart';
 
@@ -35,24 +36,23 @@ class DailyReminderNotifier extends StateNotifier<DailyReminderState> {
   final DailyReminderService _dailyReminderService;
 
   DailyReminderNotifier(this._dailyReminderService)
-      : super(
-          DailyReminderState(
-            reminderTime: const TimeOfDay(hour: 19, minute: 0), // Default to 7 PM
-          ),
-        );
+    : super(
+        DailyReminderState(
+          reminderTime: const TimeOfDay(hour: 19, minute: 0), // Default to 7 PM
+        ),
+      );
 
   /// Enable daily reminders
   Future<void> enableReminders() async {
     state = state.copyWith(isLoading: true);
 
     try {
-      await _dailyReminderService.scheduleDailyReminder(time: state.reminderTime);
+      await _dailyReminderService.scheduleDailyReminder(
+        time: state.reminderTime,
+      );
       state = state.copyWith(isEnabled: true, isLoading: false);
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: e.toString(),
-      );
+      state = state.copyWith(isLoading: false, errorMessage: e.toString());
     }
   }
 
@@ -64,19 +64,13 @@ class DailyReminderNotifier extends StateNotifier<DailyReminderState> {
       await _dailyReminderService.cancelDailyReminders();
       state = state.copyWith(isEnabled: false, isLoading: false);
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: e.toString(),
-      );
+      state = state.copyWith(isLoading: false, errorMessage: e.toString());
     }
   }
 
   /// Set reminder time
   Future<void> setReminderTime(TimeOfDay time) async {
-    state = state.copyWith(
-      reminderTime: time,
-      isLoading: true,
-    );
+    state = state.copyWith(reminderTime: time, isLoading: true);
 
     try {
       if (state.isEnabled) {
@@ -84,10 +78,7 @@ class DailyReminderNotifier extends StateNotifier<DailyReminderState> {
       }
       state = state.copyWith(isLoading: false);
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: e.toString(),
-      );
+      state = state.copyWith(isLoading: false, errorMessage: e.toString());
     }
   }
 
@@ -99,10 +90,7 @@ class DailyReminderNotifier extends StateNotifier<DailyReminderState> {
       await _dailyReminderService.checkAndShowReminder();
       state = state.copyWith(isLoading: false);
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: e.toString(),
-      );
+      state = state.copyWith(isLoading: false, errorMessage: e.toString());
     }
   }
 }
@@ -112,7 +100,8 @@ final dailyReminderServiceProvider = Provider<DailyReminderService>((ref) {
   return DailyReminderService(notificationService);
 });
 
-final dailyReminderProvider = StateNotifierProvider<DailyReminderNotifier, DailyReminderState>((ref) {
-  final dailyReminderService = ref.watch(dailyReminderServiceProvider);
-  return DailyReminderNotifier(dailyReminderService);
-});
+final dailyReminderProvider =
+    StateNotifierProvider<DailyReminderNotifier, DailyReminderState>((ref) {
+      final dailyReminderService = ref.watch(dailyReminderServiceProvider);
+      return DailyReminderNotifier(dailyReminderService);
+    });

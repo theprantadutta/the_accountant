@@ -30,7 +30,9 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
 
   void _signUp() {
     if (_formKey.currentState!.validate()) {
-      ref.read(authProvider.notifier).signUpWithEmailAndPassword(
+      ref
+          .read(authProvider.notifier)
+          .signUpWithEmailAndPassword(
             _fullNameController.text,
             _emailController.text,
             _passwordController.text,
@@ -51,9 +53,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-            builder: (context) => const DashboardScreen(),
-          ),
+          MaterialPageRoute(builder: (context) => const DashboardScreen()),
         );
       });
     }
@@ -78,16 +78,16 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
               Text(
                 'Create Account',
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
               ),
               const SizedBox(height: 8),
               Text(
                 'Sign up to get started',
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: Colors.grey[400],
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyLarge?.copyWith(color: Colors.grey[400]),
               ),
               const SizedBox(height: 40),
               // Full name field

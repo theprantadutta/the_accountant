@@ -18,7 +18,7 @@ class CategoryChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = ColorUtils.hexToColor(colorCode);
-    
+
     return GestureDetector(
       onTap: onTap,
       child: Container(

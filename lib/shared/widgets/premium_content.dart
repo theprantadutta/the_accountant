@@ -18,8 +18,9 @@ class PremiumContent extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final premiumState = ref.watch(premiumProvider);
-    final isFeatureUnlocked = premiumState.features.isUnlocked && 
-                             premiumState.features.features.contains(feature);
+    final isFeatureUnlocked =
+        premiumState.features.isUnlocked &&
+        premiumState.features.features.contains(feature);
 
     if (isFeatureUnlocked) {
       return premiumWidget;
@@ -45,20 +46,16 @@ class PremiumFeature extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final premiumState = ref.watch(premiumProvider);
-    final isFeatureUnlocked = premiumState.features.isUnlocked && 
-                             premiumState.features.features.contains(feature);
+    final isFeatureUnlocked =
+        premiumState.features.isUnlocked &&
+        premiumState.features.features.contains(feature);
 
     if (isFeatureUnlocked) {
       return child;
     } else if (hideIfLocked) {
       return const SizedBox.shrink();
     } else {
-      return Opacity(
-        opacity: 0.5,
-        child: IgnorePointer(
-          child: child,
-        ),
-      );
+      return Opacity(opacity: 0.5, child: IgnorePointer(child: child));
     }
   }
 }
@@ -75,18 +72,11 @@ class _PremiumUpsellWidget extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(
-              Icons.workspace_premium,
-              size: 48,
-              color: Colors.amber,
-            ),
+            const Icon(Icons.workspace_premium, size: 48, color: Colors.amber),
             const SizedBox(height: 8),
             const Text(
               'Premium Feature',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             const Text(

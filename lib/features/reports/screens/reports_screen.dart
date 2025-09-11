@@ -16,36 +16,35 @@ class ReportsScreen extends ConsumerStatefulWidget {
 
 class _ReportsScreenState extends ConsumerState<ReportsScreen>
     with TickerProviderStateMixin {
-  
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<double> _slideAnimation;
-  
+
   int _selectedTimeFrame = 0; // 0: Week, 1: Month, 2: Year
   int _selectedReportType = 0; // 0: Expenses, 1: Income, 2: Categories
-  
+
   final List<String> _timeFrames = ['Week', 'Month', 'Year'];
   final List<String> _reportTypes = ['Expenses', 'Income', 'Categories'];
 
   @override
   void initState() {
     super.initState();
-    
+
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 1000),
       vsync: this,
     );
-    
+
     _fadeAnimation = CurvedAnimation(
       parent: _animationController,
       curve: Curves.easeInOut,
     );
-    
+
     _slideAnimation = CurvedAnimation(
       parent: _animationController,
       curve: Curves.elasticOut,
     );
-    
+
     _animationController.forward();
   }
 
@@ -69,33 +68,33 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 20),
-              
+
               // Time Frame Selector
               AnimationUtils.slideTransition(
                 animation: _slideAnimation,
                 begin: const Offset(-1, 0),
                 child: _buildTimeFrameSelector(),
               ),
-              
+
               const SizedBox(height: 24),
-              
+
               // Report Type Selector
               AnimationUtils.slideTransition(
                 animation: _slideAnimation,
                 begin: const Offset(1, 0),
                 child: _buildReportTypeSelector(),
               ),
-              
+
               const SizedBox(height: 32),
-              
+
               // Main Chart
               AnimationUtils.fadeTransition(
                 animation: _fadeAnimation,
                 child: _buildMainChart(),
               ),
-              
+
               const SizedBox(height: 32),
-              
+
               // Summary Cards
               AnimationUtils.slideTransition(
                 animation: AnimationUtils.createStaggeredAnimation(
@@ -106,9 +105,9 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
                 begin: const Offset(0, 1),
                 child: _buildSummaryCards(),
               ),
-              
+
               const SizedBox(height: 24),
-              
+
               // Category Breakdown
               AnimationUtils.slideTransition(
                 animation: AnimationUtils.createStaggeredAnimation(
@@ -119,9 +118,9 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
                 begin: const Offset(0, 1),
                 child: _buildCategoryBreakdown(),
               ),
-              
+
               const SizedBox(height: 24),
-              
+
               // Budget vs Actual
               AnimationUtils.slideTransition(
                 animation: AnimationUtils.createStaggeredAnimation(
@@ -132,7 +131,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
                 begin: const Offset(0, 1),
                 child: _buildBudgetComparison(),
               ),
-              
+
               const SizedBox(height: 100), // Bottom padding for nav bar
             ],
           ),
@@ -169,7 +168,9 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: isSelected ? Colors.white : Colors.white70,
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                      fontWeight: isSelected
+                          ? FontWeight.bold
+                          : FontWeight.w500,
                       fontSize: 14,
                     ),
                   ),
@@ -206,9 +207,9 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
                 color: isSelected ? null : Colors.white.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
-                  color: isSelected 
-                    ? Colors.transparent 
-                    : Colors.white.withValues(alpha: 0.2),
+                  color: isSelected
+                      ? Colors.transparent
+                      : Colors.white.withValues(alpha: 0.2),
                 ),
               ),
               child: Text(
@@ -246,7 +247,10 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     gradient: AppTheme.primaryGradient,
                     borderRadius: BorderRadius.circular(12),
@@ -264,9 +268,9 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
             ),
             const SizedBox(height: 20),
             Expanded(
-              child: _selectedReportType == 2 
-                ? _buildPieChart() 
-                : _buildLineChart(),
+              child: _selectedReportType == 2
+                  ? _buildPieChart()
+                  : _buildLineChart(),
             ),
           ],
         ),
@@ -354,9 +358,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
             ),
           ),
         ),
-        borderData: FlBorderData(
-          show: false,
-        ),
+        borderData: FlBorderData(show: false),
         minX: 0,
         maxX: 6,
         minY: 0,
@@ -542,16 +544,16 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
                               ),
                               decoration: BoxDecoration(
                                 color: (data['isPositive'] as bool)
-                                  ? Colors.green.withValues(alpha: 0.2)
-                                  : Colors.red.withValues(alpha: 0.2),
+                                    ? Colors.green.withValues(alpha: 0.2)
+                                    : Colors.red.withValues(alpha: 0.2),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(
                                 data['change'] as String,
                                 style: TextStyle(
                                   color: (data['isPositive'] as bool)
-                                    ? Colors.green
-                                    : Colors.red,
+                                      ? Colors.green
+                                      : Colors.red,
                                   fontSize: 10,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -590,11 +592,36 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
 
   Widget _buildCategoryBreakdown() {
     final categories = [
-      {'name': 'Food & Dining', 'amount': '\$1,245.00', 'percentage': 35, 'color': const Color(0xFF667eea)},
-      {'name': 'Transportation', 'amount': '\$892.00', 'percentage': 25, 'color': const Color(0xFF11998e)},
-      {'name': 'Shopping', 'amount': '\$710.00', 'percentage': 20, 'color': const Color(0xFFFF6B6B)},
-      {'name': 'Bills & Utilities', 'amount': '\$534.00', 'percentage': 15, 'color': const Color(0xFF4ECDC4)},
-      {'name': 'Entertainment', 'amount': '\$178.00', 'percentage': 5, 'color': const Color(0xFFFFE66D)},
+      {
+        'name': 'Food & Dining',
+        'amount': '\$1,245.00',
+        'percentage': 35,
+        'color': const Color(0xFF667eea),
+      },
+      {
+        'name': 'Transportation',
+        'amount': '\$892.00',
+        'percentage': 25,
+        'color': const Color(0xFF11998e),
+      },
+      {
+        'name': 'Shopping',
+        'amount': '\$710.00',
+        'percentage': 20,
+        'color': const Color(0xFFFF6B6B),
+      },
+      {
+        'name': 'Bills & Utilities',
+        'amount': '\$534.00',
+        'percentage': 15,
+        'color': const Color(0xFF4ECDC4),
+      },
+      {
+        'name': 'Entertainment',
+        'amount': '\$178.00',
+        'percentage': 5,
+        'color': const Color(0xFFFFE66D),
+      },
     ];
 
     return AppTheme.glassmorphicContainer(
@@ -671,9 +698,24 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
 
   Widget _buildBudgetComparison() {
     final budgets = [
-      {'name': 'Food Budget', 'budget': 1500.0, 'spent': 1245.0, 'color': const Color(0xFF667eea)},
-      {'name': 'Transport Budget', 'budget': 800.0, 'spent': 892.0, 'color': const Color(0xFF11998e)},
-      {'name': 'Shopping Budget', 'budget': 600.0, 'spent': 710.0, 'color': const Color(0xFFFF6B6B)},
+      {
+        'name': 'Food Budget',
+        'budget': 1500.0,
+        'spent': 1245.0,
+        'color': const Color(0xFF667eea),
+      },
+      {
+        'name': 'Transport Budget',
+        'budget': 800.0,
+        'spent': 892.0,
+        'color': const Color(0xFF11998e),
+      },
+      {
+        'name': 'Shopping Budget',
+        'budget': 600.0,
+        'spent': 710.0,
+        'color': const Color(0xFFFF6B6B),
+      },
     ];
 
     return AppTheme.glassmorphicContainer(
@@ -692,9 +734,10 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
             ),
             const SizedBox(height: 20),
             ...budgets.map((budget) {
-              final percentage = (budget['spent'] as double) / (budget['budget'] as double);
+              final percentage =
+                  (budget['spent'] as double) / (budget['budget'] as double);
               final isOverBudget = percentage > 1.0;
-              
+
               return Container(
                 margin: const EdgeInsets.only(bottom: 20),
                 child: Column(
@@ -744,11 +787,15 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
                           ),
                         ),
                         Container(
-                          width: MediaQuery.of(context).size.width * 
-                                 (percentage > 1.0 ? 1.0 : percentage) * 0.7, // Approximate available width
+                          width:
+                              MediaQuery.of(context).size.width *
+                              (percentage > 1.0 ? 1.0 : percentage) *
+                              0.7, // Approximate available width
                           height: 6,
                           decoration: BoxDecoration(
-                            color: isOverBudget ? Colors.red : (budget['color'] as Color),
+                            color: isOverBudget
+                                ? Colors.red
+                                : (budget['color'] as Color),
                             borderRadius: BorderRadius.circular(3),
                           ),
                         ),
@@ -756,13 +803,13 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      isOverBudget 
-                        ? 'Over budget by \$${((budget['spent'] as double) - (budget['budget'] as double)).toStringAsFixed(0)}'
-                        : '${((1 - percentage) * 100).toStringAsFixed(0)}% remaining',
+                      isOverBudget
+                          ? 'Over budget by \$${((budget['spent'] as double) - (budget['budget'] as double)).toStringAsFixed(0)}'
+                          : '${((1 - percentage) * 100).toStringAsFixed(0)}% remaining',
                       style: TextStyle(
-                        color: isOverBudget 
-                          ? Colors.red 
-                          : Colors.white.withValues(alpha: 0.7),
+                        color: isOverBudget
+                            ? Colors.red
+                            : Colors.white.withValues(alpha: 0.7),
                         fontSize: 12,
                       ),
                     ),

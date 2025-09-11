@@ -12,14 +12,20 @@ AppDatabase constructDb({bool logStatements = false}) {
       LazyDatabase(() async {
         final dbFolder = await getApplicationDocumentsDirectory();
         final file = File(p.join(dbFolder.path, 'db.sqlite'));
-        return NativeDatabase.createInBackground(file, logStatements: logStatements);
+        return NativeDatabase.createInBackground(
+          file,
+          logStatements: logStatements,
+        );
       }),
     );
   } else if (Platform.isMacOS || Platform.isLinux || Platform.isWindows) {
     return AppDatabase(
       LazyDatabase(() async {
         final file = File('db.sqlite');
-        return NativeDatabase.createInBackground(file, logStatements: logStatements);
+        return NativeDatabase.createInBackground(
+          file,
+          logStatements: logStatements,
+        );
       }),
     );
   }
@@ -27,7 +33,10 @@ AppDatabase constructDb({bool logStatements = false}) {
   return AppDatabase(
     LazyDatabase(() async {
       final file = File('db.sqlite');
-      return NativeDatabase.createInBackground(file, logStatements: logStatements);
+      return NativeDatabase.createInBackground(
+        file,
+        logStatements: logStatements,
+      );
     }),
   );
 }

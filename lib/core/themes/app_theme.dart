@@ -23,11 +23,7 @@ class AppTheme {
   );
 
   static const backgroundGradient = LinearGradient(
-    colors: [
-      Color(0xFF0f0c29),
-      Color(0xFF302b63),
-      Color(0xFF24243e),
-    ],
+    colors: [Color(0xFF0f0c29), Color(0xFF302b63), Color(0xFF24243e)],
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
   );
@@ -63,17 +59,13 @@ class AppTheme {
       color: const Color(0xFF1a1a2e),
       elevation: 8,
       shadowColor: Colors.black38,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         elevation: 8,
         shadowColor: Colors.black26,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       ),
     ),
@@ -102,7 +94,7 @@ class AppTheme {
     if (PremiumThemes.themeMap.containsKey(themeName)) {
       return PremiumThemes.themeMap[themeName]!;
     }
-    
+
     // Return default dark theme
     return darkTheme;
   }

@@ -1,4 +1,4 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:drift/drift.dart' show Value;
@@ -54,12 +54,7 @@ class PaymentMethodNotifier extends StateNotifier<PaymentMethodState> {
   final AppDatabase _db;
 
   PaymentMethodNotifier(this._db)
-      : super(
-          PaymentMethodState(
-            paymentMethods: [],
-            isLoading: false,
-          ),
-        ) {
+    : super(PaymentMethodState(paymentMethods: [], isLoading: false)) {
     _loadPaymentMethods();
   }
 
@@ -67,21 +62,22 @@ class PaymentMethodNotifier extends StateNotifier<PaymentMethodState> {
     state = state.copyWith(isLoading: true);
     try {
       final dbPaymentMethods = await _db.getAllPaymentMethods();
-      final paymentMethods = dbPaymentMethods.map((p) => PaymentMethod(
-        id: p.id,
-        name: p.name,
-        type: p.type,
-        lastFourDigits: p.lastFourDigits,
-        institution: p.institution,
-        isDefault: p.isDefault,
-        createdAt: p.createdAt,
-        updatedAt: p.updatedAt,
-      )).toList();
+      final paymentMethods = dbPaymentMethods
+          .map(
+            (p) => PaymentMethod(
+              id: p.id,
+              name: p.name,
+              type: p.type,
+              lastFourDigits: p.lastFourDigits,
+              institution: p.institution,
+              isDefault: p.isDefault,
+              createdAt: p.createdAt,
+              updatedAt: p.updatedAt,
+            ),
+          )
+          .toList();
 
-      state = state.copyWith(
-        paymentMethods: paymentMethods,
-        isLoading: false,
-      );
+      state = state.copyWith(paymentMethods: paymentMethods, isLoading: false);
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
@@ -168,7 +164,7 @@ class PaymentMethodNotifier extends StateNotifier<PaymentMethodState> {
 
     try {
       await _db.deletePaymentMethod(id);
-      
+
       // Reload payment methods to reflect the deletion
       await _loadPaymentMethods();
     } catch (e) {
@@ -188,7 +184,8 @@ class PaymentMethodNotifier extends StateNotifier<PaymentMethodState> {
   }
 }
 
-final paymentMethodProvider = StateNotifierProvider<PaymentMethodNotifier, PaymentMethodState>((ref) {
-  final db = ref.watch(databaseProvider);
-  return PaymentMethodNotifier(db);
-});
+final paymentMethodProvider =
+    StateNotifierProvider<PaymentMethodNotifier, PaymentMethodState>((ref) {
+      final db = ref.watch(databaseProvider);
+      return PaymentMethodNotifier(db);
+    });

@@ -34,7 +34,7 @@ class DailyReminderService {
     try {
       // Get current time
       final now = DateTime.now();
-      
+
       // For demo purposes, show reminder if it's between 6 PM and 10 PM
       if (now.hour >= 18 && now.hour <= 22) {
         await _notificationService.showDailyReminderNotification();

@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import 'package:the_accountant/core/services/payment_service.dart';
 import 'package:the_accountant/features/premium/providers/premium_provider.dart';
 
@@ -70,10 +71,7 @@ class PaymentNotifier extends StateNotifier<PaymentState> {
         isLoading: false,
       );
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: e.toString(),
-      );
+      state = state.copyWith(isLoading: false, errorMessage: e.toString());
     }
   }
 
@@ -83,16 +81,13 @@ class PaymentNotifier extends StateNotifier<PaymentState> {
       successMessage: message,
       errorMessage: null,
     );
-    
+
     // Unlock premium features
     _ref.read(premiumProvider.notifier).unlockPremiumFeatures();
   }
 
   void _handlePurchaseError(String error) {
-    state = state.copyWith(
-      errorMessage: error,
-      successMessage: null,
-    );
+    state = state.copyWith(errorMessage: error, successMessage: null);
   }
 
   Future<void> purchasePremiumFeatures() async {
@@ -101,16 +96,17 @@ class PaymentNotifier extends StateNotifier<PaymentState> {
       return;
     }
 
-    state = state.copyWith(isLoading: true, errorMessage: null, successMessage: null);
+    state = state.copyWith(
+      isLoading: true,
+      errorMessage: null,
+      successMessage: null,
+    );
 
     try {
       await _paymentService!.purchasePremiumFeatures();
       // The purchase result will be handled by the payment service callbacks
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: e.toString(),
-      );
+      state = state.copyWith(isLoading: false, errorMessage: e.toString());
     }
   }
 
@@ -120,16 +116,17 @@ class PaymentNotifier extends StateNotifier<PaymentState> {
       return;
     }
 
-    state = state.copyWith(isLoading: true, errorMessage: null, successMessage: null);
+    state = state.copyWith(
+      isLoading: true,
+      errorMessage: null,
+      successMessage: null,
+    );
 
     try {
       await _paymentService!.restorePurchases();
       // The restore result will be handled by the payment service callbacks
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: e.toString(),
-      );
+      state = state.copyWith(isLoading: false, errorMessage: e.toString());
     }
   }
 
@@ -140,6 +137,8 @@ class PaymentNotifier extends StateNotifier<PaymentState> {
   }
 }
 
-final paymentProvider = StateNotifierProvider<PaymentNotifier, PaymentState>((ref) {
+final paymentProvider = StateNotifierProvider<PaymentNotifier, PaymentState>((
+  ref,
+) {
   return PaymentNotifier(ref);
 });

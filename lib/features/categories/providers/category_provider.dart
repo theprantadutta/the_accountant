@@ -1,4 +1,4 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:drift/drift.dart' show Value;
@@ -48,12 +48,7 @@ class CategoryNotifier extends StateNotifier<CategoryState> {
   final AppDatabase _db;
 
   CategoryNotifier(this._db)
-      : super(
-          CategoryState(
-            categories: [],
-            isLoading: false,
-          ),
-        ) {
+    : super(CategoryState(categories: [], isLoading: false)) {
     _loadCategories();
   }
 
@@ -61,18 +56,19 @@ class CategoryNotifier extends StateNotifier<CategoryState> {
     state = state.copyWith(isLoading: true);
     try {
       final dbCategories = await _db.getAllCategories();
-      final categories = dbCategories.map((c) => Category(
-        id: c.id,
-        name: c.name,
-        colorCode: c.colorCode,
-        type: c.type,
-        isDefault: c.isDefault,
-      )).toList();
+      final categories = dbCategories
+          .map(
+            (c) => Category(
+              id: c.id,
+              name: c.name,
+              colorCode: c.colorCode,
+              type: c.type,
+              isDefault: c.isDefault,
+            ),
+          )
+          .toList();
 
-      state = state.copyWith(
-        categories: categories,
-        isLoading: false,
-      );
+      state = state.copyWith(categories: categories, isLoading: false);
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
@@ -156,14 +152,14 @@ class CategoryNotifier extends StateNotifier<CategoryState> {
       }
 
       await _db.deleteCategory(id);
-      
+
       // Reload categories to reflect the deletion
       await _loadCategories();
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: e.toString().contains('default') 
-            ? e.toString() 
+        errorMessage: e.toString().contains('default')
+            ? e.toString()
             : 'Failed to delete category',
       );
     }
@@ -182,7 +178,9 @@ class CategoryNotifier extends StateNotifier<CategoryState> {
   }
 }
 
-final categoryProvider = StateNotifierProvider<CategoryNotifier, CategoryState>((ref) {
-  final db = ref.watch(databaseProvider);
-  return CategoryNotifier(db);
-});
+final categoryProvider = StateNotifierProvider<CategoryNotifier, CategoryState>(
+  (ref) {
+    final db = ref.watch(databaseProvider);
+    return CategoryNotifier(db);
+  },
+);

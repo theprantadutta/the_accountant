@@ -13,10 +13,12 @@ class CategorySuggestionWidget extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<CategorySuggestionWidget> createState() => _CategorySuggestionWidgetState();
+  ConsumerState<CategorySuggestionWidget> createState() =>
+      _CategorySuggestionWidgetState();
 }
 
-class _CategorySuggestionWidgetState extends ConsumerState<CategorySuggestionWidget> {
+class _CategorySuggestionWidgetState
+    extends ConsumerState<CategorySuggestionWidget> {
   bool _showSuggestions = false;
 
   @override
@@ -39,7 +41,7 @@ class _CategorySuggestionWidgetState extends ConsumerState<CategorySuggestionWid
       setState(() {
         _showSuggestions = true;
       });
-      
+
       // Get suggestions from the AI service
       ref.read(categoryAssignmentProvider.notifier).getSuggestions(text);
     } else {
@@ -67,10 +69,7 @@ class _CategorySuggestionWidgetState extends ConsumerState<CategorySuggestionWid
           const SizedBox(height: 8),
           const Text(
             'Suggested Categories:',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 14,
-            ),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
           ),
           const SizedBox(height: 4),
           SizedBox(

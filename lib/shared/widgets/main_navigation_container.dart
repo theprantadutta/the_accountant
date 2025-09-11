@@ -15,31 +15,32 @@ class MainNavigationContainer extends ConsumerStatefulWidget {
   const MainNavigationContainer({super.key});
 
   @override
-  ConsumerState<MainNavigationContainer> createState() => _MainNavigationContainerState();
+  ConsumerState<MainNavigationContainer> createState() =>
+      _MainNavigationContainerState();
 }
 
-class _MainNavigationContainerState extends ConsumerState<MainNavigationContainer>
+class _MainNavigationContainerState
+    extends ConsumerState<MainNavigationContainer>
     with TickerProviderStateMixin {
-  
   late PageController _pageController;
   late AnimationController _fabAnimationController;
   late Animation<double> _fabScaleAnimation;
-  
+
   int _currentIndex = 0;
   bool _isFabVisible = true;
 
   // Define the screens for each navigation item
   final List<Widget> _screens = [
     const ResponsiveFinancialOverview(), // Home
-    const TransactionListScreen(),        // Transactions
-    const AIAssistantScreen(),           // AI Assistant
-    const ReportsScreen(),               // Reports
-    const UserProfileScreen(),           // Profile
+    const TransactionListScreen(), // Transactions
+    const AIAssistantScreen(), // AI Assistant
+    const ReportsScreen(), // Reports
+    const UserProfileScreen(), // Profile
   ];
 
   final List<String> _screenTitles = [
     'Dashboard',
-    'Transactions', 
+    'Transactions',
     'AI Assistant',
     'Reports',
     'Profile',
@@ -48,22 +49,21 @@ class _MainNavigationContainerState extends ConsumerState<MainNavigationContaine
   @override
   void initState() {
     super.initState();
-    
+
     _pageController = PageController(initialPage: _currentIndex);
-    
+
     _fabAnimationController = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
-    
-    _fabScaleAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _fabAnimationController,
-      curve: Curves.elasticOut,
-    ));
-    
+
+    _fabScaleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _fabAnimationController,
+        curve: Curves.elasticOut,
+      ),
+    );
+
     // Start FAB animation
     _fabAnimationController.forward();
   }
@@ -80,29 +80,30 @@ class _MainNavigationContainerState extends ConsumerState<MainNavigationContaine
       setState(() {
         _currentIndex = index;
       });
-      
+
       // Animate to the selected page
       _pageController.animateToPage(
         index,
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
       );
-      
+
       // Update FAB visibility based on screen
       _updateFabVisibility(index);
-      
+
       HapticFeedback.lightImpact();
     }
   }
 
   void _updateFabVisibility(int index) {
-    bool shouldShowFab = index == 0 || index == 1; // Show FAB on Home and Transactions
-    
+    bool shouldShowFab =
+        index == 0 || index == 1; // Show FAB on Home and Transactions
+
     if (shouldShowFab != _isFabVisible) {
       setState(() {
         _isFabVisible = shouldShowFab;
       });
-      
+
       if (shouldShowFab) {
         _fabAnimationController.forward();
       } else {
@@ -113,7 +114,7 @@ class _MainNavigationContainerState extends ConsumerState<MainNavigationContaine
 
   void _showAddTransactionModal() {
     HapticFeedback.mediumImpact();
-    
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -199,12 +200,36 @@ class _MainNavigationContainerState extends ConsumerState<MainNavigationContaine
 
   Widget _buildQuickAddOptions() {
     final quickOptions = [
-      {'icon': Icons.shopping_cart, 'title': 'Shopping', 'color': const Color(0xFFFF6B6B)},
-      {'icon': Icons.restaurant, 'title': 'Food & Dining', 'color': const Color(0xFF4ECDC4)},
-      {'icon': Icons.local_gas_station, 'title': 'Fuel', 'color': const Color(0xFF45B7D1)},
-      {'icon': Icons.home, 'title': 'Bills & Utilities', 'color': const Color(0xFF96CEB4)},
-      {'icon': Icons.movie, 'title': 'Entertainment', 'color': const Color(0xFFFFA07A)},
-      {'icon': Icons.business_center, 'title': 'Work Income', 'color': const Color(0xFF98D8C8)},
+      {
+        'icon': Icons.shopping_cart,
+        'title': 'Shopping',
+        'color': const Color(0xFFFF6B6B),
+      },
+      {
+        'icon': Icons.restaurant,
+        'title': 'Food & Dining',
+        'color': const Color(0xFF4ECDC4),
+      },
+      {
+        'icon': Icons.local_gas_station,
+        'title': 'Fuel',
+        'color': const Color(0xFF45B7D1),
+      },
+      {
+        'icon': Icons.home,
+        'title': 'Bills & Utilities',
+        'color': const Color(0xFF96CEB4),
+      },
+      {
+        'icon': Icons.movie,
+        'title': 'Entertainment',
+        'color': const Color(0xFFFFA07A),
+      },
+      {
+        'icon': Icons.business_center,
+        'title': 'Work Income',
+        'color': const Color(0xFF98D8C8),
+      },
     ];
 
     return Column(
@@ -280,9 +305,7 @@ class _MainNavigationContainerState extends ConsumerState<MainNavigationContaine
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
-        gradient: AppTheme.backgroundGradient,
-      ),
+      decoration: const BoxDecoration(gradient: AppTheme.backgroundGradient),
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: _buildCustomAppBar(),
@@ -433,11 +456,7 @@ class _MainNavigationContainerState extends ConsumerState<MainNavigationContaine
           borderRadius: BorderRadius.circular(28),
           onTap: _showAddTransactionModal,
           child: const Center(
-            child: Icon(
-              Icons.add,
-              color: Colors.white,
-              size: 28,
-            ),
+            child: Icon(Icons.add, color: Colors.white, size: 28),
           ),
         ),
       ),

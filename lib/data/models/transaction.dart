@@ -12,7 +12,8 @@ class Transactions extends Table {
   TextColumn get notes => text().nullable()();
   TextColumn get paymentMethod => text().nullable()();
   BoolColumn get isRecurring => boolean().withDefault(const Constant(false))();
-  TextColumn get recurrencePattern => text().nullable()(); // JSON string for recurrence details
+  TextColumn get recurrencePattern =>
+      text().nullable()(); // JSON string for recurrence details
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();
 

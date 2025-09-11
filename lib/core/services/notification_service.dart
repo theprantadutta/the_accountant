@@ -48,18 +48,23 @@ class NotificationService {
     // This method must be static
   }
 
-  Future<void> _showLocalNotification(String title, String body, {int? id}) async {
+  Future<void> _showLocalNotification(
+    String title,
+    String body, {
+    int? id,
+  }) async {
     const AndroidNotificationDetails androidNotificationDetails =
         AndroidNotificationDetails(
-      'budget_channel',
-      'Budget Notifications',
-      channelDescription: 'Notifications for budget alerts and reminders',
-      importance: Importance.max,
-      priority: Priority.high,
-    );
+          'budget_channel',
+          'Budget Notifications',
+          channelDescription: 'Notifications for budget alerts and reminders',
+          importance: Importance.max,
+          priority: Priority.high,
+        );
 
-    const NotificationDetails notificationDetails =
-        NotificationDetails(android: androidNotificationDetails);
+    const NotificationDetails notificationDetails = NotificationDetails(
+      android: androidNotificationDetails,
+    );
 
     await _localNotificationsPlugin.show(
       id ?? DateTime.now().millisecondsSinceEpoch ~/ 1000,
@@ -70,7 +75,9 @@ class NotificationService {
   }
 
   Future<void> showBudgetWarningNotification(
-      String budgetName, double percentage) async {
+    String budgetName,
+    double percentage,
+  ) async {
     final title = 'Budget Alert: $budgetName';
     final body =
         'You have used ${percentage.toStringAsFixed(0)}% of your $budgetName budget.';
@@ -85,7 +92,9 @@ class NotificationService {
     await _showLocalNotification(title, body, id: 'daily_reminder'.hashCode);
   }
 
-  Future<void> showSubscriptionAlertNotification(String subscriptionName) async {
+  Future<void> showSubscriptionAlertNotification(
+    String subscriptionName,
+  ) async {
     final title = 'Subscription Alert';
     final body = 'Your $subscriptionName subscription is due soon.';
 

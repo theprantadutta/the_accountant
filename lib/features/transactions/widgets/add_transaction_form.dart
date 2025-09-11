@@ -70,7 +70,7 @@ class _AddTransactionFormState extends ConsumerState<AddTransactionForm> {
   final _amountController = TextEditingController();
   final _notesController = TextEditingController();
   final _dateController = TextEditingController();
-  
+
   String _selectedType = AppConstants.transactionTypeExpense;
   String _selectedCategory = '';
   String _selectedCategoryId = '';
@@ -80,7 +80,7 @@ class _AddTransactionFormState extends ConsumerState<AddTransactionForm> {
   String _recurrenceFrequency = 'monthly';
   int _recurrenceInterval = 1;
   DateTime? _recurrenceEndDate;
-  
+
   final List<String> _defaultPaymentMethods = [
     'Cash',
     'Credit Card',
@@ -102,14 +102,15 @@ class _AddTransactionFormState extends ConsumerState<AddTransactionForm> {
     super.initState();
     _selectedDate = DateTime.now();
     _dateController.text = _formatDate(_selectedDate!);
-    
+
     // Set default category based on transaction type
     final defaultCategories = AppConstants.defaultCategories
         .where((cat) => cat['type'] == _selectedType)
         .toList();
     if (defaultCategories.isNotEmpty) {
       _selectedCategory = defaultCategories.first['name'];
-      _selectedCategoryId = defaultCategories.first['name']; // Using name as ID for demo
+      _selectedCategoryId =
+          defaultCategories.first['name']; // Using name as ID for demo
     }
   }
 
@@ -143,7 +144,8 @@ class _AddTransactionFormState extends ConsumerState<AddTransactionForm> {
   Future<void> _selectRecurrenceEndDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: _recurrenceEndDate ?? DateTime.now().add(const Duration(days: 30)),
+      initialDate:
+          _recurrenceEndDate ?? DateTime.now().add(const Duration(days: 30)),
       firstDate: DateTime.now().add(const Duration(days: 1)),
       lastDate: DateTime(2101),
     );
@@ -170,10 +172,15 @@ class _AddTransactionFormState extends ConsumerState<AddTransactionForm> {
 
         // Get the first available wallet if walletId is not provided
         final walletState = ref.read(walletProvider);
-        final selectedWalletId = widget.walletId ?? 
-            (walletState.wallets.isNotEmpty ? walletState.wallets.first.id : '');
+        final selectedWalletId =
+            widget.walletId ??
+            (walletState.wallets.isNotEmpty
+                ? walletState.wallets.first.id
+                : '');
 
-        ref.read(transactionProvider.notifier).addTransaction(
+        ref
+            .read(transactionProvider.notifier)
+            .addTransaction(
               amount: amount,
               type: _selectedType,
               category: _selectedCategory,
@@ -211,17 +218,15 @@ class _AddTransactionFormState extends ConsumerState<AddTransactionForm> {
             // Transaction type selector
             const Text(
               'Transaction Type',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
             const SizedBox(height: 8),
             Row(
               children: [
                 ChoiceChip(
                   label: const Text('Expense'),
-                  selected: _selectedType == AppConstants.transactionTypeExpense,
+                  selected:
+                      _selectedType == AppConstants.transactionTypeExpense,
                   onSelected: (selected) {
                     setState(() {
                       _selectedType = AppConstants.transactionTypeExpense;
@@ -281,10 +286,7 @@ class _AddTransactionFormState extends ConsumerState<AddTransactionForm> {
             // Category selector
             const Text(
               'Category',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
             const SizedBox(height: 8),
             SizedBox(
@@ -294,21 +296,22 @@ class _AddTransactionFormState extends ConsumerState<AddTransactionForm> {
                 children: AppConstants.defaultCategories
                     .where((cat) => cat['type'] == _selectedType)
                     .map((category) {
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: CategoryChip(
-                      categoryName: category['name'],
-                      colorCode: category['colorCode'],
-                      isSelected: _selectedCategory == category['name'],
-                      onTap: () {
-                        setState(() {
-                          _selectedCategory = category['name'];
-                          _selectedCategoryId = category['name'];
-                        });
-                      },
-                    ),
-                  );
-                }).toList(),
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: CategoryChip(
+                          categoryName: category['name'],
+                          colorCode: category['colorCode'],
+                          isSelected: _selectedCategory == category['name'],
+                          onTap: () {
+                            setState(() {
+                              _selectedCategory = category['name'];
+                              _selectedCategoryId = category['name'];
+                            });
+                          },
+                        ),
+                      );
+                    })
+                    .toList(),
               ),
             ),
             const SizedBox(height: 16),
@@ -358,10 +361,10 @@ class _AddTransactionFormState extends ConsumerState<AddTransactionForm> {
                 border: OutlineInputBorder(),
               ),
               items: allPaymentMethods
-                  .map((method) => DropdownMenuItem(
-                        value: method,
-                        child: Text(method),
-                      ))
+                  .map(
+                    (method) =>
+                        DropdownMenuItem(value: method, child: Text(method)),
+                  )
                   .toList(),
               onChanged: (value) {
                 if (value != null) {
@@ -377,10 +380,7 @@ class _AddTransactionFormState extends ConsumerState<AddTransactionForm> {
               children: [
                 const Text(
                   'Recurring Transaction',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                 ),
                 const Spacer(),
                 Switch(
@@ -398,9 +398,7 @@ class _AddTransactionFormState extends ConsumerState<AddTransactionForm> {
               // Recurrence frequency
               const Text(
                 'Frequency',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
               Wrap(
@@ -426,10 +424,9 @@ class _AddTransactionFormState extends ConsumerState<AddTransactionForm> {
                   DropdownButton<int>(
                     value: _recurrenceInterval,
                     items: List.generate(30, (index) => index + 1)
-                        .map((i) => DropdownMenuItem(
-                              value: i,
-                              child: Text('$i'),
-                            ))
+                        .map(
+                          (i) => DropdownMenuItem(value: i, child: Text('$i')),
+                        )
                         .toList(),
                     onChanged: (value) {
                       if (value != null) {

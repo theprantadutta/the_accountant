@@ -1,4 +1,4 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import 'package:the_accountant/features/ai/services/monthly_summary_service.dart';
 import 'package:the_accountant/features/transactions/providers/transaction_provider.dart';
 
@@ -33,9 +33,9 @@ class MonthlySummaryState {
 class MonthlySummaryNotifier extends StateNotifier<MonthlySummaryState> {
   final MonthlySummaryService _monthlySummaryService;
 
-  MonthlySummaryNotifier() 
-      : _monthlySummaryService = MonthlySummaryService(),
-        super(MonthlySummaryState());
+  MonthlySummaryNotifier()
+    : _monthlySummaryService = MonthlySummaryService(),
+      super(MonthlySummaryState());
 
   /// Generate monthly summary for a specific month
   Future<void> generateSummary({
@@ -49,19 +49,16 @@ class MonthlySummaryNotifier extends StateNotifier<MonthlySummaryState> {
         transactions: transactions,
         month: month,
       );
-      
+
       final insights = _monthlySummaryService.generateAIInsights(summary);
-      
+
       state = state.copyWith(
         isLoading: false,
         summary: summary,
         aiInsights: insights,
       );
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: e.toString(),
-      );
+      state = state.copyWith(isLoading: false, errorMessage: e.toString());
     }
   }
 
@@ -76,6 +73,7 @@ class MonthlySummaryNotifier extends StateNotifier<MonthlySummaryState> {
   }
 }
 
-final monthlySummaryProvider = StateNotifierProvider<MonthlySummaryNotifier, MonthlySummaryState>((ref) {
-  return MonthlySummaryNotifier();
-});
+final monthlySummaryProvider =
+    StateNotifierProvider<MonthlySummaryNotifier, MonthlySummaryState>((ref) {
+      return MonthlySummaryNotifier();
+    });

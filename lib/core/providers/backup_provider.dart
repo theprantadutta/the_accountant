@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import 'package:the_accountant/core/services/backup_service.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
@@ -48,13 +49,13 @@ class BackupNotifier extends StateNotifier<BackupState> {
   /// Create a backup and upload to Google Drive
   Future<void> createBackup({bool encrypted = false}) async {
     state = state.copyWith(isBackingUp: true, errorMessage: null);
-    
+
     try {
       final success = await _backupService.createBackup(encrypted: encrypted);
-      
+
       if (success) {
         state = state.copyWith(
-          isBackingUp: false, 
+          isBackingUp: false,
           isBackupAvailable: true,
           useEncryptedBackup: encrypted,
         );
@@ -67,20 +68,23 @@ class BackupNotifier extends StateNotifier<BackupState> {
         );
       }
     } catch (e) {
-      state = state.copyWith(
-        isBackingUp: false,
-        errorMessage: e.toString(),
-      );
+      state = state.copyWith(isBackingUp: false, errorMessage: e.toString());
     }
   }
 
   /// Restore from a backup
-  Future<void> restoreFromBackup(String fileId, {bool encrypted = false}) async {
+  Future<void> restoreFromBackup(
+    String fileId, {
+    bool encrypted = false,
+  }) async {
     state = state.copyWith(isRestoring: true, errorMessage: null);
-    
+
     try {
-      final success = await _backupService.restoreFromBackup(fileId, encrypted: encrypted);
-      
+      final success = await _backupService.restoreFromBackup(
+        fileId,
+        encrypted: encrypted,
+      );
+
       if (success) {
         state = state.copyWith(
           isRestoring: false,
@@ -95,10 +99,7 @@ class BackupNotifier extends StateNotifier<BackupState> {
         );
       }
     } catch (e) {
-      state = state.copyWith(
-        isRestoring: false,
-        errorMessage: e.toString(),
-      );
+      state = state.copyWith(isRestoring: false, errorMessage: e.toString());
     }
   }
 
@@ -121,7 +122,10 @@ class BackupNotifier extends StateNotifier<BackupState> {
   }
 
   /// Save Google Drive credentials
-  Future<void> saveGoogleDriveCredentials(String accessToken, String refreshToken) async {
+  Future<void> saveGoogleDriveCredentials(
+    String accessToken,
+    String refreshToken,
+  ) async {
     // This method is not needed anymore as we're using Google Sign-In directly
   }
 }
@@ -131,7 +135,9 @@ final backupServiceProvider = Provider<BackupService>((ref) {
   return BackupService(secureStorage);
 });
 
-final backupProvider = StateNotifierProvider<BackupNotifier, BackupState>((ref) {
+final backupProvider = StateNotifierProvider<BackupNotifier, BackupState>((
+  ref,
+) {
   final backupService = ref.watch(backupServiceProvider);
   return BackupNotifier(backupService);
 });

@@ -14,7 +14,7 @@ class _AddBudgetScreenState extends ConsumerState<AddBudgetScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _limitController = TextEditingController();
-  
+
   String _selectedPeriod = AppConstants.budgetPeriodMonthly;
   String _selectedCategory = '';
   String _selectedCategoryId = '';
@@ -25,12 +25,16 @@ class _AddBudgetScreenState extends ConsumerState<AddBudgetScreen> {
   void initState() {
     super.initState();
     _startDate = DateTime.now();
-    _endDate = DateTime.now().add(const Duration(days: 30)); // Default to 30 days for monthly
-    
+    _endDate = DateTime.now().add(
+      const Duration(days: 30),
+    ); // Default to 30 days for monthly
+
     // Set default category
     if (AppConstants.defaultCategories.isNotEmpty) {
       _selectedCategory = AppConstants.defaultCategories.first['name'];
-      _selectedCategoryId = AppConstants.defaultCategories.first['name']; // Using name as ID for demo
+      _selectedCategoryId = AppConstants
+          .defaultCategories
+          .first['name']; // Using name as ID for demo
     }
   }
 
@@ -78,8 +82,13 @@ class _AddBudgetScreenState extends ConsumerState<AddBudgetScreen> {
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
       final limit = double.tryParse(_limitController.text);
-      if (limit != null && limit > 0 && _startDate != null && _endDate != null) {
-        ref.read(budgetProvider.notifier).addBudget(
+      if (limit != null &&
+          limit > 0 &&
+          _startDate != null &&
+          _endDate != null) {
+        ref
+            .read(budgetProvider.notifier)
+            .addBudget(
               name: _nameController.text,
               categoryId: _selectedCategoryId,
               limit: limit,
@@ -97,9 +106,7 @@ class _AddBudgetScreenState extends ConsumerState<AddBudgetScreen> {
     final budgetState = ref.watch(budgetProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Create Budget'),
-      ),
+      appBar: AppBar(title: const Text('Create Budget')),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Form(
@@ -146,10 +153,7 @@ class _AddBudgetScreenState extends ConsumerState<AddBudgetScreen> {
               // Category selector
               const Text(
                 'Category',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               ),
               const SizedBox(height: 8),
               SizedBox(
@@ -157,39 +161,41 @@ class _AddBudgetScreenState extends ConsumerState<AddBudgetScreen> {
                 child: ListView(
                   scrollDirection: Axis.horizontal,
                   children: AppConstants.defaultCategories
-                      .where((cat) => cat['type'] == AppConstants.categoryTypeExpense)
+                      .where(
+                        (cat) =>
+                            cat['type'] == AppConstants.categoryTypeExpense,
+                      )
                       .map((category) {
-                    return Padding(
-                      padding: const EdgeInsets.only(right: 8),
-                      child: ChoiceChip(
-                        label: Text(category['name']),
-                        selected: _selectedCategory == category['name'],
-                        onSelected: (selected) {
-                          setState(() {
-                            _selectedCategory = category['name'];
-                            _selectedCategoryId = category['name'];
-                          });
-                        },
-                      ),
-                    );
-                  }).toList(),
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: ChoiceChip(
+                            label: Text(category['name']),
+                            selected: _selectedCategory == category['name'],
+                            onSelected: (selected) {
+                              setState(() {
+                                _selectedCategory = category['name'];
+                                _selectedCategoryId = category['name'];
+                              });
+                            },
+                          ),
+                        );
+                      })
+                      .toList(),
                 ),
               ),
               const SizedBox(height: 16),
               // Period selector
               const Text(
                 'Period',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               ),
               const SizedBox(height: 8),
               Row(
                 children: [
                   ChoiceChip(
                     label: const Text('Weekly'),
-                    selected: _selectedPeriod == AppConstants.budgetPeriodWeekly,
+                    selected:
+                        _selectedPeriod == AppConstants.budgetPeriodWeekly,
                     onSelected: (selected) {
                       setState(() {
                         _selectedPeriod = AppConstants.budgetPeriodWeekly;
@@ -203,7 +209,8 @@ class _AddBudgetScreenState extends ConsumerState<AddBudgetScreen> {
                   const SizedBox(width: 16),
                   ChoiceChip(
                     label: const Text('Monthly'),
-                    selected: _selectedPeriod == AppConstants.budgetPeriodMonthly,
+                    selected:
+                        _selectedPeriod == AppConstants.budgetPeriodMonthly,
                     onSelected: (selected) {
                       setState(() {
                         _selectedPeriod = AppConstants.budgetPeriodMonthly;
@@ -220,10 +227,7 @@ class _AddBudgetScreenState extends ConsumerState<AddBudgetScreen> {
               // Date range
               const Text(
                 'Date Range',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               ),
               const SizedBox(height: 8),
               Row(
@@ -269,7 +273,8 @@ class _AddBudgetScreenState extends ConsumerState<AddBudgetScreen> {
                         if (_endDate == null) {
                           return 'Please select an end date';
                         }
-                        if (_startDate != null && _endDate!.isBefore(_startDate!)) {
+                        if (_startDate != null &&
+                            _endDate!.isBefore(_startDate!)) {
                           return 'End date must be after start date';
                         }
                         return null;

@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
@@ -54,12 +55,8 @@ class UserProfileNotifier extends StateNotifier<UserProfileState> {
   final AppDatabase _db;
 
   UserProfileNotifier(Ref ref)
-      : _db = ref.watch(databaseProvider),
-        super(
-          UserProfileState(
-            isLoading: false,
-          ),
-        );
+    : _db = ref.watch(databaseProvider),
+      super(UserProfileState(isLoading: false));
 
   Future<void> loadUserProfile(String userId) async {
     state = state.copyWith(isLoading: true, errorMessage: null);
@@ -82,10 +79,7 @@ class UserProfileNotifier extends StateNotifier<UserProfileState> {
           isLoading: false,
         );
       } else {
-        state = state.copyWith(
-          userProfile: null,
-          isLoading: false,
-        );
+        state = state.copyWith(userProfile: null, isLoading: false);
       }
     } catch (e) {
       state = state.copyWith(
@@ -107,7 +101,7 @@ class UserProfileNotifier extends StateNotifier<UserProfileState> {
 
     try {
       final now = DateTime.now();
-      
+
       final userProfilesCompanion = UserProfilesCompanion(
         userId: Value(userId),
         fullName: Value(fullName),
@@ -118,7 +112,7 @@ class UserProfileNotifier extends StateNotifier<UserProfileState> {
         updatedAt: Value(now),
         isPremium: Value(isPremium),
       );
-      
+
       await _db.addUserProfile(userProfilesCompanion);
 
       // Load the created profile
@@ -141,15 +135,19 @@ class UserProfileNotifier extends StateNotifier<UserProfileState> {
 
     try {
       final now = DateTime.now();
-      
+
       final userProfilesCompanion = UserProfilesCompanion(
         userId: Value(userId),
         fullName: fullName != null ? Value(fullName) : const Value.absent(),
-        phoneNumber: phoneNumber != null ? Value(phoneNumber) : const Value.absent(),
-        profileImageUrl: profileImageUrl != null ? Value(profileImageUrl) : const Value.absent(),
+        phoneNumber: phoneNumber != null
+            ? Value(phoneNumber)
+            : const Value.absent(),
+        profileImageUrl: profileImageUrl != null
+            ? Value(profileImageUrl)
+            : const Value.absent(),
         updatedAt: Value(now),
       );
-      
+
       await _db.updateUserProfile(userProfilesCompanion);
 
       // Reload the updated profile
@@ -183,7 +181,7 @@ class UserProfileNotifier extends StateNotifier<UserProfileState> {
           userId: Value(firebaseUser.uid),
         );
 
-        if (firebaseUser.displayName != null && 
+        if (firebaseUser.displayName != null &&
             firebaseUser.displayName != existingProfile.fullName) {
           updateCompanion = updateCompanion.copyWith(
             fullName: Value(firebaseUser.displayName),
@@ -191,7 +189,7 @@ class UserProfileNotifier extends StateNotifier<UserProfileState> {
           needsUpdate = true;
         }
 
-        if (firebaseUser.photoURL != null && 
+        if (firebaseUser.photoURL != null &&
             firebaseUser.photoURL != existingProfile.profileImageUrl) {
           updateCompanion = updateCompanion.copyWith(
             profileImageUrl: Value(firebaseUser.photoURL),
@@ -213,6 +211,7 @@ class UserProfileNotifier extends StateNotifier<UserProfileState> {
   }
 }
 
-final userProfileProvider = StateNotifierProvider<UserProfileNotifier, UserProfileState>((ref) {
-  return UserProfileNotifier(ref);
-});
+final userProfileProvider =
+    StateNotifierProvider<UserProfileNotifier, UserProfileState>((ref) {
+      return UserProfileNotifier(ref);
+    });

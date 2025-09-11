@@ -14,11 +14,7 @@ import 'package:the_accountant/app/app.dart';
 void main() {
   testWidgets('App launches test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(
-      const ProviderScope(
-        child: MyApp(),
-      ),
-    );
+    await tester.pumpWidget(const ProviderScope(child: MyApp()));
 
     // Verify that the app launches without errors.
     expect(find.byType(Scaffold), findsWidgets);

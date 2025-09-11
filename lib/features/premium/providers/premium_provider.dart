@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import 'package:the_accountant/data/models/premium_features.dart';
 import 'package:the_accountant/core/providers/theme_provider.dart';
 
@@ -30,14 +31,11 @@ class PremiumNotifier extends StateNotifier<PremiumState> {
   final Ref _ref;
 
   PremiumNotifier(this._ref)
-      : super(
-          PremiumState(
-            features: const PremiumFeatures(
-              isUnlocked: false,
-              features: [],
-            ),
-          ),
-        );
+    : super(
+        PremiumState(
+          features: const PremiumFeatures(isUnlocked: false, features: []),
+        ),
+      );
 
   void unlockPremiumFeatures() {
     state = state.copyWith(
@@ -47,7 +45,7 @@ class PremiumNotifier extends StateNotifier<PremiumState> {
         purchaseDate: DateTime.now(),
       ),
     );
-    
+
     // Unlock premium themes
     _ref.read(themeProvider.notifier).unlockPremiumThemes();
   }
@@ -61,16 +59,19 @@ class PremiumNotifier extends StateNotifier<PremiumState> {
         purchaseId: null,
       ),
     );
-    
+
     // Lock premium themes
     _ref.read(themeProvider.notifier).lockPremiumThemes();
   }
 
   bool isFeatureUnlocked(String feature) {
-    return state.features.isUnlocked && state.features.features.contains(feature);
+    return state.features.isUnlocked &&
+        state.features.features.contains(feature);
   }
 }
 
-final premiumProvider = StateNotifierProvider<PremiumNotifier, PremiumState>((ref) {
+final premiumProvider = StateNotifierProvider<PremiumNotifier, PremiumState>((
+  ref,
+) {
   return PremiumNotifier(ref);
 });

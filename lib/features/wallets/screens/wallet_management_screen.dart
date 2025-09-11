@@ -8,10 +8,12 @@ class WalletManagementScreen extends ConsumerStatefulWidget {
   const WalletManagementScreen({super.key});
 
   @override
-  ConsumerState<WalletManagementScreen> createState() => _WalletManagementScreenState();
+  ConsumerState<WalletManagementScreen> createState() =>
+      _WalletManagementScreenState();
 }
 
-class _WalletManagementScreenState extends ConsumerState<WalletManagementScreen> {
+class _WalletManagementScreenState
+    extends ConsumerState<WalletManagementScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _currencyController = TextEditingController();
@@ -40,7 +42,7 @@ class _WalletManagementScreenState extends ConsumerState<WalletManagementScreen>
         currency: _currencyController.text,
         balance: double.tryParse(_balanceController.text) ?? 0.0,
       );
-      
+
       _nameController.clear();
       _currencyController.clear();
       _balanceController.clear();
@@ -121,7 +123,9 @@ class _WalletManagementScreenState extends ConsumerState<WalletManagementScreen>
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Delete Wallet'),
-          content: const Text('Are you sure you want to delete this wallet? This action cannot be undone.'),
+          content: const Text(
+            'Are you sure you want to delete this wallet? This action cannot be undone.',
+          ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),

@@ -4,10 +4,7 @@ import 'package:fl_chart/fl_chart.dart';
 class ExpenseChart extends StatelessWidget {
   final List<Map<String, dynamic>> data;
 
-  const ExpenseChart({
-    super.key,
-    required this.data,
-  });
+  const ExpenseChart({super.key, required this.data});
 
   @override
   Widget build(BuildContext context) {
@@ -20,10 +17,7 @@ class ExpenseChart extends StatelessWidget {
           children: [
             const Text(
               'Expense Distribution',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             SizedBox(

@@ -16,15 +16,15 @@ class PremiumService {
   /// Check if a specific feature is unlocked
   bool isFeatureUnlocked(String feature) {
     final premiumState = _ref.read(premiumProvider);
-    return premiumState.features.isUnlocked && 
-           premiumState.features.features.contains(feature);
+    return premiumState.features.isUnlocked &&
+        premiumState.features.features.contains(feature);
   }
 
   /// Get list of unlocked features
   List<String> getUnlockedFeatures() {
     final premiumState = _ref.read(premiumProvider);
-    return premiumState.features.isUnlocked 
-        ? premiumState.features.features 
+    return premiumState.features.isUnlocked
+        ? premiumState.features.features
         : [];
   }
 

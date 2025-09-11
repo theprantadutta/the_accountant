@@ -24,10 +24,7 @@ class AdvancedChart extends StatelessWidget {
           children: [
             Text(
               title,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             SizedBox(
@@ -55,12 +52,7 @@ class AdvancedChart extends StatelessWidget {
                   final label = data[value.toInt()]['label'] as String;
                   return SideTitleWidget(
                     meta: meta,
-                    child: Text(
-                      label,
-                      style: const TextStyle(
-                        fontSize: 10,
-                      ),
-                    ),
+                    child: Text(label, style: const TextStyle(fontSize: 10)),
                   );
                 }
                 return const Text('');

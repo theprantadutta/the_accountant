@@ -12,7 +12,8 @@ void main(List<String> args) async {
 
   if (!libDir.existsSync()) {
     print(
-        '\x1b[31m❌ Error: lib directory not found! Make sure you\'re in your Flutter project root.\x1b[0m');
+      '\x1b[31m❌ Error: lib directory not found! Make sure you\'re in your Flutter project root.\x1b[0m',
+    );
     exit(1);
   }
 
@@ -26,8 +27,10 @@ void main(List<String> args) async {
 
   // Show summary
   int totalFiles = results.length;
-  int totalOccurrences =
-      results.values.fold(0, (sum, list) => sum + list.length);
+  int totalOccurrences = results.values.fold(
+    0,
+    (sum, list) => sum + list.length,
+  );
 
   print('\x1b[33m\n📊 SCAN RESULTS:\x1b[0m');
   print('\x1b[37mFiles with withOpacity: \x1b[32m$totalFiles\x1b[0m');
@@ -36,12 +39,15 @@ void main(List<String> args) async {
   print('\x1b[33m\n📋 DETAILS:\x1b[0m');
   results.forEach((filePath, occurrences) {
     final relativePath = filePath.replaceFirst(
-        Directory.current.path + Platform.pathSeparator, '');
+      Directory.current.path + Platform.pathSeparator,
+      '',
+    );
     print('\x1b[36m  📄 $relativePath\x1b[0m');
     for (int i = 0; i < occurrences.length; i++) {
       final occ = occurrences[i];
       print(
-          '\x1b[37m    Line ${occ.lineNumber}: \x1b[33m${occ.originalText}\x1b[0m');
+        '\x1b[37m    Line ${occ.lineNumber}: \x1b[33m${occ.originalText}\x1b[0m',
+      );
       print('\x1b[37m              → \x1b[32m${occ.replacementText}\x1b[0m');
       if (i < occurrences.length - 1) print('');
     }
@@ -50,7 +56,8 @@ void main(List<String> args) async {
 
   // Ask for confirmation
   stdout.write(
-      '\x1b[35m❓ Do you want to proceed with these replacements? (y/N): \x1b[0m');
+    '\x1b[35m❓ Do you want to proceed with these replacements? (y/N): \x1b[0m',
+  );
   final input = stdin.readLineSync()?.toLowerCase().trim() ?? '';
 
   if (input != 'y' && input != 'yes') {
@@ -74,7 +81,9 @@ void main(List<String> args) async {
       filesModified++;
       totalReplacements += replacements;
       final relativePath = filePath.replaceFirst(
-          Directory.current.path + Platform.pathSeparator, '');
+        Directory.current.path + Platform.pathSeparator,
+        '',
+      );
       print('\x1b[32m  ✅ $relativePath: $replacements replacements\x1b[0m');
     }
   }
@@ -83,7 +92,8 @@ void main(List<String> args) async {
   print('\x1b[37mFiles modified: \x1b[32m$filesModified\x1b[0m');
   print('\x1b[37mTotal replacements: \x1b[32m$totalReplacements\x1b[0m');
   print(
-      '\x1b[33m\n💡 Don\'t forget to test your app and run `flutter analyze`!\x1b[0m');
+    '\x1b[33m\n💡 Don\'t forget to test your app and run `flutter analyze`!\x1b[0m',
+  );
 }
 
 class Occurrence {
@@ -139,11 +149,13 @@ Future<List<Occurrence>> findOccurrencesInFile(File file) async {
             .replaceAll(match.group(0)!, '.withValues(alpha: $opacityValue)')
             .trim();
 
-        occurrences.add(Occurrence(
-          lineNumber: i + 1,
-          originalText: originalText,
-          replacementText: replacementText,
-        ));
+        occurrences.add(
+          Occurrence(
+            lineNumber: i + 1,
+            originalText: originalText,
+            replacementText: replacementText,
+          ),
+        );
       }
     }
 

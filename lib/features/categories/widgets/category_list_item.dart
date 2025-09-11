@@ -28,7 +28,9 @@ class CategoryListItem extends StatelessWidget {
             shape: BoxShape.circle,
           ),
           child: Icon(
-            category.type == 'expense' ? Icons.arrow_upward : Icons.arrow_downward,
+            category.type == 'expense'
+                ? Icons.arrow_upward
+                : Icons.arrow_downward,
             color: color,
           ),
         ),

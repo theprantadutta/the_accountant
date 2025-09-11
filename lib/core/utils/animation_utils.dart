@@ -6,10 +6,7 @@ class AnimationUtils {
     required Animation<double> animation,
     required Widget child,
   }) {
-    return FadeTransition(
-      opacity: animation,
-      child: child,
-    );
+    return FadeTransition(opacity: animation, child: child);
   }
 
   /// Create a slide transition animation
@@ -21,12 +18,9 @@ class AnimationUtils {
   }) {
     begin ??= const Offset(1, 0);
     end ??= Offset.zero;
-    
+
     return SlideTransition(
-      position: Tween<Offset>(
-        begin: begin,
-        end: end,
-      ).animate(animation),
+      position: Tween<Offset>(begin: begin, end: end).animate(animation),
       child: child,
     );
   }
@@ -40,12 +34,9 @@ class AnimationUtils {
   }) {
     begin ??= 0.0;
     end ??= 1.0;
-    
+
     return ScaleTransition(
-      scale: Tween<double>(
-        begin: begin,
-        end: end,
-      ).animate(animation),
+      scale: Tween<double>(begin: begin, end: end).animate(animation),
       child: child,
     );
   }
@@ -55,10 +46,7 @@ class AnimationUtils {
     required Animation<double> animation,
     required Widget child,
   }) {
-    return RotationTransition(
-      turns: animation,
-      child: child,
-    );
+    return RotationTransition(turns: animation, child: child);
   }
 
   /// Create a size transition animation
@@ -67,11 +55,7 @@ class AnimationUtils {
     required Widget child,
     Axis axis = Axis.vertical,
   }) {
-    return SizeTransition(
-      axis: axis,
-      sizeFactor: animation,
-      child: child,
-    );
+    return SizeTransition(axis: axis, sizeFactor: animation, child: child);
   }
 
   /// Create a custom curved animation
@@ -79,15 +63,13 @@ class AnimationUtils {
     required AnimationController controller,
     Curve curve = Curves.easeInOut,
   }) {
-    return CurvedAnimation(
-      parent: controller,
-      curve: curve,
-    );
+    return CurvedAnimation(parent: controller, curve: curve);
   }
 
   /// Create a page transition animation
   static PageRouteBuilder<T> createPageTransition<T>({
-    required Widget Function(BuildContext, Animation<double>, Animation<double>) pageBuilder,
+    required Widget Function(BuildContext, Animation<double>, Animation<double>)
+    pageBuilder,
     Duration duration = const Duration(milliseconds: 300),
     Curve curve = Curves.easeInOut,
   }) {
@@ -98,10 +80,7 @@ class AnimationUtils {
           parent: animation,
           curve: curve,
         );
-        return FadeTransition(
-          opacity: curvedAnimation,
-          child: child,
-        );
+        return FadeTransition(opacity: curvedAnimation, child: child);
       },
       transitionDuration: duration,
     );
@@ -115,17 +94,10 @@ class AnimationUtils {
     double startFraction = 0.0,
     double endFraction = 1.0,
   }) {
-    return Tween<double>(
-      begin: begin,
-      end: end,
-    ).animate(
+    return Tween<double>(begin: begin, end: end).animate(
       CurvedAnimation(
         parent: controller,
-        curve: Interval(
-          startFraction,
-          endFraction,
-          curve: Curves.easeInOut,
-        ),
+        curve: Interval(startFraction, endFraction, curve: Curves.easeInOut),
       ),
     );
   }

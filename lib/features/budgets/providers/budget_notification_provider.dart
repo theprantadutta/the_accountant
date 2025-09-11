@@ -1,11 +1,13 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import 'package:the_accountant/features/budgets/providers/budget_provider.dart';
 import 'package:the_accountant/features/transactions/providers/transaction_provider.dart';
 import 'package:the_accountant/core/services/notification_service.dart';
 
 class BudgetNotificationState {
   final bool isEnabled;
-  final double warningThreshold; // Percentage at which to send warning (e.g., 80%)
+  final double
+  warningThreshold; // Percentage at which to send warning (e.g., 80%)
   final bool isLoading;
   final String? errorMessage;
 
@@ -31,17 +33,18 @@ class BudgetNotificationState {
   }
 }
 
-class BudgetNotificationNotifier extends StateNotifier<BudgetNotificationState> {
+class BudgetNotificationNotifier
+    extends StateNotifier<BudgetNotificationState> {
   final Ref _ref;
 
   BudgetNotificationNotifier(this._ref)
-      : super(
-          BudgetNotificationState(
-            isEnabled: true,
-            warningThreshold: 80.0,
-            isLoading: false,
-          ),
-        ) {
+    : super(
+        BudgetNotificationState(
+          isEnabled: true,
+          warningThreshold: 80.0,
+          isLoading: false,
+        ),
+      ) {
     // Check budgets periodically
     _checkBudgetsPeriodically();
   }
@@ -64,15 +67,22 @@ class BudgetNotificationNotifier extends StateNotifier<BudgetNotificationState> 
       for (final budget in budgetState.budgets) {
         // Calculate spent amount for this budget's category and date range
         final spent = transactionState.transactions
-            .where((transaction) =>
-                transaction.categoryId == budget.categoryId &&
-                transaction.type == 'expense' &&
-                transaction.date.isAfter(budget.startDate) &&
-                transaction.date.isBefore(budget.endDate))
+            .where(
+              (transaction) =>
+                  transaction.categoryId == budget.categoryId &&
+                  transaction.type == 'expense' &&
+                  transaction.date.isAfter(budget.startDate) &&
+                  transaction.date.isBefore(budget.endDate),
+            )
             // Fix: Convert num to double explicitly
-            .fold<double>(0.0, (sum, transaction) => sum + transaction.amount.toDouble());
+            .fold<double>(
+              0.0,
+              (sum, transaction) => sum + transaction.amount.toDouble(),
+            );
 
-        final percentage = budget.limit > 0 ? (spent / budget.limit) * 100.0 : 0.0;
+        final percentage = budget.limit > 0
+            ? (spent / budget.limit) * 100.0
+            : 0.0;
 
         // Send notification if budget is over threshold
         if (percentage >= state.warningThreshold) {
@@ -83,9 +93,7 @@ class BudgetNotificationNotifier extends StateNotifier<BudgetNotificationState> 
         }
       }
     } catch (e) {
-      state = state.copyWith(
-        errorMessage: 'Failed to check budgets',
-      );
+      state = state.copyWith(errorMessage: 'Failed to check budgets');
     }
   }
 
@@ -105,7 +113,8 @@ class BudgetNotificationNotifier extends StateNotifier<BudgetNotificationState> 
 }
 
 final budgetNotificationProvider =
-    StateNotifierProvider<BudgetNotificationNotifier, BudgetNotificationState>(
-        (ref) {
-  return BudgetNotificationNotifier(ref);
-});
+    StateNotifierProvider<BudgetNotificationNotifier, BudgetNotificationState>((
+      ref,
+    ) {
+      return BudgetNotificationNotifier(ref);
+    });

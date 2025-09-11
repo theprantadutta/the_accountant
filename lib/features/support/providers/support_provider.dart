@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import 'package:the_accountant/data/models/support_ticket.dart';
 import 'package:the_accountant/features/premium/providers/premium_provider.dart';
 import 'package:uuid/uuid.dart';
@@ -51,7 +52,9 @@ class SupportNotifier extends StateNotifier<SupportState> {
       // Check if user is premium for priority support
       final premiumState = _ref.read(premiumProvider);
       final isPremiumUser = premiumState.features.isUnlocked;
-      final priority = isPremiumUser ? 1 : 3; // 1 = high priority, 3 = normal priority
+      final priority = isPremiumUser
+          ? 1
+          : 3; // 1 = high priority, 3 = normal priority
 
       final newTicket = SupportTicket(
         id: const Uuid().v4(),
@@ -70,27 +73,23 @@ class SupportNotifier extends StateNotifier<SupportState> {
         isLoading: false,
       );
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: e.toString(),
-      );
+      state = state.copyWith(isLoading: false, errorMessage: e.toString());
     }
   }
 
   /// Get tickets sorted by priority (premium users first)
   List<SupportTicket> getPrioritySortedTickets() {
-    return List<SupportTicket>.from(state.tickets)
-      ..sort((a, b) {
-        // Premium users get priority
-        if (a.isPremiumUser && !b.isPremiumUser) return -1;
-        if (!a.isPremiumUser && b.isPremiumUser) return 1;
-        
-        // Then sort by priority level
-        if (a.priority != b.priority) return a.priority.compareTo(b.priority);
-        
-        // Finally sort by creation date (newest first)
-        return b.createdAt.compareTo(a.createdAt);
-      });
+    return List<SupportTicket>.from(state.tickets)..sort((a, b) {
+      // Premium users get priority
+      if (a.isPremiumUser && !b.isPremiumUser) return -1;
+      if (!a.isPremiumUser && b.isPremiumUser) return 1;
+
+      // Then sort by priority level
+      if (a.priority != b.priority) return a.priority.compareTo(b.priority);
+
+      // Finally sort by creation date (newest first)
+      return b.createdAt.compareTo(a.createdAt);
+    });
   }
 
   /// Update ticket status
@@ -100,23 +99,14 @@ class SupportNotifier extends StateNotifier<SupportState> {
     try {
       final updatedTickets = state.tickets.map((ticket) {
         if (ticket.id == ticketId) {
-          return ticket.copyWith(
-            status: status,
-            updatedAt: DateTime.now(),
-          );
+          return ticket.copyWith(status: status, updatedAt: DateTime.now());
         }
         return ticket;
       }).toList();
 
-      state = state.copyWith(
-        tickets: updatedTickets,
-        isLoading: false,
-      );
+      state = state.copyWith(tickets: updatedTickets, isLoading: false);
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: e.toString(),
-      );
+      state = state.copyWith(isLoading: false, errorMessage: e.toString());
     }
   }
 
@@ -127,27 +117,20 @@ class SupportNotifier extends StateNotifier<SupportState> {
     try {
       final updatedTickets = state.tickets.map((ticket) {
         if (ticket.id == ticketId) {
-          return ticket.copyWith(
-            response: response,
-            updatedAt: DateTime.now(),
-          );
+          return ticket.copyWith(response: response, updatedAt: DateTime.now());
         }
         return ticket;
       }).toList();
 
-      state = state.copyWith(
-        tickets: updatedTickets,
-        isLoading: false,
-      );
+      state = state.copyWith(tickets: updatedTickets, isLoading: false);
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: e.toString(),
-      );
+      state = state.copyWith(isLoading: false, errorMessage: e.toString());
     }
   }
 }
 
-final supportProvider = StateNotifierProvider<SupportNotifier, SupportState>((ref) {
+final supportProvider = StateNotifierProvider<SupportNotifier, SupportState>((
+  ref,
+) {
   return SupportNotifier(ref);
 });

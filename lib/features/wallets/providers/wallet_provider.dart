@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/features/transactions/providers/transaction_provider.dart';
@@ -45,21 +46,18 @@ class WalletNotifier extends StateNotifier<WalletState> {
     state = state.copyWith(isLoading: true);
     try {
       final wallets = await _database.getAllWallets();
-      
+
       // Calculate wallet balances
       final transactionNotifier = _ref.read(transactionProvider.notifier);
       final walletBalances = transactionNotifier.getAllWalletBalances();
-      
+
       state = state.copyWith(
-        wallets: wallets, 
+        wallets: wallets,
         isLoading: false,
         walletBalances: walletBalances,
       );
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        error: e.toString(),
-      );
+      state = state.copyWith(isLoading: false, error: e.toString());
     }
   }
 
@@ -75,7 +73,7 @@ class WalletNotifier extends StateNotifier<WalletState> {
         currency: Value(currency),
         balance: Value(balance),
       );
-      
+
       await _database.addWallet(wallet);
       loadWallets(); // Refresh the list
     } catch (e) {
@@ -96,7 +94,7 @@ class WalletNotifier extends StateNotifier<WalletState> {
         currency: currency != null ? Value(currency) : const Value.absent(),
         balance: balance != null ? Value(balance) : const Value.absent(),
       );
-      
+
       await _database.updateWallet(wallet);
       loadWallets(); // Refresh the list
     } catch (e) {
@@ -122,21 +120,25 @@ class WalletNotifier extends StateNotifier<WalletState> {
   }
 
   List<Wallet> getWalletsByCurrency(String currency) {
-    return state.wallets.where((wallet) => wallet.currency == currency).toList();
+    return state.wallets
+        .where((wallet) => wallet.currency == currency)
+        .toList();
   }
-  
+
   // Get the calculated balance for a wallet
   double getWalletBalance(String walletId) {
     return state.walletBalances[walletId] ?? 0.0;
   }
-  
+
   // Get all wallet balances
   Map<String, double> getAllWalletBalances() {
     return state.walletBalances;
   }
 }
 
-final walletProvider = StateNotifierProvider<WalletNotifier, WalletState>((ref) {
+final walletProvider = StateNotifierProvider<WalletNotifier, WalletState>((
+  ref,
+) {
   final database = ref.watch(databaseProvider);
   return WalletNotifier(database, ref);
 });

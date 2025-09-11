@@ -19,9 +19,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final premiumState = ref.watch(premiumProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Settings'),
-      ),
+      appBar: AppBar(title: const Text('Settings')),
       body: ListView(
         children: [
           const ListTile(
@@ -35,9 +33,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             value: dailyReminderState.isEnabled,
             onChanged: (value) async {
               if (value) {
-                await ref.read(dailyReminderProvider.notifier).enableReminders();
+                await ref
+                    .read(dailyReminderProvider.notifier)
+                    .enableReminders();
               } else {
-                await ref.read(dailyReminderProvider.notifier).disableReminders();
+                await ref
+                    .read(dailyReminderProvider.notifier)
+                    .disableReminders();
               }
             },
           ),
@@ -52,9 +54,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 context: context,
                 initialTime: dailyReminderState.reminderTime,
               );
-              
+
               if (selectedTime != null) {
-                await ref.read(dailyReminderProvider.notifier).setReminderTime(selectedTime);
+                await ref
+                    .read(dailyReminderProvider.notifier)
+                    .setReminderTime(selectedTime);
               }
             },
           ),
@@ -90,9 +94,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => const BackupScreen(),
-                ),
+                MaterialPageRoute(builder: (context) => const BackupScreen()),
               );
             },
           ),
@@ -100,8 +102,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           ListTile(
             title: const Text('Premium Features'),
             subtitle: Text(
-              premiumState.features.isUnlocked 
-                  ? 'Manage your premium features' 
+              premiumState.features.isUnlocked
+                  ? 'Manage your premium features'
                   : 'Unlock exclusive features',
             ),
             trailing: premiumState.features.isUnlocked

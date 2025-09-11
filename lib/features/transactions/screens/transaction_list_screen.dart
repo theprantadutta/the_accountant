@@ -7,7 +7,8 @@ class TransactionListScreen extends ConsumerStatefulWidget {
   const TransactionListScreen({super.key});
 
   @override
-  ConsumerState<TransactionListScreen> createState() => _TransactionListScreenState();
+  ConsumerState<TransactionListScreen> createState() =>
+      _TransactionListScreenState();
 }
 
 class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
@@ -49,12 +50,16 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
 
     // Apply type filter
     if (_filterType != null) {
-      filtered = filtered.where((transaction) => transaction.type == _filterType).toList();
+      filtered = filtered
+          .where((transaction) => transaction.type == _filterType)
+          .toList();
     }
 
     // Apply category filter
     if (_filterCategory != null) {
-      filtered = filtered.where((transaction) => transaction.categoryId == _filterCategory).toList();
+      filtered = filtered
+          .where((transaction) => transaction.categoryId == _filterCategory)
+          .toList();
     }
 
     return filtered;
@@ -121,7 +126,9 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
   @override
   Widget build(BuildContext context) {
     final transactionState = ref.watch(transactionProvider);
-    final filteredTransactions = _filterTransactions(transactionState.transactions);
+    final filteredTransactions = _filterTransactions(
+      transactionState.transactions,
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -166,28 +173,26 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
             child: transactionState.isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : filteredTransactions.isEmpty
-                    ? const Center(
-                        child: Text('No transactions found'),
-                      )
-                    : ListView.builder(
-                        itemCount: filteredTransactions.length,
-                        itemBuilder: (context, index) {
-                          final transaction = filteredTransactions[index];
-                          return TransactionCard(
-                            title: transaction.notes.isNotEmpty
-                                ? transaction.notes
-                                : transaction.category,
-                            category: transaction.category,
-                            categoryColor: '#4ECDC4', // Default color for demo
-                            amount: transaction.amount,
-                            date: transaction.date,
-                            transactionType: transaction.type,
-                            onTap: () {
-                              // Handle transaction tap
-                            },
-                          );
+                ? const Center(child: Text('No transactions found'))
+                : ListView.builder(
+                    itemCount: filteredTransactions.length,
+                    itemBuilder: (context, index) {
+                      final transaction = filteredTransactions[index];
+                      return TransactionCard(
+                        title: transaction.notes.isNotEmpty
+                            ? transaction.notes
+                            : transaction.category,
+                        category: transaction.category,
+                        categoryColor: '#4ECDC4', // Default color for demo
+                        amount: transaction.amount,
+                        date: transaction.date,
+                        transactionType: transaction.type,
+                        onTap: () {
+                          // Handle transaction tap
                         },
-                      ),
+                      );
+                    },
+                  ),
           ),
         ],
       ),

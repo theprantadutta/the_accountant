@@ -1,7 +1,7 @@
 class AppConstants {
   static const String appName = 'The Accountant';
   static const String appVersion = '1.0.0';
-  
+
   // Default currencies
   static const List<String> supportedCurrencies = [
     'USD',
@@ -25,19 +25,19 @@ class AppConstants {
     'BRL',
     'ZAR',
   ];
-  
+
   // Transaction types
   static const String transactionTypeExpense = 'expense';
   static const String transactionTypeIncome = 'income';
-  
+
   // Budget periods
   static const String budgetPeriodWeekly = 'weekly';
   static const String budgetPeriodMonthly = 'monthly';
-  
+
   // Category types
   static const String categoryTypeExpense = 'expense';
   static const String categoryTypeIncome = 'income';
-  
+
   // Default categories
   static const List<Map<String, dynamic>> defaultCategories = [
     {

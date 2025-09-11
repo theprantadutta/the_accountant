@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import 'package:the_accountant/core/constants/app_constants.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
@@ -33,8 +34,10 @@ class SettingsState {
       themeMode: themeMode ?? this.themeMode,
       currency: currency ?? this.currency,
       notificationsEnabled: notificationsEnabled ?? this.notificationsEnabled,
-      budgetNotificationsEnabled: budgetNotificationsEnabled ?? this.budgetNotificationsEnabled,
-      budgetWarningThreshold: budgetWarningThreshold ?? this.budgetWarningThreshold,
+      budgetNotificationsEnabled:
+          budgetNotificationsEnabled ?? this.budgetNotificationsEnabled,
+      budgetWarningThreshold:
+          budgetWarningThreshold ?? this.budgetWarningThreshold,
       isPremium: isPremium ?? this.isPremium,
     );
   }
@@ -44,16 +47,16 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
   final AppDatabase _db;
 
   SettingsNotifier(this._db)
-      : super(
-          SettingsState(
-            themeMode: 'dark',
-            currency: 'USD',
-            notificationsEnabled: true,
-            budgetNotificationsEnabled: true,
-            budgetWarningThreshold: 80.0,
-            isPremium: false,
-          ),
-        ) {
+    : super(
+        SettingsState(
+          themeMode: 'dark',
+          currency: 'USD',
+          notificationsEnabled: true,
+          budgetNotificationsEnabled: true,
+          budgetWarningThreshold: 80.0,
+          isPremium: false,
+        ),
+      ) {
     _loadSettings();
   }
 
@@ -88,7 +91,7 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
   Future<void> toggleThemeMode() async {
     final newThemeMode = state.themeMode == 'dark' ? 'light' : 'dark';
     state = state.copyWith(themeMode: newThemeMode);
-    
+
     try {
       final existingSettings = await _db.getSettings();
       if (existingSettings != null) {
@@ -107,7 +110,7 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
 
   Future<void> setCurrency(String currency) async {
     state = state.copyWith(currency: currency);
-    
+
     try {
       final existingSettings = await _db.getSettings();
       if (existingSettings != null) {
@@ -126,7 +129,7 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
 
   Future<void> toggleNotifications(bool value) async {
     state = state.copyWith(notificationsEnabled: value);
-    
+
     try {
       final existingSettings = await _db.getSettings();
       if (existingSettings != null) {
@@ -145,7 +148,7 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
 
   Future<void> toggleBudgetNotifications(bool value) async {
     state = state.copyWith(budgetNotificationsEnabled: value);
-    
+
     try {
       final existingSettings = await _db.getSettings();
       if (existingSettings != null) {
@@ -164,7 +167,7 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
 
   Future<void> setBudgetWarningThreshold(double threshold) async {
     state = state.copyWith(budgetWarningThreshold: threshold);
-    
+
     try {
       final existingSettings = await _db.getSettings();
       if (existingSettings != null) {
@@ -183,7 +186,7 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
 
   Future<void> setPremiumStatus(bool isPremium) async {
     state = state.copyWith(isPremium: isPremium);
-    
+
     try {
       final existingSettings = await _db.getSettings();
       if (existingSettings != null) {
@@ -201,10 +204,12 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
   }
 }
 
-final settingsProvider = StateNotifierProvider<SettingsNotifier, SettingsState>((ref) {
-  final db = ref.watch(databaseProvider);
-  return SettingsNotifier(db);
-});
+final settingsProvider = StateNotifierProvider<SettingsNotifier, SettingsState>(
+  (ref) {
+    final db = ref.watch(databaseProvider);
+    return SettingsNotifier(db);
+  },
+);
 
 // Currency provider for easy access to supported currencies
 final currenciesProvider = Provider<List<String>>((ref) {

@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import 'package:the_accountant/features/ai/services/ocr_service.dart';
 
 class OcrState {
@@ -41,12 +41,9 @@ class OcrNotifier extends StateNotifier<OcrState> {
 
     try {
       final text = await _ocrService.processImage(imageFile);
-      
+
       if (text != null) {
-        state = state.copyWith(
-          isProcessing: false,
-          extractedText: text,
-        );
+        state = state.copyWith(isProcessing: false, extractedText: text);
       } else {
         state = state.copyWith(
           isProcessing: false,
@@ -54,10 +51,7 @@ class OcrNotifier extends StateNotifier<OcrState> {
         );
       }
     } catch (e) {
-      state = state.copyWith(
-        isProcessing: false,
-        errorMessage: e.toString(),
-      );
+      state = state.copyWith(isProcessing: false, errorMessage: e.toString());
     }
   }
 
@@ -67,12 +61,9 @@ class OcrNotifier extends StateNotifier<OcrState> {
 
     try {
       final receiptData = await _ocrService.extractReceiptData(imageFile);
-      
+
       if (receiptData != null) {
-        state = state.copyWith(
-          isProcessing: false,
-          receiptData: receiptData,
-        );
+        state = state.copyWith(isProcessing: false, receiptData: receiptData);
       } else {
         state = state.copyWith(
           isProcessing: false,
@@ -80,10 +71,7 @@ class OcrNotifier extends StateNotifier<OcrState> {
         );
       }
     } catch (e) {
-      state = state.copyWith(
-        isProcessing: false,
-        errorMessage: e.toString(),
-      );
+      state = state.copyWith(isProcessing: false, errorMessage: e.toString());
     }
   }
 

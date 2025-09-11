@@ -29,10 +29,7 @@ class WalletListItem extends StatelessWidget {
         contentPadding: const EdgeInsets.all(16),
         title: Text(
           wallet.name,
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
-          ),
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
         ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -80,7 +77,7 @@ class WalletListItem extends StatelessWidget {
       'MXN': '\$',
       'SGD': 'S\$',
     };
-    
+
     return symbols[currencyCode] ?? currencyCode;
   }
 }

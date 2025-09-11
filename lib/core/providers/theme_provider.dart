@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import 'package:the_accountant/core/themes/app_theme.dart';
 import 'package:the_accountant/core/themes/premium_themes.dart';
 
@@ -29,22 +29,19 @@ class ThemeState {
 
 class ThemeNotifier extends StateNotifier<ThemeState> {
   ThemeNotifier()
-      : super(
-          ThemeState(
-            currentTheme: 'Dark',
-            isPremiumTheme: false,
-            availableThemes: ['Light', 'Dark'],
-          ),
-        );
+    : super(
+        ThemeState(
+          currentTheme: 'Dark',
+          isPremiumTheme: false,
+          availableThemes: ['Light', 'Dark'],
+        ),
+      );
 
   /// Set the current theme
   void setTheme(String themeName) {
     final isPremium = PremiumThemes.themeNames.contains(themeName);
-    
-    state = state.copyWith(
-      currentTheme: themeName,
-      isPremiumTheme: isPremium,
-    );
+
+    state = state.copyWith(currentTheme: themeName, isPremiumTheme: isPremium);
   }
 
   /// Unlock premium themes
@@ -58,8 +55,9 @@ class ThemeNotifier extends StateNotifier<ThemeState> {
   void lockPremiumThemes() {
     state = state.copyWith(
       availableThemes: ['Light', 'Dark'],
-      currentTheme: state.currentTheme == 'Light' || state.currentTheme == 'Dark' 
-          ? state.currentTheme 
+      currentTheme:
+          state.currentTheme == 'Light' || state.currentTheme == 'Dark'
+          ? state.currentTheme
           : 'Dark',
       isPremiumTheme: false,
     );

@@ -31,37 +31,34 @@ class BudgetListScreen extends ConsumerWidget {
       body: budgetState.isLoading
           ? const Center(child: CircularProgressIndicator())
           : budgetState.budgets.isEmpty
-              ? const Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'No budgets yet',
-                        style: TextStyle(fontSize: 18),
-                      ),
-                      SizedBox(height: 16),
-                      Text(
-                        'Create your first budget to start tracking your expenses',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(color: Colors.grey),
-                      ),
-                    ],
+          ? const Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('No budgets yet', style: TextStyle(fontSize: 18)),
+                  SizedBox(height: 16),
+                  Text(
+                    'Create your first budget to start tracking your expenses',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.grey),
                   ),
-                )
-              : ListView.builder(
-                  itemCount: budgetState.budgets.length,
-                  itemBuilder: (context, index) {
-                    final budget = budgetState.budgets[index];
-                    return BudgetProgress(
-                      budgetName: budget.name,
-                      categoryId: budget.categoryId,
-                      limit: budget.limit,
-                      startDate: budget.startDate,
-                      endDate: budget.endDate,
-                      currency: 'USD', // This will be updated to use settings
-                    );
-                  },
-                ),
+                ],
+              ),
+            )
+          : ListView.builder(
+              itemCount: budgetState.budgets.length,
+              itemBuilder: (context, index) {
+                final budget = budgetState.budgets[index];
+                return BudgetProgress(
+                  budgetName: budget.name,
+                  categoryId: budget.categoryId,
+                  limit: budget.limit,
+                  startDate: budget.startDate,
+                  endDate: budget.endDate,
+                  currency: 'USD', // This will be updated to use settings
+                );
+              },
+            ),
     );
   }
 }

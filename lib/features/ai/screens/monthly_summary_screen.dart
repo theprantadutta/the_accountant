@@ -11,7 +11,8 @@ class MonthlySummaryScreen extends ConsumerStatefulWidget {
   const MonthlySummaryScreen({super.key, required this.month});
 
   @override
-  ConsumerState<MonthlySummaryScreen> createState() => _MonthlySummaryScreenState();
+  ConsumerState<MonthlySummaryScreen> createState() =>
+      _MonthlySummaryScreenState();
 }
 
 class _MonthlySummaryScreenState extends ConsumerState<MonthlySummaryScreen> {
@@ -23,10 +24,9 @@ class _MonthlySummaryScreenState extends ConsumerState<MonthlySummaryScreen> {
 
   void _loadMonthlySummary() {
     final transactions = ref.read(transactionProvider).transactions;
-    ref.read(monthlySummaryProvider.notifier).generateSummary(
-      transactions: transactions,
-      month: widget.month,
-    );
+    ref
+        .read(monthlySummaryProvider.notifier)
+        .generateSummary(transactions: transactions, month: widget.month);
   }
 
   @override
@@ -36,7 +36,9 @@ class _MonthlySummaryScreenState extends ConsumerState<MonthlySummaryScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('${CustomDateUtils.formatMonthYear(widget.month)} Summary'), // Use CustomDateUtils
+        title: Text(
+          '${CustomDateUtils.formatMonthYear(widget.month)} Summary',
+        ), // Use CustomDateUtils
       ),
       body: RefreshIndicator(
         onRefresh: () async {
@@ -59,7 +61,7 @@ class _MonthlySummaryScreenState extends ConsumerState<MonthlySummaryScreen> {
                   ),
                 ),
               ],
-              
+
               // Error message
               if (monthlySummaryState.errorMessage != null) ...[
                 Card(
@@ -74,7 +76,7 @@ class _MonthlySummaryScreenState extends ConsumerState<MonthlySummaryScreen> {
                 ),
                 const SizedBox(height: 16),
               ],
-              
+
               // Summary content
               if (monthlySummaryState.summary != null) ...[
                 // Financial overview cards
@@ -86,7 +88,8 @@ class _MonthlySummaryScreenState extends ConsumerState<MonthlySummaryScreen> {
                         amount: monthlySummaryState.summary!.totalIncome,
                         currency: '\$', // Add required currency parameter
                         icon: Icons.trending_up, // Add required icon parameter
-                        iconColor: Colors.green, // Add required iconColor parameter
+                        iconColor:
+                            Colors.green, // Add required iconColor parameter
                         isPositive: true,
                       ),
                     ),
@@ -96,25 +99,30 @@ class _MonthlySummaryScreenState extends ConsumerState<MonthlySummaryScreen> {
                         title: 'Expenses',
                         amount: monthlySummaryState.summary!.totalExpenses,
                         currency: '\$', // Add required currency parameter
-                        icon: Icons.trending_down, // Add required icon parameter
-                        iconColor: Colors.red, // Add required iconColor parameter
+                        icon:
+                            Icons.trending_down, // Add required icon parameter
+                        iconColor:
+                            Colors.red, // Add required iconColor parameter
                         isPositive: false,
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 16),
-                
+
                 SummaryCard(
                   title: 'Net Savings',
                   amount: monthlySummaryState.summary!.netSavings,
                   currency: '\$', // Add required currency parameter
-                  icon: Icons.account_balance_wallet, // Add required icon parameter
-                  iconColor: monthlySummaryState.summary!.netSavings >= 0 ? Colors.green : Colors.red, // Add required iconColor parameter
+                  icon: Icons
+                      .account_balance_wallet, // Add required icon parameter
+                  iconColor: monthlySummaryState.summary!.netSavings >= 0
+                      ? Colors.green
+                      : Colors.red, // Add required iconColor parameter
                   isPositive: monthlySummaryState.summary!.netSavings >= 0,
                 ),
                 const SizedBox(height: 16),
-                
+
                 // Spending trend
                 Card(
                   child: Padding(
@@ -131,7 +139,9 @@ class _MonthlySummaryScreenState extends ConsumerState<MonthlySummaryScreen> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          _getTrendDescription(monthlySummaryState.summary!.spendingTrend),
+                          _getTrendDescription(
+                            monthlySummaryState.summary!.spendingTrend,
+                          ),
                           style: const TextStyle(fontSize: 16),
                         ),
                       ],
@@ -139,7 +149,7 @@ class _MonthlySummaryScreenState extends ConsumerState<MonthlySummaryScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                
+
                 // AI Insights
                 if (monthlySummaryState.aiInsights != null) ...[
                   Card(
@@ -167,7 +177,7 @@ class _MonthlySummaryScreenState extends ConsumerState<MonthlySummaryScreen> {
                   ),
                   const SizedBox(height: 16),
                 ],
-                
+
                 // Top spending categories
                 if (monthlySummaryState.summary!.topCategories.isNotEmpty) ...[
                   Card(
@@ -187,12 +197,19 @@ class _MonthlySummaryScreenState extends ConsumerState<MonthlySummaryScreen> {
                           ListView.builder(
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
-                            itemCount: monthlySummaryState.summary!.topCategories.length,
+                            itemCount: monthlySummaryState
+                                .summary!
+                                .topCategories
+                                .length,
                             itemBuilder: (context, index) {
-                              final category = monthlySummaryState.summary!.topCategories[index];
+                              final category = monthlySummaryState
+                                  .summary!
+                                  .topCategories[index];
                               return ListTile(
                                 title: Text(category.categoryId),
-                                trailing: Text('\$${category.amount.toStringAsFixed(2)}'),
+                                trailing: Text(
+                                  '\$${category.amount.toStringAsFixed(2)}',
+                                ),
                               );
                             },
                           ),
@@ -202,15 +219,17 @@ class _MonthlySummaryScreenState extends ConsumerState<MonthlySummaryScreen> {
                   ),
                 ],
               ],
-              
+
               const Spacer(),
-              
+
               // Generate report button
               SizedBox(
                 width: double.infinity,
                 height: 50,
                 child: ElevatedButton(
-                  onPressed: monthlySummaryState.isLoading ? null : _loadMonthlySummary,
+                  onPressed: monthlySummaryState.isLoading
+                      ? null
+                      : _loadMonthlySummary,
                   child: const Text('Refresh Summary'),
                 ),
               ),
@@ -220,7 +239,7 @@ class _MonthlySummaryScreenState extends ConsumerState<MonthlySummaryScreen> {
       ),
     );
   }
-  
+
   String _getTrendDescription(String trend) {
     switch (trend) {
       case 'increased':

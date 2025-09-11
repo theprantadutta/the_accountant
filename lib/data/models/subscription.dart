@@ -57,16 +57,16 @@ class Subscription extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        name,
-        amount,
-        currency,
-        categoryId,
-        startDate,
-        endDate,
-        recurrence,
-        recurrenceDay,
-        isActive,
-        notes,
-      ];
+    id,
+    name,
+    amount,
+    currency,
+    categoryId,
+    startDate,
+    endDate,
+    recurrence,
+    recurrenceDay,
+    isActive,
+    notes,
+  ];
 }

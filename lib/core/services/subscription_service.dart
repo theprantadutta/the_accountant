@@ -12,36 +12,45 @@ class SubscriptionService {
   Future<void> checkUpcomingSubscriptions() async {
     try {
       final subscriptionState = _ref.read(subscriptionProvider);
-      final upcomingSubscriptions = subscriptionState.subscriptions.where((subscription) {
+      final upcomingSubscriptions = subscriptionState.subscriptions.where((
+        subscription,
+      ) {
         // Check if subscription is active
         if (!subscription.isActive) return false;
-        
+
         // Check if subscription has ended
         final now = DateTime.now();
-        if (subscription.endDate != null && subscription.endDate!.isBefore(now)) {
+        if (subscription.endDate != null &&
+            subscription.endDate!.isBefore(now)) {
           return false;
         }
-        
+
         // For monthly subscriptions, check if the due date is within the next 3 days
         if (subscription.recurrence == 'monthly') {
           final today = DateTime(now.year, now.month, now.day);
-          final dueDate = DateTime(now.year, now.month, subscription.recurrenceDay);
-          
+          final dueDate = DateTime(
+            now.year,
+            now.month,
+            subscription.recurrenceDay,
+          );
+
           // If the due date has passed this month, check next month
           if (dueDate.isBefore(today)) {
             dueDate.add(Duration(days: 30)); // Approximate next month
           }
-          
+
           final difference = dueDate.difference(today).inDays;
           return difference >= 0 && difference <= 3;
         }
-        
+
         return false;
       }).toList();
-      
+
       // Send alerts for upcoming subscriptions
       for (final subscription in upcomingSubscriptions) {
-        await _ref.read(notificationProvider.notifier).showSubscriptionAlert(subscription.name);
+        await _ref
+            .read(notificationProvider.notifier)
+            .showSubscriptionAlert(subscription.name);
       }
     } catch (e) {
       debugPrint('Failed to check upcoming subscriptions: $e');

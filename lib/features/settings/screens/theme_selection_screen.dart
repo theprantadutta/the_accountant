@@ -11,7 +11,8 @@ class ThemeSelectionScreen extends ConsumerStatefulWidget {
   const ThemeSelectionScreen({super.key});
 
   @override
-  ConsumerState<ThemeSelectionScreen> createState() => _ThemeSelectionScreenState();
+  ConsumerState<ThemeSelectionScreen> createState() =>
+      _ThemeSelectionScreenState();
 }
 
 class _ThemeSelectionScreenState extends ConsumerState<ThemeSelectionScreen>
@@ -27,17 +28,17 @@ class _ThemeSelectionScreenState extends ConsumerState<ThemeSelectionScreen>
       duration: const Duration(milliseconds: 800),
       vsync: this,
     );
-    
+
     _fadeAnimation = CurvedAnimation(
       parent: _controller,
       curve: Curves.easeInOut,
     );
-    
+
     _slideAnimation = CurvedAnimation(
       parent: _controller,
       curve: Curves.elasticOut,
     );
-    
+
     _controller.forward();
   }
 
@@ -51,11 +52,9 @@ class _ThemeSelectionScreenState extends ConsumerState<ThemeSelectionScreen>
   Widget build(BuildContext context) {
     final themeState = ref.watch(themeProvider);
     final premiumState = ref.watch(premiumProvider);
-    
+
     return Container(
-      decoration: const BoxDecoration(
-        gradient: AppTheme.backgroundGradient,
-      ),
+      decoration: const BoxDecoration(gradient: AppTheme.backgroundGradient),
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(
@@ -110,7 +109,7 @@ class _ThemeSelectionScreenState extends ConsumerState<ThemeSelectionScreen>
                 ),
               ),
               const SizedBox(height: 32),
-              
+
               // Default Theme
               AnimationUtils.slideTransition(
                 animation: _slideAnimation,
@@ -130,7 +129,7 @@ class _ThemeSelectionScreenState extends ConsumerState<ThemeSelectionScreen>
                 ),
               ),
               const SizedBox(height: 16),
-              
+
               // Premium Themes Section
               AnimationUtils.fadeTransition(
                 animation: _fadeAnimation,
@@ -167,38 +166,36 @@ class _ThemeSelectionScreenState extends ConsumerState<ThemeSelectionScreen>
                 ),
               ),
               const SizedBox(height: 16),
-              
+
               // Premium Theme Options
-              ...PremiumThemes.themeNames.asMap().entries.map(
-                (entry) {
-                  final index = entry.key;
-                  final themeName = entry.value;
-                  
-                  return AnimationUtils.slideTransition(
-                    animation: AnimationUtils.createStaggeredAnimation(
-                      controller: _controller,
-                      startFraction: 0.1 + (index * 0.1),
-                      endFraction: 0.5 + (index * 0.1),
+              ...PremiumThemes.themeNames.asMap().entries.map((entry) {
+                final index = entry.key;
+                final themeName = entry.value;
+
+                return AnimationUtils.slideTransition(
+                  animation: AnimationUtils.createStaggeredAnimation(
+                    controller: _controller,
+                    startFraction: 0.1 + (index * 0.1),
+                    endFraction: 0.5 + (index * 0.1),
+                  ),
+                  begin: const Offset(1, 0),
+                  child: Container(
+                    margin: const EdgeInsets.only(bottom: 16),
+                    child: _buildThemeOption(
+                      name: themeName,
+                      description: _getThemeDescription(themeName),
+                      colors: _getThemeColors(themeName),
+                      isSelected: themeState.currentTheme == themeName,
+                      onTap: () => _selectTheme(themeName),
+                      isPremium: true,
+                      isUnlocked: premiumState.features.isUnlocked,
                     ),
-                    begin: const Offset(1, 0),
-                    child: Container(
-                      margin: const EdgeInsets.only(bottom: 16),
-                      child: _buildThemeOption(
-                        name: themeName,
-                        description: _getThemeDescription(themeName),
-                        colors: _getThemeColors(themeName),
-                        isSelected: themeState.currentTheme == themeName,
-                        onTap: () => _selectTheme(themeName),
-                        isPremium: true,
-                        isUnlocked: premiumState.features.isUnlocked,
-                      ),
-                    ),
-                  );
-                },
-              ),
-              
+                  ),
+                );
+              }),
+
               const SizedBox(height: 32),
-              
+
               // Unlock Premium Button
               if (!premiumState.features.isUnlocked)
                 AnimationUtils.fadeTransition(
@@ -251,7 +248,7 @@ class _ThemeSelectionScreenState extends ConsumerState<ThemeSelectionScreen>
     required bool isUnlocked,
   }) {
     final isLocked = isPremium && !isUnlocked;
-    
+
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeInOut,
@@ -315,7 +312,7 @@ class _ThemeSelectionScreenState extends ConsumerState<ThemeSelectionScreen>
                     ),
                   ),
                   const SizedBox(width: 16),
-                  
+
                   // Theme Info
                   Expanded(
                     child: Column(
@@ -352,7 +349,7 @@ class _ThemeSelectionScreenState extends ConsumerState<ThemeSelectionScreen>
                       ],
                     ),
                   ),
-                  
+
                   // Selection Indicator
                   if (isSelected && !isLocked)
                     Container(
@@ -379,7 +376,7 @@ class _ThemeSelectionScreenState extends ConsumerState<ThemeSelectionScreen>
 
   void _selectTheme(String themeName) {
     ref.read(themeProvider.notifier).setTheme(themeName);
-    
+
     // Add haptic feedback
     HapticFeedback.lightImpact();
   }
@@ -404,17 +401,41 @@ class _ThemeSelectionScreenState extends ConsumerState<ThemeSelectionScreen>
   List<Color> _getThemeColors(String themeName) {
     switch (themeName) {
       case 'Sapphire':
-        return [const Color(0xFF0D1B2A), const Color(0xFF2196F3), const Color(0xFF64B5F6)];
+        return [
+          const Color(0xFF0D1B2A),
+          const Color(0xFF2196F3),
+          const Color(0xFF64B5F6),
+        ];
       case 'Emerald':
-        return [const Color(0xFF0A1F1A), const Color(0xFF4CAF50), const Color(0xFF81C784)];
+        return [
+          const Color(0xFF0A1F1A),
+          const Color(0xFF4CAF50),
+          const Color(0xFF81C784),
+        ];
       case 'Ruby':
-        return [const Color(0xFF2A0A1A), const Color(0xFFF44336), const Color(0xFFE57373)];
+        return [
+          const Color(0xFF2A0A1A),
+          const Color(0xFFF44336),
+          const Color(0xFFE57373),
+        ];
       case 'Amethyst':
-        return [const Color(0xFF1A0A2A), const Color(0xFF9C27B0), const Color(0xFFBA68C8)];
+        return [
+          const Color(0xFF1A0A2A),
+          const Color(0xFF9C27B0),
+          const Color(0xFFBA68C8),
+        ];
       case 'Midnight':
-        return [const Color(0xFF0A0F14), const Color(0xFF607D8B), const Color(0xFF90A4AE)];
+        return [
+          const Color(0xFF0A0F14),
+          const Color(0xFF607D8B),
+          const Color(0xFF90A4AE),
+        ];
       default:
-        return [const Color(0xFF0f0c29), const Color(0xFF667eea), const Color(0xFF764ba2)];
+        return [
+          const Color(0xFF0f0c29),
+          const Color(0xFF667eea),
+          const Color(0xFF764ba2),
+        ];
     }
   }
 }

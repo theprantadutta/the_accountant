@@ -24,7 +24,7 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar>
   late AnimationController _rippleController;
   late Animation<double> _scaleAnimation;
   late Animation<double> _rippleAnimation;
-  
+
   int? _tappedIndex;
 
   @override
@@ -34,27 +34,19 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar>
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
-    
+
     _rippleController = AnimationController(
       duration: const Duration(milliseconds: 600),
       vsync: this,
     );
-    
-    _scaleAnimation = Tween<double>(
-      begin: 1.0,
-      end: 1.2,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.elasticOut,
-    ));
-    
-    _rippleAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _rippleController,
-      curve: Curves.easeOut,
-    ));
+
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.2).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.elasticOut),
+    );
+
+    _rippleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _rippleController, curve: Curves.easeOut),
+    );
   }
 
   @override
@@ -69,11 +61,11 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar>
       setState(() {
         _tappedIndex = index;
       });
-      
+
       _rippleController.forward().then((_) {
         _rippleController.reset();
       });
-      
+
       HapticFeedback.lightImpact();
       widget.onTap(index);
     }
@@ -104,11 +96,11 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar>
               final item = widget.items[index];
               final isSelected = widget.currentIndex == index;
               final isCenterItem = index == 2; // AI Assistant center button
-              
+
               if (isCenterItem) {
                 return _buildCenterButton(item, index, isSelected);
               }
-              
+
               return _buildNavItem(item, index, isSelected);
             }),
           ),
@@ -152,7 +144,7 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar>
                       );
                     },
                   ),
-                
+
                 // Icon
                 AnimatedBuilder(
                   animation: _scaleAnimation,
@@ -161,15 +153,15 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar>
                       scale: isSelected ? 1.1 : 1.0,
                       child: Icon(
                         isSelected ? item.activeIcon : item.icon,
-                        color: isSelected 
-                          ? Colors.white 
-                          : Colors.white.withValues(alpha: 0.6),
+                        color: isSelected
+                            ? Colors.white
+                            : Colors.white.withValues(alpha: 0.6),
                         size: 24,
                       ),
                     );
                   },
                 ),
-                
+
                 // Badge
                 if (item.badge != null)
                   Positioned(
@@ -202,9 +194,9 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar>
             AnimatedDefaultTextStyle(
               duration: const Duration(milliseconds: 300),
               style: TextStyle(
-                color: isSelected 
-                  ? Colors.white 
-                  : Colors.white.withValues(alpha: 0.6),
+                color: isSelected
+                    ? Colors.white
+                    : Colors.white.withValues(alpha: 0.6),
                 fontSize: 11,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
               ),
@@ -227,14 +219,16 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar>
         margin: const EdgeInsets.symmetric(vertical: 8),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(32),
-          gradient: isSelected 
-            ? AppTheme.secondaryGradient 
-            : AppTheme.primaryGradient,
+          gradient: isSelected
+              ? AppTheme.secondaryGradient
+              : AppTheme.primaryGradient,
           boxShadow: [
             BoxShadow(
-              color: (isSelected 
-                ? const Color(0xFF11998e) 
-                : const Color(0xFF667eea)).withValues(alpha: 0.3),
+              color:
+                  (isSelected
+                          ? const Color(0xFF11998e)
+                          : const Color(0xFF667eea))
+                      .withValues(alpha: 0.3),
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),
@@ -262,14 +256,10 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar>
                 );
               },
             ),
-            
+
             // AI Icon with sparkle effect
-            Icon(
-              item.icon,
-              color: Colors.white,
-              size: 28,
-            ),
-            
+            Icon(item.icon, color: Colors.white, size: 28),
+
             // Sparkle animation
             if (isSelected)
               Positioned(

@@ -1,4 +1,4 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import 'package:the_accountant/features/ai/services/spending_comparison_service.dart';
 import 'package:the_accountant/features/transactions/providers/transaction_provider.dart';
 
@@ -30,12 +30,13 @@ class SpendingComparisonState {
   }
 }
 
-class SpendingComparisonNotifier extends StateNotifier<SpendingComparisonState> {
+class SpendingComparisonNotifier
+    extends StateNotifier<SpendingComparisonState> {
   final SpendingComparisonService _spendingComparisonService;
 
-  SpendingComparisonNotifier() 
-      : _spendingComparisonService = SpendingComparisonService(),
-        super(SpendingComparisonState());
+  SpendingComparisonNotifier()
+    : _spendingComparisonService = SpendingComparisonService(),
+      super(SpendingComparisonState());
 
   /// Compare spending between two periods
   Future<void> comparePeriods({
@@ -55,19 +56,18 @@ class SpendingComparisonNotifier extends StateNotifier<SpendingComparisonState> 
         period2Start: period2Start,
         period2End: period2End,
       );
-      
-      final insights = _spendingComparisonService.generateAIInsights(comparison);
-      
+
+      final insights = _spendingComparisonService.generateAIInsights(
+        comparison,
+      );
+
       state = state.copyWith(
         isLoading: false,
         comparison: comparison,
         aiInsights: insights,
       );
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: e.toString(),
-      );
+      state = state.copyWith(isLoading: false, errorMessage: e.toString());
     }
   }
 
@@ -82,6 +82,9 @@ class SpendingComparisonNotifier extends StateNotifier<SpendingComparisonState> 
   }
 }
 
-final spendingComparisonProvider = StateNotifierProvider<SpendingComparisonNotifier, SpendingComparisonState>((ref) {
-  return SpendingComparisonNotifier();
-});
+final spendingComparisonProvider =
+    StateNotifierProvider<SpendingComparisonNotifier, SpendingComparisonState>((
+      ref,
+    ) {
+      return SpendingComparisonNotifier();
+    });

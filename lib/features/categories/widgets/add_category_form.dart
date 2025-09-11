@@ -115,10 +115,7 @@ class _AddCategoryFormState extends ConsumerState<AddCategoryForm> {
               // Category type
               const Text(
                 'Type',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               ),
               const SizedBox(height: 8),
               Row(
@@ -148,10 +145,7 @@ class _AddCategoryFormState extends ConsumerState<AddCategoryForm> {
               // Color selection
               const Text(
                 'Color',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               ),
               const SizedBox(height: 8),
               Wrap(
@@ -184,7 +178,9 @@ class _AddCategoryFormState extends ConsumerState<AddCategoryForm> {
                       width: 40,
                       height: 40,
                       decoration: BoxDecoration(
-                        color: ColorUtils.hexToColor(_selectedColor).withValues(alpha: 0.2),
+                        color: ColorUtils.hexToColor(
+                          _selectedColor,
+                        ).withValues(alpha: 0.2),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
@@ -196,7 +192,9 @@ class _AddCategoryFormState extends ConsumerState<AddCategoryForm> {
                     ),
                     const SizedBox(width: 16),
                     Text(
-                      _nameController.text.isEmpty ? 'Category Preview' : _nameController.text,
+                      _nameController.text.isEmpty
+                          ? 'Category Preview'
+                          : _nameController.text,
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ],
@@ -216,7 +214,11 @@ class _AddCategoryFormState extends ConsumerState<AddCategoryForm> {
                   ),
                   child: categoryState.isLoading
                       ? const CircularProgressIndicator()
-                      : Text(widget.category != null ? 'Update Category' : 'Add Category'),
+                      : Text(
+                          widget.category != null
+                              ? 'Update Category'
+                              : 'Add Category',
+                        ),
                 ),
               ),
               if (categoryState.errorMessage != null) ...[

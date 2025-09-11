@@ -26,19 +26,22 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   final List<Map<String, dynamic>> _onboardingPages = [
     {
       'title': '💰 Welcome to The Accountant',
-      'description': 'Your personal finance companion with AI-powered insights and beautiful design',
+      'description':
+          'Your personal finance companion with AI-powered insights and beautiful design',
       'icon': Icons.account_balance_wallet,
       'gradient': AppTheme.primaryGradient,
     },
     {
       'title': '📊 Smart Budget Management',
-      'description': 'Create intelligent budgets, track spending, and never overspend again',
+      'description':
+          'Create intelligent budgets, track spending, and never overspend again',
       'icon': Icons.pie_chart,
       'gradient': AppTheme.secondaryGradient,
     },
     {
       'title': '✨ AI-Powered Insights',
-      'description': 'Get personalized financial insights and recommendations from our AI assistant',
+      'description':
+          'Get personalized financial insights and recommendations from our AI assistant',
       'icon': Icons.auto_awesome,
       'gradient': LinearGradient(
         colors: [Color(0xFFee9ca7), Color(0xFFffdde1)],
@@ -48,7 +51,8 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     },
     {
       'title': '🎨 Choose Your Style',
-      'description': 'Personalize your experience with beautiful themes that reflect your personality',
+      'description':
+          'Personalize your experience with beautiful themes that reflect your personality',
       'icon': Icons.palette,
       'gradient': LinearGradient(
         colors: [Color(0xFF8EC5FC), Color(0xFFE0C3FC)],
@@ -62,7 +66,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   @override
   void initState() {
     super.initState();
-    
+
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
@@ -72,12 +76,12 @@ class _OnboardingScreenState extends State<OnboardingScreen>
       duration: const Duration(milliseconds: 2000),
       vsync: this,
     );
-    
+
     _fadeAnimation = CurvedAnimation(
       parent: _animationController,
       curve: Curves.easeInOut,
     );
-    
+
     _slideAnimation = CurvedAnimation(
       parent: _animationController,
       curve: Curves.elasticOut,
@@ -88,14 +92,10 @@ class _OnboardingScreenState extends State<OnboardingScreen>
       curve: Curves.bounceOut,
     );
 
-    _floatingAnimation = Tween<double>(
-      begin: 0.0,
-      end: 10.0,
-    ).animate(CurvedAnimation(
-      parent: _floatingController,
-      curve: Curves.easeInOut,
-    ));
-    
+    _floatingAnimation = Tween<double>(begin: 0.0, end: 10.0).animate(
+      CurvedAnimation(parent: _floatingController, curve: Curves.easeInOut),
+    );
+
     _animationController.forward();
     _floatingController.repeat(reverse: true);
   }
@@ -116,11 +116,9 @@ class _OnboardingScreenState extends State<OnboardingScreen>
         statusBarIconBrightness: Brightness.light,
       ),
     );
-    
+
     return Container(
-      decoration: const BoxDecoration(
-        gradient: AppTheme.backgroundGradient,
-      ),
+      decoration: const BoxDecoration(gradient: AppTheme.backgroundGradient),
       child: Scaffold(
         backgroundColor: Colors.transparent,
         body: SafeArea(
@@ -146,7 +144,8 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                       description: page['description'] as String,
                       icon: page['icon'] as IconData,
                       gradient: page['gradient'] as Gradient,
-                      isThemeSelection: page['isThemeSelection'] as bool? ?? false,
+                      isThemeSelection:
+                          page['isThemeSelection'] as bool? ?? false,
                     );
                   },
                 ),
@@ -185,7 +184,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const SizedBox(height: 40),
-          
+
           // Animated floating icon
           AnimatedBuilder(
             animation: _floatingAnimation,
@@ -200,20 +199,16 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                     height: 200,
                     borderRadius: BorderRadius.circular(32),
                     child: Center(
-                      child: Icon(
-                        icon,
-                        size: 80,
-                        color: Colors.white,
-                      ),
+                      child: Icon(icon, size: 80, color: Colors.white),
                     ),
                   ),
                 ),
               );
             },
           ),
-          
+
           const SizedBox(height: 60),
-          
+
           // Animated title
           AnimationUtils.slideTransition(
             animation: _slideAnimation,
@@ -229,9 +224,9 @@ class _OnboardingScreenState extends State<OnboardingScreen>
               textAlign: TextAlign.center,
             ),
           ),
-          
+
           const SizedBox(height: 24),
-          
+
           // Animated description
           AnimationUtils.slideTransition(
             animation: _slideAnimation,
@@ -251,7 +246,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
               ),
             ),
           ),
-          
+
           // Special content for theme selection page
           if (isThemeSelection) ...[
             const SizedBox(height: 32),
@@ -267,7 +262,8 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                       Navigator.push(
                         context,
                         PageRouteBuilder(
-                          pageBuilder: (context, animation, _) => const ThemeSelectionScreen(),
+                          pageBuilder: (context, animation, _) =>
+                              const ThemeSelectionScreen(),
                           transitionsBuilder: (context, animation, _, child) {
                             return SlideTransition(
                               position: Tween<Offset>(
@@ -281,7 +277,10 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                       );
                     },
                     child: const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 16,
+                      ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -319,9 +318,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
           height: 6,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(3),
-            gradient: _currentPage == index
-                ? AppTheme.primaryGradient
-                : null,
+            gradient: _currentPage == index ? AppTheme.primaryGradient : null,
             color: _currentPage != index
                 ? Colors.white.withValues(alpha: 0.3)
                 : null,
@@ -348,7 +345,8 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                 Navigator.pushReplacement(
                   context,
                   PageRouteBuilder(
-                    pageBuilder: (context, animation, _) => const SignInScreen(),
+                    pageBuilder: (context, animation, _) =>
+                        const SignInScreen(),
                     transitionsBuilder: (context, animation, _, child) {
                       return FadeTransition(opacity: animation, child: child);
                     },

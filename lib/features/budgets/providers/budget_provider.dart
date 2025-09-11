@@ -1,4 +1,4 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:drift/drift.dart' show Value;
@@ -53,13 +53,7 @@ class BudgetState {
 class BudgetNotifier extends StateNotifier<BudgetState> {
   final AppDatabase _db;
 
-  BudgetNotifier(this._db)
-      : super(
-          BudgetState(
-            budgets: [],
-            isLoading: false,
-          ),
-        ) {
+  BudgetNotifier(this._db) : super(BudgetState(budgets: [], isLoading: false)) {
     _loadBudgets();
   }
 
@@ -67,21 +61,22 @@ class BudgetNotifier extends StateNotifier<BudgetState> {
     state = state.copyWith(isLoading: true);
     try {
       final dbBudgets = await _db.getAllBudgets();
-      final budgets = dbBudgets.map((b) => Budget(
-        id: b.id,
-        name: b.name,
-        categoryId: b.categoryId,
-        limit: b.limit,
-        period: b.period,
-        startDate: b.startDate,
-        endDate: b.endDate,
-        createdAt: b.createdAt,
-      )).toList();
+      final budgets = dbBudgets
+          .map(
+            (b) => Budget(
+              id: b.id,
+              name: b.name,
+              categoryId: b.categoryId,
+              limit: b.limit,
+              period: b.period,
+              startDate: b.startDate,
+              endDate: b.endDate,
+              createdAt: b.createdAt,
+            ),
+          )
+          .toList();
 
-      state = state.copyWith(
-        budgets: budgets,
-        isLoading: false,
-      );
+      state = state.copyWith(budgets: budgets, isLoading: false);
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
@@ -172,7 +167,7 @@ class BudgetNotifier extends StateNotifier<BudgetState> {
 
     try {
       await _db.deleteBudget(id);
-      
+
       // Reload budgets to reflect the deletion
       await _loadBudgets();
     } catch (e) {
@@ -194,12 +189,17 @@ class BudgetNotifier extends StateNotifier<BudgetState> {
   List<Budget> getActiveBudgets() {
     final now = DateTime.now();
     return state.budgets
-        .where((budget) => budget.startDate.isBefore(now) && budget.endDate.isAfter(now))
+        .where(
+          (budget) =>
+              budget.startDate.isBefore(now) && budget.endDate.isAfter(now),
+        )
         .toList();
   }
 }
 
-final budgetProvider = StateNotifierProvider<BudgetNotifier, BudgetState>((ref) {
+final budgetProvider = StateNotifierProvider<BudgetNotifier, BudgetState>((
+  ref,
+) {
   final db = ref.watch(databaseProvider);
   return BudgetNotifier(db);
 });

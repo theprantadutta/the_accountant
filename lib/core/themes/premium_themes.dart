@@ -18,9 +18,7 @@ class PremiumThemes {
     cardTheme: CardThemeData(
       color: const Color(0xFF1B263B),
       elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
     ),
     floatingActionButtonTheme: const FloatingActionButtonThemeData(
       backgroundColor: Color(0xFF2196F3),
@@ -45,9 +43,7 @@ class PremiumThemes {
     cardTheme: CardThemeData(
       color: const Color(0xFF1B3A2A),
       elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
     ),
     floatingActionButtonTheme: const FloatingActionButtonThemeData(
       backgroundColor: Color(0xFF4CAF50),
@@ -72,9 +68,7 @@ class PremiumThemes {
     cardTheme: CardThemeData(
       color: const Color(0xFF3A1B2A),
       elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
     ),
     floatingActionButtonTheme: const FloatingActionButtonThemeData(
       backgroundColor: Color(0xFFF44336),
@@ -99,9 +93,7 @@ class PremiumThemes {
     cardTheme: CardThemeData(
       color: const Color(0xFF2A1B3A),
       elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
     ),
     floatingActionButtonTheme: const FloatingActionButtonThemeData(
       backgroundColor: Color(0xFF9C27B0),
@@ -126,9 +118,7 @@ class PremiumThemes {
     cardTheme: CardThemeData(
       color: const Color(0xFF141E27),
       elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
     ),
     floatingActionButtonTheme: const FloatingActionButtonThemeData(
       backgroundColor: Color(0xFF607D8B),

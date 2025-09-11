@@ -15,9 +15,7 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
     final backupState = ref.watch(backupProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Backup & Restore'),
-      ),
+      appBar: AppBar(title: const Text('Backup & Restore')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -25,10 +23,7 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
           children: [
             const Text(
               'Google Drive Backup',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             const Text(
@@ -46,7 +41,9 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
                 ),
                 value: backupState.useEncryptedBackup,
                 onChanged: (value) {
-                  ref.read(backupProvider.notifier).toggleEncryptedBackup(value);
+                  ref
+                      .read(backupProvider.notifier)
+                      .toggleEncryptedBackup(value);
                 },
               ),
             ),
@@ -65,7 +62,9 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
                     : () async {
                         await ref
                             .read(backupProvider.notifier)
-                            .createBackup(encrypted: backupState.useEncryptedBackup);
+                            .createBackup(
+                              encrypted: backupState.useEncryptedBackup,
+                            );
                         if (!context.mounted) return;
                         if (backupState.errorMessage == null) {
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -81,7 +80,9 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: Text('Backup failed: ${backupState.errorMessage}'),
+                              content: Text(
+                                'Backup failed: ${backupState.errorMessage}',
+                              ),
                               backgroundColor: Colors.red,
                             ),
                           );
@@ -96,8 +97,8 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
                 subtitle: backupState.isRestoring
                     ? const Text('Restoring from backup...')
                     : backupState.isBackupAvailable
-                        ? const Text('Restore your data from Google Drive')
-                        : const Text('No backups available'),
+                    ? const Text('Restore your data from Google Drive')
+                    : const Text('No backups available'),
                 trailing: backupState.isRestoring
                     ? const CircularProgressIndicator()
                     : const Icon(Icons.restore),
@@ -139,24 +140,20 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
             const SizedBox(height: 24),
             const Text(
               'Available Backups',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             if (backupState.availableBackups.isEmpty)
-              const Center(
-                child: Text('No backups available'),
-              )
+              const Center(child: Text('No backups available'))
             else
               Expanded(
                 child: ListView.builder(
                   itemCount: backupState.availableBackups.length,
                   itemBuilder: (context, index) {
                     final backup = backupState.availableBackups[index];
-                    final isEncrypted = (backup['name'] as String)
-                        .contains('encrypted');
+                    final isEncrypted = (backup['name'] as String).contains(
+                      'encrypted',
+                    );
                     return Card(
                       child: ListTile(
                         title: Text(backup['name'] as String),
@@ -164,13 +161,16 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              (backup['createdTime'] as DateTime?)?.toString() ??
+                              (backup['createdTime'] as DateTime?)
+                                      ?.toString() ??
                                   'Unknown date',
                             ),
                             Text(
                               isEncrypted ? 'Encrypted' : 'Unencrypted',
                               style: TextStyle(
-                                color: isEncrypted ? Colors.green : Colors.orange,
+                                color: isEncrypted
+                                    ? Colors.green
+                                    : Colors.orange,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -198,7 +198,9 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
                                     Navigator.pop(context);
                                     if (!context.mounted) return;
                                     // Restore from this backup
-                                    ref.read(backupProvider.notifier).restoreFromBackup(
+                                    ref
+                                        .read(backupProvider.notifier)
+                                        .restoreFromBackup(
                                           backup['id'] as String,
                                           encrypted: isEncrypted,
                                         );
@@ -223,7 +225,7 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
   /// Show a dialog to select which backup to restore
   void _showBackupSelectionDialog(BuildContext context) {
     final backupState = ref.read(backupProvider);
-    
+
     if (backupState.availableBackups.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -245,7 +247,9 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
             itemCount: backupState.availableBackups.length,
             itemBuilder: (context, index) {
               final backup = backupState.availableBackups[index];
-              final isEncrypted = (backup['name'] as String).contains('encrypted');
+              final isEncrypted = (backup['name'] as String).contains(
+                'encrypted',
+              );
               return ListTile(
                 title: Text(backup['name'] as String),
                 subtitle: Text(
@@ -256,7 +260,9 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
                   Navigator.pop(context);
                   if (!context.mounted) return;
                   // Restore from this backup
-                  ref.read(backupProvider.notifier).restoreFromBackup(
+                  ref
+                      .read(backupProvider.notifier)
+                      .restoreFromBackup(
                         backup['id'] as String,
                         encrypted: isEncrypted,
                       );

@@ -11,7 +11,7 @@ class CategoryInitializationService {
     try {
       // Check if categories already exist
       final existingCategories = await _db.getAllCategories();
-      
+
       // If no categories exist, insert the default ones
       if (existingCategories.isEmpty) {
         // Using a local definition of default categories since we removed the import
@@ -53,7 +53,7 @@ class CategoryInitializationService {
             'isDefault': true,
           },
         ];
-        
+
         for (final categoryData in defaultCategories) {
           final category = CategoriesCompanion(
             id: Value(const Uuid().v4()),
@@ -62,7 +62,7 @@ class CategoryInitializationService {
             type: Value(categoryData['type'] as String),
             isDefault: Value(categoryData['isDefault'] as bool),
           );
-          
+
           await _db.addCategory(category);
         }
       }

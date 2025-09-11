@@ -12,12 +12,13 @@ class ResponsiveFinancialOverview extends ConsumerStatefulWidget {
   const ResponsiveFinancialOverview({super.key});
 
   @override
-  ConsumerState<ResponsiveFinancialOverview> createState() => _ResponsiveFinancialOverviewState();
+  ConsumerState<ResponsiveFinancialOverview> createState() =>
+      _ResponsiveFinancialOverviewState();
 }
 
-class _ResponsiveFinancialOverviewState extends ConsumerState<ResponsiveFinancialOverview>
+class _ResponsiveFinancialOverviewState
+    extends ConsumerState<ResponsiveFinancialOverview>
     with TickerProviderStateMixin {
-  
   late AnimationController _animationController;
   late AnimationController _balanceAnimationController;
   late Animation<double> _slideAnimation;
@@ -26,28 +27,27 @@ class _ResponsiveFinancialOverviewState extends ConsumerState<ResponsiveFinancia
   @override
   void initState() {
     super.initState();
-    
+
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 1200),
       vsync: this,
     );
-    
+
     _balanceAnimationController = AnimationController(
       duration: const Duration(milliseconds: 2000),
       vsync: this,
     );
-    
-    
+
     _slideAnimation = CurvedAnimation(
       parent: _animationController,
       curve: Curves.elasticOut,
     );
-    
+
     _balanceAnimation = CurvedAnimation(
       parent: _balanceAnimationController,
       curve: Curves.easeOutCubic,
     );
-    
+
     _animationController.forward();
     _balanceAnimationController.forward();
   }
@@ -65,7 +65,7 @@ class _ResponsiveFinancialOverviewState extends ConsumerState<ResponsiveFinancia
     final mockBalance = 15420.50;
     final mockIncome = 8540.00;
     final mockExpenses = 3210.75;
-    
+
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: SafeArea(
@@ -75,16 +75,16 @@ class _ResponsiveFinancialOverviewState extends ConsumerState<ResponsiveFinancia
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 20),
-              
+
               // Greeting Section
               AnimationUtils.slideTransition(
                 animation: _slideAnimation,
                 begin: const Offset(-1, 0),
                 child: _buildGreetingSection(),
               ),
-              
+
               const SizedBox(height: 32),
-              
+
               // Balance Card
               AnimationUtils.scaleTransition(
                 animation: AnimationUtils.createStaggeredAnimation(
@@ -94,9 +94,9 @@ class _ResponsiveFinancialOverviewState extends ConsumerState<ResponsiveFinancia
                 ),
                 child: _buildBalanceCard(mockBalance),
               ),
-              
+
               const SizedBox(height: 24),
-              
+
               // Quick Actions
               AnimationUtils.slideTransition(
                 animation: AnimationUtils.createStaggeredAnimation(
@@ -107,9 +107,9 @@ class _ResponsiveFinancialOverviewState extends ConsumerState<ResponsiveFinancia
                 begin: const Offset(1, 0),
                 child: _buildQuickActions(),
               ),
-              
+
               const SizedBox(height: 32),
-              
+
               // Income/Expense Overview
               AnimationUtils.slideTransition(
                 animation: AnimationUtils.createStaggeredAnimation(
@@ -120,9 +120,9 @@ class _ResponsiveFinancialOverviewState extends ConsumerState<ResponsiveFinancia
                 begin: const Offset(0, 1),
                 child: _buildIncomeExpenseOverview(mockIncome, mockExpenses),
               ),
-              
+
               const SizedBox(height: 24),
-              
+
               // Spending Chart
               AnimationUtils.fadeTransition(
                 animation: AnimationUtils.createStaggeredAnimation(
@@ -132,9 +132,9 @@ class _ResponsiveFinancialOverviewState extends ConsumerState<ResponsiveFinancia
                 ),
                 child: _buildSpendingChart(),
               ),
-              
+
               const SizedBox(height: 24),
-              
+
               // Recent Transactions
               AnimationUtils.slideTransition(
                 animation: AnimationUtils.createStaggeredAnimation(
@@ -145,9 +145,9 @@ class _ResponsiveFinancialOverviewState extends ConsumerState<ResponsiveFinancia
                 begin: const Offset(0, 1),
                 child: _buildRecentTransactions(),
               ),
-              
+
               const SizedBox(height: 24),
-              
+
               // Budget Progress
               AnimationUtils.slideTransition(
                 animation: AnimationUtils.createStaggeredAnimation(
@@ -158,7 +158,7 @@ class _ResponsiveFinancialOverviewState extends ConsumerState<ResponsiveFinancia
                 begin: const Offset(0, 1),
                 child: _buildBudgetProgress(),
               ),
-              
+
               const SizedBox(height: 100), // Bottom padding for nav bar
             ],
           ),
@@ -175,11 +175,7 @@ class _ResponsiveFinancialOverviewState extends ConsumerState<ResponsiveFinancia
           width: 48,
           height: 48,
           borderRadius: BorderRadius.circular(16),
-          child: const Icon(
-            Icons.waving_hand,
-            color: Colors.white,
-            size: 24,
-          ),
+          child: const Icon(Icons.waving_hand, color: Colors.white, size: 24),
         ),
         const SizedBox(width: 16),
         Expanded(
@@ -236,7 +232,10 @@ class _ResponsiveFinancialOverviewState extends ConsumerState<ResponsiveFinancia
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(12),
@@ -244,11 +243,7 @@ class _ResponsiveFinancialOverviewState extends ConsumerState<ResponsiveFinancia
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(
-                        Icons.visibility,
-                        color: Colors.white,
-                        size: 16,
-                      ),
+                      Icon(Icons.visibility, color: Colors.white, size: 16),
                       const SizedBox(width: 4),
                       const Text(
                         'Show',
@@ -282,7 +277,10 @@ class _ResponsiveFinancialOverviewState extends ConsumerState<ResponsiveFinancia
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.green.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(8),
@@ -325,10 +323,26 @@ class _ResponsiveFinancialOverviewState extends ConsumerState<ResponsiveFinancia
 
   Widget _buildQuickActions() {
     final actions = [
-      {'icon': Icons.arrow_upward, 'label': 'Send', 'color': const Color(0xFF667eea)},
-      {'icon': Icons.arrow_downward, 'label': 'Receive', 'color': const Color(0xFF11998e)},
-      {'icon': Icons.credit_card, 'label': 'Cards', 'color': const Color(0xFFFF6B6B)},
-      {'icon': Icons.more_horiz, 'label': 'More', 'color': const Color(0xFF4ECDC4)},
+      {
+        'icon': Icons.arrow_upward,
+        'label': 'Send',
+        'color': const Color(0xFF667eea),
+      },
+      {
+        'icon': Icons.arrow_downward,
+        'label': 'Receive',
+        'color': const Color(0xFF11998e),
+      },
+      {
+        'icon': Icons.credit_card,
+        'label': 'Cards',
+        'color': const Color(0xFFFF6B6B),
+      },
+      {
+        'icon': Icons.more_horiz,
+        'label': 'More',
+        'color': const Color(0xFF4ECDC4),
+      },
     ];
 
     return SizedBox(
@@ -558,11 +572,41 @@ class _ResponsiveFinancialOverviewState extends ConsumerState<ResponsiveFinancia
 
   Widget _buildRecentTransactions() {
     final mockTransactions = [
-      {'title': 'Starbucks Coffee', 'category': 'Food & Dining', 'amount': -5.50, 'icon': Icons.coffee, 'color': const Color(0xFFFF6B6B)},
-      {'title': 'Salary Deposit', 'category': 'Income', 'amount': 3500.00, 'icon': Icons.work, 'color': const Color(0xFF4ECDC4)},
-      {'title': 'Uber Ride', 'category': 'Transportation', 'amount': -12.30, 'icon': Icons.directions_car, 'color': const Color(0xFF45B7D1)},
-      {'title': 'Grocery Shopping', 'category': 'Shopping', 'amount': -89.45, 'icon': Icons.shopping_cart, 'color': const Color(0xFF96CEB4)},
-      {'title': 'Netflix Subscription', 'category': 'Entertainment', 'amount': -15.99, 'icon': Icons.movie, 'color': const Color(0xFFFFA07A)},
+      {
+        'title': 'Starbucks Coffee',
+        'category': 'Food & Dining',
+        'amount': -5.50,
+        'icon': Icons.coffee,
+        'color': const Color(0xFFFF6B6B),
+      },
+      {
+        'title': 'Salary Deposit',
+        'category': 'Income',
+        'amount': 3500.00,
+        'icon': Icons.work,
+        'color': const Color(0xFF4ECDC4),
+      },
+      {
+        'title': 'Uber Ride',
+        'category': 'Transportation',
+        'amount': -12.30,
+        'icon': Icons.directions_car,
+        'color': const Color(0xFF45B7D1),
+      },
+      {
+        'title': 'Grocery Shopping',
+        'category': 'Shopping',
+        'amount': -89.45,
+        'icon': Icons.shopping_cart,
+        'color': const Color(0xFF96CEB4),
+      },
+      {
+        'title': 'Netflix Subscription',
+        'category': 'Entertainment',
+        'amount': -15.99,
+        'icon': Icons.movie,
+        'color': const Color(0xFFFFA07A),
+      },
     ];
 
     return AppTheme.glassmorphicContainer(
@@ -606,7 +650,9 @@ class _ResponsiveFinancialOverviewState extends ConsumerState<ResponsiveFinancia
                       width: 48,
                       height: 48,
                       decoration: BoxDecoration(
-                        color: (transaction['color'] as Color).withValues(alpha: 0.2),
+                        color: (transaction['color'] as Color).withValues(
+                          alpha: 0.2,
+                        ),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Icon(
@@ -658,9 +704,24 @@ class _ResponsiveFinancialOverviewState extends ConsumerState<ResponsiveFinancia
 
   Widget _buildBudgetProgress() {
     final mockBudgets = [
-      {'name': 'Food & Dining', 'spent': 850.0, 'limit': 1200.0, 'color': const Color(0xFFFF6B6B)},
-      {'name': 'Transportation', 'spent': 320.0, 'limit': 500.0, 'color': const Color(0xFF45B7D1)},
-      {'name': 'Entertainment', 'spent': 180.0, 'limit': 300.0, 'color': const Color(0xFFFFA07A)},
+      {
+        'name': 'Food & Dining',
+        'spent': 850.0,
+        'limit': 1200.0,
+        'color': const Color(0xFFFF6B6B),
+      },
+      {
+        'name': 'Transportation',
+        'spent': 320.0,
+        'limit': 500.0,
+        'color': const Color(0xFF45B7D1),
+      },
+      {
+        'name': 'Entertainment',
+        'spent': 180.0,
+        'limit': 300.0,
+        'color': const Color(0xFFFFA07A),
+      },
     ];
 
     return AppTheme.glassmorphicContainer(
@@ -699,7 +760,7 @@ class _ResponsiveFinancialOverviewState extends ConsumerState<ResponsiveFinancia
               final limit = budget['limit'] as double;
               final percentage = spent / limit;
               final isOverBudget = percentage > 1.0;
-              
+
               return Container(
                 margin: const EdgeInsets.only(bottom: 20),
                 child: Column(
@@ -737,11 +798,15 @@ class _ResponsiveFinancialOverviewState extends ConsumerState<ResponsiveFinancia
                           ),
                         ),
                         Container(
-                          width: MediaQuery.of(context).size.width * 
-                                 (percentage > 1.0 ? 1.0 : percentage) * 0.8,
+                          width:
+                              MediaQuery.of(context).size.width *
+                              (percentage > 1.0 ? 1.0 : percentage) *
+                              0.8,
                           height: 6,
                           decoration: BoxDecoration(
-                            color: isOverBudget ? Colors.red : (budget['color'] as Color),
+                            color: isOverBudget
+                                ? Colors.red
+                                : (budget['color'] as Color),
                             borderRadius: BorderRadius.circular(3),
                           ),
                         ),
@@ -749,13 +814,13 @@ class _ResponsiveFinancialOverviewState extends ConsumerState<ResponsiveFinancia
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      isOverBudget 
-                        ? 'Over budget by \$${NumberFormat('#,##0.00').format(spent - limit)}'
-                        : '${((1 - percentage) * 100).toStringAsFixed(0)}% remaining',
+                      isOverBudget
+                          ? 'Over budget by \$${NumberFormat('#,##0.00').format(spent - limit)}'
+                          : '${((1 - percentage) * 100).toStringAsFixed(0)}% remaining',
                       style: TextStyle(
-                        color: isOverBudget 
-                          ? Colors.red 
-                          : Colors.white.withValues(alpha: 0.7),
+                        color: isOverBudget
+                            ? Colors.red
+                            : Colors.white.withValues(alpha: 0.7),
                         fontSize: 12,
                       ),
                     ),

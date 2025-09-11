@@ -29,16 +29,16 @@ class TransactionCard extends ConsumerWidget {
     final settings = ref.watch(settingsProvider);
     final color = ColorUtils.hexToColor(categoryColor);
     final isExpense = transactionType == 'expense';
-    
+
     // Format amount with currency
     final formatter = NumberFormat.currency(
       symbol: _getCurrencySymbol(settings.currency),
       decimalDigits: 2,
     );
     final formattedAmount = formatter.format(amount);
-    
+
     final formattedDate = DateFormat('MMM dd, yyyy').format(date);
-    
+
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: ListTile(
@@ -55,22 +55,14 @@ class TransactionCard extends ConsumerWidget {
             color: color,
           ),
         ),
-        title: Text(
-          title,
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(category),
             Text(
               formattedDate,
-              style: TextStyle(
-                color: Colors.grey[400],
-                fontSize: 12,
-              ),
+              style: TextStyle(color: Colors.grey[400], fontSize: 12),
             ),
           ],
         ),
@@ -109,7 +101,7 @@ class TransactionCard extends ConsumerWidget {
       'BRL': 'R\$',
       'ZAR': 'R',
     };
-    
+
     return currencySymbols[currencyCode] ?? currencyCode;
   }
 }

@@ -1,4 +1,4 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import 'package:the_accountant/features/ai/services/category_assignment_service.dart';
 
 class CategoryAssignmentState {
@@ -29,12 +29,13 @@ class CategoryAssignmentState {
   }
 }
 
-class CategoryAssignmentNotifier extends StateNotifier<CategoryAssignmentState> {
+class CategoryAssignmentNotifier
+    extends StateNotifier<CategoryAssignmentState> {
   final CategoryAssignmentService _categoryAssignmentService;
 
-  CategoryAssignmentNotifier() 
-      : _categoryAssignmentService = CategoryAssignmentService(), 
-        super(CategoryAssignmentState());
+  CategoryAssignmentNotifier()
+    : _categoryAssignmentService = CategoryAssignmentService(),
+      super(CategoryAssignmentState());
 
   /// Assign a category to a transaction based on its description
   Future<void> assignCategory(String description) async {
@@ -42,16 +43,10 @@ class CategoryAssignmentNotifier extends StateNotifier<CategoryAssignmentState> 
 
     try {
       final category = _categoryAssignmentService.assignCategory(description);
-      
-      state = state.copyWith(
-        isProcessing: false,
-        assignedCategory: category,
-      );
+
+      state = state.copyWith(isProcessing: false, assignedCategory: category);
     } catch (e) {
-      state = state.copyWith(
-        isProcessing: false,
-        errorMessage: e.toString(),
-      );
+      state = state.copyWith(isProcessing: false, errorMessage: e.toString());
     }
   }
 
@@ -60,17 +55,13 @@ class CategoryAssignmentNotifier extends StateNotifier<CategoryAssignmentState> 
     state = state.copyWith(isProcessing: true, errorMessage: null);
 
     try {
-      final suggestions = _categoryAssignmentService.getSuggestions(description);
-      
-      state = state.copyWith(
-        isProcessing: false,
-        suggestions: suggestions,
+      final suggestions = _categoryAssignmentService.getSuggestions(
+        description,
       );
+
+      state = state.copyWith(isProcessing: false, suggestions: suggestions);
     } catch (e) {
-      state = state.copyWith(
-        isProcessing: false,
-        errorMessage: e.toString(),
-      );
+      state = state.copyWith(isProcessing: false, errorMessage: e.toString());
     }
   }
 
@@ -85,6 +76,9 @@ class CategoryAssignmentNotifier extends StateNotifier<CategoryAssignmentState> 
   }
 }
 
-final categoryAssignmentProvider = StateNotifierProvider<CategoryAssignmentNotifier, CategoryAssignmentState>((ref) {
-  return CategoryAssignmentNotifier();
-});
+final categoryAssignmentProvider =
+    StateNotifierProvider<CategoryAssignmentNotifier, CategoryAssignmentState>((
+      ref,
+    ) {
+      return CategoryAssignmentNotifier();
+    });

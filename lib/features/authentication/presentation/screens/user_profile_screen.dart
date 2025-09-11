@@ -20,10 +20,10 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
   late TextEditingController _nameController;
   late TextEditingController _emailController;
   late TextEditingController _phoneController;
-  
+
   late AnimationController _animationController;
   late Animation<double> _slideAnimation;
-  
+
   // Mock user data
   final Map<String, dynamic> _mockUser = {
     'name': 'John Doe',
@@ -40,21 +40,21 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
   @override
   void initState() {
     super.initState();
-    
+
     _nameController = TextEditingController(text: _mockUser['name']);
     _emailController = TextEditingController(text: _mockUser['email']);
     _phoneController = TextEditingController(text: _mockUser['phone']);
-    
+
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 1000),
       vsync: this,
     );
-    
+
     _slideAnimation = CurvedAnimation(
       parent: _animationController,
       curve: Curves.elasticOut,
     );
-    
+
     _animationController.forward();
   }
 
@@ -78,16 +78,16 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 20),
-              
+
               // Profile Header
               AnimationUtils.slideTransition(
                 animation: _slideAnimation,
                 begin: const Offset(0, -1),
                 child: _buildProfileHeader(),
               ),
-              
+
               const SizedBox(height: 32),
-              
+
               // Account Stats
               AnimationUtils.fadeTransition(
                 animation: AnimationUtils.createStaggeredAnimation(
@@ -97,9 +97,9 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
                 ),
                 child: _buildAccountStats(),
               ),
-              
+
               const SizedBox(height: 24),
-              
+
               // Personal Information
               AnimationUtils.slideTransition(
                 animation: AnimationUtils.createStaggeredAnimation(
@@ -110,9 +110,9 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
                 begin: const Offset(0, 1),
                 child: _buildPersonalInfo(),
               ),
-              
+
               const SizedBox(height: 24),
-              
+
               // Premium Status
               AnimationUtils.slideTransition(
                 animation: AnimationUtils.createStaggeredAnimation(
@@ -123,9 +123,9 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
                 begin: const Offset(0, 1),
                 child: _buildPremiumStatus(),
               ),
-              
+
               const SizedBox(height: 24),
-              
+
               // Settings Options
               AnimationUtils.slideTransition(
                 animation: AnimationUtils.createStaggeredAnimation(
@@ -136,9 +136,9 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
                 begin: const Offset(0, 1),
                 child: _buildSettingsOptions(),
               ),
-              
+
               const SizedBox(height: 24),
-              
+
               // Action Buttons
               AnimationUtils.slideTransition(
                 animation: AnimationUtils.createStaggeredAnimation(
@@ -149,7 +149,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
                 begin: const Offset(0, 1),
                 child: _buildActionButtons(),
               ),
-              
+
               const SizedBox(height: 100), // Bottom padding for nav bar
             ],
           ),
@@ -157,7 +157,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
       ),
     );
   }
-  
+
   Widget _buildProfileHeader() {
     return AppTheme.glassmorphicContainer(
       child: Container(
@@ -182,18 +182,14 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
                     ],
                   ),
                   child: _mockUser['photoUrl'] != null
-                    ? ClipRRect(
-                        borderRadius: BorderRadius.circular(50),
-                        child: Image.network(
-                          _mockUser['photoUrl'],
-                          fit: BoxFit.cover,
-                        ),
-                      )
-                    : const Icon(
-                        Icons.person,
-                        size: 50,
-                        color: Colors.white,
-                      ),
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.circular(50),
+                          child: Image.network(
+                            _mockUser['photoUrl'],
+                            fit: BoxFit.cover,
+                          ),
+                        )
+                      : const Icon(Icons.person, size: 50, color: Colors.white),
                 ),
                 Positioned(
                   bottom: 0,
@@ -221,9 +217,9 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Name and Email
             Text(
               _mockUser['name'],
@@ -242,7 +238,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
               ),
             ),
             const SizedBox(height: 8),
-            
+
             // Member Since
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -267,12 +263,27 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
       ),
     );
   }
-  
+
   Widget _buildAccountStats() {
     final stats = [
-      {'title': 'Transactions', 'value': '${_mockUser['totalTransactions']}', 'icon': Icons.swap_horiz, 'color': const Color(0xFF667eea)},
-      {'title': 'Categories', 'value': '${_mockUser['categoriesUsed']}', 'icon': Icons.category, 'color': const Color(0xFF11998e)},
-      {'title': 'Budgets', 'value': '${_mockUser['budgetsCreated']}', 'icon': Icons.account_balance_wallet, 'color': const Color(0xFFFF6B6B)},
+      {
+        'title': 'Transactions',
+        'value': '${_mockUser['totalTransactions']}',
+        'icon': Icons.swap_horiz,
+        'color': const Color(0xFF667eea),
+      },
+      {
+        'title': 'Categories',
+        'value': '${_mockUser['categoriesUsed']}',
+        'icon': Icons.category,
+        'color': const Color(0xFF11998e),
+      },
+      {
+        'title': 'Budgets',
+        'value': '${_mockUser['budgetsCreated']}',
+        'icon': Icons.account_balance_wallet,
+        'color': const Color(0xFFFF6B6B),
+      },
     ];
 
     return Row(
@@ -323,7 +334,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
       }).toList(),
     );
   }
-  
+
   Widget _buildPersonalInfo() {
     return AppTheme.glassmorphicContainer(
       child: Container(
@@ -340,7 +351,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
               ),
             ),
             const SizedBox(height: 20),
-            
+
             // Name field
             _buildInputField(
               controller: _nameController,
@@ -349,7 +360,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
               enabled: true,
             ),
             const SizedBox(height: 16),
-            
+
             // Email field (read-only)
             _buildInputField(
               controller: _emailController,
@@ -358,7 +369,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
               enabled: false,
             ),
             const SizedBox(height: 16),
-            
+
             // Phone number field
             _buildInputField(
               controller: _phoneController,
@@ -372,7 +383,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
       ),
     );
   }
-  
+
   Widget _buildInputField({
     required TextEditingController controller,
     required String label,
@@ -382,13 +393,11 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: enabled 
-          ? Colors.white.withValues(alpha: 0.05) 
-          : Colors.white.withValues(alpha: 0.02),
+        color: enabled
+            ? Colors.white.withValues(alpha: 0.05)
+            : Colors.white.withValues(alpha: 0.02),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.1),
-        ),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
       ),
       child: TextFormField(
         controller: controller,
@@ -399,26 +408,23 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
         ),
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: TextStyle(
-            color: Colors.white.withValues(alpha: 0.7),
-          ),
-          prefixIcon: Icon(
-            icon,
-            color: Colors.white.withValues(alpha: 0.7),
-          ),
+          labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
+          prefixIcon: Icon(icon, color: Colors.white.withValues(alpha: 0.7)),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.all(16),
         ),
-        validator: enabled ? (value) {
-          if (value == null || value.isEmpty) {
-            return 'This field is required';
-          }
-          return null;
-        } : null,
+        validator: enabled
+            ? (value) {
+                if (value == null || value.isEmpty) {
+                  return 'This field is required';
+                }
+                return null;
+              }
+            : null,
       ),
     );
   }
-  
+
   Widget _buildPremiumStatus() {
     if (_mockUser['isPremium'] != true) {
       return AppTheme.glassmorphicContainer(
@@ -460,10 +466,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
                         ),
                         Text(
                           'Unlock unlimited budgets, advanced analytics, and more!',
-                          style: TextStyle(
-                            color: Colors.white70,
-                            fontSize: 14,
-                          ),
+                          style: TextStyle(color: Colors.white70, fontSize: 14),
                         ),
                       ],
                     ),
@@ -488,10 +491,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
                   ),
                   child: const Text(
                     'Upgrade Now',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                   ),
                 ),
               ),
@@ -500,7 +500,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
         ),
       );
     }
-    
+
     return AppTheme.glassmorphicContainer(
       child: Container(
         padding: const EdgeInsets.all(20),
@@ -552,19 +552,12 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
                         ),
                       ),
                       SizedBox(width: 8),
-                      Icon(
-                        Icons.verified,
-                        color: Color(0xFFFFD700),
-                        size: 20,
-                      ),
+                      Icon(Icons.verified, color: Color(0xFFFFD700), size: 20),
                     ],
                   ),
                   Text(
                     'Enjoying all premium features',
-                    style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 14,
-                    ),
+                    style: TextStyle(color: Colors.white70, fontSize: 14),
                   ),
                 ],
               ),
@@ -574,13 +567,29 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
       ),
     );
   }
-  
+
   Widget _buildSettingsOptions() {
     final options = [
-      {'title': 'Notifications', 'subtitle': 'Manage your notification preferences', 'icon': Icons.notifications},
-      {'title': 'Privacy & Security', 'subtitle': 'Control your privacy settings', 'icon': Icons.security},
-      {'title': 'Data Export', 'subtitle': 'Download your financial data', 'icon': Icons.download},
-      {'title': 'Theme Settings', 'subtitle': 'Customize your app appearance', 'icon': Icons.palette},
+      {
+        'title': 'Notifications',
+        'subtitle': 'Manage your notification preferences',
+        'icon': Icons.notifications,
+      },
+      {
+        'title': 'Privacy & Security',
+        'subtitle': 'Control your privacy settings',
+        'icon': Icons.security,
+      },
+      {
+        'title': 'Data Export',
+        'subtitle': 'Download your financial data',
+        'icon': Icons.download,
+      },
+      {
+        'title': 'Theme Settings',
+        'subtitle': 'Customize your app appearance',
+        'icon': Icons.palette,
+      },
     ];
 
     return AppTheme.glassmorphicContainer(
@@ -658,7 +667,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
       ),
     );
   }
-  
+
   Widget _buildActionButtons() {
     return Column(
       children: [
@@ -692,9 +701,9 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
             ),
           ),
         ),
-        
+
         const SizedBox(height: 16),
-        
+
         // Sign Out Button
         SizedBox(
           width: double.infinity,
@@ -736,7 +745,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
       ],
     );
   }
-  
+
   void _showSignOutDialog() {
     showDialog(
       context: context,
@@ -841,16 +850,16 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
       },
     );
   }
-  
+
   void _saveProfile() {
     HapticFeedback.mediumImpact();
-    
+
     // Mock save operation
     setState(() {
       _mockUser['name'] = _nameController.text;
       _mockUser['phone'] = _phoneController.text;
     });
-    
+
     // Show success message
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(

@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:the_accountant/features/categories/providers/category_provider.dart' as category_provider;
-import 'package:the_accountant/features/categories/widgets/add_category_form.dart' as add_category_form;
-import 'package:the_accountant/features/categories/widgets/add_category_form.dart' show Category;
-import 'package:the_accountant/features/categories/widgets/category_list_item.dart' as category_list_item;
+import 'package:the_accountant/features/categories/providers/category_provider.dart'
+    as category_provider;
+import 'package:the_accountant/features/categories/widgets/add_category_form.dart'
+    as add_category_form;
+import 'package:the_accountant/features/categories/widgets/add_category_form.dart'
+    show Category;
+import 'package:the_accountant/features/categories/widgets/category_list_item.dart'
+    as category_list_item;
 
 class CategoryManagementScreen extends ConsumerWidget {
   const CategoryManagementScreen({super.key});
@@ -64,10 +68,7 @@ class CategoryManagementScreen extends ConsumerWidget {
           padding: const EdgeInsets.all(16.0),
           child: Text(
             title,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
         ),
         if (categories.isEmpty)
@@ -93,7 +94,7 @@ class CategoryManagementScreen extends ConsumerWidget {
                 type: category.type,
                 isDefault: category.isDefault,
               );
-              
+
               return category_list_item.CategoryListItem(
                 category: listItemCategory,
                 onDelete: category.isDefault
@@ -123,7 +124,11 @@ class CategoryManagementScreen extends ConsumerWidget {
     );
   }
 
-  void _showEditCategoryDialog(BuildContext context, WidgetRef ref, category_provider.Category category) {
+  void _showEditCategoryDialog(
+    BuildContext context,
+    WidgetRef ref,
+    category_provider.Category category,
+  ) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -136,12 +141,18 @@ class CategoryManagementScreen extends ConsumerWidget {
           type: category.type,
           isDefault: category.isDefault,
         );
-        return add_category_form.AddCategoryForm(category: addCategoryFormCategory);
+        return add_category_form.AddCategoryForm(
+          category: addCategoryFormCategory,
+        );
       },
     );
   }
 
-  void _confirmDeleteCategory(BuildContext context, WidgetRef ref, category_provider.Category category) {
+  void _confirmDeleteCategory(
+    BuildContext context,
+    WidgetRef ref,
+    category_provider.Category category,
+  ) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -155,7 +166,9 @@ class CategoryManagementScreen extends ConsumerWidget {
             ),
             TextButton(
               onPressed: () {
-                ref.read(category_provider.categoryProvider.notifier).deleteCategory(category.id);
+                ref
+                    .read(category_provider.categoryProvider.notifier)
+                    .deleteCategory(category.id);
                 Navigator.pop(context);
               },
               child: const Text('Delete'),

@@ -10,17 +10,15 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EnvService.init();
   await Firebase.initializeApp();
-  
+
   // Initialize database and default categories
   final db = constructDb();
   final categoryService = CategoryInitializationService(db);
   await categoryService.initializeDefaultCategories();
-  
+
   runApp(
     ProviderScope(
-      overrides: [
-        databaseProvider.overrideWithValue(db),
-      ],
+      overrides: [databaseProvider.overrideWithValue(db)],
       child: const MyApp(),
     ),
   );

@@ -9,7 +9,8 @@ class ReceiptScannerScreen extends ConsumerStatefulWidget {
   const ReceiptScannerScreen({super.key});
 
   @override
-  ConsumerState<ReceiptScannerScreen> createState() => _ReceiptScannerScreenState();
+  ConsumerState<ReceiptScannerScreen> createState() =>
+      _ReceiptScannerScreenState();
 }
 
 class _ReceiptScannerScreenState extends ConsumerState<ReceiptScannerScreen> {
@@ -40,7 +41,9 @@ class _ReceiptScannerScreenState extends ConsumerState<ReceiptScannerScreen> {
 
         // Process the image
         if (_selectedImage != null) {
-          await ref.read(ocrProvider.notifier).extractReceiptData(_selectedImage!);
+          await ref
+              .read(ocrProvider.notifier)
+              .extractReceiptData(_selectedImage!);
         }
       }
     } catch (e) {
@@ -68,7 +71,9 @@ class _ReceiptScannerScreenState extends ConsumerState<ReceiptScannerScreen> {
 
         // Process the image
         if (_selectedImage != null) {
-          await ref.read(ocrProvider.notifier).extractReceiptData(_selectedImage!);
+          await ref
+              .read(ocrProvider.notifier)
+              .extractReceiptData(_selectedImage!);
         }
       }
     } catch (e) {
@@ -88,9 +93,7 @@ class _ReceiptScannerScreenState extends ConsumerState<ReceiptScannerScreen> {
     final ocrState = ref.watch(ocrProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Receipt Scanner'),
-      ),
+      appBar: AppBar(title: const Text('Receipt Scanner')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -130,7 +133,7 @@ class _ReceiptScannerScreenState extends ConsumerState<ReceiptScannerScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            
+
             // Selected image preview
             if (_selectedImage != null)
               Card(
@@ -160,9 +163,9 @@ class _ReceiptScannerScreenState extends ConsumerState<ReceiptScannerScreen> {
                   ),
                 ),
               ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Processing indicator
             if (ocrState.isProcessing)
               const Center(
@@ -174,7 +177,7 @@ class _ReceiptScannerScreenState extends ConsumerState<ReceiptScannerScreen> {
                   ],
                 ),
               ),
-            
+
             // Error message
             if (ocrState.errorMessage != null)
               Card(
@@ -187,9 +190,9 @@ class _ReceiptScannerScreenState extends ConsumerState<ReceiptScannerScreen> {
                   ),
                 ),
               ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Extracted receipt data
             if (ocrState.receiptData != null)
               Expanded(
@@ -211,8 +214,10 @@ class _ReceiptScannerScreenState extends ConsumerState<ReceiptScannerScreen> {
                           Text('Merchant: ${ocrState.receiptData!.merchant}'),
                           if (ocrState.receiptData!.date != null)
                             Text('Date: ${ocrState.receiptData!.date}'),
-                          Text('Total: \$${ocrState.receiptData!.total.toStringAsFixed(2)}'),
-                          
+                          Text(
+                            'Total: \$${ocrState.receiptData!.total.toStringAsFixed(2)}',
+                          ),
+
                           // Barcode information
                           if (ocrState.receiptData!.barcodeInfo != null) ...[
                             const SizedBox(height: 16),
@@ -225,9 +230,13 @@ class _ReceiptScannerScreenState extends ConsumerState<ReceiptScannerScreen> {
                             ),
                             Text(ocrState.receiptData!.barcodeInfo!),
                           ],
-                          
+
                           // Image labels
-                          if (ocrState.receiptData!.imageLabels != null && ocrState.receiptData!.imageLabels!.isNotEmpty) ...[
+                          if (ocrState.receiptData!.imageLabels != null &&
+                              ocrState
+                                  .receiptData!
+                                  .imageLabels!
+                                  .isNotEmpty) ...[
                             const SizedBox(height: 16),
                             const Text(
                               'Image Labels:',
@@ -239,7 +248,9 @@ class _ReceiptScannerScreenState extends ConsumerState<ReceiptScannerScreen> {
                             Wrap(
                               spacing: 8,
                               runSpacing: 4,
-                              children: ocrState.receiptData!.imageLabels!.map((label) {
+                              children: ocrState.receiptData!.imageLabels!.map((
+                                label,
+                              ) {
                                 return Chip(
                                   label: Text(label),
                                   backgroundColor: Colors.blue[100],
@@ -247,7 +258,7 @@ class _ReceiptScannerScreenState extends ConsumerState<ReceiptScannerScreen> {
                               }).toList(),
                             ),
                           ],
-                          
+
                           const SizedBox(height: 16),
                           const Text(
                             'Items:',
@@ -265,7 +276,9 @@ class _ReceiptScannerScreenState extends ConsumerState<ReceiptScannerScreen> {
                               final item = ocrState.receiptData!.items[index];
                               return ListTile(
                                 title: Text(item.name),
-                                trailing: Text('\$${item.price.toStringAsFixed(2)}'),
+                                trailing: Text(
+                                  '\$${item.price.toStringAsFixed(2)}',
+                                ),
                               );
                             },
                           ),
@@ -287,7 +300,7 @@ class _ReceiptScannerScreenState extends ConsumerState<ReceiptScannerScreen> {
                   ),
                 ),
               ),
-            
+
             // Raw extracted text
             if (ocrState.extractedText != null && ocrState.receiptData == null)
               Expanded(

@@ -12,9 +12,7 @@ class PremiumScreen extends ConsumerWidget {
     final premiumState = ref.watch(premiumProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Premium Features'),
-      ),
+      appBar: AppBar(title: const Text('Premium Features')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -32,32 +30,23 @@ class PremiumScreen extends ConsumerWidget {
                   const SizedBox(height: 16),
                   const Text(
                     'Unlock Premium Features',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     'Get the most out of your financial management experience',
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey[600],
-                    ),
+                    style: TextStyle(fontSize: 16, color: Colors.grey[600]),
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 32),
-            
+
             // Premium features list
             const Text(
               'Premium Features',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             Expanded(
@@ -96,9 +85,9 @@ class PremiumScreen extends ConsumerWidget {
                 ],
               ),
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Purchase button or status
             if (!premiumState.features.isUnlocked) ...[
               if (paymentState.isLoading)
@@ -128,7 +117,9 @@ class PremiumScreen extends ConsumerWidget {
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: paymentState.isAvailable
-                            ? () => ref.read(paymentProvider.notifier).purchasePremiumFeatures()
+                            ? () => ref
+                                  .read(paymentProvider.notifier)
+                                  .purchasePremiumFeatures()
                             : null,
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.all(16),
@@ -146,7 +137,8 @@ class PremiumScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 8),
                     TextButton(
-                      onPressed: () => ref.read(paymentProvider.notifier).restorePurchases(),
+                      onPressed: () =>
+                          ref.read(paymentProvider.notifier).restorePurchases(),
                       child: const Text('Restore Purchases'),
                     ),
                   ],
@@ -180,7 +172,11 @@ class PremiumScreen extends ConsumerWidget {
                       child: ElevatedButton(
                         onPressed: () {
                           // Navigate to support screen
-                          Navigator.pushNamed(context, '/support', arguments: 'user123');
+                          Navigator.pushNamed(
+                            context,
+                            '/support',
+                            arguments: 'user123',
+                          );
                         },
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.all(16),
@@ -193,7 +189,8 @@ class PremiumScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 8),
                     TextButton(
-                      onPressed: () => ref.read(paymentProvider.notifier).restorePurchases(),
+                      onPressed: () =>
+                          ref.read(paymentProvider.notifier).restorePurchases(),
                       child: const Text('Restore Purchases'),
                     ),
                   ],
@@ -222,9 +219,7 @@ class PremiumScreen extends ConsumerWidget {
         ),
         subtitle: Text(
           description,
-          style: TextStyle(
-            color: isUnlocked ? Colors.black87 : Colors.grey,
-          ),
+          style: TextStyle(color: isUnlocked ? Colors.black87 : Colors.grey),
         ),
       ),
     );

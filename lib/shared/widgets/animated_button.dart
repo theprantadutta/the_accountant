@@ -46,12 +46,7 @@ class _AnimatedButtonState extends State<AnimatedButton>
     _scaleAnimation = Tween<double>(
       begin: 1.0,
       end: 0.95,
-    ).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: Curves.easeInOut,
-      ),
-    );
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
   }
 
   @override
@@ -88,7 +83,9 @@ class _AnimatedButtonState extends State<AnimatedButton>
               width: widget.width,
               height: widget.height,
               decoration: BoxDecoration(
-                color: widget.backgroundColor ?? Theme.of(context).colorScheme.primary,
+                color:
+                    widget.backgroundColor ??
+                    Theme.of(context).colorScheme.primary,
                 shape: BoxShape.rectangle,
                 borderRadius: BorderRadius.circular(8),
                 boxShadow: [

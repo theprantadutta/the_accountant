@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import 'package:the_accountant/core/services/notification_service.dart';
 
 class NotificationState {
@@ -25,7 +26,8 @@ class NotificationState {
   }) {
     return NotificationState(
       isInitialized: isInitialized ?? this.isInitialized,
-      areNotificationsEnabled: areNotificationsEnabled ?? this.areNotificationsEnabled,
+      areNotificationsEnabled:
+          areNotificationsEnabled ?? this.areNotificationsEnabled,
       fcmToken: fcmToken ?? this.fcmToken,
       isLoading: isLoading ?? this.isLoading,
       errorMessage: errorMessage,
@@ -42,13 +44,13 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
 
   Future<void> _initialize() async {
     state = state.copyWith(isLoading: true);
-    
+
     try {
       await _notificationService.initialize();
-      
+
       // Get FCM token
       final token = await _notificationService.getToken();
-      
+
       state = state.copyWith(
         isInitialized: true,
         areNotificationsEnabled: true,
@@ -66,23 +68,20 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
 
   Future<void> requestPermissions() async {
     state = state.copyWith(isLoading: true);
-    
+
     try {
       await _notificationService.initialize();
-      
+
       // Get FCM token
       final token = await _notificationService.getToken();
-      
+
       state = state.copyWith(
         areNotificationsEnabled: true,
         fcmToken: token,
         isLoading: false,
       );
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: e.toString(),
-      );
+      state = state.copyWith(isLoading: false, errorMessage: e.toString());
     }
   }
 
@@ -104,7 +103,10 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
 
   Future<void> showBudgetWarning(String budgetName, double percentage) async {
     try {
-      await _notificationService.showBudgetWarningNotification(budgetName, percentage);
+      await _notificationService.showBudgetWarningNotification(
+        budgetName,
+        percentage,
+      );
     } catch (e) {
       state = state.copyWith(errorMessage: e.toString());
     }
@@ -120,7 +122,9 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
 
   Future<void> showSubscriptionAlert(String subscriptionName) async {
     try {
-      await _notificationService.showSubscriptionAlertNotification(subscriptionName);
+      await _notificationService.showSubscriptionAlertNotification(
+        subscriptionName,
+      );
     } catch (e) {
       state = state.copyWith(errorMessage: e.toString());
     }
@@ -131,7 +135,8 @@ final notificationServiceProvider = Provider<NotificationService>((ref) {
   return NotificationService();
 });
 
-final notificationProvider = StateNotifierProvider<NotificationNotifier, NotificationState>((ref) {
-  final notificationService = ref.watch(notificationServiceProvider);
-  return NotificationNotifier(notificationService);
-});
+final notificationProvider =
+    StateNotifierProvider<NotificationNotifier, NotificationState>((ref) {
+      final notificationService = ref.watch(notificationServiceProvider);
+      return NotificationNotifier(notificationService);
+    });

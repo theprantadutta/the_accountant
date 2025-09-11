@@ -26,40 +26,42 @@ class BudgetProgress extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final transactionState = ref.watch(transactionProvider);
     final settings = ref.watch(settingsProvider);
-    
+
     // Calculate spent amount for this budget's category and date range
     final spent = transactionState.transactions
-        .where((transaction) => 
-            transaction.categoryId == categoryId &&
-            transaction.type == 'expense' &&
-            transaction.date.isAfter(startDate) &&
-            transaction.date.isBefore(endDate))
+        .where(
+          (transaction) =>
+              transaction.categoryId == categoryId &&
+              transaction.type == 'expense' &&
+              transaction.date.isAfter(startDate) &&
+              transaction.date.isBefore(endDate),
+        )
         .fold(0.0, (sum, transaction) => sum + transaction.amount);
-    
+
     final percentage = limit > 0 ? (spent / limit).clamp(0.0, 1.0) : 0.0;
     final remaining = limit - spent;
-    
+
     final formattedLimit = NumberFormat.currency(
       symbol: _getCurrencySymbol(settings.currency),
       decimalDigits: 2,
     ).format(limit);
-    
+
     final formattedSpent = NumberFormat.currency(
       symbol: _getCurrencySymbol(settings.currency),
       decimalDigits: 2,
     ).format(spent);
-    
+
     final formattedRemaining = NumberFormat.currency(
       symbol: _getCurrencySymbol(settings.currency),
       decimalDigits: 2,
     ).format(remaining.abs());
-    
+
     Color getProgressColor() {
       if (percentage < 0.5) return Colors.green;
       if (percentage < 0.8) return Colors.orange;
       return Colors.red;
     }
-    
+
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Padding(
@@ -79,9 +81,7 @@ class BudgetProgress extends ConsumerWidget {
                 ),
                 Text(
                   '$formattedSpent / $formattedLimit',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
               ],
             ),
@@ -93,9 +93,9 @@ class BudgetProgress extends ConsumerWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              remaining >= 0 
-                ? '$formattedRemaining remaining' 
-                : '$formattedRemaining over budget',
+              remaining >= 0
+                  ? '$formattedRemaining remaining'
+                  : '$formattedRemaining over budget',
               style: TextStyle(
                 color: remaining >= 0 ? Colors.green : Colors.red,
                 fontWeight: FontWeight.bold,
@@ -131,7 +131,7 @@ class BudgetProgress extends ConsumerWidget {
       'BRL': 'R\$',
       'ZAR': 'R',
     };
-    
+
     return currencySymbols[currencyCode] ?? currencyCode;
   }
 }

@@ -72,16 +72,16 @@ class SupportTicket extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        userId,
-        title,
-        description,
-        category,
-        createdAt,
-        updatedAt,
-        status,
-        isPremiumUser,
-        priority,
-        response,
-      ];
+    id,
+    userId,
+    title,
+    description,
+    category,
+    createdAt,
+    updatedAt,
+    status,
+    isPremiumUser,
+    priority,
+    response,
+  ];
 }

@@ -31,10 +31,7 @@ class AddWalletForm extends StatelessWidget {
             children: [
               const Text(
                 'Add New Wallet',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16),
               TextFormField(
@@ -86,10 +83,7 @@ class AddWalletForm extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  TextButton(
-                    onPressed: onCancel,
-                    child: const Text('Cancel'),
-                  ),
+                  TextButton(onPressed: onCancel, child: const Text('Cancel')),
                   const SizedBox(width: 8),
                   ElevatedButton(
                     onPressed: onSubmit,

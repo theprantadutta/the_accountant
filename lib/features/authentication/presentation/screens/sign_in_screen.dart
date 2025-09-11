@@ -19,7 +19,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
-  
+
   late AnimationController _animationController;
   late AnimationController _floatingController;
   late Animation<double> _fadeAnimation;
@@ -30,40 +30,36 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
   @override
   void initState() {
     super.initState();
-    
+
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 1200),
       vsync: this,
     );
-    
+
     _floatingController = AnimationController(
       duration: const Duration(milliseconds: 2000),
       vsync: this,
     );
-    
+
     _fadeAnimation = CurvedAnimation(
       parent: _animationController,
       curve: Curves.easeInOut,
     );
-    
+
     _slideAnimation = CurvedAnimation(
       parent: _animationController,
       curve: Curves.elasticOut,
     );
-    
+
     _scaleAnimation = CurvedAnimation(
       parent: _animationController,
       curve: Curves.bounceOut,
     );
-    
-    _floatingAnimation = Tween<double>(
-      begin: 0.0,
-      end: 8.0,
-    ).animate(CurvedAnimation(
-      parent: _floatingController,
-      curve: Curves.easeInOut,
-    ));
-    
+
+    _floatingAnimation = Tween<double>(begin: 0.0, end: 8.0).animate(
+      CurvedAnimation(parent: _floatingController, curve: Curves.easeInOut),
+    );
+
     _animationController.forward();
     _floatingController.repeat(reverse: true);
   }
@@ -79,7 +75,9 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
 
   void _signIn() {
     if (_formKey.currentState!.validate()) {
-      ref.read(authProvider.notifier).signInWithEmailAndPassword(
+      ref
+          .read(authProvider.notifier)
+          .signInWithEmailAndPassword(
             _emailController.text,
             _passwordController.text,
           );
@@ -104,9 +102,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
     }
 
     return Container(
-      decoration: const BoxDecoration(
-        gradient: AppTheme.backgroundGradient,
-      ),
+      decoration: const BoxDecoration(gradient: AppTheme.backgroundGradient),
       child: Scaffold(
         backgroundColor: Colors.transparent,
         body: SafeArea(
@@ -118,7 +114,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const SizedBox(height: 40),
-                  
+
                   // Floating App Icon
                   AnimatedBuilder(
                     animation: _floatingAnimation,
@@ -144,9 +140,9 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
                       );
                     },
                   ),
-                  
+
                   const SizedBox(height: 40),
-                  
+
                   // Welcome Text
                   AnimationUtils.slideTransition(
                     animation: _slideAnimation,
@@ -174,9 +170,9 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
                       ],
                     ),
                   ),
-                  
+
                   const SizedBox(height: 50),
-                  
+
                   // Email Field
                   AnimationUtils.slideTransition(
                     animation: AnimationUtils.createStaggeredAnimation(
@@ -193,7 +189,10 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
                         decoration: const InputDecoration(
                           labelText: 'Email Address',
                           labelStyle: TextStyle(color: Colors.white70),
-                          prefixIcon: Icon(Icons.email_outlined, color: Colors.white70),
+                          prefixIcon: Icon(
+                            Icons.email_outlined,
+                            color: Colors.white70,
+                          ),
                           border: InputBorder.none,
                           contentPadding: EdgeInsets.all(20),
                         ),
@@ -209,9 +208,9 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
                       ),
                     ),
                   ),
-                  
+
                   const SizedBox(height: 20),
-                  
+
                   // Password Field
                   AnimationUtils.slideTransition(
                     animation: AnimationUtils.createStaggeredAnimation(
@@ -228,10 +227,15 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
                         decoration: InputDecoration(
                           labelText: 'Password',
                           labelStyle: const TextStyle(color: Colors.white70),
-                          prefixIcon: const Icon(Icons.lock_outline, color: Colors.white70),
+                          prefixIcon: const Icon(
+                            Icons.lock_outline,
+                            color: Colors.white70,
+                          ),
                           suffixIcon: IconButton(
                             icon: Icon(
-                              _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                              _obscurePassword
+                                  ? Icons.visibility_off
+                                  : Icons.visibility,
                               color: Colors.white70,
                             ),
                             onPressed: () {
@@ -255,9 +259,9 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
                       ),
                     ),
                   ),
-                  
+
                   const SizedBox(height: 30),
-                  
+
                   // Sign In Button
                   AnimationUtils.scaleTransition(
                     animation: AnimationUtils.createStaggeredAnimation(
@@ -275,7 +279,9 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
                           onTap: authState.isLoading ? null : _signIn,
                           child: Center(
                             child: authState.isLoading
-                                ? const CircularProgressIndicator(color: Colors.white)
+                                ? const CircularProgressIndicator(
+                                    color: Colors.white,
+                                  )
                                 : const Text(
                                     'Sign In',
                                     style: TextStyle(
@@ -289,15 +295,19 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
                       ),
                     ),
                   ),
-                  
+
                   const SizedBox(height: 20),
-                  
+
                   // Divider
                   AnimationUtils.fadeTransition(
                     animation: _fadeAnimation,
                     child: Row(
                       children: [
-                        Expanded(child: Divider(color: Colors.white.withValues(alpha: 0.3))),
+                        Expanded(
+                          child: Divider(
+                            color: Colors.white.withValues(alpha: 0.3),
+                          ),
+                        ),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           child: Text(
@@ -308,13 +318,17 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
                             ),
                           ),
                         ),
-                        Expanded(child: Divider(color: Colors.white.withValues(alpha: 0.3))),
+                        Expanded(
+                          child: Divider(
+                            color: Colors.white.withValues(alpha: 0.3),
+                          ),
+                        ),
                       ],
                     ),
                   ),
-                  
+
                   const SizedBox(height: 20),
-                  
+
                   // Google Sign In Button
                   AnimationUtils.scaleTransition(
                     animation: AnimationUtils.createStaggeredAnimation(
@@ -332,7 +346,11 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
                           child: const Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.g_mobiledata, color: Colors.red, size: 28),
+                              Icon(
+                                Icons.g_mobiledata,
+                                color: Colors.red,
+                                size: 28,
+                              ),
                               SizedBox(width: 12),
                               Text(
                                 'Continue with Google',
@@ -348,9 +366,9 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
                       ),
                     ),
                   ),
-                  
+
                   const SizedBox(height: 40),
-                  
+
                   // Sign Up Link
                   AnimationUtils.fadeTransition(
                     animation: _fadeAnimation,
@@ -369,16 +387,18 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
                             Navigator.push(
                               context,
                               PageRouteBuilder(
-                                pageBuilder: (context, animation, _) => const SignUpScreen(),
-                                transitionsBuilder: (context, animation, _, child) {
-                                  return SlideTransition(
-                                    position: Tween<Offset>(
-                                      begin: const Offset(1.0, 0.0),
-                                      end: Offset.zero,
-                                    ).animate(animation),
-                                    child: child,
-                                  );
-                                },
+                                pageBuilder: (context, animation, _) =>
+                                    const SignUpScreen(),
+                                transitionsBuilder:
+                                    (context, animation, _, child) {
+                                      return SlideTransition(
+                                        position: Tween<Offset>(
+                                          begin: const Offset(1.0, 0.0),
+                                          end: Offset.zero,
+                                        ).animate(animation),
+                                        child: child,
+                                      );
+                                    },
                               ),
                             );
                           },
@@ -394,7 +414,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
                       ],
                     ),
                   ),
-                  
+
                   // Error Message
                   if (authState.errorMessage != null)
                     AnimationUtils.slideTransition(
@@ -405,7 +425,9 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
                           color: Colors.red.withValues(alpha: 0.1),
-                          border: Border.all(color: Colors.red.withValues(alpha: 0.3)),
+                          border: Border.all(
+                            color: Colors.red.withValues(alpha: 0.3),
+                          ),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Row(

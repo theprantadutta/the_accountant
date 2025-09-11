@@ -1,4 +1,4 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import 'package:the_accountant/features/ai/services/chat_insights_service.dart';
 import 'package:the_accountant/features/transactions/providers/transaction_provider.dart';
 import 'package:the_accountant/features/budgets/providers/budget_provider.dart';
@@ -34,9 +34,9 @@ class ChatInsightsState {
 class ChatInsightsNotifier extends StateNotifier<ChatInsightsState> {
   final ChatInsightsService _chatInsightsService;
 
-  ChatInsightsNotifier() 
-      : _chatInsightsService = ChatInsightsService(),
-        super(ChatInsightsState());
+  ChatInsightsNotifier()
+    : _chatInsightsService = ChatInsightsService(),
+      super(ChatInsightsState());
 
   /// Generate contextual insights based on conversation history
   Future<void> generateInsights({
@@ -52,22 +52,19 @@ class ChatInsightsNotifier extends StateNotifier<ChatInsightsState> {
         transactions: transactions,
         budgets: budgets,
       );
-      
+
       final suggestions = _chatInsightsService.generateProactiveSuggestions(
         transactions: transactions,
         budgets: budgets,
       );
-      
+
       state = state.copyWith(
         isLoading: false,
         insights: insights,
         suggestions: suggestions,
       );
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: e.toString(),
-      );
+      state = state.copyWith(isLoading: false, errorMessage: e.toString());
     }
   }
 
@@ -82,6 +79,7 @@ class ChatInsightsNotifier extends StateNotifier<ChatInsightsState> {
   }
 }
 
-final chatInsightsProvider = StateNotifierProvider<ChatInsightsNotifier, ChatInsightsState>((ref) {
-  return ChatInsightsNotifier();
-});
+final chatInsightsProvider =
+    StateNotifierProvider<ChatInsightsNotifier, ChatInsightsState>((ref) {
+      return ChatInsightsNotifier();
+    });

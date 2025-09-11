@@ -1,4 +1,4 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import 'package:the_accountant/data/models/subscription.dart';
 import 'package:uuid/uuid.dart';
 
@@ -63,10 +63,7 @@ class SubscriptionNotifier extends StateNotifier<SubscriptionState> {
         isLoading: false,
       );
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: e.toString(),
-      );
+      state = state.copyWith(isLoading: false, errorMessage: e.toString());
     }
   }
 
@@ -84,10 +81,7 @@ class SubscriptionNotifier extends StateNotifier<SubscriptionState> {
         isLoading: false,
       );
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: e.toString(),
-      );
+      state = state.copyWith(isLoading: false, errorMessage: e.toString());
     }
   }
 
@@ -105,10 +99,7 @@ class SubscriptionNotifier extends StateNotifier<SubscriptionState> {
         isLoading: false,
       );
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: e.toString(),
-      );
+      state = state.copyWith(isLoading: false, errorMessage: e.toString());
     }
   }
 
@@ -129,10 +120,7 @@ class SubscriptionNotifier extends StateNotifier<SubscriptionState> {
         isLoading: false,
       );
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: e.toString(),
-      );
+      state = state.copyWith(isLoading: false, errorMessage: e.toString());
     }
   }
 
@@ -140,33 +128,40 @@ class SubscriptionNotifier extends StateNotifier<SubscriptionState> {
   List<Subscription> getUpcomingSubscriptions({int daysAhead = 3}) {
     final now = DateTime.now();
     final alertDate = now.add(Duration(days: daysAhead));
-    
+
     return state.subscriptions.where((subscription) {
       // Check if subscription is active
       if (!subscription.isActive) return false;
-      
+
       // Check if subscription has ended
       if (subscription.endDate != null && subscription.endDate!.isBefore(now)) {
         return false;
       }
-      
+
       // Check if it's time for the next recurrence
       if (subscription.recurrence == 'monthly') {
         // For monthly subscriptions, check if the recurrence day is coming up
-        return now.day <= subscription.recurrenceDay && 
-               alertDate.day >= subscription.recurrenceDay;
+        return now.day <= subscription.recurrenceDay &&
+            alertDate.day >= subscription.recurrenceDay;
       } else if (subscription.recurrence == 'yearly') {
         // For yearly subscriptions, check if the recurrence date is coming up
-        final recurrenceDate = DateTime(now.year, subscription.recurrenceDay ~/ 100, subscription.recurrenceDay % 100);
-        return (recurrenceDate.isAfter(now) && recurrenceDate.isBefore(alertDate)) ||
-               (recurrenceDate.add(Duration(days: 1)).isAfter(now) && recurrenceDate.add(Duration(days: 1)).isBefore(alertDate));
+        final recurrenceDate = DateTime(
+          now.year,
+          subscription.recurrenceDay ~/ 100,
+          subscription.recurrenceDay % 100,
+        );
+        return (recurrenceDate.isAfter(now) &&
+                recurrenceDate.isBefore(alertDate)) ||
+            (recurrenceDate.add(Duration(days: 1)).isAfter(now) &&
+                recurrenceDate.add(Duration(days: 1)).isBefore(alertDate));
       }
-      
+
       return false;
     }).toList();
   }
 }
 
-final subscriptionProvider = StateNotifierProvider<SubscriptionNotifier, SubscriptionState>((ref) {
-  return SubscriptionNotifier();
-});
+final subscriptionProvider =
+    StateNotifierProvider<SubscriptionNotifier, SubscriptionState>((ref) {
+      return SubscriptionNotifier();
+    });
