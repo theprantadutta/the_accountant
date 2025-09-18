@@ -1,13 +1,14 @@
-import 'package:flutter_riverpod/legacy.dart';
-import 'package:the_accountant/data/datasources/local/database_provider.dart';
-import 'package:the_accountant/data/datasources/local/app_database.dart';
-import 'package:the_accountant/features/settings/providers/settings_provider.dart';
-import 'package:the_accountant/features/ai/services/category_assignment_service.dart';
+import 'dart:typed_data';
+
 import 'package:drift/drift.dart' show Value;
-import 'package:uuid/uuid.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'dart:typed_data';
+import 'package:the_accountant/data/datasources/local/app_database.dart';
+import 'package:the_accountant/data/datasources/local/database_provider.dart';
+import 'package:the_accountant/features/ai/services/category_assignment_service.dart';
+import 'package:the_accountant/features/settings/providers/settings_provider.dart';
+import 'package:uuid/uuid.dart';
 
 class Transaction {
   final String id;
@@ -97,10 +98,12 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
 
       state = state.copyWith(transactions: transactions, isLoading: false);
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: 'Failed to load transactions',
-      );
+      if (mounted) {
+        state = state.copyWith(
+          isLoading: false,
+          errorMessage: 'Failed to load transactions',
+        );
+      }
     }
   }
 
