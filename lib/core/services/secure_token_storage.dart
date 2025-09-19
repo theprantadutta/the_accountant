@@ -57,9 +57,9 @@ class SecureTokenStorage {
     await _storage.delete(key: _userEmailKey);
   }
 
-  // Check if user is logged in (has access token)
+  // Check if user is logged in (has user ID)
   static Future<bool> isLoggedIn() async {
-    final token = await getAccessToken();
-    return token != null && token.isNotEmpty;
+    final userId = await getUserId();
+    return userId != null && userId.isNotEmpty;
   }
 }

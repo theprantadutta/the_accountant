@@ -6,6 +6,9 @@ import 'package:the_accountant/core/themes/app_theme.dart';
 import 'package:the_accountant/features/onboarding/onboarding_screen.dart';
 import 'package:the_accountant/features/premium/screens/premium_screen.dart';
 import 'package:the_accountant/features/support/screens/support_screen.dart';
+import 'package:the_accountant/features/authentication/presentation/screens/sign_in_screen.dart';
+import 'package:the_accountant/features/authentication/presentation/screens/sign_up_screen.dart';
+import 'package:the_accountant/features/authentication/presentation/screens/user_profile_screen.dart';
 import 'package:the_accountant/shared/widgets/main_navigation_container.dart';
 
 class MyApp extends ConsumerWidget {
@@ -28,6 +31,9 @@ class MyApp extends ConsumerWidget {
       initialRoute: '/onboarding',
       routes: {
         '/onboarding': (context) => const OnboardingScreen(),
+        '/signin': (context) => const SignInScreen(),
+        '/signup': (context) => const SignUpScreen(),
+        '/profile': (context) => const UserProfileScreen(),
         '/dashboard': (context) => const MainNavigationContainer(),
         '/premium': (context) => const PremiumScreen(),
         '/support': (context) {

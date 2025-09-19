@@ -6,6 +6,8 @@ import 'package:the_accountant/features/authentication/providers/auth_provider.d
 import 'package:the_accountant/core/themes/app_theme.dart';
 import 'package:the_accountant/core/utils/animation_utils.dart';
 
+import '../../../../shared/widgets/main_navigation_container.dart';
+
 class SignInScreen extends ConsumerStatefulWidget {
   const SignInScreen({super.key});
 
@@ -94,26 +96,36 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
 
-    // Navigate to dashboard if authenticated
-    if (authState.isAuthenticated) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        Navigator.pushReplacementNamed(context, '/dashboard');
-      });
-    }
+    // Listen to authentication state changes
+    ref.listen<AuthState>(authProvider, (previous, next) {
+      if (next.isAuthenticated && next.user != null) {
+        // Navigate to main app
+        Navigator.pushReplacement(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (context, animation, _) =>
+                const MainNavigationContainer(),
+            transitionsBuilder: (context, animation, _, child) {
+              return FadeTransition(opacity: animation, child: child);
+            },
+          ),
+        );
+      }
+    });
 
     return Container(
       decoration: const BoxDecoration(gradient: AppTheme.backgroundGradient),
       child: Scaffold(
         backgroundColor: Colors.transparent,
         body: SafeArea(
-          child: SingleChildScrollView(
+          child: Padding(
             padding: const EdgeInsets.all(24),
             child: Form(
               key: _formKey,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 20),
 
                   // Floating App Icon
                   AnimatedBuilder(
@@ -126,12 +138,12 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
                           child: Center(
                             child: AppTheme.gradientContainer(
                               gradient: AppTheme.primaryGradient,
-                              width: 120,
-                              height: 120,
+                              width: 100,
+                              height: 100,
                               borderRadius: BorderRadius.circular(32),
                               child: const Icon(
                                 Icons.account_balance_wallet,
-                                size: 60,
+                                size: 50,
                                 color: Colors.white,
                               ),
                             ),
@@ -141,7 +153,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
                     },
                   ),
 
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 24),
 
                   // Welcome Text
                   AnimationUtils.slideTransition(
@@ -150,9 +162,9 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
                     child: Column(
                       children: [
                         const Text(
-                          'Welcome Back! 👋',
+                          'Welcome Back',
                           style: TextStyle(
-                            fontSize: 32,
+                            fontSize: 28,
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
                           ),
@@ -162,7 +174,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
                         Text(
                           'Sign in to continue your financial journey',
                           style: TextStyle(
-                            fontSize: 16,
+                            fontSize: 14,
                             color: Colors.white.withValues(alpha: 0.8),
                           ),
                           textAlign: TextAlign.center,
@@ -171,40 +183,44 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
                     ),
                   ),
 
-                  const SizedBox(height: 50),
+                  const SizedBox(height: 32),
 
-                  // Email Field
-                  AnimationUtils.slideTransition(
-                    animation: AnimationUtils.createStaggeredAnimation(
-                      controller: _animationController,
-                      startFraction: 0.1,
-                      endFraction: 0.4,
-                    ),
-                    begin: const Offset(-1, 0),
-                    child: AppTheme.glassmorphicContainer(
-                      child: TextFormField(
-                        controller: _emailController,
-                        keyboardType: TextInputType.emailAddress,
-                        style: const TextStyle(color: Colors.white),
-                        decoration: const InputDecoration(
-                          labelText: 'Email Address',
-                          labelStyle: TextStyle(color: Colors.white70),
-                          prefixIcon: Icon(
-                            Icons.email_outlined,
-                            color: Colors.white70,
+                  // Login Form
+                  Expanded(
+                    child: AnimationUtils.slideTransition(
+                      animation: AnimationUtils.createStaggeredAnimation(
+                        controller: _animationController,
+                        startFraction: 0.1,
+                        endFraction: 0.4,
+                      ),
+                      begin: const Offset(-1, 0),
+                      child: AppTheme.glassmorphicContainer(
+                        child: TextFormField(
+                          controller: _emailController,
+                          keyboardType: TextInputType.emailAddress,
+                          style: const TextStyle(color: Colors.white),
+                          decoration: const InputDecoration(
+                            labelText: 'Email Address',
+                            labelStyle: TextStyle(color: Colors.white70),
+                            prefixIcon: Icon(
+                              Icons.email_outlined,
+                              color: Colors.white70,
+                            ),
+                            border: InputBorder.none,
+                            contentPadding: EdgeInsets.all(20),
                           ),
-                          border: InputBorder.none,
-                          contentPadding: EdgeInsets.all(20),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter your email';
+                            }
+                            if (!RegExp(
+                              r'^[^@]+@[^@]+\.[^@]+',
+                            ).hasMatch(value)) {
+                              return 'Please enter a valid email';
+                            }
+                            return null;
+                          },
                         ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your email';
-                          }
-                          if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                            return 'Please enter a valid email';
-                          }
-                          return null;
-                        },
                       ),
                     ),
                   ),
@@ -415,8 +431,10 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
                     ),
                   ),
 
+                  const Spacer(),
+
                   // Error Message
-                  if (authState.errorMessage != null)
+                  if (authState.error != null)
                     AnimationUtils.slideTransition(
                       animation: _slideAnimation,
                       begin: const Offset(0, 1),
@@ -436,7 +454,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
                             const SizedBox(width: 12),
                             Expanded(
                               child: Text(
-                                authState.errorMessage!,
+                                authState.error!,
                                 style: const TextStyle(color: Colors.red),
                               ),
                             ),

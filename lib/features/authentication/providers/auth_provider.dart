@@ -4,33 +4,29 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:the_accountant/core/services/secure_token_storage.dart';
 
 class AuthState {
-  final bool isAuthenticated;
-  final String? userId;
-  final String? errorMessage;
   final bool isLoading;
+  final String? error;
   final User? user;
+  final bool isAuthenticated;
 
-  AuthState({
-    required this.isAuthenticated,
-    this.userId,
-    this.errorMessage,
-    required this.isLoading,
+  const AuthState({
+    this.isLoading = false,
+    this.error,
     this.user,
+    this.isAuthenticated = false,
   });
 
   AuthState copyWith({
-    bool? isAuthenticated,
-    String? userId,
-    String? errorMessage,
     bool? isLoading,
+    String? error,
     User? user,
+    bool? isAuthenticated,
   }) {
     return AuthState(
-      isAuthenticated: isAuthenticated ?? this.isAuthenticated,
-      userId: userId ?? this.userId,
-      errorMessage: errorMessage ?? this.errorMessage,
       isLoading: isLoading ?? this.isLoading,
+      error: error ?? this.error,
       user: user ?? this.user,
+      isAuthenticated: isAuthenticated ?? this.isAuthenticated,
     );
   }
 }
@@ -39,7 +35,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn.instance;
 
-  AuthNotifier() : super(AuthState(isAuthenticated: false, isLoading: false)) {
+  AuthNotifier() : super(const AuthState()) {
     // Listen to auth state changes
     _auth.authStateChanges().listen((User? user) async {
       if (user != null) {
@@ -49,14 +45,12 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
         state = state.copyWith(
           isAuthenticated: true,
-          userId: user.uid,
           user: user,
           isLoading: false,
         );
       } else {
         state = state.copyWith(
           isAuthenticated: false,
-          userId: null,
           user: null,
           isLoading: false,
         );
@@ -65,7 +59,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   Future<void> signInWithEmailAndPassword(String email, String password) async {
-    state = state.copyWith(isLoading: true, errorMessage: null);
+    state = state.copyWith(isLoading: true, error: null);
 
     try {
       final UserCredential userCredential = await _auth
@@ -81,7 +75,6 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
       state = state.copyWith(
         isAuthenticated: true,
-        userId: userCredential.user?.uid,
         user: userCredential.user,
         isLoading: false,
       );
@@ -99,13 +92,13 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
       state = state.copyWith(
         isAuthenticated: false,
-        errorMessage: errorMessage,
+        error: errorMessage,
         isLoading: false,
       );
     } catch (e) {
       state = state.copyWith(
         isAuthenticated: false,
-        errorMessage: 'An error occurred during sign in',
+        error: 'An error occurred during sign in',
         isLoading: false,
       );
     }
@@ -116,7 +109,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     String email,
     String password,
   ) async {
-    state = state.copyWith(isLoading: true, errorMessage: null);
+    state = state.copyWith(isLoading: true, error: null);
 
     try {
       final UserCredential userCredential = await _auth
@@ -133,7 +126,6 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
       state = state.copyWith(
         isAuthenticated: true,
-        userId: userCredential.user?.uid,
         user: userCredential.user,
         isLoading: false,
       );
@@ -152,20 +144,20 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
       state = state.copyWith(
         isAuthenticated: false,
-        errorMessage: errorMessage,
+        error: errorMessage,
         isLoading: false,
       );
     } catch (e) {
       state = state.copyWith(
         isAuthenticated: false,
-        errorMessage: 'An error occurred during sign up',
+        error: 'An error occurred during sign up',
         isLoading: false,
       );
     }
   }
 
   Future<void> signInWithGoogle() async {
-    state = state.copyWith(isLoading: true, errorMessage: null);
+    state = state.copyWith(isLoading: true, error: null);
 
     try {
       // Initialize Google Sign-In
@@ -178,7 +170,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       if (!_googleSignIn.supportsAuthenticate()) {
         state = state.copyWith(
           isLoading: false,
-          errorMessage: 'Google Sign-In not supported on this platform',
+          error: 'Google Sign-In not supported on this platform',
         );
         return;
       }
@@ -216,7 +208,6 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
       state = state.copyWith(
         isAuthenticated: true,
-        userId: userCredential.user?.uid,
         user: userCredential.user,
         isLoading: false,
       );
@@ -246,13 +237,13 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
       state = state.copyWith(
         isAuthenticated: false,
-        errorMessage: errorMessage,
+        error: errorMessage,
         isLoading: false,
       );
     } catch (e) {
       state = state.copyWith(
         isAuthenticated: false,
-        errorMessage: 'An error occurred during Google sign in',
+        error: 'An error occurred during Google sign in',
         isLoading: false,
       );
     }
@@ -265,12 +256,11 @@ class AuthNotifier extends StateNotifier<AuthState> {
       await SecureTokenStorage.clearAllTokens();
       state = state.copyWith(
         isAuthenticated: false,
-        userId: null,
         user: null,
         isLoading: false,
       );
     } catch (e) {
-      state = state.copyWith(errorMessage: 'An error occurred during sign out');
+      state = state.copyWith(error: 'An error occurred during sign out');
     }
   }
 
