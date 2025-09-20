@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/core/themes/app_theme.dart';
 
 class AddTransactionFab extends StatefulWidget {
   final VoidCallback onPressed;
@@ -40,20 +41,48 @@ class _AddTransactionFabState extends State<AddTransactionFab>
     return AnimatedBuilder(
       animation: _animation,
       builder: (context, child) {
-        return SizedBox(
+        return Container(
           height: 56,
-          child: FloatingActionButton(
-            onPressed: widget.onPressed,
-            child: widget.isExtended
-                ? Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.add),
-                      const SizedBox(width: 8),
-                      const Text('Add Transaction'),
-                    ],
-                  )
-                : const Icon(Icons.add),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(28),
+            gradient: AppTheme.primaryGradient,
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF667eea).withValues(alpha: 0.4),
+                blurRadius: 12,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          child: Material(
+            color: Colors.transparent,
+            borderRadius: BorderRadius.circular(28),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(28),
+              onTap: widget.onPressed,
+              child: Padding(
+                padding: widget.isExtended
+                    ? const EdgeInsets.symmetric(horizontal: 16, vertical: 12)
+                    : const EdgeInsets.all(16),
+                child: widget.isExtended
+                    ? Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.add, color: Colors.white, size: 20),
+                          const SizedBox(width: 6),
+                          const Text(
+                            'Add',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      )
+                    : const Icon(Icons.add, color: Colors.white, size: 20),
+              ),
+            ),
           ),
         );
       },

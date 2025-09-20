@@ -166,51 +166,63 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: SafeArea(
-        child: Column(
-          children: [
-            const SizedBox(height: 20),
+      body: Stack(
+        children: [
+          SafeArea(
+            child: Column(
+              children: [
+                const SizedBox(height: 16),
 
-            // AI Assistant Header
-            AnimationUtils.slideTransition(
-              animation: _slideAnimation,
-              begin: const Offset(0, -1),
-              child: _buildAIHeader(),
-            ),
-
-            const SizedBox(height: 16),
-            // Quick action buttons
-            AnimationUtils.fadeTransition(
-              animation: AnimationUtils.createStaggeredAnimation(
-                controller: _animationController,
-                startFraction: 0.1,
-                endFraction: 0.3,
-              ),
-              child: _buildQuickActions(),
-            ),
-
-            const SizedBox(height: 16),
-            // Chat Messages
-            Expanded(
-              child: AnimationUtils.fadeTransition(
-                animation: AnimationUtils.createStaggeredAnimation(
-                  controller: _animationController,
-                  startFraction: 0.2,
-                  endFraction: 0.5,
+                // AI Assistant Header
+                AnimationUtils.slideTransition(
+                  animation: _slideAnimation,
+                  begin: const Offset(0, -1),
+                  child: _buildAIHeader(),
                 ),
-                child: _buildChatArea(),
-              ),
+
+                const SizedBox(height: 8),
+                // Quick action buttons
+                AnimationUtils.fadeTransition(
+                  animation: AnimationUtils.createStaggeredAnimation(
+                    controller: _animationController,
+                    startFraction: 0.1,
+                    endFraction: 0.3,
+                  ),
+                  child: _buildQuickActions(),
+                ),
+
+                const SizedBox(height: 8),
+                // Chat Messages
+                Expanded(
+                  child: AnimationUtils.fadeTransition(
+                    animation: AnimationUtils.createStaggeredAnimation(
+                      controller: _animationController,
+                      startFraction: 0.2,
+                      endFraction: 0.5,
+                    ),
+                    child: _buildChatArea(),
+                  ),
+                ),
+
+                // Typing Indicator
+                if (_isTyping)
+                  AnimationUtils.fadeTransition(
+                    animation: _typingAnimation,
+                    child: _buildTypingIndicator(),
+                  ),
+
+                // Add bottom padding for message input
+                const SizedBox(height: 75),
+              ],
             ),
+          ),
 
-            // Typing Indicator
-            if (_isTyping)
-              AnimationUtils.fadeTransition(
-                animation: _typingAnimation,
-                child: _buildTypingIndicator(),
-              ),
-
-            // Message Input
-            AnimationUtils.slideTransition(
+          // Message Input positioned at bottom
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 80, // Above navigation bar
+            child: AnimationUtils.slideTransition(
               animation: AnimationUtils.createStaggeredAnimation(
                 controller: _animationController,
                 startFraction: 0.4,
@@ -219,10 +231,8 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
               begin: const Offset(0, 1),
               child: _buildMessageInput(),
             ),
-
-            const SizedBox(height: 100), // Bottom padding for nav bar
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -232,14 +242,14 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: AppTheme.glassmorphicContainer(
         child: Container(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(16),
           child: Row(
             children: [
               Container(
-                width: 56,
-                height: 56,
+                width: 48,
+                height: 48,
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(28),
+                  borderRadius: BorderRadius.circular(24),
                   gradient: AppTheme.primaryGradient,
                   boxShadow: [
                     BoxShadow(
@@ -252,10 +262,10 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
                 child: const Icon(
                   Icons.auto_awesome,
                   color: Colors.white,
-                  size: 28,
+                  size: 24,
                 ),
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -264,7 +274,7 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
                       'AI Financial Assistant',
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 20,
+                        fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -272,7 +282,7 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
                       'Smart insights • Budget tips • Personalized advice',
                       style: TextStyle(
                         color: Colors.white.withValues(alpha: 0.8),
-                        fontSize: 14,
+                        fontSize: 13,
                       ),
                     ),
                   ],
@@ -293,16 +303,16 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
                   HapticFeedback.lightImpact();
                 },
                 child: Container(
-                  width: 40,
-                  height: 40,
+                  width: 36,
+                  height: 36,
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(18),
                   ),
                   child: const Icon(
                     Icons.refresh,
                     color: Colors.white,
-                    size: 20,
+                    size: 18,
                   ),
                 ),
               ),
@@ -316,29 +326,29 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
   Widget _buildQuickActions() {
     final quickActions = [
       {
-        'label': 'Analyze Spending',
+        'label': 'Analyze\nSpending',
         'message': 'Analyze my recent spending patterns',
         'icon': Icons.analytics,
       },
       {
-        'label': 'Budget Tips',
+        'label': 'Budget\nTips',
         'message': 'Give me tips for better budgeting',
         'icon': Icons.savings,
       },
       {
-        'label': 'Save More',
+        'label': 'Save\nMore',
         'message': 'How can I save more money?',
         'icon': Icons.account_balance_wallet,
       },
       {
-        'label': 'Investment',
+        'label': 'Investment\nAdvice',
         'message': 'What are good investment options?',
         'icon': Icons.trending_up,
       },
     ];
 
     return SizedBox(
-      height: 100,
+      height: 70,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -346,36 +356,37 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
         itemBuilder: (context, index) {
           final action = quickActions[index];
           return Container(
-            margin: const EdgeInsets.only(right: 12),
+            margin: const EdgeInsets.only(right: 10),
             child: GestureDetector(
               onTap: () => _sendMessage(action['message'] as String),
               child: AppTheme.glassmorphicContainer(
-                width: 90,
+                width: 70,
                 child: Container(
-                  padding: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(8),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Container(
-                        width: 36,
-                        height: 36,
+                        width: 28,
+                        height: 28,
                         decoration: BoxDecoration(
                           gradient: AppTheme.secondaryGradient,
-                          borderRadius: BorderRadius.circular(18),
+                          borderRadius: BorderRadius.circular(14),
                         ),
                         child: Icon(
                           action['icon'] as IconData,
                           color: Colors.white,
-                          size: 18,
+                          size: 14,
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 4),
                       Text(
                         action['label'] as String,
                         style: const TextStyle(
                           color: Colors.white,
-                          fontSize: 11,
+                          fontSize: 10,
                           fontWeight: FontWeight.w600,
+                          height: 1.1,
                         ),
                         textAlign: TextAlign.center,
                         maxLines: 2,
@@ -394,11 +405,11 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
 
   Widget _buildChatArea() {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20),
+      margin: const EdgeInsets.symmetric(horizontal: 16),
       child: AppTheme.glassmorphicContainer(
         child: ListView.builder(
           controller: _scrollController,
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(16),
           itemCount: _messages.length,
           itemBuilder: (context, index) {
             final message = _messages[index];
@@ -418,35 +429,35 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
 
   Widget _buildTypingIndicator() {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       child: AppTheme.glassmorphicContainer(
         child: Container(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(12),
           child: Row(
             children: [
               Container(
-                width: 32,
-                height: 32,
+                width: 28,
+                height: 28,
                 decoration: BoxDecoration(
                   gradient: AppTheme.primaryGradient,
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(14),
                 ),
                 child: const Icon(
                   Icons.auto_awesome,
                   color: Colors.white,
-                  size: 16,
+                  size: 14,
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 10),
               AnimatedBuilder(
                 animation: _typingAnimation,
                 builder: (context, child) {
                   return Row(
                     children: [
                       _buildDot(0),
-                      const SizedBox(width: 4),
+                      const SizedBox(width: 3),
                       _buildDot(1),
-                      const SizedBox(width: 4),
+                      const SizedBox(width: 3),
                       _buildDot(2),
                     ],
                   );
@@ -457,7 +468,7 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
                 'AI is thinking...',
                 style: TextStyle(
                   color: Colors.white.withValues(alpha: 0.7),
-                  fontSize: 14,
+                  fontSize: 13,
                 ),
               ),
             ],
@@ -664,25 +675,26 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
 
   Widget _buildMessageInput() {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: AppTheme.glassmorphicContainer(
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           child: Row(
             children: [
               Expanded(
                 child: TextField(
                   controller: _textController,
-                  style: const TextStyle(color: Colors.white),
+                  style: const TextStyle(color: Colors.white, fontSize: 16),
                   decoration: InputDecoration(
                     hintText: 'Ask about your finances...',
                     hintStyle: TextStyle(
                       color: Colors.white.withValues(alpha: 0.6),
+                      fontSize: 16,
                     ),
                     border: InputBorder.none,
                     contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
+                      horizontal: 12,
+                      vertical: 8,
                     ),
                   ),
                   onSubmitted: (_) => _sendMessage(),
@@ -691,14 +703,15 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
                   keyboardType: TextInputType.multiline,
                 ),
               ),
+              const SizedBox(width: 8),
               GestureDetector(
                 onTap: () => _sendMessage(),
                 child: Container(
-                  width: 44,
-                  height: 44,
+                  width: 40,
+                  height: 40,
                   decoration: BoxDecoration(
                     gradient: AppTheme.primaryGradient,
-                    borderRadius: BorderRadius.circular(22),
+                    borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
                         color: const Color(0xFF667eea).withValues(alpha: 0.3),
@@ -707,7 +720,7 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
                       ),
                     ],
                   ),
-                  child: const Icon(Icons.send, color: Colors.white, size: 20),
+                  child: const Icon(Icons.send, color: Colors.white, size: 18),
                 ),
               ),
             ],

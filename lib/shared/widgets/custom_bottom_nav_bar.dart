@@ -21,51 +21,29 @@ class CustomBottomNavBar extends StatefulWidget {
 class _CustomBottomNavBarState extends State<CustomBottomNavBar>
     with TickerProviderStateMixin {
   late AnimationController _animationController;
-  late AnimationController _rippleController;
   late Animation<double> _scaleAnimation;
-  late Animation<double> _rippleAnimation;
-
-  int? _tappedIndex;
 
   @override
   void initState() {
     super.initState();
     _animationController = AnimationController(
-      duration: const Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 200),
       vsync: this,
     );
 
-    _rippleController = AnimationController(
-      duration: const Duration(milliseconds: 600),
-      vsync: this,
-    );
-
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.2).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.elasticOut),
-    );
-
-    _rippleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _rippleController, curve: Curves.easeOut),
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.05).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
     );
   }
 
   @override
   void dispose() {
     _animationController.dispose();
-    _rippleController.dispose();
     super.dispose();
   }
 
   void _handleTap(int index) {
     if (index != widget.currentIndex) {
-      setState(() {
-        _tappedIndex = index;
-      });
-
-      _rippleController.forward().then((_) {
-        _rippleController.reset();
-      });
-
       HapticFeedback.lightImpact();
       widget.onTap(index);
     }
@@ -76,7 +54,7 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar>
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: AppTheme.glassmorphicContainer(
-        height: 80,
+        height: 72,
         borderRadius: BorderRadius.circular(28),
         child: Container(
           decoration: BoxDecoration(
@@ -91,7 +69,6 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar>
             ),
           ),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: List.generate(widget.items.length, (index) {
               final item = widget.items[index];
               final isSelected = widget.currentIndex == index;
@@ -101,7 +78,9 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar>
                 return _buildCenterButton(item, index, isSelected);
               }
 
-              return _buildNavItem(item, index, isSelected);
+              return Expanded(
+                child: _buildNavItem(item, index, isSelected),
+              );
             }),
           ),
         ),
@@ -112,95 +91,87 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar>
   Widget _buildNavItem(NavItem item, int index, bool isSelected) {
     return GestureDetector(
       onTap: () => _handleTap(index),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          gradient: isSelected ? AppTheme.primaryGradient : null,
-        ),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 4),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Stack(
-              alignment: Alignment.center,
-              children: [
-                // Ripple effect
-                if (_tappedIndex == index)
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              curve: Curves.easeInOut,
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                gradient: isSelected ? AppTheme.primaryGradient : null,
+              ),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  // Icon
                   AnimatedBuilder(
-                    animation: _rippleAnimation,
+                    animation: _scaleAnimation,
                     builder: (context, child) {
-                      return Container(
-                        width: 40 * _rippleAnimation.value,
-                        height: 40 * _rippleAnimation.value,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.white.withValues(
-                            alpha: 0.3 * (1 - _rippleAnimation.value),
-                          ),
+                      return Transform.scale(
+                        scale: isSelected ? 1.05 : 1.0,
+                        child: Icon(
+                          isSelected ? item.activeIcon : item.icon,
+                          color: isSelected
+                              ? Colors.white
+                              : Colors.white.withValues(alpha: 0.6),
+                          size: 16,
                         ),
                       );
                     },
                   ),
 
-                // Icon
-                AnimatedBuilder(
-                  animation: _scaleAnimation,
-                  builder: (context, child) {
-                    return Transform.scale(
-                      scale: isSelected ? 1.1 : 1.0,
-                      child: Icon(
-                        isSelected ? item.activeIcon : item.icon,
-                        color: isSelected
-                            ? Colors.white
-                            : Colors.white.withValues(alpha: 0.6),
-                        size: 24,
-                      ),
-                    );
-                  },
-                ),
-
-                // Badge
-                if (item.badge != null)
-                  Positioned(
-                    right: -2,
-                    top: -2,
-                    child: Container(
-                      padding: const EdgeInsets.all(2),
-                      constraints: const BoxConstraints(
-                        minWidth: 16,
-                        minHeight: 16,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.red,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        item.badge!,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
+                  // Badge
+                  if (item.badge != null)
+                    Positioned(
+                      right: -1,
+                      top: -1,
+                      child: Container(
+                        padding: const EdgeInsets.all(1),
+                        constraints: const BoxConstraints(
+                          minWidth: 10,
+                          minHeight: 10,
                         ),
-                        textAlign: TextAlign.center,
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                        child: Text(
+                          item.badge!,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 6,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
                       ),
                     ),
-                  ),
-              ],
+                ],
+              ),
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 1),
             AnimatedDefaultTextStyle(
-              duration: const Duration(milliseconds: 300),
+              duration: const Duration(milliseconds: 200),
               style: TextStyle(
                 color: isSelected
                     ? Colors.white
                     : Colors.white.withValues(alpha: 0.6),
-                fontSize: 11,
+                fontSize: 9,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                height: 1.0,
               ),
-              child: Text(item.label),
+              child: Text(
+                item.label,
+                textAlign: TextAlign.center,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+              ),
             ),
           ],
         ),
@@ -211,14 +182,12 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar>
   Widget _buildCenterButton(NavItem item, int index, bool isSelected) {
     return GestureDetector(
       onTap: () => _handleTap(index),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-        width: 64,
-        height: 64,
+      child: Container(
+        width: 56,
+        height: 56,
         margin: const EdgeInsets.symmetric(vertical: 8),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(32),
+          borderRadius: BorderRadius.circular(28),
           gradient: isSelected
               ? AppTheme.secondaryGradient
               : AppTheme.primaryGradient,
@@ -234,53 +203,7 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar>
             ),
           ],
         ),
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            // Pulsing effect for AI button
-            AnimatedBuilder(
-              animation: _animationController,
-              builder: (context, child) {
-                return Container(
-                  width: 64,
-                  height: 64,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(32),
-                    gradient: RadialGradient(
-                      colors: [
-                        Colors.white.withValues(alpha: 0.2),
-                        Colors.transparent,
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
-
-            // AI Icon with sparkle effect
-            Icon(item.icon, color: Colors.white, size: 28),
-
-            // Sparkle animation
-            if (isSelected)
-              Positioned(
-                top: 8,
-                right: 8,
-                child: AnimatedBuilder(
-                  animation: _animationController,
-                  builder: (context, child) {
-                    return Transform.rotate(
-                      angle: _animationController.value * 2 * 3.14159,
-                      child: const Icon(
-                        Icons.auto_awesome,
-                        color: Colors.white,
-                        size: 12,
-                      ),
-                    );
-                  },
-                ),
-              ),
-          ],
-        ),
+        child: Icon(item.icon, color: Colors.white, size: 24),
       ),
     );
   }

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/themes/app_theme.dart';
 import 'package:the_accountant/shared/widgets/custom_bottom_nav_bar.dart';
+import 'package:the_accountant/shared/widgets/add_transaction_fab.dart';
 import 'package:the_accountant/features/dashboard/widgets/responsive_financial_overview.dart';
 import 'package:the_accountant/features/transactions/screens/transaction_list_screen.dart';
 import 'package:the_accountant/features/ai_assistant/screens/ai_assistant_screen.dart';
@@ -23,8 +24,6 @@ class _MainNavigationContainerState
     extends ConsumerState<MainNavigationContainer>
     with TickerProviderStateMixin {
   late PageController _pageController;
-  late AnimationController _fabAnimationController;
-  late Animation<double> _fabScaleAnimation;
 
   int _currentIndex = 0;
   bool _isFabVisible = true;
@@ -51,27 +50,11 @@ class _MainNavigationContainerState
     super.initState();
 
     _pageController = PageController(initialPage: _currentIndex);
-
-    _fabAnimationController = AnimationController(
-      duration: const Duration(milliseconds: 300),
-      vsync: this,
-    );
-
-    _fabScaleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _fabAnimationController,
-        curve: Curves.elasticOut,
-      ),
-    );
-
-    // Start FAB animation
-    _fabAnimationController.forward();
   }
 
   @override
   void dispose() {
     _pageController.dispose();
-    _fabAnimationController.dispose();
     super.dispose();
   }
 
@@ -103,12 +86,6 @@ class _MainNavigationContainerState
       setState(() {
         _isFabVisible = shouldShowFab;
       });
-
-      if (shouldShowFab) {
-        _fabAnimationController.forward();
-      } else {
-        _fabAnimationController.reverse();
-      }
     }
   }
 
@@ -323,18 +300,13 @@ class _MainNavigationContainerState
             return _screens[index];
           },
         ),
-        floatingActionButton: AnimatedBuilder(
-          animation: _fabScaleAnimation,
-          builder: (context, child) {
-            return Transform.scale(
-              scale: _fabScaleAnimation.value,
-              child: _isFabVisible
-                  ? _buildCustomFAB()
-                  : const SizedBox.shrink(),
-            );
-          },
-        ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+        floatingActionButton: _isFabVisible
+            ? AddTransactionFab(
+                onPressed: _showAddTransactionModal,
+                isExtended: true,
+              )
+            : null,
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
         bottomNavigationBar: CustomBottomNavBar(
           currentIndex: _currentIndex,
           onTap: _onNavigationTapped,
@@ -433,33 +405,5 @@ class _MainNavigationContainerState
     );
   }
 
-  Widget _buildCustomFAB() {
-    return Container(
-      width: 56,
-      height: 56,
-      margin: const EdgeInsets.only(bottom: 24),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(28),
-        gradient: AppTheme.primaryGradient,
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF667eea).withValues(alpha: 0.4),
-            blurRadius: 12,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      child: Material(
-        color: Colors.transparent,
-        borderRadius: BorderRadius.circular(28),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(28),
-          onTap: _showAddTransactionModal,
-          child: const Center(
-            child: Icon(Icons.add, color: Colors.white, size: 28),
-          ),
-        ),
-      ),
-    );
-  }
+
 }
