@@ -1,4 +1,0 @@
-[warning] Unused import: 'package:the_accountant/data/datasources/local/database_provider.dart' (F:\Personal\MyProjects\the_accountant\lib\core\services\category_initialization_service.dart:1:8)
-[error] This expression has a type of 'void' so its value can't be used (F:\Personal\MyProjects\the_accountant\lib\features\authentication\providers\user_profile_provider.dart:68:33)
-[error] This expression has a type of 'void' so its value can't be used (F:\Personal\MyProjects\the_accountant\lib\features\authentication\providers\user_profile_provider.dart:173:37)
-[error] The argument type 'num' can't be assigned to the parameter type 'double'.  (F:\Personal\MyProjects\the_accountant\lib\features\budgets\providers\budget_notification_provider.dart:81:13)
