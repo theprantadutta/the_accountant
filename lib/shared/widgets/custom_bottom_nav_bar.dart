@@ -78,9 +78,7 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar>
                 return _buildCenterButton(item, index, isSelected);
               }
 
-              return Expanded(
-                child: _buildNavItem(item, index, isSelected),
-              );
+              return Expanded(child: _buildNavItem(item, index, isSelected));
             }),
           ),
         ),

@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:intl/intl.dart';
 import 'package:the_accountant/core/themes/app_theme.dart';
 import 'package:the_accountant/core/utils/animation_utils.dart';
-// import 'package:the_accountant/features/transactions/providers/transaction_provider.dart';
-// import 'package:the_accountant/features/budgets/providers/budget_provider.dart';
+import 'package:the_accountant/features/dashboard/providers/financial_data_provider.dart';
+import 'package:the_accountant/features/transactions/providers/transaction_provider.dart';
+import 'package:the_accountant/features/budgets/providers/budget_provider.dart';
+import 'package:the_accountant/features/categories/providers/category_provider.dart';
 
 class ReportsScreen extends ConsumerStatefulWidget {
   const ReportsScreen({super.key});
@@ -54,10 +57,48 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
     super.dispose();
   }
 
+  Color _getCategoryColor(String categoryName) {
+    switch (categoryName.toLowerCase()) {
+      case 'food & dining':
+      case 'food':
+        return const Color(0xFF667eea);
+      case 'transportation':
+      case 'transport':
+        return const Color(0xFF11998e);
+      case 'shopping':
+        return const Color(0xFFFF6B6B);
+      case 'entertainment':
+        return const Color(0xFFFFE66D);
+      case 'bills':
+      case 'utilities':
+        return const Color(0xFF4ECDC4);
+      case 'salary':
+      case 'income':
+        return const Color(0xFF98D8C8);
+      case 'freelance':
+        return const Color(0xFFDDA0DD);
+      default:
+        return const Color(0xFF999999);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    // final transactionState = ref.watch(transactionProvider);
-    // final budgetState = ref.watch(budgetProvider);
+    final financialData = ref.watch(financialDataProvider);
+    final transactionState = ref.watch(transactionProvider);
+    final budgetState = ref.watch(budgetProvider);
+    final categoryState = ref.watch(categoryProvider);
+
+    // Show loading state
+    if (financialData.isLoading ||
+        transactionState.isLoading ||
+        budgetState.isLoading ||
+        categoryState.isLoading) {
+      return const Scaffold(
+        backgroundColor: Colors.transparent,
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -479,30 +520,40 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
   }
 
   Widget _buildSummaryCards() {
+    final financialData = ref.watch(financialDataProvider);
+    final netSavings =
+        financialData.monthlyIncome - financialData.monthlyExpenses;
+    final growthPercentage = financialData.monthlyGrowthPercentage;
+
     final summaryData = [
       {
         'title': 'Total Spent',
-        'amount': '\$3,245.00',
-        'change': '-12.3%',
+        'amount':
+            '\$${NumberFormat('#,##0.00').format(financialData.monthlyExpenses)}',
+        'change':
+            '${growthPercentage >= 0 ? '+' : ''}${growthPercentage.toStringAsFixed(1)}%',
         'color': const Color(0xFFFF6B6B),
         'icon': Icons.trending_down,
         'isPositive': false,
       },
       {
         'title': 'Total Earned',
-        'amount': '\$5,420.00',
-        'change': '+8.7%',
+        'amount':
+            '\$${NumberFormat('#,##0.00').format(financialData.monthlyIncome)}',
+        'change':
+            '${growthPercentage >= 0 ? '+' : ''}${growthPercentage.toStringAsFixed(1)}%',
         'color': const Color(0xFF4ECDC4),
         'icon': Icons.trending_up,
         'isPositive': true,
       },
       {
         'title': 'Net Savings',
-        'amount': '\$2,175.00',
-        'change': '+15.2%',
+        'amount': '\$${NumberFormat('#,##0.00').format(netSavings)}',
+        'change':
+            '${growthPercentage >= 0 ? '+' : ''}${growthPercentage.toStringAsFixed(1)}%',
         'color': const Color(0xFF45B7D1),
         'icon': Icons.savings,
-        'isPositive': true,
+        'isPositive': netSavings >= 0,
       },
     ];
 
@@ -591,38 +642,70 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
   }
 
   Widget _buildCategoryBreakdown() {
-    final categories = [
-      {
-        'name': 'Food & Dining',
-        'amount': '\$1,245.00',
-        'percentage': 35,
-        'color': const Color(0xFF667eea),
-      },
-      {
-        'name': 'Transportation',
-        'amount': '\$892.00',
-        'percentage': 25,
-        'color': const Color(0xFF11998e),
-      },
-      {
-        'name': 'Shopping',
-        'amount': '\$710.00',
-        'percentage': 20,
-        'color': const Color(0xFFFF6B6B),
-      },
-      {
-        'name': 'Bills & Utilities',
-        'amount': '\$534.00',
-        'percentage': 15,
-        'color': const Color(0xFF4ECDC4),
-      },
-      {
-        'name': 'Entertainment',
-        'amount': '\$178.00',
-        'percentage': 5,
-        'color': const Color(0xFFFFE66D),
-      },
-    ];
+    final financialData = ref.watch(financialDataProvider);
+    final categorySpending = financialData.categorySpending;
+    final totalSpending = categorySpending.values.fold(
+      0.0,
+      (sum, amount) => sum + amount,
+    );
+
+    // Convert to list and sort by amount
+    final categories =
+        categorySpending.entries.map((entry) {
+          final percentage = totalSpending > 0
+              ? (entry.value / totalSpending * 100).round()
+              : 0;
+          return {
+            'name': entry.key,
+            'amount': '\$${NumberFormat('#,##0.00').format(entry.value)}',
+            'percentage': percentage,
+            'color': _getCategoryColor(entry.key),
+          };
+        }).toList()..sort(
+          (a, b) => (b['percentage'] as int).compareTo(a['percentage'] as int),
+        );
+
+    // If no data, show empty state
+    if (categories.isEmpty) {
+      return AppTheme.glassmorphicContainer(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Category Breakdown',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 20),
+              Center(
+                child: Column(
+                  children: [
+                    Icon(
+                      Icons.pie_chart_outline,
+                      color: Colors.white.withValues(alpha: 0.5),
+                      size: 48,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'No spending data available',
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.7),
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
 
     return AppTheme.glassmorphicContainer(
       child: Padding(

@@ -93,11 +93,13 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
         return;
       }
 
-      ref.read(authProvider.notifier).signUpWithEmailAndPassword(
-        _emailController.text.trim(),
-        _passwordController.text.trim(),
-        _confirmPasswordController.text.trim(),
-      );
+      ref
+          .read(authProvider.notifier)
+          .signUpWithEmailAndPassword(
+            _emailController.text.trim(),
+            _passwordController.text.trim(),
+            _confirmPasswordController.text.trim(),
+          );
     }
     HapticFeedback.lightImpact();
   }
@@ -134,6 +136,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
       decoration: const BoxDecoration(gradient: AppTheme.backgroundGradient),
       child: Scaffold(
         backgroundColor: Colors.transparent,
+        resizeToAvoidBottomInset: true,
         body: SafeArea(
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(24),
@@ -321,8 +324,9 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
                           if (value.length < 6) {
                             return 'Password must be at least 6 characters';
                           }
-                          if (!RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)')
-                              .hasMatch(value)) {
+                          if (!RegExp(
+                            r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)',
+                          ).hasMatch(value)) {
                             return 'Password must contain uppercase, lowercase, and number';
                           }
                           return null;
@@ -362,7 +366,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
                             ),
                             onPressed: () {
                               setState(() {
-                                _obscureConfirmPassword = !_obscureConfirmPassword;
+                                _obscureConfirmPassword =
+                                    !_obscureConfirmPassword;
                               });
                             },
                           ),
@@ -478,14 +483,14 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
                                     const SignInScreen(),
                                 transitionsBuilder:
                                     (context, animation, _, child) {
-                                  return SlideTransition(
-                                    position: Tween<Offset>(
-                                      begin: const Offset(-1.0, 0.0),
-                                      end: Offset.zero,
-                                    ).animate(animation),
-                                    child: child,
-                                  );
-                                },
+                                      return SlideTransition(
+                                        position: Tween<Offset>(
+                                          begin: const Offset(-1.0, 0.0),
+                                          end: Offset.zero,
+                                        ).animate(animation),
+                                        child: child,
+                                      );
+                                    },
                               ),
                             );
                           },

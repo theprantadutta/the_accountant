@@ -71,17 +71,16 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
   Widget build(BuildContext context) {
     // Listen to authentication state changes
     ref.listen<AuthState>(authProvider, (previous, next) {
-      if (!next.isAuthenticated && next.user == null && previous?.isAuthenticated == true) {
+      if (!next.isAuthenticated &&
+          next.user == null &&
+          previous?.isAuthenticated == true) {
         // User has been signed out, navigate to sign in screen
         Navigator.pushAndRemoveUntil(
           context,
           PageRouteBuilder(
             pageBuilder: (context, animation, _) => const SignInScreen(),
             transitionsBuilder: (context, animation, _, child) {
-              return FadeTransition(
-                opacity: animation,
-                child: child,
-              );
+              return FadeTransition(opacity: animation, child: child);
             },
           ),
           (route) => false, // Remove all previous routes
@@ -844,7 +843,9 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.transparent,
                                   shadowColor: Colors.transparent,
-                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 12,
+                                  ),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
                                   ),
@@ -867,7 +868,9 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
                                   : () async {
                                       try {
                                         // Sign out using the auth provider
-                                        await ref.read(authProvider.notifier).signOut();
+                                        await ref
+                                            .read(authProvider.notifier)
+                                            .signOut();
 
                                         // Close dialog
                                         if (mounted) {
@@ -877,7 +880,10 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
                                         // Close dialog and show error
                                         if (mounted) {
                                           Navigator.of(dialogContext).pop();
-                                          ScaffoldMessenger.of(context).showSnackBar(
+                                          if (mounted) {
+                                            ScaffoldMessenger.of(
+                                              context,
+                                            ).showSnackBar(
                                             SnackBar(
                                               content: Row(
                                                 children: [
@@ -889,19 +895,25 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
                                                   Expanded(
                                                     child: Text(
                                                       'Failed to sign out: ${e.toString()}',
-                                                      style: TextStyle(color: Colors.white),
+                                                      style: TextStyle(
+                                                        color: Colors.white,
+                                                      ),
                                                     ),
                                                   ),
                                                 ],
                                               ),
-                                              backgroundColor: Colors.red.withValues(alpha: 0.8),
-                                              behavior: SnackBarBehavior.floating,
+                                              backgroundColor: Colors.red
+                                                  .withValues(alpha: 0.8),
+                                              behavior:
+                                                  SnackBarBehavior.floating,
                                               shape: RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.circular(12),
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
                                               ),
                                               margin: const EdgeInsets.all(16),
                                             ),
                                           );
+                                          }
                                         }
                                       }
 
@@ -911,7 +923,9 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
                                 backgroundColor: authState.isLoading
                                     ? Colors.grey.withValues(alpha: 0.5)
                                     : Colors.red.withValues(alpha: 0.8),
-                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 12,
+                                ),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),

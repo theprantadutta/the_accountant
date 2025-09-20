@@ -5,8 +5,10 @@ import 'package:intl/intl.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:the_accountant/core/themes/app_theme.dart';
 import 'package:the_accountant/core/utils/animation_utils.dart';
-// import 'package:the_accountant/features/transactions/providers/transaction_provider.dart';
-// import 'package:the_accountant/features/budgets/providers/budget_provider.dart';
+import 'package:the_accountant/features/dashboard/providers/financial_data_provider.dart';
+import 'package:the_accountant/features/categories/providers/category_provider.dart'
+    as cat_provider;
+import 'package:the_accountant/data/datasources/local/app_database.dart';
 
 class ResponsiveFinancialOverview extends ConsumerStatefulWidget {
   const ResponsiveFinancialOverview({super.key});
@@ -61,10 +63,47 @@ class _ResponsiveFinancialOverviewState
 
   @override
   Widget build(BuildContext context) {
-    // For demo purposes, using mock data
-    final mockBalance = 15420.50;
-    final mockIncome = 8540.00;
-    final mockExpenses = 3210.75;
+    final financialData = ref.watch(financialDataProvider);
+
+    // Show loading state
+    if (financialData.isLoading) {
+      return const Scaffold(
+        backgroundColor: Colors.transparent,
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    // Show error state
+    if (financialData.error != null) {
+      return Scaffold(
+        backgroundColor: Colors.transparent,
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline, color: Colors.red, size: 48),
+              const SizedBox(height: 16),
+              Text(
+                'Error loading financial data',
+                style: TextStyle(color: Colors.white, fontSize: 18),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                financialData.error!,
+                style: TextStyle(color: Colors.white70, fontSize: 14),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () =>
+                    ref.read(financialDataProvider.notifier).refreshData(),
+                child: const Text('Retry'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -92,7 +131,10 @@ class _ResponsiveFinancialOverviewState
                   startFraction: 0.1,
                   endFraction: 0.4,
                 ),
-                child: _buildBalanceCard(mockBalance),
+                child: _buildBalanceCard(
+                  financialData.totalBalance,
+                  financialData.monthlyGrowthPercentage,
+                ),
               ),
 
               const SizedBox(height: 24),
@@ -118,7 +160,10 @@ class _ResponsiveFinancialOverviewState
                   endFraction: 0.6,
                 ),
                 begin: const Offset(0, 1),
-                child: _buildIncomeExpenseOverview(mockIncome, mockExpenses),
+                child: _buildIncomeExpenseOverview(
+                  financialData.monthlyIncome,
+                  financialData.monthlyExpenses,
+                ),
               ),
 
               const SizedBox(height: 24),
@@ -143,7 +188,9 @@ class _ResponsiveFinancialOverviewState
                   endFraction: 0.8,
                 ),
                 begin: const Offset(0, 1),
-                child: _buildRecentTransactions(),
+                child: _buildRecentTransactions(
+                  financialData.recentTransactions,
+                ),
               ),
 
               const SizedBox(height: 24),
@@ -211,7 +258,40 @@ class _ResponsiveFinancialOverviewState
     return 'Evening';
   }
 
-  Widget _buildBalanceCard(double balance) {
+  IconData _getCategoryIcon(String categoryName) {
+    switch (categoryName.toLowerCase()) {
+      case 'food & dining':
+      case 'food':
+      case 'dining':
+        return Icons.restaurant;
+      case 'transportation':
+      case 'transport':
+        return Icons.directions_car;
+      case 'shopping':
+        return Icons.shopping_cart;
+      case 'entertainment':
+        return Icons.movie;
+      case 'salary':
+      case 'income':
+        return Icons.work;
+      case 'freelance':
+        return Icons.business_center;
+      case 'bills':
+      case 'utilities':
+        return Icons.home;
+      case 'health':
+      case 'medical':
+        return Icons.local_hospital;
+      case 'education':
+        return Icons.school;
+      case 'travel':
+        return Icons.flight;
+      default:
+        return Icons.category;
+    }
+  }
+
+  Widget _buildBalanceCard(double balance, double growthPercentage) {
     return AppTheme.gradientContainer(
       gradient: AppTheme.primaryGradient,
       child: Container(
@@ -282,22 +362,29 @@ class _ResponsiveFinancialOverviewState
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.green.withValues(alpha: 0.2),
+                    color: (growthPercentage >= 0 ? Colors.green : Colors.red)
+                        .withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(
-                        Icons.trending_up,
-                        color: Colors.greenAccent,
+                      Icon(
+                        growthPercentage >= 0
+                            ? Icons.trending_up
+                            : Icons.trending_down,
+                        color: growthPercentage >= 0
+                            ? Colors.greenAccent
+                            : Colors.redAccent,
                         size: 16,
                       ),
                       const SizedBox(width: 4),
-                      const Text(
-                        '+12.3%',
+                      Text(
+                        '${growthPercentage >= 0 ? '+' : ''}${growthPercentage.toStringAsFixed(1)}%',
                         style: TextStyle(
-                          color: Colors.greenAccent,
+                          color: growthPercentage >= 0
+                              ? Colors.greenAccent
+                              : Colors.redAccent,
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
                         ),
@@ -570,44 +657,55 @@ class _ResponsiveFinancialOverviewState
     );
   }
 
-  Widget _buildRecentTransactions() {
-    final mockTransactions = [
-      {
-        'title': 'Starbucks Coffee',
-        'category': 'Food & Dining',
-        'amount': -5.50,
-        'icon': Icons.coffee,
-        'color': const Color(0xFFFF6B6B),
-      },
-      {
-        'title': 'Salary Deposit',
-        'category': 'Income',
-        'amount': 3500.00,
-        'icon': Icons.work,
-        'color': const Color(0xFF4ECDC4),
-      },
-      {
-        'title': 'Uber Ride',
-        'category': 'Transportation',
-        'amount': -12.30,
-        'icon': Icons.directions_car,
-        'color': const Color(0xFF45B7D1),
-      },
-      {
-        'title': 'Grocery Shopping',
-        'category': 'Shopping',
-        'amount': -89.45,
-        'icon': Icons.shopping_cart,
-        'color': const Color(0xFF96CEB4),
-      },
-      {
-        'title': 'Netflix Subscription',
-        'category': 'Entertainment',
-        'amount': -15.99,
-        'icon': Icons.movie,
-        'color': const Color(0xFFFFA07A),
-      },
-    ];
+  Widget _buildRecentTransactions(List<Transaction> transactions) {
+    if (transactions.isEmpty) {
+      return AppTheme.glassmorphicContainer(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Recent Transactions',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Center(
+                child: Column(
+                  children: [
+                    Icon(
+                      Icons.receipt_long_outlined,
+                      color: Colors.white.withValues(alpha: 0.5),
+                      size: 48,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'No transactions yet',
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.7),
+                        fontSize: 16,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Add your first transaction to get started',
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.5),
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
 
     return AppTheme.glassmorphicContainer(
       child: Padding(
@@ -640,8 +738,26 @@ class _ResponsiveFinancialOverviewState
               ],
             ),
             const SizedBox(height: 16),
-            ...mockTransactions.map((transaction) {
-              final isIncome = (transaction['amount'] as double) > 0;
+            ...transactions.take(5).map((transaction) {
+              final categories = ref
+                  .read(cat_provider.categoryProvider)
+                  .categories;
+              final category = categories.firstWhere(
+                (c) => c.id == transaction.categoryId,
+                orElse: () => cat_provider.Category(
+                  id: transaction.categoryId,
+                  name: 'Unknown',
+                  colorCode: '#999999',
+                  type: transaction.type,
+                  isDefault: false,
+                ),
+              );
+
+              final isIncome = transaction.type == 'income';
+              final categoryColor = Color(
+                int.parse(category.colorCode.replaceFirst('#', '0xFF')),
+              );
+
               return Container(
                 margin: const EdgeInsets.only(bottom: 16),
                 child: Row(
@@ -650,14 +766,12 @@ class _ResponsiveFinancialOverviewState
                       width: 48,
                       height: 48,
                       decoration: BoxDecoration(
-                        color: (transaction['color'] as Color).withValues(
-                          alpha: 0.2,
-                        ),
+                        color: categoryColor.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Icon(
-                        transaction['icon'] as IconData,
-                        color: transaction['color'] as Color,
+                        _getCategoryIcon(category.name),
+                        color: categoryColor,
                         size: 20,
                       ),
                     ),
@@ -667,15 +781,19 @@ class _ResponsiveFinancialOverviewState
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            transaction['title'] as String,
+                            (transaction.notes?.isNotEmpty ?? false)
+                                ? transaction.notes!
+                                : category.name,
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
                             ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                           Text(
-                            transaction['category'] as String,
+                            category.name,
                             style: TextStyle(
                               color: Colors.white.withValues(alpha: 0.7),
                               fontSize: 14,
@@ -685,7 +803,7 @@ class _ResponsiveFinancialOverviewState
                       ),
                     ),
                     Text(
-                      '${isIncome ? '+' : ''}\$${NumberFormat('#,##0.00').format((transaction['amount'] as double).abs())}',
+                      '${isIncome ? '+' : '-'}\$${NumberFormat('#,##0.00').format(transaction.amount)}',
                       style: TextStyle(
                         color: isIncome ? Colors.green : Colors.white,
                         fontSize: 16,

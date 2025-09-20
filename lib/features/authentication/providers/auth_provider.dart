@@ -35,27 +35,62 @@ class AuthNotifier extends StateNotifier<AuthState> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn.instance;
 
-  AuthNotifier() : super(const AuthState()) {
-    // Listen to auth state changes
-    _auth.authStateChanges().listen((User? user) async {
-      if (user != null) {
-        // Store user tokens securely
-        await SecureTokenStorage.storeUserId(user.uid);
-        await SecureTokenStorage.storeUserEmail(user.email ?? '');
+  AuthNotifier() : super(const AuthState(isLoading: true)) {
+    _initializeAuth();
+  }
 
+  Future<void> _initializeAuth() async {
+    try {
+      // Check if user is already signed in
+      final currentUser = _auth.currentUser;
+      
+      if (currentUser != null) {
+        // User is already signed in
+        await SecureTokenStorage.storeUserId(currentUser.uid);
+        await SecureTokenStorage.storeUserEmail(currentUser.email ?? '');
+        
         state = state.copyWith(
           isAuthenticated: true,
-          user: user,
+          user: currentUser,
           isLoading: false,
         );
       } else {
+        // No user signed in
         state = state.copyWith(
           isAuthenticated: false,
           user: null,
           isLoading: false,
         );
       }
-    });
+
+      // Listen to auth state changes
+      _auth.authStateChanges().listen((User? user) async {
+        if (user != null) {
+          // Store user tokens securely
+          await SecureTokenStorage.storeUserId(user.uid);
+          await SecureTokenStorage.storeUserEmail(user.email ?? '');
+
+          state = state.copyWith(
+            isAuthenticated: true,
+            user: user,
+            isLoading: false,
+          );
+        } else {
+          state = state.copyWith(
+            isAuthenticated: false,
+            user: null,
+            isLoading: false,
+          );
+        }
+      });
+    } catch (e) {
+      state = state.copyWith(
+        isAuthenticated: false,
+        user: null,
+        isLoading: false,
+        error: 'Failed to initialize authentication',
+      );
+    }
   }
 
   Future<void> signInWithEmailAndPassword(String email, String password) async {

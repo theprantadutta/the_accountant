@@ -404,6 +404,4 @@ class _MainNavigationContainerState
       ],
     );
   }
-
-
 }

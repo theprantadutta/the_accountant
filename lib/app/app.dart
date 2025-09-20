@@ -10,6 +10,7 @@ import 'package:the_accountant/features/authentication/presentation/screens/sign
 import 'package:the_accountant/features/authentication/presentation/screens/sign_up_screen.dart';
 import 'package:the_accountant/features/authentication/presentation/screens/user_profile_screen.dart';
 import 'package:the_accountant/shared/widgets/main_navigation_container.dart';
+import 'package:the_accountant/features/authentication/presentation/widgets/auth_wrapper.dart';
 
 class MyApp extends ConsumerWidget {
   const MyApp({super.key});
@@ -28,7 +29,7 @@ class MyApp extends ConsumerWidget {
       theme: currentTheme,
       darkTheme: currentTheme,
       themeMode: ThemeMode.dark,
-      initialRoute: '/onboarding',
+      home: const AuthWrapper(),
       routes: {
         '/onboarding': (context) => const OnboardingScreen(),
         '/signin': (context) => const SignInScreen(),

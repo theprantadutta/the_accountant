@@ -117,14 +117,22 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
       decoration: const BoxDecoration(gradient: AppTheme.backgroundGradient),
       child: Scaffold(
         backgroundColor: Colors.transparent,
+        resizeToAvoidBottomInset: true,
         body: SafeArea(
-          child: Padding(
+          child: SingleChildScrollView(
             padding: const EdgeInsets.all(24),
             child: Form(
               key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: MediaQuery.of(context).size.height - 
+                    MediaQuery.of(context).padding.top - 
+                    MediaQuery.of(context).padding.bottom - 48,
+                ),
+                child: IntrinsicHeight(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
                   const SizedBox(height: 20),
 
                   // Floating App Icon
@@ -186,41 +194,39 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
                   const SizedBox(height: 32),
 
                   // Login Form
-                  Expanded(
-                    child: AnimationUtils.slideTransition(
-                      animation: AnimationUtils.createStaggeredAnimation(
-                        controller: _animationController,
-                        startFraction: 0.1,
-                        endFraction: 0.4,
-                      ),
-                      begin: const Offset(-1, 0),
-                      child: AppTheme.glassmorphicContainer(
-                        child: TextFormField(
-                          controller: _emailController,
-                          keyboardType: TextInputType.emailAddress,
-                          style: const TextStyle(color: Colors.white),
-                          decoration: const InputDecoration(
-                            labelText: 'Email Address',
-                            labelStyle: TextStyle(color: Colors.white70),
-                            prefixIcon: Icon(
-                              Icons.email_outlined,
-                              color: Colors.white70,
-                            ),
-                            border: InputBorder.none,
-                            contentPadding: EdgeInsets.all(20),
+                  AnimationUtils.slideTransition(
+                    animation: AnimationUtils.createStaggeredAnimation(
+                      controller: _animationController,
+                      startFraction: 0.1,
+                      endFraction: 0.4,
+                    ),
+                    begin: const Offset(-1, 0),
+                    child: AppTheme.glassmorphicContainer(
+                      child: TextFormField(
+                        controller: _emailController,
+                        keyboardType: TextInputType.emailAddress,
+                        style: const TextStyle(color: Colors.white),
+                        decoration: const InputDecoration(
+                          labelText: 'Email Address',
+                          labelStyle: TextStyle(color: Colors.white70),
+                          prefixIcon: Icon(
+                            Icons.email_outlined,
+                            color: Colors.white70,
                           ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter your email';
-                            }
-                            if (!RegExp(
-                              r'^[^@]+@[^@]+\.[^@]+',
-                            ).hasMatch(value)) {
-                              return 'Please enter a valid email';
-                            }
-                            return null;
-                          },
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.all(20),
                         ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter your email';
+                          }
+                          if (!RegExp(
+                            r'^[^@]+@[^@]+\.[^@]+',
+                          ).hasMatch(value)) {
+                            return 'Please enter a valid email';
+                          }
+                          return null;
+                        },
                       ),
                     ),
                   ),
@@ -431,7 +437,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
                     ),
                   ),
 
-                  const Spacer(),
+                  const SizedBox(height: 20),
 
                   // Error Message
                   if (authState.error != null)
@@ -462,7 +468,9 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
                         ),
                       ),
                     ),
-                ],
+                    ],
+                  ),
+                ),
               ),
             ),
           ),

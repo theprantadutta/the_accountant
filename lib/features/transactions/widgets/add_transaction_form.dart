@@ -6,6 +6,8 @@ import 'package:the_accountant/core/constants/app_constants.dart';
 import 'package:the_accountant/features/transactions/providers/transaction_provider.dart';
 import 'package:the_accountant/features/transactions/providers/payment_method_provider.dart';
 import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
+import 'package:the_accountant/features/categories/providers/category_provider.dart';
+import 'package:the_accountant/features/dashboard/providers/financial_data_provider.dart';
 import 'package:the_accountant/features/ai/widgets/category_suggestion_widget.dart';
 
 class RecurrencePattern {
@@ -103,15 +105,8 @@ class _AddTransactionFormState extends ConsumerState<AddTransactionForm> {
     _selectedDate = DateTime.now();
     _dateController.text = _formatDate(_selectedDate!);
 
-    // Set default category based on transaction type
-    final defaultCategories = AppConstants.defaultCategories
-        .where((cat) => cat['type'] == _selectedType)
-        .toList();
-    if (defaultCategories.isNotEmpty) {
-      _selectedCategory = defaultCategories.first['name'];
-      _selectedCategoryId =
-          defaultCategories.first['name']; // Using name as ID for demo
-    }
+    // Initialize with first available category - will be set properly in build method
+    // when categories are loaded from the provider
   }
 
   @override
@@ -156,7 +151,7 @@ class _AddTransactionFormState extends ConsumerState<AddTransactionForm> {
     }
   }
 
-  void _submitForm() {
+  Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
       final amount = double.tryParse(_amountController.text);
       if (amount != null && amount > 0) {
@@ -178,7 +173,7 @@ class _AddTransactionFormState extends ConsumerState<AddTransactionForm> {
                 ? walletState.wallets.first.id
                 : '');
 
-        ref
+        await ref
             .read(transactionProvider.notifier)
             .addTransaction(
               amount: amount,
@@ -192,6 +187,10 @@ class _AddTransactionFormState extends ConsumerState<AddTransactionForm> {
               isRecurring: _isRecurring,
               recurrencePattern: recurrencePattern,
             );
+
+        // Refresh financial data after adding transaction
+        await ref.read(financialDataProvider.notifier).refreshData();
+
         widget.onTransactionAdded();
       }
     }
@@ -230,14 +229,9 @@ class _AddTransactionFormState extends ConsumerState<AddTransactionForm> {
                   onSelected: (selected) {
                     setState(() {
                       _selectedType = AppConstants.transactionTypeExpense;
-                      // Update category based on type
-                      final defaultCategories = AppConstants.defaultCategories
-                          .where((cat) => cat['type'] == _selectedType)
-                          .toList();
-                      if (defaultCategories.isNotEmpty) {
-                        _selectedCategory = defaultCategories.first['name'];
-                        _selectedCategoryId = defaultCategories.first['name'];
-                      }
+                      // Reset category selection when type changes
+                      _selectedCategory = '';
+                      _selectedCategoryId = '';
                     });
                   },
                 ),
@@ -248,14 +242,9 @@ class _AddTransactionFormState extends ConsumerState<AddTransactionForm> {
                   onSelected: (selected) {
                     setState(() {
                       _selectedType = AppConstants.transactionTypeIncome;
-                      // Update category based on type
-                      final defaultCategories = AppConstants.defaultCategories
-                          .where((cat) => cat['type'] == _selectedType)
-                          .toList();
-                      if (defaultCategories.isNotEmpty) {
-                        _selectedCategory = defaultCategories.first['name'];
-                        _selectedCategoryId = defaultCategories.first['name'];
-                      }
+                      // Reset category selection when type changes
+                      _selectedCategory = '';
+                      _selectedCategoryId = '';
                     });
                   },
                 ),
@@ -289,30 +278,64 @@ class _AddTransactionFormState extends ConsumerState<AddTransactionForm> {
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
             const SizedBox(height: 8),
-            SizedBox(
-              height: 60,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children: AppConstants.defaultCategories
-                    .where((cat) => cat['type'] == _selectedType)
-                    .map((category) {
+            Consumer(
+              builder: (context, ref, child) {
+                final categoryState = ref.watch(categoryProvider);
+                final availableCategories = categoryState.categories
+                    .where((cat) => cat.type == _selectedType)
+                    .toList();
+
+                // Auto-select first category if none selected
+                if (_selectedCategoryId.isEmpty &&
+                    availableCategories.isNotEmpty) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    setState(() {
+                      _selectedCategory = availableCategories.first.name;
+                      _selectedCategoryId = availableCategories.first.id;
+                    });
+                  });
+                }
+
+                if (availableCategories.isEmpty) {
+                  return Container(
+                    height: 60,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Center(
+                      child: Text(
+                        'No categories available for $_selectedType',
+                        style: TextStyle(color: Colors.grey[600]),
+                      ),
+                    ),
+                  );
+                }
+
+                return SizedBox(
+                  height: 60,
+                  child: ListView(
+                    scrollDirection: Axis.horizontal,
+                    children: availableCategories.map((category) {
                       return Padding(
                         padding: const EdgeInsets.only(right: 8),
                         child: CategoryChip(
-                          categoryName: category['name'],
-                          colorCode: category['colorCode'],
-                          isSelected: _selectedCategory == category['name'],
+                          categoryName: category.name,
+                          colorCode: category.colorCode,
+                          isSelected: _selectedCategoryId == category.id,
                           onTap: () {
                             setState(() {
-                              _selectedCategory = category['name'];
-                              _selectedCategoryId = category['name'];
+                              _selectedCategory = category.name;
+                              _selectedCategoryId = category.id;
                             });
                           },
                         ),
                       );
-                    })
-                    .toList(),
-              ),
+                    }).toList(),
+                  ),
+                );
+              },
             ),
             const SizedBox(height: 16),
             // Notes field with AI category suggestions
