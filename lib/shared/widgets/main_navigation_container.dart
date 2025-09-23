@@ -6,6 +6,7 @@ import 'package:the_accountant/shared/widgets/custom_bottom_nav_bar.dart';
 import 'package:the_accountant/shared/widgets/add_transaction_fab.dart';
 import 'package:the_accountant/features/dashboard/widgets/responsive_financial_overview.dart';
 import 'package:the_accountant/features/transactions/screens/transaction_list_screen.dart';
+import 'package:the_accountant/features/transactions/screens/add_transaction_screen.dart';
 import 'package:the_accountant/features/ai_assistant/screens/ai_assistant_screen.dart';
 import 'package:the_accountant/features/authentication/presentation/screens/user_profile_screen.dart';
 
@@ -137,16 +138,46 @@ class _MainNavigationContainerState
                           ),
                         ),
                         const SizedBox(width: 16),
-                        const Column(
+                        Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              'Add Transaction',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                              ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text(
+                                  'Quick Add',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                TextButton.icon(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                    Navigator.pushNamed(context, '/categories');
+                                  },
+                                  icon: const Icon(
+                                    Icons.settings,
+                                    color: Colors.white70,
+                                    size: 16,
+                                  ),
+                                  label: const Text(
+                                    'Manage',
+                                    style: TextStyle(
+                                      color: Colors.white70,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                  style: TextButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 4,
+                                    ),
+                                    minimumSize: Size.zero,
+                                  ),
+                                ),
+                              ],
                             ),
                             Text(
                               'Record your income or expense',
@@ -181,31 +212,43 @@ class _MainNavigationContainerState
         'icon': Icons.shopping_cart,
         'title': 'Shopping',
         'color': const Color(0xFFFF6B6B),
+        'type': 'expense',
+        'categoryName': 'Shopping',
       },
       {
         'icon': Icons.restaurant,
         'title': 'Food & Dining',
         'color': const Color(0xFF4ECDC4),
+        'type': 'expense',
+        'categoryName': 'Food & Dining',
       },
       {
         'icon': Icons.local_gas_station,
         'title': 'Fuel',
         'color': const Color(0xFF45B7D1),
+        'type': 'expense',
+        'categoryName': 'Transportation',
       },
       {
         'icon': Icons.home,
         'title': 'Bills & Utilities',
         'color': const Color(0xFF96CEB4),
+        'type': 'expense',
+        'categoryName': 'Bills & Utilities',
       },
       {
         'icon': Icons.movie,
         'title': 'Entertainment',
         'color': const Color(0xFFFFA07A),
+        'type': 'expense',
+        'categoryName': 'Entertainment',
       },
       {
         'icon': Icons.business_center,
         'title': 'Work Income',
         'color': const Color(0xFF98D8C8),
+        'type': 'income',
+        'categoryName': 'Salary',
       },
     ];
 
@@ -237,7 +280,10 @@ class _MainNavigationContainerState
               onTap: () {
                 // Navigate to add transaction with pre-filled category
                 Navigator.pop(context);
-                // TODO: Navigate to AddTransactionScreen with category
+                _navigateToAddTransaction(
+                  option['type'] as String,
+                  option['categoryName'] as String,
+                );
               },
               child: AppTheme.glassmorphicContainer(
                 child: Container(
@@ -306,7 +352,7 @@ class _MainNavigationContainerState
                 isExtended: true,
               )
             : null,
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
         bottomNavigationBar: CustomBottomNavBar(
           currentIndex: _currentIndex,
           onTap: _onNavigationTapped,
@@ -402,6 +448,18 @@ class _MainNavigationContainerState
         ),
         const SizedBox(width: 8),
       ],
+    );
+  }
+
+  void _navigateToAddTransaction(String transactionType, String categoryName) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AddTransactionScreenWithPreset(
+          presetType: transactionType,
+          presetCategoryName: categoryName,
+        ),
+      ),
     );
   }
 }

@@ -506,12 +506,16 @@ class _ResponsiveFinancialOverviewState
                         ),
                       ),
                       const SizedBox(width: 12),
-                      const Text(
-                        'Income',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
+                      const Expanded(
+                        child: Text(
+                          'Income',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
                     ],
@@ -561,12 +565,16 @@ class _ResponsiveFinancialOverviewState
                         ),
                       ),
                       const SizedBox(width: 12),
-                      const Text(
-                        'Expenses',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
+                      const Expanded(
+                        child: Text(
+                          'Expenses',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
                     ],
@@ -821,26 +829,7 @@ class _ResponsiveFinancialOverviewState
   }
 
   Widget _buildBudgetProgress() {
-    final mockBudgets = [
-      {
-        'name': 'Food & Dining',
-        'spent': 850.0,
-        'limit': 1200.0,
-        'color': const Color(0xFFFF6B6B),
-      },
-      {
-        'name': 'Transportation',
-        'spent': 320.0,
-        'limit': 500.0,
-        'color': const Color(0xFF45B7D1),
-      },
-      {
-        'name': 'Entertainment',
-        'spent': 180.0,
-        'limit': 300.0,
-        'color': const Color(0xFFFFA07A),
-      },
-    ];
+    final items = ref.watch(budgetProgressDetailsProvider);
 
     return AppTheme.glassmorphicContainer(
       child: Padding(
@@ -873,79 +862,99 @@ class _ResponsiveFinancialOverviewState
               ],
             ),
             const SizedBox(height: 16),
-            ...mockBudgets.map((budget) {
-              final spent = budget['spent'] as double;
-              final limit = budget['limit'] as double;
-              final percentage = spent / limit;
-              final isOverBudget = percentage > 1.0;
-
-              return Container(
-                margin: const EdgeInsets.only(bottom: 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          budget['name'] as String,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        Text(
-                          '\$${NumberFormat('#,##0.00').format(spent)} / \$${NumberFormat('#,##0.00').format(limit)}',
-                          style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.8),
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Stack(
-                      children: [
-                        Container(
-                          width: double.infinity,
-                          height: 6,
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(3),
-                          ),
-                        ),
-                        Container(
-                          width:
-                              MediaQuery.of(context).size.width *
-                              (percentage > 1.0 ? 1.0 : percentage) *
-                              0.8,
-                          height: 6,
-                          decoration: BoxDecoration(
-                            color: isOverBudget
-                                ? Colors.red
-                                : (budget['color'] as Color),
-                            borderRadius: BorderRadius.circular(3),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      isOverBudget
-                          ? 'Over budget by \$${NumberFormat('#,##0.00').format(spent - limit)}'
-                          : '${((1 - percentage) * 100).toStringAsFixed(0)}% remaining',
-                      style: TextStyle(
-                        color: isOverBudget
-                            ? Colors.red
-                            : Colors.white.withValues(alpha: 0.7),
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
+            if (items.isEmpty)
+              Text(
+                'No active budgets',
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.7),
+                  fontSize: 14,
                 ),
-              );
-            }),
+              )
+            else
+              ...items.map((item) {
+                final spent = item.spent;
+                final limit = item.limit;
+                final percentage = limit <= 0 ? 0.0 : spent / limit;
+                final isOverBudget = percentage > 1.0;
+                final barColor = Color(
+                  int.parse(item.colorCode.replaceFirst('#', '0xFF')),
+                );
+
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            item.budgetName,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          Text(
+                            '\$${NumberFormat('#,##0.00').format(spent)} / \$${NumberFormat('#,##0.00').format(limit)}',
+                            style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.8),
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Stack(
+                        children: [
+                          Container(
+                            width: double.infinity,
+                            height: 6,
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(3),
+                            ),
+                          ),
+                          Container(
+                            width:
+                                MediaQuery.of(context).size.width *
+                                (percentage.clamp(0.0, 1.0)),
+                            height: 6,
+                            decoration: BoxDecoration(
+                              color: isOverBudget ? Colors.red : barColor,
+                              borderRadius: BorderRadius.circular(3),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            isOverBudget ? 'Over budget' : 'Within budget',
+                            style: TextStyle(
+                              color: isOverBudget
+                                  ? Colors.redAccent
+                                  : Colors.white.withValues(alpha: 0.7),
+                              fontSize: 12,
+                            ),
+                          ),
+                          Text(
+                            '${(percentage * 100).clamp(0.0, 999.9).toStringAsFixed(1)}%',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                );
+              }),
           ],
         ),
       ),

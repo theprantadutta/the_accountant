@@ -1,5 +1,28 @@
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 
+class BudgetProgressItem {
+  final String budgetId;
+  final String budgetName;
+  final String categoryId;
+  final String categoryName;
+  final String colorCode; // e.g. #RRGGBB
+  final double spent;
+  final double limit;
+
+  const BudgetProgressItem({
+    required this.budgetId,
+    required this.budgetName,
+    required this.categoryId,
+    required this.categoryName,
+    required this.colorCode,
+    required this.spent,
+    required this.limit,
+  });
+
+  double get percentage =>
+      limit <= 0 ? 0.0 : (spent / limit).clamp(0.0, double.infinity);
+}
+
 class FinancialCalculationService {
   final AppDatabase _db;
 
@@ -145,6 +168,45 @@ class FinancialCalculationService {
       return budgetProgress;
     } catch (e) {
       return {};
+    }
+  }
+
+  /// Detailed budget progress for active budgets with category and amounts
+  Future<List<BudgetProgressItem>> getBudgetProgressDetails() async {
+    try {
+      final activeBudgets = await _db.getActiveBudgets();
+      final List<BudgetProgressItem> items = [];
+
+      for (final budget in activeBudgets) {
+        final transactions = await _db.getTransactionsByDateRange(
+          budget.startDate,
+          budget.endDate,
+        );
+
+        final spent = transactions
+            .where(
+              (t) => t.type == 'expense' && t.categoryId == budget.categoryId,
+            )
+            .fold(0.0, (sum, t) => sum + t.amount);
+
+        final category = await _db.findCategoryById(budget.categoryId);
+
+        items.add(
+          BudgetProgressItem(
+            budgetId: budget.id,
+            budgetName: budget.name,
+            categoryId: budget.categoryId,
+            categoryName: category?.name ?? 'Unknown',
+            colorCode: category?.colorCode ?? '#999999',
+            spent: spent,
+            limit: budget.limit,
+          ),
+        );
+      }
+
+      return items;
+    } catch (e) {
+      return [];
     }
   }
 

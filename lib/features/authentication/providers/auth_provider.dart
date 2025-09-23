@@ -43,12 +43,12 @@ class AuthNotifier extends StateNotifier<AuthState> {
     try {
       // Check if user is already signed in
       final currentUser = _auth.currentUser;
-      
+
       if (currentUser != null) {
         // User is already signed in
         await SecureTokenStorage.storeUserId(currentUser.uid);
         await SecureTokenStorage.storeUserEmail(currentUser.email ?? '');
-        
+
         state = state.copyWith(
           isAuthenticated: true,
           user: currentUser,

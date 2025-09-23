@@ -55,21 +55,13 @@ class _AuthLoadingScreenState extends State<AuthLoadingScreen>
       vsync: this,
     );
 
-    _pulseAnimation = Tween<double>(
-      begin: 0.8,
-      end: 1.2,
-    ).animate(CurvedAnimation(
-      parent: _pulseController,
-      curve: Curves.easeInOut,
-    ));
+    _pulseAnimation = Tween<double>(begin: 0.8, end: 1.2).animate(
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+    );
 
-    _rotationAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _rotationController,
-      curve: Curves.linear,
-    ));
+    _rotationAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _rotationController, curve: Curves.linear),
+    );
 
     _pulseController.repeat(reverse: true);
     _rotationController.repeat();
@@ -85,9 +77,7 @@ class _AuthLoadingScreenState extends State<AuthLoadingScreen>
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
-        gradient: AppTheme.backgroundGradient,
-      ),
+      decoration: const BoxDecoration(gradient: AppTheme.backgroundGradient),
       child: Scaffold(
         backgroundColor: Colors.transparent,
         body: Center(
@@ -96,7 +86,10 @@ class _AuthLoadingScreenState extends State<AuthLoadingScreen>
             children: [
               // Animated App Logo
               AnimatedBuilder(
-                animation: Listenable.merge([_pulseAnimation, _rotationAnimation]),
+                animation: Listenable.merge([
+                  _pulseAnimation,
+                  _rotationAnimation,
+                ]),
                 builder: (context, child) {
                   return Transform.scale(
                     scale: _pulseAnimation.value,
@@ -171,11 +164,12 @@ class _AuthLoadingScreenState extends State<AuthLoadingScreen>
                     animation: _pulseController,
                     builder: (context, child) {
                       final delay = index * 0.3;
-                      final animationValue = (_pulseController.value + delay) % 1.0;
-                      final opacity = (animationValue < 0.5) 
-                          ? animationValue * 2 
+                      final animationValue =
+                          (_pulseController.value + delay) % 1.0;
+                      final opacity = (animationValue < 0.5)
+                          ? animationValue * 2
                           : (1.0 - animationValue) * 2;
-                      
+
                       return Container(
                         margin: const EdgeInsets.symmetric(horizontal: 4),
                         width: 8,

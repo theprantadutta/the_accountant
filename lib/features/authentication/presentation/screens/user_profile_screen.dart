@@ -884,35 +884,37 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
                                             ScaffoldMessenger.of(
                                               context,
                                             ).showSnackBar(
-                                            SnackBar(
-                                              content: Row(
-                                                children: [
-                                                  Icon(
-                                                    Icons.error_outline,
-                                                    color: Colors.white,
-                                                  ),
-                                                  SizedBox(width: 8),
-                                                  Expanded(
-                                                    child: Text(
-                                                      'Failed to sign out: ${e.toString()}',
-                                                      style: TextStyle(
-                                                        color: Colors.white,
+                                              SnackBar(
+                                                content: Row(
+                                                  children: [
+                                                    Icon(
+                                                      Icons.error_outline,
+                                                      color: Colors.white,
+                                                    ),
+                                                    SizedBox(width: 8),
+                                                    Expanded(
+                                                      child: Text(
+                                                        'Failed to sign out: ${e.toString()}',
+                                                        style: TextStyle(
+                                                          color: Colors.white,
+                                                        ),
                                                       ),
                                                     ),
-                                                  ),
-                                                ],
+                                                  ],
+                                                ),
+                                                backgroundColor: Colors.red
+                                                    .withValues(alpha: 0.8),
+                                                behavior:
+                                                    SnackBarBehavior.floating,
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(12),
+                                                ),
+                                                margin: const EdgeInsets.all(
+                                                  16,
+                                                ),
                                               ),
-                                              backgroundColor: Colors.red
-                                                  .withValues(alpha: 0.8),
-                                              behavior:
-                                                  SnackBarBehavior.floating,
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(12),
-                                              ),
-                                              margin: const EdgeInsets.all(16),
-                                            ),
-                                          );
+                                            );
                                           }
                                         }
                                       }

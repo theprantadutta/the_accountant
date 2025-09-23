@@ -62,7 +62,7 @@ class _AddTransactionFabState extends State<AddTransactionFab>
               onTap: widget.onPressed,
               child: Padding(
                 padding: widget.isExtended
-                    ? const EdgeInsets.symmetric(horizontal: 16, vertical: 12)
+                    ? const EdgeInsets.symmetric(horizontal: 24, vertical: 12)
                     : const EdgeInsets.all(16),
                 child: widget.isExtended
                     ? Row(

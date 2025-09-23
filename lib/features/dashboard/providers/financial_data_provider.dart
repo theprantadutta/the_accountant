@@ -12,6 +12,7 @@ class FinancialData {
   final double monthlyGrowthPercentage;
   final Map<String, double> categorySpending;
   final Map<String, double> budgetProgress;
+  final List<BudgetProgressItem> budgetProgressDetails;
   final List<Transaction> recentTransactions;
   final bool isLoading;
   final String? error;
@@ -23,6 +24,7 @@ class FinancialData {
     required this.monthlyGrowthPercentage,
     required this.categorySpending,
     required this.budgetProgress,
+    required this.budgetProgressDetails,
     required this.recentTransactions,
     this.isLoading = false,
     this.error,
@@ -35,6 +37,7 @@ class FinancialData {
     double? monthlyGrowthPercentage,
     Map<String, double>? categorySpending,
     Map<String, double>? budgetProgress,
+    List<BudgetProgressItem>? budgetProgressDetails,
     List<Transaction>? recentTransactions,
     bool? isLoading,
     String? error,
@@ -47,6 +50,8 @@ class FinancialData {
           monthlyGrowthPercentage ?? this.monthlyGrowthPercentage,
       categorySpending: categorySpending ?? this.categorySpending,
       budgetProgress: budgetProgress ?? this.budgetProgress,
+      budgetProgressDetails:
+          budgetProgressDetails ?? this.budgetProgressDetails,
       recentTransactions: recentTransactions ?? this.recentTransactions,
       isLoading: isLoading ?? this.isLoading,
       error: error,
@@ -62,8 +67,9 @@ class FinancialDataNotifier extends Notifier<FinancialData> {
     final db = ref.watch(databaseProvider);
     _calculationService = FinancialCalculationService(db);
 
-    // Load data immediately
-    loadFinancialData();
+    // Schedule data loading after the initial state is set to avoid
+    // reading the state of an uninitialized provider during build.
+    Future.microtask(loadFinancialData);
 
     return FinancialData(
       totalBalance: 0.0,
@@ -72,6 +78,7 @@ class FinancialDataNotifier extends Notifier<FinancialData> {
       monthlyGrowthPercentage: 0.0,
       categorySpending: {},
       budgetProgress: {},
+      budgetProgressDetails: const [],
       recentTransactions: [],
       isLoading: true,
     );
@@ -100,6 +107,7 @@ class FinancialDataNotifier extends Notifier<FinancialData> {
         _calculationService.getMonthlyGrowthPercentage(),
         _calculationService.getSpendingByCategory(),
         _calculationService.getBudgetProgress(),
+        _calculationService.getBudgetProgressDetails(),
         _calculationService.getRecentTransactions(),
       ]);
 
@@ -110,7 +118,8 @@ class FinancialDataNotifier extends Notifier<FinancialData> {
         monthlyGrowthPercentage: results[3] as double,
         categorySpending: results[4] as Map<String, double>,
         budgetProgress: results[5] as Map<String, double>,
-        recentTransactions: results[6] as List<Transaction>,
+        budgetProgressDetails: results[6] as List<BudgetProgressItem>,
+        recentTransactions: results[7] as List<Transaction>,
         isLoading: false,
       );
     } catch (e) {
@@ -178,4 +187,8 @@ final categorySpendingProvider = Provider<Map<String, double>>((ref) {
   return ref
       .watch(financialDataProvider.notifier)
       .getCategorySpendingWithNames();
+});
+
+final budgetProgressDetailsProvider = Provider<List<BudgetProgressItem>>((ref) {
+  return ref.watch(financialDataProvider).budgetProgressDetails;
 });
