@@ -5,7 +5,6 @@ import 'package:intl/intl.dart';
 import 'package:the_accountant/core/themes/app_theme.dart';
 import 'package:the_accountant/core/utils/animation_utils.dart';
 import 'package:the_accountant/features/authentication/providers/auth_provider.dart';
-import 'package:the_accountant/features/authentication/presentation/screens/sign_in_screen.dart';
 
 class UserProfileScreen extends ConsumerStatefulWidget {
   const UserProfileScreen({super.key});
@@ -69,24 +68,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
 
   @override
   Widget build(BuildContext context) {
-    // Listen to authentication state changes
-    ref.listen<AuthState>(authProvider, (previous, next) {
-      if (!next.isAuthenticated &&
-          next.user == null &&
-          previous?.isAuthenticated == true) {
-        // User has been signed out, navigate to sign in screen
-        Navigator.pushAndRemoveUntil(
-          context,
-          PageRouteBuilder(
-            pageBuilder: (context, animation, _) => const SignInScreen(),
-            transitionsBuilder: (context, animation, _, child) {
-              return FadeTransition(opacity: animation, child: child);
-            },
-          ),
-          (route) => false, // Remove all previous routes
-        );
-      }
-    });
+    // Navigation on sign-out is now handled by AuthWrapper
 
     return Scaffold(
       backgroundColor: Colors.transparent,

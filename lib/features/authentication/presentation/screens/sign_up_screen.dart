@@ -5,7 +5,6 @@ import 'package:the_accountant/core/themes/app_theme.dart';
 import 'package:the_accountant/core/utils/animation_utils.dart';
 import 'package:the_accountant/features/authentication/presentation/screens/sign_in_screen.dart';
 import 'package:the_accountant/features/authentication/providers/auth_provider.dart';
-import 'package:the_accountant/shared/widgets/main_navigation_container.dart';
 
 class SignUpScreen extends ConsumerStatefulWidget {
   const SignUpScreen({super.key});
@@ -96,9 +95,9 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
       ref
           .read(authProvider.notifier)
           .signUpWithEmailAndPassword(
+            _nameController.text.trim(),
             _emailController.text.trim(),
             _passwordController.text.trim(),
-            _confirmPasswordController.text.trim(),
           );
     }
     HapticFeedback.lightImpact();
@@ -108,22 +107,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
 
-    // Listen to authentication state changes
-    ref.listen<AuthState>(authProvider, (previous, next) {
-      if (next.isAuthenticated && next.user != null) {
-        // Navigate to main app
-        Navigator.pushReplacement(
-          context,
-          PageRouteBuilder(
-            pageBuilder: (context, animation, _) =>
-                const MainNavigationContainer(),
-            transitionsBuilder: (context, animation, _, child) {
-              return FadeTransition(opacity: animation, child: child);
-            },
-          ),
-        );
-      }
-    });
+    // Navigation is now handled by AuthWrapper
 
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(

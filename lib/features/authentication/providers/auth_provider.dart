@@ -1,39 +1,74 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/legacy.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+import 'package:the_accountant/core/services/api_service.dart';
+import 'package:the_accountant/core/services/backend_auth_service.dart';
+import 'package:the_accountant/core/services/google_sign_in_service.dart';
 import 'package:the_accountant/core/services/secure_token_storage.dart';
 
 class AuthState {
   final bool isLoading;
   final String? error;
-  final User? user;
   final bool isAuthenticated;
+
+  // Backend user info
+  final String? userId;
+  final String? userEmail;
+  final String? displayName;
+  final String? photoUrl;
+  final bool isPremium;
+  final String subscriptionTier;
+
+  // For account linking flow
+  final bool requiresLinking;
+  final String? pendingFirebaseToken;
 
   const AuthState({
     this.isLoading = false,
     this.error,
-    this.user,
     this.isAuthenticated = false,
+    this.userId,
+    this.userEmail,
+    this.displayName,
+    this.photoUrl,
+    this.isPremium = false,
+    this.subscriptionTier = 'free',
+    this.requiresLinking = false,
+    this.pendingFirebaseToken,
   });
 
   AuthState copyWith({
     bool? isLoading,
     String? error,
-    User? user,
     bool? isAuthenticated,
+    String? userId,
+    String? userEmail,
+    String? displayName,
+    String? photoUrl,
+    bool? isPremium,
+    String? subscriptionTier,
+    bool? requiresLinking,
+    String? pendingFirebaseToken,
   }) {
     return AuthState(
       isLoading: isLoading ?? this.isLoading,
-      error: error ?? this.error,
-      user: user ?? this.user,
+      error: error,
       isAuthenticated: isAuthenticated ?? this.isAuthenticated,
+      userId: userId ?? this.userId,
+      userEmail: userEmail ?? this.userEmail,
+      displayName: displayName ?? this.displayName,
+      photoUrl: photoUrl ?? this.photoUrl,
+      isPremium: isPremium ?? this.isPremium,
+      subscriptionTier: subscriptionTier ?? this.subscriptionTier,
+      requiresLinking: requiresLinking ?? this.requiresLinking,
+      pendingFirebaseToken: pendingFirebaseToken ?? this.pendingFirebaseToken,
     );
   }
 }
 
 class AuthNotifier extends StateNotifier<AuthState> {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final GoogleSignIn _googleSignIn = GoogleSignIn.instance;
+  final BackendAuthService _backendAuth = BackendAuthService();
+  final GoogleSignInService _googleSignIn = GoogleSignInService();
 
   AuthNotifier() : super(const AuthState(isLoading: true)) {
     _initializeAuth();
@@ -41,99 +76,68 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   Future<void> _initializeAuth() async {
     try {
-      // Check if user is already signed in
-      final currentUser = _auth.currentUser;
+      // Initialize backend auth service
+      await _backendAuth.initialize();
 
-      if (currentUser != null) {
-        // User is already signed in
-        await SecureTokenStorage.storeUserId(currentUser.uid);
-        await SecureTokenStorage.storeUserEmail(currentUser.email ?? '');
+      // Listen to backend auth state changes
+      _backendAuth.addListener(_onBackendAuthChanged);
 
-        state = state.copyWith(
-          isAuthenticated: true,
-          user: currentUser,
-          isLoading: false,
-        );
-      } else {
-        // No user signed in
-        state = state.copyWith(
-          isAuthenticated: false,
-          user: null,
-          isLoading: false,
-        );
-      }
+      // Update state based on backend auth
+      _updateStateFromBackendAuth();
 
-      // Listen to auth state changes
-      _auth.authStateChanges().listen((User? user) async {
-        if (user != null) {
-          // Store user tokens securely
-          await SecureTokenStorage.storeUserId(user.uid);
-          await SecureTokenStorage.storeUserEmail(user.email ?? '');
-
-          state = state.copyWith(
-            isAuthenticated: true,
-            user: user,
-            isLoading: false,
-          );
-        } else {
-          state = state.copyWith(
-            isAuthenticated: false,
-            user: null,
-            isLoading: false,
-          );
-        }
-      });
+      state = state.copyWith(isLoading: false);
     } catch (e) {
       state = state.copyWith(
         isAuthenticated: false,
-        user: null,
         isLoading: false,
         error: 'Failed to initialize authentication',
       );
     }
   }
 
+  void _onBackendAuthChanged() {
+    _updateStateFromBackendAuth();
+  }
+
+  void _updateStateFromBackendAuth() {
+    state = state.copyWith(
+      isAuthenticated: _backendAuth.isAuthenticated,
+      userId: _backendAuth.userId,
+      userEmail: _backendAuth.userEmail,
+      displayName: _backendAuth.userDisplayName,
+      photoUrl: _backendAuth.userPhotoUrl,
+      isPremium: _backendAuth.isPremium,
+      subscriptionTier: _backendAuth.subscriptionTier,
+      isLoading: _backendAuth.isInitializing,
+    );
+  }
+
   Future<void> signInWithEmailAndPassword(String email, String password) async {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      final UserCredential userCredential = await _auth
-          .signInWithEmailAndPassword(email: email, password: password);
+      await _backendAuth.login(email, password);
 
-      // Store user tokens securely
-      if (userCredential.user != null) {
-        await SecureTokenStorage.storeUserId(userCredential.user!.uid);
-        await SecureTokenStorage.storeUserEmail(
-          userCredential.user!.email ?? '',
-        );
-      }
+      // Store basic info
+      await SecureTokenStorage.storeUserId(_backendAuth.userId ?? '');
+      await SecureTokenStorage.storeUserEmail(email);
 
       state = state.copyWith(
         isAuthenticated: true,
-        user: userCredential.user,
+        userId: _backendAuth.userId,
+        userEmail: email,
+        displayName: _backendAuth.userDisplayName,
         isLoading: false,
       );
-    } on FirebaseAuthException catch (e) {
+    } catch (e) {
       String errorMessage = 'An error occurred during sign in';
-      if (e.code == 'user-not-found') {
-        errorMessage = 'No user found for that email.';
-      } else if (e.code == 'wrong-password') {
-        errorMessage = 'Wrong password provided for that user.';
-      } else if (e.code == 'invalid-email') {
-        errorMessage = 'The email address is invalid.';
-      } else if (e.code == 'user-disabled') {
-        errorMessage = 'The user account has been disabled.';
+      if (e.toString().contains('Incorrect email or password')) {
+        errorMessage = 'Incorrect email or password.';
       }
 
       state = state.copyWith(
         isAuthenticated: false,
         error: errorMessage,
-        isLoading: false,
-      );
-    } catch (e) {
-      state = state.copyWith(
-        isAuthenticated: false,
-        error: 'An error occurred during sign in',
         isLoading: false,
       );
     }
@@ -147,45 +151,31 @@ class AuthNotifier extends StateNotifier<AuthState> {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      final UserCredential userCredential = await _auth
-          .createUserWithEmailAndPassword(email: email, password: password);
+      await _backendAuth.register(email, password);
 
-      // Update user profile with name
-      if (userCredential.user != null) {
-        await userCredential.user!.updateDisplayName(name);
-        await SecureTokenStorage.storeUserId(userCredential.user!.uid);
-        await SecureTokenStorage.storeUserEmail(
-          userCredential.user!.email ?? '',
-        );
-      }
+      // Update profile with name
+      await _backendAuth.updateProfile(displayName: name);
+
+      // Store basic info
+      await SecureTokenStorage.storeUserId(_backendAuth.userId ?? '');
+      await SecureTokenStorage.storeUserEmail(email);
 
       state = state.copyWith(
         isAuthenticated: true,
-        user: userCredential.user,
+        userId: _backendAuth.userId,
+        userEmail: email,
+        displayName: name,
         isLoading: false,
       );
-    } on FirebaseAuthException catch (e) {
+    } catch (e) {
       String errorMessage = 'An error occurred during sign up';
-      if (e.code == 'email-already-in-use') {
-        errorMessage =
-            'The email address is already in use by another account.';
-      } else if (e.code == 'invalid-email') {
-        errorMessage = 'The email address is invalid.';
-      } else if (e.code == 'operation-not-allowed') {
-        errorMessage = 'Email/password accounts are not enabled.';
-      } else if (e.code == 'weak-password') {
-        errorMessage = 'The password is too weak.';
+      if (e.toString().contains('Email already registered')) {
+        errorMessage = 'The email address is already in use by another account.';
       }
 
       state = state.copyWith(
         isAuthenticated: false,
         error: errorMessage,
-        isLoading: false,
-      );
-    } catch (e) {
-      state = state.copyWith(
-        isAuthenticated: false,
-        error: 'An error occurred during sign up',
         isLoading: false,
       );
     }
@@ -195,57 +185,61 @@ class AuthNotifier extends StateNotifier<AuthState> {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      // Initialize Google Sign-In
-      await _googleSignIn.initialize();
+      // Step 1: Google Sign-In + Firebase
+      debugPrint('[AuthProvider] Starting Google Sign-In...');
+      final userCredential = await _googleSignIn.signInWithGoogle();
 
-      // Try lightweight authentication first
-      await _googleSignIn.attemptLightweightAuthentication();
-
-      // If not signed in, try to authenticate
-      if (!_googleSignIn.supportsAuthenticate()) {
+      if (userCredential == null || userCredential.user == null) {
         state = state.copyWith(
           isLoading: false,
-          error: 'Google Sign-In not supported on this platform',
+          error: 'Google Sign-In was cancelled or failed',
         );
         return;
       }
 
-      // Authenticate with Google
-      final GoogleSignInAccount googleUser = await _googleSignIn.authenticate(
-        scopeHint: ['email', 'profile'],
-      );
+      debugPrint('[AuthProvider] Google Sign-In successful, getting Firebase ID token...');
 
-      // Get authorization for Firebase scopes
-      final authClient = _googleSignIn.authorizationClient;
-      final authorization = await authClient.authorizationForScopes(['email']);
+      // Step 2: Get Firebase ID token
+      final firebaseToken = await _googleSignIn.getFirebaseIdToken();
 
-      // Get the authentication details
-      final GoogleSignInAuthentication googleAuth = googleUser.authentication;
-
-      // Create a new credential
-      final credential = GoogleAuthProvider.credential(
-        accessToken: authorization?.accessToken,
-        idToken: googleAuth.idToken,
-      );
-
-      // Sign in to Firebase with the Google credential
-      final UserCredential userCredential = await _auth.signInWithCredential(
-        credential,
-      );
-
-      // Store user tokens securely
-      if (userCredential.user != null) {
-        await SecureTokenStorage.storeUserId(userCredential.user!.uid);
-        await SecureTokenStorage.storeUserEmail(
-          userCredential.user!.email ?? '',
+      if (firebaseToken == null) {
+        state = state.copyWith(
+          isLoading: false,
+          error: 'Failed to get Firebase ID token',
         );
+        return;
       }
 
-      state = state.copyWith(
-        isAuthenticated: true,
-        user: userCredential.user,
-        isLoading: false,
-      );
+      debugPrint('[AuthProvider] Got Firebase ID token, authenticating with backend...');
+
+      // Step 3: Authenticate with backend
+      try {
+        await _backendAuth.authenticateWithGoogle(firebaseToken);
+
+        // Store basic info
+        await SecureTokenStorage.storeUserId(_backendAuth.userId ?? '');
+        await SecureTokenStorage.storeUserEmail(_backendAuth.userEmail ?? '');
+
+        state = state.copyWith(
+          isAuthenticated: true,
+          userId: _backendAuth.userId,
+          userEmail: _backendAuth.userEmail,
+          displayName: _backendAuth.userDisplayName,
+          photoUrl: _backendAuth.userPhotoUrl,
+          isLoading: false,
+        );
+      } on AccountLinkingRequiredException {
+        // Sign out of Firebase to prevent auto-login interference
+        await FirebaseAuth.instance.signOut();
+
+        // Set state for account linking
+        state = state.copyWith(
+          requiresLinking: true,
+          pendingFirebaseToken: firebaseToken,
+          isLoading: false,
+          error: null,
+        );
+      }
     } on FirebaseAuthException catch (e) {
       String errorMessage = 'An error occurred during Google sign in';
       if (e.code == 'account-exists-with-different-credential') {
@@ -258,16 +252,6 @@ class AuthNotifier extends StateNotifier<AuthState> {
         errorMessage = 'Google sign-in is disabled.';
       } else if (e.code == 'user-disabled') {
         errorMessage = 'The user account has been disabled.';
-      } else if (e.code == 'user-not-found') {
-        errorMessage = 'There is no user corresponding to the identifier.';
-      } else if (e.code == 'wrong-password') {
-        errorMessage = 'The password is invalid.';
-      } else if (e.code == 'invalid-verification-code') {
-        errorMessage =
-            'The SMS verification code used to create the phone auth credential is invalid.';
-      } else if (e.code == 'invalid-verification-id') {
-        errorMessage =
-            'The verification ID used to create the phone auth credential is invalid.';
       }
 
       state = state.copyWith(
@@ -284,14 +268,63 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
+  Future<void> linkGoogleAccount(String password) async {
+    if (state.pendingFirebaseToken == null) {
+      state = state.copyWith(error: 'No pending account to link');
+      return;
+    }
+
+    state = state.copyWith(isLoading: true, error: null);
+
+    try {
+      await _backendAuth.linkGoogleAccount(
+        firebaseToken: state.pendingFirebaseToken!,
+        password: password,
+      );
+
+      // Store basic info
+      await SecureTokenStorage.storeUserId(_backendAuth.userId ?? '');
+      await SecureTokenStorage.storeUserEmail(_backendAuth.userEmail ?? '');
+
+      state = state.copyWith(
+        isAuthenticated: true,
+        userId: _backendAuth.userId,
+        userEmail: _backendAuth.userEmail,
+        displayName: _backendAuth.userDisplayName,
+        photoUrl: _backendAuth.userPhotoUrl,
+        requiresLinking: false,
+        pendingFirebaseToken: null,
+        isLoading: false,
+      );
+    } catch (e) {
+      String errorMessage = 'Failed to link account';
+      if (e.toString().contains('Incorrect password')) {
+        errorMessage = 'Incorrect password. Please try again.';
+      }
+
+      state = state.copyWith(
+        error: errorMessage,
+        isLoading: false,
+      );
+    }
+  }
+
+  void cancelLinking() {
+    state = state.copyWith(
+      requiresLinking: false,
+      pendingFirebaseToken: null,
+      error: null,
+    );
+  }
+
   Future<void> signOut() async {
     try {
-      await _auth.signOut();
+      await _backendAuth.logout();
       await _googleSignIn.signOut();
       await SecureTokenStorage.clearAllTokens();
-      state = state.copyWith(
+
+      state = const AuthState(
         isAuthenticated: false,
-        user: null,
         isLoading: false,
       );
     } catch (e) {
@@ -302,6 +335,12 @@ class AuthNotifier extends StateNotifier<AuthState> {
   // Check if user is logged in using stored tokens
   Future<bool> checkLoginStatus() async {
     return await SecureTokenStorage.isLoggedIn();
+  }
+
+  @override
+  void dispose() {
+    _backendAuth.removeListener(_onBackendAuthChanged);
+    super.dispose();
   }
 }
 

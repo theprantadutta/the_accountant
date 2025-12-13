@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/features/authentication/providers/auth_provider.dart';
 import 'package:the_accountant/features/authentication/presentation/screens/sign_in_screen.dart';
+import 'package:the_accountant/features/authentication/presentation/screens/account_linking_screen.dart';
 import 'package:the_accountant/shared/widgets/main_navigation_container.dart';
 import 'package:the_accountant/core/themes/app_theme.dart';
 
@@ -17,8 +18,13 @@ class AuthWrapper extends ConsumerWidget {
       return const AuthLoadingScreen();
     }
 
+    // Handle account linking flow
+    if (authState.requiresLinking) {
+      return const AccountLinkingScreen();
+    }
+
     // If user is authenticated, show main app
-    if (authState.isAuthenticated && authState.user != null) {
+    if (authState.isAuthenticated) {
       return const MainNavigationContainer();
     }
 

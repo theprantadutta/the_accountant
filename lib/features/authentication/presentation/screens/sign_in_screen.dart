@@ -6,8 +6,6 @@ import 'package:the_accountant/features/authentication/providers/auth_provider.d
 import 'package:the_accountant/core/themes/app_theme.dart';
 import 'package:the_accountant/core/utils/animation_utils.dart';
 
-import '../../../../shared/widgets/main_navigation_container.dart';
-
 class SignInScreen extends ConsumerStatefulWidget {
   const SignInScreen({super.key});
 
@@ -96,22 +94,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
 
-    // Listen to authentication state changes
-    ref.listen<AuthState>(authProvider, (previous, next) {
-      if (next.isAuthenticated && next.user != null) {
-        // Navigate to main app
-        Navigator.pushReplacement(
-          context,
-          PageRouteBuilder(
-            pageBuilder: (context, animation, _) =>
-                const MainNavigationContainer(),
-            transitionsBuilder: (context, animation, _, child) {
-              return FadeTransition(opacity: animation, child: child);
-            },
-          ),
-        );
-      }
-    });
+    // Navigation is now handled by AuthWrapper
 
     return Container(
       decoration: const BoxDecoration(gradient: AppTheme.backgroundGradient),
