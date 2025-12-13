@@ -168,9 +168,10 @@ class CategoryInitializationService {
           final category = CategoriesCompanion(
             id: Value(const Uuid().v4()),
             name: Value(categoryData['name'] as String),
-            colorCode: Value(categoryData['colorCode'] as String),
+            color: Value(categoryData['colorCode'] as String),
             type: Value(categoryData['type'] as String),
             isDefault: Value(categoryData['isDefault'] as bool),
+            isIncome: Value(categoryData['type'] == 'income'),
           );
 
           await _db.addCategory(category);

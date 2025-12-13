@@ -3,12 +3,16 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:the_accountant/core/themes/app_theme.dart';
-import 'package:the_accountant/core/utils/animation_utils.dart';
+import 'package:the_accountant/core/themes/app_colors.dart';
+import 'package:the_accountant/core/themes/app_spacing.dart';
+import 'package:the_accountant/core/themes/app_typography.dart';
+import 'package:the_accountant/core/themes/app_animations.dart';
 import 'package:the_accountant/features/dashboard/providers/financial_data_provider.dart';
 import 'package:the_accountant/features/categories/providers/category_provider.dart'
     as cat_provider;
 import 'package:the_accountant/data/datasources/local/app_database.dart';
+import 'package:the_accountant/shared/widgets/glass_card.dart';
+import 'package:the_accountant/shared/widgets/stat_card.dart';
 
 class ResponsiveFinancialOverview extends ConsumerStatefulWidget {
   const ResponsiveFinancialOverview({super.key});
@@ -23,7 +27,6 @@ class _ResponsiveFinancialOverviewState
     with TickerProviderStateMixin {
   late AnimationController _animationController;
   late AnimationController _balanceAnimationController;
-  late Animation<double> _slideAnimation;
   late Animation<double> _balanceAnimation;
 
   @override
@@ -31,7 +34,7 @@ class _ResponsiveFinancialOverviewState
     super.initState();
 
     _animationController = AnimationController(
-      duration: const Duration(milliseconds: 1200),
+      duration: AppAnimations.long,
       vsync: this,
     );
 
@@ -40,14 +43,9 @@ class _ResponsiveFinancialOverviewState
       vsync: this,
     );
 
-    _slideAnimation = CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.elasticOut,
-    );
-
     _balanceAnimation = CurvedAnimation(
       parent: _balanceAnimationController,
-      curve: Curves.easeOutCubic,
+      curve: AppAnimations.easeOut,
     );
 
     _animationController.forward();
@@ -67,9 +65,13 @@ class _ResponsiveFinancialOverviewState
 
     // Show loading state
     if (financialData.isLoading) {
-      return const Scaffold(
+      return Scaffold(
         backgroundColor: Colors.transparent,
-        body: Center(child: CircularProgressIndicator()),
+        body: Center(
+          child: CircularProgressIndicator(
+            color: AppColors.primaryAccent,
+          ),
+        ),
       );
     }
 
@@ -78,28 +80,35 @@ class _ResponsiveFinancialOverviewState
       return Scaffold(
         backgroundColor: Colors.transparent,
         body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.error_outline, color: Colors.red, size: 48),
-              const SizedBox(height: 16),
-              Text(
-                'Error loading financial data',
-                style: TextStyle(color: Colors.white, fontSize: 18),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                financialData.error!,
-                style: TextStyle(color: Colors.white70, fontSize: 14),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () =>
-                    ref.read(financialDataProvider.notifier).refreshData(),
-                child: const Text('Retry'),
-              ),
-            ],
+          child: GlassCard(
+            padding: AppSpacing.paddingXl,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.error_outline,
+                  color: AppColors.error,
+                  size: AppSpacing.iconXxl,
+                ),
+                AppSpacing.gapLg,
+                Text(
+                  'Error loading financial data',
+                  style: AppTypography.titleMedium,
+                ),
+                AppSpacing.gapSm,
+                Text(
+                  financialData.error!,
+                  style: AppTypography.bodySmall,
+                  textAlign: TextAlign.center,
+                ),
+                AppSpacing.gapLg,
+                ElevatedButton(
+                  onPressed: () =>
+                      ref.read(financialDataProvider.notifier).refreshData(),
+                  child: const Text('Retry'),
+                ),
+              ],
+            ),
           ),
         ),
       );
@@ -109,104 +118,64 @@ class _ResponsiveFinancialOverviewState
       backgroundColor: Colors.transparent,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
+          padding: AppSpacing.paddingScreen,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 20),
+              AppSpacing.gapLg,
 
               // Greeting Section
-              AnimationUtils.slideTransition(
-                animation: _slideAnimation,
-                begin: const Offset(-1, 0),
-                child: _buildGreetingSection(),
-              ),
+              _buildAnimatedSection(0.0, 0.3, _buildGreetingSection()),
 
-              const SizedBox(height: 32),
+              AppSpacing.gapXxl,
 
               // Balance Card
-              AnimationUtils.scaleTransition(
-                animation: AnimationUtils.createStaggeredAnimation(
-                  controller: _animationController,
-                  startFraction: 0.1,
-                  endFraction: 0.4,
-                ),
-                child: _buildBalanceCard(
+              _buildAnimatedSection(
+                0.1,
+                0.4,
+                _buildBalanceCard(
                   financialData.totalBalance,
                   financialData.monthlyGrowthPercentage,
                 ),
               ),
 
-              const SizedBox(height: 24),
+              AppSpacing.gapXl,
 
-              // Quick Actions
-              AnimationUtils.slideTransition(
-                animation: AnimationUtils.createStaggeredAnimation(
-                  controller: _animationController,
-                  startFraction: 0.2,
-                  endFraction: 0.5,
-                ),
-                begin: const Offset(1, 0),
-                child: _buildQuickActions(),
-              ),
-
-              const SizedBox(height: 32),
-
-              // Income/Expense Overview
-              AnimationUtils.slideTransition(
-                animation: AnimationUtils.createStaggeredAnimation(
-                  controller: _animationController,
-                  startFraction: 0.3,
-                  endFraction: 0.6,
-                ),
-                begin: const Offset(0, 1),
-                child: _buildIncomeExpenseOverview(
+              // Quick Stats Row
+              _buildAnimatedSection(
+                0.2,
+                0.5,
+                _buildQuickStats(
                   financialData.monthlyIncome,
                   financialData.monthlyExpenses,
                 ),
               ),
 
-              const SizedBox(height: 24),
+              AppSpacing.gapXl,
+
+              // Quick Actions
+              _buildAnimatedSection(0.3, 0.6, _buildQuickActions()),
+
+              AppSpacing.gapXl,
 
               // Spending Chart
-              AnimationUtils.fadeTransition(
-                animation: AnimationUtils.createStaggeredAnimation(
-                  controller: _animationController,
-                  startFraction: 0.4,
-                  endFraction: 0.7,
-                ),
-                child: _buildSpendingChart(),
-              ),
+              _buildAnimatedSection(0.4, 0.7, _buildSpendingChart()),
 
-              const SizedBox(height: 24),
+              AppSpacing.gapXl,
 
               // Recent Transactions
-              AnimationUtils.slideTransition(
-                animation: AnimationUtils.createStaggeredAnimation(
-                  controller: _animationController,
-                  startFraction: 0.5,
-                  endFraction: 0.8,
-                ),
-                begin: const Offset(0, 1),
-                child: _buildRecentTransactions(
-                  financialData.recentTransactions,
-                ),
+              _buildAnimatedSection(
+                0.5,
+                0.8,
+                _buildRecentTransactions(financialData.recentTransactions),
               ),
 
-              const SizedBox(height: 24),
+              AppSpacing.gapXl,
 
               // Budget Progress
-              AnimationUtils.slideTransition(
-                animation: AnimationUtils.createStaggeredAnimation(
-                  controller: _animationController,
-                  startFraction: 0.6,
-                  endFraction: 0.9,
-                ),
-                begin: const Offset(0, 1),
-                child: _buildBudgetProgress(),
-              ),
+              _buildAnimatedSection(0.6, 0.9, _buildBudgetProgress()),
 
-              const SizedBox(height: 100), // Bottom padding for nav bar
+              SizedBox(height: AppSpacing.huge + 40), // Bottom padding for nav bar
             ],
           ),
         ),
@@ -214,34 +183,62 @@ class _ResponsiveFinancialOverviewState
     );
   }
 
+  Widget _buildAnimatedSection(double start, double end, Widget child) {
+    return SlideTransition(
+      position: Tween<Offset>(
+        begin: const Offset(0, 0.3),
+        end: Offset.zero,
+      ).animate(CurvedAnimation(
+        parent: _animationController,
+        curve: Interval(start, end, curve: AppAnimations.easeOut),
+      )),
+      child: FadeTransition(
+        opacity: CurvedAnimation(
+          parent: _animationController,
+          curve: Interval(start, end, curve: AppAnimations.easeOut),
+        ),
+        child: child,
+      ),
+    );
+  }
+
   Widget _buildGreetingSection() {
     return Row(
       children: [
-        AppTheme.gradientContainer(
-          gradient: AppTheme.primaryGradient,
-          width: 48,
-          height: 48,
-          borderRadius: BorderRadius.circular(16),
-          child: const Icon(Icons.waving_hand, color: Colors.white, size: 24),
+        Container(
+          width: 52,
+          height: 52,
+          decoration: BoxDecoration(
+            gradient: AppColors.primaryGradient,
+            borderRadius: AppSpacing.borderRadiusLg,
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.primaryGlow.withValues(alpha: 0.3),
+                blurRadius: 15,
+                offset: const Offset(0, 5),
+              ),
+            ],
+          ),
+          child: Icon(
+            Icons.waving_hand_rounded,
+            color: AppColors.textPrimary,
+            size: AppSpacing.iconMd,
+          ),
         ),
-        const SizedBox(width: 16),
+        AppSpacing.gapHLg,
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 'Good ${_getTimeOfDay()}!',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: AppTypography.headlineLarge,
               ),
+              AppSpacing.gapXs,
               Text(
                 'Ready to manage your finances?',
-                style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.8),
-                  fontSize: 16,
+                style: AppTypography.bodyMedium.copyWith(
+                  color: AppColors.textSecondary,
                 ),
               ),
             ],
@@ -258,146 +255,107 @@ class _ResponsiveFinancialOverviewState
     return 'Evening';
   }
 
-  IconData _getCategoryIcon(String categoryName) {
-    switch (categoryName.toLowerCase()) {
-      case 'food & dining':
-      case 'food':
-      case 'dining':
-        return Icons.restaurant;
-      case 'transportation':
-      case 'transport':
-        return Icons.directions_car;
-      case 'shopping':
-        return Icons.shopping_cart;
-      case 'entertainment':
-        return Icons.movie;
-      case 'salary':
-      case 'income':
-        return Icons.work;
-      case 'freelance':
-        return Icons.business_center;
-      case 'bills':
-      case 'utilities':
-        return Icons.home;
-      case 'health':
-      case 'medical':
-        return Icons.local_hospital;
-      case 'education':
-        return Icons.school;
-      case 'travel':
-        return Icons.flight;
-      default:
-        return Icons.category;
-    }
-  }
-
   Widget _buildBalanceCard(double balance, double growthPercentage) {
-    return AppTheme.gradientContainer(
-      gradient: AppTheme.primaryGradient,
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(24),
+    return AccentGlassCard(
+      child: Padding(
+        padding: AppSpacing.paddingXl,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
+                Text(
                   'Total Balance',
-                  style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
+                  style: AppTypography.labelMedium.copyWith(
+                    color: AppColors.textSecondary,
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: AppSpacing.md,
+                    vertical: AppSpacing.xs,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(12),
+                    color: AppColors.glassWhite,
+                    borderRadius: AppSpacing.borderRadiusFull,
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.visibility, color: Colors.white, size: 16),
-                      const SizedBox(width: 4),
-                      const Text(
+                      Icon(
+                        Icons.visibility_rounded,
+                        color: AppColors.textPrimary,
+                        size: AppSpacing.iconXs,
+                      ),
+                      AppSpacing.gapHXs,
+                      Text(
                         'Show',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                        ),
+                        style: AppTypography.labelSmall,
                       ),
                     ],
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            AppSpacing.gapMd,
             AnimatedBuilder(
               animation: _balanceAnimation,
               builder: (context, child) {
                 final animatedBalance = balance * _balanceAnimation.value;
                 return Text(
                   '\$${NumberFormat('#,##0.00').format(animatedBalance)}',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 36,
-                    fontWeight: FontWeight.bold,
+                  style: AppTypography.monoLarge.copyWith(
+                    fontSize: 40,
                   ),
                 );
               },
             ),
-            const SizedBox(height: 8),
+            AppSpacing.gapMd,
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: AppSpacing.sm,
+                    vertical: AppSpacing.xs,
                   ),
                   decoration: BoxDecoration(
-                    color: (growthPercentage >= 0 ? Colors.green : Colors.red)
-                        .withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(8),
+                    color: (growthPercentage >= 0
+                            ? AppColors.success
+                            : AppColors.error)
+                        .withValues(alpha: 0.15),
+                    borderRadius: AppSpacing.borderRadiusSm,
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
                         growthPercentage >= 0
-                            ? Icons.trending_up
-                            : Icons.trending_down,
+                            ? Icons.trending_up_rounded
+                            : Icons.trending_down_rounded,
                         color: growthPercentage >= 0
-                            ? Colors.greenAccent
-                            : Colors.redAccent,
-                        size: 16,
+                            ? AppColors.success
+                            : AppColors.error,
+                        size: AppSpacing.iconXs,
                       ),
-                      const SizedBox(width: 4),
+                      AppSpacing.gapHXs,
                       Text(
                         '${growthPercentage >= 0 ? '+' : ''}${growthPercentage.toStringAsFixed(1)}%',
-                        style: TextStyle(
+                        style: AppTypography.labelSmall.copyWith(
                           color: growthPercentage >= 0
-                              ? Colors.greenAccent
-                              : Colors.redAccent,
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
+                              ? AppColors.success
+                              : AppColors.error,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(width: 8),
+                AppSpacing.gapHSm,
                 Text(
                   'from last month',
-                  style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.7),
-                    fontSize: 14,
+                  style: AppTypography.bodySmall.copyWith(
+                    color: AppColors.textMuted,
                   ),
                 ),
               ],
@@ -408,27 +366,59 @@ class _ResponsiveFinancialOverviewState
     );
   }
 
+  Widget _buildQuickStats(double income, double expenses) {
+    return Row(
+      children: [
+        Expanded(
+          child: StatCard(
+            label: 'Income',
+            value: income,
+            prefix: '\$',
+            icon: Icons.trending_up_rounded,
+            iconColor: AppColors.success,
+            accentColor: AppColors.success,
+            trend: TrendDirection.up,
+            trendValue: 'This month',
+          ),
+        ),
+        AppSpacing.gapHMd,
+        Expanded(
+          child: StatCard(
+            label: 'Expenses',
+            value: expenses,
+            prefix: '\$',
+            icon: Icons.trending_down_rounded,
+            iconColor: AppColors.error,
+            accentColor: AppColors.error,
+            trend: TrendDirection.down,
+            trendValue: 'This month',
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildQuickActions() {
     final actions = [
       {
-        'icon': Icons.arrow_upward,
-        'label': 'Send',
-        'color': const Color(0xFF667eea),
+        'icon': Icons.add_rounded,
+        'label': 'Add',
+        'color': AppColors.primaryAccent,
       },
       {
-        'icon': Icons.arrow_downward,
-        'label': 'Receive',
-        'color': const Color(0xFF11998e),
+        'icon': Icons.swap_horiz_rounded,
+        'label': 'Transfer',
+        'color': AppColors.neonCyan,
       },
       {
-        'icon': Icons.credit_card,
-        'label': 'Cards',
-        'color': const Color(0xFFFF6B6B),
+        'icon': Icons.receipt_long_rounded,
+        'label': 'Bills',
+        'color': AppColors.neonPurple,
       },
       {
-        'icon': Icons.more_horiz,
-        'label': 'More',
-        'color': const Color(0xFF4ECDC4),
+        'icon': Icons.savings_rounded,
+        'label': 'Goals',
+        'color': AppColors.success,
       },
     ];
 
@@ -439,39 +429,35 @@ class _ResponsiveFinancialOverviewState
         itemCount: actions.length,
         itemBuilder: (context, index) {
           final action = actions[index];
+          final color = action['color'] as Color;
           return Container(
-            margin: const EdgeInsets.only(right: 16),
-            child: GestureDetector(
+            margin: EdgeInsets.only(right: AppSpacing.md),
+            child: GlassCard(
+              width: 80,
               onTap: () => HapticFeedback.lightImpact(),
-              child: AppTheme.glassmorphicContainer(
-                width: 80,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: action['color'] as Color,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Icon(
-                        action['icon'] as IconData,
-                        color: Colors.white,
-                        size: 20,
-                      ),
+              padding: AppSpacing.paddingSm,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: color.withValues(alpha: 0.15),
+                      borderRadius: AppSpacing.borderRadiusMd,
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      action['label'] as String,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                      ),
+                    child: Icon(
+                      action['icon'] as IconData,
+                      color: color,
+                      size: AppSpacing.iconSm,
                     ),
-                  ],
-                ),
+                  ),
+                  AppSpacing.gapSm,
+                  Text(
+                    action['label'] as String,
+                    style: AppTypography.labelSmall,
+                  ),
+                ],
               ),
             ),
           );
@@ -480,280 +466,174 @@ class _ResponsiveFinancialOverviewState
     );
   }
 
-  Widget _buildIncomeExpenseOverview(double income, double expenses) {
-    return Row(
-      children: [
-        Expanded(
-          child: AppTheme.glassmorphicContainer(
-            child: Container(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        width: 32,
-                        height: 32,
-                        decoration: BoxDecoration(
-                          color: Colors.green.withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Icon(
-                          Icons.trending_up,
-                          color: Colors.green,
-                          size: 16,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      const Expanded(
-                        child: Text(
-                          'Income',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    '\$${NumberFormat('#,##0.00').format(income)}',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Text(
-                    'This month',
-                    style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.7),
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: AppTheme.glassmorphicContainer(
-            child: Container(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        width: 32,
-                        height: 32,
-                        decoration: BoxDecoration(
-                          color: Colors.red.withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Icon(
-                          Icons.trending_down,
-                          color: Colors.red,
-                          size: 16,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      const Expanded(
-                        child: Text(
-                          'Expenses',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    '\$${NumberFormat('#,##0.00').format(expenses)}',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Text(
-                    'This month',
-                    style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.7),
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
   Widget _buildSpendingChart() {
-    return AppTheme.glassmorphicContainer(
-      height: 300,
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Spending Overview',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 20),
-            Expanded(
-              child: LineChart(
-                LineChartData(
-                  gridData: FlGridData(show: false),
-                  titlesData: FlTitlesData(show: false),
-                  borderData: FlBorderData(show: false),
-                  lineBarsData: [
-                    LineChartBarData(
-                      spots: const [
-                        FlSpot(0, 3),
-                        FlSpot(1, 1.5),
-                        FlSpot(2, 4),
-                        FlSpot(3, 3.1),
-                        FlSpot(4, 4.8),
-                        FlSpot(5, 3.5),
-                        FlSpot(6, 5),
-                      ],
-                      isCurved: true,
-                      gradient: AppTheme.primaryGradient,
-                      barWidth: 3,
-                      isStrokeCapRound: true,
-                      dotData: FlDotData(show: false),
-                      belowBarData: BarAreaData(
-                        show: true,
-                        gradient: LinearGradient(
-                          colors: [
-                            const Color(0xFF667eea).withValues(alpha: 0.3),
-                            const Color(0xFF764ba2).withValues(alpha: 0.1),
-                          ],
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                        ),
+    return GlassCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Spending Overview',
+            style: AppTypography.titleMedium,
+          ),
+          AppSpacing.gapLg,
+          SizedBox(
+            height: 180,
+            child: LineChart(
+              LineChartData(
+                gridData: FlGridData(
+                  show: true,
+                  drawVerticalLine: false,
+                  horizontalInterval: 1,
+                  getDrawingHorizontalLine: (value) {
+                    return FlLine(
+                      color: AppColors.glassBorder,
+                      strokeWidth: 1,
+                    );
+                  },
+                ),
+                titlesData: FlTitlesData(show: false),
+                borderData: FlBorderData(show: false),
+                lineBarsData: [
+                  LineChartBarData(
+                    spots: const [
+                      FlSpot(0, 3),
+                      FlSpot(1, 1.5),
+                      FlSpot(2, 4),
+                      FlSpot(3, 3.1),
+                      FlSpot(4, 4.8),
+                      FlSpot(5, 3.5),
+                      FlSpot(6, 5),
+                    ],
+                    isCurved: true,
+                    gradient: AppColors.primaryGradient,
+                    barWidth: 3,
+                    isStrokeCapRound: true,
+                    dotData: FlDotData(
+                      show: true,
+                      getDotPainter: (spot, percent, barData, index) {
+                        return FlDotCirclePainter(
+                          radius: index == 6 ? 5 : 0,
+                          color: AppColors.primaryAccent,
+                          strokeWidth: 2,
+                          strokeColor: AppColors.textPrimary,
+                        );
+                      },
+                    ),
+                    belowBarData: BarAreaData(
+                      show: true,
+                      gradient: LinearGradient(
+                        colors: [
+                          AppColors.primaryAccent.withValues(alpha: 0.3),
+                          AppColors.primaryAccent.withValues(alpha: 0.0),
+                        ],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
+  IconData _getCategoryIcon(String categoryName) {
+    switch (categoryName.toLowerCase()) {
+      case 'food & dining':
+      case 'food':
+      case 'dining':
+        return Icons.restaurant_rounded;
+      case 'transportation':
+      case 'transport':
+        return Icons.directions_car_rounded;
+      case 'shopping':
+        return Icons.shopping_cart_rounded;
+      case 'entertainment':
+        return Icons.movie_rounded;
+      case 'salary':
+      case 'income':
+        return Icons.work_rounded;
+      case 'freelance':
+        return Icons.business_center_rounded;
+      case 'bills':
+      case 'utilities':
+        return Icons.home_rounded;
+      case 'health':
+      case 'medical':
+        return Icons.local_hospital_rounded;
+      case 'education':
+        return Icons.school_rounded;
+      case 'travel':
+        return Icons.flight_rounded;
+      default:
+        return Icons.category_rounded;
+    }
+  }
+
   Widget _buildRecentTransactions(List<Transaction> transactions) {
-    if (transactions.isEmpty) {
-      return AppTheme.glassmorphicContainer(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    return GlassCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
+              Text(
                 'Recent Transactions',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+                style: AppTypography.titleMedium,
+              ),
+              GestureDetector(
+                onTap: () => HapticFeedback.lightImpact(),
+                child: Text(
+                  'View All',
+                  style: AppTypography.labelMedium.copyWith(
+                    color: AppColors.primaryAccent,
+                  ),
                 ),
               ),
-              const SizedBox(height: 16),
-              Center(
+            ],
+          ),
+          AppSpacing.gapLg,
+          if (transactions.isEmpty)
+            Center(
+              child: Padding(
+                padding: AppSpacing.paddingLg,
                 child: Column(
                   children: [
                     Icon(
                       Icons.receipt_long_outlined,
-                      color: Colors.white.withValues(alpha: 0.5),
-                      size: 48,
+                      color: AppColors.textMuted,
+                      size: AppSpacing.iconXxl,
                     ),
-                    const SizedBox(height: 8),
+                    AppSpacing.gapMd,
                     Text(
                       'No transactions yet',
-                      style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.7),
-                        fontSize: 16,
+                      style: AppTypography.titleSmall.copyWith(
+                        color: AppColors.textSecondary,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    AppSpacing.gapXs,
                     Text(
                       'Add your first transaction to get started',
-                      style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.5),
-                        fontSize: 14,
+                      style: AppTypography.bodySmall.copyWith(
+                        color: AppColors.textMuted,
                       ),
                     ),
                   ],
                 ),
               ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    return AppTheme.glassmorphicContainer(
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Recent Transactions',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                TextButton(
-                  onPressed: () => HapticFeedback.lightImpact(),
-                  child: Text(
-                    'View All',
-                    style: TextStyle(
-                      color: const Color(0xFF667eea),
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
+            )
+          else
             ...transactions.take(5).map((transaction) {
-              final categories = ref
-                  .read(cat_provider.categoryProvider)
-                  .categories;
+              final categories =
+                  ref.read(cat_provider.categoryProvider).categories;
               final category = categories.firstWhere(
                 (c) => c.id == transaction.categoryId,
                 orElse: () => cat_provider.Category(
-                  id: transaction.categoryId,
+                  id: transaction.categoryId ?? '',
                   name: 'Unknown',
                   colorCode: '#999999',
                   type: transaction.type,
@@ -767,23 +647,23 @@ class _ResponsiveFinancialOverviewState
               );
 
               return Container(
-                margin: const EdgeInsets.only(bottom: 16),
+                margin: EdgeInsets.only(bottom: AppSpacing.md),
                 child: Row(
                   children: [
                     Container(
                       width: 48,
                       height: 48,
                       decoration: BoxDecoration(
-                        color: categoryColor.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(12),
+                        color: categoryColor.withValues(alpha: 0.15),
+                        borderRadius: AppSpacing.borderRadiusMd,
                       ),
                       child: Icon(
                         _getCategoryIcon(category.name),
                         color: categoryColor,
-                        size: 20,
+                        size: AppSpacing.iconSm,
                       ),
                     ),
-                    const SizedBox(width: 16),
+                    AppSpacing.gapHMd,
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -792,19 +672,14 @@ class _ResponsiveFinancialOverviewState
                             (transaction.notes?.isNotEmpty ?? false)
                                 ? transaction.notes!
                                 : category.name,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
+                            style: AppTypography.titleSmall,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
                           Text(
                             category.name,
-                            style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.7),
-                              fontSize: 14,
+                            style: AppTypography.bodySmall.copyWith(
+                              color: AppColors.textMuted,
                             ),
                           ),
                         ],
@@ -812,18 +687,16 @@ class _ResponsiveFinancialOverviewState
                     ),
                     Text(
                       '${isIncome ? '+' : '-'}\$${NumberFormat('#,##0.00').format(transaction.amount)}',
-                      style: TextStyle(
-                        color: isIncome ? Colors.green : Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                      style: AppTypography.monoSmall.copyWith(
+                        color: isIncome ? AppColors.success : AppColors.error,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ],
                 ),
               );
             }),
-          ],
-        ),
+        ],
       ),
     );
   }
@@ -831,132 +704,127 @@ class _ResponsiveFinancialOverviewState
   Widget _buildBudgetProgress() {
     final items = ref.watch(budgetProgressDetailsProvider);
 
-    return AppTheme.glassmorphicContainer(
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Budget Progress',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                TextButton(
-                  onPressed: () => HapticFeedback.lightImpact(),
-                  child: Text(
-                    'Manage',
-                    style: TextStyle(
-                      color: const Color(0xFF667eea),
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            if (items.isEmpty)
+    return GlassCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
               Text(
-                'No active budgets',
-                style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.7),
-                  fontSize: 14,
-                ),
-              )
-            else
-              ...items.map((item) {
-                final spent = item.spent;
-                final limit = item.limit;
-                final percentage = limit <= 0 ? 0.0 : spent / limit;
-                final isOverBudget = percentage > 1.0;
-                final barColor = Color(
-                  int.parse(item.colorCode.replaceFirst('#', '0xFF')),
-                );
-
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            item.budgetName,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          Text(
-                            '\$${NumberFormat('#,##0.00').format(spent)} / \$${NumberFormat('#,##0.00').format(limit)}',
-                            style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.8),
-                              fontSize: 14,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Stack(
-                        children: [
-                          Container(
-                            width: double.infinity,
-                            height: 6,
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(3),
-                            ),
-                          ),
-                          Container(
-                            width:
-                                MediaQuery.of(context).size.width *
-                                (percentage.clamp(0.0, 1.0)),
-                            height: 6,
-                            decoration: BoxDecoration(
-                              color: isOverBudget ? Colors.red : barColor,
-                              borderRadius: BorderRadius.circular(3),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 6),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            isOverBudget ? 'Over budget' : 'Within budget',
-                            style: TextStyle(
-                              color: isOverBudget
-                                  ? Colors.redAccent
-                                  : Colors.white.withValues(alpha: 0.7),
-                              fontSize: 12,
-                            ),
-                          ),
-                          Text(
-                            '${(percentage * 100).clamp(0.0, 999.9).toStringAsFixed(1)}%',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
+                'Budget Progress',
+                style: AppTypography.titleMedium,
+              ),
+              GestureDetector(
+                onTap: () => HapticFeedback.lightImpact(),
+                child: Text(
+                  'Manage',
+                  style: AppTypography.labelMedium.copyWith(
+                    color: AppColors.primaryAccent,
                   ),
-                );
-              }),
-          ],
-        ),
+                ),
+              ),
+            ],
+          ),
+          AppSpacing.gapLg,
+          if (items.isEmpty)
+            Text(
+              'No active budgets',
+              style: AppTypography.bodySmall.copyWith(
+                color: AppColors.textMuted,
+              ),
+            )
+          else
+            ...items.map((item) {
+              final spent = item.spent;
+              final limit = item.limit;
+              final percentage = limit <= 0 ? 0.0 : spent / limit;
+              final isOverBudget = percentage > 1.0;
+              final barColor = Color(
+                int.parse(item.colorCode.replaceFirst('#', '0xFF')),
+              );
+
+              return Container(
+                margin: EdgeInsets.only(bottom: AppSpacing.lg),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          item.budgetName,
+                          style: AppTypography.titleSmall,
+                        ),
+                        Text(
+                          '\$${NumberFormat('#,##0').format(spent)} / \$${NumberFormat('#,##0').format(limit)}',
+                          style: AppTypography.monoSmall.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                    AppSpacing.gapSm,
+                    Stack(
+                      children: [
+                        Container(
+                          width: double.infinity,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            color: AppColors.glassWhite,
+                            borderRadius: AppSpacing.borderRadiusFull,
+                          ),
+                        ),
+                        AnimatedContainer(
+                          duration: AppAnimations.slow,
+                          width: MediaQuery.of(context).size.width *
+                              0.75 *
+                              (percentage.clamp(0.0, 1.0)),
+                          height: 8,
+                          decoration: BoxDecoration(
+                            gradient: isOverBudget
+                                ? LinearGradient(
+                                    colors: [
+                                      AppColors.error,
+                                      AppColors.error.withValues(alpha: 0.7),
+                                    ],
+                                  )
+                                : LinearGradient(
+                                    colors: [
+                                      barColor,
+                                      barColor.withValues(alpha: 0.7),
+                                    ],
+                                  ),
+                            borderRadius: AppSpacing.borderRadiusFull,
+                          ),
+                        ),
+                      ],
+                    ),
+                    AppSpacing.gapXs,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          isOverBudget ? 'Over budget' : 'Within budget',
+                          style: AppTypography.labelSmall.copyWith(
+                            color: isOverBudget
+                                ? AppColors.error
+                                : AppColors.textMuted,
+                          ),
+                        ),
+                        Text(
+                          '${(percentage * 100).clamp(0.0, 999.9).toStringAsFixed(0)}%',
+                          style: AppTypography.labelSmall.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              );
+            }),
+        ],
       ),
     );
   }

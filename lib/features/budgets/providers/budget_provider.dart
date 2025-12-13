@@ -62,15 +62,16 @@ class BudgetNotifier extends StateNotifier<BudgetState> {
     try {
       final dbBudgets = await _db.getAllBudgets();
       final budgets = dbBudgets
+          .where((b) => b.endDate != null) // Filter out budgets without end date
           .map(
             (b) => Budget(
               id: b.id,
               name: b.name,
-              categoryId: b.categoryId,
-              limit: b.limit,
+              categoryId: b.categoryId ?? '',
+              limit: b.limit ?? b.amount, // Use amount if limit is null
               period: b.period,
               startDate: b.startDate,
-              endDate: b.endDate,
+              endDate: b.endDate!, // Safe because we filtered above
               createdAt: b.createdAt,
             ),
           )

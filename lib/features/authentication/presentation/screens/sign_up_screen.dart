@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:the_accountant/core/themes/app_theme.dart';
-import 'package:the_accountant/core/utils/animation_utils.dart';
+import 'package:the_accountant/core/themes/app_colors.dart';
+import 'package:the_accountant/core/themes/app_spacing.dart';
+import 'package:the_accountant/core/themes/app_typography.dart';
+import 'package:the_accountant/core/themes/app_animations.dart';
 import 'package:the_accountant/features/authentication/presentation/screens/sign_in_screen.dart';
 import 'package:the_accountant/features/authentication/providers/auth_provider.dart';
+import 'package:the_accountant/shared/widgets/glass_card.dart';
+import 'package:the_accountant/shared/widgets/neo_button.dart';
+import 'package:the_accountant/shared/widgets/neo_text_field.dart';
 
 class SignUpScreen extends ConsumerStatefulWidget {
   const SignUpScreen({super.key});
@@ -21,49 +26,34 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
 
-  bool _obscurePassword = true;
-  bool _obscureConfirmPassword = true;
   bool _acceptTerms = false;
 
   late AnimationController _animationController;
   late AnimationController _floatingController;
-  late Animation<double> _fadeAnimation;
-  late Animation<double> _slideAnimation;
-  late Animation<double> _scaleAnimation;
   late Animation<double> _floatingAnimation;
+
+  // Password strength
+  double _passwordStrength = 0;
 
   @override
   void initState() {
     super.initState();
 
     _animationController = AnimationController(
-      duration: const Duration(milliseconds: 1200),
+      duration: AppAnimations.long,
       vsync: this,
     );
 
     _floatingController = AnimationController(
-      duration: const Duration(milliseconds: 2000),
+      duration: const Duration(milliseconds: 3000),
       vsync: this,
     );
 
-    _fadeAnimation = CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    );
-
-    _slideAnimation = CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.elasticOut,
-    );
-
-    _scaleAnimation = CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.bounceOut,
-    );
-
-    _floatingAnimation = Tween<double>(begin: 0.0, end: 8.0).animate(
+    _floatingAnimation = Tween<double>(begin: -8.0, end: 8.0).animate(
       CurvedAnimation(parent: _floatingController, curve: Curves.easeInOut),
     );
+
+    _passwordController.addListener(_checkPasswordStrength);
 
     _animationController.forward();
     _floatingController.repeat(reverse: true);
@@ -80,451 +70,502 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
     super.dispose();
   }
 
+  void _checkPasswordStrength() {
+    final password = _passwordController.text;
+    double strength = 0;
+
+    if (password.length >= 6) strength += 0.25;
+    if (password.length >= 8) strength += 0.15;
+    if (RegExp(r'[A-Z]').hasMatch(password)) strength += 0.2;
+    if (RegExp(r'[a-z]').hasMatch(password)) strength += 0.2;
+    if (RegExp(r'[0-9]').hasMatch(password)) strength += 0.2;
+
+    setState(() {
+      _passwordStrength = strength.clamp(0, 1);
+    });
+  }
+
+  Color _getStrengthColor() {
+    if (_passwordStrength < 0.3) return AppColors.error;
+    if (_passwordStrength < 0.6) return AppColors.warning;
+    if (_passwordStrength < 0.8) return AppColors.info;
+    return AppColors.success;
+  }
+
+  String _getStrengthText() {
+    if (_passwordStrength < 0.3) return 'Weak';
+    if (_passwordStrength < 0.6) return 'Fair';
+    if (_passwordStrength < 0.8) return 'Good';
+    return 'Strong';
+  }
+
   void _signUp() {
     if (_formKey.currentState!.validate()) {
       if (!_acceptTerms) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Please accept the terms and conditions'),
-            backgroundColor: Colors.red,
+          SnackBar(
+            content: Text(
+              'Please accept the terms and conditions',
+              style: AppTypography.bodyMedium,
+            ),
+            backgroundColor: AppColors.error,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: AppSpacing.borderRadiusMd,
+            ),
           ),
         );
         return;
       }
 
-      ref
-          .read(authProvider.notifier)
-          .signUpWithEmailAndPassword(
+      HapticFeedback.mediumImpact();
+      ref.read(authProvider.notifier).signUpWithEmailAndPassword(
             _nameController.text.trim(),
             _emailController.text.trim(),
             _passwordController.text.trim(),
           );
     }
-    HapticFeedback.lightImpact();
   }
 
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
 
-    // Navigation is now handled by AuthWrapper
-
-    SystemChrome.setSystemUIOverlayStyle(
-      const SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.light,
-      ),
-    );
-
     return Container(
-      decoration: const BoxDecoration(gradient: AppTheme.backgroundGradient),
+      decoration: BoxDecoration(gradient: AppColors.backgroundGradient),
       child: Scaffold(
         backgroundColor: Colors.transparent,
         resizeToAvoidBottomInset: true,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          leading: IconButton(
+            icon: Icon(
+              Icons.arrow_back_ios_new_rounded,
+              color: AppColors.textPrimary,
+            ),
+            onPressed: () => Navigator.pop(context),
+          ),
+        ),
         body: SafeArea(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
+            padding: AppSpacing.paddingScreen,
             child: Form(
               key: _formKey,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const SizedBox(height: 40),
+                  // Floating App Icon with glow
+                  _buildAppLogo(),
 
-                  // Floating App Icon
-                  AnimatedBuilder(
-                    animation: _floatingAnimation,
-                    builder: (context, child) {
-                      return Transform.translate(
-                        offset: Offset(0, _floatingAnimation.value),
-                        child: AnimationUtils.scaleTransition(
-                          animation: _scaleAnimation,
-                          child: Center(
-                            child: AppTheme.gradientContainer(
-                              gradient: AppTheme.primaryGradient,
-                              width: 120,
-                              height: 120,
-                              borderRadius: BorderRadius.circular(32),
-                              child: const Icon(
-                                Icons.account_balance_wallet,
-                                size: 60,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-
-                  const SizedBox(height: 40),
+                  AppSpacing.gapXl,
 
                   // Welcome Text
-                  AnimationUtils.slideTransition(
-                    animation: _slideAnimation,
-                    begin: const Offset(0, 0.5),
-                    child: Column(
-                      children: [
-                        const Text(
-                          'Create Account',
-                          style: TextStyle(
-                            fontSize: 32,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Join us to start your financial journey',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.white.withValues(alpha: 0.8),
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
-                    ),
-                  ),
+                  _buildWelcomeText(),
 
-                  const SizedBox(height: 50),
+                  AppSpacing.gapXxl,
 
-                  // Name Field
-                  AnimationUtils.slideTransition(
-                    animation: AnimationUtils.createStaggeredAnimation(
-                      controller: _animationController,
-                      startFraction: 0.0,
-                      endFraction: 0.2,
-                    ),
-                    begin: const Offset(-1, 0),
-                    child: AppTheme.glassmorphicContainer(
-                      child: TextFormField(
-                        controller: _nameController,
-                        keyboardType: TextInputType.name,
-                        style: const TextStyle(color: Colors.white),
-                        decoration: const InputDecoration(
-                          labelText: 'Full Name',
-                          labelStyle: TextStyle(color: Colors.white70),
-                          prefixIcon: Icon(
-                            Icons.person_outline,
-                            color: Colors.white70,
-                          ),
-                          border: InputBorder.none,
-                          contentPadding: EdgeInsets.all(20),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your full name';
-                          }
-                          if (value.length < 2) {
-                            return 'Name must be at least 2 characters';
-                          }
-                          return null;
-                        },
-                      ),
-                    ),
-                  ),
+                  // Sign Up Form Card
+                  _buildSignUpForm(authState),
 
-                  const SizedBox(height: 20),
-
-                  // Email Field
-                  AnimationUtils.slideTransition(
-                    animation: AnimationUtils.createStaggeredAnimation(
-                      controller: _animationController,
-                      startFraction: 0.1,
-                      endFraction: 0.3,
-                    ),
-                    begin: const Offset(1, 0),
-                    child: AppTheme.glassmorphicContainer(
-                      child: TextFormField(
-                        controller: _emailController,
-                        keyboardType: TextInputType.emailAddress,
-                        style: const TextStyle(color: Colors.white),
-                        decoration: const InputDecoration(
-                          labelText: 'Email Address',
-                          labelStyle: TextStyle(color: Colors.white70),
-                          prefixIcon: Icon(
-                            Icons.email_outlined,
-                            color: Colors.white70,
-                          ),
-                          border: InputBorder.none,
-                          contentPadding: EdgeInsets.all(20),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your email';
-                          }
-                          if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                            return 'Please enter a valid email';
-                          }
-                          return null;
-                        },
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  // Password Field
-                  AnimationUtils.slideTransition(
-                    animation: AnimationUtils.createStaggeredAnimation(
-                      controller: _animationController,
-                      startFraction: 0.2,
-                      endFraction: 0.4,
-                    ),
-                    begin: const Offset(-1, 0),
-                    child: AppTheme.glassmorphicContainer(
-                      child: TextFormField(
-                        controller: _passwordController,
-                        obscureText: _obscurePassword,
-                        style: const TextStyle(color: Colors.white),
-                        decoration: InputDecoration(
-                          labelText: 'Password',
-                          labelStyle: const TextStyle(color: Colors.white70),
-                          prefixIcon: const Icon(
-                            Icons.lock_outline,
-                            color: Colors.white70,
-                          ),
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              _obscurePassword
-                                  ? Icons.visibility_off
-                                  : Icons.visibility,
-                              color: Colors.white70,
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                _obscurePassword = !_obscurePassword;
-                              });
-                            },
-                          ),
-                          border: InputBorder.none,
-                          contentPadding: const EdgeInsets.all(20),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your password';
-                          }
-                          if (value.length < 6) {
-                            return 'Password must be at least 6 characters';
-                          }
-                          if (!RegExp(
-                            r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)',
-                          ).hasMatch(value)) {
-                            return 'Password must contain uppercase, lowercase, and number';
-                          }
-                          return null;
-                        },
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  // Confirm Password Field
-                  AnimationUtils.slideTransition(
-                    animation: AnimationUtils.createStaggeredAnimation(
-                      controller: _animationController,
-                      startFraction: 0.3,
-                      endFraction: 0.5,
-                    ),
-                    begin: const Offset(1, 0),
-                    child: AppTheme.glassmorphicContainer(
-                      child: TextFormField(
-                        controller: _confirmPasswordController,
-                        obscureText: _obscureConfirmPassword,
-                        style: const TextStyle(color: Colors.white),
-                        decoration: InputDecoration(
-                          labelText: 'Confirm Password',
-                          labelStyle: const TextStyle(color: Colors.white70),
-                          prefixIcon: const Icon(
-                            Icons.lock_outline,
-                            color: Colors.white70,
-                          ),
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              _obscureConfirmPassword
-                                  ? Icons.visibility_off
-                                  : Icons.visibility,
-                              color: Colors.white70,
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                _obscureConfirmPassword =
-                                    !_obscureConfirmPassword;
-                              });
-                            },
-                          ),
-                          border: InputBorder.none,
-                          contentPadding: const EdgeInsets.all(20),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please confirm your password';
-                          }
-                          if (value != _passwordController.text) {
-                            return 'Passwords do not match';
-                          }
-                          return null;
-                        },
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  // Terms and Conditions
-                  AnimationUtils.fadeTransition(
-                    animation: AnimationUtils.createStaggeredAnimation(
-                      controller: _animationController,
-                      startFraction: 0.4,
-                      endFraction: 0.6,
-                    ),
-                    child: Row(
-                      children: [
-                        Checkbox(
-                          value: _acceptTerms,
-                          onChanged: (value) {
-                            setState(() {
-                              _acceptTerms = value ?? false;
-                            });
-                          },
-                          fillColor: WidgetStateProperty.all(
-                            Colors.white.withValues(alpha: 0.2),
-                          ),
-                          checkColor: Colors.white,
-                        ),
-                        Expanded(
-                          child: Text(
-                            'I agree to the Terms and Conditions and Privacy Policy',
-                            style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.8),
-                              fontSize: 14,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 30),
-
-                  // Sign Up Button
-                  AnimationUtils.scaleTransition(
-                    animation: AnimationUtils.createStaggeredAnimation(
-                      controller: _animationController,
-                      startFraction: 0.5,
-                      endFraction: 0.7,
-                    ),
-                    child: AppTheme.gradientContainer(
-                      gradient: AppTheme.primaryGradient,
-                      height: 56,
-                      child: Material(
-                        color: Colors.transparent,
-                        child: InkWell(
-                          borderRadius: BorderRadius.circular(16),
-                          onTap: authState.isLoading ? null : _signUp,
-                          child: Center(
-                            child: authState.isLoading
-                                ? const CircularProgressIndicator(
-                                    color: Colors.white,
-                                  )
-                                : const Text(
-                                    'Create Account',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 40),
+                  AppSpacing.gapXl,
 
                   // Sign In Link
-                  AnimationUtils.fadeTransition(
-                    animation: _fadeAnimation,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Already have an account? ',
-                          style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.7),
-                            fontSize: 16,
-                          ),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            Navigator.pushReplacement(
-                              context,
-                              PageRouteBuilder(
-                                pageBuilder: (context, animation, _) =>
-                                    const SignInScreen(),
-                                transitionsBuilder:
-                                    (context, animation, _, child) {
-                                      return SlideTransition(
-                                        position: Tween<Offset>(
-                                          begin: const Offset(-1.0, 0.0),
-                                          end: Offset.zero,
-                                        ).animate(animation),
-                                        child: child,
-                                      );
-                                    },
-                              ),
-                            );
-                          },
-                          child: const Text(
-                            'Sign In',
-                            style: TextStyle(
-                              color: Color(0xFF667eea),
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                  _buildSignInLink(),
+
+                  AppSpacing.gapLg,
 
                   // Error Message
-                  if (authState.error != null)
-                    AnimationUtils.slideTransition(
-                      animation: _slideAnimation,
-                      begin: const Offset(0, 1),
-                      child: Container(
-                        margin: const EdgeInsets.only(top: 20),
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.red.withValues(alpha: 0.1),
-                          border: Border.all(
-                            color: Colors.red.withValues(alpha: 0.3),
-                          ),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.error_outline, color: Colors.red),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Text(
-                                authState.error!,
-                                style: const TextStyle(color: Colors.red),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
+                  if (authState.error != null) _buildErrorMessage(authState.error!),
                 ],
               ),
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildAppLogo() {
+    return AnimatedBuilder(
+      animation: _floatingAnimation,
+      builder: (context, child) {
+        return Transform.translate(
+          offset: Offset(0, _floatingAnimation.value),
+          child: Center(
+            child: Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                gradient: AppColors.accentGradient,
+                borderRadius: AppSpacing.borderRadiusXl,
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.neonCyan.withValues(alpha: 0.4),
+                    blurRadius: 30,
+                    spreadRadius: 5,
+                  ),
+                ],
+              ),
+              child: Icon(
+                Icons.person_add_rounded,
+                size: 40,
+                color: AppColors.textPrimary,
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildWelcomeText() {
+    return SlideTransition(
+      position: Tween<Offset>(
+        begin: const Offset(0, 0.3),
+        end: Offset.zero,
+      ).animate(CurvedAnimation(
+        parent: _animationController,
+        curve: const Interval(0.1, 0.5, curve: Curves.easeOut),
+      )),
+      child: FadeTransition(
+        opacity: CurvedAnimation(
+          parent: _animationController,
+          curve: const Interval(0.1, 0.5, curve: Curves.easeOut),
+        ),
+        child: Column(
+          children: [
+            Text(
+              'Create Account',
+              style: AppTypography.displaySmall,
+              textAlign: TextAlign.center,
+            ),
+            AppSpacing.gapSm,
+            Text(
+              'Join us to start your financial journey',
+              style: AppTypography.bodyMedium.copyWith(
+                color: AppColors.textSecondary,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSignUpForm(AuthState authState) {
+    return SlideTransition(
+      position: Tween<Offset>(
+        begin: const Offset(0, 0.3),
+        end: Offset.zero,
+      ).animate(CurvedAnimation(
+        parent: _animationController,
+        curve: const Interval(0.2, 0.7, curve: Curves.easeOut),
+      )),
+      child: FadeTransition(
+        opacity: CurvedAnimation(
+          parent: _animationController,
+          curve: const Interval(0.2, 0.7, curve: Curves.easeOut),
+        ),
+        child: GlassCard(
+          padding: AppSpacing.paddingXl,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Name Field
+              NeoTextField(
+                controller: _nameController,
+                label: 'Full Name',
+                hint: 'Enter your name',
+                prefixIcon: Icons.person_outline,
+                keyboardType: TextInputType.name,
+                textInputAction: TextInputAction.next,
+                textCapitalization: TextCapitalization.words,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your full name';
+                  }
+                  if (value.length < 2) {
+                    return 'Name must be at least 2 characters';
+                  }
+                  return null;
+                },
+              ),
+
+              AppSpacing.gapMd,
+
+              // Email Field
+              NeoTextField(
+                controller: _emailController,
+                label: 'Email Address',
+                hint: 'Enter your email',
+                prefixIcon: Icons.email_outlined,
+                keyboardType: TextInputType.emailAddress,
+                textInputAction: TextInputAction.next,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your email';
+                  }
+                  if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                    return 'Please enter a valid email';
+                  }
+                  return null;
+                },
+              ),
+
+              AppSpacing.gapMd,
+
+              // Password Field
+              NeoTextField(
+                controller: _passwordController,
+                label: 'Password',
+                hint: 'Create a password',
+                prefixIcon: Icons.lock_outline,
+                obscureText: true,
+                textInputAction: TextInputAction.next,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your password';
+                  }
+                  if (value.length < 6) {
+                    return 'Password must be at least 6 characters';
+                  }
+                  if (!RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)').hasMatch(value)) {
+                    return 'Must contain uppercase, lowercase, and number';
+                  }
+                  return null;
+                },
+              ),
+
+              // Password Strength Indicator
+              if (_passwordController.text.isNotEmpty) ...[
+                AppSpacing.gapSm,
+                _buildPasswordStrengthIndicator(),
+              ],
+
+              AppSpacing.gapMd,
+
+              // Confirm Password Field
+              NeoTextField(
+                controller: _confirmPasswordController,
+                label: 'Confirm Password',
+                hint: 'Re-enter your password',
+                prefixIcon: Icons.lock_outline,
+                obscureText: true,
+                textInputAction: TextInputAction.done,
+                onSubmitted: (_) => _signUp(),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please confirm your password';
+                  }
+                  if (value != _passwordController.text) {
+                    return 'Passwords do not match';
+                  }
+                  return null;
+                },
+              ),
+
+              AppSpacing.gapLg,
+
+              // Terms and Conditions
+              _buildTermsCheckbox(),
+
+              AppSpacing.gapXl,
+
+              // Sign Up Button
+              NeoButton(
+                label: 'Create Account',
+                onPressed: authState.isLoading ? null : _signUp,
+                isLoading: authState.isLoading,
+                isExpanded: true,
+                size: NeoButtonSize.large,
+                gradient: AppColors.accentGradient,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPasswordStrengthIndicator() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Password Strength',
+              style: AppTypography.labelSmall.copyWith(
+                color: AppColors.textMuted,
+              ),
+            ),
+            Text(
+              _getStrengthText(),
+              style: AppTypography.labelSmall.copyWith(
+                color: _getStrengthColor(),
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+        AppSpacing.gapXs,
+        ClipRRect(
+          borderRadius: AppSpacing.borderRadiusFull,
+          child: LinearProgressIndicator(
+            value: _passwordStrength,
+            backgroundColor: AppColors.glassWhite,
+            valueColor: AlwaysStoppedAnimation(_getStrengthColor()),
+            minHeight: 4,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTermsCheckbox() {
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.lightImpact();
+        setState(() {
+          _acceptTerms = !_acceptTerms;
+        });
+      },
+      child: Row(
+        children: [
+          AnimatedContainer(
+            duration: AppAnimations.fast,
+            width: 24,
+            height: 24,
+            decoration: BoxDecoration(
+              gradient: _acceptTerms ? AppColors.primaryGradient : null,
+              color: _acceptTerms ? null : AppColors.glassWhite,
+              borderRadius: AppSpacing.borderRadiusSm,
+              border: _acceptTerms
+                  ? null
+                  : Border.all(color: AppColors.glassBorder),
+            ),
+            child: _acceptTerms
+                ? Icon(
+                    Icons.check,
+                    size: 16,
+                    color: AppColors.textPrimary,
+                  )
+                : null,
+          ),
+          AppSpacing.gapHMd,
+          Expanded(
+            child: Text.rich(
+              TextSpan(
+                text: 'I agree to the ',
+                style: AppTypography.bodySmall.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+                children: [
+                  TextSpan(
+                    text: 'Terms of Service',
+                    style: AppTypography.bodySmall.copyWith(
+                      color: AppColors.primaryAccent,
+                    ),
+                  ),
+                  const TextSpan(text: ' and '),
+                  TextSpan(
+                    text: 'Privacy Policy',
+                    style: AppTypography.bodySmall.copyWith(
+                      color: AppColors.primaryAccent,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSignInLink() {
+    return FadeTransition(
+      opacity: CurvedAnimation(
+        parent: _animationController,
+        curve: const Interval(0.6, 1.0, curve: Curves.easeOut),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            'Already have an account? ',
+            style: AppTypography.bodyMedium.copyWith(
+              color: AppColors.textSecondary,
+            ),
+          ),
+          GestureDetector(
+            onTap: () {
+              HapticFeedback.lightImpact();
+              Navigator.pushReplacement(
+                context,
+                PageRouteBuilder(
+                  pageBuilder: (context, animation, _) => const SignInScreen(),
+                  transitionsBuilder: (context, animation, _, child) {
+                    return SlideTransition(
+                      position: Tween<Offset>(
+                        begin: const Offset(-1.0, 0.0),
+                        end: Offset.zero,
+                      ).animate(CurvedAnimation(
+                        parent: animation,
+                        curve: AppAnimations.easeOut,
+                      )),
+                      child: FadeTransition(
+                        opacity: animation,
+                        child: child,
+                      ),
+                    );
+                  },
+                  transitionDuration: AppAnimations.normal,
+                ),
+              );
+            },
+            child: Text(
+              'Sign In',
+              style: AppTypography.labelLarge.copyWith(
+                color: AppColors.primaryAccent,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildErrorMessage(String error) {
+    return Container(
+      padding: AppSpacing.paddingMd,
+      decoration: BoxDecoration(
+        color: AppColors.error.withValues(alpha: 0.1),
+        border: Border.all(
+          color: AppColors.error.withValues(alpha: 0.3),
+        ),
+        borderRadius: AppSpacing.borderRadiusMd,
+      ),
+      child: Row(
+        children: [
+          Icon(
+            Icons.error_outline,
+            color: AppColors.error,
+            size: AppSpacing.iconSm,
+          ),
+          AppSpacing.gapHMd,
+          Expanded(
+            child: Text(
+              error,
+              style: AppTypography.bodySmall.copyWith(
+                color: AppColors.error,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

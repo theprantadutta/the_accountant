@@ -1,7 +1,20 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:the_accountant/core/themes/app_theme.dart';
+import 'package:the_accountant/core/themes/app_colors.dart';
+import 'package:the_accountant/core/themes/app_spacing.dart';
+import 'package:the_accountant/core/themes/app_typography.dart';
+import 'package:the_accountant/core/themes/app_animations.dart';
 
+/// A modern floating bottom navigation bar with glassmorphic styling.
+///
+/// Features:
+/// - Floating pill design (not attached to edges)
+/// - Glass background with blur effect
+/// - Active indicator with glowing pill
+/// - Icons animate (scale + color) on selection
+/// - Center button with special styling
+/// - Subtle shadow and glow effects
 class CustomBottomNavBar extends StatefulWidget {
   final int currentIndex;
   final Function(int) onTap;
@@ -20,25 +33,56 @@ class CustomBottomNavBar extends StatefulWidget {
 
 class _CustomBottomNavBarState extends State<CustomBottomNavBar>
     with TickerProviderStateMixin {
-  late AnimationController _animationController;
-  late Animation<double> _scaleAnimation;
+  late List<AnimationController> _controllers;
+  late List<Animation<double>> _scaleAnimations;
 
   @override
   void initState() {
     super.initState();
-    _animationController = AnimationController(
-      duration: const Duration(milliseconds: 200),
-      vsync: this,
+    _initAnimations();
+  }
+
+  void _initAnimations() {
+    _controllers = List.generate(
+      widget.items.length,
+      (index) => AnimationController(
+        duration: AppAnimations.fast,
+        vsync: this,
+      ),
     );
 
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.05).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
-    );
+    _scaleAnimations = _controllers.map((controller) {
+      return Tween<double>(begin: 1.0, end: 1.15).animate(
+        CurvedAnimation(parent: controller, curve: AppAnimations.spring),
+      );
+    }).toList();
+
+    // Start animation for current index
+    if (widget.currentIndex < _controllers.length) {
+      _controllers[widget.currentIndex].forward();
+    }
+  }
+
+  @override
+  void didUpdateWidget(CustomBottomNavBar oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.currentIndex != widget.currentIndex) {
+      // Animate out old selection
+      if (oldWidget.currentIndex < _controllers.length) {
+        _controllers[oldWidget.currentIndex].reverse();
+      }
+      // Animate in new selection
+      if (widget.currentIndex < _controllers.length) {
+        _controllers[widget.currentIndex].forward();
+      }
+    }
   }
 
   @override
   void dispose() {
-    _animationController.dispose();
+    for (final controller in _controllers) {
+      controller.dispose();
+    }
     super.dispose();
   }
 
@@ -52,34 +96,58 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar>
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: AppTheme.glassmorphicContainer(
-        height: 72,
-        borderRadius: BorderRadius.circular(28),
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(28),
-            gradient: LinearGradient(
-              colors: [
-                Colors.black.withValues(alpha: 0.3),
-                Colors.black.withValues(alpha: 0.1),
+      margin: EdgeInsets.only(
+        left: AppSpacing.lg,
+        right: AppSpacing.lg,
+        bottom: AppSpacing.lg + MediaQuery.of(context).padding.bottom,
+      ),
+      child: ClipRRect(
+        borderRadius: AppSpacing.borderRadiusXxxl,
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+          child: Container(
+            height: 72,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  AppColors.primarySurface.withValues(alpha: 0.9),
+                  AppColors.primarySurface.withValues(alpha: 0.7),
+                ],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+              borderRadius: AppSpacing.borderRadiusXxxl,
+              border: Border.all(
+                color: AppColors.glassBorder,
+                width: 1,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.primaryDark.withValues(alpha: 0.5),
+                  blurRadius: 20,
+                  offset: const Offset(0, 10),
+                ),
+                BoxShadow(
+                  color: AppColors.primaryAccent.withValues(alpha: 0.1),
+                  blurRadius: 30,
+                  spreadRadius: -5,
+                ),
               ],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
             ),
-          ),
-          child: Row(
-            children: List.generate(widget.items.length, (index) {
-              final item = widget.items[index];
-              final isSelected = widget.currentIndex == index;
-              final isCenterItem = index == 2; // AI Assistant center button
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: List.generate(widget.items.length, (index) {
+                final item = widget.items[index];
+                final isSelected = widget.currentIndex == index;
+                final isCenterItem = index == 2; // AI Assistant center button
 
-              if (isCenterItem) {
-                return _buildCenterButton(item, index, isSelected);
-              }
+                if (isCenterItem) {
+                  return _buildCenterButton(item, index, isSelected);
+                }
 
-              return Expanded(child: _buildNavItem(item, index, isSelected));
-            }),
+                return _buildNavItem(item, index, isSelected);
+              }),
+            ),
           ),
         ),
       ),
@@ -89,89 +157,116 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar>
   Widget _buildNavItem(NavItem item, int index, bool isSelected) {
     return GestureDetector(
       onTap: () => _handleTap(index),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 4),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              curve: Curves.easeInOut,
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-                gradient: isSelected ? AppTheme.primaryGradient : null,
-              ),
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  // Icon
-                  AnimatedBuilder(
-                    animation: _scaleAnimation,
-                    builder: (context, child) {
-                      return Transform.scale(
-                        scale: isSelected ? 1.05 : 1.0,
-                        child: Icon(
-                          isSelected ? item.activeIcon : item.icon,
-                          color: isSelected
-                              ? Colors.white
-                              : Colors.white.withValues(alpha: 0.6),
-                          size: 16,
-                        ),
-                      );
-                    },
+      behavior: HitTestBehavior.opaque,
+      child: SizedBox(
+        width: 64,
+        height: 72,
+        child: AnimatedBuilder(
+          animation: _scaleAnimations[index],
+          builder: (context, child) {
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Icon container with animated background
+                AnimatedContainer(
+                  duration: AppAnimations.fast,
+                  curve: AppAnimations.easeOut,
+                  width: 44,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    gradient: isSelected
+                        ? LinearGradient(
+                            colors: [
+                              AppColors.primaryAccent.withValues(alpha: 0.3),
+                              AppColors.primaryAccent.withValues(alpha: 0.1),
+                            ],
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                          )
+                        : null,
+                    borderRadius: AppSpacing.borderRadiusMd,
+                    boxShadow: isSelected
+                        ? [
+                            BoxShadow(
+                              color: AppColors.primaryGlow.withValues(alpha: 0.3),
+                              blurRadius: 12,
+                              spreadRadius: -2,
+                            ),
+                          ]
+                        : null,
                   ),
-
-                  // Badge
-                  if (item.badge != null)
-                    Positioned(
-                      right: -1,
-                      top: -1,
-                      child: Container(
-                        padding: const EdgeInsets.all(1),
-                        constraints: const BoxConstraints(
-                          minWidth: 10,
-                          minHeight: 10,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.red,
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                        child: Text(
-                          item.badge!,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 6,
-                            fontWeight: FontWeight.bold,
+                  child: Transform.scale(
+                    scale: isSelected ? _scaleAnimations[index].value : 1.0,
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        AnimatedSwitcher(
+                          duration: AppAnimations.fast,
+                          child: Icon(
+                            isSelected ? item.activeIcon : item.icon,
+                            key: ValueKey('nav_$index\_$isSelected'),
+                            color: isSelected
+                                ? AppColors.primaryAccent
+                                : AppColors.textMuted,
+                            size: AppSpacing.iconSm,
                           ),
-                          textAlign: TextAlign.center,
                         ),
-                      ),
+                        // Badge
+                        if (item.badge != null)
+                          Positioned(
+                            right: 6,
+                            top: 4,
+                            child: Container(
+                              padding: const EdgeInsets.all(3),
+                              constraints: const BoxConstraints(
+                                minWidth: 14,
+                                minHeight: 14,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColors.error,
+                                borderRadius: AppSpacing.borderRadiusFull,
+                                border: Border.all(
+                                  color: AppColors.primarySurface,
+                                  width: 1.5,
+                                ),
+                              ),
+                              child: Text(
+                                item.badge!,
+                                style: AppTypography.labelSmall.copyWith(
+                                  color: AppColors.textPrimary,
+                                  fontSize: 8,
+                                  height: 1,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ),
+                      ],
                     ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 1),
-            AnimatedDefaultTextStyle(
-              duration: const Duration(milliseconds: 200),
-              style: TextStyle(
-                color: isSelected
-                    ? Colors.white
-                    : Colors.white.withValues(alpha: 0.6),
-                fontSize: 9,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                height: 1.0,
-              ),
-              child: Text(
-                item.label,
-                textAlign: TextAlign.center,
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-              ),
-            ),
-          ],
+                  ),
+                ),
+                AppSpacing.gapXs,
+                // Label
+                AnimatedDefaultTextStyle(
+                  duration: AppAnimations.fast,
+                  curve: AppAnimations.easeOut,
+                  style: AppTypography.labelSmall.copyWith(
+                    color: isSelected
+                        ? AppColors.primaryAccent
+                        : AppColors.textMuted,
+                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                    fontSize: 10,
+                  ),
+                  child: Text(
+                    item.label,
+                    textAlign: TextAlign.center,
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                  ),
+                ),
+              ],
+            );
+          },
         ),
       ),
     );
@@ -180,33 +275,54 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar>
   Widget _buildCenterButton(NavItem item, int index, bool isSelected) {
     return GestureDetector(
       onTap: () => _handleTap(index),
-      child: Container(
-        width: 56,
-        height: 56,
-        margin: const EdgeInsets.symmetric(vertical: 8),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(28),
-          gradient: isSelected
-              ? AppTheme.secondaryGradient
-              : AppTheme.primaryGradient,
-          boxShadow: [
-            BoxShadow(
-              color:
-                  (isSelected
-                          ? const Color(0xFF11998e)
-                          : const Color(0xFF667eea))
-                      .withValues(alpha: 0.3),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
+      child: AnimatedBuilder(
+        animation: _scaleAnimations[index],
+        builder: (context, child) {
+          return Transform.scale(
+            scale: isSelected ? 1.0 : _scaleAnimations[index].value,
+            child: Container(
+              width: 56,
+              height: 56,
+              decoration: BoxDecoration(
+                gradient: isSelected
+                    ? AppColors.accentGradient
+                    : AppColors.primaryGradient,
+                borderRadius: AppSpacing.borderRadiusFull,
+                boxShadow: [
+                  BoxShadow(
+                    color: (isSelected
+                            ? AppColors.neonCyan
+                            : AppColors.primaryAccent)
+                        .withValues(alpha: 0.5),
+                    blurRadius: 20,
+                    offset: const Offset(0, 8),
+                  ),
+                  if (isSelected)
+                    BoxShadow(
+                      color: AppColors.neonCyan.withValues(alpha: 0.3),
+                      blurRadius: 30,
+                      spreadRadius: 5,
+                    ),
+                ],
+              ),
+              child: AnimatedSwitcher(
+                duration: AppAnimations.fast,
+                child: Icon(
+                  isSelected ? item.activeIcon : item.icon,
+                  key: ValueKey('center_$index\_$isSelected'),
+                  color: AppColors.textPrimary,
+                  size: AppSpacing.iconMd,
+                ),
+              ),
             ),
-          ],
-        ),
-        child: Icon(item.icon, color: Colors.white, size: 24),
+          );
+        },
       ),
     );
   }
 }
 
+/// Navigation item model
 class NavItem {
   final IconData icon;
   final IconData activeIcon;
@@ -221,43 +337,43 @@ class NavItem {
   });
 }
 
-// Predefined navigation items
+/// Predefined navigation items
 class NavItems {
   static const home = NavItem(
     icon: Icons.home_outlined,
-    activeIcon: Icons.home,
+    activeIcon: Icons.home_rounded,
     label: 'Home',
   );
 
   static const transactions = NavItem(
     icon: Icons.swap_horiz_outlined,
-    activeIcon: Icons.swap_horiz,
+    activeIcon: Icons.swap_horiz_rounded,
     label: 'Transactions',
   );
 
   static const aiAssistant = NavItem(
-    icon: Icons.auto_awesome,
+    icon: Icons.auto_awesome_outlined,
     activeIcon: Icons.auto_awesome,
     label: 'AI',
   );
 
   static const reports = NavItem(
     icon: Icons.bar_chart_outlined,
-    activeIcon: Icons.bar_chart,
+    activeIcon: Icons.bar_chart_rounded,
     label: 'Reports',
   );
 
   static const profile = NavItem(
-    icon: Icons.person_outline,
-    activeIcon: Icons.person,
+    icon: Icons.person_outline_rounded,
+    activeIcon: Icons.person_rounded,
     label: 'Profile',
   );
 
   static List<NavItem> get defaultItems => [
-    home,
-    transactions,
-    aiAssistant,
-    reports,
-    profile,
-  ];
+        home,
+        transactions,
+        aiAssistant,
+        reports,
+        profile,
+      ];
 }

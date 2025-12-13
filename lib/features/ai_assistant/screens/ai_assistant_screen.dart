@@ -348,7 +348,7 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
     ];
 
     return SizedBox(
-      height: 70,
+      height: 78,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -360,7 +360,7 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
             child: GestureDetector(
               onTap: () => _sendMessage(action['message'] as String),
               child: AppTheme.glassmorphicContainer(
-                width: 70,
+                width: 78,
                 child: Container(
                   padding: const EdgeInsets.all(8),
                   child: Column(

@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:the_accountant/core/themes/app_theme.dart';
+import 'package:the_accountant/core/themes/app_colors.dart';
+import 'package:the_accountant/core/themes/app_spacing.dart';
+import 'package:the_accountant/core/themes/app_typography.dart';
+import 'package:the_accountant/core/themes/app_animations.dart';
 import 'package:the_accountant/shared/widgets/custom_bottom_nav_bar.dart';
-import 'package:the_accountant/shared/widgets/add_transaction_fab.dart';
+import 'package:the_accountant/shared/widgets/glass_card.dart';
+import 'package:the_accountant/shared/widgets/neo_button.dart';
 import 'package:the_accountant/features/dashboard/widgets/responsive_financial_overview.dart';
 import 'package:the_accountant/features/transactions/screens/transaction_list_screen.dart';
 import 'package:the_accountant/features/transactions/screens/add_transaction_screen.dart';
 import 'package:the_accountant/features/ai_assistant/screens/ai_assistant_screen.dart';
 import 'package:the_accountant/features/authentication/presentation/screens/user_profile_screen.dart';
-
-// We'll create this reports screen
 import 'package:the_accountant/features/reports/screens/reports_screen.dart';
 
 class MainNavigationContainer extends ConsumerStatefulWidget {
@@ -49,7 +51,6 @@ class _MainNavigationContainerState
   @override
   void initState() {
     super.initState();
-
     _pageController = PageController(initialPage: _currentIndex);
   }
 
@@ -68,8 +69,8 @@ class _MainNavigationContainerState
       // Animate to the selected page
       _pageController.animateToPage(
         index,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
+        duration: AppAnimations.normal,
+        curve: AppAnimations.easeOut,
       );
 
       // Update FAB visibility based on screen
@@ -98,99 +99,90 @@ class _MainNavigationContainerState
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => Container(
-        height: MediaQuery.of(context).size.height * 0.9,
-        decoration: const BoxDecoration(
-          gradient: AppTheme.backgroundGradient,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(28),
-            topRight: Radius.circular(28),
+        height: MediaQuery.of(context).size.height * 0.85,
+        decoration: BoxDecoration(
+          color: AppColors.primarySurface,
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(AppSpacing.radiusXxl),
           ),
         ),
         child: Column(
           children: [
+            // Handle bar
             Container(
-              margin: const EdgeInsets.symmetric(vertical: 12),
+              margin: EdgeInsets.symmetric(vertical: AppSpacing.md),
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.3),
-                borderRadius: BorderRadius.circular(2),
+                color: AppColors.glassBorder,
+                borderRadius: AppSpacing.borderRadiusFull,
               ),
             ),
             Expanded(
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: AppSpacing.xl),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const SizedBox(height: 20),
+                    AppSpacing.gapLg,
+                    // Header
                     Row(
                       children: [
-                        AppTheme.gradientContainer(
-                          gradient: AppTheme.primaryGradient,
+                        Container(
                           width: 48,
                           height: 48,
-                          borderRadius: BorderRadius.circular(16),
-                          child: const Icon(
+                          decoration: BoxDecoration(
+                            gradient: AppColors.primaryGradient,
+                            borderRadius: AppSpacing.borderRadiusLg,
+                          ),
+                          child: Icon(
                             Icons.add,
-                            color: Colors.white,
-                            size: 24,
+                            color: AppColors.textPrimary,
+                            size: AppSpacing.iconMd,
                           ),
                         ),
-                        const SizedBox(width: 16),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                const Text(
-                                  'Quick Add',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
+                        AppSpacing.gapHLg,
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'Quick Add',
+                                    style: AppTypography.headlineMedium,
                                   ),
-                                ),
-                                TextButton.icon(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                    Navigator.pushNamed(context, '/categories');
-                                  },
-                                  icon: const Icon(
-                                    Icons.settings,
-                                    color: Colors.white70,
-                                    size: 16,
-                                  ),
-                                  label: const Text(
-                                    'Manage',
-                                    style: TextStyle(
-                                      color: Colors.white70,
-                                      fontSize: 12,
+                                  TextButton.icon(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                      Navigator.pushNamed(context, '/categories');
+                                    },
+                                    icon: Icon(
+                                      Icons.settings_outlined,
+                                      color: AppColors.textMuted,
+                                      size: AppSpacing.iconXs,
+                                    ),
+                                    label: Text(
+                                      'Manage',
+                                      style: AppTypography.labelSmall.copyWith(
+                                        color: AppColors.textMuted,
+                                      ),
                                     ),
                                   ),
-                                  style: TextButton.styleFrom(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                      vertical: 4,
-                                    ),
-                                    minimumSize: Size.zero,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Text(
-                              'Record your income or expense',
-                              style: TextStyle(
-                                color: Colors.white70,
-                                fontSize: 14,
+                                ],
                               ),
-                            ),
-                          ],
+                              Text(
+                                'Record your income or expense',
+                                style: AppTypography.bodySmall,
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 32),
+                    AppSpacing.gapXxl,
                     Expanded(
                       child: SingleChildScrollView(
                         child: _buildQuickAddOptions(),
@@ -209,44 +201,44 @@ class _MainNavigationContainerState
   Widget _buildQuickAddOptions() {
     final quickOptions = [
       {
-        'icon': Icons.shopping_cart,
+        'icon': Icons.shopping_cart_outlined,
         'title': 'Shopping',
-        'color': const Color(0xFFFF6B6B),
+        'color': AppColors.neonPink,
         'type': 'expense',
         'categoryName': 'Shopping',
       },
       {
-        'icon': Icons.restaurant,
+        'icon': Icons.restaurant_outlined,
         'title': 'Food & Dining',
-        'color': const Color(0xFF4ECDC4),
+        'color': AppColors.neonCyan,
         'type': 'expense',
         'categoryName': 'Food & Dining',
       },
       {
-        'icon': Icons.local_gas_station,
+        'icon': Icons.local_gas_station_outlined,
         'title': 'Fuel',
-        'color': const Color(0xFF45B7D1),
+        'color': AppColors.info,
         'type': 'expense',
         'categoryName': 'Transportation',
       },
       {
-        'icon': Icons.home,
+        'icon': Icons.home_outlined,
         'title': 'Bills & Utilities',
-        'color': const Color(0xFF96CEB4),
+        'color': AppColors.success,
         'type': 'expense',
         'categoryName': 'Bills & Utilities',
       },
       {
-        'icon': Icons.movie,
+        'icon': Icons.movie_outlined,
         'title': 'Entertainment',
-        'color': const Color(0xFFFFA07A),
+        'color': AppColors.warning,
         'type': 'expense',
         'categoryName': 'Entertainment',
       },
       {
-        'icon': Icons.business_center,
+        'icon': Icons.work_outline,
         'title': 'Work Income',
-        'color': const Color(0xFF98D8C8),
+        'color': AppColors.success,
         'type': 'income',
         'categoryName': 'Salary',
       },
@@ -255,68 +247,56 @@ class _MainNavigationContainerState
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Quick Add',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
+        Text(
+          'Categories',
+          style: AppTypography.titleMedium,
         ),
-        const SizedBox(height: 16),
+        AppSpacing.gapLg,
         GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
-            crossAxisSpacing: 16,
-            mainAxisSpacing: 16,
-            childAspectRatio: 1.5,
+            crossAxisSpacing: AppSpacing.md,
+            mainAxisSpacing: AppSpacing.md,
+            childAspectRatio: 1.4,
           ),
           itemCount: quickOptions.length,
           itemBuilder: (context, index) {
             final option = quickOptions[index];
-            return GestureDetector(
+            final color = option['color'] as Color;
+            return GlassCard(
               onTap: () {
-                // Navigate to add transaction with pre-filled category
                 Navigator.pop(context);
                 _navigateToAddTransaction(
                   option['type'] as String,
                   option['categoryName'] as String,
                 );
               },
-              child: AppTheme.glassmorphicContainer(
-                child: Container(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: option['color'] as Color,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Icon(
-                          option['icon'] as IconData,
-                          color: Colors.white,
-                          size: 20,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        option['title'] as String,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
+              padding: AppSpacing.paddingMd,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: color.withValues(alpha: 0.15),
+                      borderRadius: AppSpacing.borderRadiusMd,
+                    ),
+                    child: Icon(
+                      option['icon'] as IconData,
+                      color: color,
+                      size: AppSpacing.iconSm,
+                    ),
                   ),
-                ),
+                  AppSpacing.gapSm,
+                  Text(
+                    option['title'] as String,
+                    style: AppTypography.labelMedium,
+                    textAlign: TextAlign.center,
+                  ),
+                ],
               ),
             );
           },
@@ -328,7 +308,9 @@ class _MainNavigationContainerState
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(gradient: AppTheme.backgroundGradient),
+      decoration: BoxDecoration(
+        gradient: AppColors.backgroundGradient,
+      ),
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: _buildCustomAppBar(),
@@ -347,9 +329,9 @@ class _MainNavigationContainerState
           },
         ),
         floatingActionButton: _isFabVisible
-            ? AddTransactionFab(
+            ? NeoFAB(
+                icon: Icons.add,
                 onPressed: _showAddTransactionModal,
-                isExtended: true,
               )
             : null,
         floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
@@ -372,34 +354,31 @@ class _MainNavigationContainerState
       ),
       title: Row(
         children: [
-          AppTheme.gradientContainer(
-            gradient: AppTheme.primaryGradient,
-            width: 32,
-            height: 32,
-            borderRadius: BorderRadius.circular(8),
-            child: const Icon(
-              Icons.account_balance_wallet,
-              color: Colors.white,
-              size: 18,
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              gradient: AppColors.primaryGradient,
+              borderRadius: AppSpacing.borderRadiusSm,
+            ),
+            child: Icon(
+              Icons.account_balance_wallet_rounded,
+              color: AppColors.textPrimary,
+              size: AppSpacing.iconSm,
             ),
           ),
-          const SizedBox(width: 12),
+          AppSpacing.gapHMd,
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 _screenTitles[_currentIndex],
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: AppTypography.titleLarge,
               ),
               Text(
                 'The Accountant',
-                style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.7),
-                  fontSize: 12,
+                style: AppTypography.labelSmall.copyWith(
+                  color: AppColors.textMuted,
                 ),
               ),
             ],
@@ -407,46 +386,16 @@ class _MainNavigationContainerState
         ],
       ),
       actions: [
-        IconButton(
-          icon: Stack(
-            children: [
-              const Icon(
-                Icons.notifications_outlined,
-                color: Colors.white,
-                size: 24,
-              ),
-              Positioned(
-                right: 0,
-                top: 0,
-                child: Container(
-                  padding: const EdgeInsets.all(2),
-                  constraints: const BoxConstraints(
-                    minWidth: 12,
-                    minHeight: 12,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.red,
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: const Text(
-                    '3',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 8,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ),
-            ],
-          ),
+        NeoIconButton(
+          icon: Icons.notifications_outlined,
           onPressed: () {
-            // Handle notifications
             HapticFeedback.lightImpact();
+            // Handle notifications
           },
+          size: 40,
+          iconSize: AppSpacing.iconSm,
         ),
-        const SizedBox(width: 8),
+        AppSpacing.gapHSm,
       ],
     );
   }

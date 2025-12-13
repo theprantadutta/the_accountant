@@ -61,8 +61,8 @@ class CategoryNotifier extends StateNotifier<CategoryState> {
             (c) => Category(
               id: c.id,
               name: c.name,
-              colorCode: c.colorCode,
-              type: c.type,
+              colorCode: c.color,
+              type: c.type ?? (c.isIncome ? 'income' : 'expense'),
               isDefault: c.isDefault,
             ),
           )
@@ -89,9 +89,10 @@ class CategoryNotifier extends StateNotifier<CategoryState> {
       final newCategory = CategoriesCompanion(
         id: Value(const Uuid().v4()),
         name: Value(name),
-        colorCode: Value(colorCode),
+        color: Value(colorCode),
         type: Value(type),
         isDefault: Value(isDefault),
+        isIncome: Value(type == 'income'),
       );
 
       await _db.addCategory(newCategory);
@@ -124,7 +125,7 @@ class CategoryNotifier extends StateNotifier<CategoryState> {
       final updatedCategory = CategoriesCompanion(
         id: Value(id),
         name: Value(name ?? existing.name),
-        colorCode: Value(colorCode ?? existing.colorCode),
+        color: Value(colorCode ?? existing.color),
         type: Value(type ?? existing.type),
         isDefault: Value(isDefault ?? existing.isDefault),
       );

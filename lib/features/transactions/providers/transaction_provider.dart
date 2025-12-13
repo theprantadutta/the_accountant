@@ -85,7 +85,7 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
               type: t.type,
               category:
                   'Unknown', // This would come from category table in a real implementation
-              categoryId: t.categoryId,
+              categoryId: t.categoryId ?? '',
               walletId: t.walletId, // Include walletId
               date: t.date,
               notes: t.notes ?? '',

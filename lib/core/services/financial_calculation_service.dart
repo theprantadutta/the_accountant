@@ -131,8 +131,10 @@ class FinancialCalculationService {
 
       for (final transaction in expenses) {
         final categoryId = transaction.categoryId;
-        categorySpending[categoryId] =
-            (categorySpending[categoryId] ?? 0.0) + transaction.amount;
+        if (categoryId != null) {
+          categorySpending[categoryId] =
+              (categorySpending[categoryId] ?? 0.0) + transaction.amount;
+        }
       }
 
       return categorySpending;
@@ -148,20 +150,25 @@ class FinancialCalculationService {
       final Map<String, double> budgetProgress = {};
 
       for (final budget in activeBudgets) {
+        // Use amount field instead of limit (limit is legacy and nullable)
+        final budgetAmount = budget.amount;
+        if (budgetAmount <= 0) continue;
+
+        // Skip if no date range
+        final endDate = budget.endDate ?? DateTime.now();
         final transactions = await _db.getTransactionsByDateRange(
           budget.startDate,
-          budget.endDate,
+          endDate,
         );
 
+        final categoryId = budget.categoryId;
         final categoryExpenses = transactions
             .where(
-              (t) => t.type == 'expense' && t.categoryId == budget.categoryId,
+              (t) => t.type == 'expense' && (categoryId == null || t.categoryId == categoryId),
             )
             .fold(0.0, (sum, t) => sum + t.amount);
 
-        final progressPercentage = budget.limit > 0
-            ? (categoryExpenses / budget.limit) * 100
-            : 0.0;
+        final progressPercentage = (categoryExpenses / budgetAmount) * 100;
         budgetProgress[budget.id] = progressPercentage.clamp(0.0, 100.0);
       }
 
@@ -178,28 +185,37 @@ class FinancialCalculationService {
       final List<BudgetProgressItem> items = [];
 
       for (final budget in activeBudgets) {
+        // Use amount field instead of limit (limit is legacy and nullable)
+        final budgetAmount = budget.amount;
+
+        // Skip if no date range
+        final endDate = budget.endDate ?? DateTime.now();
         final transactions = await _db.getTransactionsByDateRange(
           budget.startDate,
-          budget.endDate,
+          endDate,
         );
 
+        final categoryId = budget.categoryId;
         final spent = transactions
             .where(
-              (t) => t.type == 'expense' && t.categoryId == budget.categoryId,
+              (t) => t.type == 'expense' && (categoryId == null || t.categoryId == categoryId),
             )
             .fold(0.0, (sum, t) => sum + t.amount);
 
-        final category = await _db.findCategoryById(budget.categoryId);
+        Category? category;
+        if (categoryId != null) {
+          category = await _db.findCategoryById(categoryId);
+        }
 
         items.add(
           BudgetProgressItem(
             budgetId: budget.id,
             budgetName: budget.name,
-            categoryId: budget.categoryId,
-            categoryName: category?.name ?? 'Unknown',
-            colorCode: category?.colorCode ?? '#999999',
+            categoryId: categoryId ?? '',
+            categoryName: category?.name ?? 'All Categories',
+            colorCode: category?.color ?? '#999999',
             spent: spent,
-            limit: budget.limit,
+            limit: budgetAmount,
           ),
         );
       }
