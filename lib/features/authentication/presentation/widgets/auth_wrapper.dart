@@ -3,15 +3,25 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/features/authentication/providers/auth_provider.dart';
 import 'package:the_accountant/features/authentication/presentation/screens/sign_in_screen.dart';
 import 'package:the_accountant/features/authentication/presentation/screens/account_linking_screen.dart';
+import 'package:the_accountant/features/onboarding/providers/onboarding_provider.dart';
+import 'package:the_accountant/features/onboarding/screens/post_signup_onboarding_screen.dart';
 import 'package:the_accountant/shared/widgets/main_navigation_container.dart';
 import 'package:the_accountant/core/themes/app_theme.dart';
 
-class AuthWrapper extends ConsumerWidget {
+class AuthWrapper extends ConsumerStatefulWidget {
   const AuthWrapper({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<AuthWrapper> createState() => _AuthWrapperState();
+}
+
+class _AuthWrapperState extends ConsumerState<AuthWrapper> {
+  bool _hasCheckedOnboarding = false;
+
+  @override
+  Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
+    final onboardingState = ref.watch(onboardingProvider);
 
     // Show loading screen while authentication is initializing
     if (authState.isLoading) {
@@ -23,9 +33,36 @@ class AuthWrapper extends ConsumerWidget {
       return const AccountLinkingScreen();
     }
 
-    // If user is authenticated, show main app
+    // If user is authenticated
     if (authState.isAuthenticated) {
+      // Check onboarding status once after authentication
+      if (!_hasCheckedOnboarding) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          ref.read(onboardingProvider.notifier).checkOnboardingStatus();
+          setState(() => _hasCheckedOnboarding = true);
+        });
+        return const AuthLoadingScreen();
+      }
+
+      // Show onboarding loading
+      if (onboardingState.isLoading) {
+        return const AuthLoadingScreen();
+      }
+
+      // Show post-signup onboarding if needed
+      if (onboardingState.needsOnboarding) {
+        return const PostSignupOnboardingScreen();
+      }
+
+      // Show main app
       return const MainNavigationContainer();
+    }
+
+    // Reset onboarding check when user logs out
+    if (_hasCheckedOnboarding) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        setState(() => _hasCheckedOnboarding = false);
+      });
     }
 
     // If not authenticated, show sign in screen

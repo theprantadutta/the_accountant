@@ -98,9 +98,8 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
                 child: IntrinsicHeight(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      AppSpacing.gapXl,
-
                       // Floating App Icon with glow
                       _buildAppLogo(),
 
@@ -124,7 +123,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
                       // Google Sign In
                       _buildGoogleSignIn(authState),
 
-                      const Spacer(),
+                      AppSpacing.gapXxl,
 
                       // Sign Up Link
                       _buildSignUpLink(),

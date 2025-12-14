@@ -16,14 +16,12 @@ class _WalletManagementScreenState
     extends ConsumerState<WalletManagementScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
-  final _currencyController = TextEditingController();
   final _balanceController = TextEditingController();
   bool _isAddingWallet = false;
 
   @override
   void dispose() {
     _nameController.dispose();
-    _currencyController.dispose();
     _balanceController.dispose();
     super.dispose();
   }
@@ -34,22 +32,27 @@ class _WalletManagementScreenState
     });
   }
 
-  void _submitForm() {
-    if (_formKey.currentState!.validate()) {
-      final walletNotifier = ref.read(walletProvider.notifier);
-      walletNotifier.addWallet(
-        name: _nameController.text,
-        currency: _currencyController.text,
-        balance: double.tryParse(_balanceController.text) ?? 0.0,
-      );
+  void _submitForm({
+    required String currency,
+    required String icon,
+    required String color,
+    required bool isDefault,
+  }) {
+    final walletNotifier = ref.read(walletProvider.notifier);
+    walletNotifier.addWallet(
+      name: _nameController.text,
+      currency: currency,
+      balance: double.tryParse(_balanceController.text) ?? 0.0,
+      iconName: icon,
+      color: color,
+      isDefault: isDefault,
+    );
 
-      _nameController.clear();
-      _currencyController.clear();
-      _balanceController.clear();
-      setState(() {
-        _isAddingWallet = false;
-      });
-    }
+    _nameController.clear();
+    _balanceController.clear();
+    setState(() {
+      _isAddingWallet = false;
+    });
   }
 
   @override
@@ -75,7 +78,6 @@ class _WalletManagementScreenState
               AddWalletForm(
                 formKey: _formKey,
                 nameController: _nameController,
-                currencyController: _currencyController,
                 balanceController: _balanceController,
                 onSubmit: _submitForm,
                 onCancel: _toggleAddWalletForm,

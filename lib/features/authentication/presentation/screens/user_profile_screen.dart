@@ -5,6 +5,10 @@ import 'package:intl/intl.dart';
 import 'package:the_accountant/core/themes/app_theme.dart';
 import 'package:the_accountant/core/utils/animation_utils.dart';
 import 'package:the_accountant/features/authentication/providers/auth_provider.dart';
+import 'package:the_accountant/features/transactions/providers/transaction_provider.dart';
+import 'package:the_accountant/features/categories/providers/category_provider.dart';
+import 'package:the_accountant/features/budgets/providers/budget_provider.dart';
+import 'package:the_accountant/core/services/backend_auth_service.dart';
 
 class UserProfileScreen extends ConsumerStatefulWidget {
   const UserProfileScreen({super.key});
@@ -15,7 +19,6 @@ class UserProfileScreen extends ConsumerStatefulWidget {
 
 class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
     with TickerProviderStateMixin {
-  final _formKey = GlobalKey<FormState>();
   late TextEditingController _nameController;
   late TextEditingController _emailController;
   late TextEditingController _phoneController;
@@ -23,26 +26,15 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
   late AnimationController _animationController;
   late Animation<double> _slideAnimation;
 
-  // Mock user data
-  final Map<String, dynamic> _mockUser = {
-    'name': 'John Doe',
-    'email': 'john.doe@email.com',
-    'phone': '+1 (555) 123-4567',
-    'photoUrl': null,
-    'isPremium': true,
-    'memberSince': DateTime(2023, 6, 15),
-    'totalTransactions': 245,
-    'categoriesUsed': 12,
-    'budgetsCreated': 8,
-  };
+  bool _isInitialized = false;
 
   @override
   void initState() {
     super.initState();
 
-    _nameController = TextEditingController(text: _mockUser['name']);
-    _emailController = TextEditingController(text: _mockUser['email']);
-    _phoneController = TextEditingController(text: _mockUser['phone']);
+    _nameController = TextEditingController();
+    _emailController = TextEditingController();
+    _phoneController = TextEditingController();
 
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 1000),
@@ -66,9 +58,25 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
     super.dispose();
   }
 
+  void _initializeControllers(AuthState authState) {
+    if (!_isInitialized) {
+      _nameController.text = authState.displayName ?? '';
+      _emailController.text = authState.userEmail ?? '';
+      // Phone is not in AuthState, so leave empty for now
+      _phoneController.text = '';
+      _isInitialized = true;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Navigation on sign-out is now handled by AuthWrapper
+    final authState = ref.watch(authProvider);
+    final transactionState = ref.watch(transactionProvider);
+    final categoryState = ref.watch(categoryProvider);
+    final budgetState = ref.watch(budgetProvider);
+
+    // Initialize controllers with real data
+    _initializeControllers(authState);
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -84,7 +92,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
               AnimationUtils.slideTransition(
                 animation: _slideAnimation,
                 begin: const Offset(0, -1),
-                child: _buildProfileHeader(),
+                child: _buildProfileHeader(authState),
               ),
 
               const SizedBox(height: 32),
@@ -96,7 +104,11 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
                   startFraction: 0.1,
                   endFraction: 0.3,
                 ),
-                child: _buildAccountStats(),
+                child: _buildAccountStats(
+                  transactionCount: transactionState.transactions.length,
+                  categoryCount: categoryState.categories.length,
+                  budgetCount: budgetState.budgets.length,
+                ),
               ),
 
               const SizedBox(height: 24),
@@ -122,7 +134,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
                   endFraction: 0.6,
                 ),
                 begin: const Offset(0, 1),
-                child: _buildPremiumStatus(),
+                child: _buildPremiumStatus(authState.isPremium),
               ),
 
               const SizedBox(height: 24),
@@ -159,7 +171,12 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
     );
   }
 
-  Widget _buildProfileHeader() {
+  Widget _buildProfileHeader(AuthState authState) {
+    final photoUrl = authState.photoUrl;
+    final displayName = authState.displayName ?? 'User';
+    final email = authState.userEmail ?? '';
+    final memberSince = authState.createdAt;
+
     return AppTheme.glassmorphicContainer(
       child: Container(
         padding: const EdgeInsets.all(24),
@@ -182,12 +199,14 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
                       ),
                     ],
                   ),
-                  child: _mockUser['photoUrl'] != null
+                  child: photoUrl != null && photoUrl.isNotEmpty
                       ? ClipRRect(
                           borderRadius: BorderRadius.circular(50),
                           child: Image.network(
-                            _mockUser['photoUrl'],
+                            photoUrl,
                             fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                const Icon(Icons.person, size: 50, color: Colors.white),
                           ),
                         )
                       : const Icon(Icons.person, size: 50, color: Colors.white),
@@ -223,7 +242,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
 
             // Name and Email
             Text(
-              _mockUser['name'],
+              displayName,
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 24,
@@ -232,7 +251,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
             ),
             const SizedBox(height: 4),
             Text(
-              _mockUser['email'],
+              email,
               style: TextStyle(
                 color: Colors.white.withValues(alpha: 0.8),
                 fontSize: 16,
@@ -241,47 +260,52 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
             const SizedBox(height: 8),
 
             // Member Since
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.calendar_today,
-                  color: Colors.white.withValues(alpha: 0.7),
-                  size: 16,
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  'Member since ${DateFormat('MMMM yyyy').format(_mockUser['memberSince'])}',
-                  style: TextStyle(
+            if (memberSince != null)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.calendar_today,
                     color: Colors.white.withValues(alpha: 0.7),
-                    fontSize: 14,
+                    size: 16,
                   ),
-                ),
-              ],
-            ),
+                  const SizedBox(width: 6),
+                  Text(
+                    'Member since ${DateFormat('MMMM yyyy').format(memberSince)}',
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.7),
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildAccountStats() {
+  Widget _buildAccountStats({
+    required int transactionCount,
+    required int categoryCount,
+    required int budgetCount,
+  }) {
     final stats = [
       {
         'title': 'Transactions',
-        'value': '${_mockUser['totalTransactions']}',
+        'value': '$transactionCount',
         'icon': Icons.swap_horiz,
         'color': const Color(0xFF667eea),
       },
       {
         'title': 'Categories',
-        'value': '${_mockUser['categoriesUsed']}',
+        'value': '$categoryCount',
         'icon': Icons.category,
         'color': const Color(0xFF11998e),
       },
       {
         'title': 'Budgets',
-        'value': '${_mockUser['budgetsCreated']}',
+        'value': '$budgetCount',
         'icon': Icons.account_balance_wallet,
         'color': const Color(0xFFFF6B6B),
       },
@@ -426,8 +450,8 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
     );
   }
 
-  Widget _buildPremiumStatus() {
-    if (_mockUser['isPremium'] != true) {
+  Widget _buildPremiumStatus(bool isPremium) {
+    if (!isPremium) {
       return AppTheme.glassmorphicContainer(
         child: Container(
           padding: const EdgeInsets.all(20),
@@ -683,9 +707,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
                 gradient: AppTheme.primaryGradient,
                 child: ElevatedButton(
                   onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      _saveProfile();
-                    }
+                    _saveProfile();
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.transparent,
@@ -869,15 +891,15 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
                                               SnackBar(
                                                 content: Row(
                                                   children: [
-                                                    Icon(
+                                                    const Icon(
                                                       Icons.error_outline,
                                                       color: Colors.white,
                                                     ),
-                                                    SizedBox(width: 8),
+                                                    const SizedBox(width: 8),
                                                     Expanded(
                                                       child: Text(
                                                         'Failed to sign out: ${e.toString()}',
-                                                        style: TextStyle(
+                                                        style: const TextStyle(
                                                           color: Colors.white,
                                                         ),
                                                       ),
@@ -945,30 +967,24 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
     );
   }
 
-  void _saveProfile() {
+  void _saveProfile() async {
     HapticFeedback.mediumImpact();
 
-    // Mock save operation
-    setState(() {
-      _mockUser['name'] = _nameController.text;
-      _mockUser['phone'] = _phoneController.text;
-    });
-
-    // Show success message
-    if (mounted) {
+    final newName = _nameController.text.trim();
+    if (newName.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Row(
             children: [
-              Icon(Icons.check_circle, color: Colors.white),
+              Icon(Icons.error_outline, color: Colors.white),
               SizedBox(width: 8),
               Text(
-                'Profile updated successfully!',
+                'Name cannot be empty',
                 style: TextStyle(color: Colors.white),
               ),
             ],
           ),
-          backgroundColor: Colors.green.withValues(alpha: 0.8),
+          backgroundColor: Colors.red.withValues(alpha: 0.8),
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
@@ -976,6 +992,62 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
           margin: const EdgeInsets.all(16),
         ),
       );
+      return;
+    }
+
+    try {
+      // Update profile on backend
+      final backendAuth = BackendAuthService();
+      await backendAuth.updateProfile(displayName: newName);
+
+      // Show success message
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Row(
+              children: [
+                Icon(Icons.check_circle, color: Colors.white),
+                SizedBox(width: 8),
+                Text(
+                  'Profile updated successfully!',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.green.withValues(alpha: 0.8),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            margin: const EdgeInsets.all(16),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.error_outline, color: Colors.white),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Failed to update profile: ${e.toString()}',
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.red.withValues(alpha: 0.8),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            margin: const EdgeInsets.all(16),
+          ),
+        );
+      }
     }
   }
 }

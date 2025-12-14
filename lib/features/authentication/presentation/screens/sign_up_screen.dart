@@ -152,32 +152,44 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
             padding: AppSpacing.paddingScreen,
             child: Form(
               key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // Floating App Icon with glow
-                  _buildAppLogo(),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: MediaQuery.of(context).size.height -
+                      MediaQuery.of(context).padding.top -
+                      MediaQuery.of(context).padding.bottom -
+                      kToolbarHeight -
+                      48,
+                ),
+                child: IntrinsicHeight(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // Floating App Icon with glow
+                      _buildAppLogo(),
 
-                  AppSpacing.gapXl,
+                      AppSpacing.gapXl,
 
-                  // Welcome Text
-                  _buildWelcomeText(),
+                      // Welcome Text
+                      _buildWelcomeText(),
 
-                  AppSpacing.gapXxl,
+                      AppSpacing.gapXxl,
 
-                  // Sign Up Form Card
-                  _buildSignUpForm(authState),
+                      // Sign Up Form Card
+                      _buildSignUpForm(authState),
 
-                  AppSpacing.gapXl,
+                      AppSpacing.gapXl,
 
-                  // Sign In Link
-                  _buildSignInLink(),
+                      // Sign In Link
+                      _buildSignInLink(),
 
-                  AppSpacing.gapLg,
+                      AppSpacing.gapLg,
 
-                  // Error Message
-                  if (authState.error != null) _buildErrorMessage(authState.error!),
-                ],
+                      // Error Message
+                      if (authState.error != null) _buildErrorMessage(authState.error!),
+                    ],
+                  ),
+                ),
               ),
             ),
           ),

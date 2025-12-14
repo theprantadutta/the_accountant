@@ -12,6 +12,7 @@ import 'package:the_accountant/data/models/objective.dart';
 import 'package:the_accountant/data/models/objective_transaction.dart';
 import 'package:the_accountant/data/models/associated_title.dart';
 import 'package:the_accountant/data/models/sync_state.dart';
+import 'package:the_accountant/data/models/exchange_rate.dart';
 
 part 'app_database.g.dart';
 
@@ -41,13 +42,14 @@ class SyncStatus {
     ObjectiveTransactions,
     AssociatedTitles,
     SyncStates,
+    ExchangeRates,
   ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -112,6 +114,17 @@ class AppDatabase extends _$AppDatabase {
             await m.addColumn(paymentMethods, paymentMethods.serverId);
             await m.addColumn(paymentMethods, paymentMethods.syncStatus);
             await m.addColumn(paymentMethods, paymentMethods.deletedAt);
+          }
+          if (from < 3) {
+            // Add special transaction type columns (Cashew parity)
+            await m.addColumn(transactions, transactions.specialType);
+            await m.addColumn(transactions, transactions.isPaid);
+            await m.addColumn(transactions, transactions.originalDueDate);
+            await m.addColumn(transactions, transactions.skipPaid);
+          }
+          if (from < 4) {
+            // Add exchange rates table for multi-currency support
+            await m.createTable(exchangeRates);
           }
         },
       );
@@ -195,6 +208,96 @@ class AppDatabase extends _$AppDatabase {
             ..where((t) => t.recurringConfigId.equals(recurringConfigId))
             ..where((t) => t.deletedAt.isNull()))
           .get();
+
+  /// Get upcoming (unpaid future) transactions
+  Future<List<Transaction>> getUpcomingTransactions() => (select(transactions)
+        ..where((t) => t.isPaid.equals(false))
+        ..where((t) => t.date.isBiggerThanValue(DateTime.now()))
+        ..where((t) => t.deletedAt.isNull())
+        ..orderBy([(t) => OrderingTerm.asc(t.date)]))
+      .get();
+
+  /// Get overdue (unpaid past) transactions
+  Future<List<Transaction>> getOverdueTransactions() => (select(transactions)
+        ..where((t) => t.isPaid.equals(false))
+        ..where((t) => t.date.isSmallerThanValue(DateTime.now()))
+        ..where((t) => t.deletedAt.isNull())
+        ..orderBy([(t) => OrderingTerm.asc(t.date)]))
+      .get();
+
+  /// Get credit transactions (money lent - they owe you)
+  Future<List<Transaction>> getCreditTransactions() => (select(transactions)
+        ..where((t) => t.specialType.equals(4)) // TransactionSpecialType.credit index
+        ..where((t) => t.deletedAt.isNull())
+        ..orderBy([(t) => OrderingTerm.desc(t.date)]))
+      .get();
+
+  /// Get debt transactions (money borrowed - you owe them)
+  Future<List<Transaction>> getDebtTransactions() => (select(transactions)
+        ..where((t) => t.specialType.equals(5)) // TransactionSpecialType.debt index
+        ..where((t) => t.deletedAt.isNull())
+        ..orderBy([(t) => OrderingTerm.desc(t.date)]))
+      .get();
+
+  /// Get all credit and debt transactions
+  Future<List<Transaction>> getCreditDebtTransactions() async {
+    final query = select(transactions)
+      ..where((t) =>
+          t.specialType.equals(4) | t.specialType.equals(5)) // credit or debt
+      ..where((t) => t.deletedAt.isNull())
+      ..orderBy([(t) => OrderingTerm.desc(t.date)]);
+    return query.get();
+  }
+
+  /// Get unpaid credit/debt transactions
+  Future<List<Transaction>> getUnpaidCreditDebtTransactions() async {
+    final query = select(transactions)
+      ..where((t) =>
+          t.specialType.equals(4) | t.specialType.equals(5)) // credit or debt
+      ..where((t) => t.isPaid.equals(false))
+      ..where((t) => t.deletedAt.isNull())
+      ..orderBy([(t) => OrderingTerm.desc(t.date)]);
+    return query.get();
+  }
+
+  /// Get subscription transactions
+  Future<List<Transaction>> getSubscriptionTransactions() => (select(transactions)
+        ..where((t) => t.specialType.equals(2)) // TransactionSpecialType.subscription
+        ..where((t) => t.deletedAt.isNull())
+        ..orderBy([(t) => OrderingTerm.desc(t.date)]))
+      .get();
+
+  /// Mark transaction as paid
+  Future<void> markTransactionAsPaid(String id, {DateTime? paymentDate}) async {
+    final transaction = await findTransactionById(id);
+    if (transaction == null) return;
+
+    await (update(transactions)..where((t) => t.id.equals(id))).write(
+      TransactionsCompanion(
+        isPaid: const Value(true),
+        originalDueDate: Value(transaction.originalDueDate ?? transaction.date),
+        date: Value(paymentDate ?? DateTime.now()),
+        syncStatus: const Value(SyncStatus.pendingUpdate),
+        updatedAt: Value(DateTime.now()),
+      ),
+    );
+  }
+
+  /// Mark transaction as unpaid
+  Future<void> markTransactionAsUnpaid(String id) async {
+    final transaction = await findTransactionById(id);
+    if (transaction == null) return;
+
+    await (update(transactions)..where((t) => t.id.equals(id))).write(
+      TransactionsCompanion(
+        isPaid: const Value(false),
+        // Restore original due date if available
+        date: Value(transaction.originalDueDate ?? transaction.date),
+        syncStatus: const Value(SyncStatus.pendingUpdate),
+        updatedAt: Value(DateTime.now()),
+      ),
+    );
+  }
 
   // ============================================================
   // Payment Method DAO methods
@@ -588,6 +691,114 @@ class AppDatabase extends _$AppDatabase {
               ..where((a) => a.syncStatus.isBiggerThanValue(0)))
             .write(const AssociatedTitlesCompanion(syncStatus: Value(0)));
         break;
+      case 'exchange_rates':
+        await (update(exchangeRates)
+              ..where((e) => e.syncStatus.isBiggerThanValue(0)))
+            .write(const ExchangeRatesCompanion(syncStatus: Value(0)));
+        break;
     }
+  }
+
+  // ============================================================
+  // Exchange Rate DAO methods
+  // ============================================================
+  Future<List<ExchangeRate>> getAllExchangeRates() =>
+      select(exchangeRates).get();
+
+  Future<ExchangeRate?> findExchangeRateById(String id) =>
+      (select(exchangeRates)..where((e) => e.id.equals(id))).getSingleOrNull();
+
+  /// Get exchange rate for a specific currency pair
+  Future<ExchangeRate?> getExchangeRate(String fromCurrency, String toCurrency) =>
+      (select(exchangeRates)
+            ..where((e) => e.fromCurrency.equals(fromCurrency.toUpperCase()))
+            ..where((e) => e.toCurrency.equals(toCurrency.toUpperCase())))
+          .getSingleOrNull();
+
+  Future<int> addExchangeRate(ExchangeRatesCompanion entry) =>
+      into(exchangeRates).insert(entry);
+
+  Future<bool> updateExchangeRate(ExchangeRatesCompanion entry) =>
+      update(exchangeRates).replace(entry);
+
+  Future<int> deleteExchangeRate(String id) =>
+      (delete(exchangeRates)..where((e) => e.id.equals(id))).go();
+
+  /// Upsert exchange rate (insert or update if exists)
+  Future<void> upsertExchangeRate({
+    required String fromCurrency,
+    required String toCurrency,
+    double? apiRate,
+    double? customRate,
+    bool? useCustomRate,
+    DateTime? apiRateFetchedAt,
+  }) async {
+    final existing = await getExchangeRate(fromCurrency, toCurrency);
+    final now = DateTime.now();
+
+    if (existing != null) {
+      // Update existing
+      await (update(exchangeRates)..where((e) => e.id.equals(existing.id))).write(
+        ExchangeRatesCompanion(
+          apiRate: apiRate != null ? Value(apiRate) : const Value.absent(),
+          customRate: customRate != null ? Value(customRate) : const Value.absent(),
+          useCustomRate: useCustomRate != null ? Value(useCustomRate) : const Value.absent(),
+          apiRateFetchedAt: apiRateFetchedAt != null ? Value(apiRateFetchedAt) : const Value.absent(),
+          updatedAt: Value(now),
+          syncStatus: const Value(SyncStatus.pendingUpdate),
+        ),
+      );
+    } else {
+      // Insert new
+      final id = DateTime.now().millisecondsSinceEpoch.toString();
+      await into(exchangeRates).insert(
+        ExchangeRatesCompanion(
+          id: Value(id),
+          fromCurrency: Value(fromCurrency.toUpperCase()),
+          toCurrency: Value(toCurrency.toUpperCase()),
+          apiRate: Value(apiRate),
+          customRate: Value(customRate),
+          useCustomRate: Value(useCustomRate ?? false),
+          apiRateFetchedAt: Value(apiRateFetchedAt),
+          createdAt: Value(now),
+          updatedAt: Value(now),
+          syncStatus: const Value(SyncStatus.pendingCreate),
+        ),
+      );
+    }
+  }
+
+  /// Get all exchange rates with custom overrides
+  Future<List<ExchangeRate>> getCustomExchangeRates() =>
+      (select(exchangeRates)..where((e) => e.useCustomRate.equals(true))).get();
+
+  /// Get exchange rates that need to be synced
+  Future<List<ExchangeRate>> getPendingSyncExchangeRates() =>
+      (select(exchangeRates)..where((e) => e.syncStatus.isBiggerThanValue(0)))
+          .get();
+
+  /// Clear custom rate and use API rate
+  Future<void> clearCustomRate(String fromCurrency, String toCurrency) async {
+    final existing = await getExchangeRate(fromCurrency, toCurrency);
+    if (existing != null) {
+      await (update(exchangeRates)..where((e) => e.id.equals(existing.id))).write(
+        ExchangeRatesCompanion(
+          customRate: const Value(null),
+          useCustomRate: const Value(false),
+          updatedAt: Value(DateTime.now()),
+          syncStatus: const Value(SyncStatus.pendingUpdate),
+        ),
+      );
+    }
+  }
+
+  /// Set a custom rate override
+  Future<void> setCustomRate(String fromCurrency, String toCurrency, double rate) async {
+    await upsertExchangeRate(
+      fromCurrency: fromCurrency,
+      toCurrency: toCurrency,
+      customRate: rate,
+      useCustomRate: true,
+    );
   }
 }

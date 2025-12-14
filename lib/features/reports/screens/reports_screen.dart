@@ -9,6 +9,7 @@ import 'package:the_accountant/features/dashboard/providers/financial_data_provi
 import 'package:the_accountant/features/transactions/providers/transaction_provider.dart';
 import 'package:the_accountant/features/budgets/providers/budget_provider.dart';
 import 'package:the_accountant/features/categories/providers/category_provider.dart';
+import 'package:the_accountant/features/reports/providers/reports_provider.dart';
 
 class ReportsScreen extends ConsumerStatefulWidget {
   const ReportsScreen({super.key});
@@ -88,12 +89,14 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
     final transactionState = ref.watch(transactionProvider);
     final budgetState = ref.watch(budgetProvider);
     final categoryState = ref.watch(categoryProvider);
+    final reportsState = ref.watch(reportsProvider);
 
     // Show loading state
     if (financialData.isLoading ||
         transactionState.isLoading ||
         budgetState.isLoading ||
-        categoryState.isLoading) {
+        categoryState.isLoading ||
+        reportsState.isLoading) {
       return const Scaffold(
         backgroundColor: Colors.transparent,
         body: Center(child: CircularProgressIndicator()),
@@ -194,6 +197,8 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
                   setState(() {
                     _selectedTimeFrame = index;
                   });
+                  // Refresh reports data for new timeframe
+                  ref.read(reportsProvider.notifier).refreshForTimeframe(index);
                   HapticFeedback.lightImpact();
                 },
                 child: AnimatedContainer(
@@ -320,12 +325,44 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
   }
 
   Widget _buildLineChart() {
+    final reportsState = ref.watch(reportsProvider);
+    final spots = reportsState.toLineChartSpots();
+    final labels = reportsState.getDayLabels();
+    final maxY = reportsState.getMaxY();
+
+    // If no data, show empty state
+    if (spots.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.show_chart,
+              color: Colors.white.withValues(alpha: 0.5),
+              size: 48,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'No spending data for this period',
+              style: TextStyle(
+                color: Colors.white.withValues(alpha: 0.7),
+                fontSize: 14,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // Calculate appropriate interval for Y axis
+    final yInterval = maxY > 0 ? (maxY / 5).ceilToDouble() : 1000.0;
+
     return LineChart(
       LineChartData(
         gridData: FlGridData(
           show: true,
           drawVerticalLine: false,
-          horizontalInterval: 1000,
+          horizontalInterval: yInterval,
           getDrawingHorizontalLine: (value) => FlLine(
             color: Colors.white.withValues(alpha: 0.1),
             strokeWidth: 1,
@@ -345,49 +382,12 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
               reservedSize: 30,
               interval: 1,
               getTitlesWidget: (double value, TitleMeta meta) {
-                const style = TextStyle(
-                  color: Colors.white70,
-                  fontWeight: FontWeight.w500,
-                  fontSize: 12,
-                );
-                String label;
-                switch (value.toInt()) {
-                  case 0:
-                    label = 'Mon';
-                    break;
-                  case 1:
-                    label = 'Tue';
-                    break;
-                  case 2:
-                    label = 'Wed';
-                    break;
-                  case 3:
-                    label = 'Thu';
-                    break;
-                  case 4:
-                    label = 'Fri';
-                    break;
-                  case 5:
-                    label = 'Sat';
-                    break;
-                  case 6:
-                    label = 'Sun';
-                    break;
-                  default:
-                    label = '';
-                    break;
+                final index = value.toInt();
+                if (index < 0 || index >= labels.length) {
+                  return const SizedBox.shrink();
                 }
-                return Text(label, style: style);
-              },
-            ),
-          ),
-          leftTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              interval: 1000,
-              getTitlesWidget: (double value, TitleMeta meta) {
                 return Text(
-                  '\$${(value / 1000).toStringAsFixed(0)}k',
+                  labels[index],
                   style: const TextStyle(
                     color: Colors.white70,
                     fontWeight: FontWeight.w500,
@@ -395,26 +395,44 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
                   ),
                 );
               },
-              reservedSize: 42,
+            ),
+          ),
+          leftTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              interval: yInterval,
+              getTitlesWidget: (double value, TitleMeta meta) {
+                if (value >= 1000) {
+                  return Text(
+                    '\$${(value / 1000).toStringAsFixed(1)}k',
+                    style: const TextStyle(
+                      color: Colors.white70,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 12,
+                    ),
+                  );
+                }
+                return Text(
+                  '\$${value.toStringAsFixed(0)}',
+                  style: const TextStyle(
+                    color: Colors.white70,
+                    fontWeight: FontWeight.w500,
+                    fontSize: 12,
+                  ),
+                );
+              },
+              reservedSize: 50,
             ),
           ),
         ),
         borderData: FlBorderData(show: false),
         minX: 0,
-        maxX: 6,
+        maxX: (spots.length - 1).toDouble(),
         minY: 0,
-        maxY: 5000,
+        maxY: maxY,
         lineBarsData: [
           LineChartBarData(
-            spots: const [
-              FlSpot(0, 3000),
-              FlSpot(1, 1500),
-              FlSpot(2, 2800),
-              FlSpot(3, 2200),
-              FlSpot(4, 3500),
-              FlSpot(5, 1800),
-              FlSpot(6, 2600),
-            ],
+            spots: spots,
             isCurved: true,
             gradient: AppTheme.primaryGradient,
             barWidth: 4,
@@ -448,6 +466,33 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
   }
 
   Widget _buildPieChart() {
+    final reportsState = ref.watch(reportsProvider);
+    final sections = reportsState.toPieChartSections();
+
+    // If no data, show empty state
+    if (sections.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.pie_chart_outline,
+              color: Colors.white.withValues(alpha: 0.5),
+              size: 48,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'No category spending data',
+              style: TextStyle(
+                color: Colors.white.withValues(alpha: 0.7),
+                fontSize: 14,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
     return PieChart(
       PieChartData(
         pieTouchData: PieTouchData(
@@ -458,63 +503,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
         borderData: FlBorderData(show: false),
         sectionsSpace: 2,
         centerSpaceRadius: 60,
-        sections: [
-          PieChartSectionData(
-            color: const Color(0xFF667eea),
-            value: 35,
-            title: 'Food\n35%',
-            radius: 80,
-            titleStyle: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-          ),
-          PieChartSectionData(
-            color: const Color(0xFF11998e),
-            value: 25,
-            title: 'Transport\n25%',
-            radius: 80,
-            titleStyle: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-          ),
-          PieChartSectionData(
-            color: const Color(0xFFFF6B6B),
-            value: 20,
-            title: 'Shopping\n20%',
-            radius: 80,
-            titleStyle: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-          ),
-          PieChartSectionData(
-            color: const Color(0xFF4ECDC4),
-            value: 15,
-            title: 'Bills\n15%',
-            radius: 80,
-            titleStyle: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-          ),
-          PieChartSectionData(
-            color: const Color(0xFFFFE66D),
-            value: 5,
-            title: 'Other\n5%',
-            radius: 80,
-            titleStyle: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
-            ),
-          ),
-        ],
+        sections: sections,
       ),
     );
   }
@@ -780,26 +769,58 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
   }
 
   Widget _buildBudgetComparison() {
-    final budgets = [
-      {
-        'name': 'Food Budget',
-        'budget': 1500.0,
-        'spent': 1245.0,
-        'color': const Color(0xFF667eea),
-      },
-      {
-        'name': 'Transport Budget',
-        'budget': 800.0,
-        'spent': 892.0,
-        'color': const Color(0xFF11998e),
-      },
-      {
-        'name': 'Shopping Budget',
-        'budget': 600.0,
-        'spent': 710.0,
-        'color': const Color(0xFFFF6B6B),
-      },
-    ];
+    final reportsState = ref.watch(reportsProvider);
+    final budgets = reportsState.budgetComparison;
+
+    // If no budgets, show empty state
+    if (budgets.isEmpty) {
+      return AppTheme.glassmorphicContainer(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Budget vs Actual',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 20),
+              Center(
+                child: Column(
+                  children: [
+                    Icon(
+                      Icons.account_balance_wallet_outlined,
+                      color: Colors.white.withValues(alpha: 0.5),
+                      size: 48,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'No active budgets',
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.7),
+                        fontSize: 16,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Create a budget to track your spending',
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.5),
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
 
     return AppTheme.glassmorphicContainer(
       child: Padding(
@@ -817,10 +838,6 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
             ),
             const SizedBox(height: 20),
             ...budgets.map((budget) {
-              final percentage =
-                  (budget['spent'] as double) / (budget['budget'] as double);
-              final isOverBudget = percentage > 1.0;
-
               return Container(
                 margin: const EdgeInsets.only(bottom: 20),
                 child: Column(
@@ -829,26 +846,29 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          budget['name'] as String,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
+                        Expanded(
+                          child: Text(
+                            budget.budgetName,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                         Row(
                           children: [
                             Text(
-                              '\$${(budget['spent'] as double).toStringAsFixed(0)}',
+                              '\$${budget.spent.toStringAsFixed(0)}',
                               style: TextStyle(
-                                color: isOverBudget ? Colors.red : Colors.white,
+                                color: budget.isOverBudget ? Colors.red : Colors.white,
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                             Text(
-                              ' / \$${(budget['budget'] as double).toStringAsFixed(0)}',
+                              ' / \$${budget.budgetLimit.toStringAsFixed(0)}',
                               style: TextStyle(
                                 color: Colors.white.withValues(alpha: 0.7),
                                 fontSize: 14,
@@ -859,38 +879,41 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
                       ],
                     ),
                     const SizedBox(height: 8),
-                    Stack(
-                      children: [
-                        Container(
-                          width: double.infinity,
-                          height: 6,
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(3),
-                          ),
-                        ),
-                        Container(
-                          width:
-                              MediaQuery.of(context).size.width *
-                              (percentage > 1.0 ? 1.0 : percentage) *
-                              0.7, // Approximate available width
-                          height: 6,
-                          decoration: BoxDecoration(
-                            color: isOverBudget
-                                ? Colors.red
-                                : (budget['color'] as Color),
-                            borderRadius: BorderRadius.circular(3),
-                          ),
-                        ),
-                      ],
+                    LayoutBuilder(
+                      builder: (context, constraints) {
+                        final progressWidth = constraints.maxWidth *
+                            (budget.percentage > 1.0 ? 1.0 : budget.percentage);
+                        return Stack(
+                          children: [
+                            Container(
+                              width: double.infinity,
+                              height: 6,
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(3),
+                              ),
+                            ),
+                            Container(
+                              width: progressWidth,
+                              height: 6,
+                              decoration: BoxDecoration(
+                                color: budget.isOverBudget
+                                    ? Colors.red
+                                    : budget.color,
+                                borderRadius: BorderRadius.circular(3),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      isOverBudget
-                          ? 'Over budget by \$${((budget['spent'] as double) - (budget['budget'] as double)).toStringAsFixed(0)}'
-                          : '${((1 - percentage) * 100).toStringAsFixed(0)}% remaining',
+                      budget.isOverBudget
+                          ? 'Over budget by \$${(budget.spent - budget.budgetLimit).toStringAsFixed(0)}'
+                          : '${((1 - budget.percentage) * 100).toStringAsFixed(0)}% remaining',
                       style: TextStyle(
-                        color: isOverBudget
+                        color: budget.isOverBudget
                             ? Colors.red
                             : Colors.white.withValues(alpha: 0.7),
                         fontSize: 12,

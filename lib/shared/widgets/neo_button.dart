@@ -129,8 +129,8 @@ class _NeoButtonState extends State<NeoButton>
         return AppSpacing.paddingButton;
       case NeoButtonSize.large:
         return EdgeInsets.symmetric(
-          horizontal: AppSpacing.xxxl,
-          vertical: AppSpacing.xl,
+          horizontal: AppSpacing.xl,
+          vertical: AppSpacing.md,
         );
     }
   }
@@ -275,7 +275,9 @@ class _NeoButtonState extends State<NeoButton>
     );
 
     Widget button = Container(
-      height: _getHeight(),
+      constraints: BoxConstraints(
+        minHeight: _getHeight(),
+      ),
       padding: _getPadding(),
       decoration: BoxDecoration(
         gradient: isDisabled ? null : _getGradient(),
@@ -286,6 +288,7 @@ class _NeoButtonState extends State<NeoButton>
         border: _getBorder(),
         boxShadow: isDisabled ? null : _getBoxShadow(),
       ),
+      alignment: Alignment.center,
       child: buttonContent,
     );
 

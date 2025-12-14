@@ -65,13 +65,28 @@ class WalletNotifier extends StateNotifier<WalletState> {
     required String name,
     required String currency,
     double balance = 0.0,
+    String? iconName,
+    String? color,
+    bool isDefault = false,
   }) async {
     try {
+      // If setting as default, clear other defaults first
+      if (isDefault) {
+        await _clearOtherDefaults(null);
+      }
+
+      final now = DateTime.now();
       final wallet = WalletsCompanion(
         id: Value(const Uuid().v4()),
         name: Value(name),
         currency: Value(currency),
         balance: Value(balance),
+        iconName: Value(iconName ?? 'wallet'),
+        color: Value(color ?? '#6366F1'),
+        isDefault: Value(isDefault),
+        syncStatus: const Value(1), // pendingCreate
+        createdAt: Value(now),
+        updatedAt: Value(now),
       );
 
       await _database.addWallet(wallet);
@@ -81,18 +96,43 @@ class WalletNotifier extends StateNotifier<WalletState> {
     }
   }
 
+  /// Clear isDefault on all wallets except the specified one
+  Future<void> _clearOtherDefaults(String? exceptId) async {
+    for (final wallet in state.wallets) {
+      if (wallet.id != exceptId && wallet.isDefault == true) {
+        await _database.updateWallet(WalletsCompanion(
+          id: Value(wallet.id),
+          isDefault: const Value(false),
+          updatedAt: Value(DateTime.now()),
+        ));
+      }
+    }
+  }
+
   Future<void> updateWallet({
     required String id,
     String? name,
     String? currency,
     double? balance,
+    String? iconName,
+    String? color,
+    bool? isDefault,
   }) async {
     try {
+      // If setting as default, clear other defaults first
+      if (isDefault == true) {
+        await _clearOtherDefaults(id);
+      }
+
       final wallet = WalletsCompanion(
         id: Value(id),
         name: name != null ? Value(name) : const Value.absent(),
         currency: currency != null ? Value(currency) : const Value.absent(),
         balance: balance != null ? Value(balance) : const Value.absent(),
+        iconName: iconName != null ? Value(iconName) : const Value.absent(),
+        color: color != null ? Value(color) : const Value.absent(),
+        isDefault: isDefault != null ? Value(isDefault) : const Value.absent(),
+        updatedAt: Value(DateTime.now()),
       );
 
       await _database.updateWallet(wallet);

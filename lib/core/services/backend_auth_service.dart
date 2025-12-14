@@ -15,6 +15,7 @@ class BackendAuthService extends ChangeNotifier {
   String? _photoUrl;
   String _subscriptionTier = 'free';
   DateTime? _subscriptionExpiresAt;
+  DateTime? _createdAt;
 
   bool get isInitializing => _isInitializing;
   bool get isAuthenticated => _isAuthenticated;
@@ -25,6 +26,7 @@ class BackendAuthService extends ChangeNotifier {
   String? get userPhotoUrl => _photoUrl;
   String get subscriptionTier => _subscriptionTier;
   DateTime? get subscriptionExpiresAt => _subscriptionExpiresAt;
+  DateTime? get userCreatedAt => _createdAt;
 
   /// Initialize authentication state
   Future<void> initialize() async {
@@ -70,6 +72,7 @@ class BackendAuthService extends ChangeNotifier {
     _photoUrl = null;
     _subscriptionTier = 'free';
     _subscriptionExpiresAt = null;
+    _createdAt = null;
 
     // Sign out from Firebase (this will trigger the AuthWrapper to show login)
     try {
@@ -133,6 +136,7 @@ class BackendAuthService extends ChangeNotifier {
       _photoUrl = null;
       _subscriptionTier = 'free';
       _subscriptionExpiresAt = null;
+      _createdAt = null;
 
       notifyListeners();
     }
@@ -238,6 +242,11 @@ class BackendAuthService extends ChangeNotifier {
         _subscriptionExpiresAt = DateTime.parse(
           userInfo['subscription_expires_at'],
         );
+      }
+
+      // Parse created_at date if present
+      if (userInfo['created_at'] != null) {
+        _createdAt = DateTime.parse(userInfo['created_at']);
       }
 
       debugPrint('[BackendAuthService] User info refreshed: email=$_userEmail, displayName=$_displayName');

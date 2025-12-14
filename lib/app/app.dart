@@ -4,12 +4,14 @@ import 'package:the_accountant/core/providers/session_timeout_provider.dart';
 import 'package:the_accountant/core/providers/theme_provider.dart';
 import 'package:the_accountant/core/themes/app_theme.dart';
 import 'package:the_accountant/features/onboarding/onboarding_screen.dart';
+import 'package:the_accountant/features/onboarding/screens/post_signup_onboarding_screen.dart';
 import 'package:the_accountant/features/premium/screens/premium_screen.dart';
 import 'package:the_accountant/features/support/screens/support_screen.dart';
 import 'package:the_accountant/features/authentication/presentation/screens/sign_in_screen.dart';
 import 'package:the_accountant/features/authentication/presentation/screens/sign_up_screen.dart';
 import 'package:the_accountant/features/authentication/presentation/screens/user_profile_screen.dart';
 import 'package:the_accountant/features/categories/screens/category_management_screen.dart';
+import 'package:the_accountant/features/settings/screens/exchange_rates_screen.dart';
 import 'package:the_accountant/shared/widgets/main_navigation_container.dart';
 import 'package:the_accountant/features/authentication/presentation/widgets/auth_wrapper.dart';
 
@@ -33,11 +35,13 @@ class MyApp extends ConsumerWidget {
       home: const AuthWrapper(),
       routes: {
         '/onboarding': (context) => const OnboardingScreen(),
+        '/post-signup-onboarding': (context) => const PostSignupOnboardingScreen(),
         '/signin': (context) => const SignInScreen(),
         '/signup': (context) => const SignUpScreen(),
         '/profile': (context) => const UserProfileScreen(),
         '/dashboard': (context) => const MainNavigationContainer(),
         '/categories': (context) => const CategoryManagementScreen(),
+        '/exchange-rates': (context) => const ExchangeRatesScreen(),
         '/premium': (context) => const PremiumScreen(),
         '/support': (context) {
           final args = ModalRoute.of(context)!.settings.arguments as String?;

@@ -18,6 +18,7 @@ class AuthState {
   final String? photoUrl;
   final bool isPremium;
   final String subscriptionTier;
+  final DateTime? createdAt;
 
   // For account linking flow
   final bool requiresLinking;
@@ -33,6 +34,7 @@ class AuthState {
     this.photoUrl,
     this.isPremium = false,
     this.subscriptionTier = 'free',
+    this.createdAt,
     this.requiresLinking = false,
     this.pendingFirebaseToken,
   });
@@ -47,6 +49,7 @@ class AuthState {
     String? photoUrl,
     bool? isPremium,
     String? subscriptionTier,
+    DateTime? createdAt,
     bool? requiresLinking,
     String? pendingFirebaseToken,
   }) {
@@ -60,6 +63,7 @@ class AuthState {
       photoUrl: photoUrl ?? this.photoUrl,
       isPremium: isPremium ?? this.isPremium,
       subscriptionTier: subscriptionTier ?? this.subscriptionTier,
+      createdAt: createdAt ?? this.createdAt,
       requiresLinking: requiresLinking ?? this.requiresLinking,
       pendingFirebaseToken: pendingFirebaseToken ?? this.pendingFirebaseToken,
     );
@@ -108,6 +112,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       photoUrl: _backendAuth.userPhotoUrl,
       isPremium: _backendAuth.isPremium,
       subscriptionTier: _backendAuth.subscriptionTier,
+      createdAt: _backendAuth.userCreatedAt,
       isLoading: _backendAuth.isInitializing,
     );
   }

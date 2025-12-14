@@ -33,6 +33,7 @@ class SyncService {
     'categories',
     'wallets',
     'payment_methods',
+    'exchange_rates',
     'transactions',
     'recurring_configs',
     'budgets',

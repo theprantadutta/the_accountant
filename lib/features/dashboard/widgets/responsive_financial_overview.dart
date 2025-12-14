@@ -10,9 +10,12 @@ import 'package:the_accountant/core/themes/app_animations.dart';
 import 'package:the_accountant/features/dashboard/providers/financial_data_provider.dart';
 import 'package:the_accountant/features/categories/providers/category_provider.dart'
     as cat_provider;
+import 'package:the_accountant/features/reports/providers/reports_provider.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/shared/widgets/glass_card.dart';
 import 'package:the_accountant/shared/widgets/stat_card.dart';
+import 'package:the_accountant/features/transactions/screens/upcoming_transactions_screen.dart';
+import 'package:the_accountant/features/credit_debt/screens/credit_debt_screen.dart';
 
 class ResponsiveFinancialOverview extends ConsumerStatefulWidget {
   const ResponsiveFinancialOverview({super.key});
@@ -404,26 +407,36 @@ class _ResponsiveFinancialOverviewState
         'icon': Icons.add_rounded,
         'label': 'Add',
         'color': AppColors.primaryAccent,
+        'route': null,
       },
       {
-        'icon': Icons.swap_horiz_rounded,
-        'label': 'Transfer',
+        'icon': Icons.schedule_rounded,
+        'label': 'Upcoming',
+        'color': AppColors.warning,
+        'route': 'upcoming',
+      },
+      {
+        'icon': Icons.account_balance_wallet_rounded,
+        'label': 'Lend/Borrow',
         'color': AppColors.neonCyan,
-      },
-      {
-        'icon': Icons.receipt_long_rounded,
-        'label': 'Bills',
-        'color': AppColors.neonPurple,
+        'route': 'credit_debt',
       },
       {
         'icon': Icons.savings_rounded,
         'label': 'Goals',
         'color': AppColors.success,
+        'route': null,
+      },
+      {
+        'icon': Icons.swap_horiz_rounded,
+        'label': 'Transfer',
+        'color': AppColors.neonPurple,
+        'route': null,
       },
     ];
 
     return SizedBox(
-      height: 90,
+      height: 100,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         itemCount: actions.length,
@@ -434,14 +447,18 @@ class _ResponsiveFinancialOverviewState
             margin: EdgeInsets.only(right: AppSpacing.md),
             child: GlassCard(
               width: 80,
-              onTap: () => HapticFeedback.lightImpact(),
+              onTap: () {
+                HapticFeedback.lightImpact();
+                _handleQuickAction(action['route'] as String?);
+              },
               padding: AppSpacing.paddingSm,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
-                    width: 44,
-                    height: 44,
+                    width: 40,
+                    height: 40,
                     decoration: BoxDecoration(
                       color: color.withValues(alpha: 0.15),
                       borderRadius: AppSpacing.borderRadiusMd,
@@ -452,7 +469,7 @@ class _ResponsiveFinancialOverviewState
                       size: AppSpacing.iconSm,
                     ),
                   ),
-                  AppSpacing.gapSm,
+                  AppSpacing.gapXs,
                   Text(
                     action['label'] as String,
                     style: AppTypography.labelSmall,
@@ -466,7 +483,35 @@ class _ResponsiveFinancialOverviewState
     );
   }
 
+  void _handleQuickAction(String? route) {
+    switch (route) {
+      case 'upcoming':
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const UpcomingTransactionsScreen(),
+          ),
+        );
+        break;
+      case 'credit_debt':
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const CreditDebtScreen(),
+          ),
+        );
+        break;
+      default:
+        // For other actions, do nothing for now
+        break;
+    }
+  }
+
   Widget _buildSpendingChart() {
+    final reportsState = ref.watch(reportsProvider);
+    final spots = reportsState.toLineChartSpots();
+    final maxY = reportsState.getMaxY();
+
     return GlassCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -478,62 +523,76 @@ class _ResponsiveFinancialOverviewState
           AppSpacing.gapLg,
           SizedBox(
             height: 180,
-            child: LineChart(
-              LineChartData(
-                gridData: FlGridData(
-                  show: true,
-                  drawVerticalLine: false,
-                  horizontalInterval: 1,
-                  getDrawingHorizontalLine: (value) {
-                    return FlLine(
-                      color: AppColors.glassBorder,
-                      strokeWidth: 1,
-                    );
-                  },
-                ),
-                titlesData: FlTitlesData(show: false),
-                borderData: FlBorderData(show: false),
-                lineBarsData: [
-                  LineChartBarData(
-                    spots: const [
-                      FlSpot(0, 3),
-                      FlSpot(1, 1.5),
-                      FlSpot(2, 4),
-                      FlSpot(3, 3.1),
-                      FlSpot(4, 4.8),
-                      FlSpot(5, 3.5),
-                      FlSpot(6, 5),
-                    ],
-                    isCurved: true,
-                    gradient: AppColors.primaryGradient,
-                    barWidth: 3,
-                    isStrokeCapRound: true,
-                    dotData: FlDotData(
-                      show: true,
-                      getDotPainter: (spot, percent, barData, index) {
-                        return FlDotCirclePainter(
-                          radius: index == 6 ? 5 : 0,
-                          color: AppColors.primaryAccent,
-                          strokeWidth: 2,
-                          strokeColor: AppColors.textPrimary,
-                        );
-                      },
+            child: spots.isEmpty
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.show_chart,
+                          color: AppColors.textMuted,
+                          size: 40,
+                        ),
+                        AppSpacing.gapSm,
+                        Text(
+                          'No spending data yet',
+                          style: AppTypography.bodySmall.copyWith(
+                            color: AppColors.textMuted,
+                          ),
+                        ),
+                      ],
                     ),
-                    belowBarData: BarAreaData(
-                      show: true,
-                      gradient: LinearGradient(
-                        colors: [
-                          AppColors.primaryAccent.withValues(alpha: 0.3),
-                          AppColors.primaryAccent.withValues(alpha: 0.0),
-                        ],
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
+                  )
+                : LineChart(
+                    LineChartData(
+                      gridData: FlGridData(
+                        show: true,
+                        drawVerticalLine: false,
+                        horizontalInterval: maxY > 0 ? maxY / 4 : 1,
+                        getDrawingHorizontalLine: (value) {
+                          return FlLine(
+                            color: AppColors.glassBorder,
+                            strokeWidth: 1,
+                          );
+                        },
                       ),
+                      titlesData: FlTitlesData(show: false),
+                      borderData: FlBorderData(show: false),
+                      minY: 0,
+                      maxY: maxY,
+                      lineBarsData: [
+                        LineChartBarData(
+                          spots: spots,
+                          isCurved: true,
+                          gradient: AppColors.primaryGradient,
+                          barWidth: 3,
+                          isStrokeCapRound: true,
+                          dotData: FlDotData(
+                            show: true,
+                            getDotPainter: (spot, percent, barData, index) {
+                              return FlDotCirclePainter(
+                                radius: index == spots.length - 1 ? 5 : 0,
+                                color: AppColors.primaryAccent,
+                                strokeWidth: 2,
+                                strokeColor: AppColors.textPrimary,
+                              );
+                            },
+                          ),
+                          belowBarData: BarAreaData(
+                            show: true,
+                            gradient: LinearGradient(
+                              colors: [
+                                AppColors.primaryAccent.withValues(alpha: 0.3),
+                                AppColors.primaryAccent.withValues(alpha: 0.0),
+                              ],
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ],
-              ),
-            ),
           ),
         ],
       ),

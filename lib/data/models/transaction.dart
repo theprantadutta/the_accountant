@@ -4,11 +4,33 @@ import 'package:the_accountant/data/models/wallet.dart';
 import 'package:the_accountant/data/models/payment_method.dart';
 import 'package:the_accountant/data/models/recurring_config.dart';
 
-/// Transaction types enum
+/// Transaction types enum (internal processing type)
 enum TransactionType {
   regular,
   transfer,
   recurringInstance,
+}
+
+/// Transaction special types enum (like Cashew)
+/// Used for filtering and special handling of transactions
+enum TransactionSpecialType {
+  /// Default transaction - no special handling
+  none,
+
+  /// Future unpaid transaction - shows in "Upcoming" section
+  upcoming,
+
+  /// Subscription payment - recurring service payment
+  subscription,
+
+  /// Repetitive transaction - recurring non-subscription payment
+  repetitive,
+
+  /// Credit - money lent to someone (they owe you)
+  credit,
+
+  /// Debt - money borrowed from someone (you owe them)
+  debt,
 }
 
 /// Transactions table for financial records
@@ -54,6 +76,22 @@ class Transactions extends Table {
 
   // Receipt image
   TextColumn get receiptImageUrl => text().nullable()();
+
+  // Special transaction type (like Cashew)
+  IntColumn get specialType =>
+      intEnum<TransactionSpecialType>().withDefault(const Constant(0)).nullable()();
+
+  // Paid status - for upcoming/debt/credit transactions
+  // When true: transaction is paid/settled
+  // When false: transaction is still pending
+  BoolColumn get isPaid => boolean().withDefault(const Constant(true))();
+
+  // Original due date - stores when transaction was originally due
+  // Useful when a transaction is marked as paid (date updates to payment date)
+  DateTimeColumn get originalDueDate => dateTime().nullable()();
+
+  // Skip this payment (for recurring unpaid transactions)
+  BoolColumn get skipPaid => boolean().withDefault(const Constant(false))();
 
   // Sync fields
   TextColumn get serverId => text().nullable()();

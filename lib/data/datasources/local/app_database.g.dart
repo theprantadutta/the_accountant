@@ -16,7 +16,6 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
     false,
     type: DriftSqlType.string,
     requiredDuringInsert: true,
-    $customConstraints: 'UNIQUE NOT NULL PRIMARY KEY',
   );
   static const VerificationMeta _fullNameMeta = const VerificationMeta(
     'fullName',
@@ -37,7 +36,7 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
     false,
     type: DriftSqlType.string,
     requiredDuringInsert: true,
-    $customConstraints: 'UNIQUE NOT NULL',
+    defaultConstraints: GeneratedColumn.constraintIsAlways('UNIQUE'),
   );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
@@ -3542,6 +3541,59 @@ class $TransactionsTable extends Transactions
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  @override
+  late final GeneratedColumnWithTypeConverter<TransactionSpecialType?, int>
+  specialType =
+      GeneratedColumn<int>(
+        'special_type',
+        aliasedName,
+        true,
+        type: DriftSqlType.int,
+        requiredDuringInsert: false,
+        defaultValue: const Constant(0),
+      ).withConverter<TransactionSpecialType?>(
+        $TransactionsTable.$converterspecialTypen,
+      );
+  static const VerificationMeta _isPaidMeta = const VerificationMeta('isPaid');
+  @override
+  late final GeneratedColumn<bool> isPaid = GeneratedColumn<bool>(
+    'is_paid',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_paid" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  static const VerificationMeta _originalDueDateMeta = const VerificationMeta(
+    'originalDueDate',
+  );
+  @override
+  late final GeneratedColumn<DateTime> originalDueDate =
+      GeneratedColumn<DateTime>(
+        'original_due_date',
+        aliasedName,
+        true,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _skipPaidMeta = const VerificationMeta(
+    'skipPaid',
+  );
+  @override
+  late final GeneratedColumn<bool> skipPaid = GeneratedColumn<bool>(
+    'skip_paid',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("skip_paid" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
   static const VerificationMeta _serverIdMeta = const VerificationMeta(
     'serverId',
   );
@@ -3619,6 +3671,10 @@ class $TransactionsTable extends Transactions
     isRecurring,
     recurrencePattern,
     receiptImageUrl,
+    specialType,
+    isPaid,
+    originalDueDate,
+    skipPaid,
     serverId,
     syncStatus,
     createdAt,
@@ -3768,6 +3824,27 @@ class $TransactionsTable extends Transactions
         ),
       );
     }
+    if (data.containsKey('is_paid')) {
+      context.handle(
+        _isPaidMeta,
+        isPaid.isAcceptableOrUnknown(data['is_paid']!, _isPaidMeta),
+      );
+    }
+    if (data.containsKey('original_due_date')) {
+      context.handle(
+        _originalDueDateMeta,
+        originalDueDate.isAcceptableOrUnknown(
+          data['original_due_date']!,
+          _originalDueDateMeta,
+        ),
+      );
+    }
+    if (data.containsKey('skip_paid')) {
+      context.handle(
+        _skipPaidMeta,
+        skipPaid.isAcceptableOrUnknown(data['skip_paid']!, _skipPaidMeta),
+      );
+    }
     if (data.containsKey('server_id')) {
       context.handle(
         _serverIdMeta,
@@ -3875,6 +3952,24 @@ class $TransactionsTable extends Transactions
         DriftSqlType.string,
         data['${effectivePrefix}receipt_image_url'],
       ),
+      specialType: $TransactionsTable.$converterspecialTypen.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}special_type'],
+        ),
+      ),
+      isPaid: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_paid'],
+      )!,
+      originalDueDate: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}original_due_date'],
+      ),
+      skipPaid: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}skip_paid'],
+      )!,
       serverId: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}server_id'],
@@ -3902,6 +3997,13 @@ class $TransactionsTable extends Transactions
   $TransactionsTable createAlias(String alias) {
     return $TransactionsTable(attachedDatabase, alias);
   }
+
+  static JsonTypeConverter2<TransactionSpecialType, int, int>
+  $converterspecialType = const EnumIndexConverter<TransactionSpecialType>(
+    TransactionSpecialType.values,
+  );
+  static JsonTypeConverter2<TransactionSpecialType?, int?, int?>
+  $converterspecialTypen = JsonTypeConverter2.asNullable($converterspecialType);
 }
 
 class Transaction extends DataClass implements Insertable<Transaction> {
@@ -3922,6 +4024,10 @@ class Transaction extends DataClass implements Insertable<Transaction> {
   final bool isRecurring;
   final String? recurrencePattern;
   final String? receiptImageUrl;
+  final TransactionSpecialType? specialType;
+  final bool isPaid;
+  final DateTime? originalDueDate;
+  final bool skipPaid;
   final String? serverId;
   final int syncStatus;
   final DateTime createdAt;
@@ -3945,6 +4051,10 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     required this.isRecurring,
     this.recurrencePattern,
     this.receiptImageUrl,
+    this.specialType,
+    required this.isPaid,
+    this.originalDueDate,
+    required this.skipPaid,
     this.serverId,
     required this.syncStatus,
     required this.createdAt,
@@ -3987,6 +4097,16 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     if (!nullToAbsent || receiptImageUrl != null) {
       map['receipt_image_url'] = Variable<String>(receiptImageUrl);
     }
+    if (!nullToAbsent || specialType != null) {
+      map['special_type'] = Variable<int>(
+        $TransactionsTable.$converterspecialTypen.toSql(specialType),
+      );
+    }
+    map['is_paid'] = Variable<bool>(isPaid);
+    if (!nullToAbsent || originalDueDate != null) {
+      map['original_due_date'] = Variable<DateTime>(originalDueDate);
+    }
+    map['skip_paid'] = Variable<bool>(skipPaid);
     if (!nullToAbsent || serverId != null) {
       map['server_id'] = Variable<String>(serverId);
     }
@@ -4034,6 +4154,14 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       receiptImageUrl: receiptImageUrl == null && nullToAbsent
           ? const Value.absent()
           : Value(receiptImageUrl),
+      specialType: specialType == null && nullToAbsent
+          ? const Value.absent()
+          : Value(specialType),
+      isPaid: Value(isPaid),
+      originalDueDate: originalDueDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(originalDueDate),
+      skipPaid: Value(skipPaid),
       serverId: serverId == null && nullToAbsent
           ? const Value.absent()
           : Value(serverId),
@@ -4075,6 +4203,12 @@ class Transaction extends DataClass implements Insertable<Transaction> {
         json['recurrencePattern'],
       ),
       receiptImageUrl: serializer.fromJson<String?>(json['receiptImageUrl']),
+      specialType: $TransactionsTable.$converterspecialTypen.fromJson(
+        serializer.fromJson<int?>(json['specialType']),
+      ),
+      isPaid: serializer.fromJson<bool>(json['isPaid']),
+      originalDueDate: serializer.fromJson<DateTime?>(json['originalDueDate']),
+      skipPaid: serializer.fromJson<bool>(json['skipPaid']),
       serverId: serializer.fromJson<String?>(json['serverId']),
       syncStatus: serializer.fromJson<int>(json['syncStatus']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
@@ -4103,6 +4237,12 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       'isRecurring': serializer.toJson<bool>(isRecurring),
       'recurrencePattern': serializer.toJson<String?>(recurrencePattern),
       'receiptImageUrl': serializer.toJson<String?>(receiptImageUrl),
+      'specialType': serializer.toJson<int?>(
+        $TransactionsTable.$converterspecialTypen.toJson(specialType),
+      ),
+      'isPaid': serializer.toJson<bool>(isPaid),
+      'originalDueDate': serializer.toJson<DateTime?>(originalDueDate),
+      'skipPaid': serializer.toJson<bool>(skipPaid),
       'serverId': serializer.toJson<String?>(serverId),
       'syncStatus': serializer.toJson<int>(syncStatus),
       'createdAt': serializer.toJson<DateTime>(createdAt),
@@ -4129,6 +4269,10 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     bool? isRecurring,
     Value<String?> recurrencePattern = const Value.absent(),
     Value<String?> receiptImageUrl = const Value.absent(),
+    Value<TransactionSpecialType?> specialType = const Value.absent(),
+    bool? isPaid,
+    Value<DateTime?> originalDueDate = const Value.absent(),
+    bool? skipPaid,
     Value<String?> serverId = const Value.absent(),
     int? syncStatus,
     DateTime? createdAt,
@@ -4164,6 +4308,12 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     receiptImageUrl: receiptImageUrl.present
         ? receiptImageUrl.value
         : this.receiptImageUrl,
+    specialType: specialType.present ? specialType.value : this.specialType,
+    isPaid: isPaid ?? this.isPaid,
+    originalDueDate: originalDueDate.present
+        ? originalDueDate.value
+        : this.originalDueDate,
+    skipPaid: skipPaid ?? this.skipPaid,
     serverId: serverId.present ? serverId.value : this.serverId,
     syncStatus: syncStatus ?? this.syncStatus,
     createdAt: createdAt ?? this.createdAt,
@@ -4207,6 +4357,14 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       receiptImageUrl: data.receiptImageUrl.present
           ? data.receiptImageUrl.value
           : this.receiptImageUrl,
+      specialType: data.specialType.present
+          ? data.specialType.value
+          : this.specialType,
+      isPaid: data.isPaid.present ? data.isPaid.value : this.isPaid,
+      originalDueDate: data.originalDueDate.present
+          ? data.originalDueDate.value
+          : this.originalDueDate,
+      skipPaid: data.skipPaid.present ? data.skipPaid.value : this.skipPaid,
       serverId: data.serverId.present ? data.serverId.value : this.serverId,
       syncStatus: data.syncStatus.present
           ? data.syncStatus.value
@@ -4237,6 +4395,10 @@ class Transaction extends DataClass implements Insertable<Transaction> {
           ..write('isRecurring: $isRecurring, ')
           ..write('recurrencePattern: $recurrencePattern, ')
           ..write('receiptImageUrl: $receiptImageUrl, ')
+          ..write('specialType: $specialType, ')
+          ..write('isPaid: $isPaid, ')
+          ..write('originalDueDate: $originalDueDate, ')
+          ..write('skipPaid: $skipPaid, ')
           ..write('serverId: $serverId, ')
           ..write('syncStatus: $syncStatus, ')
           ..write('createdAt: $createdAt, ')
@@ -4265,6 +4427,10 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     isRecurring,
     recurrencePattern,
     receiptImageUrl,
+    specialType,
+    isPaid,
+    originalDueDate,
+    skipPaid,
     serverId,
     syncStatus,
     createdAt,
@@ -4292,6 +4458,10 @@ class Transaction extends DataClass implements Insertable<Transaction> {
           other.isRecurring == this.isRecurring &&
           other.recurrencePattern == this.recurrencePattern &&
           other.receiptImageUrl == this.receiptImageUrl &&
+          other.specialType == this.specialType &&
+          other.isPaid == this.isPaid &&
+          other.originalDueDate == this.originalDueDate &&
+          other.skipPaid == this.skipPaid &&
           other.serverId == this.serverId &&
           other.syncStatus == this.syncStatus &&
           other.createdAt == this.createdAt &&
@@ -4317,6 +4487,10 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
   final Value<bool> isRecurring;
   final Value<String?> recurrencePattern;
   final Value<String?> receiptImageUrl;
+  final Value<TransactionSpecialType?> specialType;
+  final Value<bool> isPaid;
+  final Value<DateTime?> originalDueDate;
+  final Value<bool> skipPaid;
   final Value<String?> serverId;
   final Value<int> syncStatus;
   final Value<DateTime> createdAt;
@@ -4341,6 +4515,10 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     this.isRecurring = const Value.absent(),
     this.recurrencePattern = const Value.absent(),
     this.receiptImageUrl = const Value.absent(),
+    this.specialType = const Value.absent(),
+    this.isPaid = const Value.absent(),
+    this.originalDueDate = const Value.absent(),
+    this.skipPaid = const Value.absent(),
     this.serverId = const Value.absent(),
     this.syncStatus = const Value.absent(),
     this.createdAt = const Value.absent(),
@@ -4366,6 +4544,10 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     this.isRecurring = const Value.absent(),
     this.recurrencePattern = const Value.absent(),
     this.receiptImageUrl = const Value.absent(),
+    this.specialType = const Value.absent(),
+    this.isPaid = const Value.absent(),
+    this.originalDueDate = const Value.absent(),
+    this.skipPaid = const Value.absent(),
     this.serverId = const Value.absent(),
     this.syncStatus = const Value.absent(),
     this.createdAt = const Value.absent(),
@@ -4394,6 +4576,10 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     Expression<bool>? isRecurring,
     Expression<String>? recurrencePattern,
     Expression<String>? receiptImageUrl,
+    Expression<int>? specialType,
+    Expression<bool>? isPaid,
+    Expression<DateTime>? originalDueDate,
+    Expression<bool>? skipPaid,
     Expression<String>? serverId,
     Expression<int>? syncStatus,
     Expression<DateTime>? createdAt,
@@ -4420,6 +4606,10 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
       if (isRecurring != null) 'is_recurring': isRecurring,
       if (recurrencePattern != null) 'recurrence_pattern': recurrencePattern,
       if (receiptImageUrl != null) 'receipt_image_url': receiptImageUrl,
+      if (specialType != null) 'special_type': specialType,
+      if (isPaid != null) 'is_paid': isPaid,
+      if (originalDueDate != null) 'original_due_date': originalDueDate,
+      if (skipPaid != null) 'skip_paid': skipPaid,
       if (serverId != null) 'server_id': serverId,
       if (syncStatus != null) 'sync_status': syncStatus,
       if (createdAt != null) 'created_at': createdAt,
@@ -4447,6 +4637,10 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     Value<bool>? isRecurring,
     Value<String?>? recurrencePattern,
     Value<String?>? receiptImageUrl,
+    Value<TransactionSpecialType?>? specialType,
+    Value<bool>? isPaid,
+    Value<DateTime?>? originalDueDate,
+    Value<bool>? skipPaid,
     Value<String?>? serverId,
     Value<int>? syncStatus,
     Value<DateTime>? createdAt,
@@ -4472,6 +4666,10 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
       isRecurring: isRecurring ?? this.isRecurring,
       recurrencePattern: recurrencePattern ?? this.recurrencePattern,
       receiptImageUrl: receiptImageUrl ?? this.receiptImageUrl,
+      specialType: specialType ?? this.specialType,
+      isPaid: isPaid ?? this.isPaid,
+      originalDueDate: originalDueDate ?? this.originalDueDate,
+      skipPaid: skipPaid ?? this.skipPaid,
       serverId: serverId ?? this.serverId,
       syncStatus: syncStatus ?? this.syncStatus,
       createdAt: createdAt ?? this.createdAt,
@@ -4537,6 +4735,20 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     if (receiptImageUrl.present) {
       map['receipt_image_url'] = Variable<String>(receiptImageUrl.value);
     }
+    if (specialType.present) {
+      map['special_type'] = Variable<int>(
+        $TransactionsTable.$converterspecialTypen.toSql(specialType.value),
+      );
+    }
+    if (isPaid.present) {
+      map['is_paid'] = Variable<bool>(isPaid.value);
+    }
+    if (originalDueDate.present) {
+      map['original_due_date'] = Variable<DateTime>(originalDueDate.value);
+    }
+    if (skipPaid.present) {
+      map['skip_paid'] = Variable<bool>(skipPaid.value);
+    }
     if (serverId.present) {
       map['server_id'] = Variable<String>(serverId.value);
     }
@@ -4578,6 +4790,10 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
           ..write('isRecurring: $isRecurring, ')
           ..write('recurrencePattern: $recurrencePattern, ')
           ..write('receiptImageUrl: $receiptImageUrl, ')
+          ..write('specialType: $specialType, ')
+          ..write('isPaid: $isPaid, ')
+          ..write('originalDueDate: $originalDueDate, ')
+          ..write('skipPaid: $skipPaid, ')
           ..write('serverId: $serverId, ')
           ..write('syncStatus: $syncStatus, ')
           ..write('createdAt: $createdAt, ')
@@ -8717,6 +8933,688 @@ class SyncStatesCompanion extends UpdateCompanion<SyncState> {
   }
 }
 
+class $ExchangeRatesTable extends ExchangeRates
+    with TableInfo<$ExchangeRatesTable, ExchangeRate> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ExchangeRatesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'UNIQUE NOT NULL PRIMARY KEY',
+  );
+  static const VerificationMeta _fromCurrencyMeta = const VerificationMeta(
+    'fromCurrency',
+  );
+  @override
+  late final GeneratedColumn<String> fromCurrency = GeneratedColumn<String>(
+    'from_currency',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _toCurrencyMeta = const VerificationMeta(
+    'toCurrency',
+  );
+  @override
+  late final GeneratedColumn<String> toCurrency = GeneratedColumn<String>(
+    'to_currency',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _apiRateMeta = const VerificationMeta(
+    'apiRate',
+  );
+  @override
+  late final GeneratedColumn<double> apiRate = GeneratedColumn<double>(
+    'api_rate',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _customRateMeta = const VerificationMeta(
+    'customRate',
+  );
+  @override
+  late final GeneratedColumn<double> customRate = GeneratedColumn<double>(
+    'custom_rate',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _useCustomRateMeta = const VerificationMeta(
+    'useCustomRate',
+  );
+  @override
+  late final GeneratedColumn<bool> useCustomRate = GeneratedColumn<bool>(
+    'use_custom_rate',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("use_custom_rate" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _apiRateFetchedAtMeta = const VerificationMeta(
+    'apiRateFetchedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> apiRateFetchedAt =
+      GeneratedColumn<DateTime>(
+        'api_rate_fetched_at',
+        aliasedName,
+        true,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _serverIdMeta = const VerificationMeta(
+    'serverId',
+  );
+  @override
+  late final GeneratedColumn<String> serverId = GeneratedColumn<String>(
+    'server_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _syncStatusMeta = const VerificationMeta(
+    'syncStatus',
+  );
+  @override
+  late final GeneratedColumn<int> syncStatus = GeneratedColumn<int>(
+    'sync_status',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    fromCurrency,
+    toCurrency,
+    apiRate,
+    customRate,
+    useCustomRate,
+    apiRateFetchedAt,
+    serverId,
+    syncStatus,
+    createdAt,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'exchange_rates';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ExchangeRate> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('from_currency')) {
+      context.handle(
+        _fromCurrencyMeta,
+        fromCurrency.isAcceptableOrUnknown(
+          data['from_currency']!,
+          _fromCurrencyMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_fromCurrencyMeta);
+    }
+    if (data.containsKey('to_currency')) {
+      context.handle(
+        _toCurrencyMeta,
+        toCurrency.isAcceptableOrUnknown(data['to_currency']!, _toCurrencyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_toCurrencyMeta);
+    }
+    if (data.containsKey('api_rate')) {
+      context.handle(
+        _apiRateMeta,
+        apiRate.isAcceptableOrUnknown(data['api_rate']!, _apiRateMeta),
+      );
+    }
+    if (data.containsKey('custom_rate')) {
+      context.handle(
+        _customRateMeta,
+        customRate.isAcceptableOrUnknown(data['custom_rate']!, _customRateMeta),
+      );
+    }
+    if (data.containsKey('use_custom_rate')) {
+      context.handle(
+        _useCustomRateMeta,
+        useCustomRate.isAcceptableOrUnknown(
+          data['use_custom_rate']!,
+          _useCustomRateMeta,
+        ),
+      );
+    }
+    if (data.containsKey('api_rate_fetched_at')) {
+      context.handle(
+        _apiRateFetchedAtMeta,
+        apiRateFetchedAt.isAcceptableOrUnknown(
+          data['api_rate_fetched_at']!,
+          _apiRateFetchedAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('server_id')) {
+      context.handle(
+        _serverIdMeta,
+        serverId.isAcceptableOrUnknown(data['server_id']!, _serverIdMeta),
+      );
+    }
+    if (data.containsKey('sync_status')) {
+      context.handle(
+        _syncStatusMeta,
+        syncStatus.isAcceptableOrUnknown(data['sync_status']!, _syncStatusMeta),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ExchangeRate map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ExchangeRate(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      fromCurrency: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}from_currency'],
+      )!,
+      toCurrency: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}to_currency'],
+      )!,
+      apiRate: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}api_rate'],
+      ),
+      customRate: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}custom_rate'],
+      ),
+      useCustomRate: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}use_custom_rate'],
+      )!,
+      apiRateFetchedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}api_rate_fetched_at'],
+      ),
+      serverId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}server_id'],
+      ),
+      syncStatus: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sync_status'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $ExchangeRatesTable createAlias(String alias) {
+    return $ExchangeRatesTable(attachedDatabase, alias);
+  }
+}
+
+class ExchangeRate extends DataClass implements Insertable<ExchangeRate> {
+  final String id;
+  final String fromCurrency;
+  final String toCurrency;
+  final double? apiRate;
+  final double? customRate;
+  final bool useCustomRate;
+  final DateTime? apiRateFetchedAt;
+  final String? serverId;
+  final int syncStatus;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  const ExchangeRate({
+    required this.id,
+    required this.fromCurrency,
+    required this.toCurrency,
+    this.apiRate,
+    this.customRate,
+    required this.useCustomRate,
+    this.apiRateFetchedAt,
+    this.serverId,
+    required this.syncStatus,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['from_currency'] = Variable<String>(fromCurrency);
+    map['to_currency'] = Variable<String>(toCurrency);
+    if (!nullToAbsent || apiRate != null) {
+      map['api_rate'] = Variable<double>(apiRate);
+    }
+    if (!nullToAbsent || customRate != null) {
+      map['custom_rate'] = Variable<double>(customRate);
+    }
+    map['use_custom_rate'] = Variable<bool>(useCustomRate);
+    if (!nullToAbsent || apiRateFetchedAt != null) {
+      map['api_rate_fetched_at'] = Variable<DateTime>(apiRateFetchedAt);
+    }
+    if (!nullToAbsent || serverId != null) {
+      map['server_id'] = Variable<String>(serverId);
+    }
+    map['sync_status'] = Variable<int>(syncStatus);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  ExchangeRatesCompanion toCompanion(bool nullToAbsent) {
+    return ExchangeRatesCompanion(
+      id: Value(id),
+      fromCurrency: Value(fromCurrency),
+      toCurrency: Value(toCurrency),
+      apiRate: apiRate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(apiRate),
+      customRate: customRate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(customRate),
+      useCustomRate: Value(useCustomRate),
+      apiRateFetchedAt: apiRateFetchedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(apiRateFetchedAt),
+      serverId: serverId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(serverId),
+      syncStatus: Value(syncStatus),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory ExchangeRate.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ExchangeRate(
+      id: serializer.fromJson<String>(json['id']),
+      fromCurrency: serializer.fromJson<String>(json['fromCurrency']),
+      toCurrency: serializer.fromJson<String>(json['toCurrency']),
+      apiRate: serializer.fromJson<double?>(json['apiRate']),
+      customRate: serializer.fromJson<double?>(json['customRate']),
+      useCustomRate: serializer.fromJson<bool>(json['useCustomRate']),
+      apiRateFetchedAt: serializer.fromJson<DateTime?>(
+        json['apiRateFetchedAt'],
+      ),
+      serverId: serializer.fromJson<String?>(json['serverId']),
+      syncStatus: serializer.fromJson<int>(json['syncStatus']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'fromCurrency': serializer.toJson<String>(fromCurrency),
+      'toCurrency': serializer.toJson<String>(toCurrency),
+      'apiRate': serializer.toJson<double?>(apiRate),
+      'customRate': serializer.toJson<double?>(customRate),
+      'useCustomRate': serializer.toJson<bool>(useCustomRate),
+      'apiRateFetchedAt': serializer.toJson<DateTime?>(apiRateFetchedAt),
+      'serverId': serializer.toJson<String?>(serverId),
+      'syncStatus': serializer.toJson<int>(syncStatus),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  ExchangeRate copyWith({
+    String? id,
+    String? fromCurrency,
+    String? toCurrency,
+    Value<double?> apiRate = const Value.absent(),
+    Value<double?> customRate = const Value.absent(),
+    bool? useCustomRate,
+    Value<DateTime?> apiRateFetchedAt = const Value.absent(),
+    Value<String?> serverId = const Value.absent(),
+    int? syncStatus,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) => ExchangeRate(
+    id: id ?? this.id,
+    fromCurrency: fromCurrency ?? this.fromCurrency,
+    toCurrency: toCurrency ?? this.toCurrency,
+    apiRate: apiRate.present ? apiRate.value : this.apiRate,
+    customRate: customRate.present ? customRate.value : this.customRate,
+    useCustomRate: useCustomRate ?? this.useCustomRate,
+    apiRateFetchedAt: apiRateFetchedAt.present
+        ? apiRateFetchedAt.value
+        : this.apiRateFetchedAt,
+    serverId: serverId.present ? serverId.value : this.serverId,
+    syncStatus: syncStatus ?? this.syncStatus,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  ExchangeRate copyWithCompanion(ExchangeRatesCompanion data) {
+    return ExchangeRate(
+      id: data.id.present ? data.id.value : this.id,
+      fromCurrency: data.fromCurrency.present
+          ? data.fromCurrency.value
+          : this.fromCurrency,
+      toCurrency: data.toCurrency.present
+          ? data.toCurrency.value
+          : this.toCurrency,
+      apiRate: data.apiRate.present ? data.apiRate.value : this.apiRate,
+      customRate: data.customRate.present
+          ? data.customRate.value
+          : this.customRate,
+      useCustomRate: data.useCustomRate.present
+          ? data.useCustomRate.value
+          : this.useCustomRate,
+      apiRateFetchedAt: data.apiRateFetchedAt.present
+          ? data.apiRateFetchedAt.value
+          : this.apiRateFetchedAt,
+      serverId: data.serverId.present ? data.serverId.value : this.serverId,
+      syncStatus: data.syncStatus.present
+          ? data.syncStatus.value
+          : this.syncStatus,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ExchangeRate(')
+          ..write('id: $id, ')
+          ..write('fromCurrency: $fromCurrency, ')
+          ..write('toCurrency: $toCurrency, ')
+          ..write('apiRate: $apiRate, ')
+          ..write('customRate: $customRate, ')
+          ..write('useCustomRate: $useCustomRate, ')
+          ..write('apiRateFetchedAt: $apiRateFetchedAt, ')
+          ..write('serverId: $serverId, ')
+          ..write('syncStatus: $syncStatus, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    fromCurrency,
+    toCurrency,
+    apiRate,
+    customRate,
+    useCustomRate,
+    apiRateFetchedAt,
+    serverId,
+    syncStatus,
+    createdAt,
+    updatedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ExchangeRate &&
+          other.id == this.id &&
+          other.fromCurrency == this.fromCurrency &&
+          other.toCurrency == this.toCurrency &&
+          other.apiRate == this.apiRate &&
+          other.customRate == this.customRate &&
+          other.useCustomRate == this.useCustomRate &&
+          other.apiRateFetchedAt == this.apiRateFetchedAt &&
+          other.serverId == this.serverId &&
+          other.syncStatus == this.syncStatus &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class ExchangeRatesCompanion extends UpdateCompanion<ExchangeRate> {
+  final Value<String> id;
+  final Value<String> fromCurrency;
+  final Value<String> toCurrency;
+  final Value<double?> apiRate;
+  final Value<double?> customRate;
+  final Value<bool> useCustomRate;
+  final Value<DateTime?> apiRateFetchedAt;
+  final Value<String?> serverId;
+  final Value<int> syncStatus;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<int> rowid;
+  const ExchangeRatesCompanion({
+    this.id = const Value.absent(),
+    this.fromCurrency = const Value.absent(),
+    this.toCurrency = const Value.absent(),
+    this.apiRate = const Value.absent(),
+    this.customRate = const Value.absent(),
+    this.useCustomRate = const Value.absent(),
+    this.apiRateFetchedAt = const Value.absent(),
+    this.serverId = const Value.absent(),
+    this.syncStatus = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ExchangeRatesCompanion.insert({
+    required String id,
+    required String fromCurrency,
+    required String toCurrency,
+    this.apiRate = const Value.absent(),
+    this.customRate = const Value.absent(),
+    this.useCustomRate = const Value.absent(),
+    this.apiRateFetchedAt = const Value.absent(),
+    this.serverId = const Value.absent(),
+    this.syncStatus = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       fromCurrency = Value(fromCurrency),
+       toCurrency = Value(toCurrency);
+  static Insertable<ExchangeRate> custom({
+    Expression<String>? id,
+    Expression<String>? fromCurrency,
+    Expression<String>? toCurrency,
+    Expression<double>? apiRate,
+    Expression<double>? customRate,
+    Expression<bool>? useCustomRate,
+    Expression<DateTime>? apiRateFetchedAt,
+    Expression<String>? serverId,
+    Expression<int>? syncStatus,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (fromCurrency != null) 'from_currency': fromCurrency,
+      if (toCurrency != null) 'to_currency': toCurrency,
+      if (apiRate != null) 'api_rate': apiRate,
+      if (customRate != null) 'custom_rate': customRate,
+      if (useCustomRate != null) 'use_custom_rate': useCustomRate,
+      if (apiRateFetchedAt != null) 'api_rate_fetched_at': apiRateFetchedAt,
+      if (serverId != null) 'server_id': serverId,
+      if (syncStatus != null) 'sync_status': syncStatus,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ExchangeRatesCompanion copyWith({
+    Value<String>? id,
+    Value<String>? fromCurrency,
+    Value<String>? toCurrency,
+    Value<double?>? apiRate,
+    Value<double?>? customRate,
+    Value<bool>? useCustomRate,
+    Value<DateTime?>? apiRateFetchedAt,
+    Value<String?>? serverId,
+    Value<int>? syncStatus,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<int>? rowid,
+  }) {
+    return ExchangeRatesCompanion(
+      id: id ?? this.id,
+      fromCurrency: fromCurrency ?? this.fromCurrency,
+      toCurrency: toCurrency ?? this.toCurrency,
+      apiRate: apiRate ?? this.apiRate,
+      customRate: customRate ?? this.customRate,
+      useCustomRate: useCustomRate ?? this.useCustomRate,
+      apiRateFetchedAt: apiRateFetchedAt ?? this.apiRateFetchedAt,
+      serverId: serverId ?? this.serverId,
+      syncStatus: syncStatus ?? this.syncStatus,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (fromCurrency.present) {
+      map['from_currency'] = Variable<String>(fromCurrency.value);
+    }
+    if (toCurrency.present) {
+      map['to_currency'] = Variable<String>(toCurrency.value);
+    }
+    if (apiRate.present) {
+      map['api_rate'] = Variable<double>(apiRate.value);
+    }
+    if (customRate.present) {
+      map['custom_rate'] = Variable<double>(customRate.value);
+    }
+    if (useCustomRate.present) {
+      map['use_custom_rate'] = Variable<bool>(useCustomRate.value);
+    }
+    if (apiRateFetchedAt.present) {
+      map['api_rate_fetched_at'] = Variable<DateTime>(apiRateFetchedAt.value);
+    }
+    if (serverId.present) {
+      map['server_id'] = Variable<String>(serverId.value);
+    }
+    if (syncStatus.present) {
+      map['sync_status'] = Variable<int>(syncStatus.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ExchangeRatesCompanion(')
+          ..write('id: $id, ')
+          ..write('fromCurrency: $fromCurrency, ')
+          ..write('toCurrency: $toCurrency, ')
+          ..write('apiRate: $apiRate, ')
+          ..write('customRate: $customRate, ')
+          ..write('useCustomRate: $useCustomRate, ')
+          ..write('apiRateFetchedAt: $apiRateFetchedAt, ')
+          ..write('serverId: $serverId, ')
+          ..write('syncStatus: $syncStatus, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -8738,6 +9636,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     this,
   );
   late final $SyncStatesTable syncStates = $SyncStatesTable(this);
+  late final $ExchangeRatesTable exchangeRates = $ExchangeRatesTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -8756,6 +9655,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     objectiveTransactions,
     associatedTitles,
     syncStates,
+    exchangeRates,
   ];
 }
 
@@ -11014,6 +11914,10 @@ typedef $$TransactionsTableCreateCompanionBuilder =
       Value<bool> isRecurring,
       Value<String?> recurrencePattern,
       Value<String?> receiptImageUrl,
+      Value<TransactionSpecialType?> specialType,
+      Value<bool> isPaid,
+      Value<DateTime?> originalDueDate,
+      Value<bool> skipPaid,
       Value<String?> serverId,
       Value<int> syncStatus,
       Value<DateTime> createdAt,
@@ -11040,6 +11944,10 @@ typedef $$TransactionsTableUpdateCompanionBuilder =
       Value<bool> isRecurring,
       Value<String?> recurrencePattern,
       Value<String?> receiptImageUrl,
+      Value<TransactionSpecialType?> specialType,
+      Value<bool> isPaid,
+      Value<DateTime?> originalDueDate,
+      Value<bool> skipPaid,
       Value<String?> serverId,
       Value<int> syncStatus,
       Value<DateTime> createdAt,
@@ -11234,6 +12142,31 @@ class $$TransactionsTableFilterComposer
 
   ColumnFilters<String> get receiptImageUrl => $composableBuilder(
     column: $table.receiptImageUrl,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<
+    TransactionSpecialType?,
+    TransactionSpecialType,
+    int
+  >
+  get specialType => $composableBuilder(
+    column: $table.specialType,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<bool> get isPaid => $composableBuilder(
+    column: $table.isPaid,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get originalDueDate => $composableBuilder(
+    column: $table.originalDueDate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get skipPaid => $composableBuilder(
+    column: $table.skipPaid,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -11455,6 +12388,26 @@ class $$TransactionsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get specialType => $composableBuilder(
+    column: $table.specialType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isPaid => $composableBuilder(
+    column: $table.isPaid,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get originalDueDate => $composableBuilder(
+    column: $table.originalDueDate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get skipPaid => $composableBuilder(
+    column: $table.skipPaid,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get serverId => $composableBuilder(
     column: $table.serverId,
     builder: (column) => ColumnOrderings(column),
@@ -11632,6 +12585,23 @@ class $$TransactionsTableAnnotationComposer
     column: $table.receiptImageUrl,
     builder: (column) => column,
   );
+
+  GeneratedColumnWithTypeConverter<TransactionSpecialType?, int>
+  get specialType => $composableBuilder(
+    column: $table.specialType,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get isPaid =>
+      $composableBuilder(column: $table.isPaid, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get originalDueDate => $composableBuilder(
+    column: $table.originalDueDate,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get skipPaid =>
+      $composableBuilder(column: $table.skipPaid, builder: (column) => column);
 
   GeneratedColumn<String> get serverId =>
       $composableBuilder(column: $table.serverId, builder: (column) => column);
@@ -11820,6 +12790,11 @@ class $$TransactionsTableTableManager
                 Value<bool> isRecurring = const Value.absent(),
                 Value<String?> recurrencePattern = const Value.absent(),
                 Value<String?> receiptImageUrl = const Value.absent(),
+                Value<TransactionSpecialType?> specialType =
+                    const Value.absent(),
+                Value<bool> isPaid = const Value.absent(),
+                Value<DateTime?> originalDueDate = const Value.absent(),
+                Value<bool> skipPaid = const Value.absent(),
                 Value<String?> serverId = const Value.absent(),
                 Value<int> syncStatus = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
@@ -11844,6 +12819,10 @@ class $$TransactionsTableTableManager
                 isRecurring: isRecurring,
                 recurrencePattern: recurrencePattern,
                 receiptImageUrl: receiptImageUrl,
+                specialType: specialType,
+                isPaid: isPaid,
+                originalDueDate: originalDueDate,
+                skipPaid: skipPaid,
                 serverId: serverId,
                 syncStatus: syncStatus,
                 createdAt: createdAt,
@@ -11870,6 +12849,11 @@ class $$TransactionsTableTableManager
                 Value<bool> isRecurring = const Value.absent(),
                 Value<String?> recurrencePattern = const Value.absent(),
                 Value<String?> receiptImageUrl = const Value.absent(),
+                Value<TransactionSpecialType?> specialType =
+                    const Value.absent(),
+                Value<bool> isPaid = const Value.absent(),
+                Value<DateTime?> originalDueDate = const Value.absent(),
+                Value<bool> skipPaid = const Value.absent(),
                 Value<String?> serverId = const Value.absent(),
                 Value<int> syncStatus = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
@@ -11894,6 +12878,10 @@ class $$TransactionsTableTableManager
                 isRecurring: isRecurring,
                 recurrencePattern: recurrencePattern,
                 receiptImageUrl: receiptImageUrl,
+                specialType: specialType,
+                isPaid: isPaid,
+                originalDueDate: originalDueDate,
+                skipPaid: skipPaid,
                 serverId: serverId,
                 syncStatus: syncStatus,
                 createdAt: createdAt,
@@ -14642,6 +15630,332 @@ typedef $$SyncStatesTableProcessedTableManager =
       SyncState,
       PrefetchHooks Function()
     >;
+typedef $$ExchangeRatesTableCreateCompanionBuilder =
+    ExchangeRatesCompanion Function({
+      required String id,
+      required String fromCurrency,
+      required String toCurrency,
+      Value<double?> apiRate,
+      Value<double?> customRate,
+      Value<bool> useCustomRate,
+      Value<DateTime?> apiRateFetchedAt,
+      Value<String?> serverId,
+      Value<int> syncStatus,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<int> rowid,
+    });
+typedef $$ExchangeRatesTableUpdateCompanionBuilder =
+    ExchangeRatesCompanion Function({
+      Value<String> id,
+      Value<String> fromCurrency,
+      Value<String> toCurrency,
+      Value<double?> apiRate,
+      Value<double?> customRate,
+      Value<bool> useCustomRate,
+      Value<DateTime?> apiRateFetchedAt,
+      Value<String?> serverId,
+      Value<int> syncStatus,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<int> rowid,
+    });
+
+class $$ExchangeRatesTableFilterComposer
+    extends Composer<_$AppDatabase, $ExchangeRatesTable> {
+  $$ExchangeRatesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get fromCurrency => $composableBuilder(
+    column: $table.fromCurrency,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get toCurrency => $composableBuilder(
+    column: $table.toCurrency,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get apiRate => $composableBuilder(
+    column: $table.apiRate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get customRate => $composableBuilder(
+    column: $table.customRate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get useCustomRate => $composableBuilder(
+    column: $table.useCustomRate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get apiRateFetchedAt => $composableBuilder(
+    column: $table.apiRateFetchedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get serverId => $composableBuilder(
+    column: $table.serverId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get syncStatus => $composableBuilder(
+    column: $table.syncStatus,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$ExchangeRatesTableOrderingComposer
+    extends Composer<_$AppDatabase, $ExchangeRatesTable> {
+  $$ExchangeRatesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get fromCurrency => $composableBuilder(
+    column: $table.fromCurrency,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get toCurrency => $composableBuilder(
+    column: $table.toCurrency,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get apiRate => $composableBuilder(
+    column: $table.apiRate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get customRate => $composableBuilder(
+    column: $table.customRate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get useCustomRate => $composableBuilder(
+    column: $table.useCustomRate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get apiRateFetchedAt => $composableBuilder(
+    column: $table.apiRateFetchedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get serverId => $composableBuilder(
+    column: $table.serverId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get syncStatus => $composableBuilder(
+    column: $table.syncStatus,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$ExchangeRatesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ExchangeRatesTable> {
+  $$ExchangeRatesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get fromCurrency => $composableBuilder(
+    column: $table.fromCurrency,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get toCurrency => $composableBuilder(
+    column: $table.toCurrency,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get apiRate =>
+      $composableBuilder(column: $table.apiRate, builder: (column) => column);
+
+  GeneratedColumn<double> get customRate => $composableBuilder(
+    column: $table.customRate,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get useCustomRate => $composableBuilder(
+    column: $table.useCustomRate,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get apiRateFetchedAt => $composableBuilder(
+    column: $table.apiRateFetchedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get serverId =>
+      $composableBuilder(column: $table.serverId, builder: (column) => column);
+
+  GeneratedColumn<int> get syncStatus => $composableBuilder(
+    column: $table.syncStatus,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$ExchangeRatesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $ExchangeRatesTable,
+          ExchangeRate,
+          $$ExchangeRatesTableFilterComposer,
+          $$ExchangeRatesTableOrderingComposer,
+          $$ExchangeRatesTableAnnotationComposer,
+          $$ExchangeRatesTableCreateCompanionBuilder,
+          $$ExchangeRatesTableUpdateCompanionBuilder,
+          (
+            ExchangeRate,
+            BaseReferences<_$AppDatabase, $ExchangeRatesTable, ExchangeRate>,
+          ),
+          ExchangeRate,
+          PrefetchHooks Function()
+        > {
+  $$ExchangeRatesTableTableManager(_$AppDatabase db, $ExchangeRatesTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ExchangeRatesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ExchangeRatesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ExchangeRatesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> fromCurrency = const Value.absent(),
+                Value<String> toCurrency = const Value.absent(),
+                Value<double?> apiRate = const Value.absent(),
+                Value<double?> customRate = const Value.absent(),
+                Value<bool> useCustomRate = const Value.absent(),
+                Value<DateTime?> apiRateFetchedAt = const Value.absent(),
+                Value<String?> serverId = const Value.absent(),
+                Value<int> syncStatus = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ExchangeRatesCompanion(
+                id: id,
+                fromCurrency: fromCurrency,
+                toCurrency: toCurrency,
+                apiRate: apiRate,
+                customRate: customRate,
+                useCustomRate: useCustomRate,
+                apiRateFetchedAt: apiRateFetchedAt,
+                serverId: serverId,
+                syncStatus: syncStatus,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String fromCurrency,
+                required String toCurrency,
+                Value<double?> apiRate = const Value.absent(),
+                Value<double?> customRate = const Value.absent(),
+                Value<bool> useCustomRate = const Value.absent(),
+                Value<DateTime?> apiRateFetchedAt = const Value.absent(),
+                Value<String?> serverId = const Value.absent(),
+                Value<int> syncStatus = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ExchangeRatesCompanion.insert(
+                id: id,
+                fromCurrency: fromCurrency,
+                toCurrency: toCurrency,
+                apiRate: apiRate,
+                customRate: customRate,
+                useCustomRate: useCustomRate,
+                apiRateFetchedAt: apiRateFetchedAt,
+                serverId: serverId,
+                syncStatus: syncStatus,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$ExchangeRatesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $ExchangeRatesTable,
+      ExchangeRate,
+      $$ExchangeRatesTableFilterComposer,
+      $$ExchangeRatesTableOrderingComposer,
+      $$ExchangeRatesTableAnnotationComposer,
+      $$ExchangeRatesTableCreateCompanionBuilder,
+      $$ExchangeRatesTableUpdateCompanionBuilder,
+      (
+        ExchangeRate,
+        BaseReferences<_$AppDatabase, $ExchangeRatesTable, ExchangeRate>,
+      ),
+      ExchangeRate,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -14672,4 +15986,6 @@ class $AppDatabaseManager {
       $$AssociatedTitlesTableTableManager(_db, _db.associatedTitles);
   $$SyncStatesTableTableManager get syncStates =>
       $$SyncStatesTableTableManager(_db, _db.syncStates);
+  $$ExchangeRatesTableTableManager get exchangeRates =>
+      $$ExchangeRatesTableTableManager(_db, _db.exchangeRates);
 }
