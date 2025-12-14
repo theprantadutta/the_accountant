@@ -30,7 +30,12 @@ class ApiService {
   static const String apiV1 = '/api/v1';
 
   final Dio _dio = Dio();
-  final FlutterSecureStorage _storage = const FlutterSecureStorage();
+  // Use platform-specific secure storage options
+  final FlutterSecureStorage _storage = const FlutterSecureStorage(
+    aOptions: AndroidOptions(),
+    iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
+    wOptions: WindowsOptions(),
+  );
   final Logger _logger = Logger();
 
   /// Callback to be invoked when a 401 unauthorized response is received

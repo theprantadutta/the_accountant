@@ -1,7 +1,12 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class SecureTokenStorage {
-  static const _storage = FlutterSecureStorage();
+  // Use platform-specific secure storage options
+  static const _storage = FlutterSecureStorage(
+    aOptions: AndroidOptions(),
+    iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
+    wOptions: WindowsOptions(),
+  );
 
   // Keys for storing different types of tokens
   static const _accessTokenKey = 'access_token';
