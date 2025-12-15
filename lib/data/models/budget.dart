@@ -11,7 +11,7 @@ enum BudgetPeriod {
 /// Budgets table for spending limits tracking
 class Budgets extends Table {
   // Primary key - UUID string
-  TextColumn get id => text().customConstraint('UNIQUE NOT NULL PRIMARY KEY')();
+  TextColumn get id => text().customConstraint('UNIQUE NOT NULL')();
 
   // Budget details
   TextColumn get name => text()();

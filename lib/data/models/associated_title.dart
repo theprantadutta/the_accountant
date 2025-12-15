@@ -5,7 +5,7 @@ import 'package:the_accountant/data/models/category.dart';
 /// Maps transaction titles to categories for automatic suggestions
 class AssociatedTitles extends Table {
   // Primary key - UUID string
-  TextColumn get id => text().customConstraint('UNIQUE NOT NULL PRIMARY KEY')();
+  TextColumn get id => text().customConstraint('UNIQUE NOT NULL')();
 
   // The title pattern to match
   TextColumn get title => text()();

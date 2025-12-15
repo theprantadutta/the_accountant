@@ -135,6 +135,7 @@ class ApiService {
   Future<void> deleteToken() async {
     _logger.w('deleteToken called');
     await _storage.delete(key: 'auth_token');
+    await clearCachedUserInfo();
   }
 
   Future<bool> hasToken() async {
@@ -142,6 +143,76 @@ class ApiService {
     final has = token != null && token.isNotEmpty;
     _logger.d('hasToken: $has');
     return has;
+  }
+
+  // ============================================================================
+  // User Info Caching (for offline auth persistence)
+  // ============================================================================
+
+  /// Save user info to secure storage for offline access
+  Future<void> saveUserInfo(Map<String, dynamic> userInfo) async {
+    _logger.i('Saving user info to cache');
+    if (userInfo['id'] != null) {
+      await _storage.write(key: 'cached_user_id', value: userInfo['id']);
+    }
+    if (userInfo['email'] != null) {
+      await _storage.write(key: 'cached_user_email', value: userInfo['email']);
+    }
+    if (userInfo['display_name'] != null) {
+      await _storage.write(key: 'cached_display_name', value: userInfo['display_name']);
+    }
+    if (userInfo['photo_url'] != null) {
+      await _storage.write(key: 'cached_photo_url', value: userInfo['photo_url']);
+    }
+    if (userInfo['is_premium'] != null) {
+      await _storage.write(key: 'cached_is_premium', value: userInfo['is_premium'].toString());
+    }
+    if (userInfo['subscription_tier'] != null) {
+      await _storage.write(key: 'cached_subscription_tier', value: userInfo['subscription_tier']);
+    }
+    if (userInfo['onboarding_completed'] != null) {
+      await _storage.write(key: 'cached_onboarding_completed', value: userInfo['onboarding_completed'].toString());
+    }
+    _logger.i('User info cached successfully');
+  }
+
+  /// Get cached user info from secure storage
+  Future<Map<String, dynamic>?> getCachedUserInfo() async {
+    final userId = await _storage.read(key: 'cached_user_id');
+    if (userId == null) {
+      _logger.d('No cached user info found');
+      return null;
+    }
+
+    final email = await _storage.read(key: 'cached_user_email');
+    final displayName = await _storage.read(key: 'cached_display_name');
+    final photoUrl = await _storage.read(key: 'cached_photo_url');
+    final isPremiumStr = await _storage.read(key: 'cached_is_premium');
+    final subscriptionTier = await _storage.read(key: 'cached_subscription_tier');
+    final onboardingCompletedStr = await _storage.read(key: 'cached_onboarding_completed');
+
+    _logger.d('Loaded cached user info for: $email');
+    return {
+      'id': userId,
+      'email': email,
+      'display_name': displayName,
+      'photo_url': photoUrl,
+      'is_premium': isPremiumStr == 'true',
+      'subscription_tier': subscriptionTier ?? 'free',
+      'onboarding_completed': onboardingCompletedStr == 'true',
+    };
+  }
+
+  /// Clear cached user info
+  Future<void> clearCachedUserInfo() async {
+    _logger.i('Clearing cached user info');
+    await _storage.delete(key: 'cached_user_id');
+    await _storage.delete(key: 'cached_user_email');
+    await _storage.delete(key: 'cached_display_name');
+    await _storage.delete(key: 'cached_photo_url');
+    await _storage.delete(key: 'cached_is_premium');
+    await _storage.delete(key: 'cached_subscription_tier');
+    await _storage.delete(key: 'cached_onboarding_completed');
   }
 
   // ============================================================================

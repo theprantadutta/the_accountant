@@ -36,7 +36,7 @@ enum TransactionSpecialType {
 /// Transactions table for financial records
 class Transactions extends Table {
   // Primary key - UUID string
-  TextColumn get id => text().customConstraint('UNIQUE NOT NULL PRIMARY KEY')();
+  TextColumn get id => text().customConstraint('UNIQUE NOT NULL')();
 
   // Transaction details
   RealColumn get amount => real()();

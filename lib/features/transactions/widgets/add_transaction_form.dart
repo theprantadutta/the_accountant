@@ -582,13 +582,6 @@ class _AddTransactionFormWithPresetState
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _setPresetCategory();
     });
-    
-    // Also listen for category changes
-    ref.listen(categoryProvider, (previous, next) {
-      if (!next.isLoading && next.categories.isNotEmpty && _selectedCategoryId.isEmpty) {
-        _setPresetCategory();
-      }
-    });
   }
 
   void _setPresetCategory() {
@@ -743,6 +736,13 @@ class _AddTransactionFormWithPresetState
   Widget build(BuildContext context) {
     final transactionState = ref.watch(transactionProvider);
     final paymentMethodState = ref.watch(paymentMethodProvider);
+
+    // Listen for category changes to set preset category when loaded
+    ref.listen(categoryProvider, (previous, next) {
+      if (!next.isLoading && next.categories.isNotEmpty && _selectedCategoryId.isEmpty) {
+        _setPresetCategory();
+      }
+    });
 
     // Combine default payment methods with user-defined ones
     final allPaymentMethods = <String>{

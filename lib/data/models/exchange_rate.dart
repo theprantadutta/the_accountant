@@ -4,7 +4,7 @@ import 'package:drift/drift.dart';
 /// Supports both API-fetched rates and user-defined custom rates
 class ExchangeRates extends Table {
   // Primary key - UUID string
-  TextColumn get id => text().customConstraint('UNIQUE NOT NULL PRIMARY KEY')();
+  TextColumn get id => text().customConstraint('UNIQUE NOT NULL')();
 
   // Currency pair (ISO 4217 codes)
   TextColumn get fromCurrency => text()(); // e.g., "USD"

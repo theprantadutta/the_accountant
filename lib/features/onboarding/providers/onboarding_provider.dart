@@ -61,7 +61,24 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
       );
     } catch (e) {
       debugPrint('[OnboardingProvider] Error checking onboarding status: $e');
-      // If we can't check, assume onboarding not needed
+
+      // Try to get cached status when API fails
+      try {
+        final cachedInfo = await _apiService.getCachedUserInfo();
+        if (cachedInfo != null) {
+          final cachedOnboardingCompleted = cachedInfo['onboarding_completed'] ?? false;
+          debugPrint('[OnboardingProvider] Using cached onboarding status: $cachedOnboardingCompleted');
+          state = state.copyWith(
+            isLoading: false,
+            needsOnboarding: !cachedOnboardingCompleted,
+          );
+          return;
+        }
+      } catch (_) {
+        // Ignore cache errors
+      }
+
+      // If no cached status, assume onboarding not needed (for existing users)
       state = state.copyWith(
         isLoading: false,
         needsOnboarding: false,

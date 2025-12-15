@@ -41,15 +41,41 @@ class BackendAuthService extends ChangeNotifier {
       final hasToken = await _apiService.hasToken();
 
       if (hasToken) {
-        // Try to fetch current user
-        await refreshUserInfo();
+        // First, load cached user info for instant auth restoration
+        final cachedInfo = await _apiService.getCachedUserInfo();
+        if (cachedInfo != null) {
+          debugPrint('[BackendAuthService] Restoring auth from cached user info');
+          _userId = cachedInfo['id'];
+          _userEmail = cachedInfo['email'];
+          _displayName = cachedInfo['display_name'];
+          _photoUrl = cachedInfo['photo_url'];
+          _isPremium = cachedInfo['is_premium'] ?? false;
+          _subscriptionTier = cachedInfo['subscription_tier'] ?? 'free';
+          _isAuthenticated = true;
+          notifyListeners();
+        }
+
+        // Try to refresh from server in background (don't block or fail auth)
+        _refreshUserInfoInBackground();
       }
     } catch (e) {
       debugPrint('Auth initialization error: $e');
-      _isAuthenticated = false;
+      // Don't set _isAuthenticated = false here - keep cached state
     } finally {
       _isInitializing = false;
       notifyListeners();
+    }
+  }
+
+  /// Refresh user info in background without affecting auth state on failure
+  Future<void> _refreshUserInfoInBackground() async {
+    try {
+      debugPrint('[BackendAuthService] Refreshing user info in background...');
+      await refreshUserInfo();
+      debugPrint('[BackendAuthService] Background refresh successful');
+    } catch (e) {
+      // Don't logout on network errors - the 401 handler will handle invalid tokens
+      debugPrint('[BackendAuthService] Background refresh failed (keeping cached state): $e');
     }
   }
 
@@ -248,6 +274,9 @@ class BackendAuthService extends ChangeNotifier {
       if (userInfo['created_at'] != null) {
         _createdAt = DateTime.parse(userInfo['created_at']);
       }
+
+      // Cache user info for offline auth restoration
+      await _apiService.saveUserInfo(userInfo);
 
       debugPrint('[BackendAuthService] User info refreshed: email=$_userEmail, displayName=$_displayName');
 

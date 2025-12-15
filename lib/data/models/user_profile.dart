@@ -1,7 +1,7 @@
 import 'package:drift/drift.dart';
 
 class UserProfiles extends Table {
-  TextColumn get userId => text().customConstraint('NOT NULL PRIMARY KEY')();
+  TextColumn get userId => text().customConstraint('NOT NULL')();
   TextColumn get fullName => text().nullable()();
   TextColumn get email => text().customConstraint('UNIQUE NOT NULL')();
   TextColumn get phoneNumber => text().nullable()();

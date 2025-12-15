@@ -6,7 +6,7 @@ import 'package:the_accountant/data/models/transaction.dart';
 /// Many-to-many relationship: transactions can contribute to multiple objectives
 class ObjectiveTransactions extends Table {
   // Primary key - UUID string
-  TextColumn get id => text().customConstraint('UNIQUE NOT NULL PRIMARY KEY')();
+  TextColumn get id => text().customConstraint('UNIQUE NOT NULL')();
 
   // Foreign keys
   TextColumn get objectiveId => text().references(Objectives, #id)();

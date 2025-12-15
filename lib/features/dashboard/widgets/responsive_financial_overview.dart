@@ -16,6 +16,7 @@ import 'package:the_accountant/shared/widgets/glass_card.dart';
 import 'package:the_accountant/shared/widgets/stat_card.dart';
 import 'package:the_accountant/features/transactions/screens/upcoming_transactions_screen.dart';
 import 'package:the_accountant/features/credit_debt/screens/credit_debt_screen.dart';
+import 'package:the_accountant/features/dashboard/widgets/wallet_cards_section.dart';
 
 class ResponsiveFinancialOverview extends ConsumerStatefulWidget {
   const ResponsiveFinancialOverview({super.key});
@@ -27,10 +28,8 @@ class ResponsiveFinancialOverview extends ConsumerStatefulWidget {
 
 class _ResponsiveFinancialOverviewState
     extends ConsumerState<ResponsiveFinancialOverview>
-    with TickerProviderStateMixin {
+    with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
-  late AnimationController _balanceAnimationController;
-  late Animation<double> _balanceAnimation;
 
   @override
   void initState() {
@@ -41,24 +40,12 @@ class _ResponsiveFinancialOverviewState
       vsync: this,
     );
 
-    _balanceAnimationController = AnimationController(
-      duration: const Duration(milliseconds: 2000),
-      vsync: this,
-    );
-
-    _balanceAnimation = CurvedAnimation(
-      parent: _balanceAnimationController,
-      curve: AppAnimations.easeOut,
-    );
-
     _animationController.forward();
-    _balanceAnimationController.forward();
   }
 
   @override
   void dispose() {
     _animationController.dispose();
-    _balanceAnimationController.dispose();
     super.dispose();
   }
 
@@ -132,14 +119,11 @@ class _ResponsiveFinancialOverviewState
 
               AppSpacing.gapXxl,
 
-              // Balance Card
+              // Wallet Cards Section (horizontal scrollable accounts)
               _buildAnimatedSection(
                 0.1,
                 0.4,
-                _buildBalanceCard(
-                  financialData.totalBalance,
-                  financialData.monthlyGrowthPercentage,
-                ),
+                const WalletCardsSection(),
               ),
 
               AppSpacing.gapXl,
@@ -256,117 +240,6 @@ class _ResponsiveFinancialOverviewState
     if (hour < 12) return 'Morning';
     if (hour < 17) return 'Afternoon';
     return 'Evening';
-  }
-
-  Widget _buildBalanceCard(double balance, double growthPercentage) {
-    return AccentGlassCard(
-      child: Padding(
-        padding: AppSpacing.paddingXl,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Total Balance',
-                  style: AppTypography.labelMedium.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-                Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: AppSpacing.md,
-                    vertical: AppSpacing.xs,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppColors.glassWhite,
-                    borderRadius: AppSpacing.borderRadiusFull,
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.visibility_rounded,
-                        color: AppColors.textPrimary,
-                        size: AppSpacing.iconXs,
-                      ),
-                      AppSpacing.gapHXs,
-                      Text(
-                        'Show',
-                        style: AppTypography.labelSmall,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            AppSpacing.gapMd,
-            AnimatedBuilder(
-              animation: _balanceAnimation,
-              builder: (context, child) {
-                final animatedBalance = balance * _balanceAnimation.value;
-                return Text(
-                  '\$${NumberFormat('#,##0.00').format(animatedBalance)}',
-                  style: AppTypography.monoLarge.copyWith(
-                    fontSize: 40,
-                  ),
-                );
-              },
-            ),
-            AppSpacing.gapMd,
-            Row(
-              children: [
-                Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: AppSpacing.sm,
-                    vertical: AppSpacing.xs,
-                  ),
-                  decoration: BoxDecoration(
-                    color: (growthPercentage >= 0
-                            ? AppColors.success
-                            : AppColors.error)
-                        .withValues(alpha: 0.15),
-                    borderRadius: AppSpacing.borderRadiusSm,
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        growthPercentage >= 0
-                            ? Icons.trending_up_rounded
-                            : Icons.trending_down_rounded,
-                        color: growthPercentage >= 0
-                            ? AppColors.success
-                            : AppColors.error,
-                        size: AppSpacing.iconXs,
-                      ),
-                      AppSpacing.gapHXs,
-                      Text(
-                        '${growthPercentage >= 0 ? '+' : ''}${growthPercentage.toStringAsFixed(1)}%',
-                        style: AppTypography.labelSmall.copyWith(
-                          color: growthPercentage >= 0
-                              ? AppColors.success
-                              : AppColors.error,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                AppSpacing.gapHSm,
-                Text(
-                  'from last month',
-                  style: AppTypography.bodySmall.copyWith(
-                    color: AppColors.textMuted,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
   }
 
   Widget _buildQuickStats(double income, double expenses) {

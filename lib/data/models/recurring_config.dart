@@ -11,7 +11,7 @@ enum RecurrenceType {
 /// Recurring configurations table for scheduled transactions
 class RecurringConfigs extends Table {
   // Primary key - UUID string
-  TextColumn get id => text().customConstraint('UNIQUE NOT NULL PRIMARY KEY')();
+  TextColumn get id => text().customConstraint('UNIQUE NOT NULL')();
 
   // Reference to the base transaction that defines the template
   TextColumn get baseTransactionId => text()();

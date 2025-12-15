@@ -379,7 +379,7 @@ class $CategoriesTable extends Categories
     false,
     type: DriftSqlType.string,
     requiredDuringInsert: true,
-    $customConstraints: 'UNIQUE NOT NULL PRIMARY KEY',
+    $customConstraints: 'UNIQUE NOT NULL',
   );
   static const VerificationMeta _nameMeta = const VerificationMeta('name');
   @override
@@ -1176,7 +1176,7 @@ class $WalletsTable extends Wallets with TableInfo<$WalletsTable, Wallet> {
     false,
     type: DriftSqlType.string,
     requiredDuringInsert: true,
-    $customConstraints: 'UNIQUE NOT NULL PRIMARY KEY',
+    $customConstraints: 'UNIQUE NOT NULL',
   );
   static const VerificationMeta _nameMeta = const VerificationMeta('name');
   @override
@@ -1916,7 +1916,7 @@ class $PaymentMethodsTable extends PaymentMethods
     false,
     type: DriftSqlType.string,
     requiredDuringInsert: true,
-    $customConstraints: 'UNIQUE NOT NULL PRIMARY KEY',
+    $customConstraints: 'UNIQUE NOT NULL',
   );
   static const VerificationMeta _nameMeta = const VerificationMeta('name');
   @override
@@ -2626,7 +2626,7 @@ class $RecurringConfigsTable extends RecurringConfigs
     false,
     type: DriftSqlType.string,
     requiredDuringInsert: true,
-    $customConstraints: 'UNIQUE NOT NULL PRIMARY KEY',
+    $customConstraints: 'UNIQUE NOT NULL',
   );
   static const VerificationMeta _baseTransactionIdMeta = const VerificationMeta(
     'baseTransactionId',
@@ -3348,7 +3348,7 @@ class $TransactionsTable extends Transactions
     false,
     type: DriftSqlType.string,
     requiredDuringInsert: true,
-    $customConstraints: 'UNIQUE NOT NULL PRIMARY KEY',
+    $customConstraints: 'UNIQUE NOT NULL',
   );
   static const VerificationMeta _amountMeta = const VerificationMeta('amount');
   @override
@@ -4818,7 +4818,7 @@ class $BudgetsTable extends Budgets with TableInfo<$BudgetsTable, Budget> {
     false,
     type: DriftSqlType.string,
     requiredDuringInsert: true,
-    $customConstraints: 'UNIQUE NOT NULL PRIMARY KEY',
+    $customConstraints: 'UNIQUE NOT NULL',
   );
   static const VerificationMeta _nameMeta = const VerificationMeta('name');
   @override
@@ -5809,7 +5809,7 @@ class $SettingsTable extends Settings with TableInfo<$SettingsTable, Setting> {
     false,
     type: DriftSqlType.int,
     requiredDuringInsert: false,
-    $customConstraints: 'NOT NULL PRIMARY KEY DEFAULT 1',
+    $customConstraints: 'NOT NULL DEFAULT 1',
     defaultValue: const CustomExpression('1'),
   );
   static const VerificationMeta _themeModeMeta = const VerificationMeta(
@@ -6247,7 +6247,7 @@ class $UserProfilesTable extends UserProfiles
     false,
     type: DriftSqlType.string,
     requiredDuringInsert: true,
-    $customConstraints: 'NOT NULL PRIMARY KEY',
+    $customConstraints: 'NOT NULL',
   );
   static const VerificationMeta _fullNameMeta = const VerificationMeta(
     'fullName',
@@ -6778,7 +6778,7 @@ class $ObjectivesTable extends Objectives
     false,
     type: DriftSqlType.string,
     requiredDuringInsert: true,
-    $customConstraints: 'UNIQUE NOT NULL PRIMARY KEY',
+    $customConstraints: 'UNIQUE NOT NULL',
   );
   static const VerificationMeta _nameMeta = const VerificationMeta('name');
   @override
@@ -7675,7 +7675,7 @@ class $ObjectiveTransactionsTable extends ObjectiveTransactions
     false,
     type: DriftSqlType.string,
     requiredDuringInsert: true,
-    $customConstraints: 'UNIQUE NOT NULL PRIMARY KEY',
+    $customConstraints: 'UNIQUE NOT NULL',
   );
   static const VerificationMeta _objectiveIdMeta = const VerificationMeta(
     'objectiveId',
@@ -8007,7 +8007,7 @@ class $AssociatedTitlesTable extends AssociatedTitles
     false,
     type: DriftSqlType.string,
     requiredDuringInsert: true,
-    $customConstraints: 'UNIQUE NOT NULL PRIMARY KEY',
+    $customConstraints: 'UNIQUE NOT NULL',
   );
   static const VerificationMeta _titleMeta = const VerificationMeta('title');
   @override
@@ -8947,7 +8947,7 @@ class $ExchangeRatesTable extends ExchangeRates
     false,
     type: DriftSqlType.string,
     requiredDuringInsert: true,
-    $customConstraints: 'UNIQUE NOT NULL PRIMARY KEY',
+    $customConstraints: 'UNIQUE NOT NULL',
   );
   static const VerificationMeta _fromCurrencyMeta = const VerificationMeta(
     'fromCurrency',

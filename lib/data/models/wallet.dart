@@ -3,7 +3,7 @@ import 'package:drift/drift.dart';
 /// Wallets table for managing multiple accounts/wallets
 class Wallets extends Table {
   // Primary key - UUID string
-  TextColumn get id => text().customConstraint('UNIQUE NOT NULL PRIMARY KEY')();
+  TextColumn get id => text().customConstraint('UNIQUE NOT NULL')();
 
   // Wallet details
   TextColumn get name => text()();

@@ -3,7 +3,7 @@ import 'package:drift/drift.dart';
 /// Payment methods table for tracking payment sources
 class PaymentMethods extends Table {
   // Primary key - UUID string
-  TextColumn get id => text().customConstraint('UNIQUE NOT NULL PRIMARY KEY')();
+  TextColumn get id => text().customConstraint('UNIQUE NOT NULL')();
 
   // Payment method details
   TextColumn get name => text()();

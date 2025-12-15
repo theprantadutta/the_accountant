@@ -10,7 +10,7 @@ enum ObjectiveType {
 /// Objectives table for goals and savings tracking
 class Objectives extends Table {
   // Primary key - UUID string
-  TextColumn get id => text().customConstraint('UNIQUE NOT NULL PRIMARY KEY')();
+  TextColumn get id => text().customConstraint('UNIQUE NOT NULL')();
 
   // Objective details
   TextColumn get name => text()();

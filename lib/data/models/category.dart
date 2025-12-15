@@ -4,7 +4,7 @@ import 'package:drift/drift.dart';
 /// Supports subcategories via mainCategoryId self-reference
 class Categories extends Table {
   // Primary key - UUID string
-  TextColumn get id => text().customConstraint('UNIQUE NOT NULL PRIMARY KEY')();
+  TextColumn get id => text().customConstraint('UNIQUE NOT NULL')();
 
   // Category details
   TextColumn get name => text()();
