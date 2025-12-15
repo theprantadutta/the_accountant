@@ -1,124 +1,127 @@
-# 💰 The Accountant
+# The Accountant
 
-A beautiful, modern personal finance management application built with Flutter. Features a stunning glassmorphic design, smooth animations, and comprehensive financial tracking capabilities.
+A modern, privacy-focused personal finance management app built with Flutter. Features a beautiful dark theme UI, local-first data storage, and optional cloud sync.
 
-## ✨ Features
+## Features
 
-### 🎨 **Modern UI/UX Design**
-- **Glassmorphic Design**: Beautiful frosted glass effects throughout the app
-- **Gradient Theming**: Custom gradient system with primary and secondary color schemes
-- **Smooth Animations**: Staggered animations, slide transitions, and micro-interactions
-- **Responsive Layout**: Optimized for all screen sizes and orientations
+### Core Features
+- **Transaction Management** - Track income and expenses with categories, notes, and payment methods
+- **Multi-Wallet Support** - Manage multiple accounts (personal, savings, business, etc.)
+- **Multi-Currency** - Support for 40+ currencies with exchange rate conversion
+- **Budget Tracking** - Set weekly/monthly budgets with progress notifications
+- **Recurring Transactions** - Automate regular income and expenses
+- **Credit & Debt Tracking** - Keep track of money you owe or are owed
+- **Financial Reports** - Comprehensive analytics with interactive charts
 
-### 📱 **Core Functionality**
-- **Smart Dashboard**: Interactive financial overview with animated balance cards
-- **Advanced Reports**: Comprehensive analytics with interactive charts and visualizations
-- **AI Assistant**: Intelligent chat interface with financial insights and recommendations
-- **User Profile**: Complete profile management with premium status and settings
-- **Custom Navigation**: Floating glassmorphic bottom navigation with center AI button
+### Premium Features
+- **AI-Powered Receipt Scanning** - Extract transaction details from receipts using OCR
+- **Smart Insights** - AI-generated spending analysis and recommendations
+- **Financial Chat Assistant** - Ask questions about your finances
 
-### 📊 **Financial Features**
-- Real-time balance tracking with animated counters
-- Income and expense categorization
-- Budget progress monitoring with visual indicators
-- Interactive spending charts (line charts, pie charts)
-- Transaction history with smart filtering
-- Category breakdown and analysis
-- Budget vs actual comparisons
+### Design
+- **Dark Theme** - Modern glassmorphic design with neon accents
+- **Smooth Animations** - Staggered animations and micro-interactions
+- **Responsive Layout** - Optimized for all screen sizes
 
-### 🤖 **AI Integration**
-- Intelligent financial assistant
-- Personalized spending insights
-- Budget recommendations
-- Interactive chat interface with typing indicators
-- Quick action buttons for common queries
+### Privacy & Security
+- **Local-First Storage** - All data stored locally using Drift (SQLite)
+- **Secure Authentication** - Firebase Auth with Google Sign-In support
+- **Optional Cloud Sync** - Sync across devices only if you choose to
 
-## 🏗️ **Architecture**
+## Tech Stack
 
-### **Design Patterns**
-- **Riverpod**: State management with provider pattern
-- **Feature-Based Structure**: Clean, scalable architecture
-- **Local-First**: Drift database for offline-first functionality
-- **Responsive Design**: Adaptive layouts for different screen sizes
+- **Framework**: Flutter 3.x
+- **State Management**: Riverpod
+- **Local Database**: Drift (SQLite)
+- **Authentication**: Firebase Auth
+- **Charts**: fl_chart
+- **AI Features**: Google ML Kit (OCR), Gemini API
 
-### **Key Technologies**
-- **Flutter**: Cross-platform mobile development
-- **Drift**: Local SQLite database with type-safe queries
-- **fl_chart**: Beautiful, interactive charts and graphs
-- **Riverpod**: Modern state management solution
-- **Firebase**: Authentication and cloud services
-- **Material 3**: Modern design system implementation
+## Getting Started
 
-## 📁 **Project Structure**
-
-```
-lib/
-├── app/                    # App configuration and routing
-├── core/
-│   ├── themes/            # App theme and styling
-│   └── utils/             # Utility functions and helpers
-├── features/
-│   ├── ai_assistant/      # AI chat interface and logic
-│   ├── authentication/   # User authentication and profiles
-│   ├── dashboard/        # Main dashboard and widgets
-│   ├── onboarding/       # App introduction and setup
-│   ├── reports/          # Analytics and reporting
-│   └── settings/         # App settings and preferences
-├── shared/
-│   └── widgets/          # Reusable UI components
-└── main.dart             # App entry point
-```
-
-## 🚀 **Getting Started**
-
-### **Prerequisites**
-- Flutter SDK (3.9.0 or higher)
-- Dart SDK
+### Prerequisites
+- Flutter SDK 3.0+
+- Dart SDK 3.0+
 - Android Studio / VS Code
-- Git
+- Firebase project (for authentication)
 
-### **Installation**
+### Installation
 
-1. **Clone the repository**
+1. Clone the repository
 ```bash
 git clone https://github.com/yourusername/the_accountant.git
 cd the_accountant
 ```
 
-2. **Install dependencies**
+2. Install dependencies
 ```bash
 flutter pub get
 ```
 
-3. **Run code generation**
+3. Set up environment variables
 ```bash
-flutter packages pub run build_runner build
+cp .env.example .env
+# Edit .env with your configuration
 ```
 
-4. **Run the app**
+4. Run code generation
+```bash
+dart run build_runner build --delete-conflicting-outputs
+```
+
+5. Run the app
 ```bash
 flutter run
 ```
 
-### **Development Commands**
+## Project Structure
 
+```
+lib/
+├── app/                     # App configuration and routing
+├── core/                    # Core utilities and services
+│   ├── constants/          # App constants
+│   ├── providers/          # Global providers
+│   ├── services/           # Core services (API, auth, etc.)
+│   ├── themes/             # App theming (colors, typography, spacing)
+│   └── utils/              # Utility functions
+├── data/                   # Data layer
+│   ├── datasources/        # Local database (Drift)
+│   ├── models/             # Data models (Drift tables)
+│   └── repositories/       # Data repositories
+├── features/               # Feature modules
+│   ├── authentication/     # Login, signup, account linking
+│   ├── dashboard/          # Home screen and overview
+│   ├── transactions/       # Transaction management
+│   ├── wallets/            # Wallet/account management
+│   ├── budgets/            # Budget tracking
+│   ├── categories/         # Category management
+│   ├── credit_debt/        # Credit and debt tracking
+│   ├── objectives/         # Savings goals
+│   ├── reports/            # Financial reports and analytics
+│   ├── onboarding/         # First-time user setup
+│   └── settings/           # App settings
+└── shared/                 # Shared components
+    ├── models/
+    ├── services/
+    └── widgets/            # Reusable UI components
+```
+
+## Development
+
+### Code Generation
+After modifying Riverpod providers or Drift models:
 ```bash
-# Install dependencies
-flutter pub get
+dart run build_runner build --delete-conflicting-outputs
+```
 
-# Run code generation
-flutter packages pub run build_runner build
+For continuous generation during development:
+```bash
+dart run build_runner watch --delete-conflicting-outputs
+```
 
-# Run in debug mode
-flutter run
-
-# Run tests
-flutter test
-
-# Build for production
-flutter build apk --release
-flutter build ios --release
-
+### Code Quality
+```bash
 # Analyze code
 flutter analyze
 
@@ -126,127 +129,46 @@ flutter analyze
 dart format lib/
 ```
 
-## 📱 **Screens Overview**
-
-### 🏠 **Dashboard**
-- Animated balance cards with counter animations
-- Quick action buttons with glassmorphic design
-- Income/expense overview with progress indicators
-- Interactive spending charts using fl_chart
-- Recent transactions with smart categorization
-- Budget progress visualization
-
-### 📊 **Reports**
-- Time frame selectors (Week, Month, Year)
-- Interactive line and pie charts
-- Financial summary cards with trend indicators
-- Category breakdown with visual progress bars
-- Budget vs actual comparison charts
-- Export functionality for data analysis
-
-### 🤖 **AI Assistant**
-- Modern chat interface with message bubbles
-- Typing indicators and smooth animations
-- Quick action buttons for common queries
-- Personalized financial insights and recommendations
-- Context-aware responses based on user data
-- Settings for AI personality and preferences
-
-### 👤 **Profile**
-- User information management
-- Account statistics and achievements
-- Premium membership status
-- App settings and preferences
-- Data export and privacy controls
-- Elegant sign-out dialog with confirmation
-
-## 🎨 **Design System**
-
-### **Color Palette**
-- **Primary Gradient**: `#667eea` → `#764ba2`
-- **Secondary Gradient**: `#11998e` → `#38ef7d`
-- **Background Gradient**: `#1e3c72` → `#2a5298`
-- **Accent Colors**: Carefully selected for optimal contrast and accessibility
-
-### **Typography**
-- Modern, readable font system
-- Consistent font weights and sizes
-- Optimized for mobile readability
-
-### **Components**
-- **Glassmorphic Containers**: Frosted glass effect with backdrop blur
-- **Gradient Buttons**: Beautiful gradient backgrounds with smooth transitions
-- **Interactive Charts**: Responsive and animated data visualizations
-- **Custom Navigation**: Floating bottom navigation with center AI button
-
-## 🛠️ **Development**
-
-### **Code Generation**
-The app uses code generation for:
-- Riverpod providers
-- Drift database models
-- JSON serialization
-
-Run generation with:
+### Running Tests
 ```bash
-flutter packages pub run build_runner build --delete-conflicting-outputs
+flutter test
 ```
 
-### **State Management**
-Uses Riverpod for:
-- Global app state
-- User authentication state
-- Transaction data management
-- Settings and preferences
+### Building for Production
 
-### **Database**
-Drift (SQLite) for:
-- Local transaction storage
-- User preferences
-- Offline-first functionality
-- Type-safe database queries
+**Android:**
+```bash
+flutter build apk --release
+# or for Play Store
+flutter build appbundle --release
+```
 
-## 📋 **Development Guidelines**
+**iOS:**
+```bash
+flutter build ios --release
+```
 
-- Follow Flutter and Dart style guidelines
-- Use conventional commits for version control
-- Implement responsive design patterns
-- Ensure accessibility compliance
-- Write comprehensive tests
-- Document complex business logic
-- Use meaningful variable and function names
+**Windows:**
+```bash
+flutter build windows --release
+```
 
-## 🔄 **Recent Updates**
+## Configuration
 
-### **v2.0.0 - Complete UI/UX Overhaul**
-- Implemented glassmorphic design system
-- Added smooth animations and transitions
-- Created comprehensive dashboard with real-time data
-- Built interactive reports with advanced charts
-- Designed modern AI assistant chat interface
-- Enhanced user profile with premium features
-- Added floating bottom navigation
-- Integrated haptic feedback throughout
+The app uses environment variables for configuration. See `.env.example` for required variables:
 
-## 🤝 **Contributing**
+- `API_BASE_URL_DEV` - Development backend URL
+- `API_BASE_URL_PROD` - Production backend URL
+- `GEMINI_API_KEY` - Google Gemini API key (for AI features)
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'feat: add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+## Backend
 
-## 📄 **License**
+This app connects to a FastAPI backend for cloud sync and authentication. See the [backend repository](../the_accountant_backend) for setup instructions.
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+## License
 
-## 💡 **Support**
+This project is proprietary software. All rights reserved.
 
-If you have any questions or need help with setup, please:
-- Check the [CLAUDE.md](CLAUDE.md) file for development commands
-- Open an issue on GitHub
-- Review the Flutter documentation
+## Support
 
----
-
-**Built with ❤️ using Flutter and modern design principles**
+For issues and feature requests, please use the GitHub issue tracker.
