@@ -204,7 +204,7 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar>
                           duration: AppAnimations.fast,
                           child: Icon(
                             isSelected ? item.activeIcon : item.icon,
-                            key: ValueKey('nav_$index\_$isSelected'),
+                            key: ValueKey('nav_icon_${index}_${isSelected ? 'active' : 'inactive'}'),
                             color: isSelected
                                 ? AppColors.primaryAccent
                                 : AppColors.textMuted,
@@ -309,7 +309,7 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar>
                 duration: AppAnimations.fast,
                 child: Icon(
                   isSelected ? item.activeIcon : item.icon,
-                  key: ValueKey('center_$index\_$isSelected'),
+                  key: ValueKey('center_icon_${index}_${isSelected ? 'active' : 'inactive'}'),
                   color: AppColors.textPrimary,
                   size: AppSpacing.iconMd,
                 ),
