@@ -67,4 +67,4 @@ firebase.json
 # Ignore Generated Files
 lib/generated/
 
-.qoder/
+.qoder/.claude/
