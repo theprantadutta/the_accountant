@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
+import 'package:the_accountant/core/services/wallet_balance_service.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
-import 'package:the_accountant/features/transactions/providers/transaction_provider.dart';
 import 'package:drift/drift.dart' show Value;
 import 'package:uuid/uuid.dart';
 
@@ -36,20 +36,24 @@ class WalletState {
 
 class WalletNotifier extends StateNotifier<WalletState> {
   final AppDatabase _database;
-  final Ref _ref;
+  final WalletBalanceService _balanceService;
 
-  WalletNotifier(this._database, this._ref) : super(WalletState(wallets: [])) {
+  WalletNotifier(this._database)
+      : _balanceService = WalletBalanceService(_database),
+        super(WalletState(wallets: [])) {
     loadWallets();
   }
+
+  /// Get the WalletBalanceService for external use
+  WalletBalanceService get balanceService => _balanceService;
 
   Future<void> loadWallets() async {
     state = state.copyWith(isLoading: true);
     try {
       final wallets = await _database.getAllWallets();
 
-      // Calculate wallet balances
-      final transactionNotifier = _ref.read(transactionProvider.notifier);
-      final walletBalances = transactionNotifier.getAllWalletBalances();
+      // Get wallet balances from stored values (kept in sync by balance service)
+      final walletBalances = await _balanceService.getAllWalletBalances();
 
       state = state.copyWith(
         wallets: wallets,
@@ -59,6 +63,35 @@ class WalletNotifier extends StateNotifier<WalletState> {
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
     }
+  }
+
+  /// Get the default wallet, or the first wallet if none is set as default
+  Wallet? getDefaultWallet() {
+    if (state.wallets.isEmpty) return null;
+
+    // First try to find a wallet marked as default
+    try {
+      return state.wallets.firstWhere((w) => w.isDefault == true);
+    } catch (_) {
+      // If no default, return the first wallet
+      return state.wallets.first;
+    }
+  }
+
+  /// Get the default wallet ID
+  String? getDefaultWalletId() {
+    return getDefaultWallet()?.id;
+  }
+
+  /// Set a wallet as the default
+  Future<void> setDefaultWallet(String walletId) async {
+    await _clearOtherDefaults(walletId);
+    await _database.updateWallet(WalletsCompanion(
+      id: Value(walletId),
+      isDefault: const Value(true),
+      updatedAt: Value(DateTime.now()),
+    ));
+    await loadWallets();
   }
 
   Future<void> addWallet({
@@ -180,5 +213,11 @@ final walletProvider = StateNotifierProvider<WalletNotifier, WalletState>((
   ref,
 ) {
   final database = ref.watch(databaseProvider);
-  return WalletNotifier(database, ref);
+  return WalletNotifier(database);
+});
+
+/// Provider for the WalletBalanceService
+final walletBalanceServiceProvider = Provider<WalletBalanceService>((ref) {
+  final database = ref.watch(databaseProvider);
+  return WalletBalanceService(database);
 });
