@@ -602,12 +602,8 @@ class _AddTransactionFormWithPresetState
         .toList();
 
     if (availableCategories.isEmpty) {
-      print('DEBUG: No categories available for type: $_selectedType');
       return; // No categories available, exit early
     }
-
-    print('DEBUG: Available categories: ${availableCategories.map((c) => c.name).toList()}');
-    print('DEBUG: Looking for preset category: ${widget.presetCategoryName}');
 
     // Try to find a category that matches the preset name
     Category? matchingCategory;
@@ -632,12 +628,10 @@ class _AddTransactionFormWithPresetState
       } catch (e) {
         // No match found, use the first available category
         matchingCategory = availableCategories.first;
-        print('DEBUG: No match found, using first category: ${matchingCategory.name}');
       }
     }
 
     if (matchingCategory != null) {
-      print('DEBUG: Selected category: ${matchingCategory.name} (${matchingCategory.id})');
       setState(() {
         _selectedCategory = matchingCategory!.name;
         _selectedCategoryId = matchingCategory!.id;
@@ -852,12 +846,6 @@ class _AddTransactionFormWithPresetState
                   final availableCategories = categoryState.categories
                       .where((cat) => cat.type == _selectedType)
                       .toList();
-
-                  // Debug output
-                  print('DEBUG UI: Transaction type: $_selectedType');
-                  print('DEBUG UI: Available categories: ${availableCategories.map((c) => c.name).toList()}');
-                  print('DEBUG UI: Selected category: $_selectedCategory ($_selectedCategoryId)');
-                  print('DEBUG UI: Category state loading: ${categoryState.isLoading}');
 
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
