@@ -44,15 +44,17 @@ class Transactions extends Table {
   TextColumn get notes => text().nullable()();
   DateTimeColumn get date => dateTime()();
 
-  // Transaction type - income or expense
+  // Transaction type - income or expense (PRIMARY FIELD)
+  // Use this field to determine if transaction is income or expense
   BoolColumn get isIncome => boolean().withDefault(const Constant(false))();
 
-  // Legacy type field (kept for backward compatibility)
-  TextColumn get type => text().withDefault(const Constant('regular'))(); // 'expense', 'income', 'regular'
+  // @deprecated - Use isIncome instead. Kept for backward compatibility.
+  // Will be removed in future version. Do not use in new code.
+  TextColumn get type => text().withDefault(const Constant('regular'))();
 
-  // Transaction type for special cases
+  // Transaction processing type (regular, transfer, recurring_instance)
   TextColumn get transactionType =>
-      text().withDefault(const Constant('regular'))(); // regular, transfer, recurring_instance
+      text().withDefault(const Constant('regular'))();
 
   // Foreign keys
   TextColumn get categoryId => text().nullable().references(Categories, #id)();
@@ -60,7 +62,7 @@ class Transactions extends Table {
   TextColumn get paymentMethodId =>
       text().nullable().references(PaymentMethods, #id)();
 
-  // Legacy payment method field
+  // @deprecated - Use paymentMethodId instead. Kept for backward compatibility.
   TextColumn get paymentMethod => text().nullable()();
 
   // For transfers - paired transaction
@@ -70,8 +72,9 @@ class Transactions extends Table {
   TextColumn get recurringConfigId =>
       text().nullable().references(RecurringConfigs, #id)();
 
-  // Legacy recurrence fields
+  // @deprecated - Use RecurringConfigs table instead. Kept for backward compatibility.
   BoolColumn get isRecurring => boolean().withDefault(const Constant(false))();
+  // @deprecated - Use RecurringConfigs table instead. Kept for backward compatibility.
   TextColumn get recurrencePattern => text().nullable()();
 
   // Receipt image

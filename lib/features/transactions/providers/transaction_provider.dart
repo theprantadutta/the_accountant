@@ -10,13 +10,46 @@ import 'package:the_accountant/features/ai/services/category_assignment_service.
 import 'package:the_accountant/features/settings/providers/settings_provider.dart';
 import 'package:uuid/uuid.dart';
 
+/// ViewModel class for displaying transactions in UI
+/// Uses isIncome boolean instead of deprecated type string
+class TransactionViewModel {
+  final String id;
+  final double amount;
+  final bool isIncome;
+  final String title;
+  final String category;
+  final String categoryId;
+  final String walletId;
+  final DateTime date;
+  final String notes;
+  final String? paymentMethodId;
+
+  TransactionViewModel({
+    required this.id,
+    required this.amount,
+    required this.isIncome,
+    required this.title,
+    required this.category,
+    required this.categoryId,
+    required this.walletId,
+    required this.date,
+    required this.notes,
+    this.paymentMethodId,
+  });
+
+  /// Helper to get display type string for UI
+  String get displayType => isIncome ? 'income' : 'expense';
+}
+
+/// @deprecated - Use TransactionViewModel instead
+/// Kept for backward compatibility with existing code
 class Transaction {
   final String id;
   final double amount;
   final String type;
   final String category;
   final String categoryId;
-  final String walletId; // Add walletId field
+  final String walletId;
   final DateTime date;
   final String notes;
   final String paymentMethod;
@@ -29,13 +62,27 @@ class Transaction {
     required this.type,
     required this.category,
     required this.categoryId,
-    required this.walletId, // Add walletId parameter
+    required this.walletId,
     required this.date,
     required this.notes,
     required this.paymentMethod,
     this.isRecurring = false,
     this.recurrencePattern,
   });
+
+  /// Convert to new TransactionViewModel
+  TransactionViewModel toViewModel() => TransactionViewModel(
+        id: id,
+        amount: amount,
+        isIncome: type == 'income',
+        title: '',
+        category: category,
+        categoryId: categoryId,
+        walletId: walletId,
+        date: date,
+        notes: notes,
+        paymentMethodId: null,
+      );
 }
 
 class TransactionState {
@@ -82,16 +129,16 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
             (t) => Transaction(
               id: t.id,
               amount: t.amount,
-              type: t.type,
-              category:
-                  'Unknown', // This would come from category table in a real implementation
+              // Use isIncome to determine type (new approach)
+              type: t.isIncome ? 'income' : 'expense',
+              category: 'Unknown', // Will be resolved by category lookup
               categoryId: t.categoryId ?? '',
-              walletId: t.walletId, // Include walletId
+              walletId: t.walletId,
               date: t.date,
               notes: t.notes ?? '',
-              paymentMethod: t.paymentMethod ?? '',
-              isRecurring: t.isRecurring,
-              recurrencePattern: t.recurrencePattern,
+              paymentMethod: t.paymentMethodId ?? '',
+              isRecurring: false, // Deprecated - use RecurringConfigs
+              recurrencePattern: null, // Deprecated - use RecurringConfigs
             ),
           )
           .toList();
@@ -107,21 +154,30 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
     }
   }
 
+  /// Add a new transaction
+  /// [isIncome] - true for income, false for expense
+  /// [type] - @deprecated, use isIncome instead. Kept for backward compatibility.
   Future<void> addTransaction({
     required double amount,
-    required String type,
+    String? type, // @deprecated - use isIncome instead
+    bool? isIncome, // New: use this instead of type
     required String category,
     required String categoryId,
     required String walletId,
     required DateTime date,
     required String notes,
-    required String paymentMethod,
-    bool isRecurring = false,
-    String? recurrencePattern,
+    String? title,
+    String? paymentMethodId,
+    String? paymentMethod, // @deprecated - use paymentMethodId
+    bool isRecurring = false, // @deprecated - use RecurringConfigs
+    String? recurrencePattern, // @deprecated - use RecurringConfigs
   }) async {
     state = state.copyWith(isLoading: true);
 
     try {
+      // Determine isIncome: prefer explicit isIncome, fallback to type parsing
+      final bool transactionIsIncome = isIncome ?? (type == 'income');
+
       // Use AI to automatically assign category if none is provided or if it's the default "Other"
       String finalCategoryId = categoryId;
 
@@ -139,14 +195,13 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
       final newTransaction = TransactionsCompanion(
         id: Value(const Uuid().v4()),
         amount: Value(amount),
-        type: Value(type),
-        categoryId: Value(finalCategoryId), // Use the final category ID
+        isIncome: Value(transactionIsIncome), // Use isIncome field
+        title: Value(title ?? ''),
+        categoryId: Value(finalCategoryId),
         walletId: Value(walletId),
         date: Value(date),
         notes: Value(notes),
-        paymentMethod: Value(paymentMethod),
-        isRecurring: Value(isRecurring),
-        recurrencePattern: Value(recurrencePattern),
+        paymentMethodId: Value(paymentMethodId ?? paymentMethod),
         createdAt: Value(now),
         updatedAt: Value(now),
       );
@@ -163,17 +218,23 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
     }
   }
 
+  /// Update an existing transaction
+  /// [isIncome] - true for income, false for expense
+  /// [type] - @deprecated, use isIncome instead. Kept for backward compatibility.
   Future<void> updateTransaction({
     required String id,
     double? amount,
-    String? type,
+    String? type, // @deprecated - use isIncome instead
+    bool? isIncome, // New: use this instead of type
+    String? title,
     String? categoryId,
-    String? walletId, // Add walletId parameter
+    String? walletId,
     DateTime? date,
     String? notes,
-    String? paymentMethod,
-    bool? isRecurring,
-    String? recurrencePattern,
+    String? paymentMethodId,
+    String? paymentMethod, // @deprecated - use paymentMethodId
+    bool? isRecurring, // @deprecated
+    String? recurrencePattern, // @deprecated
   }) async {
     state = state.copyWith(isLoading: true);
 
@@ -183,21 +244,24 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
         throw Exception('Transaction not found');
       }
 
+      // Determine isIncome: prefer explicit isIncome, then type, then existing
+      bool? transactionIsIncome;
+      if (isIncome != null) {
+        transactionIsIncome = isIncome;
+      } else if (type != null) {
+        transactionIsIncome = type == 'income';
+      }
+
       final updatedTransaction = TransactionsCompanion(
         id: Value(id),
         amount: Value(amount ?? existing.amount),
-        type: Value(type ?? existing.type),
+        isIncome: Value(transactionIsIncome ?? existing.isIncome),
+        title: Value(title ?? existing.title),
         categoryId: Value(categoryId ?? existing.categoryId),
-        walletId: Value(
-          walletId ?? existing.walletId,
-        ), // Use provided or existing walletId
+        walletId: Value(walletId ?? existing.walletId),
         date: Value(date ?? existing.date),
         notes: Value(notes ?? existing.notes),
-        paymentMethod: Value(paymentMethod ?? existing.paymentMethod),
-        isRecurring: Value(isRecurring ?? existing.isRecurring),
-        recurrencePattern: Value(
-          recurrencePattern ?? existing.recurrencePattern,
-        ),
+        paymentMethodId: Value(paymentMethodId ?? paymentMethod ?? existing.paymentMethodId),
         createdAt: Value(existing.createdAt),
         updatedAt: Value(DateTime.now()),
       );

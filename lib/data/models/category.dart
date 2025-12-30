@@ -14,14 +14,18 @@ class Categories extends Table {
   // Subcategory support - references parent category
   TextColumn get mainCategoryId => text().nullable()();
 
-  // Category type - expense or income
+  // Category type - expense or income (PRIMARY FIELD)
+  // Use this field to determine if category is for income or expense
   BoolColumn get isIncome => boolean().withDefault(const Constant(false))();
 
   // Display ordering
   IntColumn get orderIndex => integer().withDefault(const Constant(0))();
 
-  // Legacy field for backward compatibility
-  TextColumn get type => text().nullable()(); // 'expense' or 'income'
+  // @deprecated - Use isIncome instead. Kept for backward compatibility.
+  // Will be removed in future version. Do not use in new code.
+  TextColumn get type => text().nullable()();
+
+  // Whether this is a default category (created by system)
   BoolColumn get isDefault => boolean().withDefault(const Constant(false))();
 
   // Sync fields

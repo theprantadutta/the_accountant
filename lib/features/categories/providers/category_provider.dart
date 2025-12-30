@@ -4,6 +4,33 @@ import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:drift/drift.dart' show Value;
 import 'package:uuid/uuid.dart';
 
+/// ViewModel class for displaying categories in UI
+/// Uses isIncome boolean instead of deprecated type string
+class CategoryViewModel {
+  final String id;
+  final String name;
+  final String colorCode;
+  final String iconName;
+  final bool isIncome;
+  final bool isDefault;
+  final String? mainCategoryId;
+
+  CategoryViewModel({
+    required this.id,
+    required this.name,
+    required this.colorCode,
+    required this.iconName,
+    required this.isIncome,
+    required this.isDefault,
+    this.mainCategoryId,
+  });
+
+  /// Helper to get display type string for backward compatibility
+  String get type => isIncome ? 'income' : 'expense';
+}
+
+/// @deprecated - Use CategoryViewModel instead
+/// Kept for backward compatibility with existing code
 class Category {
   final String id;
   final String name;
@@ -18,6 +45,9 @@ class Category {
     required this.type,
     required this.isDefault,
   });
+
+  /// Helper to check if this is an income category
+  bool get isIncome => type == 'income';
 }
 
 class CategoryState {
@@ -62,7 +92,8 @@ class CategoryNotifier extends StateNotifier<CategoryState> {
               id: c.id,
               name: c.name,
               colorCode: c.color,
-              type: c.type ?? (c.isIncome ? 'income' : 'expense'),
+              // Use isIncome to determine type (new approach)
+              type: c.isIncome ? 'income' : 'expense',
               isDefault: c.isDefault,
             ),
           )
@@ -77,22 +108,32 @@ class CategoryNotifier extends StateNotifier<CategoryState> {
     }
   }
 
+  /// Add a new category
+  /// [isIncome] - true for income category, false for expense
+  /// [type] - @deprecated, use isIncome instead. Kept for backward compatibility.
   Future<void> addCategory({
     required String name,
     required String colorCode,
-    required String type,
+    String? type, // @deprecated - use isIncome instead
+    bool? isIncome, // New: use this instead of type
+    String iconName = 'category',
+    String? mainCategoryId,
     bool isDefault = false,
   }) async {
     state = state.copyWith(isLoading: true);
 
     try {
+      // Determine isIncome: prefer explicit isIncome, fallback to type parsing
+      final bool categoryIsIncome = isIncome ?? (type == 'income');
+
       final newCategory = CategoriesCompanion(
         id: Value(const Uuid().v4()),
         name: Value(name),
         color: Value(colorCode),
-        type: Value(type),
+        iconName: Value(iconName),
+        mainCategoryId: Value(mainCategoryId),
         isDefault: Value(isDefault),
-        isIncome: Value(type == 'income'),
+        isIncome: Value(categoryIsIncome), // Use isIncome field
       );
 
       await _db.addCategory(newCategory);
@@ -107,11 +148,17 @@ class CategoryNotifier extends StateNotifier<CategoryState> {
     }
   }
 
+  /// Update an existing category
+  /// [isIncome] - true for income category, false for expense
+  /// [type] - @deprecated, use isIncome instead. Kept for backward compatibility.
   Future<void> updateCategory({
     required String id,
     String? name,
     String? colorCode,
-    String? type,
+    String? type, // @deprecated - use isIncome instead
+    bool? isIncome, // New: use this instead of type
+    String? iconName,
+    String? mainCategoryId,
     bool? isDefault,
   }) async {
     state = state.copyWith(isLoading: true);
@@ -122,12 +169,22 @@ class CategoryNotifier extends StateNotifier<CategoryState> {
         throw Exception('Category not found');
       }
 
+      // Determine isIncome: prefer explicit isIncome, then type, then existing
+      bool? categoryIsIncome;
+      if (isIncome != null) {
+        categoryIsIncome = isIncome;
+      } else if (type != null) {
+        categoryIsIncome = type == 'income';
+      }
+
       final updatedCategory = CategoriesCompanion(
         id: Value(id),
         name: Value(name ?? existing.name),
         color: Value(colorCode ?? existing.color),
-        type: Value(type ?? existing.type),
+        iconName: Value(iconName ?? existing.iconName),
+        mainCategoryId: Value(mainCategoryId ?? existing.mainCategoryId),
         isDefault: Value(isDefault ?? existing.isDefault),
+        isIncome: Value(categoryIsIncome ?? existing.isIncome),
       );
 
       await _db.updateCategory(updatedCategory);
@@ -166,8 +223,24 @@ class CategoryNotifier extends StateNotifier<CategoryState> {
     }
   }
 
+  /// @deprecated - Use getIncomeCategories or getExpenseCategories instead
   List<Category> getCategoriesByType(String type) {
     return state.categories.where((c) => c.type == type).toList();
+  }
+
+  /// Get all income categories
+  List<Category> getIncomeCategories() {
+    return state.categories.where((c) => c.isIncome).toList();
+  }
+
+  /// Get all expense categories
+  List<Category> getExpenseCategories() {
+    return state.categories.where((c) => !c.isIncome).toList();
+  }
+
+  /// Get categories filtered by isIncome flag
+  List<Category> getCategoriesByIsIncome(bool isIncome) {
+    return state.categories.where((c) => c.isIncome == isIncome).toList();
   }
 
   Category? getCategoryById(String id) {

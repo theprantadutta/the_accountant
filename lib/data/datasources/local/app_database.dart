@@ -49,7 +49,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -126,6 +126,36 @@ class AppDatabase extends _$AppDatabase {
             // Add exchange rates table for multi-currency support
             await m.createTable(exchangeRates);
           }
+          if (from < 5) {
+            // Migration v5: Standardize on isIncome field, deprecate legacy type fields
+            // Auto-convert transactions: set isIncome based on amount sign
+            // Positive amount = income, Negative amount = expense
+            await customStatement('''
+              UPDATE transactions
+              SET is_income = CASE
+                WHEN amount >= 0 THEN 1
+                ELSE 0
+              END
+              WHERE is_income IS NULL OR type = 'regular'
+            ''');
+
+            // Auto-convert categories: set isIncome based on legacy type field
+            await customStatement('''
+              UPDATE categories
+              SET is_income = CASE
+                WHEN type = 'income' THEN 1
+                ELSE 0
+              END
+              WHERE is_income IS NULL AND type IS NOT NULL
+            ''');
+
+            // Ensure all categories have isIncome set (default to expense if not set)
+            await customStatement('''
+              UPDATE categories
+              SET is_income = 0
+              WHERE is_income IS NULL
+            ''');
+          }
         },
       );
 
@@ -170,11 +200,26 @@ class AppDatabase extends _$AppDatabase {
     );
   }
 
+  /// @deprecated - Use getIncomeTransactions or getExpenseTransactions instead
   Future<List<Transaction>> getTransactionsByType(String type) =>
       (select(transactions)
             ..where((t) => t.type.equals(type))
             ..where((t) => t.deletedAt.isNull()))
           .get();
+
+  /// Get all income transactions
+  Future<List<Transaction>> getIncomeTransactions() => (select(transactions)
+        ..where((t) => t.isIncome.equals(true))
+        ..where((t) => t.deletedAt.isNull())
+        ..orderBy([(t) => OrderingTerm.desc(t.date)]))
+      .get();
+
+  /// Get all expense transactions
+  Future<List<Transaction>> getExpenseTransactions() => (select(transactions)
+        ..where((t) => t.isIncome.equals(false))
+        ..where((t) => t.deletedAt.isNull())
+        ..orderBy([(t) => OrderingTerm.desc(t.date)]))
+      .get();
 
   Future<List<Transaction>> getTransactionsByCategory(String categoryId) =>
       (select(transactions)
@@ -371,6 +416,7 @@ class AppDatabase extends _$AppDatabase {
   Future<int> deleteCategory(String id) =>
       (delete(categories)..where((c) => c.id.equals(id))).go();
 
+  /// @deprecated - Use getIncomeCategories or getExpenseCategories instead
   Future<List<Category>> getCategoriesByType(String type) =>
       (select(categories)
             ..where((c) => c.type.equals(type))
