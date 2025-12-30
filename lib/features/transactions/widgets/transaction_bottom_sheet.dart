@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/features/categories/providers/category_provider.dart';
+import 'package:the_accountant/features/transactions/providers/smart_categorization_provider.dart';
 import 'package:the_accountant/features/transactions/providers/transaction_provider.dart';
+import 'package:the_accountant/features/transactions/services/smart_categorization_service.dart';
 import 'package:the_accountant/features/transactions/widgets/amount_input.dart';
 import 'package:the_accountant/features/transactions/widgets/category_grid_selector.dart';
 import 'package:the_accountant/features/transactions/widgets/wallet_selector.dart';
@@ -48,6 +50,11 @@ class _TransactionBottomSheetState extends ConsumerState<TransactionBottomSheet>
 
   bool _isSaving = false;
 
+  // Smart categorization
+  final TextEditingController _titleController = TextEditingController();
+  CategorySuggestion? _categorySuggestion;
+  bool _isCheckingSuggestion = false;
+
   @override
   void initState() {
     super.initState();
@@ -58,6 +65,65 @@ class _TransactionBottomSheetState extends ConsumerState<TransactionBottomSheet>
         _selectedWalletId = walletNotifier.getDefaultWalletId();
       });
     });
+
+    // Listen to title changes for smart categorization
+    _titleController.addListener(_onTitleChanged);
+  }
+
+  @override
+  void dispose() {
+    _titleController.removeListener(_onTitleChanged);
+    _titleController.dispose();
+    super.dispose();
+  }
+
+  /// Check for category suggestions when title changes
+  void _onTitleChanged() {
+    _title = _titleController.text;
+    _checkCategorySuggestion(_title);
+  }
+
+  /// Query smart categorization service for suggestions
+  Future<void> _checkCategorySuggestion(String title) async {
+    if (title.isEmpty || title.length < 3) {
+      if (_categorySuggestion != null) {
+        setState(() {
+          _categorySuggestion = null;
+        });
+      }
+      return;
+    }
+
+    if (_isCheckingSuggestion) return;
+
+    setState(() {
+      _isCheckingSuggestion = true;
+    });
+
+    try {
+      final service = ref.read(smartCategorizationServiceProvider);
+      final suggestion = await service.suggestCategory(title);
+
+      if (mounted) {
+        setState(() {
+          // Only show suggestion if it differs from current selection
+          if (suggestion != null &&
+              suggestion.category.id != _selectedCategory?.id &&
+              suggestion.category.isIncome == _isIncome) {
+            _categorySuggestion = suggestion;
+          } else {
+            _categorySuggestion = null;
+          }
+          _isCheckingSuggestion = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isCheckingSuggestion = false;
+        });
+      }
+    }
   }
 
   void _goToStep(TransactionStep step) {
@@ -145,6 +211,16 @@ class _TransactionBottomSheetState extends ConsumerState<TransactionBottomSheet>
         await walletNotifier.loadWallets();
       }
 
+      // Learn from this transaction for smart categorization
+      if (_title.isNotEmpty && _selectedCategory != null) {
+        final smartCategorizationService = ref.read(smartCategorizationServiceProvider);
+        await smartCategorizationService.addTitleAssociation(
+          title: _title,
+          categoryId: _selectedCategory!.id,
+          isExactMatch: true,
+        );
+      }
+
       if (mounted) {
         HapticFeedback.mediumImpact();
         Navigator.pop(context);
@@ -167,6 +243,25 @@ class _TransactionBottomSheetState extends ConsumerState<TransactionBottomSheet>
         });
       }
     }
+  }
+
+  /// Apply the category suggestion
+  void _applyCategorySuggestion() {
+    if (_categorySuggestion == null) return;
+
+    HapticFeedback.lightImpact();
+    final dbCategory = _categorySuggestion!.category;
+    setState(() {
+      // Convert db.Category to provider's Category type
+      _selectedCategory = Category(
+        id: dbCategory.id,
+        name: dbCategory.name,
+        colorCode: dbCategory.color,
+        type: dbCategory.isIncome ? 'income' : 'expense',
+        isDefault: false,
+      );
+      _categorySuggestion = null;
+    });
   }
 
   @override
@@ -373,14 +468,14 @@ class _TransactionBottomSheetState extends ConsumerState<TransactionBottomSheet>
           ),
           const SizedBox(height: 24),
 
-          // Title/Description
-          _buildTextField(
-            theme,
-            label: 'Title (Optional)',
-            hint: 'What is this for?',
-            value: _title,
-            onChanged: (value) => setState(() => _title = value),
-          ),
+          // Title/Description with smart categorization
+          _buildTitleInput(theme),
+
+          // Category Suggestion
+          if (_categorySuggestion != null) ...[
+            const SizedBox(height: 12),
+            _buildCategorySuggestion(theme),
+          ],
           const SizedBox(height: 16),
 
           // Date Picker
@@ -397,6 +492,119 @@ class _TransactionBottomSheetState extends ConsumerState<TransactionBottomSheet>
             maxLines: 3,
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildTitleInput(ThemeData theme) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Title (Optional)',
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: 8),
+        TextField(
+          controller: _titleController,
+          decoration: InputDecoration(
+            hintText: 'What is this for?',
+            filled: true,
+            fillColor: theme.colorScheme.surfaceContainerHighest,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none,
+            ),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 12,
+            ),
+            suffixIcon: _isCheckingSuggestion
+                ? Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: theme.colorScheme.primary,
+                      ),
+                    ),
+                  )
+                : null,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCategorySuggestion(ThemeData theme) {
+    final suggestion = _categorySuggestion!;
+    // suggestion.category is db.Category, which has 'color' field
+    final categoryColor = _parseColor(suggestion.category.color);
+
+    return GestureDetector(
+      onTap: _applyCategorySuggestion,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          color: categoryColor.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: categoryColor.withValues(alpha: 0.3),
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              Icons.lightbulb_outline,
+              size: 18,
+              color: categoryColor,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Did you mean "${suggestion.category.name}"?',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      color: theme.colorScheme.onSurface,
+                    ),
+                  ),
+                  Text(
+                    suggestion.explanation,
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: categoryColor,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                'Apply',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
