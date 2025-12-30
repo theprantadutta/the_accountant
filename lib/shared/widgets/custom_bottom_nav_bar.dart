@@ -200,14 +200,16 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar>
                     child: Stack(
                       alignment: Alignment.center,
                       children: [
-                        AnimatedSwitcher(
+                        // Icon - color animates via TweenAnimationBuilder
+                        TweenAnimationBuilder<Color?>(
                           duration: AppAnimations.fast,
-                          child: Icon(
+                          tween: ColorTween(
+                            begin: isSelected ? AppColors.textMuted : AppColors.primaryAccent,
+                            end: isSelected ? AppColors.primaryAccent : AppColors.textMuted,
+                          ),
+                          builder: (context, color, _) => Icon(
                             isSelected ? item.activeIcon : item.icon,
-                            key: ValueKey('nav_icon_${index}_${isSelected ? 'active' : 'inactive'}'),
-                            color: isSelected
-                                ? AppColors.primaryAccent
-                                : AppColors.textMuted,
+                            color: color,
                             size: AppSpacing.iconSm,
                           ),
                         ),
@@ -305,14 +307,10 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar>
                     ),
                 ],
               ),
-              child: AnimatedSwitcher(
-                duration: AppAnimations.fast,
-                child: Icon(
-                  isSelected ? item.activeIcon : item.icon,
-                  key: ValueKey('center_icon_${index}_${isSelected ? 'active' : 'inactive'}'),
-                  color: AppColors.textPrimary,
-                  size: AppSpacing.iconMd,
-                ),
+              child: Icon(
+                isSelected ? item.activeIcon : item.icon,
+                color: AppColors.textPrimary,
+                size: AppSpacing.iconMd,
               ),
             ),
           );

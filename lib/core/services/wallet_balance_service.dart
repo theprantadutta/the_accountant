@@ -40,7 +40,9 @@ class WalletBalanceService {
     bool isDelete = false,
   }) async {
     final wallet = await _db.findWalletById(walletId);
-    if (wallet == null) return;
+    if (wallet == null) {
+      throw Exception('Wallet not found: $walletId');
+    }
 
     double currentBalance = wallet.balance;
     double change = amount.abs();

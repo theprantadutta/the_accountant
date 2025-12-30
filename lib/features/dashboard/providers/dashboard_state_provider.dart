@@ -85,7 +85,7 @@ final filteredIncomeProvider = Provider<double>((ref) {
 final filteredExpensesProvider = Provider<double>((ref) {
   final transactions = ref.watch(filteredTransactionsProvider);
   return transactions
-      .where((t) => t.type != 'income')
+      .where((t) => t.type == 'expense')
       .fold(0.0, (sum, t) => sum + t.amount);
 });
 

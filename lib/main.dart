@@ -18,6 +18,9 @@ void main() async {
   final categoryService = CategoryInitializationService(db);
   await categoryService.initializeDefaultCategories();
 
+  // Ensure system categories exist (Transfer, Balance Correction)
+  await db.ensureSystemCategoriesExist();
+
   runApp(
     ProviderScope(
       overrides: [databaseProvider.overrideWithValue(db)],

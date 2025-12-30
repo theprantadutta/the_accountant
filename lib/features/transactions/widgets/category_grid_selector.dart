@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:the_accountant/core/themes/app_colors.dart';
+import 'package:the_accountant/core/themes/app_spacing.dart';
+import 'package:the_accountant/core/themes/app_animations.dart';
+import 'package:the_accountant/core/utils/icon_registry.dart';
 import 'package:the_accountant/features/categories/providers/category_provider.dart';
 
 /// A grid-based category selector widget (like Cashew).
@@ -155,7 +159,7 @@ class _CategoryGridSelectorState extends ConsumerState<CategoryGridSelector>
         crossAxisCount: widget.crossAxisCount,
         crossAxisSpacing: 12,
         mainAxisSpacing: 12,
-        childAspectRatio: 0.9,
+        childAspectRatio: 0.8, // Taller cells to fit icon + text
       ),
       itemCount: itemCount,
       itemBuilder: (context, index) {
@@ -202,34 +206,50 @@ class _CategoryGridSelectorState extends ConsumerState<CategoryGridSelector>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Icon
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                color: color.withOpacity(0.2),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                _getIconData(category.id),
-                color: color,
-                size: 24,
+            // Icon with selection animation
+            AnimatedScale(
+              scale: isSelected ? 1.05 : 1.0,
+              duration: AppAnimations.quick,
+              curve: AppAnimations.spring,
+              child: Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.2),
+                  shape: BoxShape.circle,
+                  boxShadow: isSelected
+                      ? [
+                          BoxShadow(
+                            color: color.withOpacity(0.4),
+                            blurRadius: 12,
+                            spreadRadius: 0,
+                          ),
+                        ]
+                      : null,
+                ),
+                child: Icon(
+                  _getIconData(category),
+                  color: color,
+                  size: 22,
+                ),
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
             // Name
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              child: Text(
-                category.name,
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                  color: isSelected ? color : theme.colorScheme.onSurface,
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: Text(
+                  category.name,
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                    color: isSelected ? color : theme.colorScheme.onSurface,
+                  ),
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
               ),
             ),
           ],
@@ -258,8 +278,8 @@ class _CategoryGridSelectorState extends ConsumerState<CategoryGridSelector>
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              width: 48,
-              height: 48,
+              width: 44,
+              height: 44,
               decoration: BoxDecoration(
                 color: theme.colorScheme.primary.withOpacity(0.1),
                 shape: BoxShape.circle,
@@ -267,15 +287,17 @@ class _CategoryGridSelectorState extends ConsumerState<CategoryGridSelector>
               child: Icon(
                 Icons.add,
                 color: theme.colorScheme.primary,
-                size: 24,
+                size: 22,
               ),
             ),
-            const SizedBox(height: 8),
-            Text(
-              'Add',
-              style: TextStyle(
-                fontSize: 11,
-                color: theme.colorScheme.primary,
+            const SizedBox(height: 6),
+            Expanded(
+              child: Text(
+                'Add',
+                style: TextStyle(
+                  fontSize: 11,
+                  color: theme.colorScheme.primary,
+                ),
               ),
             ),
           ],
@@ -296,12 +318,11 @@ class _CategoryGridSelectorState extends ConsumerState<CategoryGridSelector>
   }
 
   /// Get icon based on category icon name
-  /// Returns default category icon if not found
-  IconData _getIconData(String categoryId) {
-    // For now, return a default icon
-    // In a full implementation, we'd look up the category's iconName from the database
-    // and map it to the corresponding IconData
-    return Icons.category;
+  IconData _getIconData(Category category) {
+    // Use the IconRegistry to map icon name to IconData
+    // The category provider's Category model has colorCode, but the database has iconName
+    // For now, we try to infer from category name or use default
+    return IconRegistry.getIcon(category.name.toLowerCase().replaceAll(' ', '_'));
   }
 }
 

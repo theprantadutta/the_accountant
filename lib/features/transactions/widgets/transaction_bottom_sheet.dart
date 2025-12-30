@@ -7,6 +7,7 @@ import 'package:the_accountant/features/transactions/providers/transaction_provi
 import 'package:the_accountant/features/transactions/services/smart_categorization_service.dart';
 import 'package:the_accountant/features/transactions/widgets/amount_input.dart';
 import 'package:the_accountant/features/transactions/widgets/category_grid_selector.dart';
+import 'package:the_accountant/features/transactions/widgets/transfer_bottom_sheet.dart';
 import 'package:the_accountant/features/transactions/widgets/wallet_selector.dart';
 import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
 
@@ -17,9 +18,17 @@ enum TransactionStep {
   details,
 }
 
+/// Transaction type for the type selector
+enum TransactionType {
+  expense,
+  income,
+  transfer,
+}
+
 /// Show the transaction bottom sheet
-Future<void> showTransactionBottomSheet(BuildContext context) {
-  return showModalBottomSheet(
+/// Returns true if a transaction was created
+Future<bool?> showTransactionBottomSheet(BuildContext context) {
+  return showModalBottomSheet<bool>(
     context: context,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
@@ -38,6 +47,9 @@ class TransactionBottomSheet extends ConsumerStatefulWidget {
 
 class _TransactionBottomSheetState extends ConsumerState<TransactionBottomSheet> {
   TransactionStep _currentStep = TransactionStep.amount;
+
+  // Transaction type (expense, income, transfer)
+  TransactionType _transactionType = TransactionType.expense;
 
   // Transaction data
   double _amount = 0.0;
@@ -140,6 +152,13 @@ class _TransactionBottomSheetState extends ConsumerState<TransactionBottomSheet>
           _showError('Please enter an amount');
           return;
         }
+
+        // If Transfer is selected, show the transfer bottom sheet
+        if (_transactionType == TransactionType.transfer) {
+          _openTransferSheet();
+          return;
+        }
+
         _goToStep(TransactionStep.category);
         break;
       case TransactionStep.category:
@@ -153,6 +172,13 @@ class _TransactionBottomSheetState extends ConsumerState<TransactionBottomSheet>
         _saveTransaction();
         break;
     }
+  }
+
+  /// Open the transfer bottom sheet
+  Future<void> _openTransferSheet() async {
+    Navigator.pop(context); // Close this bottom sheet first
+    final result = await showTransferBottomSheet(context);
+    // result will be true if transfer was created
   }
 
   void _previousStep() {
@@ -182,6 +208,12 @@ class _TransactionBottomSheetState extends ConsumerState<TransactionBottomSheet>
   Future<void> _saveTransaction() async {
     if (_isSaving) return;
 
+    // Validate category before saving
+    if (_selectedCategory == null) {
+      _showError('Please select a category');
+      return;
+    }
+
     setState(() {
       _isSaving = true;
     });
@@ -189,27 +221,39 @@ class _TransactionBottomSheetState extends ConsumerState<TransactionBottomSheet>
     try {
       final transactionNotifier = ref.read(transactionProvider.notifier);
       final walletNotifier = ref.read(walletProvider.notifier);
+      final effectiveWalletId = _selectedWalletId ?? walletNotifier.getDefaultWalletId();
+
+      if (effectiveWalletId == null || effectiveWalletId.isEmpty) {
+        _showError('Please select a wallet');
+        setState(() => _isSaving = false);
+        return;
+      }
 
       await transactionNotifier.addTransaction(
         amount: _amount,
         isIncome: _isIncome,
-        category: _selectedCategory?.name ?? '',
-        categoryId: _selectedCategory?.id ?? '',
-        walletId: _selectedWalletId ?? walletNotifier.getDefaultWalletId() ?? '',
+        category: _selectedCategory!.name,
+        categoryId: _selectedCategory!.id,
+        walletId: effectiveWalletId,
         date: _date,
         notes: _notes,
         title: _title,
       );
 
-      // Update wallet balance
-      if (_selectedWalletId != null) {
+      // Update wallet balance with proper error handling
+      try {
         await walletNotifier.balanceService.updateBalanceAfterTransaction(
-          walletId: _selectedWalletId!,
+          walletId: effectiveWalletId,
           amount: _amount,
           isIncome: _isIncome,
         );
-        await walletNotifier.loadWallets();
+      } catch (e) {
+        // Fallback: recalculate balance from all transactions
+        await walletNotifier.balanceService.updateWalletBalance(effectiveWalletId);
       }
+
+      // Refresh wallets to update UI
+      await walletNotifier.loadWallets();
 
       // Learn from this transaction for smart categorization
       if (_title.isNotEmpty && _selectedCategory != null) {
@@ -234,7 +278,7 @@ class _TransactionBottomSheetState extends ConsumerState<TransactionBottomSheet>
       }
     } catch (e) {
       if (mounted) {
-        _showError('Failed to save transaction');
+        _showError('Failed to save transaction: ${e.toString()}');
       }
     } finally {
       if (mounted) {
@@ -412,21 +456,123 @@ class _TransactionBottomSheetState extends ConsumerState<TransactionBottomSheet>
   Widget _buildAmountStep(ThemeData theme) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
-      child: AmountInput(
-        initialAmount: _amount,
-        isIncome: _isIncome,
-        onAmountChanged: (amount) {
+      child: Column(
+        children: [
+          // Transaction Type Selector (Expense/Income/Transfer)
+          _buildTransactionTypeSelector(theme),
+          const SizedBox(height: 16),
+
+          // Amount Input (hide toggle since we have type selector)
+          AmountInput(
+            initialAmount: _amount,
+            isIncome: _isIncome,
+            showToggle: false, // Hide the built-in toggle
+            onAmountChanged: (amount) {
+              setState(() {
+                _amount = amount;
+              });
+            },
+            onIsIncomeChanged: (isIncome) {
+              setState(() {
+                _isIncome = isIncome;
+                // Reset category when switching income/expense
+                _selectedCategory = null;
+              });
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTransactionTypeSelector(ThemeData theme) {
+    return Container(
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      padding: const EdgeInsets.all(4),
+      child: Row(
+        children: [
+          _buildTypeTab(
+            theme,
+            type: TransactionType.expense,
+            label: 'Expense',
+            color: Colors.red,
+            icon: Icons.arrow_downward,
+          ),
+          const SizedBox(width: 4),
+          _buildTypeTab(
+            theme,
+            type: TransactionType.income,
+            label: 'Income',
+            color: Colors.green,
+            icon: Icons.arrow_upward,
+          ),
+          const SizedBox(width: 4),
+          _buildTypeTab(
+            theme,
+            type: TransactionType.transfer,
+            label: 'Transfer',
+            color: Colors.teal,
+            icon: Icons.swap_horiz,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTypeTab(
+    ThemeData theme, {
+    required TransactionType type,
+    required String label,
+    required Color color,
+    required IconData icon,
+  }) {
+    final isSelected = _transactionType == type;
+
+    return Expanded(
+      child: GestureDetector(
+        onTap: () {
+          HapticFeedback.lightImpact();
           setState(() {
-            _amount = amount;
-          });
-        },
-        onIsIncomeChanged: (isIncome) {
-          setState(() {
-            _isIncome = isIncome;
-            // Reset category when switching income/expense
+            _transactionType = type;
+            // Update isIncome based on type
+            _isIncome = type == TransactionType.income;
+            // Reset category when changing type
             _selectedCategory = null;
           });
         },
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          decoration: BoxDecoration(
+            color: isSelected ? color.withValues(alpha: 0.2) : Colors.transparent,
+            borderRadius: BorderRadius.circular(8),
+            border: isSelected
+                ? Border.all(color: color, width: 2)
+                : Border.all(color: Colors.transparent, width: 2),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
+                size: 16,
+                color: isSelected ? color : theme.colorScheme.onSurfaceVariant,
+              ),
+              const SizedBox(width: 4),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                  color: isSelected ? color : theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

@@ -3503,6 +3503,28 @@ class $TransactionsTable extends Transactions
           'REFERENCES recurring_configs (id)',
         ),
       );
+  static const VerificationMeta _budgetIdMeta = const VerificationMeta(
+    'budgetId',
+  );
+  @override
+  late final GeneratedColumn<String> budgetId = GeneratedColumn<String>(
+    'budget_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _objectiveIdMeta = const VerificationMeta(
+    'objectiveId',
+  );
+  @override
+  late final GeneratedColumn<String> objectiveId = GeneratedColumn<String>(
+    'objective_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _isRecurringMeta = const VerificationMeta(
     'isRecurring',
   );
@@ -3668,6 +3690,8 @@ class $TransactionsTable extends Transactions
     paymentMethod,
     pairedTransactionId,
     recurringConfigId,
+    budgetId,
+    objectiveId,
     isRecurring,
     recurrencePattern,
     receiptImageUrl,
@@ -3794,6 +3818,21 @@ class $TransactionsTable extends Transactions
         recurringConfigId.isAcceptableOrUnknown(
           data['recurring_config_id']!,
           _recurringConfigIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('budget_id')) {
+      context.handle(
+        _budgetIdMeta,
+        budgetId.isAcceptableOrUnknown(data['budget_id']!, _budgetIdMeta),
+      );
+    }
+    if (data.containsKey('objective_id')) {
+      context.handle(
+        _objectiveIdMeta,
+        objectiveId.isAcceptableOrUnknown(
+          data['objective_id']!,
+          _objectiveIdMeta,
         ),
       );
     }
@@ -3940,6 +3979,14 @@ class $TransactionsTable extends Transactions
         DriftSqlType.string,
         data['${effectivePrefix}recurring_config_id'],
       ),
+      budgetId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}budget_id'],
+      ),
+      objectiveId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}objective_id'],
+      ),
       isRecurring: attachedDatabase.typeMapping.read(
         DriftSqlType.bool,
         data['${effectivePrefix}is_recurring'],
@@ -4021,6 +4068,8 @@ class Transaction extends DataClass implements Insertable<Transaction> {
   final String? paymentMethod;
   final String? pairedTransactionId;
   final String? recurringConfigId;
+  final String? budgetId;
+  final String? objectiveId;
   final bool isRecurring;
   final String? recurrencePattern;
   final String? receiptImageUrl;
@@ -4048,6 +4097,8 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     this.paymentMethod,
     this.pairedTransactionId,
     this.recurringConfigId,
+    this.budgetId,
+    this.objectiveId,
     required this.isRecurring,
     this.recurrencePattern,
     this.receiptImageUrl,
@@ -4089,6 +4140,12 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     }
     if (!nullToAbsent || recurringConfigId != null) {
       map['recurring_config_id'] = Variable<String>(recurringConfigId);
+    }
+    if (!nullToAbsent || budgetId != null) {
+      map['budget_id'] = Variable<String>(budgetId);
+    }
+    if (!nullToAbsent || objectiveId != null) {
+      map['objective_id'] = Variable<String>(objectiveId);
     }
     map['is_recurring'] = Variable<bool>(isRecurring);
     if (!nullToAbsent || recurrencePattern != null) {
@@ -4147,6 +4204,12 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       recurringConfigId: recurringConfigId == null && nullToAbsent
           ? const Value.absent()
           : Value(recurringConfigId),
+      budgetId: budgetId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(budgetId),
+      objectiveId: objectiveId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(objectiveId),
       isRecurring: Value(isRecurring),
       recurrencePattern: recurrencePattern == null && nullToAbsent
           ? const Value.absent()
@@ -4198,6 +4261,8 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       recurringConfigId: serializer.fromJson<String?>(
         json['recurringConfigId'],
       ),
+      budgetId: serializer.fromJson<String?>(json['budgetId']),
+      objectiveId: serializer.fromJson<String?>(json['objectiveId']),
       isRecurring: serializer.fromJson<bool>(json['isRecurring']),
       recurrencePattern: serializer.fromJson<String?>(
         json['recurrencePattern'],
@@ -4234,6 +4299,8 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       'paymentMethod': serializer.toJson<String?>(paymentMethod),
       'pairedTransactionId': serializer.toJson<String?>(pairedTransactionId),
       'recurringConfigId': serializer.toJson<String?>(recurringConfigId),
+      'budgetId': serializer.toJson<String?>(budgetId),
+      'objectiveId': serializer.toJson<String?>(objectiveId),
       'isRecurring': serializer.toJson<bool>(isRecurring),
       'recurrencePattern': serializer.toJson<String?>(recurrencePattern),
       'receiptImageUrl': serializer.toJson<String?>(receiptImageUrl),
@@ -4266,6 +4333,8 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     Value<String?> paymentMethod = const Value.absent(),
     Value<String?> pairedTransactionId = const Value.absent(),
     Value<String?> recurringConfigId = const Value.absent(),
+    Value<String?> budgetId = const Value.absent(),
+    Value<String?> objectiveId = const Value.absent(),
     bool? isRecurring,
     Value<String?> recurrencePattern = const Value.absent(),
     Value<String?> receiptImageUrl = const Value.absent(),
@@ -4301,6 +4370,8 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     recurringConfigId: recurringConfigId.present
         ? recurringConfigId.value
         : this.recurringConfigId,
+    budgetId: budgetId.present ? budgetId.value : this.budgetId,
+    objectiveId: objectiveId.present ? objectiveId.value : this.objectiveId,
     isRecurring: isRecurring ?? this.isRecurring,
     recurrencePattern: recurrencePattern.present
         ? recurrencePattern.value
@@ -4348,6 +4419,10 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       recurringConfigId: data.recurringConfigId.present
           ? data.recurringConfigId.value
           : this.recurringConfigId,
+      budgetId: data.budgetId.present ? data.budgetId.value : this.budgetId,
+      objectiveId: data.objectiveId.present
+          ? data.objectiveId.value
+          : this.objectiveId,
       isRecurring: data.isRecurring.present
           ? data.isRecurring.value
           : this.isRecurring,
@@ -4392,6 +4467,8 @@ class Transaction extends DataClass implements Insertable<Transaction> {
           ..write('paymentMethod: $paymentMethod, ')
           ..write('pairedTransactionId: $pairedTransactionId, ')
           ..write('recurringConfigId: $recurringConfigId, ')
+          ..write('budgetId: $budgetId, ')
+          ..write('objectiveId: $objectiveId, ')
           ..write('isRecurring: $isRecurring, ')
           ..write('recurrencePattern: $recurrencePattern, ')
           ..write('receiptImageUrl: $receiptImageUrl, ')
@@ -4424,6 +4501,8 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     paymentMethod,
     pairedTransactionId,
     recurringConfigId,
+    budgetId,
+    objectiveId,
     isRecurring,
     recurrencePattern,
     receiptImageUrl,
@@ -4455,6 +4534,8 @@ class Transaction extends DataClass implements Insertable<Transaction> {
           other.paymentMethod == this.paymentMethod &&
           other.pairedTransactionId == this.pairedTransactionId &&
           other.recurringConfigId == this.recurringConfigId &&
+          other.budgetId == this.budgetId &&
+          other.objectiveId == this.objectiveId &&
           other.isRecurring == this.isRecurring &&
           other.recurrencePattern == this.recurrencePattern &&
           other.receiptImageUrl == this.receiptImageUrl &&
@@ -4484,6 +4565,8 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
   final Value<String?> paymentMethod;
   final Value<String?> pairedTransactionId;
   final Value<String?> recurringConfigId;
+  final Value<String?> budgetId;
+  final Value<String?> objectiveId;
   final Value<bool> isRecurring;
   final Value<String?> recurrencePattern;
   final Value<String?> receiptImageUrl;
@@ -4512,6 +4595,8 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     this.paymentMethod = const Value.absent(),
     this.pairedTransactionId = const Value.absent(),
     this.recurringConfigId = const Value.absent(),
+    this.budgetId = const Value.absent(),
+    this.objectiveId = const Value.absent(),
     this.isRecurring = const Value.absent(),
     this.recurrencePattern = const Value.absent(),
     this.receiptImageUrl = const Value.absent(),
@@ -4541,6 +4626,8 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     this.paymentMethod = const Value.absent(),
     this.pairedTransactionId = const Value.absent(),
     this.recurringConfigId = const Value.absent(),
+    this.budgetId = const Value.absent(),
+    this.objectiveId = const Value.absent(),
     this.isRecurring = const Value.absent(),
     this.recurrencePattern = const Value.absent(),
     this.receiptImageUrl = const Value.absent(),
@@ -4573,6 +4660,8 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     Expression<String>? paymentMethod,
     Expression<String>? pairedTransactionId,
     Expression<String>? recurringConfigId,
+    Expression<String>? budgetId,
+    Expression<String>? objectiveId,
     Expression<bool>? isRecurring,
     Expression<String>? recurrencePattern,
     Expression<String>? receiptImageUrl,
@@ -4603,6 +4692,8 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
       if (pairedTransactionId != null)
         'paired_transaction_id': pairedTransactionId,
       if (recurringConfigId != null) 'recurring_config_id': recurringConfigId,
+      if (budgetId != null) 'budget_id': budgetId,
+      if (objectiveId != null) 'objective_id': objectiveId,
       if (isRecurring != null) 'is_recurring': isRecurring,
       if (recurrencePattern != null) 'recurrence_pattern': recurrencePattern,
       if (receiptImageUrl != null) 'receipt_image_url': receiptImageUrl,
@@ -4634,6 +4725,8 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     Value<String?>? paymentMethod,
     Value<String?>? pairedTransactionId,
     Value<String?>? recurringConfigId,
+    Value<String?>? budgetId,
+    Value<String?>? objectiveId,
     Value<bool>? isRecurring,
     Value<String?>? recurrencePattern,
     Value<String?>? receiptImageUrl,
@@ -4663,6 +4756,8 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
       paymentMethod: paymentMethod ?? this.paymentMethod,
       pairedTransactionId: pairedTransactionId ?? this.pairedTransactionId,
       recurringConfigId: recurringConfigId ?? this.recurringConfigId,
+      budgetId: budgetId ?? this.budgetId,
+      objectiveId: objectiveId ?? this.objectiveId,
       isRecurring: isRecurring ?? this.isRecurring,
       recurrencePattern: recurrencePattern ?? this.recurrencePattern,
       receiptImageUrl: receiptImageUrl ?? this.receiptImageUrl,
@@ -4726,6 +4821,12 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     if (recurringConfigId.present) {
       map['recurring_config_id'] = Variable<String>(recurringConfigId.value);
     }
+    if (budgetId.present) {
+      map['budget_id'] = Variable<String>(budgetId.value);
+    }
+    if (objectiveId.present) {
+      map['objective_id'] = Variable<String>(objectiveId.value);
+    }
     if (isRecurring.present) {
       map['is_recurring'] = Variable<bool>(isRecurring.value);
     }
@@ -4787,6 +4888,8 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
           ..write('paymentMethod: $paymentMethod, ')
           ..write('pairedTransactionId: $pairedTransactionId, ')
           ..write('recurringConfigId: $recurringConfigId, ')
+          ..write('budgetId: $budgetId, ')
+          ..write('objectiveId: $objectiveId, ')
           ..write('isRecurring: $isRecurring, ')
           ..write('recurrencePattern: $recurrencePattern, ')
           ..write('receiptImageUrl: $receiptImageUrl, ')
@@ -11911,6 +12014,8 @@ typedef $$TransactionsTableCreateCompanionBuilder =
       Value<String?> paymentMethod,
       Value<String?> pairedTransactionId,
       Value<String?> recurringConfigId,
+      Value<String?> budgetId,
+      Value<String?> objectiveId,
       Value<bool> isRecurring,
       Value<String?> recurrencePattern,
       Value<String?> receiptImageUrl,
@@ -11941,6 +12046,8 @@ typedef $$TransactionsTableUpdateCompanionBuilder =
       Value<String?> paymentMethod,
       Value<String?> pairedTransactionId,
       Value<String?> recurringConfigId,
+      Value<String?> budgetId,
+      Value<String?> objectiveId,
       Value<bool> isRecurring,
       Value<String?> recurrencePattern,
       Value<String?> receiptImageUrl,
@@ -12127,6 +12234,16 @@ class $$TransactionsTableFilterComposer
 
   ColumnFilters<String> get pairedTransactionId => $composableBuilder(
     column: $table.pairedTransactionId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get budgetId => $composableBuilder(
+    column: $table.budgetId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get objectiveId => $composableBuilder(
+    column: $table.objectiveId,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -12373,6 +12490,16 @@ class $$TransactionsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get budgetId => $composableBuilder(
+    column: $table.budgetId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get objectiveId => $composableBuilder(
+    column: $table.objectiveId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<bool> get isRecurring => $composableBuilder(
     column: $table.isRecurring,
     builder: (column) => ColumnOrderings(column),
@@ -12568,6 +12695,14 @@ class $$TransactionsTableAnnotationComposer
 
   GeneratedColumn<String> get pairedTransactionId => $composableBuilder(
     column: $table.pairedTransactionId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get budgetId =>
+      $composableBuilder(column: $table.budgetId, builder: (column) => column);
+
+  GeneratedColumn<String> get objectiveId => $composableBuilder(
+    column: $table.objectiveId,
     builder: (column) => column,
   );
 
@@ -12787,6 +12922,8 @@ class $$TransactionsTableTableManager
                 Value<String?> paymentMethod = const Value.absent(),
                 Value<String?> pairedTransactionId = const Value.absent(),
                 Value<String?> recurringConfigId = const Value.absent(),
+                Value<String?> budgetId = const Value.absent(),
+                Value<String?> objectiveId = const Value.absent(),
                 Value<bool> isRecurring = const Value.absent(),
                 Value<String?> recurrencePattern = const Value.absent(),
                 Value<String?> receiptImageUrl = const Value.absent(),
@@ -12816,6 +12953,8 @@ class $$TransactionsTableTableManager
                 paymentMethod: paymentMethod,
                 pairedTransactionId: pairedTransactionId,
                 recurringConfigId: recurringConfigId,
+                budgetId: budgetId,
+                objectiveId: objectiveId,
                 isRecurring: isRecurring,
                 recurrencePattern: recurrencePattern,
                 receiptImageUrl: receiptImageUrl,
@@ -12846,6 +12985,8 @@ class $$TransactionsTableTableManager
                 Value<String?> paymentMethod = const Value.absent(),
                 Value<String?> pairedTransactionId = const Value.absent(),
                 Value<String?> recurringConfigId = const Value.absent(),
+                Value<String?> budgetId = const Value.absent(),
+                Value<String?> objectiveId = const Value.absent(),
                 Value<bool> isRecurring = const Value.absent(),
                 Value<String?> recurrencePattern = const Value.absent(),
                 Value<String?> receiptImageUrl = const Value.absent(),
@@ -12875,6 +13016,8 @@ class $$TransactionsTableTableManager
                 paymentMethod: paymentMethod,
                 pairedTransactionId: pairedTransactionId,
                 recurringConfigId: recurringConfigId,
+                budgetId: budgetId,
+                objectiveId: objectiveId,
                 isRecurring: isRecurring,
                 recurrencePattern: recurrencePattern,
                 receiptImageUrl: receiptImageUrl,

@@ -192,9 +192,9 @@ class ReportsNotifier extends StateNotifier<ReportsState> {
       double totalSpending = 0;
       double totalIncome = 0;
       for (final t in transactions) {
-        if (t.type == 'expense') {
+        if (!t.isIncome) {
           totalSpending += t.amount;
-        } else if (t.type == 'income') {
+        } else if (t.isIncome) {
           totalIncome += t.amount;
         }
       }
@@ -236,7 +236,7 @@ class ReportsNotifier extends StateNotifier<ReportsState> {
     List<Transaction> transactions,
     double totalSpending,
   ) async {
-    final expenses = transactions.where((t) => t.type == 'expense');
+    final expenses = transactions.where((t) => !t.isIncome);
     final Map<String, double> categoryTotals = {};
 
     // Sum by category
@@ -307,7 +307,7 @@ class ReportsNotifier extends StateNotifier<ReportsState> {
     DateTime endDate,
     int timeframe,
   ) {
-    final expenses = transactions.where((t) => t.type == 'expense').toList();
+    final expenses = transactions.where((t) => !t.isIncome).toList();
     final List<DailySpendingData> result = [];
 
     if (timeframe == 0) {
@@ -383,7 +383,7 @@ class ReportsNotifier extends StateNotifier<ReportsState> {
       // Calculate spent amount
       final spent = transactions
           .where((t) =>
-              t.type == 'expense' &&
+              !t.isIncome &&
               (budget.categoryId.isEmpty || t.categoryId == budget.categoryId))
           .fold(0.0, (sum, t) => sum + t.amount);
 

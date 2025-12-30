@@ -573,7 +573,7 @@ class _ResponsiveFinancialOverviewState
                 ),
               );
 
-              final isIncome = transaction.type == 'income';
+              final isIncome = transaction.isIncome;
               final categoryColor = Color(
                 int.parse(category.colorCode.replaceFirst('#', '0xFF')),
               );

@@ -719,27 +719,34 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Row(
-                          children: [
-                            Container(
-                              width: 12,
-                              height: 12,
-                              decoration: BoxDecoration(
-                                color: category['color'] as Color,
-                                borderRadius: BorderRadius.circular(6),
+                        Expanded(
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 12,
+                                height: 12,
+                                decoration: BoxDecoration(
+                                  color: category['color'] as Color,
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: 12),
-                            Text(
-                              category['name'] as String,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  category['name'] as String,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
+                        const SizedBox(width: 8),
                         Text(
                           category['amount'] as String,
                           style: const TextStyle(

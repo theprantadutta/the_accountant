@@ -1,13 +1,18 @@
 import 'dart:typed_data';
 
 import 'package:drift/drift.dart' show Value;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:the_accountant/data/datasources/local/app_database.dart';
+import 'package:the_accountant/core/services/wallet_balance_service.dart';
+import 'package:the_accountant/data/datasources/local/app_database.dart' as db;
+import 'package:the_accountant/data/datasources/local/app_database.dart' show AppDatabase, TransactionsCompanion;
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
+import 'package:the_accountant/data/models/transaction.dart' show TransactionSpecialType;
 import 'package:the_accountant/features/ai/services/category_assignment_service.dart';
 import 'package:the_accountant/features/settings/providers/settings_provider.dart';
+import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
 import 'package:uuid/uuid.dart';
 
 /// ViewModel class for displaying transactions in UI
@@ -51,6 +56,7 @@ class Transaction {
   final String categoryId;
   final String walletId;
   final DateTime date;
+  final String title;
   final String notes;
   final String paymentMethod;
   final bool isRecurring;
@@ -64,6 +70,7 @@ class Transaction {
     required this.categoryId,
     required this.walletId,
     required this.date,
+    required this.title,
     required this.notes,
     required this.paymentMethod,
     this.isRecurring = false,
@@ -75,7 +82,7 @@ class Transaction {
         id: id,
         amount: amount,
         isIncome: type == 'income',
-        title: '',
+        title: title,
         category: category,
         categoryId: categoryId,
         walletId: walletId,
@@ -111,11 +118,13 @@ class TransactionState {
 
 class TransactionNotifier extends StateNotifier<TransactionState> {
   final AppDatabase _db;
-  final CategoryAssignmentService _categoryAssignmentService; // Add this field
+  final WalletBalanceService _walletBalanceService;
+  final Ref _ref;
+  final CategoryAssignmentService _categoryAssignmentService;
 
-  TransactionNotifier(this._db, SettingsState settings)
-    : _categoryAssignmentService =
-          CategoryAssignmentService(), // Initialize the service
+  TransactionNotifier(this._db, this._ref, SettingsState settings)
+    : _walletBalanceService = WalletBalanceService(_db),
+      _categoryAssignmentService = CategoryAssignmentService(),
       super(TransactionState(transactions: [], isLoading: false)) {
     _loadTransactions();
   }
@@ -123,23 +132,29 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
   Future<void> _loadTransactions() async {
     state = state.copyWith(isLoading: true);
     try {
-      final dbTransactions = await _db.getAllTransactions();
-      final transactions = dbTransactions
+      // Use JOIN query to get transactions with category names
+      final dbResults = await _db.getAllTransactionsWithCategoryName();
+      final transactions = dbResults
           .map(
-            (t) => Transaction(
-              id: t.id,
-              amount: t.amount,
-              // Use isIncome to determine type (new approach)
-              type: t.isIncome ? 'income' : 'expense',
-              category: 'Unknown', // Will be resolved by category lookup
-              categoryId: t.categoryId ?? '',
-              walletId: t.walletId,
-              date: t.date,
-              notes: t.notes ?? '',
-              paymentMethod: t.paymentMethodId ?? '',
-              isRecurring: false, // Deprecated - use RecurringConfigs
-              recurrencePattern: null, // Deprecated - use RecurringConfigs
-            ),
+            (result) {
+              final t = result['transaction'] as db.Transaction;
+              final categoryName = result['categoryName'] as String;
+              return Transaction(
+                id: t.id,
+                amount: t.amount,
+                // Use isIncome to determine type (new approach)
+                type: t.isIncome ? 'income' : 'expense',
+                category: categoryName, // Now resolved from JOIN query
+                categoryId: t.categoryId ?? '',
+                walletId: t.walletId,
+                date: t.date,
+                title: t.title ?? '',
+                notes: t.notes ?? '',
+                paymentMethod: t.paymentMethodId ?? '',
+                isRecurring: false, // Deprecated - use RecurringConfigs
+                recurrencePattern: null, // Deprecated - use RecurringConfigs
+              );
+            },
           )
           .toList();
 
@@ -148,7 +163,7 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
       if (mounted) {
         state = state.copyWith(
           isLoading: false,
-          errorMessage: 'Failed to load transactions',
+          errorMessage: 'Failed to load transactions: $e',
         );
       }
     }
@@ -218,6 +233,85 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
     }
   }
 
+  /// Add a new transaction with full Cashew-style options.
+  /// This method supports all new fields including special types,
+  /// budget/objective assignment, and proper date+time handling.
+  Future<String?> addTransactionFull({
+    required double amount,
+    required bool isIncome,
+    required String categoryId,
+    required String walletId,
+    required DateTime dateTime, // Includes both date AND time
+    String? title,
+    String? notes,
+    String? paymentMethodId,
+    TransactionSpecialType specialType = TransactionSpecialType.none,
+    bool isPaid = true,
+    DateTime? originalDueDate,
+    String? budgetId,
+    String? objectiveId,
+    String? recurringConfigId,
+  }) async {
+    state = state.copyWith(isLoading: true);
+
+    try {
+      final id = const Uuid().v4();
+      final now = DateTime.now();
+
+      // Determine paid status based on special type
+      final effectiveIsPaid = specialType == TransactionSpecialType.none ||
+          specialType == TransactionSpecialType.repetitive
+          ? true // Regular and repetitive are always paid
+          : isPaid; // Others can be unpaid
+
+      final newTransaction = TransactionsCompanion(
+        id: Value(id),
+        amount: Value(amount),
+        isIncome: Value(isIncome),
+        title: Value(title ?? ''),
+        notes: Value(notes),
+        date: Value(dateTime), // Preserves full date+time
+        categoryId: Value(categoryId),
+        walletId: Value(walletId),
+        paymentMethodId: Value(paymentMethodId),
+        transactionType: Value('regular'),
+        specialType: Value(specialType),
+        isPaid: Value(effectiveIsPaid),
+        originalDueDate: Value(originalDueDate),
+        budgetId: Value(budgetId),
+        objectiveId: Value(objectiveId),
+        recurringConfigId: Value(recurringConfigId),
+        createdAt: Value(now),
+        updatedAt: Value(now),
+      );
+
+      await _db.addTransaction(newTransaction);
+
+      // Update wallet balance (only if transaction is paid)
+      if (effectiveIsPaid) {
+        await _walletBalanceService.updateBalanceAfterTransaction(
+          walletId: walletId,
+          amount: amount,
+          isIncome: isIncome,
+        );
+
+        // Refresh wallet provider to reflect new balance (await to ensure state is updated)
+        await _ref.read(walletProvider.notifier).loadWallets();
+      }
+
+      // Reload transactions to get the new one
+      await _loadTransactions();
+
+      return id; // Return the new transaction ID
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: 'Failed to add transaction: $e',
+      );
+      return null;
+    }
+  }
+
   /// Update an existing transaction
   /// [isIncome] - true for income, false for expense
   /// [type] - @deprecated, use isIncome instead. Kept for backward compatibility.
@@ -268,6 +362,21 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
 
       await _db.updateTransaction(updatedTransaction);
 
+      // Recalculate wallet balance for affected wallet(s)
+      // This handles all cases: amount change, wallet change, type change
+      final affectedWalletIds = <String>{};
+      affectedWalletIds.add(existing.walletId);
+      if (walletId != null && walletId != existing.walletId) {
+        affectedWalletIds.add(walletId);
+      }
+
+      for (final wId in affectedWalletIds) {
+        await _walletBalanceService.updateWalletBalance(wId);
+      }
+
+      // Refresh wallet provider to reflect new balance
+      await _ref.read(walletProvider.notifier).loadWallets();
+
       // Reload transactions to get the updated one
       await _loadTransactions();
     } catch (e) {
@@ -282,6 +391,21 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
     state = state.copyWith(isLoading: true);
 
     try {
+      // First get the transaction to reverse its effect on wallet
+      final transaction = await _db.findTransactionById(id);
+      if (transaction != null && transaction.isPaid) {
+        // Reverse the wallet balance effect
+        // If it was income, subtract from wallet; if expense, add back to wallet
+        await _walletBalanceService.updateBalanceAfterTransaction(
+          walletId: transaction.walletId,
+          amount: transaction.amount,
+          isIncome: !transaction.isIncome, // Reverse the effect
+        );
+
+        // Refresh wallet provider to reflect new balance (await to ensure state is updated)
+        await _ref.read(walletProvider.notifier).loadWallets();
+      }
+
       await _db.deleteTransaction(id);
 
       // Reload transactions to reflect the deletion
@@ -640,5 +764,5 @@ final transactionProvider =
     StateNotifierProvider<TransactionNotifier, TransactionState>((ref) {
       final db = ref.watch(databaseProvider);
       final settings = ref.watch(settingsProvider);
-      return TransactionNotifier(db, settings);
+      return TransactionNotifier(db, ref, settings);
     });

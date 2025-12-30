@@ -25,6 +25,15 @@ class SyncStatus {
   static const int conflict = 4;
 }
 
+/// Special category IDs for system-managed categories
+class SystemCategories {
+  /// Category ID for transfer transactions (like Cashew's "0" category)
+  static const String transferCategoryId = 'transfer-category-0';
+
+  /// Category ID for balance corrections
+  static const String balanceCorrectionCategoryId = 'balance-correction-0';
+}
+
 @DriftDatabase(
   tables: [
     // Core tables
@@ -49,7 +58,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -156,6 +165,11 @@ class AppDatabase extends _$AppDatabase {
               WHERE is_income IS NULL
             ''');
           }
+          if (from < 6) {
+            // Add budget and objective assignment to transactions
+            await m.addColumn(transactions, transactions.budgetId);
+            await m.addColumn(transactions, transactions.objectiveId);
+          }
         },
       );
 
@@ -176,6 +190,29 @@ class AppDatabase extends _$AppDatabase {
   Future<List<Transaction>> getAllTransactions() => (select(transactions)
         ..where((t) => t.deletedAt.isNull()))
       .get();
+
+  /// Get all transactions with category names via JOIN
+  /// Returns a list of maps containing transaction data and resolved category info
+  Future<List<Map<String, dynamic>>> getAllTransactionsWithCategoryName() async {
+    final query = select(transactions).join([
+      leftOuterJoin(categories, categories.id.equalsExp(transactions.categoryId)),
+    ]);
+
+    query.where(transactions.deletedAt.isNull());
+    query.orderBy([OrderingTerm.desc(transactions.date)]);
+
+    final results = await query.get();
+    return results.map((row) {
+      final txn = row.readTable(transactions);
+      final cat = row.readTableOrNull(categories);
+      return {
+        'transaction': txn,
+        'categoryName': cat?.name ?? 'Uncategorized',
+        'categoryColor': cat?.color ?? '#808080',
+        'categoryIconName': cat?.iconName ?? 'category',
+      };
+    }).toList();
+  }
 
   Future<Transaction?> findTransactionById(String id) =>
       (select(transactions)..where((t) => t.id.equals(id))).getSingleOrNull();
@@ -451,6 +488,46 @@ class AppDatabase extends _$AppDatabase {
             ..where((c) => c.deletedAt.isNull())
             ..orderBy([(c) => OrderingTerm.asc(c.orderIndex)]))
           .get();
+
+  /// Ensure system categories exist (Transfer, Balance Correction)
+  /// Call this during app initialization
+  Future<void> ensureSystemCategoriesExist() async {
+    final now = DateTime.now();
+
+    // Create Transfer category if it doesn't exist
+    final transferCategory = await findCategoryById(SystemCategories.transferCategoryId);
+    if (transferCategory == null) {
+      await into(categories).insert(CategoriesCompanion(
+        id: const Value(SystemCategories.transferCategoryId),
+        name: const Value('Transfer'),
+        iconName: const Value('swap_horiz'),
+        color: const Value('#9E9E9E'),
+        isIncome: const Value(false), // Treated as expense category
+        isDefault: const Value(true),
+        orderIndex: const Value(-1), // System categories at the end
+        createdAt: Value(now),
+        updatedAt: Value(now),
+        syncStatus: const Value(SyncStatus.synced),
+      ));
+    }
+
+    // Create Balance Correction category if it doesn't exist
+    final correctionCategory = await findCategoryById(SystemCategories.balanceCorrectionCategoryId);
+    if (correctionCategory == null) {
+      await into(categories).insert(CategoriesCompanion(
+        id: const Value(SystemCategories.balanceCorrectionCategoryId),
+        name: const Value('Balance Correction'),
+        iconName: const Value('tune'),
+        color: const Value('#607D8B'),
+        isIncome: const Value(false),
+        isDefault: const Value(true),
+        orderIndex: const Value(-2),
+        createdAt: Value(now),
+        updatedAt: Value(now),
+        syncStatus: const Value(SyncStatus.synced),
+      ));
+    }
+  }
 
   // ============================================================
   // Wallet DAO methods

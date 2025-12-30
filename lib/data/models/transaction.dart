@@ -72,6 +72,12 @@ class Transactions extends Table {
   TextColumn get recurringConfigId =>
       text().nullable().references(RecurringConfigs, #id)();
 
+  // Budget assignment (for tracking against budgets)
+  TextColumn get budgetId => text().nullable()();
+
+  // Objective assignment (for goals/loans)
+  TextColumn get objectiveId => text().nullable()();
+
   // @deprecated - Use RecurringConfigs table instead. Kept for backward compatibility.
   BoolColumn get isRecurring => boolean().withDefault(const Constant(false))();
   // @deprecated - Use RecurringConfigs table instead. Kept for backward compatibility.

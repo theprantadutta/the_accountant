@@ -35,9 +35,9 @@ class FinancialCalculationService {
       double totalBalance = 0.0;
 
       for (final transaction in transactions) {
-        if (transaction.type == 'income') {
+        if (transaction.isIncome) {
           totalBalance += transaction.amount;
-        } else if (transaction.type == 'expense') {
+        } else {
           totalBalance -= transaction.amount;
         }
       }
@@ -63,7 +63,7 @@ class FinancialCalculationService {
       }
 
       return transactions
-          .where((t) => t.type == 'income')
+          .where((t) => t.isIncome)
           .fold<double>(0.0, (sum, t) => sum + t.amount);
     } catch (e) {
       return 0.0;
@@ -85,7 +85,7 @@ class FinancialCalculationService {
       }
 
       return transactions
-          .where((t) => t.type == 'expense')
+          .where((t) => !t.isIncome)
           .fold<double>(0.0, (sum, t) => sum + t.amount);
     } catch (e) {
       return 0.0;
@@ -101,9 +101,9 @@ class FinancialCalculationService {
       for (final transaction in transactions.where(
         (t) => t.walletId == walletId,
       )) {
-        if (transaction.type == 'income') {
+        if (transaction.isIncome) {
           balance += transaction.amount;
-        } else if (transaction.type == 'expense') {
+        } else {
           balance -= transaction.amount;
         }
       }
@@ -125,7 +125,7 @@ class FinancialCalculationService {
         startOfMonth,
         endOfMonth,
       );
-      final expenses = transactions.where((t) => t.type == 'expense');
+      final expenses = transactions.where((t) => !t.isIncome);
 
       final Map<String, double> categorySpending = {};
 
@@ -164,7 +164,7 @@ class FinancialCalculationService {
         final categoryId = budget.categoryId;
         final categoryExpenses = transactions
             .where(
-              (t) => t.type == 'expense' && (categoryId == null || t.categoryId == categoryId),
+              (t) => !t.isIncome && (categoryId == null || t.categoryId == categoryId),
             )
             .fold(0.0, (sum, t) => sum + t.amount);
 
@@ -198,7 +198,7 @@ class FinancialCalculationService {
         final categoryId = budget.categoryId;
         final spent = transactions
             .where(
-              (t) => t.type == 'expense' && (categoryId == null || t.categoryId == categoryId),
+              (t) => !t.isIncome && (categoryId == null || t.categoryId == categoryId),
             )
             .fold(0.0, (sum, t) => sum + t.amount);
 

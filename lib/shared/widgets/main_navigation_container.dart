@@ -11,6 +11,7 @@ import 'package:the_accountant/shared/widgets/neo_button.dart';
 import 'package:the_accountant/features/dashboard/widgets/responsive_financial_overview.dart';
 import 'package:the_accountant/features/transactions/screens/transaction_list_screen.dart';
 import 'package:the_accountant/features/transactions/screens/add_transaction_screen.dart';
+import 'package:the_accountant/features/transactions/widgets/transaction_type_header.dart';
 import 'package:the_accountant/features/ai_assistant/screens/ai_assistant_screen.dart';
 import 'package:the_accountant/features/authentication/presentation/screens/user_profile_screen.dart';
 import 'package:the_accountant/features/reports/screens/reports_screen.dart';
@@ -92,6 +93,13 @@ class _MainNavigationContainerState
   }
 
   void _showAddTransactionModal() {
+    HapticFeedback.mediumImpact();
+    // Use the new full-screen Cashew-style transaction creation
+    showAddTransactionScreen(context);
+  }
+
+  // Legacy method for backward compatibility - kept for reference
+  void _showAddTransactionModalLegacy() {
     HapticFeedback.mediumImpact();
 
     showModalBottomSheet(
@@ -401,14 +409,12 @@ class _MainNavigationContainerState
   }
 
   void _navigateToAddTransaction(String transactionType, String categoryName) {
-    Navigator.push(
+    // Use the new Cashew-style transaction screen
+    showAddTransactionScreen(
       context,
-      MaterialPageRoute(
-        builder: (context) => AddTransactionScreenWithPreset(
-          presetType: transactionType,
-          presetCategoryName: categoryName,
-        ),
-      ),
+      initialType: transactionType == 'income'
+          ? TransactionTypeSelection.income
+          : TransactionTypeSelection.expense,
     );
   }
 }
