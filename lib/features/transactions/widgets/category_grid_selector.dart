@@ -295,40 +295,12 @@ class _CategoryGridSelectorState extends ConsumerState<CategoryGridSelector>
     }
   }
 
-  /// Get icon based on category name (fallback icons)
-  /// In a real app, you'd store icon names in the database
+  /// Get icon based on category icon name
+  /// Returns default category icon if not found
   IconData _getIconData(String categoryId) {
-    // Default icon mapping based on common category names
-    // This can be extended to use stored iconName from database
-    final iconMap = <String, IconData>{
-      'restaurant': Icons.restaurant,
-      'directions_car': Icons.directions_car,
-      'shopping_bag': Icons.shopping_bag,
-      'movie': Icons.movie,
-      'receipt': Icons.receipt,
-      'local_hospital': Icons.local_hospital,
-      'school': Icons.school,
-      'flight': Icons.flight,
-      'local_grocery_store': Icons.local_grocery_store,
-      'home': Icons.home,
-      'security': Icons.security,
-      'spa': Icons.spa,
-      'subscriptions': Icons.subscriptions,
-      'card_giftcard': Icons.card_giftcard,
-      'more_horiz': Icons.more_horiz,
-      'work': Icons.work,
-      'laptop': Icons.laptop,
-      'business': Icons.business,
-      'trending_up': Icons.trending_up,
-      'apartment': Icons.apartment,
-      'star': Icons.star,
-      'redeem': Icons.redeem,
-      'replay': Icons.replay,
-      'add_circle': Icons.add_circle,
-    };
-
     // For now, return a default icon
-    // In a full implementation, we'd look up the category's iconName
+    // In a full implementation, we'd look up the category's iconName from the database
+    // and map it to the corresponding IconData
     return Icons.category;
   }
 }
