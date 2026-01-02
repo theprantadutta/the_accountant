@@ -1,176 +1,172 @@
 // Data models for synchronization operations
+// Aligned with backend API: TheAccountant.Application.Features.Sync.DTOs
 
-/// Represents a single change to be synced
+/// Represents a single change to be synced (matches backend SyncChange)
 class SyncChange {
-  final String id;
-  final String action; // 'create', 'update', 'delete'
-  final String? serverId;
-  final Map<String, dynamic> data;
-  final DateTime timestamp;
+  final String tableName;
+  final String entityId;
+  final String operation; // 'create', 'update', 'delete'
+  final Map<String, dynamic>? data;
 
   SyncChange({
-    required this.id,
-    required this.action,
-    this.serverId,
-    required this.data,
-    required this.timestamp,
+    required this.tableName,
+    required this.entityId,
+    required this.operation,
+    this.data,
   });
 
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'action': action,
-    'server_id': serverId,
-    'data': data,
-  };
+        'tableName': tableName,
+        'entityId': entityId,
+        'operation': operation,
+        'data': data,
+      };
 
   factory SyncChange.fromJson(Map<String, dynamic> json) => SyncChange(
-    id: json['id'],
-    action: json['action'],
-    serverId: json['server_id'],
-    data: json['data'] ?? {},
-    timestamp: DateTime.now(),
-  );
+        tableName: json['tableName'] ?? json['TableName'] ?? '',
+        entityId: json['entityId'] ?? json['EntityId'] ?? '',
+        operation: json['operation'] ?? json['Operation'] ?? '',
+        data: json['data'] ?? json['Data'],
+      );
 }
 
-/// Request to push local changes to server
+/// Request to push local changes to server (matches backend PushChangesCommand)
 class SyncPushRequest {
-  final String table;
   final List<SyncChange> changes;
-  final int clientVersion;
 
-  SyncPushRequest({
-    required this.table,
-    required this.changes,
-    required this.clientVersion,
-  });
+  SyncPushRequest({required this.changes});
 
   Map<String, dynamic> toJson() => {
-    'table': table,
-    'changes': changes.map((c) => c.toJson()).toList(),
-    'client_version': clientVersion,
-  };
+        'changes': changes.map((c) => c.toJson()).toList(),
+      };
 }
 
-/// Response from push operation
+/// Response from push operation (matches backend SyncPushResponse)
 class SyncPushResponse {
-  final int serverVersion;
-  final List<String> accepted;
+  final int appliedCount;
   final List<SyncConflict> conflicts;
-  final Map<String, String> idMapping;
 
   SyncPushResponse({
-    required this.serverVersion,
-    required this.accepted,
+    required this.appliedCount,
     required this.conflicts,
-    required this.idMapping,
   });
 
-  factory SyncPushResponse.fromJson(Map<String, dynamic> json) => SyncPushResponse(
-    serverVersion: json['server_version'] ?? 0,
-    accepted: List<String>.from(json['accepted'] ?? []),
-    conflicts: (json['conflicts'] as List?)
-        ?.map((c) => SyncConflict.fromJson(c))
-        .toList() ?? [],
-    idMapping: Map<String, String>.from(json['id_mapping'] ?? {}),
-  );
+  factory SyncPushResponse.fromJson(Map<String, dynamic> json) =>
+      SyncPushResponse(
+        appliedCount: json['appliedCount'] ?? json['AppliedCount'] ?? 0,
+        conflicts: (json['conflicts'] ?? json['Conflicts'] as List?)
+                ?.map((c) => SyncConflict.fromJson(c))
+                .toList() ??
+            [],
+      );
 }
 
-/// Request to pull changes from server
-class SyncPullRequest {
-  final String table;
-  final int sinceVersion;
-
-  SyncPullRequest({
-    required this.table,
-    required this.sinceVersion,
-  });
-
-  Map<String, dynamic> toJson() => {
-    'table': table,
-    'since_version': sinceVersion,
-  };
-}
-
-/// Response from pull operation
+/// Response from pull operation (matches backend SyncPullResponse)
 class SyncPullResponse {
-  final List<Map<String, dynamic>> changes;
-  final int serverVersion;
-  final bool hasMore;
+  final Map<String, List<SyncChange>> changes;
+  final Map<String, int> currentVersions;
 
   SyncPullResponse({
     required this.changes,
-    required this.serverVersion,
-    required this.hasMore,
+    required this.currentVersions,
   });
 
-  factory SyncPullResponse.fromJson(Map<String, dynamic> json) => SyncPullResponse(
-    changes: List<Map<String, dynamic>>.from(json['changes'] ?? []),
-    serverVersion: json['server_version'] ?? 0,
-    hasMore: json['has_more'] ?? false,
-  );
+  factory SyncPullResponse.fromJson(Map<String, dynamic> json) {
+    final changesJson =
+        json['changes'] ?? json['Changes'] as Map<String, dynamic>? ?? {};
+    final changes = <String, List<SyncChange>>{};
+
+    changesJson.forEach((tableName, changesList) {
+      if (changesList is List) {
+        changes[tableName] = changesList
+            .map((c) => SyncChange.fromJson(c as Map<String, dynamic>))
+            .toList();
+      }
+    });
+
+    final versionsJson = json['currentVersions'] ??
+        json['CurrentVersions'] as Map<String, dynamic>? ??
+        {};
+    final versions = <String, int>{};
+    versionsJson.forEach((key, value) {
+      versions[key] = value as int? ?? 0;
+    });
+
+    return SyncPullResponse(
+      changes: changes,
+      currentVersions: versions,
+    );
+  }
 }
 
-/// Represents a sync conflict
+/// Represents a sync conflict (matches backend SyncConflict)
 class SyncConflict {
-  final String clientId;
-  final String? serverId;
-  final Map<String, dynamic> clientData;
-  final Map<String, dynamic> serverData;
-  final String conflictType;
+  final String tableName;
+  final String entityId;
+  final String reason;
 
   SyncConflict({
-    required this.clientId,
-    this.serverId,
-    required this.clientData,
-    required this.serverData,
-    required this.conflictType,
+    required this.tableName,
+    required this.entityId,
+    required this.reason,
   });
 
   factory SyncConflict.fromJson(Map<String, dynamic> json) => SyncConflict(
-    clientId: json['client_id'],
-    serverId: json['server_id'],
-    clientData: Map<String, dynamic>.from(json['client_data'] ?? {}),
-    serverData: Map<String, dynamic>.from(json['server_data'] ?? {}),
-    conflictType: json['conflict_type'] ?? 'unknown',
-  );
+        tableName: json['tableName'] ?? json['TableName'] ?? '',
+        entityId: json['entityId'] ?? json['EntityId'] ?? '',
+        reason: json['reason'] ?? json['Reason'] ?? '',
+      );
 }
 
-/// Sync status for a table
-class TableSyncStatus {
+/// Sync status for a table (matches backend SyncLogDto)
+class SyncLogDto {
+  final String id;
+  final String userId;
   final String tableName;
-  final int version;
-  final int count;
-  final DateTime? lastSync;
+  final DateTime? lastSyncAt;
+  final int lastServerVersion;
+  final DateTime createdAt;
+  final DateTime updatedAt;
 
-  TableSyncStatus({
+  SyncLogDto({
+    required this.id,
+    required this.userId,
     required this.tableName,
-    required this.version,
-    required this.count,
-    this.lastSync,
+    this.lastSyncAt,
+    required this.lastServerVersion,
+    required this.createdAt,
+    required this.updatedAt,
   });
 
-  factory TableSyncStatus.fromJson(String name, Map<String, dynamic> json) => TableSyncStatus(
-    tableName: name,
-    version: json['version'] ?? 0,
-    count: json['count'] ?? 0,
-    lastSync: json['last_sync'] != null ? DateTime.parse(json['last_sync']) : null,
-  );
+  factory SyncLogDto.fromJson(Map<String, dynamic> json) => SyncLogDto(
+        id: json['id'] ?? json['Id'] ?? '',
+        userId: json['userId'] ?? json['UserId'] ?? '',
+        tableName: json['tableName'] ?? json['TableName'] ?? '',
+        lastSyncAt: json['lastSyncAt'] ?? json['LastSyncAt'] != null
+            ? DateTime.parse(json['lastSyncAt'] ?? json['LastSyncAt'])
+            : null,
+        lastServerVersion:
+            json['lastServerVersion'] ?? json['LastServerVersion'] ?? 0,
+        createdAt: json['createdAt'] ?? json['CreatedAt'] != null
+            ? DateTime.parse(json['createdAt'] ?? json['CreatedAt'])
+            : DateTime.now(),
+        updatedAt: json['updatedAt'] ?? json['UpdatedAt'] != null
+            ? DateTime.parse(json['updatedAt'] ?? json['UpdatedAt'])
+            : DateTime.now(),
+      );
 }
 
-/// Overall sync status response
+/// Overall sync status response (matches backend SyncStatusResponse)
 class SyncStatusResponse {
-  final Map<String, TableSyncStatus> tables;
+  final List<SyncLogDto> tables;
 
   SyncStatusResponse({required this.tables});
 
   factory SyncStatusResponse.fromJson(Map<String, dynamic> json) {
-    final tablesJson = json['tables'] as Map<String, dynamic>? ?? {};
-    final tables = <String, TableSyncStatus>{};
-
-    tablesJson.forEach((key, value) {
-      tables[key] = TableSyncStatus.fromJson(key, value);
-    });
-
+    final tablesJson = json['tables'] ?? json['Tables'] as List? ?? [];
+    final tables = tablesJson
+        .map((t) => SyncLogDto.fromJson(t as Map<String, dynamic>))
+        .toList();
     return SyncStatusResponse(tables: tables);
   }
 }
@@ -198,18 +194,19 @@ class SyncResult {
     int pulledCount = 0,
     int conflictCount = 0,
     Duration duration = Duration.zero,
-  }) => SyncResult(
-    success: true,
-    pushedCount: pushedCount,
-    pulledCount: pulledCount,
-    conflictCount: conflictCount,
-    duration: duration,
-  );
+  }) =>
+      SyncResult(
+        success: true,
+        pushedCount: pushedCount,
+        pulledCount: pulledCount,
+        conflictCount: conflictCount,
+        duration: duration,
+      );
 
   factory SyncResult.failure(String error) => SyncResult(
-    success: false,
-    error: error,
-  );
+        success: false,
+        error: error,
+      );
 }
 
 /// Enum for sync operation state (not to be confused with database SyncState table)
@@ -220,3 +217,6 @@ enum SyncOperationState {
   error,
   offline,
 }
+
+// Note: SyncStatus constants are defined in app_database.dart
+// Use those instead: SyncStatus.synced, SyncStatus.pendingCreate, etc.

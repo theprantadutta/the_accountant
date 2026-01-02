@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:the_accountant/data/models/transaction.dart' show TransactionSpecialType;
 import 'package:the_accountant/features/categories/providers/category_provider.dart';
 import 'package:the_accountant/features/transactions/providers/smart_categorization_provider.dart';
 import 'package:the_accountant/features/transactions/providers/transaction_provider.dart';
@@ -59,6 +60,8 @@ class _TransactionBottomSheetState extends ConsumerState<TransactionBottomSheet>
   String _title = '';
   String _notes = '';
   DateTime _date = DateTime.now();
+  TransactionSpecialType _specialType = TransactionSpecialType.none;
+  bool _isPaid = true;
 
   bool _isSaving = false;
 
@@ -229,31 +232,19 @@ class _TransactionBottomSheetState extends ConsumerState<TransactionBottomSheet>
         return;
       }
 
-      await transactionNotifier.addTransaction(
+      // Use addTransactionFull for complete Cashew-style transaction creation
+      // This method handles wallet balance updates internally
+      await transactionNotifier.addTransactionFull(
         amount: _amount,
         isIncome: _isIncome,
-        category: _selectedCategory!.name,
         categoryId: _selectedCategory!.id,
         walletId: effectiveWalletId,
-        date: _date,
-        notes: _notes,
+        dateTime: _date,
         title: _title,
+        notes: _notes.isNotEmpty ? _notes : null,
+        specialType: _specialType,
+        isPaid: _isPaid,
       );
-
-      // Update wallet balance with proper error handling
-      try {
-        await walletNotifier.balanceService.updateBalanceAfterTransaction(
-          walletId: effectiveWalletId,
-          amount: _amount,
-          isIncome: _isIncome,
-        );
-      } catch (e) {
-        // Fallback: recalculate balance from all transactions
-        await walletNotifier.balanceService.updateWalletBalance(effectiveWalletId);
-      }
-
-      // Refresh wallets to update UI
-      await walletNotifier.loadWallets();
 
       // Learn from this transaction for smart categorization
       if (_title.isNotEmpty && _selectedCategory != null) {
@@ -267,7 +258,7 @@ class _TransactionBottomSheetState extends ConsumerState<TransactionBottomSheet>
 
       if (mounted) {
         HapticFeedback.mediumImpact();
-        Navigator.pop(context);
+        Navigator.pop(context, true); // Return true to indicate transaction was created
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(_isIncome ? 'Income added!' : 'Expense added!'),
@@ -628,6 +619,10 @@ class _TransactionBottomSheetState extends ConsumerState<TransactionBottomSheet>
           _buildDatePicker(theme),
           const SizedBox(height: 16),
 
+          // Special Type Selector
+          _buildSpecialTypeSelector(theme),
+          const SizedBox(height: 16),
+
           // Notes
           _buildTextField(
             theme,
@@ -638,6 +633,147 @@ class _TransactionBottomSheetState extends ConsumerState<TransactionBottomSheet>
             maxLines: 3,
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildSpecialTypeSelector(ThemeData theme) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Transaction Type',
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            _buildSpecialTypeChip(
+              theme,
+              type: TransactionSpecialType.none,
+              label: 'Regular',
+              icon: Icons.receipt_long,
+            ),
+            _buildSpecialTypeChip(
+              theme,
+              type: TransactionSpecialType.upcoming,
+              label: 'Upcoming',
+              icon: Icons.schedule,
+            ),
+            _buildSpecialTypeChip(
+              theme,
+              type: TransactionSpecialType.subscription,
+              label: 'Subscription',
+              icon: Icons.autorenew,
+            ),
+            _buildSpecialTypeChip(
+              theme,
+              type: TransactionSpecialType.repetitive,
+              label: 'Repetitive',
+              icon: Icons.repeat,
+            ),
+            if (!_isIncome) ...[
+              _buildSpecialTypeChip(
+                theme,
+                type: TransactionSpecialType.credit,
+                label: 'Lent',
+                icon: Icons.arrow_upward,
+              ),
+              _buildSpecialTypeChip(
+                theme,
+                type: TransactionSpecialType.debt,
+                label: 'Borrowed',
+                icon: Icons.arrow_downward,
+              ),
+            ],
+          ],
+        ),
+        // Show "Mark as Paid" toggle for non-regular types
+        if (_specialType != TransactionSpecialType.none &&
+            _specialType != TransactionSpecialType.repetitive) ...[
+          const SizedBox(height: 12),
+          SwitchListTile(
+            value: _isPaid,
+            onChanged: (value) => setState(() => _isPaid = value),
+            title: Text(
+              'Mark as Paid',
+              style: TextStyle(
+                fontSize: 14,
+                color: theme.colorScheme.onSurface,
+              ),
+            ),
+            subtitle: Text(
+              _isPaid ? 'Transaction is completed' : 'Transaction is pending',
+              style: TextStyle(
+                fontSize: 12,
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+            contentPadding: EdgeInsets.zero,
+            dense: true,
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildSpecialTypeChip(
+    ThemeData theme, {
+    required TransactionSpecialType type,
+    required String label,
+    required IconData icon,
+  }) {
+    final isSelected = _specialType == type;
+    final color = _isIncome ? Colors.green : theme.colorScheme.primary;
+
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.lightImpact();
+        setState(() {
+          _specialType = type;
+          // Reset isPaid based on type
+          if (type == TransactionSpecialType.none ||
+              type == TransactionSpecialType.repetitive) {
+            _isPaid = true;
+          }
+        });
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? color.withValues(alpha: 0.15) : theme.colorScheme.surfaceContainerHighest,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected ? color : Colors.transparent,
+            width: 1.5,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 16,
+              color: isSelected ? color : theme.colorScheme.onSurfaceVariant,
+            ),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                color: isSelected ? color : theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -865,7 +1001,7 @@ class _TransactionBottomSheetState extends ConsumerState<TransactionBottomSheet>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Date',
+          'Date & Time',
           style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w500,
@@ -873,51 +1009,122 @@ class _TransactionBottomSheetState extends ConsumerState<TransactionBottomSheet>
           ),
         ),
         const SizedBox(height: 8),
-        GestureDetector(
-          onTap: () async {
-            final date = await showDatePicker(
-              context: context,
-              initialDate: _date,
-              firstDate: DateTime(2000),
-              lastDate: DateTime.now().add(const Duration(days: 365)),
-            );
-            if (date != null) {
-              setState(() {
-                _date = date;
-              });
-            }
-          },
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(
-              color: theme.colorScheme.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.calendar_today,
-                  size: 20,
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
-                const SizedBox(width: 12),
-                Text(
-                  _formatDate(_date),
-                  style: TextStyle(
-                    color: theme.colorScheme.onSurface,
+        Row(
+          children: [
+            // Date picker
+            Expanded(
+              flex: 3,
+              child: GestureDetector(
+                onTap: () async {
+                  final date = await showDatePicker(
+                    context: context,
+                    initialDate: _date,
+                    firstDate: DateTime(2000),
+                    lastDate: DateTime.now().add(const Duration(days: 365)),
+                  );
+                  if (date != null) {
+                    setState(() {
+                      // Preserve the time from the current date
+                      _date = DateTime(
+                        date.year,
+                        date.month,
+                        date.day,
+                        _date.hour,
+                        _date.minute,
+                      );
+                    });
+                  }
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.calendar_today,
+                        size: 20,
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        _formatDate(_date),
+                        style: TextStyle(
+                          color: theme.colorScheme.onSurface,
+                        ),
+                      ),
+                      const Spacer(),
+                      Icon(
+                        Icons.keyboard_arrow_down,
+                        size: 18,
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ],
                   ),
                 ),
-                const Spacer(),
-                Icon(
-                  Icons.keyboard_arrow_down,
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
-              ],
+              ),
             ),
-          ),
+            const SizedBox(width: 12),
+            // Time picker
+            Expanded(
+              flex: 2,
+              child: GestureDetector(
+                onTap: () async {
+                  final time = await showTimePicker(
+                    context: context,
+                    initialTime: TimeOfDay.fromDateTime(_date),
+                  );
+                  if (time != null) {
+                    setState(() {
+                      _date = DateTime(
+                        _date.year,
+                        _date.month,
+                        _date.day,
+                        time.hour,
+                        time.minute,
+                      );
+                    });
+                  }
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.access_time,
+                        size: 20,
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        _formatTime(_date),
+                        style: TextStyle(
+                          color: theme.colorScheme.onSurface,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ],
     );
+  }
+
+  String _formatTime(DateTime date) {
+    final hour = date.hour;
+    final minute = date.minute.toString().padLeft(2, '0');
+    final period = hour >= 12 ? 'PM' : 'AM';
+    final hour12 = hour % 12 == 0 ? 12 : hour % 12;
+    return '$hour12:$minute $period';
   }
 
   Widget _buildBottomActions(ThemeData theme) {

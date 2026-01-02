@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:logger/logger.dart';
-import 'package:uuid/uuid.dart';
 
 import 'package:the_accountant/core/services/api_service.dart';
 import 'package:the_accountant/core/services/sync/sync_models.dart';
@@ -10,11 +9,14 @@ import 'package:drift/drift.dart';
 
 /// Hybrid Sync Service
 /// Handles local-first data with optional backend synchronization
+/// Aligned with backend API endpoints:
+/// - GET /sync/status
+/// - GET /sync/pull?since={datetime}
+/// - POST /sync/push
 class SyncService {
   final ApiService _apiService;
   final AppDatabase _database;
   final Logger _logger = Logger();
-  final Uuid _uuid = const Uuid();
 
   // Sync state
   SyncOperationState _state = SyncOperationState.idle;
@@ -28,18 +30,8 @@ class SyncService {
   SyncResult? _lastResult;
   SyncResult? get lastResult => _lastResult;
 
-  // Sync order - respects foreign key dependencies
-  static const List<String> syncOrder = [
-    'categories',
-    'wallets',
-    'payment_methods',
-    'exchange_rates',
-    'transactions',
-    'recurring_configs',
-    'budgets',
-    'objectives',
-    'associated_titles',
-  ];
+  // Last sync timestamp
+  DateTime? _lastSyncAt;
 
   SyncService({
     required ApiService apiService,
@@ -83,33 +75,32 @@ class SyncService {
     int totalConflicts = 0;
 
     try {
-      // Sync each table in order
-      for (final tableName in syncOrder) {
-        _logger.d('Syncing table: $tableName');
+      // Step 1: Push all local changes
+      final pushResult = await _pushAllChanges();
+      if (pushResult != null) {
+        totalPushed = pushResult.appliedCount;
+        totalConflicts = pushResult.conflicts.length;
 
-        // Push local changes
-        final pushResult = await _pushChanges(tableName);
-        if (pushResult != null) {
-          totalPushed += pushResult.accepted.length;
-          totalConflicts += pushResult.conflicts.length;
+        // Mark pushed records as synced
+        await _markPushedRecordsAsSynced();
+      }
 
-          // Handle ID mappings for new records
-          await _applyIdMappings(tableName, pushResult.idMapping);
+      // Step 2: Pull all remote changes
+      final pullResult = await _pullAllChanges();
+      if (pullResult != null) {
+        // Apply changes for each table
+        for (final entry in pullResult.changes.entries) {
+          final tableName = entry.key;
+          final changes = entry.value;
+          totalPulled += changes.length;
 
-          // Handle conflicts (last-write-wins by default)
-          await _resolveConflicts(tableName, pushResult.conflicts);
+          for (final change in changes) {
+            await _applyPulledChange(tableName, change);
+          }
         }
 
-        // Pull remote changes
-        final pullResult = await _pullChanges(tableName);
-        if (pullResult != null) {
-          totalPulled += pullResult.changes.length;
-          await _applyPulledChanges(tableName, pullResult.changes);
-          await _database.updateSyncState(tableName, pullResult.serverVersion);
-        }
-
-        // Mark table as synced
-        await _database.markTableAsSynced(tableName);
+        // Update last sync timestamp
+        _lastSyncAt = DateTime.now();
       }
 
       final duration = DateTime.now().difference(startTime);
@@ -121,7 +112,8 @@ class SyncService {
       );
 
       _setState(SyncOperationState.success);
-      _logger.i('Sync completed: pushed=$totalPushed, pulled=$totalPulled, conflicts=$totalConflicts');
+      _logger.i(
+          'Sync completed: pushed=$totalPushed, pulled=$totalPulled, conflicts=$totalConflicts');
 
       return _lastResult!;
     } catch (e, stack) {
@@ -132,242 +124,446 @@ class SyncService {
     }
   }
 
-  /// Sync a single table
-  Future<SyncResult> syncTable(String tableName) async {
-    if (!syncOrder.contains(tableName)) {
-      return SyncResult.failure('Unknown table: $tableName');
-    }
+  /// Push all pending local changes to server
+  Future<SyncPushResponse?> _pushAllChanges() async {
+    final allChanges = <SyncChange>[];
 
-    if (_state == SyncOperationState.syncing) {
-      return SyncResult.failure('Sync already in progress');
-    }
+    // Collect pending changes from all tables
+    allChanges.addAll(await _getPendingTransactionChanges());
+    allChanges.addAll(await _getPendingWalletChanges());
+    allChanges.addAll(await _getPendingCategoryChanges());
+    allChanges.addAll(await _getPendingBudgetChanges());
+    allChanges.addAll(await _getPendingObjectiveChanges());
+    allChanges.addAll(await _getPendingPaymentMethodChanges());
 
-    _setState(SyncOperationState.syncing);
-
-    if (!await isOnline()) {
-      _setState(SyncOperationState.offline);
-      return SyncResult.failure('No internet connection');
-    }
-
-    try {
-      // Push changes
-      final pushResult = await _pushChanges(tableName);
-      int pushed = 0;
-      int conflicts = 0;
-
-      if (pushResult != null) {
-        pushed = pushResult.accepted.length;
-        conflicts = pushResult.conflicts.length;
-        await _applyIdMappings(tableName, pushResult.idMapping);
-        await _resolveConflicts(tableName, pushResult.conflicts);
-      }
-
-      // Pull changes
-      final pullResult = await _pullChanges(tableName);
-      int pulled = 0;
-
-      if (pullResult != null) {
-        pulled = pullResult.changes.length;
-        await _applyPulledChanges(tableName, pullResult.changes);
-        await _database.updateSyncState(tableName, pullResult.serverVersion);
-      }
-
-      await _database.markTableAsSynced(tableName);
-
-      _setState(SyncOperationState.success);
-      return SyncResult.success(
-        pushedCount: pushed,
-        pulledCount: pulled,
-        conflictCount: conflicts,
-      );
-    } catch (e) {
-      _setState(SyncOperationState.error);
-      return SyncResult.failure(e.toString());
-    }
-  }
-
-  /// Push local changes to server
-  Future<SyncPushResponse?> _pushChanges(String tableName) async {
-    final changes = await _getPendingChanges(tableName);
-    if (changes.isEmpty) {
-      _logger.d('No pending changes for $tableName');
+    if (allChanges.isEmpty) {
+      _logger.d('No pending changes to push');
       return null;
     }
 
-    final syncState = await _database.getSyncStateForTable(tableName);
-    final clientVersion = syncState?.lastServerVersion ?? 0;
-
-    final request = SyncPushRequest(
-      table: tableName,
-      changes: changes,
-      clientVersion: clientVersion,
-    );
+    _logger.d('Pushing ${allChanges.length} changes');
 
     try {
       final response = await _apiService.post(
         '/sync/push',
-        data: request.toJson(),
+        data: SyncPushRequest(changes: allChanges).toJson(),
       );
       return SyncPushResponse.fromJson(response.data);
     } catch (e) {
-      _logger.e('Push failed for $tableName: $e');
+      _logger.e('Push failed: $e');
       rethrow;
     }
   }
 
-  /// Pull changes from server
-  Future<SyncPullResponse?> _pullChanges(String tableName) async {
-    final syncState = await _database.getSyncStateForTable(tableName);
-    final sinceVersion = syncState?.lastServerVersion ?? 0;
-
-    final request = SyncPullRequest(
-      table: tableName,
-      sinceVersion: sinceVersion,
-    );
-
+  /// Pull all changes from server since last sync
+  Future<SyncPullResponse?> _pullAllChanges() async {
     try {
-      final response = await _apiService.post(
+      final queryParams = <String, dynamic>{};
+      if (_lastSyncAt != null) {
+        queryParams['since'] = _lastSyncAt!.toUtc().toIso8601String();
+      }
+
+      final response = await _apiService.get(
         '/sync/pull',
-        data: request.toJson(),
+        queryParameters: queryParams,
       );
       return SyncPullResponse.fromJson(response.data);
     } catch (e) {
-      _logger.e('Pull failed for $tableName: $e');
+      _logger.e('Pull failed: $e');
       rethrow;
     }
   }
 
-  /// Get pending changes for a table
-  Future<List<SyncChange>> _getPendingChanges(String tableName) async {
+  // ==================== GET PENDING CHANGES ====================
+
+  Future<List<SyncChange>> _getPendingTransactionChanges() async {
     final changes = <SyncChange>[];
+    final records = await (_database.select(_database.transactions)
+          ..where((t) => t.syncStatus.isBiggerThanValue(0)))
+        .get();
 
-    switch (tableName) {
-      case 'categories':
-        final records = await (_database.select(_database.categories)
-              ..where((c) => c.syncStatus.isBiggerThanValue(0)))
-            .get();
-        for (final r in records) {
-          changes.add(SyncChange(
-            id: r.id,
-            action: _getActionFromStatus(r.syncStatus),
-            serverId: r.serverId,
-            data: _categoryToMap(r),
-            timestamp: r.updatedAt ?? DateTime.now(),
-          ));
-        }
-        break;
-
-      case 'wallets':
-        final records = await (_database.select(_database.wallets)
-              ..where((w) => w.syncStatus.isBiggerThanValue(0)))
-            .get();
-        for (final r in records) {
-          changes.add(SyncChange(
-            id: r.id,
-            action: _getActionFromStatus(r.syncStatus),
-            serverId: r.serverId,
-            data: _walletToMap(r),
-            timestamp: r.updatedAt ?? DateTime.now(),
-          ));
-        }
-        break;
-
-      case 'transactions':
-        final records = await (_database.select(_database.transactions)
-              ..where((t) => t.syncStatus.isBiggerThanValue(0)))
-            .get();
-        for (final r in records) {
-          changes.add(SyncChange(
-            id: r.id,
-            action: _getActionFromStatus(r.syncStatus),
-            serverId: r.serverId,
-            data: _transactionToMap(r),
-            timestamp: r.updatedAt ?? DateTime.now(),
-          ));
-        }
-        break;
-
-      case 'budgets':
-        final records = await (_database.select(_database.budgets)
-              ..where((b) => b.syncStatus.isBiggerThanValue(0)))
-            .get();
-        for (final r in records) {
-          changes.add(SyncChange(
-            id: r.id,
-            action: _getActionFromStatus(r.syncStatus),
-            serverId: r.serverId,
-            data: _budgetToMap(r),
-            timestamp: r.updatedAt ?? DateTime.now(),
-          ));
-        }
-        break;
-
-      case 'objectives':
-        final records = await (_database.select(_database.objectives)
-              ..where((o) => o.syncStatus.isBiggerThanValue(0)))
-            .get();
-        for (final r in records) {
-          changes.add(SyncChange(
-            id: r.id,
-            action: _getActionFromStatus(r.syncStatus),
-            serverId: r.serverId,
-            data: _objectiveToMap(r),
-            timestamp: r.updatedAt ?? DateTime.now(),
-          ));
-        }
-        break;
-
-      case 'recurring_configs':
-        final records = await (_database.select(_database.recurringConfigs)
-              ..where((rc) => rc.syncStatus.isBiggerThanValue(0)))
-            .get();
-        for (final r in records) {
-          changes.add(SyncChange(
-            id: r.id,
-            action: _getActionFromStatus(r.syncStatus),
-            serverId: r.serverId,
-            data: _recurringConfigToMap(r),
-            timestamp: r.updatedAt ?? DateTime.now(),
-          ));
-        }
-        break;
-
-      case 'payment_methods':
-        final records = await (_database.select(_database.paymentMethods)
-              ..where((pm) => pm.syncStatus.isBiggerThanValue(0)))
-            .get();
-        for (final r in records) {
-          changes.add(SyncChange(
-            id: r.id,
-            action: _getActionFromStatus(r.syncStatus),
-            serverId: r.serverId,
-            data: _paymentMethodToMap(r),
-            timestamp: r.updatedAt ?? DateTime.now(),
-          ));
-        }
-        break;
-
-      case 'associated_titles':
-        final records = await (_database.select(_database.associatedTitles)
-              ..where((at) => at.syncStatus.isBiggerThanValue(0)))
-            .get();
-        for (final r in records) {
-          changes.add(SyncChange(
-            id: r.id,
-            action: _getActionFromStatus(r.syncStatus),
-            serverId: r.serverId,
-            data: _associatedTitleToMap(r),
-            timestamp: r.updatedAt ?? DateTime.now(),
-          ));
-        }
-        break;
+    for (final r in records) {
+      changes.add(SyncChange(
+        tableName: 'transactions',
+        entityId: r.id,
+        operation: _getOperationFromStatus(r.syncStatus),
+        data: _transactionToMap(r),
+      ));
     }
-
     return changes;
   }
 
-  /// Convert sync status to action string
-  String _getActionFromStatus(int status) {
+  Future<List<SyncChange>> _getPendingWalletChanges() async {
+    final changes = <SyncChange>[];
+    final records = await (_database.select(_database.wallets)
+          ..where((w) => w.syncStatus.isBiggerThanValue(0)))
+        .get();
+
+    for (final r in records) {
+      changes.add(SyncChange(
+        tableName: 'wallets',
+        entityId: r.id,
+        operation: _getOperationFromStatus(r.syncStatus),
+        data: _walletToMap(r),
+      ));
+    }
+    return changes;
+  }
+
+  Future<List<SyncChange>> _getPendingCategoryChanges() async {
+    final changes = <SyncChange>[];
+    final records = await (_database.select(_database.categories)
+          ..where((c) => c.syncStatus.isBiggerThanValue(0)))
+        .get();
+
+    for (final r in records) {
+      changes.add(SyncChange(
+        tableName: 'categories',
+        entityId: r.id,
+        operation: _getOperationFromStatus(r.syncStatus),
+        data: _categoryToMap(r),
+      ));
+    }
+    return changes;
+  }
+
+  Future<List<SyncChange>> _getPendingBudgetChanges() async {
+    final changes = <SyncChange>[];
+    final records = await (_database.select(_database.budgets)
+          ..where((b) => b.syncStatus.isBiggerThanValue(0)))
+        .get();
+
+    for (final r in records) {
+      changes.add(SyncChange(
+        tableName: 'budgets',
+        entityId: r.id,
+        operation: _getOperationFromStatus(r.syncStatus),
+        data: _budgetToMap(r),
+      ));
+    }
+    return changes;
+  }
+
+  Future<List<SyncChange>> _getPendingObjectiveChanges() async {
+    final changes = <SyncChange>[];
+    final records = await (_database.select(_database.objectives)
+          ..where((o) => o.syncStatus.isBiggerThanValue(0)))
+        .get();
+
+    for (final r in records) {
+      changes.add(SyncChange(
+        tableName: 'objectives',
+        entityId: r.id,
+        operation: _getOperationFromStatus(r.syncStatus),
+        data: _objectiveToMap(r),
+      ));
+    }
+    return changes;
+  }
+
+  Future<List<SyncChange>> _getPendingPaymentMethodChanges() async {
+    final changes = <SyncChange>[];
+    final records = await (_database.select(_database.paymentMethods)
+          ..where((p) => p.syncStatus.isBiggerThanValue(0)))
+        .get();
+
+    for (final r in records) {
+      changes.add(SyncChange(
+        tableName: 'payment_methods',
+        entityId: r.id,
+        operation: _getOperationFromStatus(r.syncStatus),
+        data: _paymentMethodToMap(r),
+      ));
+    }
+    return changes;
+  }
+
+  // ==================== APPLY PULLED CHANGES ====================
+
+  Future<void> _applyPulledChange(String tableName, SyncChange change) async {
+    if (change.data == null && change.operation != 'delete') return;
+
+    switch (tableName) {
+      case 'transactions':
+        await _applyTransactionChange(change);
+        break;
+      case 'wallets':
+        await _applyWalletChange(change);
+        break;
+      case 'categories':
+        await _applyCategoryChange(change);
+        break;
+      case 'budgets':
+        await _applyBudgetChange(change);
+        break;
+      case 'objectives':
+        await _applyObjectiveChange(change);
+        break;
+      case 'payment_methods':
+        await _applyPaymentMethodChange(change);
+        break;
+    }
+  }
+
+  Future<void> _applyTransactionChange(SyncChange change) async {
+    final data = change.data;
+    if (change.operation == 'delete') {
+      await (_database.update(_database.transactions)
+            ..where((t) => t.id.equals(change.entityId)))
+          .write(TransactionsCompanion(
+            deletedAt: Value(DateTime.now()),
+            syncStatus: const Value(SyncStatus.synced),
+          ));
+      return;
+    }
+
+    if (data == null) return;
+
+    // Check if record exists
+    final existing = await (_database.select(_database.transactions)
+          ..where((t) => t.id.equals(change.entityId)))
+        .getSingleOrNull();
+
+    final companion = TransactionsCompanion(
+      id: Value(change.entityId),
+      amount: Value((data['Amount'] as num?)?.toDouble() ?? 0.0),
+      title: Value(data['Title'] ?? ''),
+      notes: Value(data['Notes']),
+      date: Value(data['Date'] != null
+          ? DateTime.parse(data['Date'])
+          : DateTime.now()),
+      isIncome: Value(data['IsIncome'] ?? false),
+      transactionType: Value(_parseTransactionType(data['Type'])),
+      specialType: Value(data['SpecialType'] ?? 0),
+      walletId: Value(data['WalletId'] ?? ''),
+      categoryId: Value(data['CategoryId']),
+      paymentMethodId: Value(data['PaymentMethodId']),
+      isPaid: Value(data['IsPaid'] ?? true),
+      budgetId: Value(data['BudgetId']),
+      objectiveId: Value(data['ObjectiveId']),
+      receiptImageUrl: Value(data['ReceiptImageUrl']),
+      syncStatus: const Value(SyncStatus.synced),
+      updatedAt: Value(DateTime.now()),
+    );
+
+    if (existing != null) {
+      await (_database.update(_database.transactions)
+            ..where((t) => t.id.equals(change.entityId)))
+          .write(companion);
+    } else {
+      await _database.into(_database.transactions).insert(companion);
+    }
+  }
+
+  Future<void> _applyWalletChange(SyncChange change) async {
+    final data = change.data;
+    if (change.operation == 'delete') {
+      await (_database.update(_database.wallets)
+            ..where((w) => w.id.equals(change.entityId)))
+          .write(WalletsCompanion(
+            deletedAt: Value(DateTime.now()),
+            syncStatus: const Value(SyncStatus.synced),
+          ));
+      return;
+    }
+
+    if (data == null) return;
+
+    final existing = await (_database.select(_database.wallets)
+          ..where((w) => w.id.equals(change.entityId)))
+        .getSingleOrNull();
+
+    final companion = WalletsCompanion(
+      id: Value(change.entityId),
+      name: Value(data['Name'] ?? ''),
+      iconName: Value(data['Icon'] ?? 'wallet'),
+      color: Value(data['Color'] ?? '#6366F1'),
+      currency: Value(data['Currency'] ?? 'USD'),
+      balance: Value((data['Balance'] as num?)?.toDouble() ?? 0.0),
+      isDefault: Value(data['IsDefault'] ?? false),
+      syncStatus: const Value(SyncStatus.synced),
+      updatedAt: Value(DateTime.now()),
+    );
+
+    if (existing != null) {
+      await (_database.update(_database.wallets)
+            ..where((w) => w.id.equals(change.entityId)))
+          .write(companion);
+    } else {
+      await _database.into(_database.wallets).insert(companion);
+    }
+  }
+
+  Future<void> _applyCategoryChange(SyncChange change) async {
+    final data = change.data;
+    if (change.operation == 'delete') {
+      await (_database.update(_database.categories)
+            ..where((c) => c.id.equals(change.entityId)))
+          .write(CategoriesCompanion(
+            deletedAt: Value(DateTime.now()),
+            syncStatus: const Value(SyncStatus.synced),
+          ));
+      return;
+    }
+
+    if (data == null) return;
+
+    final existing = await (_database.select(_database.categories)
+          ..where((c) => c.id.equals(change.entityId)))
+        .getSingleOrNull();
+
+    final companion = CategoriesCompanion(
+      id: Value(change.entityId),
+      name: Value(data['Name'] ?? ''),
+      iconName: Value(data['Icon'] ?? 'category'),
+      color: Value(data['Color'] ?? '#6366F1'),
+      isIncome: Value(data['IsIncome'] ?? false),
+      mainCategoryId: Value(data['ParentCategoryId']),
+      orderIndex: Value(data['OrderIndex'] ?? 0),
+      syncStatus: const Value(SyncStatus.synced),
+      updatedAt: Value(DateTime.now()),
+    );
+
+    if (existing != null) {
+      await (_database.update(_database.categories)
+            ..where((c) => c.id.equals(change.entityId)))
+          .write(companion);
+    } else {
+      await _database.into(_database.categories).insert(companion);
+    }
+  }
+
+  Future<void> _applyBudgetChange(SyncChange change) async {
+    final data = change.data;
+    if (change.operation == 'delete') {
+      await (_database.update(_database.budgets)
+            ..where((b) => b.id.equals(change.entityId)))
+          .write(BudgetsCompanion(
+            deletedAt: Value(DateTime.now()),
+            syncStatus: const Value(SyncStatus.synced),
+          ));
+      return;
+    }
+
+    if (data == null) return;
+
+    final existing = await (_database.select(_database.budgets)
+          ..where((b) => b.id.equals(change.entityId)))
+        .getSingleOrNull();
+
+    final companion = BudgetsCompanion(
+      id: Value(change.entityId),
+      name: Value(data['Name'] ?? ''),
+      amount: Value((data['Amount'] as num?)?.toDouble() ?? 0.0),
+      period: Value(_parseBudgetPeriod(data['Period'])),
+      startDate: Value(data['StartDate'] != null
+          ? DateTime.parse(data['StartDate'])
+          : DateTime.now()),
+      endDate: Value(
+          data['EndDate'] != null ? DateTime.parse(data['EndDate']) : null),
+      walletIds: Value(data['WalletIds']),
+      categoryIds: Value(data['CategoryIds']),
+      isIncome: Value(data['IsIncome'] ?? false),
+      isPinned: Value(data['IsPinned'] ?? false),
+      isArchived: Value(data['IsArchived'] ?? false),
+      syncStatus: const Value(SyncStatus.synced),
+      updatedAt: Value(DateTime.now()),
+    );
+
+    if (existing != null) {
+      await (_database.update(_database.budgets)
+            ..where((b) => b.id.equals(change.entityId)))
+          .write(companion);
+    } else {
+      await _database.into(_database.budgets).insert(companion);
+    }
+  }
+
+  Future<void> _applyObjectiveChange(SyncChange change) async {
+    final data = change.data;
+    if (change.operation == 'delete') {
+      await (_database.update(_database.objectives)
+            ..where((o) => o.id.equals(change.entityId)))
+          .write(ObjectivesCompanion(
+            deletedAt: Value(DateTime.now()),
+            syncStatus: const Value(SyncStatus.synced),
+          ));
+      return;
+    }
+
+    if (data == null) return;
+
+    final existing = await (_database.select(_database.objectives)
+          ..where((o) => o.id.equals(change.entityId)))
+        .getSingleOrNull();
+
+    final companion = ObjectivesCompanion(
+      id: Value(change.entityId),
+      name: Value(data['Name'] ?? ''),
+      iconName: Value(data['Icon'] ?? 'flag'),
+      color: Value(data['Color'] ?? '#6366F1'),
+      targetAmount: Value((data['TargetAmount'] as num?)?.toDouble() ?? 0.0),
+      type: Value(_parseObjectiveType(data['Type'])),
+      walletId: Value(data['WalletId']),
+      startDate: Value(data['StartDate'] != null
+          ? DateTime.parse(data['StartDate'])
+          : DateTime.now()),
+      endDate: Value(
+          data['EndDate'] != null ? DateTime.parse(data['EndDate']) : null),
+      isPinned: Value(data['IsPinned'] ?? false),
+      isArchived: Value(data['IsArchived'] ?? false),
+      syncStatus: const Value(SyncStatus.synced),
+      updatedAt: Value(DateTime.now()),
+    );
+
+    if (existing != null) {
+      await (_database.update(_database.objectives)
+            ..where((o) => o.id.equals(change.entityId)))
+          .write(companion);
+    } else {
+      await _database.into(_database.objectives).insert(companion);
+    }
+  }
+
+  Future<void> _applyPaymentMethodChange(SyncChange change) async {
+    final data = change.data;
+    if (change.operation == 'delete') {
+      await (_database.update(_database.paymentMethods)
+            ..where((p) => p.id.equals(change.entityId)))
+          .write(PaymentMethodsCompanion(
+            deletedAt: Value(DateTime.now()),
+            syncStatus: const Value(SyncStatus.synced),
+          ));
+      return;
+    }
+
+    if (data == null) return;
+
+    final existing = await (_database.select(_database.paymentMethods)
+          ..where((p) => p.id.equals(change.entityId)))
+        .getSingleOrNull();
+
+    final companion = PaymentMethodsCompanion(
+      id: Value(change.entityId),
+      name: Value(data['Name'] ?? ''),
+      iconName: Value(data['Icon'] ?? 'credit_card'),
+      isDefault: Value(data['IsDefault'] ?? false),
+      syncStatus: const Value(SyncStatus.synced),
+      updatedAt: Value(DateTime.now()),
+    );
+
+    if (existing != null) {
+      await (_database.update(_database.paymentMethods)
+            ..where((p) => p.id.equals(change.entityId)))
+          .write(companion);
+    } else {
+      await _database.into(_database.paymentMethods).insert(companion);
+    }
+  }
+
+  // ==================== CONVERSION HELPERS ====================
+
+  String _getOperationFromStatus(int status) {
     switch (status) {
       case SyncStatus.pendingCreate:
         return 'create';
@@ -380,481 +576,196 @@ class SyncService {
     }
   }
 
-  /// Apply ID mappings after push (for newly created records)
-  Future<void> _applyIdMappings(String tableName, Map<String, String> mappings) async {
-    if (mappings.isEmpty) return;
-
-    for (final entry in mappings.entries) {
-      final localId = entry.key;
-      final serverId = entry.value;
-
-      switch (tableName) {
-        case 'categories':
-          await (_database.update(_database.categories)
-                ..where((c) => c.id.equals(localId)))
-              .write(CategoriesCompanion(serverId: Value(serverId)));
-          break;
-        case 'wallets':
-          await (_database.update(_database.wallets)
-                ..where((w) => w.id.equals(localId)))
-              .write(WalletsCompanion(serverId: Value(serverId)));
-          break;
-        case 'transactions':
-          await (_database.update(_database.transactions)
-                ..where((t) => t.id.equals(localId)))
-              .write(TransactionsCompanion(serverId: Value(serverId)));
-          break;
-        case 'budgets':
-          await (_database.update(_database.budgets)
-                ..where((b) => b.id.equals(localId)))
-              .write(BudgetsCompanion(serverId: Value(serverId)));
-          break;
-        case 'objectives':
-          await (_database.update(_database.objectives)
-                ..where((o) => o.id.equals(localId)))
-              .write(ObjectivesCompanion(serverId: Value(serverId)));
-          break;
-        case 'recurring_configs':
-          await (_database.update(_database.recurringConfigs)
-                ..where((r) => r.id.equals(localId)))
-              .write(RecurringConfigsCompanion(serverId: Value(serverId)));
-          break;
-        case 'payment_methods':
-          await (_database.update(_database.paymentMethods)
-                ..where((p) => p.id.equals(localId)))
-              .write(PaymentMethodsCompanion(serverId: Value(serverId)));
-          break;
-        case 'associated_titles':
-          await (_database.update(_database.associatedTitles)
-                ..where((a) => a.id.equals(localId)))
-              .write(AssociatedTitlesCompanion(serverId: Value(serverId)));
-          break;
+  String _parseTransactionType(dynamic type) {
+    if (type is int) {
+      switch (type) {
+        case 0:
+          return 'regular';
+        case 1:
+          return 'transfer';
+        case 2:
+          return 'recurringInstance';
+        default:
+          return 'regular';
       }
     }
+    return type?.toString() ?? 'regular';
   }
 
-  /// Resolve conflicts (default: last-write-wins, server wins)
-  Future<void> _resolveConflicts(String tableName, List<SyncConflict> conflicts) async {
-    if (conflicts.isEmpty) return;
-
-    for (final conflict in conflicts) {
-      _logger.w('Conflict in $tableName: ${conflict.conflictType}');
-
-      // Last-write-wins: accept server data
-      if (conflict.serverData.isNotEmpty) {
-        await _applyPulledChanges(tableName, [conflict.serverData]);
+  String _parseBudgetPeriod(dynamic period) {
+    if (period is int) {
+      switch (period) {
+        case 0:
+          return 'daily';
+        case 1:
+          return 'weekly';
+        case 2:
+          return 'biweekly';
+        case 3:
+          return 'monthly';
+        case 4:
+          return 'yearly';
+        case 5:
+          return 'custom';
+        default:
+          return 'monthly';
       }
     }
+    return period?.toString() ?? 'monthly';
   }
 
-  /// Apply pulled changes to local database
-  Future<void> _applyPulledChanges(String tableName, List<Map<String, dynamic>> changes) async {
-    for (final data in changes) {
-      final serverId = data['id']?.toString();
-      if (serverId == null) continue;
-
-      switch (tableName) {
-        case 'categories':
-          await _upsertCategory(serverId, data);
-          break;
-        case 'wallets':
-          await _upsertWallet(serverId, data);
-          break;
-        case 'transactions':
-          await _upsertTransaction(serverId, data);
-          break;
-        case 'budgets':
-          await _upsertBudget(serverId, data);
-          break;
-        case 'objectives':
-          await _upsertObjective(serverId, data);
-          break;
-        case 'recurring_configs':
-          await _upsertRecurringConfig(serverId, data);
-          break;
-        case 'payment_methods':
-          await _upsertPaymentMethod(serverId, data);
-          break;
-        case 'associated_titles':
-          await _upsertAssociatedTitle(serverId, data);
-          break;
+  String _parseObjectiveType(dynamic type) {
+    if (type is int) {
+      switch (type) {
+        case 0:
+          return 'goal';
+        case 1:
+          return 'loan';
+        default:
+          return 'goal';
       }
     }
+    return type?.toString() ?? 'goal';
   }
 
-  // Upsert methods for each table
-  Future<void> _upsertCategory(String serverId, Map<String, dynamic> data) async {
-    // Find existing by serverId
-    final existing = await (_database.select(_database.categories)
-          ..where((c) => c.serverId.equals(serverId)))
-        .getSingleOrNull();
-
-    final companion = CategoriesCompanion(
-      id: Value(existing?.id ?? _uuid.v4()),
-      serverId: Value(serverId),
-      name: Value(data['name'] ?? ''),
-      iconName: Value(data['icon_name'] ?? 'category'),
-      color: Value(data['color'] ?? '#6366F1'),
-      mainCategoryId: Value(data['main_category_id']),
-      isIncome: Value(data['is_income'] ?? false),
-      orderIndex: Value(data['order_index'] ?? 0),
-      syncStatus: const Value(SyncStatus.synced),
-      deletedAt: Value(data['deleted_at'] != null
-          ? DateTime.parse(data['deleted_at'])
-          : null),
-      updatedAt: Value(DateTime.now()),
-    );
-
-    if (existing != null) {
-      await (_database.update(_database.categories)
-            ..where((c) => c.id.equals(existing.id)))
-          .write(companion);
-    } else {
-      await _database.into(_database.categories).insert(companion);
-    }
-  }
-
-  Future<void> _upsertWallet(String serverId, Map<String, dynamic> data) async {
-    final existing = await (_database.select(_database.wallets)
-          ..where((w) => w.serverId.equals(serverId)))
-        .getSingleOrNull();
-
-    final companion = WalletsCompanion(
-      id: Value(existing?.id ?? _uuid.v4()),
-      serverId: Value(serverId),
-      name: Value(data['name'] ?? ''),
-      iconName: Value(data['icon_name'] ?? 'wallet'),
-      color: Value(data['color'] ?? '#6366F1'),
-      currency: Value(data['currency'] ?? 'USD'),
-      balance: Value((data['balance'] as num?)?.toDouble() ?? 0.0),
-      isDefault: Value(data['is_default'] ?? false),
-      orderIndex: Value(data['order_index'] ?? 0),
-      syncStatus: const Value(SyncStatus.synced),
-      deletedAt: Value(data['deleted_at'] != null
-          ? DateTime.parse(data['deleted_at'])
-          : null),
-      updatedAt: Value(DateTime.now()),
-    );
-
-    if (existing != null) {
-      await (_database.update(_database.wallets)
-            ..where((w) => w.id.equals(existing.id)))
-          .write(companion);
-    } else {
-      await _database.into(_database.wallets).insert(companion);
-    }
-  }
-
-  Future<void> _upsertTransaction(String serverId, Map<String, dynamic> data) async {
-    final existing = await (_database.select(_database.transactions)
-          ..where((t) => t.serverId.equals(serverId)))
-        .getSingleOrNull();
-
-    // Resolve foreign key references
-    String? walletId = data['wallet_id'];
-    String? categoryId = data['category_id'];
-
-    if (walletId != null) {
-      final walletServerId = walletId;
-      final wallet = await (_database.select(_database.wallets)
-            ..where((w) => w.serverId.equals(walletServerId)))
-          .getSingleOrNull();
-      walletId = wallet?.id ?? walletId;
-    }
-
-    if (categoryId != null) {
-      final categoryServerId = categoryId;
-      final category = await (_database.select(_database.categories)
-            ..where((c) => c.serverId.equals(categoryServerId)))
-          .getSingleOrNull();
-      categoryId = category?.id ?? categoryId;
-    }
-
-    final companion = TransactionsCompanion(
-      id: Value(existing?.id ?? _uuid.v4()),
-      serverId: Value(serverId),
-      amount: Value((data['amount'] as num?)?.toDouble() ?? 0.0),
-      title: Value(data['title'] ?? ''),
-      notes: Value(data['notes']),
-      date: Value(data['date'] != null
-          ? DateTime.parse(data['date'])
-          : DateTime.now()),
-      isIncome: Value(data['is_income'] ?? false),
-      transactionType: Value(data['type'] ?? 'regular'),
-      walletId: Value(walletId ?? ''),
-      categoryId: Value(categoryId),
-      syncStatus: const Value(SyncStatus.synced),
-      deletedAt: Value(data['deleted_at'] != null
-          ? DateTime.parse(data['deleted_at'])
-          : null),
-      updatedAt: Value(DateTime.now()),
-    );
-
-    if (existing != null) {
-      await (_database.update(_database.transactions)
-            ..where((t) => t.id.equals(existing.id)))
-          .write(companion);
-    } else {
-      await _database.into(_database.transactions).insert(companion);
-    }
-  }
-
-  Future<void> _upsertBudget(String serverId, Map<String, dynamic> data) async {
-    final existing = await (_database.select(_database.budgets)
-          ..where((b) => b.serverId.equals(serverId)))
-        .getSingleOrNull();
-
-    final companion = BudgetsCompanion(
-      id: Value(existing?.id ?? _uuid.v4()),
-      serverId: Value(serverId),
-      name: Value(data['name'] ?? ''),
-      amount: Value((data['amount'] as num?)?.toDouble() ?? 0.0),
-      period: Value(data['period'] ?? 'monthly'),
-      startDate: Value(data['start_date'] != null
-          ? DateTime.parse(data['start_date'])
-          : DateTime.now()),
-      endDate: Value(data['end_date'] != null
-          ? DateTime.parse(data['end_date'])
-          : null),
-      isIncome: Value(data['is_income'] ?? false),
-      isPinned: Value(data['is_pinned'] ?? false),
-      isArchived: Value(data['is_archived'] ?? false),
-      syncStatus: const Value(SyncStatus.synced),
-      deletedAt: Value(data['deleted_at'] != null
-          ? DateTime.parse(data['deleted_at'])
-          : null),
-      updatedAt: Value(DateTime.now()),
-    );
-
-    if (existing != null) {
-      await (_database.update(_database.budgets)
-            ..where((b) => b.id.equals(existing.id)))
-          .write(companion);
-    } else {
-      await _database.into(_database.budgets).insert(companion);
-    }
-  }
-
-  Future<void> _upsertObjective(String serverId, Map<String, dynamic> data) async {
-    final existing = await (_database.select(_database.objectives)
-          ..where((o) => o.serverId.equals(serverId)))
-        .getSingleOrNull();
-
-    final companion = ObjectivesCompanion(
-      id: Value(existing?.id ?? _uuid.v4()),
-      serverId: Value(serverId),
-      name: Value(data['name'] ?? ''),
-      iconName: Value(data['icon_name'] ?? 'flag'),
-      color: Value(data['color'] ?? '#6366F1'),
-      targetAmount: Value((data['target_amount'] as num?)?.toDouble() ?? 0.0),
-      type: Value(data['type'] ?? 'goal'),
-      startDate: Value(data['start_date'] != null
-          ? DateTime.parse(data['start_date'])
-          : DateTime.now()),
-      endDate: Value(data['end_date'] != null
-          ? DateTime.parse(data['end_date'])
-          : null),
-      isPinned: Value(data['is_pinned'] ?? false),
-      isArchived: Value(data['is_archived'] ?? false),
-      syncStatus: const Value(SyncStatus.synced),
-      deletedAt: Value(data['deleted_at'] != null
-          ? DateTime.parse(data['deleted_at'])
-          : null),
-      updatedAt: Value(DateTime.now()),
-    );
-
-    if (existing != null) {
-      await (_database.update(_database.objectives)
-            ..where((o) => o.id.equals(existing.id)))
-          .write(companion);
-    } else {
-      await _database.into(_database.objectives).insert(companion);
-    }
-  }
-
-  Future<void> _upsertRecurringConfig(String serverId, Map<String, dynamic> data) async {
-    final existing = await (_database.select(_database.recurringConfigs)
-          ..where((r) => r.serverId.equals(serverId)))
-        .getSingleOrNull();
-
-    final companion = RecurringConfigsCompanion(
-      id: Value(existing?.id ?? _uuid.v4()),
-      serverId: Value(serverId),
-      baseTransactionId: Value(data['base_transaction_id'] ?? ''),
-      periodLength: Value(data['period_length'] ?? 1),
-      reoccurrence: Value(data['reoccurrence'] ?? 'monthly'),
-      startDate: Value(data['start_date'] != null
-          ? DateTime.parse(data['start_date'])
-          : DateTime.now()),
-      endDate: Value(data['end_date'] != null
-          ? DateTime.parse(data['end_date'])
-          : null),
-      nextOccurrence: Value(data['next_occurrence'] != null
-          ? DateTime.parse(data['next_occurrence'])
-          : DateTime.now()),
-      isActive: Value(data['is_active'] ?? true),
-      syncStatus: const Value(SyncStatus.synced),
-      updatedAt: Value(DateTime.now()),
-    );
-
-    if (existing != null) {
-      await (_database.update(_database.recurringConfigs)
-            ..where((r) => r.id.equals(existing.id)))
-          .write(companion);
-    } else {
-      await _database.into(_database.recurringConfigs).insert(companion);
-    }
-  }
-
-  Future<void> _upsertPaymentMethod(String serverId, Map<String, dynamic> data) async {
-    final existing = await (_database.select(_database.paymentMethods)
-          ..where((p) => p.serverId.equals(serverId)))
-        .getSingleOrNull();
-
-    final companion = PaymentMethodsCompanion(
-      id: Value(existing?.id ?? _uuid.v4()),
-      serverId: Value(serverId),
-      name: Value(data['name'] ?? ''),
-      iconName: Value(data['icon_name'] ?? 'credit_card'),
-      type: Value(data['type'] ?? 'card'),
-      isDefault: Value(data['is_default'] ?? false),
-      syncStatus: const Value(SyncStatus.synced),
-      deletedAt: Value(data['deleted_at'] != null
-          ? DateTime.parse(data['deleted_at'])
-          : null),
-      updatedAt: Value(DateTime.now()),
-    );
-
-    if (existing != null) {
-      await (_database.update(_database.paymentMethods)
-            ..where((p) => p.id.equals(existing.id)))
-          .write(companion);
-    } else {
-      await _database.into(_database.paymentMethods).insert(companion);
-    }
-  }
-
-  Future<void> _upsertAssociatedTitle(String serverId, Map<String, dynamic> data) async {
-    final existing = await (_database.select(_database.associatedTitles)
-          ..where((a) => a.serverId.equals(serverId)))
-        .getSingleOrNull();
-
-    // Resolve category reference
-    String? categoryId = data['category_id'];
-    if (categoryId != null) {
-      final categoryServerId = categoryId;
-      final category = await (_database.select(_database.categories)
-            ..where((c) => c.serverId.equals(categoryServerId)))
-          .getSingleOrNull();
-      categoryId = category?.id ?? categoryId;
-    }
-
-    final companion = AssociatedTitlesCompanion(
-      id: Value(existing?.id ?? _uuid.v4()),
-      serverId: Value(serverId),
-      title: Value(data['title'] ?? ''),
-      categoryId: Value(categoryId ?? ''),
-      isExactMatch: Value(data['is_exact_match'] ?? false),
-      syncStatus: const Value(SyncStatus.synced),
-      updatedAt: Value(DateTime.now()),
-    );
-
-    if (existing != null) {
-      await (_database.update(_database.associatedTitles)
-            ..where((a) => a.id.equals(existing.id)))
-          .write(companion);
-    } else {
-      await _database.into(_database.associatedTitles).insert(companion);
-    }
-  }
-
-  // Conversion methods for push
-  Map<String, dynamic> _categoryToMap(Category c) => {
-    'name': c.name,
-    'icon_name': c.iconName,
-    'color': c.color,
-    'main_category_id': c.mainCategoryId,
-    'is_income': c.isIncome,
-    'order_index': c.orderIndex,
-    'deleted_at': c.deletedAt?.toIso8601String(),
-  };
-
-  Map<String, dynamic> _walletToMap(Wallet w) => {
-    'name': w.name,
-    'icon_name': w.iconName,
-    'color': w.color,
-    'currency': w.currency,
-    'balance': w.balance,
-    'is_default': w.isDefault,
-    'order_index': w.orderIndex,
-    'deleted_at': w.deletedAt?.toIso8601String(),
-  };
+  // ==================== MAP CONVERSIONS FOR PUSH ====================
 
   Map<String, dynamic> _transactionToMap(Transaction t) => {
-    'amount': t.amount,
-    'title': t.title,
-    'notes': t.notes,
-    'date': t.date.toIso8601String(),
-    'is_income': t.isIncome,
-    'type': t.transactionType,
-    'wallet_id': t.walletId,
-    'category_id': t.categoryId,
-    'payment_method_id': t.paymentMethodId,
-    'receipt_image_url': t.receiptImageUrl,
-    'deleted_at': t.deletedAt?.toIso8601String(),
-  };
+        'WalletId': t.walletId,
+        'CategoryId': t.categoryId,
+        'PaymentMethodId': t.paymentMethodId,
+        'Amount': t.amount,
+        'Title': t.title,
+        'Notes': t.notes,
+        'Date': t.date.toUtc().toIso8601String(),
+        'IsIncome': t.isIncome,
+        'Type': _transactionTypeToInt(t.transactionType),
+        'SpecialType': t.specialType,
+        'IsPaid': t.isPaid,
+        'OriginalDueDate': t.originalDueDate?.toUtc().toIso8601String(),
+        'SkipPaid': t.skipPaid,
+        'PairedTransactionId': t.pairedTransactionId,
+        'RecurringConfigId': t.recurringConfigId,
+        'BudgetId': t.budgetId,
+        'ObjectiveId': t.objectiveId,
+        'ReceiptImageUrl': t.receiptImageUrl,
+      };
+
+  Map<String, dynamic> _walletToMap(Wallet w) => {
+        'Name': w.name,
+        'Balance': w.balance,
+        'Currency': w.currency,
+        'Color': w.color,
+        'IconName': w.iconName,
+        'IsDefault': w.isDefault,
+      };
+
+  Map<String, dynamic> _categoryToMap(Category c) => {
+        'Name': c.name,
+        'Color': c.color,
+        'IconName': c.iconName,
+        'IsIncome': c.isIncome,
+        'MainCategoryId': c.mainCategoryId,
+        'OrderIndex': c.orderIndex,
+      };
 
   Map<String, dynamic> _budgetToMap(Budget b) => {
-    'name': b.name,
-    'amount': b.amount,
-    'period': b.period,
-    'start_date': b.startDate.toIso8601String(),
-    'end_date': b.endDate?.toIso8601String(),
-    'wallet_ids': b.walletIds,
-    'category_ids': b.categoryIds,
-    'is_income': b.isIncome,
-    'is_pinned': b.isPinned,
-    'is_archived': b.isArchived,
-    'deleted_at': b.deletedAt?.toIso8601String(),
-  };
+        'Name': b.name,
+        'Amount': b.amount,
+        'StartDate': b.startDate.toUtc().toIso8601String(),
+        'EndDate': b.endDate?.toUtc().toIso8601String(),
+        'Period': _budgetPeriodToInt(b.period),
+        'WalletIds': b.walletIds,
+        'CategoryIds': b.categoryIds,
+        'IsIncome': b.isIncome,
+        'IsPinned': b.isPinned,
+        'IsArchived': b.isArchived,
+      };
 
   Map<String, dynamic> _objectiveToMap(Objective o) => {
-    'name': o.name,
-    'icon_name': o.iconName,
-    'color': o.color,
-    'target_amount': o.targetAmount,
-    'type': o.type,
-    'wallet_id': o.walletId,
-    'start_date': o.startDate.toIso8601String(),
-    'end_date': o.endDate?.toIso8601String(),
-    'is_pinned': o.isPinned,
-    'is_archived': o.isArchived,
-    'deleted_at': o.deletedAt?.toIso8601String(),
-  };
-
-  Map<String, dynamic> _recurringConfigToMap(RecurringConfig r) => {
-    'base_transaction_id': r.baseTransactionId,
-    'period_length': r.periodLength,
-    'reoccurrence': r.reoccurrence,
-    'start_date': r.startDate.toIso8601String(),
-    'end_date': r.endDate?.toIso8601String(),
-    'next_occurrence': r.nextOccurrence.toIso8601String(),
-    'is_active': r.isActive,
-  };
+        'Name': o.name,
+        'TargetAmount': o.targetAmount,
+        'WalletId': o.walletId,
+        'IconName': o.iconName,
+        'Color': o.color,
+        'Type': _objectiveTypeToInt(o.type),
+        'StartDate': o.startDate.toUtc().toIso8601String(),
+        'EndDate': o.endDate?.toUtc().toIso8601String(),
+        'IsPinned': o.isPinned,
+        'IsArchived': o.isArchived,
+      };
 
   Map<String, dynamic> _paymentMethodToMap(PaymentMethod p) => {
-    'name': p.name,
-    'icon_name': p.iconName,
-    'type': p.type,
-    'is_default': p.isDefault,
-    'deleted_at': p.deletedAt?.toIso8601String(),
-  };
+        'Name': p.name,
+        'IconName': p.iconName,
+        'IsDefault': p.isDefault,
+      };
 
-  Map<String, dynamic> _associatedTitleToMap(AssociatedTitle a) => {
-    'title': a.title,
-    'category_id': a.categoryId,
-    'is_exact_match': a.isExactMatch,
-  };
+  int _transactionTypeToInt(String type) {
+    switch (type.toLowerCase()) {
+      case 'transfer':
+        return 1;
+      case 'recurringinstance':
+        return 2;
+      default:
+        return 0;
+    }
+  }
+
+  int _budgetPeriodToInt(String period) {
+    switch (period.toLowerCase()) {
+      case 'daily':
+        return 0;
+      case 'weekly':
+        return 1;
+      case 'biweekly':
+        return 2;
+      case 'monthly':
+        return 3;
+      case 'yearly':
+        return 4;
+      case 'custom':
+        return 5;
+      default:
+        return 3;
+    }
+  }
+
+  int _objectiveTypeToInt(String type) {
+    switch (type.toLowerCase()) {
+      case 'loan':
+        return 1;
+      default:
+        return 0;
+    }
+  }
+
+  /// Mark all pending records as synced after successful push
+  Future<void> _markPushedRecordsAsSynced() async {
+    await (_database.update(_database.transactions)
+          ..where((t) => t.syncStatus.isBiggerThanValue(0)))
+        .write(const TransactionsCompanion(syncStatus: Value(SyncStatus.synced)));
+
+    await (_database.update(_database.wallets)
+          ..where((w) => w.syncStatus.isBiggerThanValue(0)))
+        .write(const WalletsCompanion(syncStatus: Value(SyncStatus.synced)));
+
+    await (_database.update(_database.categories)
+          ..where((c) => c.syncStatus.isBiggerThanValue(0)))
+        .write(const CategoriesCompanion(syncStatus: Value(SyncStatus.synced)));
+
+    await (_database.update(_database.budgets)
+          ..where((b) => b.syncStatus.isBiggerThanValue(0)))
+        .write(const BudgetsCompanion(syncStatus: Value(SyncStatus.synced)));
+
+    await (_database.update(_database.objectives)
+          ..where((o) => o.syncStatus.isBiggerThanValue(0)))
+        .write(const ObjectivesCompanion(syncStatus: Value(SyncStatus.synced)));
+
+    await (_database.update(_database.paymentMethods)
+          ..where((p) => p.syncStatus.isBiggerThanValue(0)))
+        .write(const PaymentMethodsCompanion(syncStatus: Value(SyncStatus.synced)));
+  }
 
   /// Update sync state
   void _setState(SyncOperationState newState) {

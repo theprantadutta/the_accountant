@@ -46,11 +46,6 @@ class SyncNotifier extends Notifier<SyncOperationState> {
     return await syncService.syncAll();
   }
 
-  /// Sync a specific table
-  Future<SyncResult> syncTable(String tableName) async {
-    final syncService = ref.read(syncServiceProvider);
-    return await syncService.syncTable(tableName);
-  }
 
   /// Check if device is online
   Future<bool> isOnline() async {
