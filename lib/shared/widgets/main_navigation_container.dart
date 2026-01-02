@@ -15,6 +15,8 @@ import 'package:the_accountant/features/transactions/widgets/transaction_type_he
 import 'package:the_accountant/features/ai_assistant/screens/ai_assistant_screen.dart';
 import 'package:the_accountant/features/authentication/presentation/screens/user_profile_screen.dart';
 import 'package:the_accountant/features/reports/screens/reports_screen.dart';
+import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
+import 'package:the_accountant/features/wallets/screens/create_first_wallet_screen.dart';
 
 class MainNavigationContainer extends ConsumerStatefulWidget {
   const MainNavigationContainer({super.key});
@@ -315,6 +317,34 @@ class _MainNavigationContainerState
 
   @override
   Widget build(BuildContext context) {
+    final hasWallets = ref.watch(hasWalletsProvider);
+    final isLoadingWallets = ref.watch(walletsLoadingProvider);
+
+    // Show loading while wallets are being fetched
+    if (isLoadingWallets) {
+      return Container(
+        decoration: BoxDecoration(
+          gradient: AppColors.backgroundGradient,
+        ),
+        child: const Scaffold(
+          backgroundColor: Colors.transparent,
+          body: Center(
+            child: CircularProgressIndicator(),
+          ),
+        ),
+      );
+    }
+
+    // Show create wallet screen if user has no wallets
+    if (!hasWallets) {
+      return CreateFirstWalletScreen(
+        onWalletCreated: () {
+          // Force refresh wallet provider
+          ref.invalidate(walletProvider);
+        },
+      );
+    }
+
     return Container(
       decoration: BoxDecoration(
         gradient: AppColors.backgroundGradient,

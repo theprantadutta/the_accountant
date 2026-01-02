@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
+import 'package:the_accountant/core/providers/default_wallet_provider.dart';
 import 'package:the_accountant/core/services/wallet_balance_service.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
@@ -220,4 +221,39 @@ final walletProvider = StateNotifierProvider<WalletNotifier, WalletState>((
 final walletBalanceServiceProvider = Provider<WalletBalanceService>((ref) {
   final database = ref.watch(databaseProvider);
   return WalletBalanceService(database);
+});
+
+/// Provider to check if user has any wallets
+final hasWalletsProvider = Provider<bool>((ref) {
+  final walletState = ref.watch(walletProvider);
+  return walletState.wallets.isNotEmpty;
+});
+
+/// Provider to check if wallets are still loading
+final walletsLoadingProvider = Provider<bool>((ref) {
+  final walletState = ref.watch(walletProvider);
+  return walletState.isLoading;
+});
+
+/// Provider to get the effective default wallet ID
+/// Uses SharedPreferences persisted value, falls back to database isDefault flag
+final effectiveDefaultWalletIdProvider = Provider<String?>((ref) {
+  final persistedDefault = ref.watch(defaultWalletIdProvider);
+  final walletState = ref.watch(walletProvider);
+
+  // If we have a persisted default and it exists in current wallets, use it
+  if (persistedDefault != null) {
+    final exists = walletState.wallets.any((w) => w.id == persistedDefault);
+    if (exists) return persistedDefault;
+  }
+
+  // Fallback to database isDefault flag or first wallet
+  if (walletState.wallets.isEmpty) return null;
+
+  try {
+    final defaultWallet = walletState.wallets.firstWhere((w) => w.isDefault == true);
+    return defaultWallet.id;
+  } catch (_) {
+    return walletState.wallets.first.id;
+  }
 });

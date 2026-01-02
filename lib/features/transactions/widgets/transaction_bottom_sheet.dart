@@ -73,11 +73,11 @@ class _TransactionBottomSheetState extends ConsumerState<TransactionBottomSheet>
   @override
   void initState() {
     super.initState();
-    // Get default wallet
+    // Get default wallet from persisted preference (falls back to database default)
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final walletNotifier = ref.read(walletProvider.notifier);
+      final defaultWalletId = ref.read(effectiveDefaultWalletIdProvider);
       setState(() {
-        _selectedWalletId = walletNotifier.getDefaultWalletId();
+        _selectedWalletId = defaultWalletId;
       });
     });
 
