@@ -577,25 +577,28 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
                               color: data['color'] as Color,
                               size: 20,
                             ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                color: (data['isPositive'] as bool)
-                                    ? Colors.green.withValues(alpha: 0.2)
-                                    : Colors.red.withValues(alpha: 0.2),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Text(
-                                data['change'] as String,
-                                style: TextStyle(
+                            Flexible(
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 6,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
                                   color: (data['isPositive'] as bool)
-                                      ? Colors.green
-                                      : Colors.red,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
+                                      ? Colors.green.withValues(alpha: 0.2)
+                                      : Colors.red.withValues(alpha: 0.2),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  data['change'] as String,
+                                  style: TextStyle(
+                                    color: (data['isPositive'] as bool)
+                                        ? Colors.green
+                                        : Colors.red,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
                             ),
