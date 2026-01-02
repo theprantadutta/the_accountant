@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:the_accountant/core/services/currency_service.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
 
@@ -112,7 +113,7 @@ class WalletSelector extends ConsumerWidget {
                   ),
                   if (showBalance && selectedWallet != null)
                     Text(
-                      '${_getCurrencySymbol(selectedWallet.currency)}${selectedWallet.balance.toStringAsFixed(2)}',
+                      '${CurrencyInfo.getSymbol(selectedWallet.currency)}${selectedWallet.balance.toStringAsFixed(2)}',
                       style: TextStyle(
                         fontSize: 12,
                         color: theme.colorScheme.onSurfaceVariant,
@@ -162,23 +163,6 @@ class WalletSelector extends ConsumerWidget {
       return Colors.indigo;
     } catch (e) {
       return Colors.indigo;
-    }
-  }
-
-  String _getCurrencySymbol(String currency) {
-    switch (currency.toUpperCase()) {
-      case 'USD':
-        return '\$';
-      case 'EUR':
-        return '\u20AC';
-      case 'GBP':
-        return '\u00A3';
-      case 'JPY':
-        return '\u00A5';
-      case 'BDT':
-        return '\u09F3';
-      default:
-        return currency;
     }
   }
 }
@@ -332,7 +316,7 @@ class _WalletPickerSheet extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '${_getCurrencySymbol(wallet.currency)}${wallet.balance.toStringAsFixed(2)}',
+                    '${CurrencyInfo.getSymbol(wallet.currency)}${wallet.balance.toStringAsFixed(2)}',
                     style: TextStyle(
                       fontSize: 14,
                       color: theme.colorScheme.onSurfaceVariant,
@@ -364,23 +348,6 @@ class _WalletPickerSheet extends StatelessWidget {
       return Colors.indigo;
     } catch (e) {
       return Colors.indigo;
-    }
-  }
-
-  String _getCurrencySymbol(String currency) {
-    switch (currency.toUpperCase()) {
-      case 'USD':
-        return '\$';
-      case 'EUR':
-        return '\u20AC';
-      case 'GBP':
-        return '\u00A3';
-      case 'JPY':
-        return '\u00A5';
-      case 'BDT':
-        return '\u09F3';
-      default:
-        return currency;
     }
   }
 }

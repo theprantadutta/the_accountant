@@ -11,6 +11,8 @@ import 'package:the_accountant/features/transactions/widgets/category_grid_selec
 import 'package:the_accountant/features/transactions/widgets/transfer_bottom_sheet.dart';
 import 'package:the_accountant/features/transactions/widgets/wallet_selector.dart';
 import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
+import 'package:the_accountant/core/providers/currency_provider.dart';
+import 'package:the_accountant/core/services/currency_service.dart';
 
 /// Transaction creation steps
 enum TransactionStep {
@@ -894,6 +896,8 @@ class _TransactionBottomSheetState extends ConsumerState<TransactionBottomSheet>
   Widget _buildSummaryCard(ThemeData theme) {
     final color = _isIncome ? Colors.green : theme.colorScheme.primary;
     final categoryColor = _parseColor(_selectedCategory?.colorCode);
+    final walletCurrency = ref.watch(walletCurrencyProvider(_selectedWalletId));
+    final currencySymbol = CurrencyInfo.getSymbol(walletCurrency);
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -942,7 +946,7 @@ class _TransactionBottomSheetState extends ConsumerState<TransactionBottomSheet>
 
           // Amount
           Text(
-            '\$${_amount.toStringAsFixed(2)}',
+            '$currencySymbol${_amount.toStringAsFixed(2)}',
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,

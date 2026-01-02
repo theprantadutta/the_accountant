@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:the_accountant/core/services/currency_service.dart';
 import 'package:the_accountant/features/transactions/providers/transaction_provider.dart';
 import 'package:the_accountant/features/settings/providers/settings_provider.dart';
 
@@ -42,17 +43,17 @@ class BudgetProgress extends ConsumerWidget {
     final remaining = limit - spent;
 
     final formattedLimit = NumberFormat.currency(
-      symbol: _getCurrencySymbol(settings.currency),
+      symbol: CurrencyInfo.getSymbol(settings.currency),
       decimalDigits: 2,
     ).format(limit);
 
     final formattedSpent = NumberFormat.currency(
-      symbol: _getCurrencySymbol(settings.currency),
+      symbol: CurrencyInfo.getSymbol(settings.currency),
       decimalDigits: 2,
     ).format(spent);
 
     final formattedRemaining = NumberFormat.currency(
-      symbol: _getCurrencySymbol(settings.currency),
+      symbol: CurrencyInfo.getSymbol(settings.currency),
       decimalDigits: 2,
     ).format(remaining.abs());
 
@@ -107,31 +108,4 @@ class BudgetProgress extends ConsumerWidget {
     );
   }
 
-  String _getCurrencySymbol(String currencyCode) {
-    // Map currency codes to symbols
-    final Map<String, String> currencySymbols = {
-      'USD': '\$',
-      'EUR': '€',
-      'GBP': '£',
-      'JPY': '¥',
-      'CAD': 'C\$',
-      'AUD': 'A\$',
-      'CHF': 'CHF',
-      'CNY': '¥',
-      'SEK': 'kr',
-      'NZD': 'NZ\$',
-      'MXN': '\$',
-      'SGD': 'S\$',
-      'HKD': 'HK\$',
-      'NOK': 'kr',
-      'KRW': '₩',
-      'TRY': '₺',
-      'RUB': '₽',
-      'INR': '₹',
-      'BRL': 'R\$',
-      'ZAR': 'R',
-    };
-
-    return currencySymbols[currencyCode] ?? currencyCode;
-  }
 }

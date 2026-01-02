@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/core/utils/color_utils.dart';
+import 'package:the_accountant/core/services/currency_service.dart';
 import 'package:the_accountant/features/settings/providers/settings_provider.dart';
 
 class TransactionCard extends ConsumerWidget {
@@ -43,7 +44,7 @@ class TransactionCard extends ConsumerWidget {
 
     // Format amount with currency
     final formatter = NumberFormat.currency(
-      symbol: _getCurrencySymbol(settings.currency),
+      symbol: CurrencyInfo.getSymbol(settings.currency),
       decimalDigits: 2,
     );
     final formattedAmount = formatter.format(amount);
@@ -232,33 +233,6 @@ class TransactionCard extends ConsumerWidget {
     );
   }
 
-  String _getCurrencySymbol(String currencyCode) {
-    final Map<String, String> currencySymbols = {
-      'USD': '\$',
-      'EUR': '€',
-      'GBP': '£',
-      'JPY': '¥',
-      'CAD': 'C\$',
-      'AUD': 'A\$',
-      'CHF': 'CHF',
-      'CNY': '¥',
-      'SEK': 'kr',
-      'NZD': 'NZ\$',
-      'MXN': '\$',
-      'SGD': 'S\$',
-      'HKD': 'HK\$',
-      'NOK': 'kr',
-      'KRW': '₩',
-      'TRY': '₺',
-      'RUB': '₽',
-      'INR': '₹',
-      'BRL': 'R\$',
-      'ZAR': 'R',
-      'BDT': '৳',
-    };
-
-    return currencySymbols[currencyCode] ?? currencyCode;
-  }
 }
 
 /// Bottom sheet for transaction options

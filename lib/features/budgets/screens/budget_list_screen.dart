@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/features/budgets/providers/budget_provider.dart';
 import 'package:the_accountant/features/budgets/screens/add_budget_screen.dart';
 import 'package:the_accountant/shared/widgets/budget_progress.dart';
+import 'package:the_accountant/core/providers/currency_provider.dart';
 
 class BudgetListScreen extends ConsumerWidget {
   const BudgetListScreen({super.key});
@@ -10,6 +11,7 @@ class BudgetListScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final budgetState = ref.watch(budgetProvider);
+    final displayCurrency = ref.watch(defaultCurrencyProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -55,7 +57,7 @@ class BudgetListScreen extends ConsumerWidget {
                   limit: budget.limit,
                   startDate: budget.startDate,
                   endDate: budget.endDate,
-                  currency: 'USD', // This will be updated to use settings
+                  currency: displayCurrency,
                 );
               },
             ),

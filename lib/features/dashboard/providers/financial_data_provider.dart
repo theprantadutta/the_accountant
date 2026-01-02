@@ -2,6 +2,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/core/services/financial_calculation_service.dart';
+import 'package:the_accountant/core/services/currency_service.dart';
+import 'package:the_accountant/core/providers/currency_provider.dart';
 import 'package:the_accountant/features/categories/providers/category_provider.dart'
     as cat_provider;
 
@@ -14,6 +16,7 @@ class FinancialData {
   final Map<String, double> budgetProgress;
   final List<BudgetProgressItem> budgetProgressDetails;
   final List<Transaction> recentTransactions;
+  final String displayCurrency;
   final bool isLoading;
   final String? error;
 
@@ -26,6 +29,7 @@ class FinancialData {
     required this.budgetProgress,
     required this.budgetProgressDetails,
     required this.recentTransactions,
+    this.displayCurrency = 'USD',
     this.isLoading = false,
     this.error,
   });
@@ -39,6 +43,7 @@ class FinancialData {
     Map<String, double>? budgetProgress,
     List<BudgetProgressItem>? budgetProgressDetails,
     List<Transaction>? recentTransactions,
+    String? displayCurrency,
     bool? isLoading,
     String? error,
   }) {
@@ -53,6 +58,7 @@ class FinancialData {
       budgetProgressDetails:
           budgetProgressDetails ?? this.budgetProgressDetails,
       recentTransactions: recentTransactions ?? this.recentTransactions,
+      displayCurrency: displayCurrency ?? this.displayCurrency,
       isLoading: isLoading ?? this.isLoading,
       error: error,
     );
@@ -61,11 +67,15 @@ class FinancialData {
 
 class FinancialDataNotifier extends Notifier<FinancialData> {
   late final FinancialCalculationService _calculationService;
+  late final CurrencyService _currencyService;
+  late String _displayCurrency;
 
   @override
   FinancialData build() {
     final db = ref.watch(databaseProvider);
-    _calculationService = FinancialCalculationService(db);
+    _currencyService = ref.watch(currencyServiceProvider);
+    _displayCurrency = ref.watch(defaultCurrencyProvider);
+    _calculationService = FinancialCalculationService(db, _currencyService);
 
     // Schedule data loading after the initial state is set to avoid
     // reading the state of an uninitialized provider during build.
@@ -80,6 +90,7 @@ class FinancialDataNotifier extends Notifier<FinancialData> {
       budgetProgress: {},
       budgetProgressDetails: const [],
       recentTransactions: [],
+      displayCurrency: _displayCurrency,
       isLoading: true,
     );
   }
@@ -93,19 +104,21 @@ class FinancialDataNotifier extends Notifier<FinancialData> {
       final startOfMonth = DateTime(now.year, now.month, 1);
       final endOfMonth = DateTime(now.year, now.month + 1, 0);
 
-      // Load all financial data in parallel
+      // Load all financial data in parallel with currency conversion
       final results = await Future.wait([
-        _calculationService.getTotalBalance(),
-        _calculationService.getTotalIncome(
+        _calculationService.getTotalBalanceConverted(_displayCurrency),
+        _calculationService.getTotalIncomeConverted(
           startDate: startOfMonth,
           endDate: endOfMonth,
+          targetCurrency: _displayCurrency,
         ),
-        _calculationService.getTotalExpenses(
+        _calculationService.getTotalExpensesConverted(
           startDate: startOfMonth,
           endDate: endOfMonth,
+          targetCurrency: _displayCurrency,
         ),
         _calculationService.getMonthlyGrowthPercentage(),
-        _calculationService.getSpendingByCategory(),
+        _calculationService.getSpendingByCategoryConverted(_displayCurrency),
         _calculationService.getBudgetProgress(),
         _calculationService.getBudgetProgressDetails(),
         _calculationService.getRecentTransactions(),
@@ -120,6 +133,7 @@ class FinancialDataNotifier extends Notifier<FinancialData> {
         budgetProgress: results[5] as Map<String, double>,
         budgetProgressDetails: results[6] as List<BudgetProgressItem>,
         recentTransactions: results[7] as List<Transaction>,
+        displayCurrency: _displayCurrency,
         isLoading: false,
       );
     } catch (e) {
@@ -191,4 +205,8 @@ final categorySpendingProvider = Provider<Map<String, double>>((ref) {
 
 final budgetProgressDetailsProvider = Provider<List<BudgetProgressItem>>((ref) {
   return ref.watch(financialDataProvider).budgetProgressDetails;
+});
+
+final financialDisplayCurrencyProvider = Provider<String>((ref) {
+  return ref.watch(financialDataProvider).displayCurrency;
 });

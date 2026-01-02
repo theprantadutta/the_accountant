@@ -17,6 +17,8 @@ import 'package:the_accountant/features/transactions/widgets/transaction_type_he
 import 'package:the_accountant/features/transactions/widgets/special_type_selector.dart';
 import 'package:the_accountant/features/transactions/widgets/date_time_picker.dart';
 import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
+import 'package:the_accountant/core/providers/currency_provider.dart';
+import 'package:the_accountant/core/services/currency_service.dart';
 
 /// Steps in the transaction creation flow (for expense/income)
 enum AddTransactionStep {
@@ -797,7 +799,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen>
                             ),
                           ),
                           Text(
-                            '\$${wallet.balance.toStringAsFixed(2)}',
+                            '${CurrencyInfo.getSymbol(wallet.currency)}${wallet.balance.toStringAsFixed(2)}',
                             style: TextStyle(
                               fontSize: 13,
                               color: isExcluded
@@ -965,6 +967,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen>
       (w) => w.id == _toWalletId,
       orElse: () => wallets.last,
     );
+    final currencySymbol = CurrencyInfo.getSymbol(fromWallet.currency);
 
     return Container(
       padding: AppSpacing.paddingLg,
@@ -1020,7 +1023,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen>
                     ),
                     AppSpacing.gapSm,
                     Text(
-                      '\$${_amount.toStringAsFixed(2)}',
+                      '$currencySymbol${_amount.toStringAsFixed(2)}',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -1059,6 +1062,10 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen>
   }
 
   Widget _buildBottomBar() {
+    final walletId = _isTransfer ? _fromWalletId : _selectedWalletId;
+    final walletCurrency = ref.watch(walletCurrencyProvider(walletId));
+    final currencySymbol = CurrencyInfo.getSymbol(walletCurrency);
+
     return Container(
       padding: AppSpacing.paddingMd,
       decoration: BoxDecoration(
@@ -1093,7 +1100,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen>
                 borderRadius: AppSpacing.borderRadiusFull,
               ),
               child: Text(
-                '\$${_amount.toStringAsFixed(2)}',
+                '$currencySymbol${_amount.toStringAsFixed(2)}',
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
@@ -1577,6 +1584,9 @@ class _EditTransactionScreenState extends ConsumerState<EditTransactionScreen>
   }
 
   Widget _buildBottomBar() {
+    final walletCurrency = ref.watch(walletCurrencyProvider(_selectedWalletId));
+    final currencySymbol = CurrencyInfo.getSymbol(walletCurrency);
+
     return Container(
       padding: AppSpacing.paddingMd,
       decoration: BoxDecoration(
@@ -1611,7 +1621,7 @@ class _EditTransactionScreenState extends ConsumerState<EditTransactionScreen>
                 borderRadius: AppSpacing.borderRadiusFull,
               ),
               child: Text(
-                '\$${_amount.toStringAsFixed(2)}',
+                '$currencySymbol${_amount.toStringAsFixed(2)}',
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,

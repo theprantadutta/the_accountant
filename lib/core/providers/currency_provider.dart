@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:the_accountant/core/services/currency_service.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
+import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
 
 /// State for currency management
 class CurrencyState {
@@ -221,4 +222,22 @@ final currencySearchProvider = Provider.family<List<MapEntry<String, String>>, S
 final currencyNameProvider = Provider.family<String, String>((ref, code) {
   final state = ref.watch(currencyProvider);
   return state.availableCurrencies[code.toUpperCase()] ?? code;
+});
+
+/// Get currency from wallet ID
+final walletCurrencyProvider = Provider.family<String, String?>((ref, walletId) {
+  if (walletId == null) return 'USD';
+  final walletState = ref.watch(walletProvider);
+  try {
+    final wallet = walletState.wallets.firstWhere((w) => w.id == walletId);
+    return wallet.currency;
+  } catch (_) {
+    return 'USD';
+  }
+});
+
+/// Default wallet's currency (primary display currency)
+final defaultCurrencyProvider = Provider<String>((ref) {
+  final defaultWalletId = ref.watch(effectiveDefaultWalletIdProvider);
+  return ref.watch(walletCurrencyProvider(defaultWalletId));
 });

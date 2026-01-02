@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/core/services/currency_service.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:intl/intl.dart';
 
@@ -19,7 +20,7 @@ class WalletListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final formatter = NumberFormat.currency(
-      symbol: _getCurrencySymbol(wallet.currency),
+      symbol: CurrencyInfo.getSymbol(wallet.currency),
       decimalDigits: 2,
     );
 
@@ -61,23 +62,4 @@ class WalletListItem extends StatelessWidget {
     );
   }
 
-  String _getCurrencySymbol(String currencyCode) {
-    final Map<String, String> symbols = {
-      'USD': '\$',
-      'EUR': '€',
-      'GBP': '£',
-      'JPY': '¥',
-      'CAD': 'C\$',
-      'AUD': 'A\$',
-      'CHF': 'CHF',
-      'CNY': '¥',
-      'INR': '₹',
-      'BRL': 'R\$',
-      'KRW': '₩',
-      'MXN': '\$',
-      'SGD': 'S\$',
-    };
-
-    return symbols[currencyCode] ?? currencyCode;
-  }
 }

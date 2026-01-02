@@ -12,6 +12,8 @@ import 'package:the_accountant/features/categories/providers/category_provider.d
     as cat_provider;
 import 'package:the_accountant/features/reports/providers/reports_provider.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
+import 'package:the_accountant/core/providers/currency_provider.dart';
+import 'package:the_accountant/core/services/currency_service.dart';
 import 'package:the_accountant/shared/widgets/glass_card.dart';
 import 'package:the_accountant/shared/widgets/stat_card.dart';
 import 'package:the_accountant/features/transactions/screens/upcoming_transactions_screen.dart';
@@ -243,13 +245,16 @@ class _ResponsiveFinancialOverviewState
   }
 
   Widget _buildQuickStats(double income, double expenses) {
+    final displayCurrency = ref.watch(defaultCurrencyProvider);
+    final currencySymbol = CurrencyInfo.getSymbol(displayCurrency);
+
     return Row(
       children: [
         Expanded(
           child: StatCard(
             label: 'Income',
             value: income,
-            prefix: '\$',
+            prefix: currencySymbol,
             icon: Icons.trending_up_rounded,
             iconColor: AppColors.success,
             accentColor: AppColors.success,
@@ -262,7 +267,7 @@ class _ResponsiveFinancialOverviewState
           child: StatCard(
             label: 'Expenses',
             value: expenses,
-            prefix: '\$',
+            prefix: currencySymbol,
             icon: Icons.trending_down_rounded,
             iconColor: AppColors.error,
             accentColor: AppColors.error,
@@ -577,6 +582,8 @@ class _ResponsiveFinancialOverviewState
               final categoryColor = Color(
                 int.parse(category.colorCode.replaceFirst('#', '0xFF')),
               );
+              final walletCurrency = ref.watch(walletCurrencyProvider(transaction.walletId));
+              final currencySymbol = CurrencyInfo.getSymbol(walletCurrency);
 
               return Container(
                 margin: EdgeInsets.only(bottom: AppSpacing.md),
@@ -618,7 +625,7 @@ class _ResponsiveFinancialOverviewState
                       ),
                     ),
                     Text(
-                      '${isIncome ? '+' : '-'}\$${NumberFormat('#,##0.00').format(transaction.amount)}',
+                      '${isIncome ? '+' : '-'}$currencySymbol${NumberFormat('#,##0.00').format(transaction.amount)}',
                       style: AppTypography.monoSmall.copyWith(
                         color: isIncome ? AppColors.success : AppColors.error,
                         fontWeight: FontWeight.w600,
@@ -635,6 +642,8 @@ class _ResponsiveFinancialOverviewState
 
   Widget _buildBudgetProgress() {
     final items = ref.watch(budgetProgressDetailsProvider);
+    final displayCurrency = ref.watch(defaultCurrencyProvider);
+    final currencySymbol = CurrencyInfo.getSymbol(displayCurrency);
 
     return GlassCard(
       child: Column(
@@ -689,7 +698,7 @@ class _ResponsiveFinancialOverviewState
                           style: AppTypography.titleSmall,
                         ),
                         Text(
-                          '\$${NumberFormat('#,##0').format(spent)} / \$${NumberFormat('#,##0').format(limit)}',
+                          '$currencySymbol${NumberFormat('#,##0').format(spent)} / $currencySymbol${NumberFormat('#,##0').format(limit)}',
                           style: AppTypography.monoSmall.copyWith(
                             color: AppColors.textSecondary,
                           ),

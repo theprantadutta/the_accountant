@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:the_accountant/core/services/currency_service.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/core/themes/app_typography.dart';
@@ -257,7 +258,7 @@ class _WalletCardState extends ConsumerState<_WalletCard>
                         return Text(
                           isVisible
                               ? _formatCurrency(animatedBalance, wallet.currency)
-                              : '${_getCurrencySymbol(wallet.currency)} ****',
+                              : '${CurrencyInfo.getSymbol(wallet.currency)} ****',
                           style: AppTypography.monoMedium.copyWith(
                             fontSize: 22,
                             fontWeight: FontWeight.w700,
@@ -319,62 +320,10 @@ class _WalletCardState extends ConsumerState<_WalletCard>
   }
 
   String _formatCurrency(double amount, String currencyCode) {
-    final symbol = _getCurrencySymbol(currencyCode);
+    final symbol = CurrencyInfo.getSymbol(currencyCode);
     final formatted = NumberFormat('#,##0.00').format(amount.abs());
     final sign = amount < 0 ? '-' : '';
     return '$sign$symbol$formatted';
-  }
-
-  String _getCurrencySymbol(String currencyCode) {
-    const symbols = {
-      'USD': '\$',
-      'EUR': '\u20AC',
-      'GBP': '\u00A3',
-      'JPY': '\u00A5',
-      'CNY': '\u00A5',
-      'INR': '\u20B9',
-      'BDT': '\u09F3',
-      'AUD': 'A\$',
-      'CAD': 'C\$',
-      'CHF': 'CHF',
-      'KRW': '\u20A9',
-      'RUB': '\u20BD',
-      'BRL': 'R\$',
-      'MXN': 'MX\$',
-      'SGD': 'S\$',
-      'HKD': 'HK\$',
-      'NOK': 'kr',
-      'SEK': 'kr',
-      'DKK': 'kr',
-      'NZD': 'NZ\$',
-      'ZAR': 'R',
-      'THB': '\u0E3F',
-      'MYR': 'RM',
-      'PHP': '\u20B1',
-      'IDR': 'Rp',
-      'VND': '\u20AB',
-      'TRY': '\u20BA',
-      'AED': 'AED',
-      'SAR': 'SAR',
-      'PLN': 'z\u0142',
-      'CZK': 'K\u010D',
-      'HUF': 'Ft',
-      'ILS': '\u20AA',
-      'CLP': 'CLP\$',
-      'COP': 'COL\$',
-      'ARS': 'AR\$',
-      'PEN': 'S/',
-      'PKR': 'Rs',
-      'EGP': 'E\u00A3',
-      'NGN': '\u20A6',
-      'KES': 'KSh',
-      'GHS': 'GH\u20B5',
-      'UAH': '\u20B4',
-      'RON': 'lei',
-      'BGN': 'лв',
-      'HRK': 'kn',
-    };
-    return symbols[currencyCode] ?? currencyCode;
   }
 }
 

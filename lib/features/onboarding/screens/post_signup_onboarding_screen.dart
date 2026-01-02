@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/providers/currency_provider.dart';
+import 'package:the_accountant/core/services/currency_service.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/core/themes/app_theme.dart';
@@ -386,14 +387,7 @@ class _PostSignupOnboardingScreenState
   }
 
   String _getCurrencySymbol() {
-    const symbols = {
-      'USD': '\$',
-      'EUR': '€',
-      'GBP': '£',
-      'JPY': '¥',
-      'INR': '₹',
-    };
-    return symbols[_selectedCurrency] ?? _selectedCurrency;
+    return CurrencyInfo.getSymbol(_selectedCurrency);
   }
 
   /// Step 3: Complete

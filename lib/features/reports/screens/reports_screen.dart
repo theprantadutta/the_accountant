@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
+import 'package:the_accountant/core/providers/currency_provider.dart';
+import 'package:the_accountant/core/services/currency_service.dart';
 import 'package:the_accountant/core/themes/app_theme.dart';
 import 'package:the_accountant/core/utils/animation_utils.dart';
 import 'package:the_accountant/features/dashboard/providers/financial_data_provider.dart';
@@ -326,6 +328,8 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
 
   Widget _buildLineChart() {
     final reportsState = ref.watch(reportsProvider);
+    final displayCurrency = ref.watch(defaultCurrencyProvider);
+    final currencySymbol = CurrencyInfo.getSymbol(displayCurrency);
     final spots = reportsState.toLineChartSpots();
     final labels = reportsState.getDayLabels();
     final maxY = reportsState.getMaxY();
@@ -404,7 +408,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
               getTitlesWidget: (double value, TitleMeta meta) {
                 if (value >= 1000) {
                   return Text(
-                    '\$${(value / 1000).toStringAsFixed(1)}k',
+                    '$currencySymbol${(value / 1000).toStringAsFixed(1)}k',
                     style: const TextStyle(
                       color: Colors.white70,
                       fontWeight: FontWeight.w500,
@@ -413,7 +417,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
                   );
                 }
                 return Text(
-                  '\$${value.toStringAsFixed(0)}',
+                  '$currencySymbol${value.toStringAsFixed(0)}',
                   style: const TextStyle(
                     color: Colors.white70,
                     fontWeight: FontWeight.w500,
@@ -510,6 +514,8 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
 
   Widget _buildSummaryCards() {
     final financialData = ref.watch(financialDataProvider);
+    final displayCurrency = ref.watch(defaultCurrencyProvider);
+    final currencySymbol = CurrencyInfo.getSymbol(displayCurrency);
     final netSavings =
         financialData.monthlyIncome - financialData.monthlyExpenses;
     final growthPercentage = financialData.monthlyGrowthPercentage;
@@ -518,7 +524,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
       {
         'title': 'Total Spent',
         'amount':
-            '\$${NumberFormat('#,##0.00').format(financialData.monthlyExpenses)}',
+            '$currencySymbol${NumberFormat('#,##0.00').format(financialData.monthlyExpenses)}',
         'change':
             '${growthPercentage >= 0 ? '+' : ''}${growthPercentage.toStringAsFixed(1)}%',
         'color': const Color(0xFFFF6B6B),
@@ -528,7 +534,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
       {
         'title': 'Total Earned',
         'amount':
-            '\$${NumberFormat('#,##0.00').format(financialData.monthlyIncome)}',
+            '$currencySymbol${NumberFormat('#,##0.00').format(financialData.monthlyIncome)}',
         'change':
             '${growthPercentage >= 0 ? '+' : ''}${growthPercentage.toStringAsFixed(1)}%',
         'color': const Color(0xFF4ECDC4),
@@ -537,7 +543,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
       },
       {
         'title': 'Net Savings',
-        'amount': '\$${NumberFormat('#,##0.00').format(netSavings)}',
+        'amount': '$currencySymbol${NumberFormat('#,##0.00').format(netSavings)}',
         'change':
             '${growthPercentage >= 0 ? '+' : ''}${growthPercentage.toStringAsFixed(1)}%',
         'color': const Color(0xFF45B7D1),
@@ -635,6 +641,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
 
   Widget _buildCategoryBreakdown() {
     final financialData = ref.watch(financialDataProvider);
+    final currencySymbol = CurrencyInfo.getSymbol(ref.watch(defaultCurrencyProvider));
     final categorySpending = financialData.categorySpending;
     final totalSpending = categorySpending.values.fold(
       0.0,
@@ -649,7 +656,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
               : 0;
           return {
             'name': entry.key,
-            'amount': '\$${NumberFormat('#,##0.00').format(entry.value)}',
+            'amount': '$currencySymbol${NumberFormat('#,##0.00').format(entry.value)}',
             'percentage': percentage,
             'color': _getCategoryColor(entry.key),
           };
@@ -780,6 +787,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
 
   Widget _buildBudgetComparison() {
     final reportsState = ref.watch(reportsProvider);
+    final currencySymbol = CurrencyInfo.getSymbol(ref.watch(defaultCurrencyProvider));
     final budgets = reportsState.budgetComparison;
 
     // If no budgets, show empty state
@@ -870,7 +878,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
                         Row(
                           children: [
                             Text(
-                              '\$${budget.spent.toStringAsFixed(0)}',
+                              '$currencySymbol${budget.spent.toStringAsFixed(0)}',
                               style: TextStyle(
                                 color: budget.isOverBudget ? Colors.red : Colors.white,
                                 fontSize: 14,
@@ -878,7 +886,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
                               ),
                             ),
                             Text(
-                              ' / \$${budget.budgetLimit.toStringAsFixed(0)}',
+                              ' / $currencySymbol${budget.budgetLimit.toStringAsFixed(0)}',
                               style: TextStyle(
                                 color: Colors.white.withValues(alpha: 0.7),
                                 fontSize: 14,
@@ -920,7 +928,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
                     const SizedBox(height: 4),
                     Text(
                       budget.isOverBudget
-                          ? 'Over budget by \$${(budget.spent - budget.budgetLimit).toStringAsFixed(0)}'
+                          ? 'Over budget by $currencySymbol${(budget.spent - budget.budgetLimit).toStringAsFixed(0)}'
                           : '${((1 - budget.percentage) * 100).toStringAsFixed(0)}% remaining',
                       style: TextStyle(
                         color: budget.isOverBudget

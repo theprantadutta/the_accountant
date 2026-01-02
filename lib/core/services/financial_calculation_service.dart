@@ -1,4 +1,5 @@
 import 'package:the_accountant/data/datasources/local/app_database.dart';
+import 'package:the_accountant/core/services/currency_service.dart';
 
 class BudgetProgressItem {
   final String budgetId;
@@ -25,10 +26,32 @@ class BudgetProgressItem {
 
 class FinancialCalculationService {
   final AppDatabase _db;
+  final CurrencyService? _currencyService;
 
-  FinancialCalculationService(this._db);
+  FinancialCalculationService(this._db, [this._currencyService]);
 
-  /// Calculate total balance across all wallets
+  /// Get wallet currency by ID (returns 'USD' if not found)
+  Future<String> _getWalletCurrency(String? walletId) async {
+    if (walletId == null) return 'USD';
+    final wallet = await _db.findWalletById(walletId);
+    return wallet?.currency ?? 'USD';
+  }
+
+  /// Convert amount from wallet currency to target currency
+  Future<double> _convertAmount(
+    double amount,
+    String? walletId,
+    String targetCurrency,
+  ) async {
+    if (_currencyService == null) return amount;
+
+    final walletCurrency = await _getWalletCurrency(walletId);
+    if (walletCurrency == targetCurrency) return amount;
+
+    return await _currencyService.convert(amount, walletCurrency, targetCurrency);
+  }
+
+  /// Calculate total balance across all wallets (no conversion)
   Future<double> getTotalBalance() async {
     try {
       final transactions = await _db.getAllTransactions();
@@ -48,7 +71,49 @@ class FinancialCalculationService {
     }
   }
 
-  /// Calculate total income for a specific period
+  /// Calculate total balance with currency conversion
+  /// Converts all amounts to the target currency
+  Future<double> getTotalBalanceConverted(String targetCurrency) async {
+    try {
+      final wallets = await _db.getAllWallets();
+      double totalBalance = 0.0;
+
+      for (final wallet in wallets) {
+        // Get transactions for this wallet
+        final transactions = await _db.getAllTransactions();
+        final walletTransactions = transactions.where((t) => t.walletId == wallet.id);
+
+        double walletBalance = 0.0;
+        for (final transaction in walletTransactions) {
+          if (transaction.isIncome) {
+            walletBalance += transaction.amount;
+          } else {
+            walletBalance -= transaction.amount;
+          }
+        }
+
+        // Add initial balance from wallet
+        walletBalance += wallet.balance;
+
+        // Convert to target currency
+        if (_currencyService != null && wallet.currency != targetCurrency) {
+          walletBalance = await _currencyService.convert(
+            walletBalance,
+            wallet.currency,
+            targetCurrency,
+          );
+        }
+
+        totalBalance += walletBalance;
+      }
+
+      return totalBalance;
+    } catch (e) {
+      return 0.0;
+    }
+  }
+
+  /// Calculate total income for a specific period (no conversion)
   Future<double> getTotalIncome({
     DateTime? startDate,
     DateTime? endDate,
@@ -70,7 +135,36 @@ class FinancialCalculationService {
     }
   }
 
-  /// Calculate total expenses for a specific period
+  /// Calculate total income with currency conversion
+  Future<double> getTotalIncomeConverted({
+    DateTime? startDate,
+    DateTime? endDate,
+    required String targetCurrency,
+  }) async {
+    try {
+      List<Transaction> transactions;
+
+      if (startDate != null && endDate != null) {
+        transactions = await _db.getTransactionsByDateRange(startDate, endDate);
+      } else {
+        transactions = await _db.getAllTransactions();
+      }
+
+      final incomeTransactions = transactions.where((t) => t.isIncome);
+      double total = 0.0;
+
+      for (final t in incomeTransactions) {
+        final converted = await _convertAmount(t.amount, t.walletId, targetCurrency);
+        total += converted;
+      }
+
+      return total;
+    } catch (e) {
+      return 0.0;
+    }
+  }
+
+  /// Calculate total expenses for a specific period (no conversion)
   Future<double> getTotalExpenses({
     DateTime? startDate,
     DateTime? endDate,
@@ -87,6 +181,35 @@ class FinancialCalculationService {
       return transactions
           .where((t) => !t.isIncome)
           .fold<double>(0.0, (sum, t) => sum + t.amount);
+    } catch (e) {
+      return 0.0;
+    }
+  }
+
+  /// Calculate total expenses with currency conversion
+  Future<double> getTotalExpensesConverted({
+    DateTime? startDate,
+    DateTime? endDate,
+    required String targetCurrency,
+  }) async {
+    try {
+      List<Transaction> transactions;
+
+      if (startDate != null && endDate != null) {
+        transactions = await _db.getTransactionsByDateRange(startDate, endDate);
+      } else {
+        transactions = await _db.getAllTransactions();
+      }
+
+      final expenseTransactions = transactions.where((t) => !t.isIncome);
+      double total = 0.0;
+
+      for (final t in expenseTransactions) {
+        final converted = await _convertAmount(t.amount, t.walletId, targetCurrency);
+        total += converted;
+      }
+
+      return total;
     } catch (e) {
       return 0.0;
     }
@@ -134,6 +257,42 @@ class FinancialCalculationService {
         if (categoryId != null) {
           categorySpending[categoryId] =
               (categorySpending[categoryId] ?? 0.0) + transaction.amount;
+        }
+      }
+
+      return categorySpending;
+    } catch (e) {
+      return {};
+    }
+  }
+
+  /// Calculate spending by category with currency conversion
+  Future<Map<String, double>> getSpendingByCategoryConverted(
+    String targetCurrency,
+  ) async {
+    try {
+      final now = DateTime.now();
+      final startOfMonth = DateTime(now.year, now.month, 1);
+      final endOfMonth = DateTime(now.year, now.month + 1, 0);
+
+      final transactions = await _db.getTransactionsByDateRange(
+        startOfMonth,
+        endOfMonth,
+      );
+      final expenses = transactions.where((t) => !t.isIncome);
+
+      final Map<String, double> categorySpending = {};
+
+      for (final transaction in expenses) {
+        final categoryId = transaction.categoryId;
+        if (categoryId != null) {
+          final converted = await _convertAmount(
+            transaction.amount,
+            transaction.walletId,
+            targetCurrency,
+          );
+          categorySpending[categoryId] =
+              (categorySpending[categoryId] ?? 0.0) + converted;
         }
       }
 

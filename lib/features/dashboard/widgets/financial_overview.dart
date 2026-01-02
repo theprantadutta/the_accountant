@@ -4,6 +4,8 @@ import 'package:the_accountant/features/dashboard/widgets/advanced_chart.dart';
 import 'package:the_accountant/shared/widgets/budget_progress.dart';
 import 'package:the_accountant/features/transactions/providers/transaction_provider.dart';
 import 'package:the_accountant/features/budgets/providers/budget_provider.dart';
+import 'package:the_accountant/core/providers/currency_provider.dart';
+import 'package:the_accountant/core/services/currency_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
@@ -14,6 +16,8 @@ class FinancialOverview extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final transactionState = ref.watch(transactionProvider);
     final budgetState = ref.watch(budgetProvider);
+    final displayCurrency = ref.watch(defaultCurrencyProvider);
+    final currencySymbol = CurrencyInfo.getSymbol(displayCurrency);
 
     // Calculate financial metrics
     final totalIncome = transactionState.transactions
@@ -53,7 +57,7 @@ class FinancialOverview extends ConsumerWidget {
                   child: SummaryCard(
                     title: 'Total Balance',
                     amount: netBalance,
-                    currency: 'USD',
+                    currency: displayCurrency,
                     icon: Icons.account_balance_wallet,
                     iconColor: Colors.blue,
                     isPositive: netBalance >= 0,
@@ -64,7 +68,7 @@ class FinancialOverview extends ConsumerWidget {
                   child: SummaryCard(
                     title: 'This Month',
                     amount: totalExpenses,
-                    currency: 'USD',
+                    currency: displayCurrency,
                     icon: Icons.trending_down,
                     iconColor: Colors.red,
                     isPositive: false,
@@ -180,7 +184,7 @@ class FinancialOverview extends ConsumerWidget {
                           ),
                           trailing: Text(
                             '${transaction.type == 'income' ? '+' : '-'}'
-                            '${NumberFormat.currency(symbol: '\$').format(transaction.amount)}',
+                            '${NumberFormat.currency(symbol: currencySymbol).format(transaction.amount)}',
                             style: TextStyle(
                               color: transaction.type == 'income'
                                   ? Colors.green
@@ -225,7 +229,7 @@ class FinancialOverview extends ConsumerWidget {
                         limit: budget.limit,
                         startDate: budget.startDate,
                         endDate: budget.endDate,
-                        currency: 'USD',
+                        currency: displayCurrency,
                       );
                     },
                   ),
