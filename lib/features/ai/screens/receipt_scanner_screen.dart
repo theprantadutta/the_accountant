@@ -2,8 +2,27 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/features/ai/providers/ocr_provider.dart';
+import 'package:the_accountant/features/premium/widgets/premium_gate.dart';
+import 'package:the_accountant/data/models/premium_features.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
+
+/// Gated receipt scanner that requires premium subscription
+class ReceiptScannerScreenGated extends ConsumerWidget {
+  const ReceiptScannerScreenGated({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return PremiumGate(
+      featureId: PremiumFeatureIds.receiptOcr,
+      featureName: 'Receipt Scanner',
+      featureDescription:
+          'Scan receipts and automatically extract transaction data using AI-powered OCR technology.',
+      featureIcon: Icons.receipt_long,
+      child: const ReceiptScannerScreen(),
+    );
+  }
+}
 
 class ReceiptScannerScreen extends ConsumerStatefulWidget {
   const ReceiptScannerScreen({super.key});

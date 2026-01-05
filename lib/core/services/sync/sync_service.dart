@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logger/logger.dart';
 
 import 'package:the_accountant/core/services/api_service.dart';
 import 'package:the_accountant/core/services/sync/sync_models.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
+import 'package:the_accountant/features/premium/providers/premium_provider.dart';
 import 'package:drift/drift.dart';
 
 /// Hybrid Sync Service
@@ -16,6 +18,7 @@ import 'package:drift/drift.dart';
 class SyncService {
   final ApiService _apiService;
   final AppDatabase _database;
+  final Ref? _ref;
   final Logger _logger = Logger();
 
   // Sync state
@@ -36,8 +39,10 @@ class SyncService {
   SyncService({
     required ApiService apiService,
     required AppDatabase database,
+    Ref? ref,
   })  : _apiService = apiService,
-        _database = database;
+        _database = database,
+        _ref = ref;
 
   /// Check if device is online
   Future<bool> isOnline() async {
@@ -50,9 +55,19 @@ class SyncService {
   }
 
   /// Full sync operation - pushes local changes, pulls remote changes
+  /// Requires Premium subscription
   Future<SyncResult> syncAll() async {
     if (_state == SyncOperationState.syncing) {
       return SyncResult.failure('Sync already in progress');
+    }
+
+    // Check premium status - sync is a premium feature
+    if (_ref != null) {
+      final premiumState = _ref.read(premiumProvider);
+      if (!premiumState.isPremium) {
+        _setState(SyncOperationState.error);
+        return SyncResult.failure('Cloud sync requires Premium subscription');
+      }
     }
 
     final startTime = DateTime.now();

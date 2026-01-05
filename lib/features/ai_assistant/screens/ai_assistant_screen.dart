@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:the_accountant/core/themes/app_theme.dart';
 import 'package:the_accountant/core/utils/animation_utils.dart';
+import 'package:the_accountant/data/models/premium_features.dart';
+import 'package:the_accountant/features/premium/widgets/premium_gate.dart';
 // import 'package:the_accountant/features/ai_assistant/providers/gemini_provider.dart';
 // import 'package:the_accountant/features/transactions/providers/transaction_provider.dart';
 // import 'package:the_accountant/features/budgets/providers/budget_provider.dart';
@@ -13,6 +15,23 @@ class AIAssistantScreen extends ConsumerStatefulWidget {
 
   @override
   ConsumerState<AIAssistantScreen> createState() => _AIAssistantScreenState();
+}
+
+/// Wrapper that shows premium gate for non-premium users
+class AIAssistantScreenGated extends ConsumerWidget {
+  const AIAssistantScreenGated({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return PremiumGate(
+      featureId: PremiumFeatureIds.aiAssistant,
+      featureName: 'AI Assistant',
+      featureDescription:
+          'Get personalized financial advice, spending analysis, and smart insights powered by AI.',
+      featureIcon: Icons.smart_toy,
+      child: const AIAssistantScreen(),
+    );
+  }
 }
 
 class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>

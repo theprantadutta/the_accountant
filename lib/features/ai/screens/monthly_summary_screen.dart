@@ -2,8 +2,29 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/features/ai/providers/monthly_summary_provider.dart';
 import 'package:the_accountant/features/transactions/providers/transaction_provider.dart';
+import 'package:the_accountant/features/premium/widgets/premium_gate.dart';
+import 'package:the_accountant/data/models/premium_features.dart';
 import 'package:the_accountant/shared/widgets/summary_card.dart';
 import 'package:the_accountant/core/utils/date_utils.dart';
+
+/// Gated monthly summary that requires premium subscription
+class MonthlySummaryScreenGated extends ConsumerWidget {
+  final DateTime month;
+
+  const MonthlySummaryScreenGated({super.key, required this.month});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return PremiumGate(
+      featureId: PremiumFeatureIds.aiInsights,
+      featureName: 'AI Insights',
+      featureDescription:
+          'Get AI-powered monthly financial summaries with spending analysis, trends, and personalized recommendations.',
+      featureIcon: Icons.insights,
+      child: MonthlySummaryScreen(month: month),
+    );
+  }
+}
 
 class MonthlySummaryScreen extends ConsumerStatefulWidget {
   final DateTime month;

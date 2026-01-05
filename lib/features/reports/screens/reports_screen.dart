@@ -12,6 +12,7 @@ import 'package:the_accountant/features/transactions/providers/transaction_provi
 import 'package:the_accountant/features/budgets/providers/budget_provider.dart';
 import 'package:the_accountant/features/categories/providers/category_provider.dart';
 import 'package:the_accountant/features/reports/providers/reports_provider.dart';
+import 'package:the_accountant/features/premium/providers/premium_provider.dart';
 
 class ReportsScreen extends ConsumerStatefulWidget {
   const ReportsScreen({super.key});
@@ -187,15 +188,27 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
   }
 
   Widget _buildTimeFrameSelector() {
+    final premiumState = ref.watch(premiumProvider);
+    final isPremium = premiumState.isPremium;
+
     return AppTheme.glassmorphicContainer(
       child: Padding(
         padding: const EdgeInsets.all(8),
         child: Row(
           children: List.generate(_timeFrames.length, (index) {
             final isSelected = _selectedTimeFrame == index;
+            // Month (1) and Year (2) are premium-only
+            final isPremiumTimeframe = index > 0;
+            final isLocked = isPremiumTimeframe && !isPremium;
+
             return Expanded(
               child: GestureDetector(
                 onTap: () {
+                  if (isLocked) {
+                    // Show upgrade prompt
+                    _showAdvancedReportsUpgradeDialog();
+                    return;
+                  }
                   setState(() {
                     _selectedTimeFrame = index;
                   });
@@ -210,23 +223,83 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
                   decoration: BoxDecoration(
                     gradient: isSelected ? AppTheme.primaryGradient : null,
                     borderRadius: BorderRadius.circular(12),
+                    color: isLocked ? Colors.white.withValues(alpha: 0.05) : null,
                   ),
-                  child: Text(
-                    _timeFrames[index],
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: isSelected ? Colors.white : Colors.white70,
-                      fontWeight: isSelected
-                          ? FontWeight.bold
-                          : FontWeight.w500,
-                      fontSize: 14,
-                    ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        _timeFrames[index],
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: isLocked
+                              ? Colors.white38
+                              : (isSelected ? Colors.white : Colors.white70),
+                          fontWeight: isSelected
+                              ? FontWeight.bold
+                              : FontWeight.w500,
+                          fontSize: 14,
+                        ),
+                      ),
+                      if (isLocked) ...[
+                        const SizedBox(width: 4),
+                        const Icon(
+                          Icons.lock,
+                          size: 12,
+                          color: Colors.white38,
+                        ),
+                      ],
+                    ],
                   ),
                 ),
               ),
             );
           }),
         ),
+      ),
+    );
+  }
+
+  void _showAdvancedReportsUpgradeDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF1a1a2e),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        title: const Row(
+          children: [
+            Icon(Icons.analytics, color: Colors.amber),
+            SizedBox(width: 8),
+            Text(
+              'Advanced Reports',
+              style: TextStyle(color: Colors.white),
+            ),
+          ],
+        ),
+        content: const Text(
+          'Monthly and yearly reports are available with Premium.\n\n'
+          'Upgrade to unlock detailed financial insights, trends, and export capabilities.',
+          style: TextStyle(color: Colors.white70),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Maybe Later'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.pushNamed(context, '/premium');
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.amber,
+              foregroundColor: Colors.black,
+            ),
+            child: const Text('Upgrade'),
+          ),
+        ],
       ),
     );
   }

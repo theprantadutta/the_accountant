@@ -1,6 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/providers/backup_provider.dart';
+import 'package:the_accountant/features/premium/widgets/premium_gate.dart';
+import 'package:the_accountant/data/models/premium_features.dart';
+
+/// Gated backup screen that requires premium subscription
+class BackupScreenGated extends ConsumerWidget {
+  const BackupScreenGated({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return PremiumGate(
+      featureId: PremiumFeatureIds.googleDriveBackup,
+      featureName: 'Cloud Backup',
+      featureDescription:
+          'Securely backup your financial data to Google Drive with optional encryption. Never lose your data again.',
+      featureIcon: Icons.cloud_upload,
+      child: const BackupScreen(),
+    );
+  }
+}
 
 class BackupScreen extends ConsumerStatefulWidget {
   const BackupScreen({super.key});

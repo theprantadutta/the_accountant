@@ -94,7 +94,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const BackupScreen()),
+                MaterialPageRoute(builder: (context) => const BackupScreenGated()),
               );
             },
           ),

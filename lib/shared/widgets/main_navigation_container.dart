@@ -12,7 +12,7 @@ import 'package:the_accountant/features/dashboard/widgets/responsive_financial_o
 import 'package:the_accountant/features/transactions/screens/transaction_list_screen.dart';
 import 'package:the_accountant/features/transactions/screens/add_transaction_screen.dart';
 import 'package:the_accountant/features/transactions/widgets/transaction_type_header.dart';
-import 'package:the_accountant/features/ai_assistant/screens/ai_assistant_screen.dart';
+import 'package:the_accountant/features/ai_assistant/screens/ai_assistant_screen.dart' show AIAssistantScreenGated;
 import 'package:the_accountant/features/authentication/presentation/screens/user_profile_screen.dart';
 import 'package:the_accountant/features/reports/screens/reports_screen.dart';
 import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
@@ -38,7 +38,7 @@ class _MainNavigationContainerState
   final List<Widget> _screens = [
     const ResponsiveFinancialOverview(), // Home
     const TransactionListScreen(), // Transactions
-    const AIAssistantScreen(), // AI Assistant
+    const AIAssistantScreenGated(), // AI Assistant (Premium)
     const ReportsScreen(), // Reports
     const UserProfileScreen(), // Profile
   ];
