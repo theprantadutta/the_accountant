@@ -14,6 +14,18 @@ class PremiumState {
     this.errorMessage,
   });
 
+  /// Quick check if user has active premium
+  bool get isPremium => features.isPremiumActive;
+
+  /// Current subscription tier
+  SubscriptionTier get tier => features.tier;
+
+  /// Check if subscription is expiring soon
+  bool get isExpiringSoon => features.isExpiringSoon;
+
+  /// Days remaining in subscription (null for lifetime or free)
+  int? get daysRemaining => features.daysRemaining;
+
   PremiumState copyWith({
     PremiumFeatures? features,
     bool? isLoading,
@@ -33,29 +45,58 @@ class PremiumNotifier extends StateNotifier<PremiumState> {
   PremiumNotifier(this._ref)
     : super(
         PremiumState(
-          features: const PremiumFeatures(isUnlocked: false, features: []),
+          features: const PremiumFeatures(
+            isUnlocked: false,
+            tier: SubscriptionTier.free,
+            features: [],
+          ),
         ),
       );
 
-  void unlockPremiumFeatures() {
+  /// Update subscription status from backend or IAP
+  void updateSubscription({
+    required SubscriptionTier tier,
+    DateTime? expiresAt,
+    String? purchaseId,
+  }) {
+    final isPremium = tier != SubscriptionTier.free;
+
     state = state.copyWith(
       features: state.features.copyWith(
-        isUnlocked: true,
-        features: PremiumFeatures.allFeatures,
-        purchaseDate: DateTime.now(),
+        isUnlocked: isPremium,
+        tier: tier,
+        features: isPremium ? PremiumFeatureIds.all : const [],
+        purchaseDate: isPremium ? DateTime.now() : null,
+        expiresAt: expiresAt,
+        purchaseId: purchaseId,
       ),
     );
 
-    // Unlock premium themes
-    _ref.read(themeProvider.notifier).unlockPremiumThemes();
+    // Update theme access
+    if (isPremium) {
+      _ref.read(themeProvider.notifier).unlockPremiumThemes();
+    } else {
+      _ref.read(themeProvider.notifier).lockPremiumThemes();
+    }
   }
 
+  /// Legacy method - unlock all premium features (for backward compatibility)
+  void unlockPremiumFeatures() {
+    updateSubscription(
+      tier: SubscriptionTier.premiumLifetime,
+      purchaseId: 'legacy_unlock',
+    );
+  }
+
+  /// Lock premium features (e.g., subscription expired)
   void lockPremiumFeatures() {
     state = state.copyWith(
       features: state.features.copyWith(
         isUnlocked: false,
+        tier: SubscriptionTier.free,
         features: const [],
         purchaseDate: null,
+        expiresAt: null,
         purchaseId: null,
       ),
     );
@@ -64,9 +105,74 @@ class PremiumNotifier extends StateNotifier<PremiumState> {
     _ref.read(themeProvider.notifier).lockPremiumThemes();
   }
 
-  bool isFeatureUnlocked(String feature) {
-    return state.features.isUnlocked &&
-        state.features.features.contains(feature);
+  /// Set loading state
+  void setLoading(bool loading) {
+    state = state.copyWith(isLoading: loading);
+  }
+
+  /// Set error message
+  void setError(String? error) {
+    state = state.copyWith(errorMessage: error);
+  }
+
+  /// Check if a specific feature is unlocked
+  bool isFeatureUnlocked(String featureId) {
+    return state.features.isPremiumActive &&
+        state.features.features.contains(featureId);
+  }
+
+  /// Check if user can add more of an entity (respects free tier limits)
+  bool canAddMore({
+    required String entityType,
+    required int currentCount,
+  }) {
+    if (state.isPremium) return true;
+
+    switch (entityType) {
+      case 'wallet':
+        return currentCount < FreeTierLimits.maxWallets;
+      case 'category':
+        return currentCount < FreeTierLimits.maxCustomCategories;
+      case 'budget':
+        return currentCount < FreeTierLimits.maxActiveBudgets;
+      case 'objective':
+        return currentCount < FreeTierLimits.maxActiveObjectives;
+      case 'payment_method':
+        return currentCount < FreeTierLimits.maxPaymentMethods;
+      default:
+        return true;
+    }
+  }
+
+  /// Get remaining count for an entity type
+  int getRemainingCount({
+    required String entityType,
+    required int currentCount,
+  }) {
+    if (state.isPremium) return -1; // -1 means unlimited
+
+    int limit;
+    switch (entityType) {
+      case 'wallet':
+        limit = FreeTierLimits.maxWallets;
+        break;
+      case 'category':
+        limit = FreeTierLimits.maxCustomCategories;
+        break;
+      case 'budget':
+        limit = FreeTierLimits.maxActiveBudgets;
+        break;
+      case 'objective':
+        limit = FreeTierLimits.maxActiveObjectives;
+        break;
+      case 'payment_method':
+        limit = FreeTierLimits.maxPaymentMethods;
+        break;
+      default:
+        return -1;
+    }
+
+    return limit - currentCount;
   }
 }
 
