@@ -1,6 +1,10 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
+import 'package:the_accountant/data/models/premium_features.dart';
+import 'package:the_accountant/features/premium/exceptions/premium_limit_exception.dart';
+import 'package:the_accountant/features/premium/providers/premium_provider.dart';
 import 'package:drift/drift.dart' show Value;
 import 'package:uuid/uuid.dart';
 
@@ -76,8 +80,9 @@ class CategoryState {
 
 class CategoryNotifier extends StateNotifier<CategoryState> {
   final AppDatabase _db;
+  final Ref _ref;
 
-  CategoryNotifier(this._db)
+  CategoryNotifier(this._db, this._ref)
     : super(CategoryState(categories: [], isLoading: false)) {
     _loadCategories();
   }
@@ -123,6 +128,21 @@ class CategoryNotifier extends StateNotifier<CategoryState> {
     state = state.copyWith(isLoading: true);
 
     try {
+      // Check premium limit for custom categories (not default ones)
+      if (!isDefault) {
+        final premiumState = _ref.read(premiumProvider);
+        if (!premiumState.isPremium) {
+          final customCount = state.categories.where((c) => !c.isDefault).length;
+          if (customCount >= FreeTierLimits.maxCustomCategories) {
+            throw PremiumLimitException(
+              entityType: 'category',
+              currentCount: customCount,
+              limit: FreeTierLimits.maxCustomCategories,
+            );
+          }
+        }
+      }
+
       // Determine isIncome: prefer explicit isIncome, fallback to type parsing
       final bool categoryIsIncome = isIncome ?? (type == 'income');
 
@@ -143,8 +163,9 @@ class CategoryNotifier extends StateNotifier<CategoryState> {
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: 'Failed to add category',
+        errorMessage: e is PremiumLimitException ? e.message : 'Failed to add category',
       );
+      rethrow; // Rethrow to let UI handle PremiumLimitException
     }
   }
 
@@ -255,6 +276,6 @@ class CategoryNotifier extends StateNotifier<CategoryState> {
 final categoryProvider = StateNotifierProvider<CategoryNotifier, CategoryState>(
   (ref) {
     final db = ref.watch(databaseProvider);
-    return CategoryNotifier(db);
+    return CategoryNotifier(db, ref);
   },
 );

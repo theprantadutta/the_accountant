@@ -4,6 +4,9 @@ import 'package:the_accountant/core/providers/default_wallet_provider.dart';
 import 'package:the_accountant/core/services/wallet_balance_service.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
+import 'package:the_accountant/data/models/premium_features.dart';
+import 'package:the_accountant/features/premium/exceptions/premium_limit_exception.dart';
+import 'package:the_accountant/features/premium/providers/premium_provider.dart';
 import 'package:drift/drift.dart' show Value;
 import 'package:uuid/uuid.dart';
 
@@ -38,8 +41,9 @@ class WalletState {
 class WalletNotifier extends StateNotifier<WalletState> {
   final AppDatabase _database;
   final WalletBalanceService _balanceService;
+  final Ref _ref;
 
-  WalletNotifier(this._database)
+  WalletNotifier(this._database, this._ref)
       : _balanceService = WalletBalanceService(_database),
         super(WalletState(wallets: [])) {
     loadWallets();
@@ -104,6 +108,19 @@ class WalletNotifier extends StateNotifier<WalletState> {
     bool isDefault = false,
   }) async {
     try {
+      // Check premium limit for wallets
+      final premiumState = _ref.read(premiumProvider);
+      if (!premiumState.isPremium) {
+        final currentCount = state.wallets.length;
+        if (currentCount >= FreeTierLimits.maxWallets) {
+          throw PremiumLimitException(
+            entityType: 'wallet',
+            currentCount: currentCount,
+            limit: FreeTierLimits.maxWallets,
+          );
+        }
+      }
+
       // If setting as default, clear other defaults first
       if (isDefault) {
         await _clearOtherDefaults(null);
@@ -127,6 +144,7 @@ class WalletNotifier extends StateNotifier<WalletState> {
       loadWallets(); // Refresh the list
     } catch (e) {
       state = state.copyWith(error: e.toString());
+      rethrow; // Rethrow to let UI handle PremiumLimitException
     }
   }
 
@@ -214,7 +232,7 @@ final walletProvider = StateNotifierProvider<WalletNotifier, WalletState>((
   ref,
 ) {
   final database = ref.watch(databaseProvider);
-  return WalletNotifier(database);
+  return WalletNotifier(database, ref);
 });
 
 /// Provider for the WalletBalanceService
