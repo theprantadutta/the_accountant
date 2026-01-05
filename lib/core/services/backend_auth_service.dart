@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'api_service.dart';
+import 'secure_token_storage.dart';
 
 /// Backend authentication service with state management
 class BackendAuthService extends ChangeNotifier {
@@ -99,6 +100,9 @@ class BackendAuthService extends ChangeNotifier {
     _subscriptionTier = 'free';
     _subscriptionExpiresAt = null;
     _createdAt = null;
+
+    // Clear all stored tokens
+    await SecureTokenStorage.clearAllTokens();
 
     // Sign out from Firebase (this will trigger the AuthWrapper to show login)
     try {

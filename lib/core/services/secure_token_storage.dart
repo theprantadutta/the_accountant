@@ -11,6 +11,7 @@ class SecureTokenStorage {
   // Keys for storing different types of tokens
   static const _accessTokenKey = 'access_token';
   static const _refreshTokenKey = 'refresh_token';
+  static const _tokenExpiryKey = 'token_expiry';  // Unix timestamp in milliseconds
   static const _userIdKey = 'user_id';
   static const _userEmailKey = 'user_email';
 
@@ -32,6 +33,35 @@ class SecureTokenStorage {
   // Retrieve refresh token
   static Future<String?> getRefreshToken() async {
     return await _storage.read(key: _refreshTokenKey);
+  }
+
+  // Store token expiry (takes expiresIn in seconds, stores as Unix timestamp)
+  static Future<void> storeTokenExpiry(int expiresInSeconds) async {
+    final expiryTimestamp = DateTime.now().millisecondsSinceEpoch + (expiresInSeconds * 1000);
+    await _storage.write(key: _tokenExpiryKey, value: expiryTimestamp.toString());
+  }
+
+  // Get token expiry timestamp
+  static Future<int?> getTokenExpiry() async {
+    final expiry = await _storage.read(key: _tokenExpiryKey);
+    return expiry != null ? int.tryParse(expiry) : null;
+  }
+
+  // Check if token is expiring soon (less than 2 minutes remaining)
+  static Future<bool> isTokenExpiringSoon() async {
+    final expiry = await getTokenExpiry();
+    if (expiry == null) return true;  // No expiry means we should refresh
+
+    final now = DateTime.now().millisecondsSinceEpoch;
+    final twoMinutesInMs = 2 * 60 * 1000;
+    return (expiry - now) < twoMinutesInMs;
+  }
+
+  // Check if token is expired
+  static Future<bool> isTokenExpired() async {
+    final expiry = await getTokenExpiry();
+    if (expiry == null) return true;
+    return DateTime.now().millisecondsSinceEpoch >= expiry;
   }
 
   // Store user ID
@@ -58,6 +88,7 @@ class SecureTokenStorage {
   static Future<void> clearAllTokens() async {
     await _storage.delete(key: _accessTokenKey);
     await _storage.delete(key: _refreshTokenKey);
+    await _storage.delete(key: _tokenExpiryKey);
     await _storage.delete(key: _userIdKey);
     await _storage.delete(key: _userEmailKey);
   }

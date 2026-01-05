@@ -59,7 +59,7 @@ class _PremiumUpgradeScreen extends StatelessWidget {
         title: Text(featureName),
       ),
       body: SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,

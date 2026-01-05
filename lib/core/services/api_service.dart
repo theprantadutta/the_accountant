@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:logger/logger.dart';
+import 'package:the_accountant/core/services/secure_token_storage.dart';
 
 /// Exception thrown when account linking is required
 class AccountLinkingRequiredException implements Exception {
@@ -41,6 +42,9 @@ class ApiService {
   /// Callback to be invoked when a 401 unauthorized response is received
   UnauthorizedCallback? onUnauthorized;
 
+  /// Flag to prevent multiple simultaneous token refresh attempts
+  bool _isRefreshing = false;
+
   static final ApiService _instance = ApiService._internal();
   factory ApiService() => _instance;
 
@@ -55,10 +59,25 @@ class ApiService {
       },
     );
 
-    // Request interceptor to add JWT token
+    // Request interceptor to add JWT token and handle token refresh
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
+          // Skip token refresh for auth endpoints
+          final isAuthEndpoint = options.path.contains('/auth/refresh') ||
+              options.path.contains('/auth/login') ||
+              options.path.contains('/auth/register') ||
+              options.path.contains('/auth/firebase');
+
+          // Check if token is expiring soon and refresh it (unless we're already refreshing)
+          if (!isAuthEndpoint && !_isRefreshing) {
+            final isExpiringSoon = await SecureTokenStorage.isTokenExpiringSoon();
+            if (isExpiringSoon) {
+              _logger.i('Token expiring soon, attempting refresh...');
+              await _refreshAccessToken();
+            }
+          }
+
           final token = await getToken();
           if (token != null) {
             options.headers['Authorization'] = 'Bearer $token';
@@ -117,6 +136,61 @@ class ApiService {
   // ============================================================================
   // Token Management
   // ============================================================================
+
+  /// Refresh the access token using the refresh token
+  Future<void> _refreshAccessToken() async {
+    if (_isRefreshing) return;
+
+    final refreshToken = await SecureTokenStorage.getRefreshToken();
+    if (refreshToken == null) {
+      _logger.w('No refresh token available - cannot refresh');
+      return;
+    }
+
+    _isRefreshing = true;
+    try {
+      _logger.i('Refreshing access token...');
+
+      // Use a separate Dio instance for refresh to avoid interceptor loops
+      final refreshDio = Dio(BaseOptions(
+        baseUrl: baseUrl + apiV1,
+        headers: {'Content-Type': 'application/json'},
+      ));
+
+      final response = await refreshDio.post(
+        '/auth/refresh',
+        data: {'token': refreshToken},
+      );
+
+      if (response.statusCode == 200) {
+        final newAccessToken = response.data['access_token'];
+        final newRefreshToken = response.data['refresh_token'];
+        final expiresIn = response.data['expires_in'] as int;
+
+        await saveToken(newAccessToken);
+        await SecureTokenStorage.storeRefreshToken(newRefreshToken);
+        await SecureTokenStorage.storeTokenExpiry(expiresIn);
+
+        _logger.i('Token refresh successful');
+      } else {
+        _logger.e('Token refresh failed with status: ${response.statusCode}');
+        await _handleRefreshFailure();
+      }
+    } on DioException catch (e) {
+      _logger.e('Token refresh failed: ${e.message}');
+      await _handleRefreshFailure();
+    } finally {
+      _isRefreshing = false;
+    }
+  }
+
+  /// Handle token refresh failure - clear tokens and trigger logout
+  Future<void> _handleRefreshFailure() async {
+    _logger.w('Token refresh failed - clearing tokens and triggering logout');
+    await deleteToken();
+    await SecureTokenStorage.clearAllTokens();
+    onUnauthorized?.call();
+  }
 
   Future<void> saveToken(String token) async {
     _logger.i('saveToken called, token length: ${token.length}');
@@ -227,9 +301,8 @@ class ApiService {
         data: {'email': email, 'password': password},
       );
 
-      // Save token
-      final token = response.data['access_token'];
-      await saveToken(token);
+      // Save tokens
+      await _saveAuthTokens(response.data);
 
       return response.data;
     } on DioException catch (e) {
@@ -245,13 +318,29 @@ class ApiService {
         data: {'email': email, 'password': password},
       );
 
-      // Save token
-      final token = response.data['access_token'];
-      await saveToken(token);
+      // Save tokens
+      await _saveAuthTokens(response.data);
 
       return response.data;
     } on DioException catch (e) {
       throw _handleError(e);
+    }
+  }
+
+  /// Helper to save auth tokens from response
+  Future<void> _saveAuthTokens(Map<String, dynamic> data) async {
+    final accessToken = data['access_token'];
+    final refreshToken = data['refresh_token'];
+    final expiresIn = data['expires_in'];
+
+    if (accessToken != null) {
+      await saveToken(accessToken);
+    }
+    if (refreshToken != null) {
+      await SecureTokenStorage.storeRefreshToken(refreshToken);
+    }
+    if (expiresIn != null) {
+      await SecureTokenStorage.storeTokenExpiry(expiresIn as int);
     }
   }
 
@@ -273,6 +362,7 @@ class ApiService {
       _logger.e('Logout error: $e');
     } finally {
       await deleteToken();
+      await SecureTokenStorage.clearAllTokens();
     }
   }
 
@@ -293,10 +383,8 @@ class ApiService {
 
       _logger.i('Firebase authentication successful');
 
-      // Save token
-      final token = response.data['access_token'];
-      _logger.i('Saving JWT token: ${token?.substring(0, 20)}...');
-      await saveToken(token);
+      // Save tokens
+      await _saveAuthTokens(response.data);
 
       // Verify token was saved
       final savedToken = await getToken();
@@ -339,11 +427,8 @@ class ApiService {
         data: {'firebase_token': firebaseToken, 'password': password},
       );
 
-      // Save token - linking also logs the user in
-      final token = response.data['access_token'];
-      if (token != null) {
-        await saveToken(token);
-      }
+      // Save tokens - linking also logs the user in
+      await _saveAuthTokens(response.data);
 
       return response.data;
     } on DioException catch (e) {
