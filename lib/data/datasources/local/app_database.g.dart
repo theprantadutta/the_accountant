@@ -5980,6 +5980,55 @@ class $SettingsTable extends Settings with TableInfo<$SettingsTable, Setting> {
         requiredDuringInsert: false,
         defaultValue: const Constant(80.0),
       );
+  static const VerificationMeta _dateFormatMeta = const VerificationMeta(
+    'dateFormat',
+  );
+  @override
+  late final GeneratedColumn<String> dateFormat = GeneratedColumn<String>(
+    'date_format',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('MM/dd/yyyy'),
+  );
+  static const VerificationMeta _numberFormatMeta = const VerificationMeta(
+    'numberFormat',
+  );
+  @override
+  late final GeneratedColumn<String> numberFormat = GeneratedColumn<String>(
+    'number_format',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('comma_dot'),
+  );
+  static const VerificationMeta _biometricLockEnabledMeta =
+      const VerificationMeta('biometricLockEnabled');
+  @override
+  late final GeneratedColumn<bool> biometricLockEnabled = GeneratedColumn<bool>(
+    'biometric_lock_enabled',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("biometric_lock_enabled" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _autoLockTimeoutMinutesMeta =
+      const VerificationMeta('autoLockTimeoutMinutes');
+  @override
+  late final GeneratedColumn<int> autoLockTimeoutMinutes = GeneratedColumn<int>(
+    'auto_lock_timeout_minutes',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -5988,6 +6037,10 @@ class $SettingsTable extends Settings with TableInfo<$SettingsTable, Setting> {
     notificationsEnabled,
     budgetNotificationsEnabled,
     budgetWarningThreshold,
+    dateFormat,
+    numberFormat,
+    biometricLockEnabled,
+    autoLockTimeoutMinutes,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -6043,6 +6096,39 @@ class $SettingsTable extends Settings with TableInfo<$SettingsTable, Setting> {
         ),
       );
     }
+    if (data.containsKey('date_format')) {
+      context.handle(
+        _dateFormatMeta,
+        dateFormat.isAcceptableOrUnknown(data['date_format']!, _dateFormatMeta),
+      );
+    }
+    if (data.containsKey('number_format')) {
+      context.handle(
+        _numberFormatMeta,
+        numberFormat.isAcceptableOrUnknown(
+          data['number_format']!,
+          _numberFormatMeta,
+        ),
+      );
+    }
+    if (data.containsKey('biometric_lock_enabled')) {
+      context.handle(
+        _biometricLockEnabledMeta,
+        biometricLockEnabled.isAcceptableOrUnknown(
+          data['biometric_lock_enabled']!,
+          _biometricLockEnabledMeta,
+        ),
+      );
+    }
+    if (data.containsKey('auto_lock_timeout_minutes')) {
+      context.handle(
+        _autoLockTimeoutMinutesMeta,
+        autoLockTimeoutMinutes.isAcceptableOrUnknown(
+          data['auto_lock_timeout_minutes']!,
+          _autoLockTimeoutMinutesMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -6076,6 +6162,22 @@ class $SettingsTable extends Settings with TableInfo<$SettingsTable, Setting> {
         DriftSqlType.double,
         data['${effectivePrefix}budget_warning_threshold'],
       )!,
+      dateFormat: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}date_format'],
+      )!,
+      numberFormat: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}number_format'],
+      )!,
+      biometricLockEnabled: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}biometric_lock_enabled'],
+      )!,
+      autoLockTimeoutMinutes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}auto_lock_timeout_minutes'],
+      )!,
     );
   }
 
@@ -6092,6 +6194,10 @@ class Setting extends DataClass implements Insertable<Setting> {
   final bool notificationsEnabled;
   final bool budgetNotificationsEnabled;
   final double budgetWarningThreshold;
+  final String dateFormat;
+  final String numberFormat;
+  final bool biometricLockEnabled;
+  final int autoLockTimeoutMinutes;
   const Setting({
     required this.id,
     required this.themeMode,
@@ -6099,6 +6205,10 @@ class Setting extends DataClass implements Insertable<Setting> {
     required this.notificationsEnabled,
     required this.budgetNotificationsEnabled,
     required this.budgetWarningThreshold,
+    required this.dateFormat,
+    required this.numberFormat,
+    required this.biometricLockEnabled,
+    required this.autoLockTimeoutMinutes,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -6111,6 +6221,10 @@ class Setting extends DataClass implements Insertable<Setting> {
       budgetNotificationsEnabled,
     );
     map['budget_warning_threshold'] = Variable<double>(budgetWarningThreshold);
+    map['date_format'] = Variable<String>(dateFormat);
+    map['number_format'] = Variable<String>(numberFormat);
+    map['biometric_lock_enabled'] = Variable<bool>(biometricLockEnabled);
+    map['auto_lock_timeout_minutes'] = Variable<int>(autoLockTimeoutMinutes);
     return map;
   }
 
@@ -6122,6 +6236,10 @@ class Setting extends DataClass implements Insertable<Setting> {
       notificationsEnabled: Value(notificationsEnabled),
       budgetNotificationsEnabled: Value(budgetNotificationsEnabled),
       budgetWarningThreshold: Value(budgetWarningThreshold),
+      dateFormat: Value(dateFormat),
+      numberFormat: Value(numberFormat),
+      biometricLockEnabled: Value(biometricLockEnabled),
+      autoLockTimeoutMinutes: Value(autoLockTimeoutMinutes),
     );
   }
 
@@ -6143,6 +6261,14 @@ class Setting extends DataClass implements Insertable<Setting> {
       budgetWarningThreshold: serializer.fromJson<double>(
         json['budgetWarningThreshold'],
       ),
+      dateFormat: serializer.fromJson<String>(json['dateFormat']),
+      numberFormat: serializer.fromJson<String>(json['numberFormat']),
+      biometricLockEnabled: serializer.fromJson<bool>(
+        json['biometricLockEnabled'],
+      ),
+      autoLockTimeoutMinutes: serializer.fromJson<int>(
+        json['autoLockTimeoutMinutes'],
+      ),
     );
   }
   @override
@@ -6159,6 +6285,10 @@ class Setting extends DataClass implements Insertable<Setting> {
       'budgetWarningThreshold': serializer.toJson<double>(
         budgetWarningThreshold,
       ),
+      'dateFormat': serializer.toJson<String>(dateFormat),
+      'numberFormat': serializer.toJson<String>(numberFormat),
+      'biometricLockEnabled': serializer.toJson<bool>(biometricLockEnabled),
+      'autoLockTimeoutMinutes': serializer.toJson<int>(autoLockTimeoutMinutes),
     };
   }
 
@@ -6169,6 +6299,10 @@ class Setting extends DataClass implements Insertable<Setting> {
     bool? notificationsEnabled,
     bool? budgetNotificationsEnabled,
     double? budgetWarningThreshold,
+    String? dateFormat,
+    String? numberFormat,
+    bool? biometricLockEnabled,
+    int? autoLockTimeoutMinutes,
   }) => Setting(
     id: id ?? this.id,
     themeMode: themeMode ?? this.themeMode,
@@ -6178,6 +6312,11 @@ class Setting extends DataClass implements Insertable<Setting> {
         budgetNotificationsEnabled ?? this.budgetNotificationsEnabled,
     budgetWarningThreshold:
         budgetWarningThreshold ?? this.budgetWarningThreshold,
+    dateFormat: dateFormat ?? this.dateFormat,
+    numberFormat: numberFormat ?? this.numberFormat,
+    biometricLockEnabled: biometricLockEnabled ?? this.biometricLockEnabled,
+    autoLockTimeoutMinutes:
+        autoLockTimeoutMinutes ?? this.autoLockTimeoutMinutes,
   );
   Setting copyWithCompanion(SettingsCompanion data) {
     return Setting(
@@ -6193,6 +6332,18 @@ class Setting extends DataClass implements Insertable<Setting> {
       budgetWarningThreshold: data.budgetWarningThreshold.present
           ? data.budgetWarningThreshold.value
           : this.budgetWarningThreshold,
+      dateFormat: data.dateFormat.present
+          ? data.dateFormat.value
+          : this.dateFormat,
+      numberFormat: data.numberFormat.present
+          ? data.numberFormat.value
+          : this.numberFormat,
+      biometricLockEnabled: data.biometricLockEnabled.present
+          ? data.biometricLockEnabled.value
+          : this.biometricLockEnabled,
+      autoLockTimeoutMinutes: data.autoLockTimeoutMinutes.present
+          ? data.autoLockTimeoutMinutes.value
+          : this.autoLockTimeoutMinutes,
     );
   }
 
@@ -6204,7 +6355,11 @@ class Setting extends DataClass implements Insertable<Setting> {
           ..write('currency: $currency, ')
           ..write('notificationsEnabled: $notificationsEnabled, ')
           ..write('budgetNotificationsEnabled: $budgetNotificationsEnabled, ')
-          ..write('budgetWarningThreshold: $budgetWarningThreshold')
+          ..write('budgetWarningThreshold: $budgetWarningThreshold, ')
+          ..write('dateFormat: $dateFormat, ')
+          ..write('numberFormat: $numberFormat, ')
+          ..write('biometricLockEnabled: $biometricLockEnabled, ')
+          ..write('autoLockTimeoutMinutes: $autoLockTimeoutMinutes')
           ..write(')'))
         .toString();
   }
@@ -6217,6 +6372,10 @@ class Setting extends DataClass implements Insertable<Setting> {
     notificationsEnabled,
     budgetNotificationsEnabled,
     budgetWarningThreshold,
+    dateFormat,
+    numberFormat,
+    biometricLockEnabled,
+    autoLockTimeoutMinutes,
   );
   @override
   bool operator ==(Object other) =>
@@ -6227,7 +6386,11 @@ class Setting extends DataClass implements Insertable<Setting> {
           other.currency == this.currency &&
           other.notificationsEnabled == this.notificationsEnabled &&
           other.budgetNotificationsEnabled == this.budgetNotificationsEnabled &&
-          other.budgetWarningThreshold == this.budgetWarningThreshold);
+          other.budgetWarningThreshold == this.budgetWarningThreshold &&
+          other.dateFormat == this.dateFormat &&
+          other.numberFormat == this.numberFormat &&
+          other.biometricLockEnabled == this.biometricLockEnabled &&
+          other.autoLockTimeoutMinutes == this.autoLockTimeoutMinutes);
 }
 
 class SettingsCompanion extends UpdateCompanion<Setting> {
@@ -6237,6 +6400,10 @@ class SettingsCompanion extends UpdateCompanion<Setting> {
   final Value<bool> notificationsEnabled;
   final Value<bool> budgetNotificationsEnabled;
   final Value<double> budgetWarningThreshold;
+  final Value<String> dateFormat;
+  final Value<String> numberFormat;
+  final Value<bool> biometricLockEnabled;
+  final Value<int> autoLockTimeoutMinutes;
   const SettingsCompanion({
     this.id = const Value.absent(),
     this.themeMode = const Value.absent(),
@@ -6244,6 +6411,10 @@ class SettingsCompanion extends UpdateCompanion<Setting> {
     this.notificationsEnabled = const Value.absent(),
     this.budgetNotificationsEnabled = const Value.absent(),
     this.budgetWarningThreshold = const Value.absent(),
+    this.dateFormat = const Value.absent(),
+    this.numberFormat = const Value.absent(),
+    this.biometricLockEnabled = const Value.absent(),
+    this.autoLockTimeoutMinutes = const Value.absent(),
   });
   SettingsCompanion.insert({
     this.id = const Value.absent(),
@@ -6252,6 +6423,10 @@ class SettingsCompanion extends UpdateCompanion<Setting> {
     this.notificationsEnabled = const Value.absent(),
     this.budgetNotificationsEnabled = const Value.absent(),
     this.budgetWarningThreshold = const Value.absent(),
+    this.dateFormat = const Value.absent(),
+    this.numberFormat = const Value.absent(),
+    this.biometricLockEnabled = const Value.absent(),
+    this.autoLockTimeoutMinutes = const Value.absent(),
   });
   static Insertable<Setting> custom({
     Expression<int>? id,
@@ -6260,6 +6435,10 @@ class SettingsCompanion extends UpdateCompanion<Setting> {
     Expression<bool>? notificationsEnabled,
     Expression<bool>? budgetNotificationsEnabled,
     Expression<double>? budgetWarningThreshold,
+    Expression<String>? dateFormat,
+    Expression<String>? numberFormat,
+    Expression<bool>? biometricLockEnabled,
+    Expression<int>? autoLockTimeoutMinutes,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -6271,6 +6450,12 @@ class SettingsCompanion extends UpdateCompanion<Setting> {
         'budget_notifications_enabled': budgetNotificationsEnabled,
       if (budgetWarningThreshold != null)
         'budget_warning_threshold': budgetWarningThreshold,
+      if (dateFormat != null) 'date_format': dateFormat,
+      if (numberFormat != null) 'number_format': numberFormat,
+      if (biometricLockEnabled != null)
+        'biometric_lock_enabled': biometricLockEnabled,
+      if (autoLockTimeoutMinutes != null)
+        'auto_lock_timeout_minutes': autoLockTimeoutMinutes,
     });
   }
 
@@ -6281,6 +6466,10 @@ class SettingsCompanion extends UpdateCompanion<Setting> {
     Value<bool>? notificationsEnabled,
     Value<bool>? budgetNotificationsEnabled,
     Value<double>? budgetWarningThreshold,
+    Value<String>? dateFormat,
+    Value<String>? numberFormat,
+    Value<bool>? biometricLockEnabled,
+    Value<int>? autoLockTimeoutMinutes,
   }) {
     return SettingsCompanion(
       id: id ?? this.id,
@@ -6291,6 +6480,11 @@ class SettingsCompanion extends UpdateCompanion<Setting> {
           budgetNotificationsEnabled ?? this.budgetNotificationsEnabled,
       budgetWarningThreshold:
           budgetWarningThreshold ?? this.budgetWarningThreshold,
+      dateFormat: dateFormat ?? this.dateFormat,
+      numberFormat: numberFormat ?? this.numberFormat,
+      biometricLockEnabled: biometricLockEnabled ?? this.biometricLockEnabled,
+      autoLockTimeoutMinutes:
+          autoLockTimeoutMinutes ?? this.autoLockTimeoutMinutes,
     );
   }
 
@@ -6319,6 +6513,22 @@ class SettingsCompanion extends UpdateCompanion<Setting> {
         budgetWarningThreshold.value,
       );
     }
+    if (dateFormat.present) {
+      map['date_format'] = Variable<String>(dateFormat.value);
+    }
+    if (numberFormat.present) {
+      map['number_format'] = Variable<String>(numberFormat.value);
+    }
+    if (biometricLockEnabled.present) {
+      map['biometric_lock_enabled'] = Variable<bool>(
+        biometricLockEnabled.value,
+      );
+    }
+    if (autoLockTimeoutMinutes.present) {
+      map['auto_lock_timeout_minutes'] = Variable<int>(
+        autoLockTimeoutMinutes.value,
+      );
+    }
     return map;
   }
 
@@ -6330,7 +6540,11 @@ class SettingsCompanion extends UpdateCompanion<Setting> {
           ..write('currency: $currency, ')
           ..write('notificationsEnabled: $notificationsEnabled, ')
           ..write('budgetNotificationsEnabled: $budgetNotificationsEnabled, ')
-          ..write('budgetWarningThreshold: $budgetWarningThreshold')
+          ..write('budgetWarningThreshold: $budgetWarningThreshold, ')
+          ..write('dateFormat: $dateFormat, ')
+          ..write('numberFormat: $numberFormat, ')
+          ..write('biometricLockEnabled: $biometricLockEnabled, ')
+          ..write('autoLockTimeoutMinutes: $autoLockTimeoutMinutes')
           ..write(')'))
         .toString();
   }
@@ -13640,6 +13854,10 @@ typedef $$SettingsTableCreateCompanionBuilder =
       Value<bool> notificationsEnabled,
       Value<bool> budgetNotificationsEnabled,
       Value<double> budgetWarningThreshold,
+      Value<String> dateFormat,
+      Value<String> numberFormat,
+      Value<bool> biometricLockEnabled,
+      Value<int> autoLockTimeoutMinutes,
     });
 typedef $$SettingsTableUpdateCompanionBuilder =
     SettingsCompanion Function({
@@ -13649,6 +13867,10 @@ typedef $$SettingsTableUpdateCompanionBuilder =
       Value<bool> notificationsEnabled,
       Value<bool> budgetNotificationsEnabled,
       Value<double> budgetWarningThreshold,
+      Value<String> dateFormat,
+      Value<String> numberFormat,
+      Value<bool> biometricLockEnabled,
+      Value<int> autoLockTimeoutMinutes,
     });
 
 class $$SettingsTableFilterComposer
@@ -13687,6 +13909,26 @@ class $$SettingsTableFilterComposer
 
   ColumnFilters<double> get budgetWarningThreshold => $composableBuilder(
     column: $table.budgetWarningThreshold,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get dateFormat => $composableBuilder(
+    column: $table.dateFormat,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get numberFormat => $composableBuilder(
+    column: $table.numberFormat,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get biometricLockEnabled => $composableBuilder(
+    column: $table.biometricLockEnabled,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get autoLockTimeoutMinutes => $composableBuilder(
+    column: $table.autoLockTimeoutMinutes,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -13729,6 +13971,26 @@ class $$SettingsTableOrderingComposer
     column: $table.budgetWarningThreshold,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get dateFormat => $composableBuilder(
+    column: $table.dateFormat,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get numberFormat => $composableBuilder(
+    column: $table.numberFormat,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get biometricLockEnabled => $composableBuilder(
+    column: $table.biometricLockEnabled,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get autoLockTimeoutMinutes => $composableBuilder(
+    column: $table.autoLockTimeoutMinutes,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$SettingsTableAnnotationComposer
@@ -13761,6 +14023,26 @@ class $$SettingsTableAnnotationComposer
 
   GeneratedColumn<double> get budgetWarningThreshold => $composableBuilder(
     column: $table.budgetWarningThreshold,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get dateFormat => $composableBuilder(
+    column: $table.dateFormat,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get numberFormat => $composableBuilder(
+    column: $table.numberFormat,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get biometricLockEnabled => $composableBuilder(
+    column: $table.biometricLockEnabled,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get autoLockTimeoutMinutes => $composableBuilder(
+    column: $table.autoLockTimeoutMinutes,
     builder: (column) => column,
   );
 }
@@ -13799,6 +14081,10 @@ class $$SettingsTableTableManager
                 Value<bool> notificationsEnabled = const Value.absent(),
                 Value<bool> budgetNotificationsEnabled = const Value.absent(),
                 Value<double> budgetWarningThreshold = const Value.absent(),
+                Value<String> dateFormat = const Value.absent(),
+                Value<String> numberFormat = const Value.absent(),
+                Value<bool> biometricLockEnabled = const Value.absent(),
+                Value<int> autoLockTimeoutMinutes = const Value.absent(),
               }) => SettingsCompanion(
                 id: id,
                 themeMode: themeMode,
@@ -13806,6 +14092,10 @@ class $$SettingsTableTableManager
                 notificationsEnabled: notificationsEnabled,
                 budgetNotificationsEnabled: budgetNotificationsEnabled,
                 budgetWarningThreshold: budgetWarningThreshold,
+                dateFormat: dateFormat,
+                numberFormat: numberFormat,
+                biometricLockEnabled: biometricLockEnabled,
+                autoLockTimeoutMinutes: autoLockTimeoutMinutes,
               ),
           createCompanionCallback:
               ({
@@ -13815,6 +14105,10 @@ class $$SettingsTableTableManager
                 Value<bool> notificationsEnabled = const Value.absent(),
                 Value<bool> budgetNotificationsEnabled = const Value.absent(),
                 Value<double> budgetWarningThreshold = const Value.absent(),
+                Value<String> dateFormat = const Value.absent(),
+                Value<String> numberFormat = const Value.absent(),
+                Value<bool> biometricLockEnabled = const Value.absent(),
+                Value<int> autoLockTimeoutMinutes = const Value.absent(),
               }) => SettingsCompanion.insert(
                 id: id,
                 themeMode: themeMode,
@@ -13822,6 +14116,10 @@ class $$SettingsTableTableManager
                 notificationsEnabled: notificationsEnabled,
                 budgetNotificationsEnabled: budgetNotificationsEnabled,
                 budgetWarningThreshold: budgetWarningThreshold,
+                dateFormat: dateFormat,
+                numberFormat: numberFormat,
+                biometricLockEnabled: biometricLockEnabled,
+                autoLockTimeoutMinutes: autoLockTimeoutMinutes,
               ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))

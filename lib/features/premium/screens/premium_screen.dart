@@ -1,22 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
+import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/data/models/premium_features.dart';
+import 'package:the_accountant/features/premium/providers/iap_provider.dart';
 import 'package:the_accountant/features/premium/providers/premium_provider.dart';
 import 'package:the_accountant/features/premium/services/iap_service.dart';
-
-/// Provider for IAP service
-final iapServiceProvider = Provider<IAPService>((ref) {
-  throw UnimplementedError('IAPService must be overridden in ProviderScope');
-});
-
-/// Provider for subscription products
-final subscriptionProductsProvider = FutureProvider<List<ProductDetails>>((ref) async {
-  final iapService = ref.watch(iapServiceProvider);
-  await iapService.loadProducts();
-  return iapService.products;
-});
 
 class PremiumScreen extends ConsumerStatefulWidget {
   const PremiumScreen({super.key});
@@ -26,13 +17,48 @@ class PremiumScreen extends ConsumerStatefulWidget {
 }
 
 class _PremiumScreenState extends ConsumerState<PremiumScreen> {
-  bool _isLoading = false;
-  String? _errorMessage;
   String? _selectedProductId;
+  String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    // Load products when screen opens
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(iapNotifierProvider.notifier).loadProducts();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final premiumState = ref.watch(premiumProvider);
+    final iapState = ref.watch(iapNotifierProvider);
+
+    // Listen for purchase status changes
+    ref.listen<IAPState>(iapNotifierProvider, (previous, next) {
+      if (next.error != null && next.error != previous?.error) {
+        setState(() => _errorMessage = next.error);
+      }
+
+      if (next.lastPurchaseStatus == PurchaseStatus.purchased ||
+          next.lastPurchaseStatus == PurchaseStatus.restored) {
+        // Refresh IAP state after successful purchase
+        ref.read(iapNotifierProvider.notifier).refresh();
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                next.lastPurchaseStatus == PurchaseStatus.restored
+                    ? 'Purchases restored successfully!'
+                    : 'Purchase completed successfully!',
+              ),
+              backgroundColor: AppColors.success,
+            ),
+          );
+        }
+      }
+    });
 
     return Scaffold(
       backgroundColor: AppColors.primaryDark,
@@ -47,52 +73,80 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
+          padding: EdgeInsets.all(AppSpacing.lg),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // Header
               _buildHeader(premiumState),
-              const SizedBox(height: 32),
+              SizedBox(height: AppSpacing.xl),
 
               // If premium, show status
               if (premiumState.isPremium) ...[
                 _buildPremiumStatus(premiumState),
-                const SizedBox(height: 24),
+                SizedBox(height: AppSpacing.lg),
               ],
 
               // Features section
               _buildFeaturesSection(premiumState.isPremium),
-              const SizedBox(height: 32),
+              SizedBox(height: AppSpacing.xl),
 
               // Subscription tiers (only show if not premium)
               if (!premiumState.isPremium) ...[
-                _buildSubscriptionTiers(),
-                const SizedBox(height: 24),
+                _buildSubscriptionTiers(iapState),
+                SizedBox(height: AppSpacing.lg),
               ],
 
               // Error message
               if (_errorMessage != null)
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
-                  child: Text(
-                    _errorMessage!,
-                    style: const TextStyle(color: AppColors.error),
-                    textAlign: TextAlign.center,
+                  padding: EdgeInsets.only(bottom: AppSpacing.md),
+                  child: Container(
+                    padding: EdgeInsets.all(AppSpacing.md),
+                    decoration: BoxDecoration(
+                      color: AppColors.error.withValues(alpha: 0.1),
+                      borderRadius: AppSpacing.borderRadiusMd,
+                      border: Border.all(color: AppColors.error.withValues(alpha: 0.3)),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.error_outline, color: AppColors.error),
+                        SizedBox(width: AppSpacing.sm),
+                        Expanded(
+                          child: Text(
+                            _errorMessage!,
+                            style: TextStyle(color: AppColors.error, fontSize: 14),
+                          ),
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.close, color: AppColors.error, size: 18),
+                          onPressed: () => setState(() => _errorMessage = null),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
 
               // Restore purchases
               TextButton.icon(
-                onPressed: _isLoading ? null : _restorePurchases,
-                icon: const Icon(Icons.restore, size: 18),
-                label: const Text('Restore Purchases'),
+                onPressed: iapState.isLoading ? null : _restorePurchases,
+                icon: iapState.isLoading
+                    ? SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: AppColors.textSecondary,
+                        ),
+                      )
+                    : const Icon(Icons.restore, size: 18),
+                label: Text(iapState.isLoading ? 'Processing...' : 'Restore Purchases'),
                 style: TextButton.styleFrom(
                   foregroundColor: AppColors.textSecondary,
                 ),
               ),
 
-              const SizedBox(height: 16),
+              SizedBox(height: AppSpacing.md),
 
               // Terms
               Text(
@@ -136,7 +190,7 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
             color: Colors.white,
           ),
         ),
-        const SizedBox(height: 20),
+        SizedBox(height: AppSpacing.lg),
         Text(
           premiumState.isPremium ? 'Premium Active' : 'Unlock Premium',
           style: const TextStyle(
@@ -145,7 +199,7 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
             color: AppColors.textPrimary,
           ),
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: AppSpacing.xs),
         Text(
           premiumState.isPremium
               ? 'Thank you for your support!'
@@ -162,10 +216,10 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
 
   Widget _buildPremiumStatus(PremiumState premiumState) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
         gradient: AppColors.successGradient,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: AppSpacing.borderRadiusLg,
       ),
       child: Column(
         children: [
@@ -173,7 +227,7 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Icon(Icons.verified, color: Colors.white, size: 24),
-              const SizedBox(width: 8),
+              SizedBox(width: AppSpacing.xs),
               Text(
                 premiumState.tier.displayName,
                 style: const TextStyle(
@@ -185,7 +239,7 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
             ],
           ),
           if (premiumState.daysRemaining != null) ...[
-            const SizedBox(height: 8),
+            SizedBox(height: AppSpacing.xs),
             Text(
               '${premiumState.daysRemaining} days remaining',
               style: TextStyle(
@@ -195,7 +249,7 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
             ),
           ],
           if (premiumState.tier == SubscriptionTier.premiumLifetime) ...[
-            const SizedBox(height: 8),
+            SizedBox(height: AppSpacing.xs),
             Text(
               'Lifetime access - Never expires',
               style: TextStyle(
@@ -221,7 +275,7 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
             color: AppColors.textPrimary,
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: AppSpacing.md),
         _buildFeatureRow(Icons.sync, 'Cloud Sync', 'Sync across all your devices', isPremium),
         _buildFeatureRow(Icons.backup, 'Google Drive Backup', 'Encrypted cloud backups', isPremium),
         _buildFeatureRow(Icons.smart_toy, 'AI Assistant', 'Gemini-powered financial advice', isPremium),
@@ -238,7 +292,7 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
 
   Widget _buildFeatureRow(IconData icon, String title, String subtitle, bool isUnlocked) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: EdgeInsets.symmetric(vertical: AppSpacing.xs),
       child: Row(
         children: [
           Container(
@@ -256,7 +310,7 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
               size: 22,
             ),
           ),
-          const SizedBox(width: 14),
+          SizedBox(width: AppSpacing.sm),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -289,7 +343,44 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
     );
   }
 
-  Widget _buildSubscriptionTiers() {
+  Widget _buildSubscriptionTiers(IAPState iapState) {
+    // Get prices from IAP products if available
+    final monthlyProduct = iapState.products.firstWhere(
+      (p) => p.id == PremiumProductIds.monthly,
+      orElse: () => PremiumProduct(ProductDetails(
+        id: PremiumProductIds.monthly,
+        title: 'Monthly',
+        description: '',
+        price: '\$1.49',
+        rawPrice: 1.49,
+        currencyCode: 'USD',
+      )),
+    );
+
+    final yearlyProduct = iapState.products.firstWhere(
+      (p) => p.id == PremiumProductIds.yearly,
+      orElse: () => PremiumProduct(ProductDetails(
+        id: PremiumProductIds.yearly,
+        title: 'Yearly',
+        description: '',
+        price: '\$9.99',
+        rawPrice: 9.99,
+        currencyCode: 'USD',
+      )),
+    );
+
+    final lifetimeProduct = iapState.products.firstWhere(
+      (p) => p.id == PremiumProductIds.lifetime,
+      orElse: () => PremiumProduct(ProductDetails(
+        id: PremiumProductIds.lifetime,
+        title: 'Lifetime',
+        description: '',
+        price: '\$29.99',
+        rawPrice: 29.99,
+        currencyCode: 'USD',
+      )),
+    );
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -301,40 +392,43 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
             color: AppColors.textPrimary,
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: AppSpacing.md),
 
         // Monthly
         _buildTierCard(
           productId: PremiumProductIds.monthly,
           title: 'Monthly',
-          price: '\$1.49',
+          price: monthlyProduct.price,
           period: '/month',
           description: 'Billed monthly',
           isRecommended: false,
+          isLoading: iapState.isLoading && _selectedProductId == PremiumProductIds.monthly,
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: AppSpacing.sm),
 
         // Yearly (recommended)
         _buildTierCard(
           productId: PremiumProductIds.yearly,
           title: 'Yearly',
-          price: '\$9.99',
+          price: yearlyProduct.price,
           period: '/year',
-          description: 'Save 44% - \$0.83/month',
+          description: 'Save 44% - Best value!',
           isRecommended: true,
           badge: 'BEST VALUE',
+          isLoading: iapState.isLoading && _selectedProductId == PremiumProductIds.yearly,
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: AppSpacing.sm),
 
         // Lifetime
         _buildTierCard(
           productId: PremiumProductIds.lifetime,
           title: 'Lifetime',
-          price: '\$29.99',
+          price: lifetimeProduct.price,
           period: '',
           description: 'One-time purchase, forever access',
           isRecommended: false,
           badge: 'FOREVER',
+          isLoading: iapState.isLoading && _selectedProductId == PremiumProductIds.lifetime,
         ),
       ],
     );
@@ -348,17 +442,18 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
     required String description,
     required bool isRecommended,
     String? badge,
+    bool isLoading = false,
   }) {
     final isSelected = _selectedProductId == productId;
 
     return GestureDetector(
-      onTap: _isLoading ? null : () => _purchaseProduct(productId),
+      onTap: isLoading ? null : () => _purchaseProduct(productId),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.all(AppSpacing.lg),
         decoration: BoxDecoration(
           color: isSelected ? AppColors.primaryElevated : AppColors.primarySurface,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: AppSpacing.borderRadiusLg,
           border: Border.all(
             color: isRecommended
                 ? AppColors.primaryAccent
@@ -386,7 +481,7 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
                 top: -30,
                 right: 10,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     gradient: isRecommended
                         ? AppColors.primaryGradient
@@ -433,7 +528,7 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
                         )
                       : null,
                 ),
-                const SizedBox(width: 16),
+                SizedBox(width: AppSpacing.md),
 
                 // Content
                 Expanded(
@@ -448,7 +543,7 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
                           color: AppColors.textPrimary,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      SizedBox(height: AppSpacing.xs),
                       Text(
                         description,
                         style: TextStyle(
@@ -494,12 +589,12 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
             ),
 
             // Loading overlay
-            if (_isLoading && _selectedProductId == productId)
+            if (isLoading)
               Positioned.fill(
                 child: Container(
                   decoration: BoxDecoration(
                     color: AppColors.primaryDark.withValues(alpha: 0.7),
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: AppSpacing.borderRadiusLg,
                   ),
                   child: const Center(
                     child: CircularProgressIndicator(
@@ -515,94 +610,28 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
   }
 
   Future<void> _purchaseProduct(String productId) async {
+    HapticFeedback.mediumImpact();
+
     setState(() {
-      _isLoading = true;
       _selectedProductId = productId;
       _errorMessage = null;
     });
 
-    try {
-      // For now, just simulate purchase - actual IAP integration will use IAPService
-      // In production, this would call the IAP service
-      await Future.delayed(const Duration(seconds: 1));
+    final success = await ref.read(iapNotifierProvider.notifier).purchase(productId);
 
-      // Determine tier from product ID
-      SubscriptionTier tier;
-      DateTime? expiresAt;
-
-      switch (productId) {
-        case PremiumProductIds.monthly:
-          tier = SubscriptionTier.premiumMonthly;
-          expiresAt = DateTime.now().add(const Duration(days: 30));
-          break;
-        case PremiumProductIds.yearly:
-          tier = SubscriptionTier.premiumYearly;
-          expiresAt = DateTime.now().add(const Duration(days: 365));
-          break;
-        case PremiumProductIds.lifetime:
-          tier = SubscriptionTier.premiumLifetime;
-          expiresAt = null;
-          break;
-        default:
-          throw Exception('Unknown product');
-      }
-
-      // Update premium state
-      ref.read(premiumProvider.notifier).updateSubscription(
-            tier: tier,
-            expiresAt: expiresAt,
-            purchaseId: 'test_${DateTime.now().millisecondsSinceEpoch}',
-          );
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Successfully subscribed to ${tier.displayName}!'),
-            backgroundColor: AppColors.success,
-          ),
-        );
-      }
-    } catch (e) {
+    if (!success && mounted) {
+      // If purchase initiation failed, reset selection
       setState(() {
-        _errorMessage = 'Purchase failed: ${e.toString()}';
+        _selectedProductId = null;
       });
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
     }
   }
 
   Future<void> _restorePurchases() async {
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
+    HapticFeedback.mediumImpact();
 
-    try {
-      // Simulate restore - in production, use IAPService
-      await Future.delayed(const Duration(seconds: 1));
+    setState(() => _errorMessage = null);
 
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('No previous purchases found'),
-            backgroundColor: AppColors.info,
-          ),
-        );
-      }
-    } catch (e) {
-      setState(() {
-        _errorMessage = 'Restore failed: ${e.toString()}';
-      });
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    }
+    await ref.read(iapNotifierProvider.notifier).restorePurchases();
   }
 }

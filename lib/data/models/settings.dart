@@ -12,6 +12,18 @@ class Settings extends Table {
   RealColumn get budgetWarningThreshold =>
       real().withDefault(const Constant(80.0))();
 
+  // Regional settings
+  TextColumn get dateFormat =>
+      text().withDefault(const Constant('MM/dd/yyyy'))();
+  TextColumn get numberFormat =>
+      text().withDefault(const Constant('comma_dot'))();
+
+  // Security settings
+  BoolColumn get biometricLockEnabled =>
+      boolean().withDefault(const Constant(false))();
+  IntColumn get autoLockTimeoutMinutes =>
+      integer().withDefault(const Constant(0))();
+
   @override
   Set<Column> get primaryKey => {id};
 }

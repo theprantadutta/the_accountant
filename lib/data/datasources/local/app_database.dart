@@ -58,7 +58,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 7;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -169,6 +169,13 @@ class AppDatabase extends _$AppDatabase {
             // Add budget and objective assignment to transactions
             await m.addColumn(transactions, transactions.budgetId);
             await m.addColumn(transactions, transactions.objectiveId);
+          }
+          if (from < 7) {
+            // Add new settings columns for regional and security settings
+            await m.addColumn(settings, settings.dateFormat);
+            await m.addColumn(settings, settings.numberFormat);
+            await m.addColumn(settings, settings.biometricLockEnabled);
+            await m.addColumn(settings, settings.autoLockTimeoutMinutes);
           }
         },
       );
