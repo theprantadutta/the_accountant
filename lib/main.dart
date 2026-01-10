@@ -7,11 +7,15 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
 import 'package:the_accountant/core/services/category_initialization_service.dart';
 import 'package:the_accountant/core/providers/default_wallet_provider.dart';
+import 'package:the_accountant/core/services/notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EnvService.init();
   await Firebase.initializeApp();
+
+  // Initialize notification service (requests permission + sets up FCM handlers)
+  await NotificationService().initialize();
 
   // Initialize SharedPreferences
   final prefs = await SharedPreferences.getInstance();

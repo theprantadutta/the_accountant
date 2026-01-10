@@ -17,6 +17,8 @@ import 'package:the_accountant/features/settings/screens/settings_screen.dart';
 import 'package:the_accountant/features/reports/screens/reports_screen.dart';
 import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
 import 'package:the_accountant/features/wallets/screens/create_first_wallet_screen.dart';
+import 'package:the_accountant/features/notifications/providers/notification_history_provider.dart';
+import 'package:the_accountant/features/notifications/screens/notification_inbox_screen.dart';
 
 class MainNavigationContainer extends ConsumerStatefulWidget {
   const MainNavigationContainer({super.key});
@@ -55,6 +57,10 @@ class _MainNavigationContainerState
   void initState() {
     super.initState();
     _pageController = PageController(initialPage: _currentIndex);
+    // Load unread notification count
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(notificationHistoryProvider.notifier).loadUnreadCount();
+    });
   }
 
   @override
@@ -424,16 +430,56 @@ class _MainNavigationContainerState
         ],
       ),
       actions: [
+        _buildNotificationButton(),
+        AppSpacing.gapHSm,
+      ],
+    );
+  }
+
+  Widget _buildNotificationButton() {
+    final unreadCount = ref.watch(unreadNotificationCountProvider);
+
+    return Stack(
+      children: [
         NeoIconButton(
           icon: Icons.notifications_outlined,
           onPressed: () {
             HapticFeedback.lightImpact();
-            // Handle notifications
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const NotificationInboxScreen(),
+              ),
+            );
           },
           size: 40,
           iconSize: AppSpacing.iconSm,
         ),
-        AppSpacing.gapHSm,
+        if (unreadCount > 0)
+          Positioned(
+            right: 0,
+            top: 0,
+            child: Container(
+              padding: EdgeInsets.all(unreadCount > 9 ? 4 : 6),
+              decoration: BoxDecoration(
+                color: AppColors.error,
+                shape: BoxShape.circle,
+              ),
+              constraints: BoxConstraints(
+                minWidth: 18,
+                minHeight: 18,
+              ),
+              child: Text(
+                unreadCount > 99 ? '99+' : unreadCount.toString(),
+                style: AppTypography.labelSmall.copyWith(
+                  color: Colors.white,
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
       ],
     );
   }
