@@ -163,9 +163,12 @@ class _StatCardState extends State<StatCard>
                         color: AppColors.textSecondary,
                       ),
                     ),
-                  Text(
-                    _formatValue(displayValue),
-                    style: AppTypography.monoLarge,
+                  Flexible(
+                    child: Text(
+                      _formatValue(displayValue),
+                      style: AppTypography.monoLarge,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                   if (widget.suffix.isNotEmpty)
                     Padding(

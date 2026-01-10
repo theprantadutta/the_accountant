@@ -531,6 +531,10 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen>
   }
 
   Widget _buildAmountStep() {
+    final walletId = _isTransfer ? _fromWalletId : _selectedWalletId;
+    final walletCurrency = ref.watch(walletCurrencyProvider(walletId));
+    final currencySymbol = CurrencyInfo.getSymbol(walletCurrency);
+
     return CalculatorKeypad(
       initialAmount: _amount,
       onAmountChanged: (amount) {
@@ -539,7 +543,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen>
         });
       },
       isIncome: _transactionType == TransactionTypeSelection.income,
-      currencySymbol: '\$',
+      currencySymbol: currencySymbol,
     );
   }
 
@@ -1525,6 +1529,9 @@ class _EditTransactionScreenState extends ConsumerState<EditTransactionScreen>
   }
 
   Widget _buildAmountStep() {
+    final walletCurrency = ref.watch(walletCurrencyProvider(_selectedWalletId));
+    final currencySymbol = CurrencyInfo.getSymbol(walletCurrency);
+
     return CalculatorKeypad(
       initialAmount: _amount,
       onAmountChanged: (amount) {
@@ -1533,7 +1540,7 @@ class _EditTransactionScreenState extends ConsumerState<EditTransactionScreen>
         });
       },
       isIncome: _transactionType == TransactionTypeSelection.income,
-      currencySymbol: '\$',
+      currencySymbol: currencySymbol,
     );
   }
 
