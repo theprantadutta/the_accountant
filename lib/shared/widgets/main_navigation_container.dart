@@ -13,7 +13,7 @@ import 'package:the_accountant/features/transactions/screens/transaction_list_sc
 import 'package:the_accountant/features/transactions/screens/add_transaction_screen.dart';
 import 'package:the_accountant/features/transactions/widgets/transaction_type_header.dart';
 import 'package:the_accountant/features/ai_assistant/screens/ai_assistant_screen.dart' show AIAssistantScreenGated;
-import 'package:the_accountant/features/authentication/presentation/screens/user_profile_screen.dart';
+import 'package:the_accountant/features/settings/screens/settings_screen.dart';
 import 'package:the_accountant/features/reports/screens/reports_screen.dart';
 import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
 import 'package:the_accountant/features/wallets/screens/create_first_wallet_screen.dart';
@@ -40,7 +40,7 @@ class _MainNavigationContainerState
     const TransactionListScreen(), // Transactions
     const AIAssistantScreenGated(), // AI Assistant (Premium)
     const ReportsScreen(), // Reports
-    const UserProfileScreen(), // Profile
+    const SettingsScreen(), // Settings
   ];
 
   final List<String> _screenTitles = [
@@ -48,7 +48,7 @@ class _MainNavigationContainerState
     'Transactions',
     'AI Assistant',
     'Reports',
-    'Profile',
+    'Settings',
   ];
 
   @override

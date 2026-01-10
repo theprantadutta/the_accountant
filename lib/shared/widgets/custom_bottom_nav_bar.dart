@@ -361,10 +361,10 @@ class NavItems {
     label: 'Reports',
   );
 
-  static const profile = NavItem(
-    icon: Icons.person_outline_rounded,
-    activeIcon: Icons.person_rounded,
-    label: 'Profile',
+  static const settings = NavItem(
+    icon: Icons.settings_outlined,
+    activeIcon: Icons.settings_rounded,
+    label: 'Settings',
   );
 
   static List<NavItem> get defaultItems => [
@@ -372,6 +372,6 @@ class NavItems {
         transactions,
         aiAssistant,
         reports,
-        profile,
+        settings,
       ];
 }
