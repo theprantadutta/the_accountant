@@ -30,18 +30,14 @@ class SettingsScreen extends ConsumerWidget {
     final settingsState = ref.watch(settingsProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.primaryDark,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        title: const Text('Settings'),
-      ),
-      body: ListView(
-        padding: EdgeInsets.symmetric(horizontal: AppSpacing.md),
-        children: [
-          // PROFILE CARD
-          _buildProfileCard(context, authState),
-          SizedBox(height: AppSpacing.sm),
+      backgroundColor: Colors.transparent,
+      body: SafeArea(
+        child: ListView(
+          padding: EdgeInsets.symmetric(horizontal: AppSpacing.md),
+          children: [
+            // PROFILE CARD
+            _buildProfileCard(context, authState),
+            SizedBox(height: AppSpacing.sm),
 
           // ACCOUNT SECTION
           SettingsSection(
@@ -205,8 +201,10 @@ class SettingsScreen extends ConsumerWidget {
             ],
           ),
 
-          SizedBox(height: AppSpacing.xxl),
-        ],
+          // Extra padding for floating bottom nav bar
+          SizedBox(height: AppSpacing.huge + 80),
+          ],
+        ),
       ),
     );
   }

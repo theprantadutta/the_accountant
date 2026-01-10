@@ -251,16 +251,40 @@ class IAPService {
   /// Check current subscription status from backend
   Future<SubscriptionStatus> checkSubscriptionStatus() async {
     try {
-      final response = await _apiService.get('/iap/status');
+      final response = await _apiService.get('/iap/subscription-status');
       final data = response.data;
 
+      // Calculate days remaining if expiresAt is present
+      int? daysRemaining;
+      DateTime? expiresAt;
+      if (data['expiresAt'] != null) {
+        expiresAt = DateTime.parse(data['expiresAt']);
+        daysRemaining = expiresAt.difference(DateTime.now()).inDays;
+        if (daysRemaining < 0) daysRemaining = 0;
+      }
+
+      // Map backend tier to product ID
+      String? tier;
+      final backendTier = data['tier']?.toString();
+      if (backendTier != null) {
+        switch (backendTier) {
+          case 'Monthly':
+            tier = PremiumProductIds.monthly;
+            break;
+          case 'Yearly':
+            tier = PremiumProductIds.yearly;
+            break;
+          case 'Lifetime':
+            tier = PremiumProductIds.lifetime;
+            break;
+        }
+      }
+
       return SubscriptionStatus(
-        isPremium: data['is_premium'] == true,
-        tier: data['subscription_tier'],
-        expiresAt: data['expires_at'] != null
-            ? DateTime.parse(data['expires_at'])
-            : null,
-        daysRemaining: data['days_remaining'],
+        isPremium: data['isPremium'] == true,
+        tier: tier,
+        expiresAt: expiresAt,
+        daysRemaining: daysRemaining,
       );
     } catch (e) {
       _logger.e('Error checking subscription status: $e');
