@@ -11,6 +11,10 @@ import 'package:the_accountant/features/authentication/presentation/screens/sign
 import 'package:the_accountant/features/authentication/presentation/screens/user_profile_screen.dart';
 import 'package:the_accountant/features/categories/screens/category_management_screen.dart';
 import 'package:the_accountant/features/settings/screens/exchange_rates_screen.dart';
+import 'package:the_accountant/features/settings/screens/profile_edit_screen.dart';
+import 'package:the_accountant/features/settings/screens/privacy_security_screen.dart';
+import 'package:the_accountant/features/settings/screens/notifications_screen.dart';
+import 'package:the_accountant/features/settings/screens/regional_settings_screen.dart';
 import 'package:the_accountant/shared/widgets/main_navigation_container.dart';
 import 'package:the_accountant/features/authentication/presentation/widgets/auth_wrapper.dart';
 
@@ -43,6 +47,10 @@ class MyApp extends ConsumerWidget {
           final args = ModalRoute.of(context)!.settings.arguments as String?;
           return SupportScreen(userId: args ?? 'default_user');
         },
+        '/settings/profile': (context) => const ProfileEditScreen(),
+        '/settings/privacy-security': (context) => const PrivacySecurityScreen(),
+        '/settings/notifications': (context) => const NotificationsScreen(),
+        '/settings/regional': (context) => const RegionalSettingsScreen(),
       },
       debugShowCheckedModeBanner: false,
     );

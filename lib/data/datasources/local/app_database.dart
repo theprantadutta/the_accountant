@@ -931,4 +931,112 @@ class AppDatabase extends _$AppDatabase {
       useCustomRate: true,
     );
   }
+
+  // ============================================================
+  // Data Management Methods
+  // ============================================================
+
+  /// Clear all user data (transactions, categories, wallets, budgets, etc.)
+  /// This preserves system categories and resets settings to defaults.
+  /// Used for "Clear All Data" in settings.
+  Future<void> clearAllData() async {
+    // Delete all transactions first (foreign key references)
+    await delete(transactions).go();
+
+    // Delete objective transactions (junction table)
+    await delete(objectiveTransactions).go();
+
+    // Delete objectives
+    await delete(objectives).go();
+
+    // Delete budgets
+    await delete(budgets).go();
+
+    // Delete recurring configs
+    await delete(recurringConfigs).go();
+
+    // Delete associated titles (smart categorization)
+    await delete(associatedTitles).go();
+
+    // Delete all categories (including system categories)
+    await delete(categories).go();
+
+    // Delete all wallets
+    await delete(wallets).go();
+
+    // Delete all payment methods
+    await delete(paymentMethods).go();
+
+    // Delete exchange rates
+    await delete(exchangeRates).go();
+
+    // Clear sync states
+    await delete(syncStates).go();
+
+    // Recreate system categories
+    await ensureSystemCategoriesExist();
+  }
+
+  /// Clear app cache (sync states only, preserves user data)
+  /// Used for "Clear Cache" in settings.
+  Future<void> clearCache() async {
+    // Clear sync states (forces re-sync)
+    await delete(syncStates).go();
+
+    // Reset all sync statuses to pending
+    await customStatement('''
+      UPDATE transactions SET sync_status = 1 WHERE sync_status = 0
+    ''');
+    await customStatement('''
+      UPDATE categories SET sync_status = 1 WHERE sync_status = 0
+    ''');
+    await customStatement('''
+      UPDATE wallets SET sync_status = 1 WHERE sync_status = 0
+    ''');
+    await customStatement('''
+      UPDATE budgets SET sync_status = 1 WHERE sync_status = 0
+    ''');
+    await customStatement('''
+      UPDATE objectives SET sync_status = 1 WHERE sync_status = 0
+    ''');
+    await customStatement('''
+      UPDATE payment_methods SET sync_status = 1 WHERE sync_status = 0
+    ''');
+  }
+
+  /// Get database statistics for display in settings
+  Future<Map<String, int>> getDatabaseStats() async {
+    final transactionCount = await (select(transactions)
+          ..where((t) => t.deletedAt.isNull()))
+        .get()
+        .then((list) => list.length);
+
+    final categoryCount = await (select(categories)
+          ..where((c) => c.deletedAt.isNull()))
+        .get()
+        .then((list) => list.length);
+
+    final walletCount = await (select(wallets)
+          ..where((w) => w.deletedAt.isNull()))
+        .get()
+        .then((list) => list.length);
+
+    final budgetCount = await (select(budgets)
+          ..where((b) => b.deletedAt.isNull()))
+        .get()
+        .then((list) => list.length);
+
+    final objectiveCount = await (select(objectives)
+          ..where((o) => o.deletedAt.isNull()))
+        .get()
+        .then((list) => list.length);
+
+    return {
+      'transactions': transactionCount,
+      'categories': categoryCount,
+      'wallets': walletCount,
+      'budgets': budgetCount,
+      'objectives': objectiveCount,
+    };
+  }
 }

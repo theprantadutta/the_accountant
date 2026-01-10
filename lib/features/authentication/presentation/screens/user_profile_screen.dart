@@ -21,7 +21,6 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
     with TickerProviderStateMixin {
   late TextEditingController _nameController;
   late TextEditingController _emailController;
-  late TextEditingController _phoneController;
 
   late AnimationController _animationController;
   late Animation<double> _slideAnimation;
@@ -34,7 +33,6 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
 
     _nameController = TextEditingController();
     _emailController = TextEditingController();
-    _phoneController = TextEditingController();
 
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 1000),
@@ -53,7 +51,6 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
   void dispose() {
     _nameController.dispose();
     _emailController.dispose();
-    _phoneController.dispose();
     _animationController.dispose();
     super.dispose();
   }
@@ -62,8 +59,6 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
     if (!_isInitialized) {
       _nameController.text = authState.displayName ?? '';
       _emailController.text = authState.userEmail ?? '';
-      // Phone is not in AuthState, so leave empty for now
-      _phoneController.text = '';
       _isInitialized = true;
     }
   }
@@ -135,19 +130,6 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
                 ),
                 begin: const Offset(0, 1),
                 child: _buildPremiumStatus(authState.isPremium),
-              ),
-
-              const SizedBox(height: 24),
-
-              // Settings Options
-              AnimationUtils.slideTransition(
-                animation: AnimationUtils.createStaggeredAnimation(
-                  controller: _animationController,
-                  startFraction: 0.4,
-                  endFraction: 0.7,
-                ),
-                begin: const Offset(0, 1),
-                child: _buildSettingsOptions(),
               ),
 
               const SizedBox(height: 24),
@@ -393,16 +375,6 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
               icon: Icons.email,
               enabled: false,
             ),
-            const SizedBox(height: 16),
-
-            // Phone number field
-            _buildInputField(
-              controller: _phoneController,
-              label: 'Phone Number',
-              icon: Icons.phone,
-              enabled: true,
-              keyboardType: TextInputType.phone,
-            ),
           ],
         ),
       ),
@@ -587,106 +559,6 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
                 ],
               ),
             ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSettingsOptions() {
-    final options = [
-      {
-        'title': 'Notifications',
-        'subtitle': 'Manage your notification preferences',
-        'icon': Icons.notifications,
-      },
-      {
-        'title': 'Privacy & Security',
-        'subtitle': 'Control your privacy settings',
-        'icon': Icons.security,
-      },
-      {
-        'title': 'Data Export',
-        'subtitle': 'Download your financial data',
-        'icon': Icons.download,
-      },
-      {
-        'title': 'Theme Settings',
-        'subtitle': 'Customize your app appearance',
-        'icon': Icons.palette,
-      },
-    ];
-
-    return AppTheme.glassmorphicContainer(
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Settings',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 16),
-            ...options.map((option) {
-              return GestureDetector(
-                onTap: () {
-                  HapticFeedback.lightImpact();
-                  // TODO: Navigate to respective settings
-                },
-                child: Container(
-                  margin: const EdgeInsets.only(bottom: 16),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Icon(
-                          option['icon'] as IconData,
-                          color: Colors.white.withValues(alpha: 0.8),
-                          size: 20,
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              option['title'] as String,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            Text(
-                              option['subtitle'] as String,
-                              style: TextStyle(
-                                color: Colors.white.withValues(alpha: 0.7),
-                                fontSize: 14,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Icon(
-                        Icons.chevron_right,
-                        color: Colors.white.withValues(alpha: 0.5),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            }),
           ],
         ),
       ),

@@ -8,6 +8,8 @@ import 'package:share_plus/share_plus.dart' show SharePlus, ShareParams, XFile;
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
+import 'package:the_accountant/features/settings/services/pdf_export_service.dart';
+import 'package:the_accountant/features/settings/providers/settings_provider.dart';
 
 class ExportScreen extends ConsumerStatefulWidget {
   const ExportScreen({super.key});
@@ -480,15 +482,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
       if (_selectedFormat == 'csv') {
         await _exportToCsv(filteredTransactions);
       } else {
-        // TODO: Implement PDF export
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('PDF export coming soon!'),
-              backgroundColor: AppColors.warning,
-            ),
-          );
-        }
+        await _exportToPdf(filteredTransactions);
       }
     } catch (e) {
       if (mounted) {
@@ -544,6 +538,45 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Exported ${transactions.length} transactions'),
+          backgroundColor: AppColors.success,
+        ),
+      );
+    }
+  }
+
+  Future<void> _exportToPdf(List<dynamic> transactions) async {
+    if (_selectedDateRange == null) return;
+
+    final settingsState = ref.read(settingsProvider);
+    final currency = settingsState.currency;
+
+    // Convert to Transaction list
+    final typedTransactions = transactions.cast<dynamic>().toList();
+
+    // Generate PDF
+    final file = await PdfExportService.generateTransactionReport(
+      transactions: typedTransactions.cast(),
+      dateRange: DateTimeRange(
+        start: _selectedDateRange!.start,
+        end: _selectedDateRange!.end,
+      ),
+      currency: currency,
+      includeCategories: true,
+      includeWallets: true,
+    );
+
+    // Share the file
+    await SharePlus.instance.share(
+      ShareParams(
+        files: [XFile(file.path)],
+        subject: 'The Accountant - Financial Report',
+      ),
+    );
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('PDF report generated with ${transactions.length} transactions'),
           backgroundColor: AppColors.success,
         ),
       );
