@@ -1,38 +1,106 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
+import 'package:the_accountant/core/services/fcm_registration_service.dart';
 
 class NotificationService {
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
   final FlutterLocalNotificationsPlugin _localNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
+  final FcmRegistrationService _fcmRegistrationService =
+      FcmRegistrationService();
+  final Logger _logger = Logger();
 
   static final NotificationService _instance = NotificationService._internal();
   factory NotificationService() => _instance;
   NotificationService._internal();
 
+  /// Flag to track if the user is authenticated (set by AuthProvider).
+  bool _isAuthenticated = false;
+
+  /// Set the authentication state.
+  void setAuthenticated(bool authenticated) {
+    _isAuthenticated = authenticated;
+    if (authenticated) {
+      // Register FCM token when user becomes authenticated
+      _registerFcmToken();
+    }
+  }
+
   Future<void> initialize() async {
     // Request permission for notifications
-    await _firebaseMessaging.requestPermission(
+    final settings = await _firebaseMessaging.requestPermission(
       alert: true,
       badge: true,
       sound: true,
     );
 
+    _logger.i('FCM permission status: ${settings.authorizationStatus}');
+
     // Initialize local notifications
     const AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings('@mipmap/ic_launcher');
 
-    final InitializationSettings initializationSettings =
-        InitializationSettings(android: initializationSettingsAndroid);
+    const DarwinInitializationSettings initializationSettingsIOS =
+        DarwinInitializationSettings(
+      requestAlertPermission: true,
+      requestBadgePermission: true,
+      requestSoundPermission: true,
+    );
 
-    await _localNotificationsPlugin.initialize(initializationSettings);
+    final InitializationSettings initializationSettings =
+        InitializationSettings(
+      android: initializationSettingsAndroid,
+      iOS: initializationSettingsIOS,
+    );
+
+    await _localNotificationsPlugin.initialize(
+      initializationSettings,
+      onDidReceiveNotificationResponse: _onNotificationTapped,
+    );
 
     // Handle foreground messages
     FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
 
     // Handle background messages
     FirebaseMessaging.onBackgroundMessage(_handleBackgroundMessage);
+
+    // Set up token refresh listener
+    _fcmRegistrationService.setupTokenRefreshListener();
+
+    // Handle notification tap when app is in background/terminated
+    FirebaseMessaging.onMessageOpenedApp.listen(_handleNotificationTap);
+
+    // Check for initial message (app opened from notification)
+    final initialMessage = await _firebaseMessaging.getInitialMessage();
+    if (initialMessage != null) {
+      _handleNotificationTap(initialMessage);
+    }
+  }
+
+  /// Register FCM token with the backend (called when user is authenticated).
+  Future<void> _registerFcmToken() async {
+    if (_isAuthenticated) {
+      await _fcmRegistrationService.registerToken();
+    }
+  }
+
+  /// Unregister the device when user logs out.
+  Future<void> unregisterDevice() async {
+    await _fcmRegistrationService.unregisterDevice();
+  }
+
+  /// Handle notification tap from local notification.
+  void _onNotificationTapped(NotificationResponse response) {
+    _logger.i('Notification tapped: ${response.payload}');
+    // Handle navigation based on payload
+  }
+
+  /// Handle notification tap from FCM.
+  void _handleNotificationTap(RemoteMessage message) {
+    _logger.i('Notification opened: ${message.data}');
+    // Handle navigation based on data payload
   }
 
   Future<void> _handleForegroundMessage(RemoteMessage message) async {
