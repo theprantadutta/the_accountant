@@ -13,6 +13,8 @@ import 'package:the_accountant/data/models/transaction.dart' show TransactionSpe
 import 'package:the_accountant/features/ai/services/category_assignment_service.dart';
 import 'package:the_accountant/features/settings/providers/settings_provider.dart';
 import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
+import 'package:the_accountant/features/dashboard/providers/financial_data_provider.dart';
+import 'package:the_accountant/features/reports/providers/reports_provider.dart';
 import 'package:uuid/uuid.dart';
 
 /// ViewModel class for displaying transactions in UI
@@ -225,6 +227,10 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
 
       // Reload transactions to get the new one
       await _loadTransactions();
+
+      // Refresh dashboard and reports data for real-time updates
+      _ref.read(financialDataProvider.notifier).refreshData();
+      _ref.read(reportsProvider.notifier).loadReportsData();
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
@@ -301,6 +307,10 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
 
       // Reload transactions to get the new one
       await _loadTransactions();
+
+      // Refresh dashboard and reports data for real-time updates
+      _ref.read(financialDataProvider.notifier).refreshData();
+      _ref.read(reportsProvider.notifier).loadReportsData();
 
       return id; // Return the new transaction ID
     } catch (e) {
@@ -379,6 +389,10 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
 
       // Reload transactions to get the updated one
       await _loadTransactions();
+
+      // Refresh dashboard and reports data for real-time updates
+      _ref.read(financialDataProvider.notifier).refreshData();
+      _ref.read(reportsProvider.notifier).loadReportsData();
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
@@ -410,6 +424,10 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
 
       // Reload transactions to reflect the deletion
       await _loadTransactions();
+
+      // Refresh dashboard and reports data for real-time updates
+      _ref.read(financialDataProvider.notifier).refreshData();
+      _ref.read(reportsProvider.notifier).loadReportsData();
     } catch (e) {
       state = state.copyWith(
         isLoading: false,

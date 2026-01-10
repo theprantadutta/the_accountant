@@ -17,7 +17,10 @@ import 'package:the_accountant/core/services/currency_service.dart';
 import 'package:the_accountant/shared/widgets/glass_card.dart';
 import 'package:the_accountant/shared/widgets/stat_card.dart';
 import 'package:the_accountant/features/transactions/screens/upcoming_transactions_screen.dart';
+import 'package:the_accountant/features/transactions/screens/add_transaction_screen.dart';
+import 'package:the_accountant/features/transactions/widgets/transaction_type_header.dart';
 import 'package:the_accountant/features/credit_debt/screens/credit_debt_screen.dart';
+import 'package:the_accountant/features/budgets/screens/budget_list_screen.dart';
 import 'package:the_accountant/features/dashboard/widgets/wallet_cards_section.dart';
 
 class ResponsiveFinancialOverview extends ConsumerStatefulWidget {
@@ -285,7 +288,7 @@ class _ResponsiveFinancialOverviewState
         'icon': Icons.add_rounded,
         'label': 'Add',
         'color': AppColors.primaryAccent,
-        'route': null,
+        'route': 'add',
       },
       {
         'icon': Icons.schedule_rounded,
@@ -303,13 +306,13 @@ class _ResponsiveFinancialOverviewState
         'icon': Icons.savings_rounded,
         'label': 'Goals',
         'color': AppColors.success,
-        'route': null,
+        'route': 'goals',
       },
       {
         'icon': Icons.swap_horiz_rounded,
         'label': 'Transfer',
         'color': AppColors.neonPurple,
-        'route': null,
+        'route': 'transfer',
       },
     ];
 
@@ -363,6 +366,9 @@ class _ResponsiveFinancialOverviewState
 
   void _handleQuickAction(String? route) {
     switch (route) {
+      case 'add':
+        showAddTransactionScreen(context);
+        break;
       case 'upcoming':
         Navigator.push(
           context,
@@ -379,8 +385,20 @@ class _ResponsiveFinancialOverviewState
           ),
         );
         break;
-      default:
-        // For other actions, do nothing for now
+      case 'goals':
+        // Navigate to budgets for now (goals/objectives screen coming soon)
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const BudgetListScreen(),
+          ),
+        );
+        break;
+      case 'transfer':
+        showAddTransactionScreen(
+          context,
+          initialType: TransactionTypeSelection.transfer,
+        );
         break;
     }
   }
