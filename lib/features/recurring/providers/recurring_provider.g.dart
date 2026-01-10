@@ -11,7 +11,7 @@ part of 'recurring_provider.dart';
 /// Provider for the RecurringService instance
 
 @ProviderFor(recurringService)
-const recurringServiceProvider = RecurringServiceProvider._();
+final recurringServiceProvider = RecurringServiceProvider._();
 
 /// Provider for the RecurringService instance
 
@@ -24,7 +24,7 @@ final class RecurringServiceProvider
         >
     with $Provider<RecurringService> {
   /// Provider for the RecurringService instance
-  const RecurringServiceProvider._()
+  RecurringServiceProvider._()
     : super(
         from: null,
         argument: null,
@@ -62,7 +62,7 @@ String _$recurringServiceHash() => r'625f8f08ca9592063bd8b34737b1f45dcf2167ab';
 /// Provider for all recurring configurations with their base transactions
 
 @ProviderFor(allRecurringConfigs)
-const allRecurringConfigsProvider = AllRecurringConfigsProvider._();
+final allRecurringConfigsProvider = AllRecurringConfigsProvider._();
 
 /// Provider for all recurring configurations with their base transactions
 
@@ -77,7 +77,7 @@ final class AllRecurringConfigsProvider
         $FutureModifier<List<RecurringConfigWithTransaction>>,
         $FutureProvider<List<RecurringConfigWithTransaction>> {
   /// Provider for all recurring configurations with their base transactions
-  const AllRecurringConfigsProvider._()
+  AllRecurringConfigsProvider._()
     : super(
         from: null,
         argument: null,
@@ -109,7 +109,7 @@ String _$allRecurringConfigsHash() =>
 /// Provider for active recurring configurations
 
 @ProviderFor(activeRecurringConfigs)
-const activeRecurringConfigsProvider = ActiveRecurringConfigsProvider._();
+final activeRecurringConfigsProvider = ActiveRecurringConfigsProvider._();
 
 /// Provider for active recurring configurations
 
@@ -124,7 +124,7 @@ final class ActiveRecurringConfigsProvider
         $FutureModifier<List<RecurringConfigWithTransaction>>,
         $FutureProvider<List<RecurringConfigWithTransaction>> {
   /// Provider for active recurring configurations
-  const ActiveRecurringConfigsProvider._()
+  ActiveRecurringConfigsProvider._()
     : super(
         from: null,
         argument: null,
@@ -156,7 +156,7 @@ String _$activeRecurringConfigsHash() =>
 /// Notifier for managing recurring transactions
 
 @ProviderFor(RecurringNotifier)
-const recurringProvider = RecurringNotifierProvider._();
+final recurringProvider = RecurringNotifierProvider._();
 
 /// Notifier for managing recurring transactions
 final class RecurringNotifierProvider
@@ -166,7 +166,7 @@ final class RecurringNotifierProvider
           List<RecurringConfigWithTransaction>
         > {
   /// Notifier for managing recurring transactions
-  const RecurringNotifierProvider._()
+  RecurringNotifierProvider._()
     : super(
         from: null,
         argument: null,
@@ -195,7 +195,6 @@ abstract class _$RecurringNotifier
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build();
     final ref =
         this.ref
             as $Ref<
@@ -213,14 +212,14 @@ abstract class _$RecurringNotifier
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    element.handleCreate(ref, build);
   }
 }
 
 /// Provider for upcoming recurring transactions (next 30 days)
 
 @ProviderFor(upcomingRecurringTransactions)
-const upcomingRecurringTransactionsProvider =
+final upcomingRecurringTransactionsProvider =
     UpcomingRecurringTransactionsProvider._();
 
 /// Provider for upcoming recurring transactions (next 30 days)
@@ -236,7 +235,7 @@ final class UpcomingRecurringTransactionsProvider
         $FutureModifier<List<UpcomingRecurring>>,
         $FutureProvider<List<UpcomingRecurring>> {
   /// Provider for upcoming recurring transactions (next 30 days)
-  const UpcomingRecurringTransactionsProvider._()
+  UpcomingRecurringTransactionsProvider._()
     : super(
         from: null,
         argument: null,

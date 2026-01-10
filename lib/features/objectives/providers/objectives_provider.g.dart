@@ -11,7 +11,7 @@ part of 'objectives_provider.dart';
 /// Provider for the ObjectivesService instance
 
 @ProviderFor(objectivesService)
-const objectivesServiceProvider = ObjectivesServiceProvider._();
+final objectivesServiceProvider = ObjectivesServiceProvider._();
 
 /// Provider for the ObjectivesService instance
 
@@ -24,7 +24,7 @@ final class ObjectivesServiceProvider
         >
     with $Provider<ObjectivesService> {
   /// Provider for the ObjectivesService instance
-  const ObjectivesServiceProvider._()
+  ObjectivesServiceProvider._()
     : super(
         from: null,
         argument: null,
@@ -63,7 +63,7 @@ String _$objectivesServiceHash() => r'7101e4e4dfc2073a25064dbfe6eb5b7ea46c8f40';
 /// Provider for all objectives with progress
 
 @ProviderFor(allObjectives)
-const allObjectivesProvider = AllObjectivesProvider._();
+final allObjectivesProvider = AllObjectivesProvider._();
 
 /// Provider for all objectives with progress
 
@@ -78,7 +78,7 @@ final class AllObjectivesProvider
         $FutureModifier<List<ObjectiveWithProgress>>,
         $FutureProvider<List<ObjectiveWithProgress>> {
   /// Provider for all objectives with progress
-  const AllObjectivesProvider._()
+  AllObjectivesProvider._()
     : super(
         from: null,
         argument: null,
@@ -109,7 +109,7 @@ String _$allObjectivesHash() => r'16a23ced5db7f7a8cde57b0494f623476133ba93';
 /// Provider for active objectives with progress
 
 @ProviderFor(activeObjectives)
-const activeObjectivesProvider = ActiveObjectivesProvider._();
+final activeObjectivesProvider = ActiveObjectivesProvider._();
 
 /// Provider for active objectives with progress
 
@@ -124,7 +124,7 @@ final class ActiveObjectivesProvider
         $FutureModifier<List<ObjectiveWithProgress>>,
         $FutureProvider<List<ObjectiveWithProgress>> {
   /// Provider for active objectives with progress
-  const ActiveObjectivesProvider._()
+  ActiveObjectivesProvider._()
     : super(
         from: null,
         argument: null,
@@ -155,7 +155,7 @@ String _$activeObjectivesHash() => r'618878d0d9b19086bcff5362ea76d2edbf6546f7';
 /// Provider for pinned objectives with progress
 
 @ProviderFor(pinnedObjectives)
-const pinnedObjectivesProvider = PinnedObjectivesProvider._();
+final pinnedObjectivesProvider = PinnedObjectivesProvider._();
 
 /// Provider for pinned objectives with progress
 
@@ -170,7 +170,7 @@ final class PinnedObjectivesProvider
         $FutureModifier<List<ObjectiveWithProgress>>,
         $FutureProvider<List<ObjectiveWithProgress>> {
   /// Provider for pinned objectives with progress
-  const PinnedObjectivesProvider._()
+  PinnedObjectivesProvider._()
     : super(
         from: null,
         argument: null,
@@ -201,7 +201,7 @@ String _$pinnedObjectivesHash() => r'075094064415251e3e4c66be955bad03e8606dfc';
 /// Provider for goals only
 
 @ProviderFor(goals)
-const goalsProvider = GoalsProvider._();
+final goalsProvider = GoalsProvider._();
 
 /// Provider for goals only
 
@@ -216,7 +216,7 @@ final class GoalsProvider
         $FutureModifier<List<ObjectiveWithProgress>>,
         $FutureProvider<List<ObjectiveWithProgress>> {
   /// Provider for goals only
-  const GoalsProvider._()
+  GoalsProvider._()
     : super(
         from: null,
         argument: null,
@@ -247,7 +247,7 @@ String _$goalsHash() => r'bfe4943fe76f293439559964d769bfb457fc9790';
 /// Provider for loans only
 
 @ProviderFor(loans)
-const loansProvider = LoansProvider._();
+final loansProvider = LoansProvider._();
 
 /// Provider for loans only
 
@@ -262,7 +262,7 @@ final class LoansProvider
         $FutureModifier<List<ObjectiveWithProgress>>,
         $FutureProvider<List<ObjectiveWithProgress>> {
   /// Provider for loans only
-  const LoansProvider._()
+  LoansProvider._()
     : super(
         from: null,
         argument: null,
@@ -293,7 +293,7 @@ String _$loansHash() => r'5b1e97daae90e06507892dcbc868c58cba30ff19';
 /// Notifier for managing objectives
 
 @ProviderFor(ObjectivesNotifier)
-const objectivesProvider = ObjectivesNotifierProvider._();
+final objectivesProvider = ObjectivesNotifierProvider._();
 
 /// Notifier for managing objectives
 final class ObjectivesNotifierProvider
@@ -303,7 +303,7 @@ final class ObjectivesNotifierProvider
           List<ObjectiveWithProgress>
         > {
   /// Notifier for managing objectives
-  const ObjectivesNotifierProvider._()
+  ObjectivesNotifierProvider._()
     : super(
         from: null,
         argument: null,
@@ -333,7 +333,6 @@ abstract class _$ObjectivesNotifier
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build();
     final ref =
         this.ref
             as $Ref<
@@ -351,14 +350,14 @@ abstract class _$ObjectivesNotifier
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    element.handleCreate(ref, build);
   }
 }
 
 /// Provider for a single objective with progress
 
 @ProviderFor(objectiveDetail)
-const objectiveDetailProvider = ObjectiveDetailFamily._();
+final objectiveDetailProvider = ObjectiveDetailFamily._();
 
 /// Provider for a single objective with progress
 
@@ -373,7 +372,7 @@ final class ObjectiveDetailProvider
         $FutureModifier<ObjectiveWithProgress?>,
         $FutureProvider<ObjectiveWithProgress?> {
   /// Provider for a single objective with progress
-  const ObjectiveDetailProvider._({
+  ObjectiveDetailProvider._({
     required ObjectiveDetailFamily super.from,
     required String super.argument,
   }) : super(
@@ -423,7 +422,7 @@ String _$objectiveDetailHash() => r'3f8ff6b4590180e54d2e687e5beba2c24f4723ef';
 
 final class ObjectiveDetailFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<ObjectiveWithProgress?>, String> {
-  const ObjectiveDetailFamily._()
+  ObjectiveDetailFamily._()
     : super(
         retry: null,
         name: r'objectiveDetailProvider',
@@ -444,7 +443,7 @@ final class ObjectiveDetailFamily extends $Family
 /// Provider for total savings progress (all goals combined)
 
 @ProviderFor(totalSavingsProgress)
-const totalSavingsProgressProvider = TotalSavingsProgressProvider._();
+final totalSavingsProgressProvider = TotalSavingsProgressProvider._();
 
 /// Provider for total savings progress (all goals combined)
 
@@ -459,7 +458,7 @@ final class TotalSavingsProgressProvider
         $FutureModifier<TotalSavingsProgress>,
         $FutureProvider<TotalSavingsProgress> {
   /// Provider for total savings progress (all goals combined)
-  const TotalSavingsProgressProvider._()
+  TotalSavingsProgressProvider._()
     : super(
         from: null,
         argument: null,
