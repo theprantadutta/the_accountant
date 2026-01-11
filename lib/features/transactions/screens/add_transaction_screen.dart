@@ -523,9 +523,6 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen>
         },
         isIncome: _transactionType.isIncome,
         showAddButton: true,
-        onAddCategory: () {
-          // TODO: Navigate to add category screen
-        },
       ),
     );
   }
@@ -1521,9 +1518,6 @@ class _EditTransactionScreenState extends ConsumerState<EditTransactionScreen>
         },
         isIncome: _transactionType.isIncome,
         showAddButton: true,
-        onAddCategory: () {
-          // TODO: Navigate to add category screen
-        },
       ),
     );
   }

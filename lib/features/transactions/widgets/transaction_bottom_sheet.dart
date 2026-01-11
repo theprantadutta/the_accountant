@@ -579,9 +579,7 @@ class _TransactionBottomSheetState extends ConsumerState<TransactionBottomSheet>
           _selectedCategory = category;
         });
       },
-      onAddCategory: () {
-        // TODO: Open add category dialog
-      },
+      showAddButton: true,
     );
   }
 
