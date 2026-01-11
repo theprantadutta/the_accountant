@@ -56,8 +56,10 @@ class ColorPicker extends StatelessWidget {
                 AppSpacing.gapHMd,
                 Expanded(
                   child: Text(
-                    selectedColor?.toUpperCase() ?? 'Select color',
-                    style: AppTypography.bodyLarge,
+                    selectedColor != null ? 'Tap to change' : 'Select color',
+                    style: AppTypography.bodyLarge.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
                   ),
                 ),
                 Icon(

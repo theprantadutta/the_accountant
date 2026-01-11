@@ -170,6 +170,18 @@ class _CreateFirstWalletScreenState
 
                 const SizedBox(height: 24),
 
+                // Currency picker (show currency first, then balance)
+                Text('Currency', style: AppTypography.labelLarge),
+                const SizedBox(height: 8),
+                CurrencyPicker(
+                  selectedCurrency: _selectedCurrency,
+                  onCurrencySelected: (currency) {
+                    setState(() => _selectedCurrency = currency);
+                  },
+                ),
+
+                const SizedBox(height: 24),
+
                 // Initial balance
                 Text('Initial Balance', style: AppTypography.labelLarge),
                 const SizedBox(height: 8),
@@ -198,18 +210,6 @@ class _CreateFirstWalletScreenState
                       ),
                     ),
                   ),
-                ),
-
-                const SizedBox(height: 24),
-
-                // Currency picker
-                Text('Currency', style: AppTypography.labelLarge),
-                const SizedBox(height: 8),
-                CurrencyPicker(
-                  selectedCurrency: _selectedCurrency,
-                  onCurrencySelected: (currency) {
-                    setState(() => _selectedCurrency = currency);
-                  },
                 ),
 
                 const SizedBox(height: 24),
