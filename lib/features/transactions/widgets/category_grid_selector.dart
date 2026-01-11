@@ -4,11 +4,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/core/themes/app_animations.dart';
+import 'package:the_accountant/core/themes/app_typography.dart';
 import 'package:the_accountant/core/utils/icon_registry.dart';
 import 'package:the_accountant/features/categories/providers/category_provider.dart';
+import 'package:the_accountant/features/categories/widgets/quick_add_category_form.dart';
 
-/// A grid-based category selector widget (like Cashew).
-/// Displays categories as colored icons in a 4-column grid.
+/// A grid-based category selector widget.
+/// Displays categories as colored icons in a clean grid layout.
 class CategoryGridSelector extends ConsumerStatefulWidget {
   /// The currently selected category ID
   final String? selectedCategoryId;
@@ -44,7 +46,8 @@ class CategoryGridSelector extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<CategoryGridSelector> createState() => _CategoryGridSelectorState();
+  ConsumerState<CategoryGridSelector> createState() =>
+      _CategoryGridSelectorState();
 }
 
 class _CategoryGridSelectorState extends ConsumerState<CategoryGridSelector>
@@ -90,16 +93,43 @@ class _CategoryGridSelectorState extends ConsumerState<CategoryGridSelector>
     }
   }
 
+  void _showAddCategorySheet() {
+    HapticFeedback.mediumImpact();
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AppColors.primarySurface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(AppSpacing.radiusXl),
+        ),
+      ),
+      builder: (context) => QuickAddCategoryForm(
+        presetType: _showingIncome ? 'income' : 'expense',
+        onCategoryAdded: (name, id) {
+          Navigator.pop(context);
+          // Auto-select the newly created category
+          final categoryState = ref.read(categoryProvider);
+          final newCategory = categoryState.categories
+              .where((c) => c.id == id)
+              .firstOrNull;
+          if (newCategory != null) {
+            widget.onCategorySelected?.call(newCategory);
+          }
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final categoryState = ref.watch(categoryProvider);
 
     return Column(
       children: [
         // Tab Bar (if no fixed isIncome)
         if (widget.isIncome == null) ...[
-          _buildTabBar(theme),
+          _buildTabBar(),
           const SizedBox(height: 16),
         ],
 
@@ -107,27 +137,27 @@ class _CategoryGridSelectorState extends ConsumerState<CategoryGridSelector>
         Expanded(
           child: categoryState.isLoading
               ? const Center(child: CircularProgressIndicator())
-              : _buildCategoryGrid(theme, categoryState),
+              : _buildCategoryGrid(categoryState),
         ),
       ],
     );
   }
 
-  Widget _buildTabBar(ThemeData theme) {
+  Widget _buildTabBar() {
     return Container(
       decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHighest,
+        color: AppColors.glassBorder.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
       ),
       padding: const EdgeInsets.all(4),
       child: TabBar(
         controller: _tabController,
         indicator: BoxDecoration(
-          color: theme.colorScheme.surface,
+          color: AppColors.primarySurface,
           borderRadius: BorderRadius.circular(8),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withValues(alpha: 0.2),
               blurRadius: 4,
               offset: const Offset(0, 2),
             ),
@@ -135,9 +165,9 @@ class _CategoryGridSelectorState extends ConsumerState<CategoryGridSelector>
         ),
         indicatorSize: TabBarIndicatorSize.tab,
         dividerColor: Colors.transparent,
-        labelColor: theme.colorScheme.onSurface,
-        unselectedLabelColor: theme.colorScheme.onSurfaceVariant,
-        labelStyle: const TextStyle(fontWeight: FontWeight.bold),
+        labelColor: AppColors.textPrimary,
+        unselectedLabelColor: AppColors.textMuted,
+        labelStyle: AppTypography.labelMedium.copyWith(fontWeight: FontWeight.bold),
         tabs: const [
           Tab(text: 'Expense'),
           Tab(text: 'Income'),
@@ -146,37 +176,38 @@ class _CategoryGridSelectorState extends ConsumerState<CategoryGridSelector>
     );
   }
 
-  Widget _buildCategoryGrid(ThemeData theme, CategoryState categoryState) {
+  Widget _buildCategoryGrid(CategoryState categoryState) {
     final categories = categoryState.categories
         .where((c) => c.isIncome == _showingIncome)
         .toList();
 
-    final itemCount = widget.showAddButton ? categories.length + 1 : categories.length;
+    final itemCount =
+        widget.showAddButton ? categories.length + 1 : categories.length;
 
     return GridView.builder(
-      padding: const EdgeInsets.all(8),
+      padding: EdgeInsets.all(AppSpacing.sm),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: widget.crossAxisCount,
-        crossAxisSpacing: 12,
-        mainAxisSpacing: 12,
-        childAspectRatio: 0.8, // Taller cells to fit icon + text
+        crossAxisSpacing: AppSpacing.sm,
+        mainAxisSpacing: AppSpacing.sm,
+        childAspectRatio: 0.85,
       ),
       itemCount: itemCount,
       itemBuilder: (context, index) {
         // Add button at the end
         if (widget.showAddButton && index == categories.length) {
-          return _buildAddButton(theme);
+          return _buildAddButton();
         }
 
         final category = categories[index];
         final isSelected = category.id == widget.selectedCategoryId;
 
-        return _buildCategoryItem(theme, category, isSelected);
+        return _buildCategoryItem(category, isSelected);
       },
     );
   }
 
-  Widget _buildCategoryItem(ThemeData theme, Category category, bool isSelected) {
+  Widget _buildCategoryItem(Category category, bool isSelected) {
     final color = _parseColor(category.colorCode);
 
     return GestureDetector(
@@ -185,18 +216,27 @@ class _CategoryGridSelectorState extends ConsumerState<CategoryGridSelector>
         widget.onCategorySelected?.call(category);
       },
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
+        duration: AppAnimations.fast,
+        curve: AppAnimations.easeOut,
+        padding: EdgeInsets.symmetric(
+          horizontal: AppSpacing.xs,
+          vertical: AppSpacing.sm,
+        ),
         decoration: BoxDecoration(
-          color: isSelected ? color.withOpacity(0.2) : theme.colorScheme.surface,
-          borderRadius: BorderRadius.circular(16),
+          color: isSelected
+              ? color.withValues(alpha: 0.15)
+              : AppColors.primarySurface,
+          borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
           border: Border.all(
-            color: isSelected ? color : theme.colorScheme.outline.withOpacity(0.2),
-            width: isSelected ? 2 : 1,
+            color: isSelected
+                ? color.withValues(alpha: 0.6)
+                : AppColors.glassBorder.withValues(alpha: 0.3),
+            width: isSelected ? 1.5 : 1,
           ),
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: color.withOpacity(0.3),
+                    color: color.withValues(alpha: 0.2),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
@@ -205,52 +245,40 @@ class _CategoryGridSelectorState extends ConsumerState<CategoryGridSelector>
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            // Icon with selection animation
+            // Icon container - smaller and cleaner
             AnimatedScale(
-              scale: isSelected ? 1.05 : 1.0,
+              scale: isSelected ? 1.08 : 1.0,
               duration: AppAnimations.quick,
               curve: AppAnimations.spring,
               child: Container(
-                width: 44,
-                height: 44,
+                width: 36,
+                height: 36,
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.2),
+                  color: color.withValues(alpha: 0.2),
                   shape: BoxShape.circle,
-                  boxShadow: isSelected
-                      ? [
-                          BoxShadow(
-                            color: color.withOpacity(0.4),
-                            blurRadius: 12,
-                            spreadRadius: 0,
-                          ),
-                        ]
-                      : null,
                 ),
                 child: Icon(
                   _getIconData(category),
                   color: color,
-                  size: 22,
+                  size: 18,
                 ),
               ),
             ),
-            const SizedBox(height: 6),
-            // Name
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4),
-                child: Text(
-                  category.name,
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                    color: isSelected ? color : theme.colorScheme.onSurface,
-                  ),
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
+            SizedBox(height: AppSpacing.xs),
+            // Category name - better typography
+            Text(
+              category.name,
+              style: AppTypography.labelSmall.copyWith(
+                fontSize: 11,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                color: isSelected ? color : AppColors.textSecondary,
+                height: 1.2,
               ),
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),
@@ -258,46 +286,47 @@ class _CategoryGridSelectorState extends ConsumerState<CategoryGridSelector>
     );
   }
 
-  Widget _buildAddButton(ThemeData theme) {
+  Widget _buildAddButton() {
     return GestureDetector(
-      onTap: () {
-        HapticFeedback.lightImpact();
-        widget.onAddCategory?.call();
-      },
+      onTap: widget.onAddCategory ?? _showAddCategorySheet,
       child: Container(
+        padding: EdgeInsets.symmetric(
+          horizontal: AppSpacing.xs,
+          vertical: AppSpacing.sm,
+        ),
         decoration: BoxDecoration(
-          color: theme.colorScheme.surface,
-          borderRadius: BorderRadius.circular(16),
+          color: AppColors.primarySurface,
+          borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
           border: Border.all(
-            color: theme.colorScheme.outline.withOpacity(0.3),
+            color: AppColors.primaryAccent.withValues(alpha: 0.3),
             width: 1,
             style: BorderStyle.solid,
           ),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: 44,
-              height: 44,
+              width: 36,
+              height: 36,
               decoration: BoxDecoration(
-                color: theme.colorScheme.primary.withOpacity(0.1),
+                color: AppColors.primaryAccent.withValues(alpha: 0.15),
                 shape: BoxShape.circle,
               ),
               child: Icon(
-                Icons.add,
-                color: theme.colorScheme.primary,
-                size: 22,
+                Icons.add_rounded,
+                color: AppColors.primaryAccent,
+                size: 20,
               ),
             ),
-            const SizedBox(height: 6),
-            Expanded(
-              child: Text(
-                'Add',
-                style: TextStyle(
-                  fontSize: 11,
-                  color: theme.colorScheme.primary,
-                ),
+            SizedBox(height: AppSpacing.xs),
+            Text(
+              'Add New',
+              style: AppTypography.labelSmall.copyWith(
+                fontSize: 11,
+                color: AppColors.primaryAccent,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ],
@@ -319,9 +348,6 @@ class _CategoryGridSelectorState extends ConsumerState<CategoryGridSelector>
 
   /// Get icon based on category icon name
   IconData _getIconData(Category category) {
-    // Use the IconRegistry to map icon name to IconData
-    // The category provider's Category model has colorCode, but the database has iconName
-    // For now, we try to infer from category name or use default
     return IconRegistry.getIcon(category.name.toLowerCase().replaceAll(' ', '_'));
   }
 }
@@ -343,7 +369,6 @@ class CategoryGridSelectorCompact extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
     final categoryState = ref.watch(categoryProvider);
 
     final categories = categoryState.categories
@@ -352,11 +377,12 @@ class CategoryGridSelectorCompact extends ConsumerWidget {
         .toList();
 
     return SizedBox(
-      height: 80,
+      height: 72,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
+        padding: EdgeInsets.symmetric(horizontal: AppSpacing.sm),
         itemCount: categories.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 12),
+        separatorBuilder: (_, __) => SizedBox(width: AppSpacing.sm),
         itemBuilder: (context, index) {
           final category = categories[index];
           final isSelected = category.id == selectedCategoryId;
@@ -368,39 +394,43 @@ class CategoryGridSelectorCompact extends ConsumerWidget {
               onCategorySelected?.call(category);
             },
             child: AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              width: 70,
-              padding: const EdgeInsets.all(8),
+              duration: AppAnimations.fast,
+              width: 64,
+              padding: EdgeInsets.all(AppSpacing.xs),
               decoration: BoxDecoration(
-                color: isSelected ? color.withOpacity(0.2) : theme.colorScheme.surface,
-                borderRadius: BorderRadius.circular(12),
+                color: isSelected
+                    ? color.withValues(alpha: 0.15)
+                    : AppColors.primarySurface,
+                borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
                 border: Border.all(
-                  color: isSelected ? color : theme.colorScheme.outline.withOpacity(0.2),
-                  width: isSelected ? 2 : 1,
+                  color: isSelected
+                      ? color.withValues(alpha: 0.6)
+                      : AppColors.glassBorder.withValues(alpha: 0.3),
+                  width: isSelected ? 1.5 : 1,
                 ),
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
-                    width: 32,
-                    height: 32,
+                    width: 28,
+                    height: 28,
                     decoration: BoxDecoration(
-                      color: color.withOpacity(0.2),
+                      color: color.withValues(alpha: 0.2),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
                       Icons.category,
                       color: color,
-                      size: 16,
+                      size: 14,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: 2),
                   Text(
                     category.name,
-                    style: TextStyle(
+                    style: AppTypography.labelSmall.copyWith(
                       fontSize: 9,
-                      color: theme.colorScheme.onSurface,
+                      color: isSelected ? color : AppColors.textSecondary,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
