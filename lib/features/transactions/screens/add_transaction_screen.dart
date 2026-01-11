@@ -210,6 +210,9 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen>
   }
 
   void _nextStep() {
+    // Dismiss keyboard when navigating to next step
+    FocusScope.of(context).unfocus();
+
     final maxStep = _isTransfer ? 2 : 3;
     if (_currentStepIndex < maxStep) {
       _goToStep(_currentStepIndex + 1);
@@ -1265,6 +1268,9 @@ class _EditTransactionScreenState extends ConsumerState<EditTransactionScreen>
   }
 
   void _nextStep() {
+    // Dismiss keyboard when navigating to next step
+    FocusScope.of(context).unfocus();
+
     if (_currentStepIndex < 3) {
       _goToStep(_currentStepIndex + 1);
     }
