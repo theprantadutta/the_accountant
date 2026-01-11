@@ -358,7 +358,7 @@ class _MainNavigationContainerState
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: _buildCustomAppBar(),
-        extendBody: true,
+        extendBody: false,
         body: PageView.builder(
           controller: _pageController,
           onPageChanged: (index) {

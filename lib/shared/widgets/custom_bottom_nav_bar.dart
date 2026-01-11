@@ -1,20 +1,16 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
-import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/core/themes/app_typography.dart';
-import 'package:the_accountant/core/themes/app_animations.dart';
 
-/// A modern floating bottom navigation bar with glassmorphic styling.
+/// A beautiful Material You (Material 3) style bottom navigation bar.
 ///
 /// Features:
-/// - Floating pill design (not attached to edges)
-/// - Glass background with blur effect
-/// - Active indicator with glowing pill
-/// - Icons animate (scale + color) on selection
-/// - Center button with special styling
-/// - Subtle shadow and glow effects
+/// - Animated pill indicator that slides between items
+/// - Icons transition from outline to filled on selection
+/// - Always-visible labels with subtle styling
+/// - Special prominent styling for AI button
+/// - Smooth spring animations
 class CustomBottomNavBar extends StatefulWidget {
   final int currentIndex;
   final Function(int) onTap;
@@ -32,57 +28,38 @@ class CustomBottomNavBar extends StatefulWidget {
 }
 
 class _CustomBottomNavBarState extends State<CustomBottomNavBar>
-    with TickerProviderStateMixin {
-  late List<AnimationController> _controllers;
-  late List<Animation<double>> _scaleAnimations;
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+  int _previousIndex = 0;
 
   @override
   void initState() {
     super.initState();
-    _initAnimations();
-  }
-
-  void _initAnimations() {
-    _controllers = List.generate(
-      widget.items.length,
-      (index) => AnimationController(
-        duration: AppAnimations.fast,
-        vsync: this,
-      ),
+    _previousIndex = widget.currentIndex;
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 350),
+      vsync: this,
     );
-
-    _scaleAnimations = _controllers.map((controller) {
-      return Tween<double>(begin: 1.0, end: 1.15).animate(
-        CurvedAnimation(parent: controller, curve: AppAnimations.spring),
-      );
-    }).toList();
-
-    // Start animation for current index
-    if (widget.currentIndex < _controllers.length) {
-      _controllers[widget.currentIndex].forward();
-    }
+    _animation = CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeOutCubic,
+    );
+    _controller.value = 1.0;
   }
 
   @override
   void didUpdateWidget(CustomBottomNavBar oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.currentIndex != widget.currentIndex) {
-      // Animate out old selection
-      if (oldWidget.currentIndex < _controllers.length) {
-        _controllers[oldWidget.currentIndex].reverse();
-      }
-      // Animate in new selection
-      if (widget.currentIndex < _controllers.length) {
-        _controllers[widget.currentIndex].forward();
-      }
+      _previousIndex = oldWidget.currentIndex;
+      _controller.forward(from: 0.0);
     }
   }
 
   @override
   void dispose() {
-    for (final controller in _controllers) {
-      controller.dispose();
-    }
+    _controller.dispose();
     super.dispose();
   }
 
@@ -95,226 +72,228 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar>
 
   @override
   Widget build(BuildContext context) {
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isAiSelected = widget.currentIndex == 2;
+
     return Container(
-      margin: EdgeInsets.only(
-        left: AppSpacing.lg,
-        right: AppSpacing.lg,
-        bottom: AppSpacing.lg + MediaQuery.of(context).padding.bottom,
+      padding: EdgeInsets.only(bottom: bottomPadding),
+      decoration: BoxDecoration(
+        color: AppColors.primarySurface,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.15),
+            blurRadius: 8,
+            offset: const Offset(0, -2),
+          ),
+        ],
       ),
-      child: ClipRRect(
-        borderRadius: AppSpacing.borderRadiusXxxl,
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-          child: Container(
-            height: 72,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  AppColors.primarySurface.withValues(alpha: 0.9),
-                  AppColors.primarySurface.withValues(alpha: 0.7),
-                ],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-              ),
-              borderRadius: AppSpacing.borderRadiusXxxl,
-              border: Border.all(
-                color: AppColors.glassBorder,
-                width: 1,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.primaryDark.withValues(alpha: 0.5),
-                  blurRadius: 20,
-                  offset: const Offset(0, 10),
-                ),
-                BoxShadow(
-                  color: AppColors.primaryAccent.withValues(alpha: 0.1),
-                  blurRadius: 30,
-                  spreadRadius: -5,
-                ),
-              ],
+      child: SizedBox(
+        height: 80,
+        child: Stack(
+          children: [
+            // Animated pill indicator
+            AnimatedBuilder(
+              animation: _animation,
+              builder: (context, child) {
+                final itemWidth = screenWidth / widget.items.length;
+                const pillWidth = 64.0;
+
+                final previousX = _previousIndex * itemWidth + (itemWidth - pillWidth) / 2;
+                final currentX = widget.currentIndex * itemWidth + (itemWidth - pillWidth) / 2;
+                final x = previousX + (currentX - previousX) * _animation.value;
+
+                return Transform.translate(
+                  offset: Offset(x, 12),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    width: pillWidth,
+                    height: 32,
+                    decoration: BoxDecoration(
+                      gradient: isAiSelected
+                          ? LinearGradient(
+                              colors: [
+                                AppColors.primaryAccent.withValues(alpha: 0.3),
+                                AppColors.neonCyan.withValues(alpha: 0.2),
+                              ],
+                            )
+                          : null,
+                      color: isAiSelected ? null : AppColors.primaryAccent.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                );
+              },
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            // Navigation items
+            Row(
               children: List.generate(widget.items.length, (index) {
                 final item = widget.items[index];
                 final isSelected = widget.currentIndex == index;
-                final isCenterItem = index == 2; // AI Assistant center button
+                final isAiButton = index == 2;
 
-                if (isCenterItem) {
-                  return _buildCenterButton(item, index, isSelected);
-                }
-
-                return _buildNavItem(item, index, isSelected);
+                return Expanded(
+                  child: _NavItem(
+                    item: item,
+                    isSelected: isSelected,
+                    isAiButton: isAiButton,
+                    onTap: () => _handleTap(index),
+                  ),
+                );
               }),
             ),
-          ),
+          ],
         ),
       ),
     );
   }
+}
 
-  Widget _buildNavItem(NavItem item, int index, bool isSelected) {
+/// Individual navigation item with Material You styling
+class _NavItem extends StatelessWidget {
+  final NavItem item;
+  final bool isSelected;
+  final bool isAiButton;
+  final VoidCallback onTap;
+
+  const _NavItem({
+    required this.item,
+    required this.isSelected,
+    required this.isAiButton,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    // AI button has special colors
+    final Color iconColor;
+    final Color labelColor;
+
+    if (isAiButton) {
+      iconColor = isSelected ? Colors.white : AppColors.neonCyan;
+      labelColor = AppColors.neonCyan;
+    } else {
+      iconColor = isSelected ? AppColors.primaryAccent : AppColors.textMuted;
+      labelColor = isSelected ? AppColors.primaryAccent : AppColors.textMuted;
+    }
+
     return GestureDetector(
-      onTap: () => _handleTap(index),
+      onTap: onTap,
       behavior: HitTestBehavior.opaque,
-      child: SizedBox(
-        width: 64,
-        height: 72,
-        child: AnimatedBuilder(
-          animation: _scaleAnimations[index],
-          builder: (context, child) {
-            return Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // Icon container with animated background
-                AnimatedContainer(
-                  duration: AppAnimations.fast,
-                  curve: AppAnimations.easeOut,
-                  width: 44,
-                  height: 36,
-                  decoration: BoxDecoration(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // Icon container - AI button has special styling
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeOutCubic,
+            width: isAiButton ? 48 : 32,
+            height: 32,
+            decoration: isAiButton
+                ? BoxDecoration(
                     gradient: isSelected
-                        ? LinearGradient(
+                        ? AppColors.accentGradient
+                        : LinearGradient(
                             colors: [
-                              AppColors.primaryAccent.withValues(alpha: 0.3),
+                              AppColors.neonCyan.withValues(alpha: 0.15),
                               AppColors.primaryAccent.withValues(alpha: 0.1),
                             ],
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                          )
-                        : null,
-                    borderRadius: AppSpacing.borderRadiusMd,
+                          ),
+                    borderRadius: BorderRadius.circular(12),
+                    border: isSelected
+                        ? null
+                        : Border.all(
+                            color: AppColors.neonCyan.withValues(alpha: 0.3),
+                            width: 1,
+                          ),
                     boxShadow: isSelected
                         ? [
                             BoxShadow(
-                              color: AppColors.primaryGlow.withValues(alpha: 0.3),
+                              color: AppColors.neonCyan.withValues(alpha: 0.4),
                               blurRadius: 12,
-                              spreadRadius: -2,
+                              offset: const Offset(0, 4),
                             ),
                           ]
                         : null,
-                  ),
-                  child: Transform.scale(
-                    scale: isSelected ? _scaleAnimations[index].value : 1.0,
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        // Icon - color animates via TweenAnimationBuilder
-                        TweenAnimationBuilder<Color?>(
-                          duration: AppAnimations.fast,
-                          tween: ColorTween(
-                            begin: isSelected ? AppColors.textMuted : AppColors.primaryAccent,
-                            end: isSelected ? AppColors.primaryAccent : AppColors.textMuted,
-                          ),
-                          builder: (context, color, _) => Icon(
-                            isSelected ? item.activeIcon : item.icon,
-                            color: color,
-                            size: AppSpacing.iconSm,
-                          ),
+                  )
+                : null,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                // Icon with animation
+                AnimatedScale(
+                  scale: isSelected ? 1.1 : 1.0,
+                  duration: const Duration(milliseconds: 200),
+                  curve: Curves.easeOutCubic,
+                  child: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 250),
+                    switchInCurve: Curves.easeOutCubic,
+                    switchOutCurve: Curves.easeInCubic,
+                    transitionBuilder: (child, animation) {
+                      return FadeTransition(
+                        opacity: animation,
+                        child: ScaleTransition(
+                          scale: Tween<double>(begin: 0.8, end: 1.0).animate(animation),
+                          child: child,
                         ),
-                        // Badge
-                        if (item.badge != null)
-                          Positioned(
-                            right: 6,
-                            top: 4,
-                            child: Container(
-                              padding: const EdgeInsets.all(3),
-                              constraints: const BoxConstraints(
-                                minWidth: 14,
-                                minHeight: 14,
-                              ),
-                              decoration: BoxDecoration(
-                                color: AppColors.error,
-                                borderRadius: AppSpacing.borderRadiusFull,
-                                border: Border.all(
-                                  color: AppColors.primarySurface,
-                                  width: 1.5,
-                                ),
-                              ),
-                              child: Text(
-                                item.badge!,
-                                style: AppTypography.labelSmall.copyWith(
-                                  color: AppColors.textPrimary,
-                                  fontSize: 8,
-                                  height: 1,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                          ),
-                      ],
+                      );
+                    },
+                    child: Icon(
+                      isSelected ? item.activeIcon : item.icon,
+                      key: ValueKey('${item.label}_$isSelected'),
+                      color: iconColor,
+                      size: 24,
                     ),
                   ),
                 ),
-                AppSpacing.gapXs,
-                // Label
-                AnimatedDefaultTextStyle(
-                  duration: AppAnimations.fast,
-                  curve: AppAnimations.easeOut,
-                  style: AppTypography.labelSmall.copyWith(
-                    color: isSelected
-                        ? AppColors.primaryAccent
-                        : AppColors.textMuted,
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                    fontSize: 10,
+                // Badge
+                if (item.badge != null)
+                  Positioned(
+                    right: 0,
+                    top: 0,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                      constraints: const BoxConstraints(minWidth: 16),
+                      decoration: BoxDecoration(
+                        color: AppColors.error,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: AppColors.primarySurface,
+                          width: 1.5,
+                        ),
+                      ),
+                      child: Text(
+                        item.badge!,
+                        style: AppTypography.labelSmall.copyWith(
+                          color: Colors.white,
+                          fontSize: 9,
+                          height: 1,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
                   ),
-                  child: Text(
-                    item.label,
-                    textAlign: TextAlign.center,
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
-                  ),
-                ),
               ],
-            );
-          },
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCenterButton(NavItem item, int index, bool isSelected) {
-    return GestureDetector(
-      onTap: () => _handleTap(index),
-      child: AnimatedBuilder(
-        animation: _scaleAnimations[index],
-        builder: (context, child) {
-          return Transform.scale(
-            scale: isSelected ? 1.0 : _scaleAnimations[index].value,
-            child: Container(
-              width: 56,
-              height: 56,
-              decoration: BoxDecoration(
-                gradient: isSelected
-                    ? AppColors.accentGradient
-                    : AppColors.primaryGradient,
-                borderRadius: AppSpacing.borderRadiusFull,
-                boxShadow: [
-                  BoxShadow(
-                    color: (isSelected
-                            ? AppColors.neonCyan
-                            : AppColors.primaryAccent)
-                        .withValues(alpha: 0.5),
-                    blurRadius: 20,
-                    offset: const Offset(0, 8),
-                  ),
-                  if (isSelected)
-                    BoxShadow(
-                      color: AppColors.neonCyan.withValues(alpha: 0.3),
-                      blurRadius: 30,
-                      spreadRadius: 5,
-                    ),
-                ],
-              ),
-              child: Icon(
-                isSelected ? item.activeIcon : item.icon,
-                color: AppColors.textPrimary,
-                size: AppSpacing.iconMd,
-              ),
             ),
-          );
-        },
+          ),
+          const SizedBox(height: 4),
+          // Label
+          AnimatedDefaultTextStyle(
+            duration: const Duration(milliseconds: 200),
+            style: AppTypography.labelSmall.copyWith(
+              color: labelColor,
+              fontSize: 12,
+              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+              letterSpacing: isSelected ? 0.1 : 0,
+            ),
+            child: Text(
+              item.label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -344,9 +323,9 @@ class NavItems {
   );
 
   static const transactions = NavItem(
-    icon: Icons.swap_horiz_outlined,
-    activeIcon: Icons.swap_horiz_rounded,
-    label: 'Transactions',
+    icon: Icons.receipt_long_outlined,
+    activeIcon: Icons.receipt_long_rounded,
+    label: 'Activity',
   );
 
   static const aiAssistant = NavItem(
@@ -356,9 +335,9 @@ class NavItems {
   );
 
   static const reports = NavItem(
-    icon: Icons.bar_chart_outlined,
-    activeIcon: Icons.bar_chart_rounded,
-    label: 'Reports',
+    icon: Icons.insights_outlined,
+    activeIcon: Icons.insights_rounded,
+    label: 'Insights',
   );
 
   static const settings = NavItem(
