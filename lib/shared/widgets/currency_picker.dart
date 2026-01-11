@@ -55,20 +55,9 @@ class _CurrencyPickerState extends ConsumerState<CurrencyPicker> {
             child: Row(
               children: [
                 if (widget.selectedCurrency != null && widget.showSymbol) ...[
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: AppColors.primaryAccent.withValues(alpha: 0.2),
-                      borderRadius: AppSpacing.borderRadiusSm,
-                    ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      CurrencyInfo.getSymbol(widget.selectedCurrency!),
-                      style: AppTypography.titleMedium.copyWith(
-                        color: AppColors.primaryAccent,
-                      ),
-                    ),
+                  _buildCurrencySymbolBox(
+                    CurrencyInfo.getSymbol(widget.selectedCurrency!),
+                    widget.selectedCurrency!,
                   ),
                   AppSpacing.gapHMd,
                 ],
@@ -109,6 +98,32 @@ class _CurrencyPickerState extends ConsumerState<CurrencyPicker> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildCurrencySymbolBox(String symbol, String code) {
+    final displayText = symbol.length > 3 ? code.substring(0, 3) : symbol;
+    final fontSize = displayText.length > 2 ? 12.0 : 16.0;
+
+    return Container(
+      width: 40,
+      height: 40,
+      decoration: BoxDecoration(
+        color: AppColors.primaryAccent.withValues(alpha: 0.2),
+        borderRadius: AppSpacing.borderRadiusSm,
+      ),
+      alignment: Alignment.center,
+      padding: const EdgeInsets.all(4),
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Text(
+          displayText,
+          style: AppTypography.titleMedium.copyWith(
+            color: AppColors.primaryAccent,
+            fontSize: fontSize,
+          ),
+        ),
+      ),
     );
   }
 
@@ -254,24 +269,10 @@ class _CurrencyPickerSheetState extends ConsumerState<_CurrencyPickerSheet> {
                   final symbol = CurrencyInfo.getSymbol(code);
 
                   return ListTile(
-                    leading: Container(
-                      width: 44,
-                      height: 44,
-                      decoration: BoxDecoration(
-                        color: isSelected
-                            ? AppColors.primaryAccent.withValues(alpha: 0.2)
-                            : AppColors.glassWhite,
-                        borderRadius: AppSpacing.borderRadiusSm,
-                      ),
-                      alignment: Alignment.center,
-                      child: Text(
-                        symbol,
-                        style: AppTypography.titleMedium.copyWith(
-                          color: isSelected
-                              ? AppColors.primaryAccent
-                              : AppColors.textPrimary,
-                        ),
-                      ),
+                    leading: _CurrencySymbolBox(
+                      symbol: symbol,
+                      code: code,
+                      isSelected: isSelected,
                     ),
                     title: Text(
                       code,
@@ -339,6 +340,50 @@ class CurrencyDropdown extends ConsumerWidget {
         );
       }).toList(),
       onChanged: onChanged,
+    );
+  }
+}
+
+/// Reusable widget for displaying currency symbols that adapts to length
+class _CurrencySymbolBox extends StatelessWidget {
+  final String symbol;
+  final String code;
+  final bool isSelected;
+  final double size;
+
+  const _CurrencySymbolBox({
+    required this.symbol,
+    required this.code,
+    this.isSelected = false,
+    this.size = 44,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final displayText = symbol.length > 3 ? code.substring(0, 3) : symbol;
+    final fontSize = displayText.length > 2 ? 12.0 : 16.0;
+
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: isSelected
+            ? AppColors.primaryAccent.withValues(alpha: 0.2)
+            : AppColors.glassWhite,
+        borderRadius: AppSpacing.borderRadiusSm,
+      ),
+      alignment: Alignment.center,
+      padding: const EdgeInsets.all(4),
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Text(
+          displayText,
+          style: AppTypography.titleMedium.copyWith(
+            color: isSelected ? AppColors.primaryAccent : AppColors.textPrimary,
+            fontSize: fontSize,
+          ),
+        ),
+      ),
     );
   }
 }

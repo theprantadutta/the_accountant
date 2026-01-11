@@ -335,10 +335,15 @@ class _ExchangeRateTile extends StatelessWidget {
             borderRadius: AppSpacing.borderRadiusSm,
           ),
           alignment: Alignment.center,
-          child: Text(
-            symbol,
-            style: AppTypography.titleMedium.copyWith(
-              color: AppColors.primaryAccent,
+          padding: const EdgeInsets.all(4),
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              symbol.length > 3 ? currencyCode.substring(0, 3) : symbol,
+              style: AppTypography.titleMedium.copyWith(
+                color: AppColors.primaryAccent,
+                fontSize: symbol.length > 2 ? 14 : 18,
+              ),
             ),
           ),
         ),
