@@ -7,7 +7,7 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:the_accountant/core/services/wallet_balance_service.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart' as db;
-import 'package:the_accountant/data/datasources/local/app_database.dart' show AppDatabase, TransactionsCompanion;
+import 'package:the_accountant/data/datasources/local/app_database.dart' show AppDatabase, TransactionsCompanion, SyncStatus;
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
 import 'package:the_accountant/data/models/transaction.dart' show TransactionSpecialType;
 import 'package:the_accountant/features/ai/services/category_assignment_service.dart';
@@ -356,6 +356,8 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
         transactionIsIncome = type == 'income';
       }
 
+      // Preserve ALL fields from existing transaction to prevent data loss
+      // when using replace() which requires all columns
       final updatedTransaction = TransactionsCompanion(
         id: Value(id),
         amount: Value(amount ?? existing.amount),
@@ -366,22 +368,73 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
         date: Value(date ?? existing.date),
         notes: Value(notes ?? existing.notes),
         paymentMethodId: Value(paymentMethodId ?? paymentMethod ?? existing.paymentMethodId),
+        // Preserve transaction metadata fields
+        transactionType: Value(existing.transactionType),
+        specialType: Value(existing.specialType),
+        isPaid: Value(existing.isPaid),
+        originalDueDate: Value(existing.originalDueDate),
+        skipPaid: Value(existing.skipPaid),
+        // Preserve assignment fields
+        budgetId: Value(existing.budgetId),
+        objectiveId: Value(existing.objectiveId),
+        recurringConfigId: Value(existing.recurringConfigId),
+        pairedTransactionId: Value(existing.pairedTransactionId),
+        // Preserve other metadata
+        receiptImageUrl: Value(existing.receiptImageUrl),
+        serverId: Value(existing.serverId),
+        syncStatus: Value(SyncStatus.pendingUpdate),
+        deletedAt: Value(existing.deletedAt),
+        // Timestamps
         createdAt: Value(existing.createdAt),
         updatedAt: Value(DateTime.now()),
       );
 
       await _db.updateTransaction(updatedTransaction);
 
-      // Recalculate wallet balance for affected wallet(s)
-      // This handles all cases: amount change, wallet change, type change
-      final affectedWalletIds = <String>{};
-      affectedWalletIds.add(existing.walletId);
-      if (walletId != null && walletId != existing.walletId) {
-        affectedWalletIds.add(walletId);
-      }
+      // Handle wallet balance updates using incremental approach
+      // This preserves initial balances instead of recalculating from scratch
+      final oldWalletId = existing.walletId;
+      final newWalletId = walletId ?? existing.walletId;
+      final oldAmount = existing.amount;
+      final newAmount = amount ?? existing.amount;
+      final oldIsIncome = existing.isIncome;
+      final newIsIncome = transactionIsIncome ?? existing.isIncome;
 
-      for (final wId in affectedWalletIds) {
-        await _walletBalanceService.updateWalletBalance(wId);
+      // Only process if the transaction was/is paid
+      final wasPaid = existing.isPaid;
+
+      if (wasPaid) {
+        if (oldWalletId == newWalletId) {
+          // Same wallet - only update if amount or type changed
+          if (oldAmount != newAmount || oldIsIncome != newIsIncome) {
+            // Reverse old effect
+            await _walletBalanceService.updateBalanceAfterTransaction(
+              walletId: oldWalletId,
+              amount: oldAmount,
+              isIncome: !oldIsIncome, // Reverse
+            );
+            // Apply new effect
+            await _walletBalanceService.updateBalanceAfterTransaction(
+              walletId: newWalletId,
+              amount: newAmount,
+              isIncome: newIsIncome,
+            );
+          }
+        } else {
+          // Wallet changed - reverse from old, apply to new
+          // Reverse effect on old wallet
+          await _walletBalanceService.updateBalanceAfterTransaction(
+            walletId: oldWalletId,
+            amount: oldAmount,
+            isIncome: !oldIsIncome, // Reverse the effect
+          );
+          // Apply effect on new wallet
+          await _walletBalanceService.updateBalanceAfterTransaction(
+            walletId: newWalletId,
+            amount: newAmount,
+            isIncome: newIsIncome,
+          );
+        }
       }
 
       // Refresh wallet provider to reflect new balance
