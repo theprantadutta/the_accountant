@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/core/services/daily_reminder_scheduler.dart';
@@ -375,6 +376,8 @@ class _NotificationDebugSectionState extends State<_NotificationDebugSection> {
   bool _hasPendingReminder = false;
   bool _isLoading = true;
   int _pendingCount = 0;
+  String _deviceTimezone = 'Loading...';
+  String _scheduledTimezone = 'Loading...';
 
   @override
   void initState() {
@@ -388,12 +391,22 @@ class _NotificationDebugSectionState extends State<_NotificationDebugSection> {
     final hasPermission = await scheduler.hasExactAlarmPermission();
     final hasPending = await scheduler.isDailyReminderPending();
     final pending = await scheduler.getPendingNotifications();
+    final scheduledTz = await scheduler.getScheduledTimezone();
+
+    // Get device timezone
+    String deviceTz = 'Unknown';
+    try {
+      final tzInfo = await FlutterTimezone.getLocalTimezone();
+      deviceTz = tzInfo.identifier;
+    } catch (_) {}
 
     if (mounted) {
       setState(() {
         _hasExactAlarmPermission = hasPermission;
         _hasPendingReminder = hasPending;
         _pendingCount = pending.length;
+        _deviceTimezone = deviceTz;
+        _scheduledTimezone = scheduledTz;
         _isLoading = false;
       });
     }
@@ -468,6 +481,22 @@ class _NotificationDebugSectionState extends State<_NotificationDebugSection> {
                 ),
               ),
               const Divider(height: 1, indent: 16, endIndent: 16),
+              // Device Timezone
+              ListTile(
+                leading: const Icon(
+                  Icons.public,
+                  color: AppColors.info,
+                ),
+                title: const Text(
+                  'Device Timezone',
+                  style: TextStyle(color: AppColors.textPrimary),
+                ),
+                subtitle: Text(
+                  _isLoading ? 'Checking...' : _deviceTimezone,
+                  style: const TextStyle(color: AppColors.textSecondary),
+                ),
+              ),
+              const Divider(height: 1, indent: 16, endIndent: 16),
               // Pending Notifications
               ListTile(
                 leading: Icon(
@@ -485,7 +514,7 @@ class _NotificationDebugSectionState extends State<_NotificationDebugSection> {
                 subtitle: Text(
                   _isLoading
                       ? 'Checking...'
-                      : '$_pendingCount pending (daily reminder: ${_hasPendingReminder ? "Yes" : "No"})',
+                      : '$_pendingCount pending (daily: ${_hasPendingReminder ? "Yes" : "No"}, tz: $_scheduledTimezone)',
                   style: const TextStyle(color: AppColors.textSecondary),
                 ),
                 trailing: IconButton(
