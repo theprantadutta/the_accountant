@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:logger/logger.dart';
 import 'package:the_accountant/core/services/api_service.dart';
+import 'package:the_accountant/core/services/notification_service.dart';
 
 /// State for notification preferences synced with the backend.
 class NotificationPreferencesState {
@@ -80,6 +81,7 @@ class NotificationPreferencesState {
 class NotificationPreferencesNotifier
     extends StateNotifier<NotificationPreferencesState> {
   final ApiService _apiService;
+  final NotificationService _notificationService = NotificationService();
   final Logger _logger = Logger();
 
   NotificationPreferencesNotifier(this._apiService)
@@ -129,12 +131,29 @@ class NotificationPreferencesNotifier
       );
 
       _logger.i('Notification preferences loaded successfully');
+
+      // Sync local scheduled notification with loaded preferences
+      await _syncLocalDailyReminder();
     } catch (e) {
       _logger.e('Failed to load notification preferences: $e');
       state = state.copyWith(
         isLoading: false,
         errorMessage: 'Failed to load preferences',
       );
+    }
+  }
+
+  /// Sync the local scheduled notification with current state.
+  Future<void> _syncLocalDailyReminder() async {
+    try {
+      await _notificationService.updateDailyReminder(
+        enabled: state.dailyReminderEnabled,
+        time: state.dailyReminderTime,
+        timezone: state.dailyReminderTimezone,
+      );
+      _logger.i('Local daily reminder synced');
+    } catch (e) {
+      _logger.e('Failed to sync local daily reminder: $e');
     }
   }
 
@@ -155,6 +174,8 @@ class NotificationPreferencesNotifier
   Future<void> setDailyReminderEnabled(bool enabled) async {
     state = state.copyWith(dailyReminderEnabled: enabled);
     await _updatePreference({'daily_reminder_enabled': enabled});
+    // Update local scheduled notification
+    await _syncLocalDailyReminder();
   }
 
   /// Set daily reminder time.
@@ -164,12 +185,16 @@ class NotificationPreferencesNotifier
     final timeStr =
         '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}:00';
     await _updatePreference({'daily_reminder_time': timeStr});
+    // Update local scheduled notification
+    await _syncLocalDailyReminder();
   }
 
   /// Set daily reminder timezone.
   Future<void> setDailyReminderTimezone(String timezone) async {
     state = state.copyWith(dailyReminderTimezone: timezone);
     await _updatePreference({'daily_reminder_timezone': timezone});
+    // Update local scheduled notification
+    await _syncLocalDailyReminder();
   }
 
   /// Toggle budget alerts.

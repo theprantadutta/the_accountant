@@ -92,39 +92,31 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar>
         height: 80,
         child: Stack(
           children: [
-            // Animated pill indicator
-            AnimatedBuilder(
-              animation: _animation,
-              builder: (context, child) {
-                final itemWidth = screenWidth / widget.items.length;
-                const pillWidth = 64.0;
+            // Animated pill indicator (hidden when AI tab is selected)
+            if (!isAiSelected)
+              AnimatedBuilder(
+                animation: _animation,
+                builder: (context, child) {
+                  final itemWidth = screenWidth / widget.items.length;
+                  const pillWidth = 64.0;
 
-                final previousX = _previousIndex * itemWidth + (itemWidth - pillWidth) / 2;
-                final currentX = widget.currentIndex * itemWidth + (itemWidth - pillWidth) / 2;
-                final x = previousX + (currentX - previousX) * _animation.value;
+                  final previousX = _previousIndex * itemWidth + (itemWidth - pillWidth) / 2;
+                  final currentX = widget.currentIndex * itemWidth + (itemWidth - pillWidth) / 2;
+                  final x = previousX + (currentX - previousX) * _animation.value;
 
-                return Transform.translate(
-                  offset: Offset(x, 12),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    width: pillWidth,
-                    height: 32,
-                    decoration: BoxDecoration(
-                      gradient: isAiSelected
-                          ? LinearGradient(
-                              colors: [
-                                AppColors.primaryAccent.withValues(alpha: 0.3),
-                                AppColors.neonCyan.withValues(alpha: 0.2),
-                              ],
-                            )
-                          : null,
-                      color: isAiSelected ? null : AppColors.primaryAccent.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(16),
+                  return Transform.translate(
+                    offset: Offset(x, 12),
+                    child: Container(
+                      width: pillWidth,
+                      height: 32,
+                      decoration: BoxDecoration(
+                        color: AppColors.primaryAccent.withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
                     ),
-                  ),
-                );
-              },
-            ),
+                  );
+                },
+              ),
             // Navigation items
             Row(
               children: List.generate(widget.items.length, (index) {

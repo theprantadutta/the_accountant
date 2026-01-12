@@ -1,0 +1,220 @@
+import 'dart:convert';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_timezone/flutter_timezone.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:timezone/data/latest_all.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
+
+/// Service for scheduling daily expense reminder notifications locally.
+/// Uses flutter_local_notifications with zonedSchedule for precise timing.
+class DailyReminderScheduler {
+  static final DailyReminderScheduler _instance = DailyReminderScheduler._internal();
+  factory DailyReminderScheduler() => _instance;
+  DailyReminderScheduler._internal();
+
+  static const int _dailyReminderId = 1001;
+  static const String _channelId = 'daily_reminder_channel';
+  static const String _channelName = 'Daily Reminders';
+  static const String _channelDescription = 'Daily expense reminder notifications';
+
+  // Local storage keys
+  static const String _keyEnabled = 'daily_reminder_enabled';
+  static const String _keyTime = 'daily_reminder_time';
+  static const String _keyTimezone = 'daily_reminder_timezone';
+
+  final FlutterLocalNotificationsPlugin _notificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+
+  bool _isInitialized = false;
+
+  /// Initialize the scheduler and timezone database
+  Future<void> initialize() async {
+    if (_isInitialized) return;
+
+    // Initialize timezone database
+    tz.initializeTimeZones();
+
+    // Get device timezone and set as local
+    try {
+      final timezoneInfo = await FlutterTimezone.getLocalTimezone();
+      tz.setLocalLocation(tz.getLocation(timezoneInfo.identifier));
+      debugPrint('DailyReminderScheduler: Device timezone: ${timezoneInfo.identifier}');
+    } catch (e) {
+      debugPrint('DailyReminderScheduler: Failed to get device timezone: $e');
+      // Fallback to UTC if device timezone can't be determined
+      tz.setLocalLocation(tz.UTC);
+    }
+
+    _isInitialized = true;
+    debugPrint('DailyReminderScheduler: Initialized');
+
+    // Restore scheduled reminder from local storage
+    await _restoreScheduledReminder();
+  }
+
+  /// Restore previously scheduled reminder on app start
+  Future<void> _restoreScheduledReminder() async {
+    final prefs = await SharedPreferences.getInstance();
+    final enabled = prefs.getBool(_keyEnabled) ?? false;
+
+    if (enabled) {
+      final timeStr = prefs.getString(_keyTime);
+      final timezone = prefs.getString(_keyTimezone) ?? 'UTC';
+
+      if (timeStr != null) {
+        final parts = timeStr.split(':');
+        if (parts.length == 2) {
+          final time = TimeOfDay(
+            hour: int.parse(parts[0]),
+            minute: int.parse(parts[1]),
+          );
+          await scheduleDailyReminder(time: time, timezone: timezone);
+          debugPrint('DailyReminderScheduler: Restored reminder at $timeStr ($timezone)');
+        }
+      }
+    }
+  }
+
+  /// Schedule a daily reminder at the specified time
+  Future<void> scheduleDailyReminder({
+    required TimeOfDay time,
+    required String timezone,
+  }) async {
+    if (!_isInitialized) {
+      await initialize();
+    }
+
+    // Cancel any existing reminder first
+    await cancelDailyReminder();
+
+    // Get the timezone location
+    tz.Location location;
+    try {
+      location = tz.getLocation(timezone);
+    } catch (e) {
+      debugPrint('DailyReminderScheduler: Invalid timezone $timezone, using device local');
+      location = tz.local;
+    }
+
+    // Calculate the next scheduled time
+    final now = tz.TZDateTime.now(location);
+    var scheduledDate = tz.TZDateTime(
+      location,
+      now.year,
+      now.month,
+      now.day,
+      time.hour,
+      time.minute,
+    );
+
+    // If the time has already passed today, schedule for tomorrow
+    if (scheduledDate.isBefore(now)) {
+      scheduledDate = scheduledDate.add(const Duration(days: 1));
+    }
+
+    // Notification details
+    const androidDetails = AndroidNotificationDetails(
+      _channelId,
+      _channelName,
+      channelDescription: _channelDescription,
+      importance: Importance.high,
+      priority: Priority.high,
+      icon: '@mipmap/ic_launcher',
+      enableLights: true,
+      enableVibration: true,
+    );
+
+    const iosDetails = DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: true,
+    );
+
+    const notificationDetails = NotificationDetails(
+      android: androidDetails,
+      iOS: iosDetails,
+    );
+
+    // Payload for handling notification tap
+    final payload = jsonEncode({
+      'action': 'open_add_transaction',
+      'notificationType': 'DailyReminder',
+    });
+
+    // Schedule the notification with daily recurrence
+    await _notificationsPlugin.zonedSchedule(
+      _dailyReminderId,
+      'Daily Expense Reminder',
+      "Don't forget to log your expenses today! Keep track of your spending.",
+      scheduledDate,
+      notificationDetails,
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      matchDateTimeComponents: DateTimeComponents.time, // Daily at same time
+      payload: payload,
+    );
+
+    // Save to local storage
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_keyEnabled, true);
+    await prefs.setString(_keyTime, '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}');
+    await prefs.setString(_keyTimezone, timezone);
+
+    debugPrint('DailyReminderScheduler: Scheduled daily reminder at ${time.hour}:${time.minute} ($timezone)');
+    debugPrint('DailyReminderScheduler: Next notification: $scheduledDate');
+  }
+
+  /// Cancel the daily reminder
+  Future<void> cancelDailyReminder() async {
+    await _notificationsPlugin.cancel(_dailyReminderId);
+
+    // Update local storage
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_keyEnabled, false);
+
+    debugPrint('DailyReminderScheduler: Cancelled daily reminder');
+  }
+
+  /// Check if a daily reminder is currently scheduled
+  Future<bool> isReminderScheduled() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_keyEnabled) ?? false;
+  }
+
+  /// Get the currently scheduled reminder time
+  Future<TimeOfDay?> getScheduledTime() async {
+    final prefs = await SharedPreferences.getInstance();
+    final timeStr = prefs.getString(_keyTime);
+
+    if (timeStr != null) {
+      final parts = timeStr.split(':');
+      if (parts.length == 2) {
+        return TimeOfDay(
+          hour: int.parse(parts[0]),
+          minute: int.parse(parts[1]),
+        );
+      }
+    }
+    return null;
+  }
+
+  /// Get the currently scheduled timezone
+  Future<String> getScheduledTimezone() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_keyTimezone) ?? 'UTC';
+  }
+
+  /// Update reminder settings (convenience method)
+  Future<void> updateReminder({
+    required bool enabled,
+    required TimeOfDay time,
+    required String timezone,
+  }) async {
+    if (enabled) {
+      await scheduleDailyReminder(time: time, timezone: timezone);
+    } else {
+      await cancelDailyReminder();
+    }
+  }
+}

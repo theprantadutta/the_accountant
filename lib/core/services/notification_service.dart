@@ -3,6 +3,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:the_accountant/core/services/fcm_registration_service.dart';
+import 'package:the_accountant/core/services/daily_reminder_scheduler.dart';
 
 class NotificationService {
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
@@ -10,6 +11,8 @@ class NotificationService {
       FlutterLocalNotificationsPlugin();
   final FcmRegistrationService _fcmRegistrationService =
       FcmRegistrationService();
+  final DailyReminderScheduler _dailyReminderScheduler =
+      DailyReminderScheduler();
   final Logger _logger = Logger();
 
   static final NotificationService _instance = NotificationService._internal();
@@ -77,6 +80,9 @@ class NotificationService {
     if (initialMessage != null) {
       _handleNotificationTap(initialMessage);
     }
+
+    // Initialize daily reminder scheduler (timezone + restore scheduled reminders)
+    await _dailyReminderScheduler.initialize();
   }
 
   /// Register FCM token with the backend (called when user is authenticated).
@@ -181,12 +187,39 @@ class NotificationService {
     _firebaseMessaging.unsubscribeFromTopic(topic);
   }
 
-  // Schedule a daily reminder notification
-  Future<void> scheduleDailyReminder({TimeOfDay? time}) async {
-    // For simplicity, we'll just show a notification immediately
-    // In a real implementation, you would use a package like flutter_local_notifications
-    // to schedule recurring notifications
-    await showDailyReminderNotification();
+  /// Schedule a daily reminder notification at the specified time.
+  /// Uses DailyReminderScheduler for proper timezone-aware scheduling.
+  Future<void> scheduleDailyReminder({
+    required TimeOfDay time,
+    String timezone = 'UTC',
+  }) async {
+    await _dailyReminderScheduler.scheduleDailyReminder(
+      time: time,
+      timezone: timezone,
+    );
+  }
+
+  /// Cancel the scheduled daily reminder.
+  Future<void> cancelDailyReminder() async {
+    await _dailyReminderScheduler.cancelDailyReminder();
+  }
+
+  /// Update daily reminder settings.
+  Future<void> updateDailyReminder({
+    required bool enabled,
+    required TimeOfDay time,
+    required String timezone,
+  }) async {
+    await _dailyReminderScheduler.updateReminder(
+      enabled: enabled,
+      time: time,
+      timezone: timezone,
+    );
+  }
+
+  /// Check if daily reminder is scheduled.
+  Future<bool> isDailyReminderScheduled() async {
+    return await _dailyReminderScheduler.isReminderScheduled();
   }
 
   // Cancel all scheduled notifications
