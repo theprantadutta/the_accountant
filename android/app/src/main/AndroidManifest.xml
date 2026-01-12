@@ -4,8 +4,10 @@
     <!-- Required for scheduled/exact notifications -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <uses-permission android:name="android.permission.VIBRATE"/>
-    <!-- Required for exact alarm scheduling on Android 14+ -->
+    <!-- Required for exact alarm scheduling on Android 12+ -->
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
+    <!-- Required for exact alarm scheduling on Android 14+ -->
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM"/>
 
     <application
         android:label="The Accountant"

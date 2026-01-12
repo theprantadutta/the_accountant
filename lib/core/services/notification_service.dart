@@ -2,6 +2,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:the_accountant/core/services/fcm_registration_service.dart';
 import 'package:the_accountant/core/services/daily_reminder_scheduler.dart';
 
@@ -148,15 +149,52 @@ class NotificationService {
     );
   }
 
+  // Local storage key prefix for budget notification tracking
+  static const String _keyLastBudgetNotification = 'last_budget_notification_';
+
+  /// Check if a budget notification should be shown (24-hour cooldown)
+  Future<bool> _shouldShowBudgetNotification(String budgetId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final lastNotified = prefs.getString('$_keyLastBudgetNotification$budgetId');
+    if (lastNotified == null) return true;
+
+    final lastDate = DateTime.parse(lastNotified);
+    return DateTime.now().difference(lastDate).inHours >= 24;
+  }
+
+  /// Record that a budget notification was shown
+  Future<void> _recordBudgetNotification(String budgetId) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+      '$_keyLastBudgetNotification$budgetId',
+      DateTime.now().toIso8601String(),
+    );
+  }
+
   Future<void> showBudgetWarningNotification(
     String budgetName,
-    double percentage,
-  ) async {
+    double percentage, {
+    String? budgetId,
+  }) async {
+    // Use budgetName as ID if no specific ID provided
+    final id = budgetId ?? budgetName;
+
+    // Check if we should show this notification (24-hour cooldown)
+    final shouldShow = await _shouldShowBudgetNotification(id);
+    if (!shouldShow) {
+      _logger.d('Budget notification for $budgetName skipped (cooldown)');
+      return;
+    }
+
     final title = 'Budget Alert: $budgetName';
     final body =
         'You have used ${percentage.toStringAsFixed(0)}% of your $budgetName budget.';
 
-    await _showLocalNotification(title, body, id: budgetName.hashCode);
+    await _showLocalNotification(title, body, id: 2000 + (id.hashCode % 1000));
+
+    // Record that we showed this notification
+    await _recordBudgetNotification(id);
+    _logger.i('Budget warning notification shown for $budgetName');
   }
 
   Future<void> showDailyReminderNotification() async {
@@ -166,13 +204,46 @@ class NotificationService {
     await _showLocalNotification(title, body, id: 'daily_reminder'.hashCode);
   }
 
+  // Local storage key for subscription expiry notification tracking
+  static const String _keyLastSubscriptionWarning = 'last_subscription_expiry_warning';
+
+  /// Check if subscription expiry notification should be shown (24-hour cooldown)
+  Future<bool> _shouldShowSubscriptionNotification() async {
+    final prefs = await SharedPreferences.getInstance();
+    final lastNotified = prefs.getString(_keyLastSubscriptionWarning);
+    if (lastNotified == null) return true;
+
+    final lastDate = DateTime.parse(lastNotified);
+    return DateTime.now().difference(lastDate).inHours >= 24;
+  }
+
+  /// Record that a subscription notification was shown
+  Future<void> _recordSubscriptionNotification() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+      _keyLastSubscriptionWarning,
+      DateTime.now().toIso8601String(),
+    );
+  }
+
   Future<void> showSubscriptionAlertNotification(
     String subscriptionName,
   ) async {
+    // Check if we should show this notification (24-hour cooldown)
+    final shouldShow = await _shouldShowSubscriptionNotification();
+    if (!shouldShow) {
+      _logger.d('Subscription notification skipped (cooldown)');
+      return;
+    }
+
     final title = 'Subscription Alert';
     final body = 'Your $subscriptionName subscription is due soon.';
 
-    await _showLocalNotification(title, body, id: subscriptionName.hashCode);
+    await _showLocalNotification(title, body, id: 5000);
+
+    // Record that we showed this notification
+    await _recordSubscriptionNotification();
+    _logger.i('Subscription expiry notification shown for $subscriptionName');
   }
 
   Future<String?> getToken() async {

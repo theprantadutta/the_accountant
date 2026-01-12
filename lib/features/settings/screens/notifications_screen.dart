@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
+import 'package:the_accountant/core/services/daily_reminder_scheduler.dart';
 import 'package:the_accountant/features/settings/providers/notification_preferences_provider.dart';
 import 'package:the_accountant/features/settings/widgets/settings_tile.dart';
 
@@ -223,6 +224,9 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                   ],
                 ),
 
+                // DEBUG SECTION
+                _NotificationDebugSection(),
+
                 SizedBox(height: AppSpacing.xxl),
               ],
             ),
@@ -357,5 +361,170 @@ class _ReminderTimeTile extends StatelessWidget {
     final minute = time.minute.toString().padLeft(2, '0');
     final period = time.period == DayPeriod.am ? 'AM' : 'PM';
     return '$hour:$minute $period';
+  }
+}
+
+/// Debug section to test notifications
+class _NotificationDebugSection extends StatefulWidget {
+  @override
+  State<_NotificationDebugSection> createState() => _NotificationDebugSectionState();
+}
+
+class _NotificationDebugSectionState extends State<_NotificationDebugSection> {
+  bool _hasExactAlarmPermission = false;
+  bool _hasPendingReminder = false;
+  bool _isLoading = true;
+  int _pendingCount = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkStatus();
+  }
+
+  Future<void> _checkStatus() async {
+    setState(() => _isLoading = true);
+    final scheduler = DailyReminderScheduler();
+    final hasPermission = await scheduler.hasExactAlarmPermission();
+    final hasPending = await scheduler.isDailyReminderPending();
+    final pending = await scheduler.getPendingNotifications();
+
+    if (mounted) {
+      setState(() {
+        _hasExactAlarmPermission = hasPermission;
+        _hasPendingReminder = hasPending;
+        _pendingCount = pending.length;
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _sendTestNotification() async {
+    HapticFeedback.lightImpact();
+    final scheduler = DailyReminderScheduler();
+    await scheduler.showTestNotification();
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Test notification sent! Check your notifications.'),
+          backgroundColor: AppColors.success,
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(height: AppSpacing.lg),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: AppSpacing.xs),
+          child: Text(
+            'DEBUG',
+            style: TextStyle(
+              color: AppColors.textMuted,
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 1.2,
+            ),
+          ),
+        ),
+        SizedBox(height: AppSpacing.sm),
+        Container(
+          decoration: BoxDecoration(
+            color: AppColors.primarySurface.withValues(alpha: 0.5),
+            borderRadius: AppSpacing.borderRadiusLg,
+          ),
+          child: Column(
+            children: [
+              // Permission Status
+              ListTile(
+                leading: Icon(
+                  _hasExactAlarmPermission
+                      ? Icons.check_circle
+                      : Icons.error_outline,
+                  color: _hasExactAlarmPermission
+                      ? AppColors.success
+                      : AppColors.error,
+                ),
+                title: const Text(
+                  'Exact Alarm Permission',
+                  style: TextStyle(color: AppColors.textPrimary),
+                ),
+                subtitle: Text(
+                  _isLoading
+                      ? 'Checking...'
+                      : _hasExactAlarmPermission
+                          ? 'Granted'
+                          : 'Not granted - notifications may not work',
+                  style: TextStyle(
+                    color: _hasExactAlarmPermission
+                        ? AppColors.textSecondary
+                        : AppColors.error,
+                  ),
+                ),
+              ),
+              const Divider(height: 1, indent: 16, endIndent: 16),
+              // Pending Notifications
+              ListTile(
+                leading: Icon(
+                  _hasPendingReminder
+                      ? Icons.alarm_on
+                      : Icons.alarm_off,
+                  color: _hasPendingReminder
+                      ? AppColors.success
+                      : AppColors.warning,
+                ),
+                title: const Text(
+                  'Scheduled Notifications',
+                  style: TextStyle(color: AppColors.textPrimary),
+                ),
+                subtitle: Text(
+                  _isLoading
+                      ? 'Checking...'
+                      : '$_pendingCount pending (daily reminder: ${_hasPendingReminder ? "Yes" : "No"})',
+                  style: const TextStyle(color: AppColors.textSecondary),
+                ),
+                trailing: IconButton(
+                  icon: const Icon(Icons.refresh, color: AppColors.textSecondary),
+                  onPressed: _checkStatus,
+                ),
+              ),
+              const Divider(height: 1, indent: 16, endIndent: 16),
+              // Test Notification Button
+              ListTile(
+                leading: const Icon(
+                  Icons.notifications_active,
+                  color: AppColors.info,
+                ),
+                title: const Text(
+                  'Send Test Notification',
+                  style: TextStyle(color: AppColors.textPrimary),
+                ),
+                subtitle: const Text(
+                  'Tap to verify notifications work',
+                  style: TextStyle(color: AppColors.textSecondary),
+                ),
+                trailing: ElevatedButton(
+                  onPressed: _sendTestNotification,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.info,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                  ),
+                  child: const Text('Test'),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
   }
 }

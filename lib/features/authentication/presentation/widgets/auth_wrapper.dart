@@ -7,6 +7,8 @@ import 'package:the_accountant/features/onboarding/providers/onboarding_provider
 import 'package:the_accountant/features/onboarding/screens/post_signup_onboarding_screen.dart';
 import 'package:the_accountant/shared/widgets/main_navigation_container.dart';
 import 'package:the_accountant/core/themes/app_theme.dart';
+import 'package:the_accountant/core/services/subscription_expiry_checker.dart';
+import 'package:the_accountant/features/budgets/providers/budget_notification_provider.dart';
 
 class AuthWrapper extends ConsumerStatefulWidget {
   const AuthWrapper({super.key});
@@ -17,6 +19,19 @@ class AuthWrapper extends ConsumerStatefulWidget {
 
 class _AuthWrapperState extends ConsumerState<AuthWrapper> {
   bool _hasCheckedOnboarding = false;
+  bool _hasRunStartupChecks = false;
+
+  /// Run startup notification checks (subscription expiry, budget alerts)
+  Future<void> _runStartupChecks() async {
+    debugPrint('AuthWrapper: Running startup notification checks');
+
+    // Check subscription expiry
+    final subscriptionChecker = SubscriptionExpiryChecker();
+    await subscriptionChecker.checkOnAppOpen(ref);
+
+    // Trigger budget notification check
+    ref.read(budgetNotificationProvider.notifier).checkBudgetsNow();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,14 +69,25 @@ class _AuthWrapperState extends ConsumerState<AuthWrapper> {
         return const PostSignupOnboardingScreen();
       }
 
+      // Run startup notification checks once
+      if (!_hasRunStartupChecks) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _runStartupChecks();
+          setState(() => _hasRunStartupChecks = true);
+        });
+      }
+
       // Show main app
       return const MainNavigationContainer();
     }
 
-    // Reset onboarding check when user logs out
-    if (_hasCheckedOnboarding) {
+    // Reset checks when user logs out
+    if (_hasCheckedOnboarding || _hasRunStartupChecks) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        setState(() => _hasCheckedOnboarding = false);
+        setState(() {
+          _hasCheckedOnboarding = false;
+          _hasRunStartupChecks = false;
+        });
       });
     }
 

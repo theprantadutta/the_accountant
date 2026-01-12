@@ -89,6 +89,7 @@ class BudgetNotificationNotifier
           await NotificationService().showBudgetWarningNotification(
             budget.name,
             percentage,
+            budgetId: budget.id,
           );
         }
       }

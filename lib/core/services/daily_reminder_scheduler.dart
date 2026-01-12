@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -28,6 +29,29 @@ class DailyReminderScheduler {
       FlutterLocalNotificationsPlugin();
 
   bool _isInitialized = false;
+
+  /// Request exact alarm permission on Android 12+
+  /// Returns true if permission is granted, false otherwise
+  Future<bool> _requestExactAlarmPermission() async {
+    if (!Platform.isAndroid) return true;
+
+    final androidPlugin = _notificationsPlugin
+        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+
+    if (androidPlugin != null) {
+      // Check if exact alarms are permitted
+      final canSchedule = await androidPlugin.canScheduleExactNotifications() ?? false;
+      if (!canSchedule) {
+        debugPrint('DailyReminderScheduler: Requesting exact alarm permission');
+        // Request permission - this opens system settings on Android 12+
+        final granted = await androidPlugin.requestExactAlarmsPermission() ?? false;
+        debugPrint('DailyReminderScheduler: Exact alarm permission granted: $granted');
+        return granted;
+      }
+      return true;
+    }
+    return true;
+  }
 
   /// Initialize the scheduler and timezone database
   Future<void> initialize() async {
@@ -86,6 +110,13 @@ class DailyReminderScheduler {
       await initialize();
     }
 
+    // Request exact alarm permission on Android 12+
+    final hasPermission = await _requestExactAlarmPermission();
+    if (!hasPermission) {
+      debugPrint('DailyReminderScheduler: Cannot schedule - exact alarm permission denied');
+      throw Exception('Exact alarm permission is required to schedule daily reminders');
+    }
+
     // Cancel any existing reminder first
     await cancelDailyReminder();
 
@@ -114,16 +145,19 @@ class DailyReminderScheduler {
       scheduledDate = scheduledDate.add(const Duration(days: 1));
     }
 
-    // Notification details
+    // Notification details - fullScreenIntent ensures heads-up display even in foreground
     const androidDetails = AndroidNotificationDetails(
       _channelId,
       _channelName,
       channelDescription: _channelDescription,
-      importance: Importance.high,
-      priority: Priority.high,
+      importance: Importance.max,
+      priority: Priority.max,
       icon: '@mipmap/ic_launcher',
       enableLights: true,
       enableVibration: true,
+      fullScreenIntent: true, // Shows as heads-up even when app is in foreground
+      category: AndroidNotificationCategory.reminder,
+      visibility: NotificationVisibility.public,
     );
 
     const iosDetails = DarwinNotificationDetails(
@@ -144,16 +178,30 @@ class DailyReminderScheduler {
     });
 
     // Schedule the notification with daily recurrence
-    await _notificationsPlugin.zonedSchedule(
-      _dailyReminderId,
-      'Daily Expense Reminder',
-      "Don't forget to log your expenses today! Keep track of your spending.",
-      scheduledDate,
-      notificationDetails,
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      matchDateTimeComponents: DateTimeComponents.time, // Daily at same time
-      payload: payload,
-    );
+    try {
+      await _notificationsPlugin.zonedSchedule(
+        _dailyReminderId,
+        'Daily Expense Reminder',
+        "Don't forget to log your expenses today! Keep track of your spending.",
+        scheduledDate,
+        notificationDetails,
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        matchDateTimeComponents: DateTimeComponents.time, // Daily at same time
+        payload: payload,
+      );
+    } catch (e) {
+      debugPrint('DailyReminderScheduler: Failed to schedule notification: $e');
+      rethrow;
+    }
+
+    // Verify the notification was scheduled
+    final pending = await _notificationsPlugin.pendingNotificationRequests();
+    final isScheduled = pending.any((n) => n.id == _dailyReminderId);
+    debugPrint('DailyReminderScheduler: Notification scheduled successfully: $isScheduled');
+
+    if (!isScheduled) {
+      debugPrint('DailyReminderScheduler: WARNING - Notification not found in pending list!');
+    }
 
     // Save to local storage
     final prefs = await SharedPreferences.getInstance();
@@ -216,5 +264,73 @@ class DailyReminderScheduler {
     } else {
       await cancelDailyReminder();
     }
+  }
+
+  /// Get list of pending notifications (for debugging)
+  Future<List<PendingNotificationRequest>> getPendingNotifications() async {
+    final pending = await _notificationsPlugin.pendingNotificationRequests();
+    debugPrint('DailyReminderScheduler: ${pending.length} pending notifications');
+    for (final notification in pending) {
+      debugPrint('  - ID: ${notification.id}, Title: ${notification.title}');
+    }
+    return pending;
+  }
+
+  /// Check if daily reminder is in pending notifications
+  Future<bool> isDailyReminderPending() async {
+    final pending = await _notificationsPlugin.pendingNotificationRequests();
+    final hasDailyReminder = pending.any((n) => n.id == _dailyReminderId);
+    debugPrint('DailyReminderScheduler: Daily reminder pending: $hasDailyReminder');
+    return hasDailyReminder;
+  }
+
+  /// Show an immediate test notification to verify notifications work
+  Future<void> showTestNotification() async {
+    const androidDetails = AndroidNotificationDetails(
+      _channelId,
+      _channelName,
+      channelDescription: _channelDescription,
+      importance: Importance.max,
+      priority: Priority.max,
+      icon: '@mipmap/ic_launcher',
+      enableLights: true,
+      enableVibration: true,
+      fullScreenIntent: true,
+      category: AndroidNotificationCategory.reminder,
+      visibility: NotificationVisibility.public,
+    );
+
+    const iosDetails = DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: true,
+    );
+
+    const notificationDetails = NotificationDetails(
+      android: androidDetails,
+      iOS: iosDetails,
+    );
+
+    await _notificationsPlugin.show(
+      9999, // Test notification ID
+      'Test Notification',
+      'If you see this, notifications are working!',
+      notificationDetails,
+    );
+
+    debugPrint('DailyReminderScheduler: Test notification sent');
+  }
+
+  /// Check exact alarm permission status
+  Future<bool> hasExactAlarmPermission() async {
+    if (!Platform.isAndroid) return true;
+
+    final androidPlugin = _notificationsPlugin
+        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+
+    if (androidPlugin != null) {
+      return await androidPlugin.canScheduleExactNotifications() ?? false;
+    }
+    return true;
   }
 }
