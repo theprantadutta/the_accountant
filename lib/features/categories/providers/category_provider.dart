@@ -39,6 +39,7 @@ class Category {
   final String id;
   final String name;
   final String colorCode;
+  final String? iconName;
   final String type; // 'expense' or 'income'
   final bool isDefault;
 
@@ -46,6 +47,7 @@ class Category {
     required this.id,
     required this.name,
     required this.colorCode,
+    this.iconName,
     required this.type,
     required this.isDefault,
   });
@@ -97,6 +99,7 @@ class CategoryNotifier extends StateNotifier<CategoryState> {
               id: c.id,
               name: c.name,
               colorCode: c.color,
+              iconName: c.iconName,
               // Use isIncome to determine type (new approach)
               type: c.isIncome ? 'income' : 'expense',
               isDefault: c.isDefault,
