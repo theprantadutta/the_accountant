@@ -19,6 +19,7 @@ import 'package:the_accountant/features/transactions/widgets/date_time_picker.da
 import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
 import 'package:the_accountant/core/providers/currency_provider.dart';
 import 'package:the_accountant/core/services/currency_service.dart';
+import 'package:the_accountant/features/transactions/screens/cashew_transaction_screen.dart';
 
 /// Steps in the transaction creation flow (for expense/income)
 enum AddTransactionStep {
@@ -35,30 +36,15 @@ enum TransferStep {
   options,
 }
 
-/// Helper function to show the add transaction screen
+/// Helper function to show the add transaction screen (uses new Cashew-style screen)
 Future<bool?> showAddTransactionScreen(
   BuildContext context, {
   TransactionTypeSelection initialType = TransactionTypeSelection.expense,
 }) {
-  return Navigator.of(context).push<bool>(
-    PageRouteBuilder(
-      pageBuilder: (context, animation, secondaryAnimation) {
-        return AddTransactionScreen(initialType: initialType);
-      },
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        return SlideTransition(
-          position: Tween<Offset>(
-            begin: const Offset(0, 1),
-            end: Offset.zero,
-          ).animate(CurvedAnimation(
-            parent: animation,
-            curve: AppAnimations.easeOut,
-          )),
-          child: child,
-        );
-      },
-      transitionDuration: AppAnimations.medium,
-    ),
+  // Use the new Cashew-style single-screen form
+  return showCashewTransactionScreen(
+    context,
+    initialType: initialType,
   );
 }
 
