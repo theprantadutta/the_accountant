@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/providers/currency_provider.dart';
@@ -132,12 +133,16 @@ class _CurrencyPickerState extends ConsumerState<CurrencyPicker> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => _CurrencyPickerSheet(
-        selectedCurrency: widget.selectedCurrency,
-        onCurrencySelected: (currency) {
-          widget.onCurrencySelected(currency);
-          Navigator.pop(context);
-        },
+      barrierColor: Colors.black.withValues(alpha: 0.3),
+      builder: (context) => BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        child: _CurrencyPickerSheet(
+          selectedCurrency: widget.selectedCurrency,
+          onCurrencySelected: (currency) {
+            widget.onCurrencySelected(currency);
+            Navigator.pop(context);
+          },
+        ),
       ),
     );
   }
@@ -175,8 +180,9 @@ class _CurrencyPickerSheetState extends ConsumerState<_CurrencyPickerSheet> {
     return Container(
       height: MediaQuery.of(context).size.height * 0.75,
       decoration: BoxDecoration(
-        color: AppColors.primaryDark,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        gradient: AppColors.glassGradient,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        border: Border.all(color: AppColors.glassBorder),
       ),
       child: Column(
         children: [

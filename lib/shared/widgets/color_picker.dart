@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
@@ -79,12 +80,16 @@ class ColorPicker extends StatelessWidget {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => _ColorPickerSheet(
-        selectedColor: selectedColor,
-        onColorSelected: (color) {
-          onColorSelected(color);
-          Navigator.pop(context);
-        },
+      barrierColor: Colors.black.withValues(alpha: 0.3),
+      builder: (context) => BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        child: _ColorPickerSheet(
+          selectedColor: selectedColor,
+          onColorSelected: (color) {
+            onColorSelected(color);
+            Navigator.pop(context);
+          },
+        ),
       ),
     );
   }
@@ -128,8 +133,9 @@ class _ColorPickerSheetState extends State<_ColorPickerSheet> {
     return Container(
       height: MediaQuery.of(context).size.height * 0.6,
       decoration: BoxDecoration(
-        color: AppColors.primaryDark,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        gradient: AppColors.glassGradient,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        border: Border.all(color: AppColors.glassBorder),
       ),
       child: Column(
         children: [

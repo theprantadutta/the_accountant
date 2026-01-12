@@ -1,5 +1,7 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:the_accountant/core/services/currency_service.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/core/themes/app_typography.dart';
@@ -66,6 +68,45 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
   String get selectedIcon => _selectedIcon;
   String get selectedColor => _selectedColor;
   bool get isDefault => _isDefault;
+
+  void _showIconPicker(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      barrierColor: Colors.black.withValues(alpha: 0.3),
+      builder: (context) => BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        child: _IconPickerSheet(
+          selectedIcon: _selectedIcon,
+          selectedColor: WalletColors.parseColor(_selectedColor),
+          onIconSelected: (icon) {
+            setState(() => _selectedIcon = icon);
+            Navigator.pop(context);
+          },
+        ),
+      ),
+    );
+  }
+
+  void _showColorPicker(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      barrierColor: Colors.black.withValues(alpha: 0.3),
+      builder: (context) => BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        child: _ColorPickerSheet(
+          selectedColor: _selectedColor,
+          onColorSelected: (color) {
+            setState(() => _selectedColor = color);
+            Navigator.pop(context);
+          },
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -161,7 +202,7 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 decoration: InputDecoration(
                   hintText: '0.00',
-                  prefixText: '\$ ',
+                  prefixText: '${CurrencyInfo.getSymbol(_selectedCurrency)} ',
                   filled: true,
                   fillColor: AppColors.glassWhite,
                   border: OutlineInputBorder(
@@ -191,26 +232,23 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
 
               // Icon and Color pickers in a row
               Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Icon picker
                   Expanded(
-                    child: IconPicker(
+                    child: _LabeledIconButton(
                       label: 'Icon',
-                      selectedIcon: _selectedIcon,
-                      selectedColor: WalletColors.parseColor(_selectedColor),
-                      onIconSelected: (icon) {
-                        setState(() => _selectedIcon = icon);
-                      },
+                      icon: _selectedIcon,
+                      color: WalletColors.parseColor(_selectedColor),
+                      onTap: () => _showIconPicker(context),
                     ),
                   ),
                   AppSpacing.gapHMd,
+                  // Color picker
                   Expanded(
-                    child: ColorPicker(
+                    child: _LabeledColorButton(
                       label: 'Color',
-                      selectedColor: _selectedColor,
-                      onColorSelected: (color) {
-                        setState(() => _selectedColor = color);
-                      },
+                      color: _selectedColor,
+                      onTap: () => _showColorPicker(context),
                     ),
                   ),
                 ],
@@ -439,6 +477,317 @@ class _CompactWalletFormState extends ConsumerState<CompactWalletForm> {
                 }
               },
               child: const Text('Save Wallet'),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Labeled icon button styled like an input field
+class _LabeledIconButton extends StatelessWidget {
+  final String label;
+  final String icon;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _LabeledIconButton({
+    required this.label,
+    required this.icon,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: AppTypography.labelMedium),
+        AppSpacing.gapSm,
+        InkWell(
+          onTap: onTap,
+          borderRadius: AppSpacing.borderRadiusMd,
+          child: Container(
+            padding: AppSpacing.paddingMd,
+            decoration: BoxDecoration(
+              color: AppColors.glassWhite,
+              borderRadius: AppSpacing.borderRadiusMd,
+              border: Border.all(color: AppColors.glassBorder),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: color.withValues(alpha: 0.2),
+                    borderRadius: AppSpacing.borderRadiusSm,
+                  ),
+                  alignment: Alignment.center,
+                  child: Icon(
+                    WalletIcons.getIcon(icon),
+                    color: color,
+                    size: 24,
+                  ),
+                ),
+                const Spacer(),
+                Icon(
+                  Icons.arrow_drop_down,
+                  color: AppColors.textSecondary,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Labeled color button styled like an input field
+class _LabeledColorButton extends StatelessWidget {
+  final String label;
+  final String color;
+  final VoidCallback onTap;
+
+  const _LabeledColorButton({
+    required this.label,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final parsedColor = WalletColors.parseColor(color);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: AppTypography.labelMedium),
+        AppSpacing.gapSm,
+        InkWell(
+          onTap: onTap,
+          borderRadius: AppSpacing.borderRadiusMd,
+          child: Container(
+            padding: AppSpacing.paddingMd,
+            decoration: BoxDecoration(
+              color: AppColors.glassWhite,
+              borderRadius: AppSpacing.borderRadiusMd,
+              border: Border.all(color: AppColors.glassBorder),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: parsedColor,
+                    borderRadius: AppSpacing.borderRadiusSm,
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.3),
+                      width: 2,
+                    ),
+                  ),
+                ),
+                const Spacer(),
+                Icon(
+                  Icons.arrow_drop_down,
+                  color: AppColors.textSecondary,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Icon picker bottom sheet
+class _IconPickerSheet extends StatelessWidget {
+  final String? selectedIcon;
+  final Color selectedColor;
+  final ValueChanged<String> onIconSelected;
+
+  const _IconPickerSheet({
+    this.selectedIcon,
+    required this.selectedColor,
+    required this.onIconSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final icons = WalletIcons.allIcons;
+
+    return Container(
+      height: MediaQuery.of(context).size.height * 0.5,
+      decoration: BoxDecoration(
+        gradient: AppColors.glassGradient,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        border: Border.all(color: AppColors.glassBorder),
+      ),
+      child: Column(
+        children: [
+          // Handle bar
+          Container(
+            margin: const EdgeInsets.symmetric(vertical: 12),
+            width: 40,
+            height: 4,
+            decoration: BoxDecoration(
+              color: AppColors.glassBorder,
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          // Header
+          Padding(
+            padding: AppSpacing.horizontalPadding(AppSpacing.md),
+            child: Row(
+              children: [
+                Text('Select Icon', style: AppTypography.titleLarge),
+                const Spacer(),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ],
+            ),
+          ),
+          // Icon grid
+          Expanded(
+            child: GridView.builder(
+              padding: AppSpacing.paddingMd,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 5,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
+              ),
+              itemCount: icons.length,
+              itemBuilder: (context, index) {
+                final entry = icons.entries.elementAt(index);
+                final isSelected = selectedIcon == entry.key;
+
+                return InkWell(
+                  onTap: () => onIconSelected(entry.key),
+                  borderRadius: AppSpacing.borderRadiusMd,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: isSelected
+                          ? selectedColor.withValues(alpha: 0.2)
+                          : AppColors.glassWhite,
+                      borderRadius: AppSpacing.borderRadiusMd,
+                      border: Border.all(
+                        color: isSelected ? selectedColor : AppColors.glassBorder,
+                        width: isSelected ? 2 : 1,
+                      ),
+                    ),
+                    alignment: Alignment.center,
+                    child: Icon(
+                      entry.value,
+                      color: isSelected ? selectedColor : AppColors.textPrimary,
+                      size: 28,
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Color picker bottom sheet
+class _ColorPickerSheet extends StatelessWidget {
+  final String? selectedColor;
+  final ValueChanged<String> onColorSelected;
+
+  const _ColorPickerSheet({
+    this.selectedColor,
+    required this.onColorSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: MediaQuery.of(context).size.height * 0.45,
+      decoration: BoxDecoration(
+        gradient: AppColors.glassGradient,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        border: Border.all(color: AppColors.glassBorder),
+      ),
+      child: Column(
+        children: [
+          // Handle bar
+          Container(
+            margin: const EdgeInsets.symmetric(vertical: 12),
+            width: 40,
+            height: 4,
+            decoration: BoxDecoration(
+              color: AppColors.glassBorder,
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          // Header
+          Padding(
+            padding: AppSpacing.horizontalPadding(AppSpacing.md),
+            child: Row(
+              children: [
+                Text('Select Color', style: AppTypography.titleLarge),
+                const Spacer(),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ],
+            ),
+          ),
+          // Color grid
+          Expanded(
+            child: GridView.builder(
+              padding: AppSpacing.paddingMd,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 6,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
+              ),
+              itemCount: WalletColors.presetColors.length,
+              itemBuilder: (context, index) {
+                final color = WalletColors.presetColors[index];
+                final isSelected =
+                    selectedColor?.toUpperCase() == color.toUpperCase();
+
+                return InkWell(
+                  onTap: () => onColorSelected(color),
+                  borderRadius: BorderRadius.circular(12),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: WalletColors.parseColor(color),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: isSelected
+                            ? Colors.white
+                            : Colors.white.withValues(alpha: 0.2),
+                        width: isSelected ? 3 : 1,
+                      ),
+                      boxShadow: isSelected
+                          ? [
+                              BoxShadow(
+                                color: WalletColors.parseColor(color)
+                                    .withValues(alpha: 0.5),
+                                blurRadius: 8,
+                                spreadRadius: 2,
+                              ),
+                            ]
+                          : null,
+                    ),
+                    child: isSelected
+                        ? const Icon(Icons.check, color: Colors.white, size: 24)
+                        : null,
+                  ),
+                );
+              },
             ),
           ),
         ],

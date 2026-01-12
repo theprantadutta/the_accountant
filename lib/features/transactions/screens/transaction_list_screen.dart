@@ -5,6 +5,7 @@ import 'package:the_accountant/features/categories/providers/category_provider.d
 import 'package:the_accountant/features/transactions/providers/transaction_provider.dart';
 import 'package:the_accountant/features/transactions/screens/add_transaction_screen.dart';
 import 'package:the_accountant/shared/widgets/transaction_card.dart';
+import 'package:the_accountant/shared/widgets/shimmer_loading.dart';
 
 class TransactionListScreen extends ConsumerStatefulWidget {
   const TransactionListScreen({super.key});
@@ -430,7 +431,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
           // Transaction list
           Expanded(
             child: transactionState.isLoading
-                ? const Center(child: CircularProgressIndicator())
+                ? const SingleChildScrollView(child: ShimmerTransactionList(itemCount: 8))
                 : filteredTransactions.isEmpty
                 ? const Center(child: Text('No transactions found'))
                 : ListView.builder(
@@ -456,24 +457,77 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                           : transaction.notes.isNotEmpty
                               ? transaction.notes
                               : transaction.category;
-                      return TransactionCard(
-                        id: transaction.id,
-                        title: displayTitle,
-                        category: transaction.category,
-                        categoryColor: category.colorCode,
-                        amount: transaction.amount,
-                        date: transaction.date,
-                        transactionType: transaction.type,
-                        notes: transaction.notes,
-                        onTap: () {
-                          _editTransaction(transaction);
+                      return Dismissible(
+                        key: Key('transaction_${transaction.id}'),
+                        direction: DismissDirection.endToStart,
+                        confirmDismiss: (direction) async {
+                          return await showDialog<bool>(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              backgroundColor: AppColors.primarySurface,
+                              title: Text(
+                                'Delete Transaction',
+                                style: TextStyle(color: AppColors.textPrimary),
+                              ),
+                              content: Text(
+                                'Are you sure you want to delete "$displayTitle"?',
+                                style: TextStyle(color: AppColors.textSecondary),
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context, false),
+                                  child: Text(
+                                    'Cancel',
+                                    style: TextStyle(color: AppColors.textSecondary),
+                                  ),
+                                ),
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context, true),
+                                  child: Text(
+                                    'Delete',
+                                    style: TextStyle(color: AppColors.error),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ) ?? false;
                         },
-                        onEdit: () {
-                          _editTransaction(transaction);
-                        },
-                        onDelete: () {
+                        onDismissed: (direction) {
                           _deleteTransaction(transaction);
                         },
+                        background: Container(
+                          alignment: Alignment.centerRight,
+                          padding: const EdgeInsets.only(right: 24),
+                          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: AppColors.error,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(
+                            Icons.delete_outline,
+                            color: Colors.white,
+                            size: 28,
+                          ),
+                        ),
+                        child: TransactionCard(
+                          id: transaction.id,
+                          title: displayTitle,
+                          category: transaction.category,
+                          categoryColor: category.colorCode,
+                          amount: transaction.amount,
+                          date: transaction.date,
+                          transactionType: transaction.type,
+                          notes: transaction.notes,
+                          onTap: () {
+                            _editTransaction(transaction);
+                          },
+                          onEdit: () {
+                            _editTransaction(transaction);
+                          },
+                          onDelete: () {
+                            _deleteTransaction(transaction);
+                          },
+                        ),
                       );
                     },
                   ),

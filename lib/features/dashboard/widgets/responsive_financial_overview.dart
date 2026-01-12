@@ -16,6 +16,7 @@ import 'package:the_accountant/core/providers/currency_provider.dart';
 import 'package:the_accountant/core/services/currency_service.dart';
 import 'package:the_accountant/shared/widgets/glass_card.dart';
 import 'package:the_accountant/shared/widgets/stat_card.dart';
+import 'package:the_accountant/shared/widgets/shimmer_loading.dart';
 import 'package:the_accountant/features/transactions/screens/upcoming_transactions_screen.dart';
 import 'package:the_accountant/features/transactions/screens/add_transaction_screen.dart';
 import 'package:the_accountant/features/transactions/widgets/transaction_type_header.dart';
@@ -58,14 +59,12 @@ class _ResponsiveFinancialOverviewState
   Widget build(BuildContext context) {
     final financialData = ref.watch(financialDataProvider);
 
-    // Show loading state
+    // Show loading state with shimmer
     if (financialData.isLoading) {
-      return Scaffold(
+      return const Scaffold(
         backgroundColor: Colors.transparent,
-        body: Center(
-          child: CircularProgressIndicator(
-            color: AppColors.primaryAccent,
-          ),
+        body: SafeArea(
+          child: ShimmerDashboard(),
         ),
       );
     }
@@ -112,9 +111,16 @@ class _ResponsiveFinancialOverviewState
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: AppSpacing.paddingScreen,
-          child: Column(
+        child: RefreshIndicator(
+          onRefresh: () async {
+            await ref.read(financialDataProvider.notifier).refreshData();
+          },
+          color: AppColors.primaryAccent,
+          backgroundColor: AppColors.primarySurface,
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: AppSpacing.paddingScreen,
+            child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               AppSpacing.gapLg,
@@ -170,6 +176,7 @@ class _ResponsiveFinancialOverviewState
               SizedBox(height: AppSpacing.huge + 40), // Bottom padding for nav bar
             ],
           ),
+        ),
         ),
       ),
     );

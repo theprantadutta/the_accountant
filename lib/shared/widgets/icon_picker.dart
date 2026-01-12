@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
@@ -89,13 +90,17 @@ class IconPicker extends StatelessWidget {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => _IconPickerSheet(
-        selectedIcon: selectedIcon,
-        selectedColor: selectedColor,
-        onIconSelected: (icon) {
-          onIconSelected(icon);
-          Navigator.pop(context);
-        },
+      barrierColor: Colors.black.withValues(alpha: 0.3),
+      builder: (context) => BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        child: _IconPickerSheet(
+          selectedIcon: selectedIcon,
+          selectedColor: selectedColor,
+          onIconSelected: (icon) {
+            onIconSelected(icon);
+            Navigator.pop(context);
+          },
+        ),
       ),
     );
   }
@@ -119,8 +124,9 @@ class _IconPickerSheet extends StatelessWidget {
     return Container(
       height: MediaQuery.of(context).size.height * 0.6,
       decoration: BoxDecoration(
-        color: AppColors.primaryDark,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        gradient: AppColors.glassGradient,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        border: Border.all(color: AppColors.glassBorder),
       ),
       child: Column(
         children: [
