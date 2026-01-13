@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:the_accountant/core/services/currency_service.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/core/utils/color_utils.dart';
-import 'package:the_accountant/core/services/currency_service.dart';
 import 'package:the_accountant/features/settings/providers/settings_provider.dart';
 
 class TransactionCard extends ConsumerWidget {
@@ -97,13 +97,7 @@ class TransactionCard extends ConsumerWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 2),
-                  Text(
-                    category,
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: color,
-                    ),
-                  ),
+                  Text(category, style: TextStyle(fontSize: 13, color: color)),
                   const SizedBox(height: 2),
                   Row(
                     children: [
@@ -180,18 +174,20 @@ class TransactionCard extends ConsumerWidget {
 
   void _showOptionsMenu(BuildContext context) {
     HapticFeedback.mediumImpact();
+    // Store the outer context to use after bottom sheet is closed
+    final outerContext = context;
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
-      builder: (context) => _TransactionOptionsSheet(
+      builder: (sheetContext) => _TransactionOptionsSheet(
         transactionTitle: title.isNotEmpty ? title : category,
         onEdit: () {
-          Navigator.pop(context);
+          Navigator.pop(sheetContext);
           onEdit?.call();
         },
         onDelete: () {
-          Navigator.pop(context);
-          _confirmDelete(context);
+          Navigator.pop(sheetContext);
+          _confirmDelete(outerContext);
         },
       ),
     );
@@ -223,16 +219,12 @@ class TransactionCard extends ConsumerWidget {
               Navigator.pop(context);
               onDelete?.call();
             },
-            child: Text(
-              'Delete',
-              style: TextStyle(color: AppColors.error),
-            ),
+            child: Text('Delete', style: TextStyle(color: AppColors.error)),
           ),
         ],
       ),
     );
   }
-
 }
 
 /// Bottom sheet for transaction options
@@ -328,10 +320,7 @@ class _OptionTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: Icon(
-        icon,
-        color: iconColor ?? AppColors.textSecondary,
-      ),
+      leading: Icon(icon, color: iconColor ?? AppColors.textSecondary),
       title: Text(
         label,
         style: TextStyle(
