@@ -2,6 +2,26 @@
 
 A modern, privacy-focused personal finance management app built with Flutter. Features a beautiful dark theme UI, local-first data storage, and optional cloud sync.
 
+## Screenshots
+
+<p align="center">
+  <img src="screenshots/home_screen.jpg" width="200" alt="Home Screen"/>
+  <img src="screenshots/transaction_screen.jpg" width="200" alt="Transaction Screen"/>
+  <img src="screenshots/report_screen.jpg" width="200" alt="Reports Screen"/>
+  <img src="screenshots/settings_screen.jpg" width="200" alt="Settings Screen"/>
+</p>
+
+<p align="center">
+  <img src="screenshots/ai_screen.jpg" width="200" alt="AI Assistant"/>
+  <img src="screenshots/premium_screen.jpg" width="200" alt="Premium Features"/>
+  <img src="screenshots/theme_screen.jpg" width="200" alt="Theme Selection"/>
+  <img src="screenshots/privacy_screen.jpg" width="200" alt="Privacy Settings"/>
+</p>
+
+<p align="center">
+  <img src="screenshots/faq_screen.jpg" width="200" alt="FAQ Screen"/>
+</p>
+
 ## Features
 
 ### Core Features
