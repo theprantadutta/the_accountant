@@ -70,3 +70,6 @@ lib/generated/
 .qoder/
 .claude/
 nul
+
+# Claude Code temp files
+tmpclaude-*
