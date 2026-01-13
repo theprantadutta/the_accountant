@@ -1,22 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/services/currency_service.dart';
-import 'package:the_accountant/data/datasources/local/app_database.dart' show Wallet, Transaction;
-import 'package:the_accountant/data/models/transaction.dart' show TransactionSpecialType;
+import 'package:the_accountant/core/themes/app_colors.dart';
+import 'package:the_accountant/data/datasources/local/app_database.dart'
+    show Wallet, Transaction;
+import 'package:the_accountant/data/models/transaction.dart'
+    show TransactionSpecialType;
 import 'package:the_accountant/features/categories/providers/category_provider.dart';
-import 'package:the_accountant/features/transactions/providers/transaction_provider.dart' hide Transaction;
+import 'package:the_accountant/features/transactions/providers/transaction_provider.dart'
+    hide Transaction;
 import 'package:the_accountant/features/transactions/providers/transfer_provider.dart';
-import 'package:the_accountant/features/transactions/widgets/transaction_type_header.dart';
+import 'package:the_accountant/features/transactions/widgets/calculator_bottom_sheet.dart';
 import 'package:the_accountant/features/transactions/widgets/category_amount_header.dart';
-import 'package:the_accountant/features/transactions/widgets/transfer_amount_header.dart';
+import 'package:the_accountant/features/transactions/widgets/category_picker_sheet.dart';
 import 'package:the_accountant/features/transactions/widgets/compact_date_time_picker.dart';
 import 'package:the_accountant/features/transactions/widgets/horizontal_chip_selector.dart';
 import 'package:the_accountant/features/transactions/widgets/loan_type_chips.dart';
-import 'package:the_accountant/features/transactions/widgets/calculator_bottom_sheet.dart';
-import 'package:the_accountant/features/transactions/widgets/category_picker_sheet.dart';
-import 'package:the_accountant/features/transactions/widgets/special_type_selector.dart' show TransactionSpecialTypeExtension;
+import 'package:the_accountant/features/transactions/widgets/special_type_selector.dart'
+    show TransactionSpecialTypeExtension;
+import 'package:the_accountant/features/transactions/widgets/transaction_type_header.dart';
+import 'package:the_accountant/features/transactions/widgets/transfer_amount_header.dart';
 import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
 
 /// Helper function to show the Cashew-style transaction screen
@@ -38,10 +42,7 @@ Future<bool?> showCashewTransactionScreen(
           position: Tween<Offset>(
             begin: const Offset(0, 1),
             end: Offset.zero,
-          ).animate(CurvedAnimation(
-            parent: animation,
-            curve: Curves.easeOut,
-          )),
+          ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOut)),
           child: child,
         );
       },
@@ -90,7 +91,7 @@ class _CashewTransactionScreenState
   String? _toWalletId;
 
   // UI state
-  bool _showMoreOptions = false;
+  // final bool _showMoreOptions = false;
   bool _isSaving = false;
 
   bool get _isEditing => widget.existingTransaction != null;
@@ -106,7 +107,9 @@ class _CashewTransactionScreenState
           _toWalletId != null &&
           _fromWalletId != _toWalletId;
     }
-    return _amount > 0 && _selectedCategoryId != null && _selectedWalletId != null;
+    return _amount > 0 &&
+        _selectedCategoryId != null &&
+        _selectedWalletId != null;
   }
 
   @override
@@ -187,7 +190,9 @@ class _CashewTransactionScreenState
     if (type == TransactionTypeSelection.transfer && wallets.length < 2) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('You need at least 2 accounts to make a transfer'),
+          content: const Text(
+            'You need at least 2 accounts to make a transfer',
+          ),
           backgroundColor: AppColors.warning,
         ),
       );
@@ -221,7 +226,10 @@ class _CashewTransactionScreenState
 
   Future<void> _showCalculator() async {
     final walletId = _isTransfer ? _fromWalletId : _selectedWalletId;
-    final wallet = ref.read(walletProvider).wallets.firstWhere(
+    final wallet = ref
+        .read(walletProvider)
+        .wallets
+        .firstWhere(
           (w) => w.id == walletId,
           orElse: () => ref.read(walletProvider).wallets.first,
         );
@@ -250,38 +258,58 @@ class _CashewTransactionScreenState
 
     try {
       if (_isTransfer) {
-        await ref.read(transferProvider.notifier).createTransfer(
+        await ref
+            .read(transferProvider.notifier)
+            .createTransfer(
               sourceWalletId: _fromWalletId!,
               destinationWalletId: _toWalletId!,
               amount: _amount,
               date: _selectedDateTime,
-              title: _titleController.text.isEmpty ? 'Transfer' : _titleController.text,
-              notes: _notesController.text.isEmpty ? null : _notesController.text,
+              title: _titleController.text.isEmpty
+                  ? 'Transfer'
+                  : _titleController.text,
+              notes: _notesController.text.isEmpty
+                  ? null
+                  : _notesController.text,
             );
       } else if (_isEditing) {
-        await ref.read(transactionProvider.notifier).updateTransaction(
+        await ref
+            .read(transactionProvider.notifier)
+            .updateTransaction(
               id: widget.existingTransaction!.id,
               amount: _amount,
               isIncome: _isIncome,
-              title: _titleController.text.isEmpty ? null : _titleController.text,
+              title: _titleController.text.isEmpty
+                  ? null
+                  : _titleController.text,
               categoryId: _selectedCategoryId!,
               walletId: _selectedWalletId!,
               date: _selectedDateTime,
-              notes: _notesController.text.isEmpty ? null : _notesController.text,
+              notes: _notesController.text.isEmpty
+                  ? null
+                  : _notesController.text,
             );
       } else {
         final isPaid = !_specialType.startsUnpaid;
-        await ref.read(transactionProvider.notifier).addTransactionFull(
+        await ref
+            .read(transactionProvider.notifier)
+            .addTransactionFull(
               amount: _amount,
               isIncome: _isIncome,
               categoryId: _selectedCategoryId!,
               walletId: _selectedWalletId!,
               dateTime: _selectedDateTime,
-              title: _titleController.text.isEmpty ? null : _titleController.text,
-              notes: _notesController.text.isEmpty ? null : _notesController.text,
+              title: _titleController.text.isEmpty
+                  ? null
+                  : _titleController.text,
+              notes: _notesController.text.isEmpty
+                  ? null
+                  : _notesController.text,
               specialType: _specialType,
               isPaid: isPaid,
-              originalDueDate: _specialType.requiresDueDate ? _selectedDateTime : null,
+              originalDueDate: _specialType.requiresDueDate
+                  ? _selectedDateTime
+                  : null,
               budgetId: _selectedBudgetId,
               objectiveId: _selectedObjectiveId,
             );
@@ -324,7 +352,10 @@ class _CashewTransactionScreenState
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text('Cancel', style: TextStyle(color: AppColors.textSecondary)),
+            child: Text(
+              'Cancel',
+              style: TextStyle(color: AppColors.textSecondary),
+            ),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
@@ -456,11 +487,11 @@ class _CashewTransactionScreenState
 
                   // Notes input
                   _buildNotesInput(),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 10),
 
                   // More options (expandable)
-                  if (!_isTransfer) _buildMoreOptions(),
-                  const SizedBox(height: 100), // Space for save button
+                  // if (!_isTransfer) _buildMoreOptions(),
+                  // const SizedBox(height: 100), // Space for save button
                 ],
               ),
             ),
@@ -493,11 +524,7 @@ class _CashewTransactionScreenState
         children: [
           Row(
             children: [
-              Icon(
-                Icons.info_outline,
-                size: 16,
-                color: AppColors.textMuted,
-              ),
+              Icon(Icons.info_outline, size: 16, color: AppColors.textMuted),
               const SizedBox(width: 6),
               Text(
                 'Transaction Type',
@@ -567,8 +594,7 @@ class _CashewTransactionScreenState
               (w) => w.id == _selectedWalletId,
               orElse: () => wallets.first,
             ),
-            labelBuilder: (wallet) =>
-                '${wallet.name} (${wallet.currency})',
+            labelBuilder: (wallet) => '${wallet.name} (${wallet.currency})',
             onSelected: (wallet) {
               setState(() => _selectedWalletId = wallet.id);
             },
@@ -607,8 +633,7 @@ class _CashewTransactionScreenState
               (w) => w.id == _fromWalletId,
               orElse: () => wallets.first,
             ),
-            labelBuilder: (wallet) =>
-                '${wallet.name} (${wallet.currency})',
+            labelBuilder: (wallet) => '${wallet.name} (${wallet.currency})',
             onSelected: (wallet) {
               setState(() => _fromWalletId = wallet.id);
             },
@@ -624,11 +649,7 @@ class _CashewTransactionScreenState
                 color: _accentColor.withValues(alpha: 0.2),
                 shape: BoxShape.circle,
               ),
-              child: Icon(
-                Icons.arrow_downward,
-                color: _accentColor,
-                size: 20,
-              ),
+              child: Icon(Icons.arrow_downward, color: _accentColor, size: 20),
             ),
           ),
           const SizedBox(height: 12),
@@ -655,8 +676,7 @@ class _CashewTransactionScreenState
               (w) => w.id == _toWalletId,
               orElse: () => wallets.last,
             ),
-            labelBuilder: (wallet) =>
-                '${wallet.name} (${wallet.currency})',
+            labelBuilder: (wallet) => '${wallet.name} (${wallet.currency})',
             onSelected: (wallet) {
               setState(() => _toWalletId = wallet.id);
             },
@@ -673,10 +693,7 @@ class _CashewTransactionScreenState
       child: TextField(
         controller: _titleController,
         focusNode: _titleFocusNode,
-        style: TextStyle(
-          fontSize: 15,
-          color: AppColors.textPrimary,
-        ),
+        style: TextStyle(fontSize: 15, color: AppColors.textPrimary),
         decoration: InputDecoration(
           hintText: 'Title (optional)',
           hintStyle: TextStyle(color: AppColors.textMuted),
@@ -713,10 +730,7 @@ class _CashewTransactionScreenState
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: TextField(
         controller: _notesController,
-        style: TextStyle(
-          fontSize: 15,
-          color: AppColors.textPrimary,
-        ),
+        style: TextStyle(fontSize: 15, color: AppColors.textPrimary),
         maxLines: 3,
         minLines: 1,
         decoration: InputDecoration(
@@ -750,73 +764,68 @@ class _CashewTransactionScreenState
     );
   }
 
-  Widget _buildMoreOptions() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Column(
-        children: [
-          InkWell(
-            onTap: () {
-              HapticFeedback.lightImpact();
-              setState(() => _showMoreOptions = !_showMoreOptions);
-            },
-            borderRadius: BorderRadius.circular(12),
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 14),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'More Options',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
-                  const SizedBox(width: 4),
-                  Icon(
-                    _showMoreOptions
-                        ? Icons.keyboard_arrow_up
-                        : Icons.keyboard_arrow_down,
-                    size: 20,
-                    color: AppColors.textSecondary,
-                  ),
-                ],
-              ),
-            ),
-          ),
-          if (_showMoreOptions) ...[
-            const SizedBox(height: 8),
-            // Payment method, budget, objective selectors would go here
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppColors.primarySurface,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.divider),
-              ),
-              child: Text(
-                'Payment method, budget, and objective selectors coming soon.',
-                style: TextStyle(
-                  fontSize: 13,
-                  color: AppColors.textMuted,
-                ),
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
+  // Widget _buildMoreOptions() {
+  //   return Padding(
+  //     padding: const EdgeInsets.symmetric(horizontal: 16),
+  //     child: Column(
+  //       children: [
+  //         InkWell(
+  //           onTap: () {
+  //             HapticFeedback.lightImpact();
+  //             setState(() => _showMoreOptions = !_showMoreOptions);
+  //           },
+  //           borderRadius: BorderRadius.circular(12),
+  //           child: Container(
+  //             padding: const EdgeInsets.symmetric(vertical: 14),
+  //             child: Row(
+  //               mainAxisAlignment: MainAxisAlignment.center,
+  //               children: [
+  //                 Text(
+  //                   'More Options',
+  //                   style: TextStyle(
+  //                     fontSize: 14,
+  //                     color: AppColors.textSecondary,
+  //                   ),
+  //                 ),
+  //                 const SizedBox(width: 4),
+  //                 Icon(
+  //                   _showMoreOptions
+  //                       ? Icons.keyboard_arrow_up
+  //                       : Icons.keyboard_arrow_down,
+  //                   size: 20,
+  //                   color: AppColors.textSecondary,
+  //                 ),
+  //               ],
+  //             ),
+  //           ),
+  //         ),
+  //         if (_showMoreOptions) ...[
+  //           const SizedBox(height: 8),
+  //           // Payment method, budget, objective selectors would go here
+  //           Container(
+  //             padding: const EdgeInsets.all(16),
+  //             decoration: BoxDecoration(
+  //               color: AppColors.primarySurface,
+  //               borderRadius: BorderRadius.circular(12),
+  //               border: Border.all(color: AppColors.divider),
+  //             ),
+  //             child: Text(
+  //               'Payment method, budget, and objective selectors coming soon.',
+  //               style: TextStyle(fontSize: 13, color: AppColors.textMuted),
+  //             ),
+  //           ),
+  //         ],
+  //       ],
+  //     ),
+  //   );
+  // }
 
   Widget _buildSaveButton() {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.primarySurface,
-        border: Border(
-          top: BorderSide(color: AppColors.divider),
-        ),
+        border: Border(top: BorderSide(color: AppColors.divider)),
       ),
       child: SafeArea(
         top: false,
