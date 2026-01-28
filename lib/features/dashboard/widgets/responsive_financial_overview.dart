@@ -173,7 +173,7 @@ class _ResponsiveFinancialOverviewState
               // Budget Progress
               _buildAnimatedSection(0.6, 0.9, _buildBudgetProgress()),
 
-              SizedBox(height: AppSpacing.huge + 40), // Bottom padding for nav bar
+              SizedBox(height: AppSpacing.lg), // Bottom padding
             ],
           ),
         ),

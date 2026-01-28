@@ -150,8 +150,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         ),
                       ),
                     ),
-                  // Extra padding for floating bottom nav bar
-                  SizedBox(height: AppSpacing.huge + 80),
+                  // Bottom padding
+                  SizedBox(height: AppSpacing.lg),
                 ],
               ),
             ),

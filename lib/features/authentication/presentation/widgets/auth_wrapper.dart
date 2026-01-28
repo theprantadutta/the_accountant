@@ -11,6 +11,8 @@ import 'package:the_accountant/core/services/subscription_expiry_checker.dart';
 import 'package:the_accountant/features/budgets/providers/budget_notification_provider.dart';
 import 'package:the_accountant/core/services/secure_token_storage.dart';
 import 'package:the_accountant/core/services/api_service.dart';
+import 'package:the_accountant/features/premium/providers/premium_provider.dart';
+import 'package:the_accountant/data/models/premium_features.dart';
 
 class AuthWrapper extends ConsumerStatefulWidget {
   const AuthWrapper({super.key});
@@ -27,6 +29,20 @@ class _AuthWrapperState extends ConsumerState<AuthWrapper> with WidgetsBindingOb
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    // Sync premium status when auth state has premium info
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _syncPremiumStatus();
+    });
+  }
+
+  /// Sync premium status from auth state to premium provider
+  void _syncPremiumStatus() {
+    final authState = ref.read(authProvider);
+    if (authState.isAuthenticated && authState.subscriptionTier != 'free') {
+      final tier = SubscriptionTier.fromString(authState.subscriptionTier);
+      ref.read(premiumProvider.notifier).updateSubscription(tier: tier);
+      debugPrint('AuthWrapper: Synced premium status - tier: ${tier.displayName}');
+    }
   }
 
   @override
@@ -86,6 +102,19 @@ class _AuthWrapperState extends ConsumerState<AuthWrapper> with WidgetsBindingOb
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
     final onboardingState = ref.watch(onboardingProvider);
+
+    // Listen for auth state changes to sync premium status
+    ref.listen<AuthState>(authProvider, (previous, next) {
+      // Sync premium when subscription tier changes
+      if (next.isAuthenticated && next.subscriptionTier != previous?.subscriptionTier) {
+        _syncPremiumStatus();
+      }
+      // Lock premium features on logout
+      if (previous?.isAuthenticated == true && !next.isAuthenticated) {
+        ref.read(premiumProvider.notifier).lockPremiumFeatures();
+        debugPrint('AuthWrapper: User logged out - locked premium features');
+      }
+    });
 
     // Show loading screen while authentication is initializing
     if (authState.isLoading) {

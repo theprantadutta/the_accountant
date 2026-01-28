@@ -62,6 +62,9 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
     if (message.isNotEmpty) {
       HapticFeedback.lightImpact();
 
+      // Close keyboard
+      FocusManager.instance.primaryFocus?.unfocus();
+
       setState(() {
         _messages.add({
           'text': message,
@@ -170,10 +173,21 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
     );
 
     _animationController.forward();
+
+    // Add listener for text field focus to scroll to bottom
+    _textController.addListener(_onTextChanged);
+  }
+
+  void _onTextChanged() {
+    // Scroll to bottom when user starts typing
+    if (_textController.text.isNotEmpty) {
+      _scrollToBottom();
+    }
   }
 
   @override
   void dispose() {
+    _textController.removeListener(_onTextChanged);
     _textController.dispose();
     _scrollController.dispose();
     _animationController.dispose();
@@ -183,75 +197,68 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
 
   @override
   Widget build(BuildContext context) {
+    // Get keyboard state
+    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+    final isKeyboardOpen = keyboardHeight > 0;
+
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: Stack(
-        children: [
-          SafeArea(
-            child: Column(
-              children: [
-                const SizedBox(height: 16),
+      resizeToAvoidBottomInset: true,
+      body: SafeArea(
+        bottom: false,
+        child: Column(
+          children: [
+            // Collapse header spacing when keyboard is open
+            SizedBox(height: isKeyboardOpen ? 8 : 16),
 
-                // AI Assistant Header
-                AnimationUtils.slideTransition(
-                  animation: _slideAnimation,
-                  begin: const Offset(0, -1),
-                  child: _buildAIHeader(),
-                ),
-
-                const SizedBox(height: 8),
-                // Quick action buttons
-                AnimationUtils.fadeTransition(
-                  animation: AnimationUtils.createStaggeredAnimation(
-                    controller: _animationController,
-                    startFraction: 0.1,
-                    endFraction: 0.3,
-                  ),
-                  child: _buildQuickActions(),
-                ),
-
-                const SizedBox(height: 8),
-                // Chat Messages
-                Expanded(
-                  child: AnimationUtils.fadeTransition(
-                    animation: AnimationUtils.createStaggeredAnimation(
-                      controller: _animationController,
-                      startFraction: 0.2,
-                      endFraction: 0.5,
-                    ),
-                    child: _buildChatArea(),
-                  ),
-                ),
-
-                // Typing Indicator
-                if (_isTyping)
-                  AnimationUtils.fadeTransition(
-                    animation: _typingAnimation,
-                    child: _buildTypingIndicator(),
-                  ),
-
-                // Add bottom padding for message input
-                const SizedBox(height: 75),
-              ],
-            ),
-          ),
-
-          // Message Input positioned at bottom
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 80, // Above navigation bar
-            child: AnimationUtils.slideTransition(
-              animation: AnimationUtils.createStaggeredAnimation(
-                controller: _animationController,
-                startFraction: 0.4,
-                endFraction: 0.7,
+            // AI Assistant Header - hide when keyboard is open to save space
+            if (!isKeyboardOpen)
+              AnimationUtils.slideTransition(
+                animation: _slideAnimation,
+                begin: const Offset(0, -1),
+                child: _buildAIHeader(),
               ),
-              begin: const Offset(0, 1),
-              child: _buildMessageInput(),
+
+            // Quick action buttons - hide when keyboard is open
+            if (!isKeyboardOpen) ...[
+              const SizedBox(height: 8),
+              AnimationUtils.fadeTransition(
+                animation: AnimationUtils.createStaggeredAnimation(
+                  controller: _animationController,
+                  startFraction: 0.1,
+                  endFraction: 0.3,
+                ),
+                child: _buildQuickActions(),
+              ),
+            ],
+
+            SizedBox(height: isKeyboardOpen ? 4 : 8),
+            // Chat Messages - takes all available space
+            Expanded(
+              child: AnimationUtils.fadeTransition(
+                animation: AnimationUtils.createStaggeredAnimation(
+                  controller: _animationController,
+                  startFraction: 0.2,
+                  endFraction: 0.5,
+                ),
+                child: _buildChatArea(),
+              ),
             ),
-          ),
-        ],
+
+            // Typing Indicator - smaller when keyboard is open
+            if (_isTyping)
+              AnimationUtils.fadeTransition(
+                animation: _typingAnimation,
+                child: _buildTypingIndicator(),
+              ),
+
+            // Message Input - properly at bottom
+            _buildMessageInput(),
+
+            // Bottom spacing
+            SizedBox(height: isKeyboardOpen ? 8 : 16),
+          ],
+        ),
       ),
     );
   }
@@ -259,83 +266,135 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
   Widget _buildAIHeader() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: AppTheme.glassmorphicContainer(
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(24),
-                  gradient: AppTheme.primaryGradient,
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFF667eea).withValues(alpha: 0.3),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: const Icon(
-                  Icons.auto_awesome,
-                  color: Colors.white,
-                  size: 24,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'AI Financial Assistant',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      'Smart insights • Budget tips • Personalized advice',
-                      style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.8),
-                        fontSize: 13,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              GestureDetector(
-                onTap: () {
-                  setState(() {
-                    _messages.clear();
-                    _messages.add({
-                      'text':
-                          'Hello! I\'m your AI financial assistant. I\'m here to help you manage your finances, analyze your spending, and provide personalized advice. How can I assist you today?',
-                      'isUser': false,
-                      'timestamp': DateTime.now(),
-                      'isWelcome': true,
-                    });
-                  });
-                  HapticFeedback.lightImpact();
-                },
-                child: Container(
-                  width: 36,
-                  height: 36,
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.2),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: AppTheme.glassmorphicContainer(
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                // AI Icon with outer glow ring (like premium gate hero)
+                Container(
+                  width: 52,
+                  height: 52,
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(18),
+                    shape: BoxShape.circle,
+                    gradient: RadialGradient(
+                      colors: [
+                        const Color(0xFF667eea).withValues(alpha: 0.3),
+                        Colors.transparent,
+                      ],
+                      stops: const [0.6, 1.0],
+                    ),
                   ),
-                  child: const Icon(
-                    Icons.refresh,
-                    color: Colors.white,
-                    size: 18,
+                  child: Center(
+                    child: Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(24),
+                        gradient: AppTheme.primaryGradient,
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFF667eea).withValues(alpha: 0.5),
+                            blurRadius: 16,
+                            offset: const Offset(0, 4),
+                          ),
+                          BoxShadow(
+                            color: const Color(0xFF667eea).withValues(alpha: 0.3),
+                            blurRadius: 24,
+                            spreadRadius: 2,
+                          ),
+                        ],
+                      ),
+                      child: const Icon(
+                        Icons.auto_awesome,
+                        color: Colors.white,
+                        size: 24,
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ],
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'AI Financial Assistant',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        'Smart insights • Budget tips • Personalized advice',
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.8),
+                          fontSize: 13,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _messages.clear();
+                      _messages.add({
+                        'text':
+                            'Hello! I\'m your AI financial assistant. I\'m here to help you manage your finances, analyze your spending, and provide personalized advice. How can I assist you today?',
+                        'isUser': false,
+                        'timestamp': DateTime.now(),
+                        'isWelcome': true,
+                      });
+                    });
+                    HapticFeedback.lightImpact();
+                  },
+                  child: Container(
+                    width: 38,
+                    height: 38,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          Colors.white.withValues(alpha: 0.15),
+                          Colors.white.withValues(alpha: 0.05),
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(19),
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.1),
+                        width: 1,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.1),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: const Icon(
+                      Icons.refresh,
+                      color: Colors.white,
+                      size: 18,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -367,7 +426,7 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
     ];
 
     return SizedBox(
-      height: 78,
+      height: 90,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -375,43 +434,62 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
         itemBuilder: (context, index) {
           final action = quickActions[index];
           return Container(
-            margin: const EdgeInsets.only(right: 10),
+            margin: const EdgeInsets.only(right: 12),
             child: GestureDetector(
               onTap: () => _sendMessage(action['message'] as String),
-              child: AppTheme.glassmorphicContainer(
-                width: 78,
-                child: Container(
-                  padding: const EdgeInsets.all(8),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        width: 28,
-                        height: 28,
-                        decoration: BoxDecoration(
-                          gradient: AppTheme.secondaryGradient,
-                          borderRadius: BorderRadius.circular(14),
+              child: Container(
+                width: 88,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.2),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: AppTheme.glassmorphicContainer(
+                  child: Container(
+                    padding: const EdgeInsets.all(10),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 36,
+                          height: 36,
+                          decoration: BoxDecoration(
+                            gradient: AppTheme.secondaryGradient,
+                            borderRadius: BorderRadius.circular(18),
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(0xFF11998e).withValues(alpha: 0.4),
+                                blurRadius: 10,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Icon(
+                            action['icon'] as IconData,
+                            color: Colors.white,
+                            size: 18,
+                          ),
                         ),
-                        child: Icon(
-                          action['icon'] as IconData,
-                          color: Colors.white,
-                          size: 14,
+                        const SizedBox(height: 6),
+                        Text(
+                          action['label'] as String,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            height: 1.2,
+                          ),
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        action['label'] as String,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 10,
-                          fontWeight: FontWeight.w600,
-                          height: 1.1,
-                        ),
-                        textAlign: TextAlign.center,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -425,23 +503,37 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
   Widget _buildChatArea() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
-      child: AppTheme.glassmorphicContainer(
-        child: ListView.builder(
-          controller: _scrollController,
-          padding: const EdgeInsets.all(16),
-          itemCount: _messages.length,
-          itemBuilder: (context, index) {
-            final message = _messages[index];
-            return _buildMessageBubble(
-              message['text'],
-              message['isUser'],
-              message['timestamp'],
-              isInsight: message['isInsight'] as bool? ?? false,
-              isSuggestion: message['isSuggestion'] as bool? ?? false,
-              isWelcome: message['isWelcome'] as bool? ?? false,
-            );
-          },
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        color: Colors.white.withValues(alpha: 0.03),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.08),
+          width: 1,
         ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: ListView.builder(
+        controller: _scrollController,
+        padding: const EdgeInsets.all(16),
+        itemCount: _messages.length,
+        itemBuilder: (context, index) {
+          final message = _messages[index];
+          return _buildMessageBubble(
+            message['text'],
+            message['isUser'],
+            message['timestamp'],
+            isInsight: message['isInsight'] as bool? ?? false,
+            isSuggestion: message['isSuggestion'] as bool? ?? false,
+            isWelcome: message['isWelcome'] as bool? ?? false,
+          );
+        },
       ),
     );
   }
@@ -449,48 +541,68 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
   Widget _buildTypingIndicator() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-      child: AppTheme.glassmorphicContainer(
-        child: Container(
-          padding: const EdgeInsets.all(12),
-          child: Row(
-            children: [
-              Container(
-                width: 28,
-                height: 28,
-                decoration: BoxDecoration(
-                  gradient: AppTheme.primaryGradient,
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: const Icon(
-                  Icons.auto_awesome,
-                  color: Colors.white,
-                  size: 14,
-                ),
-              ),
-              const SizedBox(width: 10),
-              AnimatedBuilder(
-                animation: _typingAnimation,
-                builder: (context, child) {
-                  return Row(
-                    children: [
-                      _buildDot(0),
-                      const SizedBox(width: 3),
-                      _buildDot(1),
-                      const SizedBox(width: 3),
-                      _buildDot(2),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.15),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: AppTheme.glassmorphicContainer(
+          child: Container(
+            padding: const EdgeInsets.all(14),
+            child: Row(
+              children: [
+                Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    gradient: AppTheme.primaryGradient,
+                    borderRadius: BorderRadius.circular(18),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF667eea).withValues(alpha: 0.4),
+                        blurRadius: 10,
+                        offset: const Offset(0, 2),
+                      ),
                     ],
-                  );
-                },
-              ),
-              const SizedBox(width: 8),
-              Text(
-                'AI is thinking...',
-                style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.7),
-                  fontSize: 13,
+                  ),
+                  child: const Icon(
+                    Icons.auto_awesome,
+                    color: Colors.white,
+                    size: 18,
+                  ),
                 ),
-              ),
-            ],
+                const SizedBox(width: 12),
+                AnimatedBuilder(
+                  animation: _typingAnimation,
+                  builder: (context, child) {
+                    return Row(
+                      children: [
+                        _buildDot(0),
+                        const SizedBox(width: 4),
+                        _buildDot(1),
+                        const SizedBox(width: 4),
+                        _buildDot(2),
+                      ],
+                    );
+                  },
+                ),
+                const SizedBox(width: 10),
+                Text(
+                  'AI is thinking...',
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.8),
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -510,11 +622,17 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
       animation: animation,
       builder: (context, child) {
         return Container(
-          width: 6,
-          height: 6,
+          width: 8,
+          height: 8,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: Colors.white.withValues(alpha: animation.value),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF667eea).withValues(alpha: animation.value * 0.5),
+                blurRadius: 4,
+              ),
+            ],
           ),
         );
       },
@@ -529,6 +647,11 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
     bool isSuggestion = false,
     bool isWelcome = false,
   }) {
+    // Determine accent color for special messages
+    final accentColor = isInsight || isWelcome
+        ? const Color(0xFF667eea)
+        : const Color(0xFF11998e);
+
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       child: Row(
@@ -538,30 +661,54 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (!isUser) ...[
+            // AI Avatar with glow effect
             Container(
-              width: 32,
-              height: 32,
+              width: 40,
+              height: 40,
               decoration: BoxDecoration(
-                gradient: isWelcome
-                    ? AppTheme.primaryGradient
-                    : (isInsight
-                          ? AppTheme.secondaryGradient
-                          : AppTheme.primaryGradient),
-                borderRadius: BorderRadius.circular(16),
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    accentColor.withValues(alpha: 0.25),
+                    Colors.transparent,
+                  ],
+                  stops: const [0.5, 1.0],
+                ),
               ),
-              child: Icon(
-                isWelcome
-                    ? Icons.waving_hand
-                    : (isInsight
-                          ? Icons.lightbulb
-                          : (isSuggestion
-                                ? Icons.tips_and_updates
-                                : Icons.auto_awesome)),
-                color: Colors.white,
-                size: 16,
+              child: Center(
+                child: Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    gradient: isWelcome
+                        ? AppTheme.primaryGradient
+                        : (isInsight
+                              ? AppTheme.secondaryGradient
+                              : AppTheme.primaryGradient),
+                    borderRadius: BorderRadius.circular(18),
+                    boxShadow: [
+                      BoxShadow(
+                        color: accentColor.withValues(alpha: 0.4),
+                        blurRadius: 10,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Icon(
+                    isWelcome
+                        ? Icons.waving_hand
+                        : (isInsight
+                              ? Icons.lightbulb
+                              : (isSuggestion
+                                    ? Icons.tips_and_updates
+                                    : Icons.auto_awesome)),
+                    color: Colors.white,
+                    size: 18,
+                  ),
+                ),
               ),
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: 10),
           ],
           Flexible(
             child: Column(
@@ -579,31 +726,40 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
                     color: isUser
                         ? null
                         : (isInsight
-                              ? const Color(0xFF667eea).withValues(alpha: 0.1)
+                              ? const Color(0xFF667eea).withValues(alpha: 0.15)
                               : (isSuggestion
-                                    ? const Color(
-                                        0xFF11998e,
-                                      ).withValues(alpha: 0.1)
-                                    : Colors.white.withValues(alpha: 0.05))),
+                                    ? const Color(0xFF11998e).withValues(alpha: 0.15)
+                                    : Colors.white.withValues(alpha: 0.08))),
                     borderRadius: BorderRadius.only(
                       topLeft: const Radius.circular(20),
                       topRight: const Radius.circular(20),
                       bottomLeft: Radius.circular(isUser ? 20 : 4),
                       bottomRight: Radius.circular(isUser ? 4 : 20),
                     ),
-                    border: isInsight || isSuggestion || isWelcome
-                        ? Border.all(
-                            color: isWelcome
-                                ? const Color(0xFF667eea).withValues(alpha: 0.3)
-                                : (isInsight
-                                      ? const Color(
-                                          0xFF667eea,
-                                        ).withValues(alpha: 0.3)
-                                      : const Color(
-                                          0xFF11998e,
-                                        ).withValues(alpha: 0.3)),
-                          )
-                        : null,
+                    border: Border.all(
+                      color: isUser
+                          ? Colors.transparent
+                          : (isInsight || isSuggestion || isWelcome
+                              ? accentColor.withValues(alpha: 0.4)
+                              : Colors.white.withValues(alpha: 0.1)),
+                      width: 1,
+                    ),
+                    boxShadow: [
+                      if (isUser)
+                        BoxShadow(
+                          color: const Color(0xFF667eea).withValues(alpha: 0.4),
+                          blurRadius: 15,
+                          offset: const Offset(0, 4),
+                        )
+                      else
+                        BoxShadow(
+                          color: (isInsight || isSuggestion || isWelcome)
+                              ? accentColor.withValues(alpha: 0.15)
+                              : Colors.black.withValues(alpha: 0.2),
+                          blurRadius: 10,
+                          offset: const Offset(0, 2),
+                        ),
+                    ],
                   ),
                   child: Column(
                     crossAxisAlignment: isUser
@@ -620,11 +776,7 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
                                   : (isInsight
                                         ? Icons.analytics
                                         : Icons.tips_and_updates),
-                              color: isWelcome
-                                  ? const Color(0xFF667eea)
-                                  : (isInsight
-                                        ? const Color(0xFF667eea)
-                                        : const Color(0xFF11998e)),
+                              color: accentColor,
                               size: 16,
                             ),
                             const SizedBox(width: 6),
@@ -636,11 +788,7 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
                                         : 'Pro Tips'),
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                color: isWelcome
-                                    ? const Color(0xFF667eea)
-                                    : (isInsight
-                                          ? const Color(0xFF667eea)
-                                          : const Color(0xFF11998e)),
+                                color: accentColor,
                                 fontSize: 12,
                               ),
                             ),
@@ -676,15 +824,37 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
             ),
           ),
           if (isUser) ...[
-            const SizedBox(width: 8),
+            const SizedBox(width: 10),
+            // User Avatar with gradient border
             Container(
-              width: 32,
-              height: 32,
+              width: 36,
+              height: 36,
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(18),
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Colors.white.withValues(alpha: 0.2),
+                    Colors.white.withValues(alpha: 0.05),
+                  ],
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.2),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
-              child: const Icon(Icons.person, color: Colors.white, size: 16),
+              child: Container(
+                margin: const EdgeInsets.all(1.5),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(16.5),
+                ),
+                child: const Icon(Icons.person, color: Colors.white, size: 18),
+              ),
             ),
           ],
         ],
@@ -695,55 +865,86 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
   Widget _buildMessageInput() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: AppTheme.glassmorphicContainer(
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          child: Row(
-            children: [
-              Expanded(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(28),
+        color: const Color(0xFF1a1a2e), // Solid dark background
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.1),
+          width: 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.3),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+        child: Row(
+          children: [
+            Expanded(
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.05),
+                  borderRadius: BorderRadius.circular(20),
+                ),
                 child: TextField(
                   controller: _textController,
-                  style: const TextStyle(color: Colors.white, fontSize: 16),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w400,
+                  ),
+                  cursorColor: const Color(0xFF667eea),
                   decoration: InputDecoration(
                     hintText: 'Ask about your finances...',
                     hintStyle: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.6),
+                      color: Colors.white.withValues(alpha: 0.4),
                       fontSize: 16,
                     ),
                     border: InputBorder.none,
                     contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 8,
+                      horizontal: 16,
+                      vertical: 12,
                     ),
+                    isDense: true,
                   ),
                   onSubmitted: (_) => _sendMessage(),
-                  maxLines: null,
+                  maxLines: 4,
                   minLines: 1,
-                  keyboardType: TextInputType.multiline,
+                  textInputAction: TextInputAction.send,
+                  keyboardType: TextInputType.text,
                 ),
               ),
-              const SizedBox(width: 8),
-              GestureDetector(
-                onTap: () => _sendMessage(),
-                child: Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    gradient: AppTheme.primaryGradient,
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFF667eea).withValues(alpha: 0.3),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: const Icon(Icons.send, color: Colors.white, size: 18),
+            ),
+            const SizedBox(width: 8),
+            GestureDetector(
+              onTap: () => _sendMessage(),
+              child: Container(
+                width: 46,
+                height: 46,
+                decoration: BoxDecoration(
+                  gradient: AppTheme.primaryGradient,
+                  borderRadius: BorderRadius.circular(23),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF667eea).withValues(alpha: 0.5),
+                      blurRadius: 14,
+                      offset: const Offset(0, 4),
+                    ),
+                    BoxShadow(
+                      color: const Color(0xFF667eea).withValues(alpha: 0.3),
+                      blurRadius: 20,
+                      spreadRadius: 1,
+                    ),
+                  ],
                 ),
+                child: const Icon(Icons.send_rounded, color: Colors.white, size: 20),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
