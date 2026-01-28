@@ -81,18 +81,18 @@ class ChatMessage {
     };
   }
 
-  /// Create from JSON response
+  /// Create from JSON response (handles both snake_case and camelCase)
   factory ChatMessage.fromJson(Map<String, dynamic> json) {
     return ChatMessage(
       id: json['id'] as String,
       text: json['text'] as String,
-      isFromUser: json['isFromUser'] as bool,
+      isFromUser: (json['is_from_user'] ?? json['isFromUser']) as bool,
       timestamp: DateTime.parse(json['timestamp'] as String),
-      isInsight: json['isInsight'] as bool? ?? false,
-      isSuggestion: json['isSuggestion'] as bool? ?? false,
-      isWelcome: json['isWelcome'] as bool? ?? false,
-      isAiFallback: json['isAiFallback'] as bool? ?? false,
-      aiErrorType: json['aiErrorType'] as String?,
+      isInsight: (json['is_insight'] ?? json['isInsight']) as bool? ?? false,
+      isSuggestion: (json['is_suggestion'] ?? json['isSuggestion']) as bool? ?? false,
+      isWelcome: (json['is_welcome'] ?? json['isWelcome']) as bool? ?? false,
+      isAiFallback: (json['is_ai_fallback'] ?? json['isAiFallback']) as bool? ?? false,
+      aiErrorType: (json['ai_error_type'] ?? json['aiErrorType']) as String?,
     );
   }
 
@@ -143,10 +143,10 @@ class SendMessageResponse {
 
   factory SendMessageResponse.fromJson(Map<String, dynamic> json) {
     return SendMessageResponse(
-      userMessage: ChatMessage.fromJson(json['userMessage'] as Map<String, dynamic>),
-      aiMessage: ChatMessage.fromJson(json['aiMessage'] as Map<String, dynamic>),
-      isAiFallback: json['isAiFallback'] as bool? ?? false,
-      aiErrorType: json['aiErrorType'] as String?,
+      userMessage: ChatMessage.fromJson((json['user_message'] ?? json['userMessage']) as Map<String, dynamic>),
+      aiMessage: ChatMessage.fromJson((json['ai_message'] ?? json['aiMessage']) as Map<String, dynamic>),
+      isAiFallback: (json['is_ai_fallback'] ?? json['isAiFallback']) as bool? ?? false,
+      aiErrorType: (json['ai_error_type'] ?? json['aiErrorType']) as String?,
     );
   }
 }
