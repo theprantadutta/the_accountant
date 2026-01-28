@@ -918,10 +918,6 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(28),
         color: const Color(0xFF1a1a2e), // Solid dark background
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.1),
-          width: 1,
-        ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.3),
