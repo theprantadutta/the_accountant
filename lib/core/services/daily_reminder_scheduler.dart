@@ -180,11 +180,11 @@ class DailyReminderScheduler {
     // Schedule the notification with daily recurrence
     try {
       await _notificationsPlugin.zonedSchedule(
-        _dailyReminderId,
-        'Daily Expense Reminder',
-        "Don't forget to log your expenses today! Keep track of your spending.",
-        scheduledDate,
-        notificationDetails,
+        id: _dailyReminderId,
+        title: 'Daily Expense Reminder',
+        body: "Don't forget to log your expenses today! Keep track of your spending.",
+        scheduledDate: scheduledDate,
+        notificationDetails: notificationDetails,
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
         matchDateTimeComponents: DateTimeComponents.time, // Daily at same time
         payload: payload,
@@ -215,7 +215,7 @@ class DailyReminderScheduler {
 
   /// Cancel the daily reminder
   Future<void> cancelDailyReminder() async {
-    await _notificationsPlugin.cancel(_dailyReminderId);
+    await _notificationsPlugin.cancel(id: _dailyReminderId);
 
     // Update local storage
     final prefs = await SharedPreferences.getInstance();
@@ -312,10 +312,10 @@ class DailyReminderScheduler {
     );
 
     await _notificationsPlugin.show(
-      9999, // Test notification ID
-      'Test Notification',
-      'If you see this, notifications are working!',
-      notificationDetails,
+      id: 9999, // Test notification ID
+      title: 'Test Notification',
+      body: 'If you see this, notifications are working!',
+      notificationDetails: notificationDetails,
     );
 
     debugPrint('DailyReminderScheduler: Test notification sent');
