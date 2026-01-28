@@ -915,17 +915,6 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
   Widget _buildMessageInput(bool isLoading) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(28),
-        color: const Color(0xFF1a1a2e), // Solid dark background
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.3),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
         child: Row(
