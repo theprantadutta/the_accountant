@@ -9,6 +9,8 @@ import 'package:the_accountant/shared/widgets/main_navigation_container.dart';
 import 'package:the_accountant/core/themes/app_theme.dart';
 import 'package:the_accountant/core/services/subscription_expiry_checker.dart';
 import 'package:the_accountant/features/budgets/providers/budget_notification_provider.dart';
+import 'package:the_accountant/core/services/secure_token_storage.dart';
+import 'package:the_accountant/core/services/api_service.dart';
 
 class AuthWrapper extends ConsumerStatefulWidget {
   const AuthWrapper({super.key});
@@ -17,9 +19,56 @@ class AuthWrapper extends ConsumerStatefulWidget {
   ConsumerState<AuthWrapper> createState() => _AuthWrapperState();
 }
 
-class _AuthWrapperState extends ConsumerState<AuthWrapper> {
+class _AuthWrapperState extends ConsumerState<AuthWrapper> with WidgetsBindingObserver {
   bool _hasCheckedOnboarding = false;
   bool _hasRunStartupChecks = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+
+    // When app returns to foreground, check if token needs refresh
+    if (state == AppLifecycleState.resumed) {
+      _checkAndRefreshTokenOnResume();
+    }
+  }
+
+  /// Check and refresh token when app resumes from background
+  Future<void> _checkAndRefreshTokenOnResume() async {
+    debugPrint('AuthWrapper: App resumed - checking token status');
+
+    // Only check if user is authenticated
+    final authState = ref.read(authProvider);
+    if (!authState.isAuthenticated) return;
+
+    // Check if token is expiring soon
+    final isExpiringSoon = await SecureTokenStorage.isTokenExpiringSoon();
+    if (isExpiringSoon) {
+      debugPrint('AuthWrapper: Token expiring soon on resume - triggering refresh check');
+      // The API service will handle the actual refresh on the next request
+      // But we can also proactively trigger a lightweight request to force refresh
+      try {
+        // Try to get current user - this will trigger token refresh if needed
+        await ApiService().getCurrentUser();
+        debugPrint('AuthWrapper: Token refresh check completed successfully');
+      } catch (e) {
+        debugPrint('AuthWrapper: Token refresh check failed: $e');
+        // Don't logout here - the API service error handler will handle it
+      }
+    }
+  }
 
   /// Run startup notification checks (subscription expiry, budget alerts)
   Future<void> _runStartupChecks() async {

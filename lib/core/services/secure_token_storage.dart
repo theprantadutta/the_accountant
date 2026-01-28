@@ -47,14 +47,15 @@ class SecureTokenStorage {
     return expiry != null ? int.tryParse(expiry) : null;
   }
 
-  // Check if token is expiring soon (less than 2 minutes remaining)
+  // Check if token is expiring soon (less than 10 minutes remaining)
+  // Using 10 minutes buffer to ensure there's enough time to refresh
   static Future<bool> isTokenExpiringSoon() async {
     final expiry = await getTokenExpiry();
     if (expiry == null) return true;  // No expiry means we should refresh
 
     final now = DateTime.now().millisecondsSinceEpoch;
-    final twoMinutesInMs = 2 * 60 * 1000;
-    return (expiry - now) < twoMinutesInMs;
+    final tenMinutesInMs = 10 * 60 * 1000;
+    return (expiry - now) < tenMinutesInMs;
   }
 
   // Check if token is expired

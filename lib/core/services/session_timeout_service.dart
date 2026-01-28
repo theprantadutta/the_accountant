@@ -4,9 +4,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/features/authentication/providers/auth_provider.dart';
 
 class SessionTimeoutService {
-  static const int _timeoutDuration = 30 * 60; // 30 minutes in seconds
+  // Session timeout is disabled - we rely on token-based auth with automatic refresh
+  // Setting this to a very long duration (24 hours) as a safety net
+  // The actual auth persistence is handled by JWT tokens with 6-month expiry
+  static const int _timeoutDuration = 24 * 60 * 60; // 24 hours in seconds
   static const int _warningDuration =
       5 * 60; // 5 minutes warning before timeout
+
+  // Set to true to enable session timeout (disabled by default)
+  static const bool _isEnabled = false;
 
   Timer? _timeoutTimer;
   Timer? _warningTimer;
@@ -15,12 +21,16 @@ class SessionTimeoutService {
   final Ref ref;
 
   SessionTimeoutService(this.ref) {
-    // Start monitoring user activity
-    _startMonitoring();
+    // Only start monitoring if enabled
+    if (_isEnabled) {
+      _startMonitoring();
+    }
   }
 
   // Start monitoring for user activity
   void _startMonitoring() {
+    if (!_isEnabled) return;
+
     // Reset timers on user activity
     _resetTimers();
 
@@ -30,6 +40,8 @@ class SessionTimeoutService {
 
   // Reset timeout timers
   void _resetTimers() {
+    if (!_isEnabled) return;
+
     _isWarningShown = false;
 
     // Cancel existing timers
@@ -108,6 +120,8 @@ class SessionTimeoutService {
 
   // Handle user activity
   void handleUserActivity() {
+    if (!_isEnabled) return;
+
     if (!_isWarningShown) {
       _resetTimers();
     }

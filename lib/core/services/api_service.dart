@@ -109,11 +109,73 @@ class ApiService {
             // Don't logout for password verification failures (e.g., during account linking)
             final isPasswordError = errorDetail == 'Incorrect password';
 
-            if (!isPasswordError) {
-              _logger.w('Received 401 Unauthorized - triggering logout');
+            // Skip retry for auth endpoints to avoid infinite loops
+            final isAuthEndpoint = error.requestOptions.path.contains('/auth/refresh') ||
+                error.requestOptions.path.contains('/auth/login') ||
+                error.requestOptions.path.contains('/auth/register') ||
+                error.requestOptions.path.contains('/auth/firebase');
+
+            if (!isPasswordError && !isAuthEndpoint && !_isRefreshing) {
+              // Try to refresh the token before logging out
+              _logger.w('Received 401 Unauthorized - attempting token refresh before logout');
+
+              final refreshToken = await SecureTokenStorage.getRefreshToken();
+              if (refreshToken != null) {
+                _isRefreshing = true;
+                try {
+                  final refreshDio = Dio(BaseOptions(
+                    baseUrl: baseUrl + apiV1,
+                    headers: {'Content-Type': 'application/json'},
+                  ));
+
+                  final refreshResponse = await refreshDio.post(
+                    '/auth/refresh',
+                    data: {'token': refreshToken},
+                  );
+
+                  if (refreshResponse.statusCode == 200) {
+                    // Token refresh successful, retry the original request
+                    final newAccessToken = refreshResponse.data['access_token'];
+                    final newRefreshToken = refreshResponse.data['refresh_token'];
+                    final expiresIn = refreshResponse.data['expires_in'] as int;
+
+                    await saveToken(newAccessToken);
+                    await SecureTokenStorage.storeRefreshToken(newRefreshToken);
+                    await SecureTokenStorage.storeTokenExpiry(expiresIn);
+
+                    _logger.i('Token refresh successful on 401 - retrying original request');
+
+                    // Retry the original request with new token
+                    final opts = error.requestOptions;
+                    opts.headers['Authorization'] = 'Bearer $newAccessToken';
+
+                    try {
+                      final retryResponse = await _dio.fetch(opts);
+                      _isRefreshing = false;
+                      return handler.resolve(retryResponse);
+                    } catch (retryError) {
+                      _isRefreshing = false;
+                      _logger.e('Retry after token refresh failed: $retryError');
+                      // Fall through to logout
+                    }
+                  }
+                } catch (refreshError) {
+                  _logger.e('Token refresh on 401 failed: $refreshError');
+                } finally {
+                  _isRefreshing = false;
+                }
+              }
+
+              // Token refresh failed or not available, logout
+              _logger.w('Token refresh failed - triggering logout');
               await deleteToken();
               onUnauthorized?.call();
-            } else {
+            } else if (!isPasswordError && !isAuthEndpoint) {
+              // Already refreshing, just trigger logout
+              _logger.w('Received 401 while already refreshing - triggering logout');
+              await deleteToken();
+              onUnauthorized?.call();
+            } else if (isPasswordError) {
               _logger.w(
                 'Received 401 for incorrect password - NOT triggering logout',
               );
