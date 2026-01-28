@@ -5,10 +5,9 @@ import 'package:intl/intl.dart';
 import 'package:the_accountant/core/themes/app_theme.dart';
 import 'package:the_accountant/core/utils/animation_utils.dart';
 import 'package:the_accountant/data/models/premium_features.dart';
+import 'package:the_accountant/features/ai_assistant/models/chat_message.dart';
+import 'package:the_accountant/features/ai_assistant/providers/ai_chat_provider.dart';
 import 'package:the_accountant/features/premium/widgets/premium_gate.dart';
-// import 'package:the_accountant/features/ai_assistant/providers/gemini_provider.dart';
-// import 'package:the_accountant/features/transactions/providers/transaction_provider.dart';
-// import 'package:the_accountant/features/budgets/providers/budget_provider.dart';
 
 class AIAssistantScreen extends ConsumerStatefulWidget {
   const AIAssistantScreen({super.key});
@@ -44,20 +43,7 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
   late Animation<double> _slideAnimation;
   late Animation<double> _typingAnimation;
 
-  bool _isTyping = false;
-
-  // Mock conversation data
-  final List<Map<String, dynamic>> _messages = [
-    {
-      'text':
-          'Hello! I\'m your AI financial assistant. I\'m here to help you manage your finances, analyze your spending, and provide personalized advice. How can I assist you today?',
-      'isUser': false,
-      'timestamp': DateTime.now().subtract(const Duration(minutes: 5)),
-      'isWelcome': true,
-    },
-  ];
-
-  void _sendMessage([String? customMessage]) {
+  void _sendMessage([String? customMessage]) async {
     final message = customMessage ?? _textController.text.trim();
     if (message.isNotEmpty) {
       HapticFeedback.lightImpact();
@@ -65,75 +51,23 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
       // Close keyboard
       FocusManager.instance.primaryFocus?.unfocus();
 
-      setState(() {
-        _messages.add({
-          'text': message,
-          'isUser': true,
-          'timestamp': DateTime.now(),
-        });
-        _isTyping = true;
-      });
-
       if (customMessage == null) {
         _textController.clear();
       }
 
       _typingAnimationController.repeat();
 
-      // Simulate AI response delay
-      Future.delayed(const Duration(milliseconds: 1500), () {
-        _generateAIResponse(message);
-      });
+      // Send message via provider
+      await ref.read(aiChatProvider.notifier).sendMessage(message);
 
+      _typingAnimationController.stop();
       _scrollToBottom();
     }
   }
 
-  void _generateAIResponse(String userMessage) {
-    String response = '';
-    bool isInsight = false;
-    bool isSuggestion = false;
-
-    // Mock AI responses based on keywords
-    final lowerMessage = userMessage.toLowerCase();
-
-    if (lowerMessage.contains('spending') || lowerMessage.contains('analyze')) {
-      response =
-          'Based on your recent transactions, I can see that your largest expense category is Food & Dining at \$1,245 this month (35% of total expenses). You\'ve spent \$320 on transportation and \$710 on shopping. Your spending pattern shows you tend to spend more on weekends. Consider setting a weekly dining budget to better control this category.';
-      isInsight = true;
-    } else if (lowerMessage.contains('budget')) {
-      response =
-          'Here are some personalized budgeting tips:\n\n• Use the 50/30/20 rule: 50% for needs, 30% for wants, 20% for savings\n• Set up automatic transfers to savings\n• Track your expenses weekly\n• Use cashback rewards cards for recurring expenses\n• Review and adjust your budget monthly';
-      isSuggestion = true;
-    } else if (lowerMessage.contains('save')) {
-      response =
-          'To save more money, try these strategies:\n\n• Reduce dining out by cooking 2 more meals per week (save ~\$200/month)\n• Cancel unused subscriptions\n• Use the "24-hour rule" for non-essential purchases\n• Set up automatic savings transfers\n• Consider generic brands for groceries';
-      isSuggestion = true;
-    } else if (lowerMessage.contains('invest')) {
-      response =
-          'Based on your current savings rate, here are some investment options to consider:\n\n• Start with a high-yield savings account for emergency fund\n• Consider low-cost index funds for long-term growth\n• Max out your 401(k) match if available\n• Look into Roth IRA for tax-free growth\n• Dollar-cost averaging for consistent investing\n\nRemember to invest only what you can afford to lose and consult a financial advisor for personalized advice.';
-      isSuggestion = true;
-    } else if (lowerMessage.contains('hello') || lowerMessage.contains('hi')) {
-      response =
-          'Hello! I\'m excited to help you with your financial journey today. What would you like to know about your spending, savings, or budget?';
-    } else {
-      response =
-          'That\'s a great question! Based on your financial data, I\'d recommend focusing on creating a sustainable budget that aligns with your goals. Your current spending patterns show good discipline, but there\'s always room for optimization. Would you like me to analyze a specific category or help you set up a savings plan?';
-    }
-
-    setState(() {
-      _isTyping = false;
-      _messages.add({
-        'text': response,
-        'isUser': false,
-        'timestamp': DateTime.now(),
-        'isInsight': isInsight,
-        'isSuggestion': isSuggestion,
-      });
-    });
-
-    _typingAnimationController.stop();
-    _scrollToBottom();
+  void _clearChat() {
+    ref.read(aiChatProvider.notifier).clearMessages();
+    HapticFeedback.lightImpact();
   }
 
   void _scrollToBottom() {
@@ -176,6 +110,11 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
 
     // Add listener for text field focus to scroll to bottom
     _textController.addListener(_onTextChanged);
+
+    // Load chat history when screen opens
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(aiChatProvider.notifier).loadHistory();
+    });
   }
 
   void _onTextChanged() {
@@ -197,9 +136,20 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
 
   @override
   Widget build(BuildContext context) {
+    // Watch chat state from provider
+    final chatState = ref.watch(aiChatProvider);
+    final isLoading = chatState.isLoading;
+    final isLoadingHistory = chatState.isLoadingHistory;
+    final messages = chatState.messages;
+
     // Get keyboard state
     final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
     final isKeyboardOpen = keyboardHeight > 0;
+
+    // Scroll to bottom when messages change
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _scrollToBottom();
+    });
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -218,6 +168,10 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
                 begin: const Offset(0, -1),
                 child: _buildAIHeader(),
               ),
+
+            // Error banner
+            if (chatState.hasError && !isKeyboardOpen)
+              _buildErrorBanner(chatState.errorMessage, chatState.errorType),
 
             // Quick action buttons - hide when keyboard is open
             if (!isKeyboardOpen) ...[
@@ -241,24 +195,113 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
                   startFraction: 0.2,
                   endFraction: 0.5,
                 ),
-                child: _buildChatArea(),
+                child: isLoadingHistory
+                    ? _buildLoadingHistoryIndicator()
+                    : _buildChatArea(messages),
               ),
             ),
 
             // Typing Indicator - smaller when keyboard is open
-            if (_isTyping)
+            if (isLoading)
               AnimationUtils.fadeTransition(
                 animation: _typingAnimation,
                 child: _buildTypingIndicator(),
               ),
 
             // Message Input - properly at bottom
-            _buildMessageInput(),
+            _buildMessageInput(isLoading || isLoadingHistory),
 
             // Bottom spacing
             SizedBox(height: isKeyboardOpen ? 8 : 16),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildLoadingHistoryIndicator() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        color: Colors.white.withValues(alpha: 0.03),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.08),
+          width: 1,
+        ),
+      ),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF667eea)),
+              strokeWidth: 2,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Loading conversation...',
+              style: TextStyle(
+                color: Colors.white.withValues(alpha: 0.7),
+                fontSize: 14,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildErrorBanner(String? errorMessage, String? errorType) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: Colors.orange.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: Colors.orange.withValues(alpha: 0.4),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            Icons.warning_amber_rounded,
+            color: Colors.orange.shade300,
+            size: 20,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              errorMessage ?? 'AI response may be limited',
+              style: TextStyle(
+                color: Colors.orange.shade200,
+                fontSize: 13,
+              ),
+            ),
+          ),
+          GestureDetector(
+            onTap: () {
+              ref.read(aiChatProvider.notifier).retryLastMessage();
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: Colors.orange.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                'Retry',
+                style: TextStyle(
+                  color: Colors.orange.shade200,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -338,7 +381,7 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
                         ),
                       ),
                       Text(
-                        'Smart insights • Budget tips • Personalized advice',
+                        'Smart insights \u2022 Budget tips \u2022 Personalized advice',
                         style: TextStyle(
                           color: Colors.white.withValues(alpha: 0.8),
                           fontSize: 13,
@@ -348,19 +391,7 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
                   ),
                 ),
                 GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      _messages.clear();
-                      _messages.add({
-                        'text':
-                            'Hello! I\'m your AI financial assistant. I\'m here to help you manage your finances, analyze your spending, and provide personalized advice. How can I assist you today?',
-                        'isUser': false,
-                        'timestamp': DateTime.now(),
-                        'isWelcome': true,
-                      });
-                    });
-                    HapticFeedback.lightImpact();
-                  },
+                  onTap: _clearChat,
                   child: Container(
                     width: 38,
                     height: 38,
@@ -500,7 +531,7 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
     );
   }
 
-  Widget _buildChatArea() {
+  Widget _buildChatArea(List<ChatMessage> messages) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
@@ -522,16 +553,17 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
       child: ListView.builder(
         controller: _scrollController,
         padding: const EdgeInsets.all(16),
-        itemCount: _messages.length,
+        itemCount: messages.length,
         itemBuilder: (context, index) {
-          final message = _messages[index];
+          final message = messages[index];
           return _buildMessageBubble(
-            message['text'],
-            message['isUser'],
-            message['timestamp'],
-            isInsight: message['isInsight'] as bool? ?? false,
-            isSuggestion: message['isSuggestion'] as bool? ?? false,
-            isWelcome: message['isWelcome'] as bool? ?? false,
+            message.text,
+            message.isFromUser,
+            message.timestamp,
+            isInsight: message.isInsight,
+            isSuggestion: message.isSuggestion,
+            isWelcome: message.isWelcome,
+            isError: message.isAiFallback,
           );
         },
       ),
@@ -646,11 +678,17 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
     bool isInsight = false,
     bool isSuggestion = false,
     bool isWelcome = false,
+    bool isError = false,
   }) {
     // Determine accent color for special messages
-    final accentColor = isInsight || isWelcome
-        ? const Color(0xFF667eea)
-        : const Color(0xFF11998e);
+    final Color accentColor;
+    if (isError) {
+      accentColor = Colors.orange;
+    } else if (isInsight || isWelcome) {
+      accentColor = const Color(0xFF667eea);
+    } else {
+      accentColor = const Color(0xFF11998e);
+    }
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -680,11 +718,15 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
                   width: 36,
                   height: 36,
                   decoration: BoxDecoration(
-                    gradient: isWelcome
-                        ? AppTheme.primaryGradient
-                        : (isInsight
-                              ? AppTheme.secondaryGradient
-                              : AppTheme.primaryGradient),
+                    gradient: isError
+                        ? LinearGradient(
+                            colors: [Colors.orange.shade400, Colors.orange.shade600],
+                          )
+                        : (isWelcome
+                            ? AppTheme.primaryGradient
+                            : (isInsight
+                                  ? AppTheme.secondaryGradient
+                                  : AppTheme.primaryGradient)),
                     borderRadius: BorderRadius.circular(18),
                     boxShadow: [
                       BoxShadow(
@@ -695,13 +737,15 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
                     ],
                   ),
                   child: Icon(
-                    isWelcome
-                        ? Icons.waving_hand
-                        : (isInsight
-                              ? Icons.lightbulb
-                              : (isSuggestion
-                                    ? Icons.tips_and_updates
-                                    : Icons.auto_awesome)),
+                    isError
+                        ? Icons.warning_amber_rounded
+                        : (isWelcome
+                            ? Icons.waving_hand
+                            : (isInsight
+                                  ? Icons.lightbulb
+                                  : (isSuggestion
+                                        ? Icons.tips_and_updates
+                                        : Icons.auto_awesome))),
                     color: Colors.white,
                     size: 18,
                   ),
@@ -725,11 +769,13 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
                     gradient: isUser ? AppTheme.primaryGradient : null,
                     color: isUser
                         ? null
-                        : (isInsight
-                              ? const Color(0xFF667eea).withValues(alpha: 0.15)
-                              : (isSuggestion
-                                    ? const Color(0xFF11998e).withValues(alpha: 0.15)
-                                    : Colors.white.withValues(alpha: 0.08))),
+                        : (isError
+                              ? Colors.orange.withValues(alpha: 0.15)
+                              : (isInsight
+                                    ? const Color(0xFF667eea).withValues(alpha: 0.15)
+                                    : (isSuggestion
+                                          ? const Color(0xFF11998e).withValues(alpha: 0.15)
+                                          : Colors.white.withValues(alpha: 0.08)))),
                     borderRadius: BorderRadius.only(
                       topLeft: const Radius.circular(20),
                       topRight: const Radius.circular(20),
@@ -739,7 +785,7 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
                     border: Border.all(
                       color: isUser
                           ? Colors.transparent
-                          : (isInsight || isSuggestion || isWelcome
+                          : (isError || isInsight || isSuggestion || isWelcome
                               ? accentColor.withValues(alpha: 0.4)
                               : Colors.white.withValues(alpha: 0.1)),
                       width: 1,
@@ -753,7 +799,7 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
                         )
                       else
                         BoxShadow(
-                          color: (isInsight || isSuggestion || isWelcome)
+                          color: (isError || isInsight || isSuggestion || isWelcome)
                               ? accentColor.withValues(alpha: 0.15)
                               : Colors.black.withValues(alpha: 0.2),
                           blurRadius: 10,
@@ -766,26 +812,30 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
                         ? CrossAxisAlignment.end
                         : CrossAxisAlignment.start,
                     children: [
-                      if (isInsight || isSuggestion || isWelcome) ...[
+                      if (isError || isInsight || isSuggestion || isWelcome) ...[
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(
-                              isWelcome
-                                  ? Icons.auto_awesome
-                                  : (isInsight
-                                        ? Icons.analytics
-                                        : Icons.tips_and_updates),
+                              isError
+                                  ? Icons.cloud_off
+                                  : (isWelcome
+                                      ? Icons.auto_awesome
+                                      : (isInsight
+                                            ? Icons.analytics
+                                            : Icons.tips_and_updates)),
                               color: accentColor,
                               size: 16,
                             ),
                             const SizedBox(width: 6),
                             Text(
-                              isWelcome
-                                  ? 'AI Assistant'
-                                  : (isInsight
-                                        ? 'Financial Insight'
-                                        : 'Pro Tips'),
+                              isError
+                                  ? 'Connection Issue'
+                                  : (isWelcome
+                                      ? 'AI Assistant'
+                                      : (isInsight
+                                            ? 'Financial Insight'
+                                            : 'Pro Tips')),
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: accentColor,
@@ -862,7 +912,7 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
     );
   }
 
-  Widget _buildMessageInput() {
+  Widget _buildMessageInput(bool isLoading) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
@@ -892,6 +942,7 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
                 ),
                 child: TextField(
                   controller: _textController,
+                  enabled: !isLoading,
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 16,
@@ -899,7 +950,7 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
                   ),
                   cursorColor: const Color(0xFF667eea),
                   decoration: InputDecoration(
-                    hintText: 'Ask about your finances...',
+                    hintText: isLoading ? 'Waiting for response...' : 'Ask about your finances...',
                     hintStyle: TextStyle(
                       color: Colors.white.withValues(alpha: 0.4),
                       fontSize: 16,
@@ -921,27 +972,40 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
             ),
             const SizedBox(width: 8),
             GestureDetector(
-              onTap: () => _sendMessage(),
+              onTap: isLoading ? null : () => _sendMessage(),
               child: Container(
                 width: 46,
                 height: 46,
                 decoration: BoxDecoration(
-                  gradient: AppTheme.primaryGradient,
+                  gradient: isLoading
+                      ? LinearGradient(
+                          colors: [
+                            Colors.grey.shade600,
+                            Colors.grey.shade700,
+                          ],
+                        )
+                      : AppTheme.primaryGradient,
                   borderRadius: BorderRadius.circular(23),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFF667eea).withValues(alpha: 0.5),
-                      blurRadius: 14,
-                      offset: const Offset(0, 4),
-                    ),
-                    BoxShadow(
-                      color: const Color(0xFF667eea).withValues(alpha: 0.3),
-                      blurRadius: 20,
-                      spreadRadius: 1,
-                    ),
-                  ],
+                  boxShadow: isLoading
+                      ? null
+                      : [
+                          BoxShadow(
+                            color: const Color(0xFF667eea).withValues(alpha: 0.5),
+                            blurRadius: 14,
+                            offset: const Offset(0, 4),
+                          ),
+                          BoxShadow(
+                            color: const Color(0xFF667eea).withValues(alpha: 0.3),
+                            blurRadius: 20,
+                            spreadRadius: 1,
+                          ),
+                        ],
                 ),
-                child: const Icon(Icons.send_rounded, color: Colors.white, size: 20),
+                child: Icon(
+                  isLoading ? Icons.hourglass_empty : Icons.send_rounded,
+                  color: Colors.white,
+                  size: 20,
+                ),
               ),
             ),
           ],
