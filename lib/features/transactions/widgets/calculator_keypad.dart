@@ -198,7 +198,7 @@ class _CalculatorKeypadState extends State<CalculatorKeypad> {
       children: [
         // Amount Display
         _buildAmountDisplay(accentColor),
-        AppSpacing.gapLg,
+        AppSpacing.gapMd,
 
         // Calculator Keypad
         _buildKeypad(accentColor),
@@ -220,7 +220,7 @@ class _CalculatorKeypadState extends State<CalculatorKeypad> {
 
     return Container(
       width: double.infinity,
-      padding: AppSpacing.paddingXxl,
+      padding: AppSpacing.paddingLg,
       decoration: BoxDecoration(
         color: AppColors.primarySurface,
         borderRadius: AppSpacing.borderRadiusLg,
@@ -482,7 +482,7 @@ class _KeyButtonState extends State<_KeyButton>
             );
           },
           child: Container(
-            height: 64,
+            height: 56,
             decoration: BoxDecoration(
               color: widget.backgroundColor,
               borderRadius: AppSpacing.borderRadiusMd,

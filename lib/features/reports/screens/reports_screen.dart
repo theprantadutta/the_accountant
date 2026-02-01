@@ -61,31 +61,6 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
     super.dispose();
   }
 
-  Color _getCategoryColor(String categoryName) {
-    switch (categoryName.toLowerCase()) {
-      case 'food & dining':
-      case 'food':
-        return const Color(0xFF667eea);
-      case 'transportation':
-      case 'transport':
-        return const Color(0xFF11998e);
-      case 'shopping':
-        return const Color(0xFFFF6B6B);
-      case 'entertainment':
-        return const Color(0xFFFFE66D);
-      case 'bills':
-      case 'utilities':
-        return const Color(0xFF4ECDC4);
-      case 'salary':
-      case 'income':
-        return const Color(0xFF98D8C8);
-      case 'freelance':
-        return const Color(0xFFDDA0DD);
-      default:
-        return const Color(0xFF999999);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final financialData = ref.watch(financialDataProvider);
@@ -179,7 +154,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
                 child: _buildBudgetComparison(),
               ),
 
-              const SizedBox(height: 100), // Bottom padding for nav bar
+              // const SizedBox(height: 100), // Bottom padding for nav bar
             ],
           ),
         ),
@@ -223,7 +198,9 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
                   decoration: BoxDecoration(
                     gradient: isSelected ? AppTheme.primaryGradient : null,
                     borderRadius: BorderRadius.circular(12),
-                    color: isLocked ? Colors.white.withValues(alpha: 0.05) : null,
+                    color: isLocked
+                        ? Colors.white.withValues(alpha: 0.05)
+                        : null,
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -243,11 +220,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
                       ),
                       if (isLocked) ...[
                         const SizedBox(width: 4),
-                        const Icon(
-                          Icons.lock,
-                          size: 12,
-                          color: Colors.white38,
-                        ),
+                        const Icon(Icons.lock, size: 12, color: Colors.white38),
                       ],
                     ],
                   ),
@@ -265,17 +238,12 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xFF1a1a2e),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Row(
           children: [
             Icon(Icons.analytics, color: Colors.amber),
             SizedBox(width: 8),
-            Text(
-              'Advanced Reports',
-              style: TextStyle(color: Colors.white),
-            ),
+            Text('Advanced Reports', style: TextStyle(color: Colors.white)),
           ],
         ),
         content: const Text(
@@ -616,7 +584,8 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
       },
       {
         'title': 'Net Savings',
-        'amount': '$currencySymbol${NumberFormat('#,##0.00').format(netSavings)}',
+        'amount':
+            '$currencySymbol${NumberFormat('#,##0.00').format(netSavings)}',
         'change':
             '${growthPercentage >= 0 ? '+' : ''}${growthPercentage.toStringAsFixed(1)}%',
         'color': const Color(0xFF45B7D1),
@@ -713,9 +682,12 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
   }
 
   Widget _buildCategoryBreakdown() {
-    final financialData = ref.watch(financialDataProvider);
-    final currencySymbol = CurrencyInfo.getSymbol(ref.watch(defaultCurrencyProvider));
-    final categorySpending = financialData.categorySpending;
+    final currencySymbol = CurrencyInfo.getSymbol(
+      ref.watch(defaultCurrencyProvider),
+    );
+    // Use categorySpendingProvider which maps category IDs to names
+    final categorySpending = ref.watch(categorySpendingProvider);
+    final categoryState = ref.watch(categoryProvider);
     final totalSpending = categorySpending.values.fold(
       0.0,
       (sum, amount) => sum + amount,
@@ -727,11 +699,26 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
           final percentage = totalSpending > 0
               ? (entry.value / totalSpending * 100).round()
               : 0;
+          // Find category by name to get its color
+          final category = categoryState.categories.firstWhere(
+            (c) => c.name == entry.key,
+            orElse: () => Category(
+              id: '',
+              name: entry.key,
+              colorCode: '#999999',
+              type: 'expense',
+              isDefault: false,
+            ),
+          );
+          final categoryColor = Color(
+            int.parse(category.colorCode.replaceFirst('#', '0xFF')),
+          );
           return {
             'name': entry.key,
-            'amount': '$currencySymbol${NumberFormat('#,##0.00').format(entry.value)}',
+            'amount':
+                '$currencySymbol${NumberFormat('#,##0.00').format(entry.value)}',
             'percentage': percentage,
-            'color': _getCategoryColor(entry.key),
+            'color': categoryColor,
           };
         }).toList()..sort(
           (a, b) => (b['percentage'] as int).compareTo(a['percentage'] as int),
@@ -860,7 +847,9 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
 
   Widget _buildBudgetComparison() {
     final reportsState = ref.watch(reportsProvider);
-    final currencySymbol = CurrencyInfo.getSymbol(ref.watch(defaultCurrencyProvider));
+    final currencySymbol = CurrencyInfo.getSymbol(
+      ref.watch(defaultCurrencyProvider),
+    );
     final budgets = reportsState.budgetComparison;
 
     // If no budgets, show empty state
@@ -953,7 +942,9 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
                             Text(
                               '$currencySymbol${budget.spent.toStringAsFixed(0)}',
                               style: TextStyle(
-                                color: budget.isOverBudget ? Colors.red : Colors.white,
+                                color: budget.isOverBudget
+                                    ? Colors.red
+                                    : Colors.white,
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -972,7 +963,8 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
                     const SizedBox(height: 8),
                     LayoutBuilder(
                       builder: (context, constraints) {
-                        final progressWidth = constraints.maxWidth *
+                        final progressWidth =
+                            constraints.maxWidth *
                             (budget.percentage > 1.0 ? 1.0 : budget.percentage);
                         return Stack(
                           children: [

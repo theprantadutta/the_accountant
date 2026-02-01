@@ -517,6 +517,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                           amount: transaction.amount,
                           date: transaction.date,
                           transactionType: transaction.type,
+                          walletId: transaction.walletId,
                           notes: transaction.notes,
                           onTap: () {
                             _editTransaction(transaction);

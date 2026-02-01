@@ -28,6 +28,8 @@ Future<bool?> showCashewTransactionScreen(
   BuildContext context, {
   TransactionTypeSelection initialType = TransactionTypeSelection.expense,
   Transaction? existingTransaction,
+  double? prefillAmount,
+  String? prefillTitle,
 }) {
   return Navigator.of(context).push<bool>(
     PageRouteBuilder(
@@ -35,6 +37,8 @@ Future<bool?> showCashewTransactionScreen(
         return CashewTransactionScreen(
           initialType: initialType,
           existingTransaction: existingTransaction,
+          prefillAmount: prefillAmount,
+          prefillTitle: prefillTitle,
         );
       },
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
@@ -56,11 +60,15 @@ Future<bool?> showCashewTransactionScreen(
 class CashewTransactionScreen extends ConsumerStatefulWidget {
   final TransactionTypeSelection initialType;
   final Transaction? existingTransaction;
+  final double? prefillAmount;
+  final String? prefillTitle;
 
   const CashewTransactionScreen({
     super.key,
     this.initialType = TransactionTypeSelection.expense,
     this.existingTransaction,
+    this.prefillAmount,
+    this.prefillTitle,
   });
 
   @override
@@ -124,9 +132,11 @@ class _CashewTransactionScreenState
     } else {
       _transactionType = widget.initialType;
       _initDefaults();
-      // Auto-focus title field for new transactions
+      // Auto-focus title field only if title is empty
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        _titleFocusNode.requestFocus();
+        if (_titleController.text.isEmpty) {
+          _titleFocusNode.requestFocus();
+        }
       });
     }
   }
@@ -149,6 +159,14 @@ class _CashewTransactionScreenState
   }
 
   void _initDefaults() {
+    // Apply prefill values if provided
+    if (widget.prefillAmount != null) {
+      _amount = widget.prefillAmount!;
+    }
+    if (widget.prefillTitle != null) {
+      _titleController.text = widget.prefillTitle!;
+    }
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final wallets = ref.read(walletProvider).wallets;
       if (wallets.isNotEmpty) {
@@ -207,7 +225,7 @@ class _CashewTransactionScreenState
     });
   }
 
-  Future<void> _showCategoryPicker() async {
+  Future<void> _showCategoryPicker({bool openAmountAfter = false}) async {
     final category = await showCategoryPickerSheet(
       context: context,
       ref: ref,
@@ -221,6 +239,11 @@ class _CashewTransactionScreenState
         _selectedCategoryId = category.id;
         _selectedCategory = category;
       });
+
+      // Auto-open amount input after category selection
+      if (openAmountAfter) {
+        _showCalculator();
+      }
     }
   }
 
@@ -457,6 +480,14 @@ class _CashewTransactionScreenState
                   ),
                   const SizedBox(height: 16),
 
+                  // Title input
+                  _buildTitleInput(),
+                  const SizedBox(height: 12),
+
+                  // Notes input
+                  _buildNotesInput(),
+                  const SizedBox(height: 20),
+
                   if (_isTransfer) ...[
                     // Transfer: From/To wallet selectors
                     _buildTransferWalletSelectors(wallets),
@@ -479,19 +510,7 @@ class _CashewTransactionScreenState
                       accentColor: _accentColor,
                     ),
                   ],
-                  const SizedBox(height: 20),
-
-                  // Title input
-                  _buildTitleInput(),
-                  const SizedBox(height: 12),
-
-                  // Notes input
-                  _buildNotesInput(),
                   const SizedBox(height: 10),
-
-                  // More options (expandable)
-                  // if (!_isTransfer) _buildMoreOptions(),
-                  // const SizedBox(height: 100), // Space for save button
                 ],
               ),
             ),
@@ -693,32 +712,37 @@ class _CashewTransactionScreenState
       child: TextField(
         controller: _titleController,
         focusNode: _titleFocusNode,
-        style: TextStyle(fontSize: 15, color: AppColors.textPrimary),
+        style: TextStyle(fontSize: 16, color: AppColors.textPrimary),
+        textInputAction: TextInputAction.done,
+        onSubmitted: (_) {
+          // After title is submitted, open category picker (then amount)
+          if (!_isTransfer && _selectedCategoryId == null) {
+            _showCategoryPicker(openAmountAfter: true);
+          } else if (!_isTransfer && _amount == 0) {
+            // Category already selected, just open amount
+            _showCalculator();
+          }
+        },
         decoration: InputDecoration(
-          hintText: 'Title (optional)',
+          hintText: 'Title',
           hintStyle: TextStyle(color: AppColors.textMuted),
           filled: true,
-          fillColor: AppColors.primarySurface,
+          fillColor: Colors.white.withValues(alpha: 0.05),
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: AppColors.divider),
+            borderRadius: BorderRadius.circular(14),
+            borderSide: BorderSide.none,
           ),
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: AppColors.divider),
+            borderRadius: BorderRadius.circular(14),
+            borderSide: BorderSide.none,
           ),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(14),
             borderSide: BorderSide(color: _accentColor, width: 2),
           ),
           contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 14,
-          ),
-          suffixIcon: Icon(
-            Icons.edit_outlined,
-            size: 20,
-            color: AppColors.textMuted,
+            horizontal: 18,
+            vertical: 16,
           ),
         ),
       ),
@@ -730,34 +754,29 @@ class _CashewTransactionScreenState
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: TextField(
         controller: _notesController,
-        style: TextStyle(fontSize: 15, color: AppColors.textPrimary),
+        style: TextStyle(fontSize: 16, color: AppColors.textPrimary),
         maxLines: 3,
         minLines: 1,
         decoration: InputDecoration(
-          hintText: 'Notes',
+          hintText: 'Notes (optional)',
           hintStyle: TextStyle(color: AppColors.textMuted),
           filled: true,
-          fillColor: AppColors.primarySurface,
+          fillColor: Colors.white.withValues(alpha: 0.05),
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: AppColors.divider),
+            borderRadius: BorderRadius.circular(14),
+            borderSide: BorderSide.none,
           ),
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: AppColors.divider),
+            borderRadius: BorderRadius.circular(14),
+            borderSide: BorderSide.none,
           ),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(14),
             borderSide: BorderSide(color: _accentColor, width: 2),
           ),
           contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 14,
-          ),
-          suffixIcon: Icon(
-            Icons.notes_outlined,
-            size: 20,
-            color: AppColors.textMuted,
+            horizontal: 18,
+            vertical: 16,
           ),
         ),
       ),

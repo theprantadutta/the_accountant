@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:the_accountant/core/providers/currency_provider.dart';
+import 'package:the_accountant/core/services/currency_service.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/core/themes/app_typography.dart';
@@ -234,7 +236,10 @@ class _UpcomingTransactionsScreenState
     );
 
     final dateFormat = DateFormat('MMM d, yyyy');
-    final currencyFormat = NumberFormat.currency(symbol: '\$');
+    final walletCurrency = ref.watch(walletCurrencyProvider(transaction.walletId));
+    final currencyFormat = NumberFormat.currency(
+      symbol: CurrencyInfo.getSymbol(walletCurrency),
+    );
 
     final daysUntilDue = transaction.date.difference(DateTime.now()).inDays;
     final isToday = daysUntilDue == 0;

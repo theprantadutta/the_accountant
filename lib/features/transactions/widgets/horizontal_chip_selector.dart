@@ -33,7 +33,7 @@ class HorizontalChipSelector<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 44,
+      height: 36,
       child: Row(
         children: [
           if (showLeadingIcon && leadingIcon != null) ...[
@@ -114,15 +114,15 @@ class _ChipItem extends StatelessWidget {
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
           color: isSelected
-              ? color.withValues(alpha: 0.2)
+              ? color.withValues(alpha: 0.1)
               : AppColors.primarySurface,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(18),
           border: Border.all(
-            color: isSelected ? color : AppColors.divider,
-            width: isSelected ? 2 : 1,
+            color: isSelected ? color.withValues(alpha: 0.5) : AppColors.divider,
+            width: 1,
           ),
         ),
         child: Row(

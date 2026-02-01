@@ -17,12 +17,13 @@ import 'package:the_accountant/core/services/currency_service.dart';
 import 'package:the_accountant/shared/widgets/glass_card.dart';
 import 'package:the_accountant/shared/widgets/stat_card.dart';
 import 'package:the_accountant/shared/widgets/shimmer_loading.dart';
-import 'package:the_accountant/features/transactions/screens/upcoming_transactions_screen.dart';
-import 'package:the_accountant/features/transactions/screens/add_transaction_screen.dart';
-import 'package:the_accountant/features/transactions/widgets/transaction_type_header.dart';
-import 'package:the_accountant/features/credit_debt/screens/credit_debt_screen.dart';
+// import 'package:the_accountant/features/transactions/screens/upcoming_transactions_screen.dart';
+// import 'package:the_accountant/features/transactions/screens/add_transaction_screen.dart';
+// import 'package:the_accountant/features/transactions/widgets/transaction_type_header.dart';
+// import 'package:the_accountant/features/credit_debt/screens/credit_debt_screen.dart';
 import 'package:the_accountant/features/budgets/screens/budget_list_screen.dart';
 import 'package:the_accountant/features/dashboard/widgets/wallet_cards_section.dart';
+import 'package:the_accountant/features/transactions/screens/transaction_list_screen.dart';
 
 class ResponsiveFinancialOverview extends ConsumerStatefulWidget {
   const ResponsiveFinancialOverview({super.key});
@@ -63,9 +64,7 @@ class _ResponsiveFinancialOverviewState
     if (financialData.isLoading) {
       return const Scaffold(
         backgroundColor: Colors.transparent,
-        body: SafeArea(
-          child: ShimmerDashboard(),
-        ),
+        body: SafeArea(child: ShimmerDashboard()),
       );
     }
 
@@ -121,62 +120,58 @@ class _ResponsiveFinancialOverviewState
             physics: const AlwaysScrollableScrollPhysics(),
             padding: AppSpacing.paddingScreen,
             child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              AppSpacing.gapLg,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                AppSpacing.gapLg,
 
-              // Greeting Section
-              _buildAnimatedSection(0.0, 0.3, _buildGreetingSection()),
+                // Greeting Section
+                _buildAnimatedSection(0.0, 0.3, _buildGreetingSection()),
 
-              AppSpacing.gapXxl,
+                AppSpacing.gapXxl,
 
-              // Wallet Cards Section (horizontal scrollable accounts)
-              _buildAnimatedSection(
-                0.1,
-                0.4,
-                const WalletCardsSection(),
-              ),
+                // Wallet Cards Section (horizontal scrollable accounts)
+                _buildAnimatedSection(0.1, 0.4, const WalletCardsSection()),
 
-              AppSpacing.gapXl,
+                AppSpacing.gapXl,
 
-              // Quick Stats Row
-              _buildAnimatedSection(
-                0.2,
-                0.5,
-                _buildQuickStats(
-                  financialData.monthlyIncome,
-                  financialData.monthlyExpenses,
+                // Quick Stats Row
+                _buildAnimatedSection(
+                  0.2,
+                  0.5,
+                  _buildQuickStats(
+                    financialData.monthlyIncome,
+                    financialData.monthlyExpenses,
+                  ),
                 ),
-              ),
 
-              AppSpacing.gapXl,
+                AppSpacing.gapXl,
 
-              // Quick Actions
-              _buildAnimatedSection(0.3, 0.6, _buildQuickActions()),
+                // Quick Actions
+                // _buildAnimatedSection(0.3, 0.6, _buildQuickActions()),
 
-              AppSpacing.gapXl,
+                // AppSpacing.gapXl,
 
-              // Spending Chart
-              _buildAnimatedSection(0.4, 0.7, _buildSpendingChart()),
+                // Spending Chart
+                _buildAnimatedSection(0.4, 0.7, _buildSpendingChart()),
 
-              AppSpacing.gapXl,
+                AppSpacing.gapXl,
 
-              // Recent Transactions
-              _buildAnimatedSection(
-                0.5,
-                0.8,
-                _buildRecentTransactions(financialData.recentTransactions),
-              ),
+                // Recent Transactions
+                _buildAnimatedSection(
+                  0.5,
+                  0.8,
+                  _buildRecentTransactions(financialData.recentTransactions),
+                ),
 
-              AppSpacing.gapXl,
+                AppSpacing.gapXl,
 
-              // Budget Progress
-              _buildAnimatedSection(0.6, 0.9, _buildBudgetProgress()),
+                // Budget Progress
+                _buildAnimatedSection(0.6, 0.9, _buildBudgetProgress()),
 
-              SizedBox(height: AppSpacing.lg), // Bottom padding
-            ],
+                SizedBox(height: AppSpacing.lg), // Bottom padding
+              ],
+            ),
           ),
-        ),
         ),
       ),
     );
@@ -184,13 +179,13 @@ class _ResponsiveFinancialOverviewState
 
   Widget _buildAnimatedSection(double start, double end, Widget child) {
     return SlideTransition(
-      position: Tween<Offset>(
-        begin: const Offset(0, 0.3),
-        end: Offset.zero,
-      ).animate(CurvedAnimation(
-        parent: _animationController,
-        curve: Interval(start, end, curve: AppAnimations.easeOut),
-      )),
+      position: Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero)
+          .animate(
+            CurvedAnimation(
+              parent: _animationController,
+              curve: Interval(start, end, curve: AppAnimations.easeOut),
+            ),
+          ),
       child: FadeTransition(
         opacity: CurvedAnimation(
           parent: _animationController,
@@ -289,126 +284,126 @@ class _ResponsiveFinancialOverviewState
     );
   }
 
-  Widget _buildQuickActions() {
-    final actions = [
-      {
-        'icon': Icons.add_rounded,
-        'label': 'Add',
-        'color': AppColors.primaryAccent,
-        'route': 'add',
-      },
-      {
-        'icon': Icons.schedule_rounded,
-        'label': 'Upcoming',
-        'color': AppColors.warning,
-        'route': 'upcoming',
-      },
-      {
-        'icon': Icons.account_balance_wallet_rounded,
-        'label': 'Lend/Borrow',
-        'color': AppColors.neonCyan,
-        'route': 'credit_debt',
-      },
-      {
-        'icon': Icons.savings_rounded,
-        'label': 'Goals',
-        'color': AppColors.success,
-        'route': 'goals',
-      },
-      {
-        'icon': Icons.swap_horiz_rounded,
-        'label': 'Transfer',
-        'color': AppColors.neonPurple,
-        'route': 'transfer',
-      },
-    ];
+  // Widget _buildQuickActions() {
+  //   final actions = [
+  //     {
+  //       'icon': Icons.add_rounded,
+  //       'label': 'Add',
+  //       'color': AppColors.primaryAccent,
+  //       'route': 'add',
+  //     },
+  //     {
+  //       'icon': Icons.schedule_rounded,
+  //       'label': 'Upcoming',
+  //       'color': AppColors.warning,
+  //       'route': 'upcoming',
+  //     },
+  //     {
+  //       'icon': Icons.account_balance_wallet_rounded,
+  //       'label': 'Lend/Borrow',
+  //       'color': AppColors.neonCyan,
+  //       'route': 'credit_debt',
+  //     },
+  //     {
+  //       'icon': Icons.savings_rounded,
+  //       'label': 'Goals',
+  //       'color': AppColors.success,
+  //       'route': 'goals',
+  //     },
+  //     {
+  //       'icon': Icons.swap_horiz_rounded,
+  //       'label': 'Transfer',
+  //       'color': AppColors.neonPurple,
+  //       'route': 'transfer',
+  //     },
+  //   ];
 
-    return SizedBox(
-      height: 100,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: actions.length,
-        itemBuilder: (context, index) {
-          final action = actions[index];
-          final color = action['color'] as Color;
-          return Container(
-            margin: EdgeInsets.only(right: AppSpacing.md),
-            child: GlassCard(
-              width: 80,
-              onTap: () {
-                HapticFeedback.lightImpact();
-                _handleQuickAction(action['route'] as String?);
-              },
-              padding: AppSpacing.paddingSm,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: color.withValues(alpha: 0.15),
-                      borderRadius: AppSpacing.borderRadiusMd,
-                    ),
-                    child: Icon(
-                      action['icon'] as IconData,
-                      color: color,
-                      size: AppSpacing.iconSm,
-                    ),
-                  ),
-                  AppSpacing.gapXs,
-                  Text(
-                    action['label'] as String,
-                    style: AppTypography.labelSmall,
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
+  //   return SizedBox(
+  //     height: 100,
+  //     child: ListView.builder(
+  //       scrollDirection: Axis.horizontal,
+  //       itemCount: actions.length,
+  //       itemBuilder: (context, index) {
+  //         final action = actions[index];
+  //         final color = action['color'] as Color;
+  //         return Container(
+  //           margin: EdgeInsets.only(right: AppSpacing.md),
+  //           child: GlassCard(
+  //             width: 80,
+  //             onTap: () {
+  //               HapticFeedback.lightImpact();
+  //               _handleQuickAction(action['route'] as String?);
+  //             },
+  //             padding: AppSpacing.paddingSm,
+  //             child: Column(
+  //               mainAxisAlignment: MainAxisAlignment.center,
+  //               mainAxisSize: MainAxisSize.min,
+  //               children: [
+  //                 Container(
+  //                   width: 40,
+  //                   height: 40,
+  //                   decoration: BoxDecoration(
+  //                     color: color.withValues(alpha: 0.15),
+  //                     borderRadius: AppSpacing.borderRadiusMd,
+  //                   ),
+  //                   child: Icon(
+  //                     action['icon'] as IconData,
+  //                     color: color,
+  //                     size: AppSpacing.iconSm,
+  //                   ),
+  //                 ),
+  //                 AppSpacing.gapXs,
+  //                 Text(
+  //                   action['label'] as String,
+  //                   style: AppTypography.labelSmall,
+  //                 ),
+  //               ],
+  //             ),
+  //           ),
+  //         );
+  //       },
+  //     ),
+  //   );
+  // }
 
-  void _handleQuickAction(String? route) {
-    switch (route) {
-      case 'add':
-        showAddTransactionScreen(context);
-        break;
-      case 'upcoming':
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const UpcomingTransactionsScreen(),
-          ),
-        );
-        break;
-      case 'credit_debt':
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const CreditDebtScreen(),
-          ),
-        );
-        break;
-      case 'goals':
-        // Navigate to budgets for now (goals/objectives screen coming soon)
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const BudgetListScreen(),
-          ),
-        );
-        break;
-      case 'transfer':
-        showAddTransactionScreen(
-          context,
-          initialType: TransactionTypeSelection.transfer,
-        );
-        break;
-    }
-  }
+  // void _handleQuickAction(String? route) {
+  //   switch (route) {
+  //     case 'add':
+  //       showAddTransactionScreen(context);
+  //       break;
+  //     case 'upcoming':
+  //       Navigator.push(
+  //         context,
+  //         MaterialPageRoute(
+  //           builder: (context) => const UpcomingTransactionsScreen(),
+  //         ),
+  //       );
+  //       break;
+  //     case 'credit_debt':
+  //       Navigator.push(
+  //         context,
+  //         MaterialPageRoute(
+  //           builder: (context) => const CreditDebtScreen(),
+  //         ),
+  //       );
+  //       break;
+  //     case 'goals':
+  //       // Navigate to budgets for now (goals/objectives screen coming soon)
+  //       Navigator.push(
+  //         context,
+  //         MaterialPageRoute(
+  //           builder: (context) => const BudgetListScreen(),
+  //         ),
+  //       );
+  //       break;
+  //     case 'transfer':
+  //       showAddTransactionScreen(
+  //         context,
+  //         initialType: TransactionTypeSelection.transfer,
+  //       );
+  //       break;
+  //   }
+  // }
 
   Widget _buildSpendingChart() {
     final reportsState = ref.watch(reportsProvider);
@@ -419,10 +414,7 @@ class _ResponsiveFinancialOverviewState
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Spending Overview',
-            style: AppTypography.titleMedium,
-          ),
+          Text('Spending Overview', style: AppTypography.titleMedium),
           AppSpacing.gapLg,
           SizedBox(
             height: 180,
@@ -543,12 +535,17 @@ class _ResponsiveFinancialOverviewState
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'Recent Transactions',
-                style: AppTypography.titleMedium,
-              ),
+              Text('Recent Transactions', style: AppTypography.titleMedium),
               GestureDetector(
-                onTap: () => HapticFeedback.lightImpact(),
+                onTap: () {
+                  HapticFeedback.lightImpact();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const TransactionListScreen(),
+                    ),
+                  );
+                },
                 child: Text(
                   'View All',
                   style: AppTypography.labelMedium.copyWith(
@@ -590,8 +587,9 @@ class _ResponsiveFinancialOverviewState
             )
           else
             ...transactions.take(5).map((transaction) {
-              final categories =
-                  ref.read(cat_provider.categoryProvider).categories;
+              final categories = ref
+                  .read(cat_provider.categoryProvider)
+                  .categories;
               final category = categories.firstWhere(
                 (c) => c.id == transaction.categoryId,
                 orElse: () => cat_provider.Category(
@@ -607,7 +605,9 @@ class _ResponsiveFinancialOverviewState
               final categoryColor = Color(
                 int.parse(category.colorCode.replaceFirst('#', '0xFF')),
               );
-              final walletCurrency = ref.watch(walletCurrencyProvider(transaction.walletId));
+              final walletCurrency = ref.watch(
+                walletCurrencyProvider(transaction.walletId),
+              );
               final currencySymbol = CurrencyInfo.getSymbol(walletCurrency);
 
               return Container(
@@ -677,12 +677,17 @@ class _ResponsiveFinancialOverviewState
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'Budget Progress',
-                style: AppTypography.titleMedium,
-              ),
+              Text('Budget Progress', style: AppTypography.titleMedium),
               GestureDetector(
-                onTap: () => HapticFeedback.lightImpact(),
+                onTap: () {
+                  HapticFeedback.lightImpact();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const BudgetListScreen(),
+                    ),
+                  );
+                },
                 child: Text(
                   'Manage',
                   style: AppTypography.labelMedium.copyWith(
@@ -718,10 +723,7 @@ class _ResponsiveFinancialOverviewState
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          item.budgetName,
-                          style: AppTypography.titleSmall,
-                        ),
+                        Text(item.budgetName, style: AppTypography.titleSmall),
                         Text(
                           '$currencySymbol${NumberFormat('#,##0').format(spent)} / $currencySymbol${NumberFormat('#,##0').format(limit)}',
                           style: AppTypography.monoSmall.copyWith(
@@ -743,7 +745,8 @@ class _ResponsiveFinancialOverviewState
                         ),
                         AnimatedContainer(
                           duration: AppAnimations.slow,
-                          width: MediaQuery.of(context).size.width *
+                          width:
+                              MediaQuery.of(context).size.width *
                               0.75 *
                               (percentage.clamp(0.0, 1.0)),
                           height: 8,

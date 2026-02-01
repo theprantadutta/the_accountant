@@ -6,6 +6,8 @@ import 'package:the_accountant/features/premium/widgets/premium_gate.dart';
 import 'package:the_accountant/data/models/premium_features.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:the_accountant/features/transactions/screens/cashew_transaction_screen.dart';
+import 'package:the_accountant/features/transactions/widgets/transaction_type_header.dart';
 
 /// Gated receipt scanner that requires premium subscription
 class ReceiptScannerScreenGated extends ConsumerWidget {
@@ -304,11 +306,12 @@ class _ReceiptScannerScreenState extends ConsumerState<ReceiptScannerScreen> {
                           const SizedBox(height: 16),
                           ElevatedButton(
                             onPressed: () {
-                              // TODO: Add functionality to save this receipt as a transaction
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('TODO: Save as transaction'),
-                                ),
+                              final receiptData = ocrState.receiptData!;
+                              showCashewTransactionScreen(
+                                context,
+                                initialType: TransactionTypeSelection.expense,
+                                prefillAmount: receiptData.total,
+                                prefillTitle: receiptData.merchant,
                               );
                             },
                             child: const Text('Save as Transaction'),

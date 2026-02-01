@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:the_accountant/core/providers/currency_provider.dart';
 import 'package:the_accountant/core/services/currency_service.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/core/utils/color_utils.dart';
-import 'package:the_accountant/features/settings/providers/settings_provider.dart';
 
 class TransactionCard extends ConsumerWidget {
   final String id;
@@ -16,6 +16,7 @@ class TransactionCard extends ConsumerWidget {
   final double amount;
   final DateTime date;
   final String transactionType; // 'expense' or 'income'
+  final String? walletId;
   final String? notes;
   final VoidCallback? onTap;
   final VoidCallback? onEdit;
@@ -30,6 +31,7 @@ class TransactionCard extends ConsumerWidget {
     required this.amount,
     required this.date,
     required this.transactionType,
+    this.walletId,
     this.notes,
     this.onTap,
     this.onEdit,
@@ -38,13 +40,13 @@ class TransactionCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final settings = ref.watch(settingsProvider);
+    final walletCurrency = ref.watch(walletCurrencyProvider(walletId));
     final color = ColorUtils.hexToColor(categoryColor);
     final isExpense = transactionType == 'expense';
 
-    // Format amount with currency
+    // Format amount with currency from the transaction's wallet
     final formatter = NumberFormat.currency(
-      symbol: CurrencyInfo.getSymbol(settings.currency),
+      symbol: CurrencyInfo.getSymbol(walletCurrency),
       decimalDigits: 2,
     );
     final formattedAmount = formatter.format(amount);

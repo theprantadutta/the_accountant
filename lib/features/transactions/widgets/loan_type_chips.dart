@@ -77,10 +77,9 @@ class LoanTypeChips extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
 
-                // Credit (Lent money - they owe you)
+                // Credit (Lent money)
                 _LoanChip(
                   label: 'Lent Money',
-                  subtitle: 'They owe you',
                   icon: Icons.arrow_upward_rounded,
                   isSelected: selectedType == TransactionSpecialType.credit,
                   color: AppColors.success,
@@ -91,10 +90,9 @@ class LoanTypeChips extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
 
-                // Debt (Borrowed money - you owe them)
+                // Debt (Borrowed money)
                 _LoanChip(
-                  label: 'Borrowed',
-                  subtitle: 'You owe them',
+                  label: 'Borrowed Money',
                   icon: Icons.arrow_downward_rounded,
                   isSelected: selectedType == TransactionSpecialType.debt,
                   color: AppColors.error,
@@ -135,15 +133,15 @@ class _LoanChip extends StatelessWidget {
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
           color: isSelected
-              ? color.withValues(alpha: 0.15)
+              ? color.withValues(alpha: 0.1)
               : AppColors.primarySurface,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(18),
           border: Border.all(
-            color: isSelected ? color : AppColors.divider,
-            width: isSelected ? 2 : 1,
+            color: isSelected ? color.withValues(alpha: 0.5) : AppColors.divider,
+            width: 1,
           ),
         ),
         child: Row(

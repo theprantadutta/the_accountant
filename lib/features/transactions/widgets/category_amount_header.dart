@@ -103,71 +103,93 @@ class CategoryAmountHeader extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           child: Row(
             children: [
-              // Category icon (tappable)
-              _CategoryIconButton(
-                iconName: categoryIconName,
-                color: color,
+              // Category icon and name (tappable)
+              GestureDetector(
                 onTap: () {
                   HapticFeedback.lightImpact();
                   onCategoryTap();
                 },
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Icon container
+                    Container(
+                      width: 56,
+                      height: 56,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.25),
+                          width: 1.5,
+                        ),
+                      ),
+                      child: Stack(
+                        children: [
+                          Center(
+                            child: Icon(
+                              categoryIconName != null
+                                  ? IconRegistry.getIcon(categoryIconName!)
+                                  : Icons.category_outlined,
+                              size: 26,
+                              color: Colors.white,
+                            ),
+                          ),
+                          Positioned(
+                            right: 4,
+                            bottom: 4,
+                            child: Icon(
+                              Icons.expand_more,
+                              size: 12,
+                              color: Colors.white.withValues(alpha: 0.7),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    // Category name
+                    Text(
+                      categoryName ?? 'Select Category',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.white.withValues(alpha: 0.9),
+                      ),
+                    ),
+                  ],
+                ),
               ),
 
               const Spacer(),
 
-              // Amount and category name (tappable)
+              // Amount (tappable)
               GestureDetector(
                 onTap: () {
                   HapticFeedback.lightImpact();
                   onAmountTap();
                 },
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.end,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    // Amount display
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          currencySymbol,
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.white.withValues(alpha: 0.9),
-                          ),
-                        ),
-                        const SizedBox(width: 2),
-                        Text(
-                          _formatAmount(amount),
-                          style: const TextStyle(
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                            letterSpacing: -1,
-                          ),
-                        ),
-                      ],
+                    Text(
+                      currencySymbol,
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.white.withValues(alpha: 0.9),
+                      ),
                     ),
-                    const SizedBox(height: 4),
-                    // Category name
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 3,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Text(
-                        categoryName ?? 'Select Category',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.white.withValues(alpha: 0.95),
-                        ),
+                    const SizedBox(width: 4),
+                    Text(
+                      _formatAmount(amount),
+                      style: const TextStyle(
+                        fontSize: 40,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        letterSpacing: -1.5,
                       ),
                     ),
                   ],
@@ -175,55 +197,6 @@ class CategoryAmountHeader extends StatelessWidget {
               ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _CategoryIconButton extends StatelessWidget {
-  final String? iconName;
-  final Color color;
-  final VoidCallback onTap;
-
-  const _CategoryIconButton({
-    this.iconName,
-    required this.color,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 64,
-        height: 64,
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.2),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: Colors.white.withValues(alpha: 0.25),
-            width: 1.5,
-          ),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              iconName != null
-                  ? IconRegistry.getIcon(iconName!)
-                  : Icons.category_outlined,
-              size: 28,
-              color: Colors.white,
-            ),
-            const SizedBox(height: 2),
-            Icon(
-              Icons.expand_more,
-              size: 14,
-              color: Colors.white.withValues(alpha: 0.7),
-            ),
-          ],
         ),
       ),
     );

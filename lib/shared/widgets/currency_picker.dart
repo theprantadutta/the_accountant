@@ -135,7 +135,7 @@ class _CurrencyPickerState extends ConsumerState<CurrencyPicker> {
       backgroundColor: Colors.transparent,
       barrierColor: Colors.black.withValues(alpha: 0.3),
       builder: (context) => BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
         child: _CurrencyPickerSheet(
           selectedCurrency: widget.selectedCurrency,
           onCurrencySelected: (currency) {
@@ -180,47 +180,64 @@ class _CurrencyPickerSheetState extends ConsumerState<_CurrencyPickerSheet> {
     return Container(
       height: MediaQuery.of(context).size.height * 0.75,
       decoration: BoxDecoration(
-        gradient: AppColors.glassGradient,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-        border: Border.all(color: AppColors.glassBorder),
+        color: AppColors.primaryDark,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
       ),
       child: Column(
         children: [
           // Handle bar
           Container(
-            margin: const EdgeInsets.symmetric(vertical: 12),
-            width: 40,
+            margin: const EdgeInsets.only(top: 12),
+            width: 36,
             height: 4,
             decoration: BoxDecoration(
-              color: AppColors.glassBorder,
+              color: Colors.white.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(2),
             ),
           ),
+          const SizedBox(height: 20),
           // Header
           Padding(
-            padding: AppSpacing.horizontalPadding(AppSpacing.md),
+            padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Row(
               children: [
-                Text('Select Currency', style: AppTypography.titleLarge),
+                Text(
+                  'Select Currency',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
+                    letterSpacing: -0.5,
+                  ),
+                ),
                 const Spacer(),
-                IconButton(
-                  icon: const Icon(Icons.close),
+                TextButton(
                   onPressed: () => Navigator.pop(context),
+                  child: Text(
+                    'Cancel',
+                    style: TextStyle(
+                      color: AppColors.textMuted,
+                      fontSize: 16,
+                    ),
+                  ),
                 ),
               ],
             ),
           ),
+          const SizedBox(height: 16),
           // Search bar
           Padding(
-            padding: AppSpacing.paddingMd,
+            padding: const EdgeInsets.symmetric(horizontal: 20),
             child: TextField(
               controller: _searchController,
+              style: TextStyle(color: AppColors.textPrimary),
               decoration: InputDecoration(
                 hintText: 'Search by code or name...',
-                prefixIcon: const Icon(Icons.search),
+                hintStyle: TextStyle(color: AppColors.textMuted),
+                prefixIcon: Icon(Icons.search, color: AppColors.textMuted),
                 suffixIcon: _searchQuery.isNotEmpty
                     ? IconButton(
-                        icon: const Icon(Icons.clear),
+                        icon: Icon(Icons.clear, color: AppColors.textMuted),
                         onPressed: () {
                           _searchController.clear();
                           setState(() => _searchQuery = '');
@@ -228,15 +245,16 @@ class _CurrencyPickerSheetState extends ConsumerState<_CurrencyPickerSheet> {
                       )
                     : null,
                 filled: true,
-                fillColor: AppColors.glassWhite,
+                fillColor: Colors.white.withValues(alpha: 0.05),
                 border: OutlineInputBorder(
-                  borderRadius: AppSpacing.borderRadiusMd,
+                  borderRadius: BorderRadius.circular(14),
                   borderSide: BorderSide.none,
                 ),
               ),
               onChanged: (value) => setState(() => _searchQuery = value),
             ),
           ),
+          const SizedBox(height: 16),
           // Loading state
           if (currencyState.isLoading && currencyState.availableCurrencies.isEmpty)
             const Expanded(
@@ -265,6 +283,7 @@ class _CurrencyPickerSheetState extends ConsumerState<_CurrencyPickerSheet> {
           else
             Expanded(
               child: ListView.builder(
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
                 itemCount: filteredCurrencies.length,
                 itemBuilder: (context, index) {
                   final entry = filteredCurrencies[index];
@@ -274,31 +293,69 @@ class _CurrencyPickerSheetState extends ConsumerState<_CurrencyPickerSheet> {
                       widget.selectedCurrency?.toUpperCase() == code;
                   final symbol = CurrencyInfo.getSymbol(code);
 
-                  return ListTile(
-                    leading: _CurrencySymbolBox(
-                      symbol: symbol,
-                      code: code,
-                      isSelected: isSelected,
-                    ),
-                    title: Text(
-                      code,
-                      style: AppTypography.bodyLarge.copyWith(
-                        fontWeight: isSelected ? FontWeight.bold : null,
-                      ),
-                    ),
-                    subtitle: Text(
-                      name,
-                      style: AppTypography.bodySmall.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    trailing: isSelected
-                        ? Icon(Icons.check_circle, color: AppColors.primaryAccent)
-                        : null,
-                    selected: isSelected,
+                  return GestureDetector(
                     onTap: () => widget.onCurrencySelected(code),
+                    child: Container(
+                      margin: const EdgeInsets.only(bottom: 8),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: isSelected
+                            ? AppColors.primaryAccent.withValues(alpha: 0.1)
+                            : Colors.white.withValues(alpha: 0.03),
+                        borderRadius: BorderRadius.circular(14),
+                        border: isSelected
+                            ? Border.all(
+                                color: AppColors.primaryAccent,
+                                width: 1.5,
+                              )
+                            : null,
+                      ),
+                      child: Row(
+                        children: [
+                          _CurrencySymbolBox(
+                            symbol: symbol,
+                            code: code,
+                            isSelected: isSelected,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  code,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: isSelected
+                                        ? FontWeight.w600
+                                        : FontWeight.w500,
+                                    color: isSelected
+                                        ? AppColors.primaryAccent
+                                        : AppColors.textPrimary,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  name,
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: AppColors.textMuted,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ),
+                          ),
+                          if (isSelected)
+                            Icon(
+                              Icons.check_circle,
+                              color: AppColors.primaryAccent,
+                              size: 22,
+                            ),
+                        ],
+                      ),
+                    ),
                   );
                 },
               ),
@@ -374,9 +431,9 @@ class _CurrencySymbolBox extends StatelessWidget {
       height: size,
       decoration: BoxDecoration(
         color: isSelected
-            ? AppColors.primaryAccent.withValues(alpha: 0.2)
-            : AppColors.glassWhite,
-        borderRadius: AppSpacing.borderRadiusSm,
+            ? AppColors.primaryAccent.withValues(alpha: 0.15)
+            : Colors.white.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(12),
       ),
       alignment: Alignment.center,
       padding: const EdgeInsets.all(4),
@@ -384,9 +441,10 @@ class _CurrencySymbolBox extends StatelessWidget {
         fit: BoxFit.scaleDown,
         child: Text(
           displayText,
-          style: AppTypography.titleMedium.copyWith(
+          style: TextStyle(
             color: isSelected ? AppColors.primaryAccent : AppColors.textPrimary,
             fontSize: fontSize,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ),

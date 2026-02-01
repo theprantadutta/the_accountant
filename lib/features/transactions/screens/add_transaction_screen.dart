@@ -20,6 +20,7 @@ import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
 import 'package:the_accountant/core/providers/currency_provider.dart';
 import 'package:the_accountant/core/services/currency_service.dart';
 import 'package:the_accountant/features/transactions/screens/cashew_transaction_screen.dart';
+import 'package:the_accountant/features/wallets/screens/wallet_management_screen.dart';
 
 /// Steps in the transaction creation flow (for expense/income)
 enum AddTransactionStep {
@@ -228,7 +229,12 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen>
             label: 'Add Account',
             textColor: AppColors.textPrimary,
             onPressed: () {
-              // TODO: Navigate to add wallet screen
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const WalletManagementScreen(),
+                ),
+              );
             },
           ),
         ),

@@ -6,6 +6,7 @@ import 'package:the_accountant/features/budgets/screens/budget_list_screen.dart'
 import 'package:the_accountant/features/settings/screens/settings_screen.dart';
 import 'package:the_accountant/features/dashboard/widgets/responsive_financial_overview.dart';
 import 'package:the_accountant/features/authentication/presentation/screens/user_profile_screen.dart';
+import 'package:the_accountant/features/notifications/screens/notification_inbox_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -40,7 +41,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
           IconButton(
             icon: const Icon(Icons.notifications),
             onPressed: () {
-              // Handle notifications
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const NotificationInboxScreen(),
+                ),
+              );
             },
           ),
           IconButton(
