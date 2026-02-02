@@ -411,6 +411,7 @@ class _ResponsiveFinancialOverviewState
     final maxY = reportsState.getMaxY();
 
     return GlassCard(
+      variant: GlassCardVariant.accent,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -529,6 +530,7 @@ class _ResponsiveFinancialOverviewState
 
   Widget _buildRecentTransactions(List<Transaction> transactions) {
     return GlassCard(
+      variant: GlassCardVariant.cyan,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -671,6 +673,7 @@ class _ResponsiveFinancialOverviewState
     final currencySymbol = CurrencyInfo.getSymbol(displayCurrency);
 
     return GlassCard(
+      variant: GlassCardVariant.success,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

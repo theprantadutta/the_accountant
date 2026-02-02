@@ -374,10 +374,10 @@ class _AddAccountCard extends StatelessWidget {
       child: Container(
         width: 120,
         decoration: BoxDecoration(
-          color: AppColors.glassWhite,
+          gradient: AppColors.accentCardGradient,
           borderRadius: AppSpacing.borderRadiusLg,
           border: Border.all(
-            color: AppColors.glassBorder,
+            color: AppColors.primaryAccent.withValues(alpha: 0.3),
             width: 1,
           ),
         ),

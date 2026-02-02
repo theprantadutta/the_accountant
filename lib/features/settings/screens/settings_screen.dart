@@ -7,7 +7,6 @@ import 'package:the_accountant/features/authentication/providers/auth_provider.d
 import 'package:the_accountant/features/premium/providers/premium_provider.dart';
 import 'package:the_accountant/features/settings/providers/settings_provider.dart';
 import 'package:the_accountant/features/settings/screens/backup_screen.dart';
-import 'package:the_accountant/features/settings/screens/theme_selection_screen.dart';
 import 'package:the_accountant/features/settings/screens/about_screen.dart';
 import 'package:the_accountant/features/settings/screens/help_screen.dart';
 import 'package:the_accountant/features/settings/screens/export_screen.dart';
@@ -196,23 +195,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     }
     if (accountTiles.isNotEmpty) {
       sections.add(SettingsSection(title: 'ACCOUNT', tiles: accountTiles));
-    }
-
-    // APPEARANCE SECTION
-    final appearanceTiles = <Widget>[];
-    if (_matchesSearch('Theme') || _matchesKeywords(['dark', 'light', 'appearance', 'color'])) {
-      appearanceTiles.add(SettingsNavigationTile(
-        icon: Icons.palette_outlined,
-        title: 'Theme',
-        subtitle: _getThemeDisplayName(settingsState.themeMode),
-        onTap: () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const ThemeSelectionScreen()),
-        ),
-      ));
-    }
-    if (appearanceTiles.isNotEmpty) {
-      sections.add(SettingsSection(title: 'APPEARANCE', tiles: appearanceTiles));
     }
 
     // REGIONAL SECTION
@@ -453,19 +435,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         ),
       ),
     );
-  }
-
-  String _getThemeDisplayName(String themeMode) {
-    switch (themeMode) {
-      case 'dark':
-        return 'Dark (Default)';
-      case 'light':
-        return 'Light';
-      default:
-        return themeMode.replaceAll('_', ' ').split(' ').map((word) {
-          return word[0].toUpperCase() + word.substring(1);
-        }).join(' ');
-    }
   }
 
   String _getDateFormatLabel(String format, WidgetRef ref) {

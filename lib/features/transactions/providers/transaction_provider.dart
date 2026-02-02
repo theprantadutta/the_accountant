@@ -489,6 +489,11 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
     }
   }
 
+  /// Get the database transaction by ID (for editing)
+  Future<db.Transaction?> getDatabaseTransactionById(String id) async {
+    return _db.getTransactionById(id);
+  }
+
   List<Transaction> getTransactionsByType(String type) {
     return state.transactions.where((t) => t.type == type).toList();
   }

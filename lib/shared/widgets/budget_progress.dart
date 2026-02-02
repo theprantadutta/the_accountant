@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/services/currency_service.dart';
 import 'package:the_accountant/features/transactions/providers/transaction_provider.dart';
 import 'package:the_accountant/features/settings/providers/settings_provider.dart';
@@ -58,13 +59,30 @@ class BudgetProgress extends ConsumerWidget {
     ).format(remaining.abs());
 
     Color getProgressColor() {
-      if (percentage < 0.5) return Colors.green;
-      if (percentage < 0.8) return Colors.orange;
-      return Colors.red;
+      if (percentage < 0.5) return AppColors.success;
+      if (percentage < 0.8) return AppColors.warning;
+      return AppColors.error;
     }
 
-    return Card(
+    Gradient getCardGradient() {
+      if (percentage < 0.5) return AppColors.successCardGradient;
+      if (percentage < 0.8) return AppColors.warningCardGradient;
+      return AppColors.errorCardGradient;
+    }
+
+    Color getBorderColor() {
+      if (percentage < 0.5) return AppColors.success.withValues(alpha: 0.3);
+      if (percentage < 0.8) return AppColors.warning.withValues(alpha: 0.3);
+      return AppColors.error.withValues(alpha: 0.3);
+    }
+
+    return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        gradient: getCardGradient(),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: getBorderColor(), width: 1),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -78,29 +96,48 @@ class BudgetProgress extends ConsumerWidget {
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
+                    color: AppColors.textPrimary,
                   ),
                 ),
                 Text(
                   '$formattedSpent / $formattedLimit',
-                  style: const TextStyle(fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary,
+                  ),
                 ),
               ],
             ),
-            const SizedBox(height: 8),
-            LinearProgressIndicator(
-              value: percentage,
-              backgroundColor: Colors.grey[300],
-              color: getProgressColor(),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              remaining >= 0
-                  ? '$formattedRemaining remaining'
-                  : '$formattedRemaining over budget',
-              style: TextStyle(
-                color: remaining >= 0 ? Colors.green : Colors.red,
-                fontWeight: FontWeight.bold,
+            const SizedBox(height: 12),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: LinearProgressIndicator(
+                value: percentage,
+                backgroundColor: AppColors.divider,
+                color: getProgressColor(),
+                minHeight: 6,
               ),
+            ),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                Icon(
+                  remaining >= 0 ? Icons.check_circle_outline : Icons.warning_amber_rounded,
+                  size: 16,
+                  color: remaining >= 0 ? AppColors.success : AppColors.error,
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  remaining >= 0
+                      ? '$formattedRemaining remaining'
+                      : '$formattedRemaining over budget',
+                  style: TextStyle(
+                    color: remaining >= 0 ? AppColors.success : AppColors.error,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 13,
+                  ),
+                ),
+              ],
             ),
           ],
         ),

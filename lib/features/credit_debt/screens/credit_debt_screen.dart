@@ -355,6 +355,7 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
       padding: const EdgeInsets.only(bottom: 12),
       child: GlassCard(
         padding: AppSpacing.paddingMd,
+        variant: isCredit ? GlassCardVariant.success : GlassCardVariant.error,
         child: Column(
           children: [
             Row(

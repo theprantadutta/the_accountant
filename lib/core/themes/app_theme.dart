@@ -263,12 +263,13 @@ class AppTheme {
     double borderWidth = 1,
     bool enableBlur = false,
     double blurAmount = 10,
+    Gradient? gradient,
   }) {
     final container = Container(
       width: width,
       height: height,
       decoration: BoxDecoration(
-        gradient: AppColors.glassGradient,
+        gradient: gradient ?? AppColors.glassGradient,
         borderRadius: borderRadius ?? AppSpacing.borderRadiusXl,
         border: Border.all(
           color: borderColor ?? AppColors.glassBorder,

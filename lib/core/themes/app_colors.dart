@@ -90,8 +90,8 @@ class AppColors {
   /// Glass effect - 5% white
   static const Color glassWhite = Color(0x0DFFFFFF);
 
-  /// Glass border - 10% white
-  static const Color glassBorder = Color(0x1AFFFFFF);
+  /// Glass border - subtle accent tint
+  static const Color glassBorder = Color(0x306366F1);
 
   /// Glass highlight - 20% white
   static const Color glassHighlight = Color(0x33FFFFFF);
@@ -135,16 +135,65 @@ class AppColors {
     stops: [0.0, 0.5, 1.0],
   );
 
-  /// Card gradient - Subtle surface variation
+  /// Card gradient - Surface with subtle accent tint
   static const LinearGradient cardGradient = LinearGradient(
-    colors: [Color(0xFF1A1A2E), Color(0xFF252542)],
+    colors: [Color(0xFF1E1E38), Color(0xFF2A2A4A)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
-  /// Glass gradient - Frosted effect
+  /// Glass gradient - Frosted effect with subtle accent tint
   static const LinearGradient glassGradient = LinearGradient(
-    colors: [Color(0x1AFFFFFF), Color(0x0DFFFFFF)],
+    colors: [Color(0x206366F1), Color(0x10252542)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  /// Accent card gradient - Indigo tint
+  static const LinearGradient accentCardGradient = LinearGradient(
+    colors: [Color(0x256366F1), Color(0x15818CF8)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  /// Success card gradient - Green tint (for income)
+  static const LinearGradient successCardGradient = LinearGradient(
+    colors: [Color(0x2010B981), Color(0x1034D399)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  /// Error card gradient - Red tint (for expenses)
+  static const LinearGradient errorCardGradient = LinearGradient(
+    colors: [Color(0x20EF4444), Color(0x10F87171)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  /// Info card gradient - Blue tint
+  static const LinearGradient infoCardGradient = LinearGradient(
+    colors: [Color(0x203B82F6), Color(0x1060A5FA)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  /// Warning card gradient - Amber tint
+  static const LinearGradient warningCardGradient = LinearGradient(
+    colors: [Color(0x20F59E0B), Color(0x10FBBF24)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  /// Cyan card gradient - Cyan tint
+  static const LinearGradient cyanCardGradient = LinearGradient(
+    colors: [Color(0x2022D3EE), Color(0x1006B6D4)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  /// Purple card gradient - Purple tint
+  static const LinearGradient purpleCardGradient = LinearGradient(
+    colors: [Color(0x20A855F7), Color(0x108B5CF6)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );

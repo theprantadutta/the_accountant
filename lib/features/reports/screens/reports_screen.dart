@@ -5,6 +5,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
 import 'package:the_accountant/core/providers/currency_provider.dart';
 import 'package:the_accountant/core/services/currency_service.dart';
+import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_theme.dart';
 import 'package:the_accountant/core/utils/animation_utils.dart';
 import 'package:the_accountant/features/dashboard/providers/financial_data_provider.dart';
@@ -167,6 +168,8 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
     final isPremium = premiumState.isPremium;
 
     return AppTheme.glassmorphicContainer(
+      gradient: AppColors.accentCardGradient,
+      borderColor: AppColors.primaryAccent.withValues(alpha: 0.3),
       child: Padding(
         padding: const EdgeInsets.all(8),
         child: Row(
@@ -319,6 +322,8 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
   Widget _buildMainChart() {
     return AppTheme.glassmorphicContainer(
       height: 300,
+      gradient: AppColors.accentCardGradient,
+      borderColor: AppColors.primaryAccent.withValues(alpha: 0.3),
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -571,6 +576,8 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
         'color': const Color(0xFFFF6B6B),
         'icon': Icons.trending_down,
         'isPositive': false,
+        'gradient': AppColors.errorCardGradient,
+        'borderColor': AppColors.error.withValues(alpha: 0.3),
       },
       {
         'title': 'Total Earned',
@@ -581,6 +588,8 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
         'color': const Color(0xFF4ECDC4),
         'icon': Icons.trending_up,
         'isPositive': true,
+        'gradient': AppColors.successCardGradient,
+        'borderColor': AppColors.success.withValues(alpha: 0.3),
       },
       {
         'title': 'Net Savings',
@@ -591,6 +600,8 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
         'color': const Color(0xFF45B7D1),
         'icon': Icons.savings,
         'isPositive': netSavings >= 0,
+        'gradient': AppColors.cyanCardGradient,
+        'borderColor': AppColors.neonCyan.withValues(alpha: 0.3),
       },
     ];
 
@@ -612,6 +623,8 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
               child: Padding(
                 padding: const EdgeInsets.only(right: 8),
                 child: AppTheme.glassmorphicContainer(
+                  gradient: data['gradient'] as Gradient,
+                  borderColor: data['borderColor'] as Color,
                   child: Padding(
                     padding: const EdgeInsets.all(16),
                     child: Column(
@@ -727,6 +740,8 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
     // If no data, show empty state
     if (categories.isEmpty) {
       return AppTheme.glassmorphicContainer(
+        gradient: AppColors.purpleCardGradient,
+        borderColor: AppColors.neonPurple.withValues(alpha: 0.3),
         child: Padding(
           padding: const EdgeInsets.all(20),
           child: Column(
@@ -767,6 +782,8 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
     }
 
     return AppTheme.glassmorphicContainer(
+      gradient: AppColors.purpleCardGradient,
+      borderColor: AppColors.neonPurple.withValues(alpha: 0.3),
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -855,6 +872,8 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
     // If no budgets, show empty state
     if (budgets.isEmpty) {
       return AppTheme.glassmorphicContainer(
+        gradient: AppColors.infoCardGradient,
+        borderColor: AppColors.info.withValues(alpha: 0.3),
         child: Padding(
           padding: const EdgeInsets.all(20),
           child: Column(
@@ -903,6 +922,8 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
     }
 
     return AppTheme.glassmorphicContainer(
+      gradient: AppColors.infoCardGradient,
+      borderColor: AppColors.info.withValues(alpha: 0.3),
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(

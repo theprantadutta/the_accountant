@@ -4,6 +4,18 @@ import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/core/themes/app_animations.dart';
 
+/// Card color variants for easy theming
+enum GlassCardVariant {
+  standard,  // Default indigo tint
+  accent,    // Stronger indigo
+  success,   // Green (income)
+  error,     // Red (expense)
+  info,      // Blue
+  warning,   // Amber
+  cyan,      // Cyan
+  purple,    // Purple
+}
+
 /// A modern glassmorphic card with optional blur, glow, and press animations.
 ///
 /// Features:
@@ -33,6 +45,7 @@ class GlassCard extends StatefulWidget {
     this.enablePressAnimation = true,
     this.gradient,
     this.backgroundColor,
+    this.variant = GlassCardVariant.standard,
   });
 
   final Widget child;
@@ -53,6 +66,51 @@ class GlassCard extends StatefulWidget {
   final bool enablePressAnimation;
   final Gradient? gradient;
   final Color? backgroundColor;
+  final GlassCardVariant variant;
+
+  /// Get gradient for variant
+  static Gradient getVariantGradient(GlassCardVariant variant) {
+    switch (variant) {
+      case GlassCardVariant.standard:
+        return AppColors.glassGradient;
+      case GlassCardVariant.accent:
+        return AppColors.accentCardGradient;
+      case GlassCardVariant.success:
+        return AppColors.successCardGradient;
+      case GlassCardVariant.error:
+        return AppColors.errorCardGradient;
+      case GlassCardVariant.info:
+        return AppColors.infoCardGradient;
+      case GlassCardVariant.warning:
+        return AppColors.warningCardGradient;
+      case GlassCardVariant.cyan:
+        return AppColors.cyanCardGradient;
+      case GlassCardVariant.purple:
+        return AppColors.purpleCardGradient;
+    }
+  }
+
+  /// Get border color for variant
+  static Color getVariantBorderColor(GlassCardVariant variant) {
+    switch (variant) {
+      case GlassCardVariant.standard:
+        return AppColors.glassBorder;
+      case GlassCardVariant.accent:
+        return AppColors.primaryAccent.withValues(alpha: 0.3);
+      case GlassCardVariant.success:
+        return AppColors.success.withValues(alpha: 0.3);
+      case GlassCardVariant.error:
+        return AppColors.error.withValues(alpha: 0.3);
+      case GlassCardVariant.info:
+        return AppColors.info.withValues(alpha: 0.3);
+      case GlassCardVariant.warning:
+        return AppColors.warning.withValues(alpha: 0.3);
+      case GlassCardVariant.cyan:
+        return AppColors.neonCyan.withValues(alpha: 0.3);
+      case GlassCardVariant.purple:
+        return AppColors.neonPurple.withValues(alpha: 0.3);
+    }
+  }
 
   @override
   State<GlassCard> createState() => _GlassCardState();
@@ -107,6 +165,8 @@ class _GlassCardState extends State<GlassCard>
   Widget build(BuildContext context) {
     final borderRadius = widget.borderRadius ?? AppSpacing.borderRadiusXl;
     final effectiveGlowColor = widget.glowColor ?? AppColors.primaryGlow;
+    final effectiveGradient = widget.gradient ?? GlassCard.getVariantGradient(widget.variant);
+    final effectiveBorderColor = widget.borderColor ?? GlassCard.getVariantBorderColor(widget.variant);
 
     Widget card = Container(
       width: widget.width,
@@ -114,11 +174,11 @@ class _GlassCardState extends State<GlassCard>
       padding: widget.padding ?? AppSpacing.paddingCard,
       margin: widget.margin,
       decoration: BoxDecoration(
-        gradient: widget.gradient ?? AppColors.glassGradient,
+        gradient: effectiveGradient,
         color: widget.backgroundColor,
         borderRadius: borderRadius,
         border: Border.all(
-          color: widget.borderColor ?? AppColors.glassBorder,
+          color: effectiveBorderColor,
           width: widget.borderWidth,
         ),
         boxShadow: [

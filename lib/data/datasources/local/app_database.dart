@@ -271,6 +271,10 @@ class AppDatabase extends _$AppDatabase {
             ..where((t) => t.deletedAt.isNull()))
           .get();
 
+  /// Get a single transaction by ID
+  Future<Transaction?> getTransactionById(String id) =>
+      (select(transactions)..where((t) => t.id.equals(id))).getSingleOrNull();
+
   Future<List<Transaction>> getTransactionsByDateRange(
     DateTime start,
     DateTime end,

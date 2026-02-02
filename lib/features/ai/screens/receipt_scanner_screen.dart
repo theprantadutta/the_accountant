@@ -6,7 +6,7 @@ import 'package:the_accountant/features/premium/widgets/premium_gate.dart';
 import 'package:the_accountant/data/models/premium_features.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:the_accountant/features/transactions/screens/cashew_transaction_screen.dart';
+import 'package:the_accountant/features/transactions/screens/add_transaction_screen.dart';
 import 'package:the_accountant/features/transactions/widgets/transaction_type_header.dart';
 
 /// Gated receipt scanner that requires premium subscription
@@ -307,7 +307,7 @@ class _ReceiptScannerScreenState extends ConsumerState<ReceiptScannerScreen> {
                           ElevatedButton(
                             onPressed: () {
                               final receiptData = ocrState.receiptData!;
-                              showCashewTransactionScreen(
+                              showAddTransactionScreen(
                                 context,
                                 initialType: TransactionTypeSelection.expense,
                                 prefillAmount: receiptData.total,

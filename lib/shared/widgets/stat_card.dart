@@ -29,6 +29,7 @@ class StatCard extends StatefulWidget {
     this.animateValue = true,
     this.sparklineData,
     this.onTap,
+    this.variant = GlassCardVariant.standard,
   });
 
   final String label;
@@ -44,6 +45,7 @@ class StatCard extends StatefulWidget {
   final bool animateValue;
   final List<double>? sparklineData;
   final VoidCallback? onTap;
+  final GlassCardVariant variant;
 
   @override
   State<StatCard> createState() => _StatCardState();
@@ -116,6 +118,7 @@ class _StatCardState extends State<StatCard>
       onTap: widget.onTap,
       enableGlow: widget.enableGlow,
       glowColor: effectiveAccentColor,
+      variant: widget.variant,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
