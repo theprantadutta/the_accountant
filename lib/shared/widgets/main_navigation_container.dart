@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/core/themes/app_typography.dart';
-import 'package:the_accountant/core/themes/app_animations.dart';
 import 'package:the_accountant/shared/widgets/custom_bottom_nav_bar.dart';
 import 'package:the_accountant/shared/widgets/glass_card.dart';
 import 'package:the_accountant/shared/widgets/neo_button.dart';
@@ -29,10 +28,7 @@ class MainNavigationContainer extends ConsumerStatefulWidget {
 }
 
 class _MainNavigationContainerState
-    extends ConsumerState<MainNavigationContainer>
-    with TickerProviderStateMixin {
-  late PageController _pageController;
-
+    extends ConsumerState<MainNavigationContainer> {
   int _currentIndex = 0;
   bool _isFabVisible = true;
 
@@ -56,17 +52,10 @@ class _MainNavigationContainerState
   @override
   void initState() {
     super.initState();
-    _pageController = PageController(initialPage: _currentIndex);
     // Load unread notification count
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(notificationHistoryProvider.notifier).loadUnreadCount();
     });
-  }
-
-  @override
-  void dispose() {
-    _pageController.dispose();
-    super.dispose();
   }
 
   void _onNavigationTapped(int index) {
@@ -74,13 +63,6 @@ class _MainNavigationContainerState
       setState(() {
         _currentIndex = index;
       });
-
-      // Animate to the selected page
-      _pageController.animateToPage(
-        index,
-        duration: AppAnimations.normal,
-        curve: AppAnimations.easeOut,
-      );
 
       // Update FAB visibility based on screen
       _updateFabVisibility(index);
@@ -359,18 +341,9 @@ class _MainNavigationContainerState
         backgroundColor: Colors.transparent,
         appBar: _buildCustomAppBar(),
         extendBody: false,
-        body: PageView.builder(
-          controller: _pageController,
-          onPageChanged: (index) {
-            setState(() {
-              _currentIndex = index;
-            });
-            _updateFabVisibility(index);
-          },
-          itemCount: _screens.length,
-          itemBuilder: (context, index) {
-            return _screens[index];
-          },
+        body: IndexedStack(
+          index: _currentIndex,
+          children: _screens,
         ),
         floatingActionButton: _isFabVisible
             ? NeoFAB(

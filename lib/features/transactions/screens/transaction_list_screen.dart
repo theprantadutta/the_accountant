@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
@@ -19,81 +20,154 @@ class TransactionListScreen extends ConsumerStatefulWidget {
 class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
   final TextEditingController _searchController = TextEditingController();
   final ScrollController _monthScrollController = ScrollController();
+  late PageController _pageController;
+
   String _searchQuery = '';
   String? _filterType;
   String? _filterCategory;
-  late DateTime _selectedMonth;
+
   late List<DateTime> _availableMonths;
+  late int _currentPageIndex;
+  bool _isExpandingMonths = false;
 
   @override
   void initState() {
     super.initState();
     _searchController.addListener(_onSearchChanged);
-    _selectedMonth = DateTime(DateTime.now().year, DateTime.now().month);
-    _availableMonths = _generateAvailableMonths();
-    // Scroll to current month after build
+    _initializeMonths();
+  }
+
+  void _initializeMonths() {
+    final now = DateTime.now();
+    _availableMonths = _generateInitialMonths();
+
+    // Find the index of the current month
+    _currentPageIndex = _availableMonths.indexWhere(
+      (m) => m.year == now.year && m.month == now.month,
+    );
+    if (_currentPageIndex == -1) _currentPageIndex = 0;
+
+    _pageController = PageController(initialPage: _currentPageIndex);
+
+    // Scroll to current month chip after build
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _scrollToSelectedMonth();
+      _scrollToMonth(_currentPageIndex);
     });
   }
 
-  List<DateTime> _generateAvailableMonths() {
+  List<DateTime> _generateInitialMonths() {
     final now = DateTime.now();
     final months = <DateTime>[];
-    // Generate 24 months in the past and 12 months in the future
-    for (int i = -24; i <= 12; i++) {
-      final month = DateTime(now.year, now.month + i);
-      months.add(month);
+
+    // Generate from Jan of previous year to Dec of next year
+    final startYear = now.year - 1;
+    final endYear = now.year + 1;
+
+    for (int year = startYear; year <= endYear; year++) {
+      for (int month = 1; month <= 12; month++) {
+        months.add(DateTime(year, month));
+      }
     }
+
     return months;
   }
 
-  void _scrollToSelectedMonth() {
-    final index = _availableMonths.indexWhere(
-      (m) => m.year == _selectedMonth.year && m.month == _selectedMonth.month,
-    );
-    if (index != -1 && _monthScrollController.hasClients) {
-      // Fixed chip width (95) + horizontal padding (4*2) = 103
-      const itemWidth = 103.0;
-      const listPadding = 12.0;
-      final screenWidth = MediaQuery.of(context).size.width;
+  void _expandMonthsIfNeeded(int pageIndex) {
+    if (_isExpandingMonths) return;
 
-      // Calculate offset to center the selected item
-      final itemStart = listPadding + (index * itemWidth);
-      final itemCenter = itemStart + (itemWidth / 2);
-      final screenCenter = screenWidth / 2;
-      final offset = itemCenter - screenCenter;
+    // Expand backwards if within 3 months of the start
+    if (pageIndex <= 2) {
+      _expandMonthsBackward();
+    }
 
-      _monthScrollController.animateTo(
-        offset.clamp(0.0, _monthScrollController.position.maxScrollExtent),
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOutCubic,
-      );
+    // Expand forward if within 3 months of the end
+    if (pageIndex >= _availableMonths.length - 3) {
+      _expandMonthsForward();
     }
   }
 
-  void _goToNextMonth() {
-    final currentIndex = _availableMonths.indexWhere(
-      (m) => m.year == _selectedMonth.year && m.month == _selectedMonth.month,
-    );
-    if (currentIndex < _availableMonths.length - 1) {
-      setState(() {
-        _selectedMonth = _availableMonths[currentIndex + 1];
-      });
-      _scrollToSelectedMonth();
+  void _expandMonthsBackward() {
+    _isExpandingMonths = true;
+
+    final firstMonth = _availableMonths.first;
+    final newMonths = <DateTime>[];
+
+    // Add 12 more months before the first month
+    for (int i = 12; i >= 1; i--) {
+      final newMonth = DateTime(firstMonth.year, firstMonth.month - i);
+      newMonths.add(newMonth);
     }
+
+    setState(() {
+      _availableMonths = [...newMonths, ..._availableMonths];
+      // Adjust page index to account for new months
+      _currentPageIndex += 12;
+      // Jump to the adjusted page without animation
+      _pageController.jumpToPage(_currentPageIndex);
+    });
+
+    _isExpandingMonths = false;
   }
 
-  void _goToPreviousMonth() {
-    final currentIndex = _availableMonths.indexWhere(
-      (m) => m.year == _selectedMonth.year && m.month == _selectedMonth.month,
-    );
-    if (currentIndex > 0) {
-      setState(() {
-        _selectedMonth = _availableMonths[currentIndex - 1];
-      });
-      _scrollToSelectedMonth();
+  void _expandMonthsForward() {
+    _isExpandingMonths = true;
+
+    final lastMonth = _availableMonths.last;
+    final newMonths = <DateTime>[];
+
+    // Add 12 more months after the last month
+    for (int i = 1; i <= 12; i++) {
+      final newMonth = DateTime(lastMonth.year, lastMonth.month + i);
+      newMonths.add(newMonth);
     }
+
+    setState(() {
+      _availableMonths = [..._availableMonths, ...newMonths];
+    });
+
+    _isExpandingMonths = false;
+  }
+
+  void _scrollToMonth(int index) {
+    if (!_monthScrollController.hasClients) return;
+
+    // Fixed chip width (95) + horizontal padding (4*2) = 103
+    const itemWidth = 103.0;
+    const listPadding = 12.0;
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    // Calculate offset to center the selected item
+    final itemStart = listPadding + (index * itemWidth);
+    final itemCenter = itemStart + (itemWidth / 2);
+    final screenCenter = screenWidth / 2;
+    final offset = itemCenter - screenCenter;
+
+    _monthScrollController.animateTo(
+      offset.clamp(0.0, _monthScrollController.position.maxScrollExtent),
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOutCubic,
+    );
+  }
+
+  void _onPageChanged(int index) {
+    if (_isExpandingMonths) return;
+
+    setState(() {
+      _currentPageIndex = index;
+    });
+
+    _scrollToMonth(index);
+    _expandMonthsIfNeeded(index);
+    HapticFeedback.selectionClick();
+  }
+
+  void _onMonthChipTapped(int index) {
+    _pageController.animateToPage(
+      index,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOutCubic,
+    );
+    HapticFeedback.lightImpact();
   }
 
   @override
@@ -101,6 +175,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
     _searchController.removeListener(_onSearchChanged);
     _searchController.dispose();
     _monthScrollController.dispose();
+    _pageController.dispose();
     super.dispose();
   }
 
@@ -110,13 +185,16 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
     });
   }
 
-  List<Transaction> _filterTransactions(List<Transaction> transactions) {
+  List<Transaction> _filterTransactionsForMonth(
+    List<Transaction> transactions,
+    DateTime month,
+  ) {
     List<Transaction> filtered = transactions;
 
     // Apply month filter
     filtered = filtered.where((transaction) {
-      return transaction.date.year == _selectedMonth.year &&
-          transaction.date.month == _selectedMonth.month;
+      return transaction.date.year == month.year &&
+          transaction.date.month == month.month;
     }).toList();
 
     // Apply search filter
@@ -504,8 +582,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
         itemCount: _availableMonths.length,
         itemBuilder: (context, index) {
           final month = _availableMonths[index];
-          final isSelected = month.year == _selectedMonth.year &&
-              month.month == _selectedMonth.month;
+          final isSelected = index == _currentPageIndex;
           final isCurrentMonth =
               month.year == now.year && month.month == now.month;
           final isFutureMonth = month.isAfter(DateTime(now.year, now.month));
@@ -521,11 +598,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4),
             child: GestureDetector(
-              onTap: () {
-                setState(() {
-                  _selectedMonth = month;
-                });
-              },
+              onTap: () => _onMonthChipTapped(index),
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
                 width: 95,
@@ -631,11 +704,11 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
     );
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildEmptyState(DateTime month) {
     final now = DateTime.now();
-    final isFutureMonth = _selectedMonth.isAfter(DateTime(now.year, now.month));
+    final isFutureMonth = month.isAfter(DateTime(now.year, now.month));
     final isCurrentMonth =
-        _selectedMonth.year == now.year && _selectedMonth.month == now.month;
+        month.year == now.year && month.month == now.month;
 
     IconData icon;
     String title;
@@ -644,7 +717,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
     if (isFutureMonth) {
       icon = Icons.event_available_outlined;
       title = 'No planned transactions';
-      subtitle = 'Add future payments for ${DateFormat('MMMM yyyy').format(_selectedMonth)}';
+      subtitle = 'Add future payments for ${DateFormat('MMMM yyyy').format(month)}';
     } else if (isCurrentMonth) {
       icon = Icons.receipt_long_outlined;
       title = 'No transactions yet';
@@ -652,7 +725,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
     } else {
       icon = Icons.history_outlined;
       title = 'No transactions found';
-      subtitle = 'No records for ${DateFormat('MMMM yyyy').format(_selectedMonth)}';
+      subtitle = 'No records for ${DateFormat('MMMM yyyy').format(month)}';
     }
 
     return Center(
@@ -695,15 +768,84 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final transactionState = ref.watch(transactionProvider);
-    final filteredTransactions = _filterTransactions(
-      transactionState.transactions,
-    );
+  Widget _buildMonthPage(DateTime month, List<Transaction> allTransactions, bool isLoading) {
+    final filteredTransactions = _filterTransactionsForMonth(allTransactions, month);
     final groupedTransactions = _groupTransactionsByDate(filteredTransactions);
     final sortedDates = groupedTransactions.keys.toList()
       ..sort((a, b) => b.compareTo(a)); // Newest first
+
+    if (isLoading) {
+      return const SingleChildScrollView(
+        child: ShimmerTransactionList(itemCount: 8),
+      );
+    }
+
+    if (filteredTransactions.isEmpty) {
+      return _buildEmptyState(month);
+    }
+
+    return ListView.builder(
+      itemCount: sortedDates.length,
+      itemBuilder: (context, dateIndex) {
+        final date = sortedDates[dateIndex];
+        final dayTransactions = groupedTransactions[date]!;
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Date header
+            _buildDateHeader(date),
+            // Transactions for this date
+            ...dayTransactions.map((transaction) {
+              final categoryState = ref.watch(categoryProvider);
+              final category = categoryState.categories.firstWhere(
+                (c) => c.id == transaction.categoryId,
+                orElse: () => categoryState.categories.isNotEmpty
+                    ? categoryState.categories.first
+                    : Category(
+                        id: '',
+                        name: 'Other',
+                        colorCode: '#4ECDC4',
+                        type: 'expense',
+                        isDefault: false,
+                      ),
+              );
+              final displayTitle = transaction.title.isNotEmpty
+                  ? transaction.title
+                  : transaction.notes.isNotEmpty
+                      ? transaction.notes
+                      : transaction.category;
+
+              return TransactionCard(
+                id: transaction.id,
+                title: displayTitle,
+                category: transaction.category,
+                categoryColor: category.colorCode,
+                categoryIcon: category.iconName,
+                amount: transaction.amount,
+                transactionType: transaction.type,
+                walletId: transaction.walletId,
+                notes: transaction.notes,
+                onTap: () {
+                  _editTransaction(transaction);
+                },
+                onEdit: () {
+                  _editTransaction(transaction);
+                },
+                onDelete: () {
+                  _deleteTransaction(transaction);
+                },
+              );
+            }),
+          ],
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final transactionState = ref.watch(transactionProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -745,86 +887,20 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
               ),
             ),
           ),
-          // Transaction list grouped by date
+          // Transaction pages - horizontal swipe
           Expanded(
-            child: GestureDetector(
-              onHorizontalDragEnd: (details) {
-                // Swipe right to left = go to next month
-                // Swipe left to right = go to previous month
-                if (details.primaryVelocity != null) {
-                  if (details.primaryVelocity! < -200) {
-                    // Swipe left (next month)
-                    _goToNextMonth();
-                  } else if (details.primaryVelocity! > 200) {
-                    // Swipe right (previous month)
-                    _goToPreviousMonth();
-                  }
-                }
+            child: PageView.builder(
+              controller: _pageController,
+              onPageChanged: _onPageChanged,
+              itemCount: _availableMonths.length,
+              itemBuilder: (context, index) {
+                final month = _availableMonths[index];
+                return _buildMonthPage(
+                  month,
+                  transactionState.transactions,
+                  transactionState.isLoading,
+                );
               },
-              child: transactionState.isLoading
-                  ? const SingleChildScrollView(
-                      child: ShimmerTransactionList(itemCount: 8),
-                    )
-                  : filteredTransactions.isEmpty
-                      ? _buildEmptyState()
-                      : ListView.builder(
-                        itemCount: sortedDates.length,
-                        itemBuilder: (context, dateIndex) {
-                          final date = sortedDates[dateIndex];
-                          final dayTransactions = groupedTransactions[date]!;
-
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Date header
-                              _buildDateHeader(date),
-                              // Transactions for this date
-                              ...dayTransactions.map((transaction) {
-                                final categoryState = ref.watch(categoryProvider);
-                                final category =
-                                    categoryState.categories.firstWhere(
-                                  (c) => c.id == transaction.categoryId,
-                                  orElse: () => categoryState.categories.isNotEmpty
-                                      ? categoryState.categories.first
-                                      : Category(
-                                          id: '',
-                                          name: 'Other',
-                                          colorCode: '#4ECDC4',
-                                          type: 'expense',
-                                          isDefault: false,
-                                        ),
-                                );
-                                final displayTitle = transaction.title.isNotEmpty
-                                    ? transaction.title
-                                    : transaction.notes.isNotEmpty
-                                        ? transaction.notes
-                                        : transaction.category;
-
-                                return TransactionCard(
-                                  id: transaction.id,
-                                  title: displayTitle,
-                                  category: transaction.category,
-                                  categoryColor: category.colorCode,
-                                  categoryIcon: category.iconName,
-                                  amount: transaction.amount,
-                                  transactionType: transaction.type,
-                                  walletId: transaction.walletId,
-                                  notes: transaction.notes,
-                                  onTap: () {
-                                    _editTransaction(transaction);
-                                  },
-                                  onEdit: () {
-                                    _editTransaction(transaction);
-                                  },
-                                  onDelete: () {
-                                    _deleteTransaction(transaction);
-                                  },
-                                );
-                              }),
-                            ],
-                          );
-                        },
-                      ),
             ),
           ),
         ],
