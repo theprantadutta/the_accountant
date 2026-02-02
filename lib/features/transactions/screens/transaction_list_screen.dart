@@ -72,6 +72,30 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
     }
   }
 
+  void _goToNextMonth() {
+    final currentIndex = _availableMonths.indexWhere(
+      (m) => m.year == _selectedMonth.year && m.month == _selectedMonth.month,
+    );
+    if (currentIndex < _availableMonths.length - 1) {
+      setState(() {
+        _selectedMonth = _availableMonths[currentIndex + 1];
+      });
+      _scrollToSelectedMonth();
+    }
+  }
+
+  void _goToPreviousMonth() {
+    final currentIndex = _availableMonths.indexWhere(
+      (m) => m.year == _selectedMonth.year && m.month == _selectedMonth.month,
+    );
+    if (currentIndex > 0) {
+      setState(() {
+        _selectedMonth = _availableMonths[currentIndex - 1];
+      });
+      _scrollToSelectedMonth();
+    }
+  }
+
   @override
   void dispose() {
     _searchController.removeListener(_onSearchChanged);
@@ -723,13 +747,27 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
           ),
           // Transaction list grouped by date
           Expanded(
-            child: transactionState.isLoading
-                ? const SingleChildScrollView(
-                    child: ShimmerTransactionList(itemCount: 8),
-                  )
-                : filteredTransactions.isEmpty
-                    ? _buildEmptyState()
-                    : ListView.builder(
+            child: GestureDetector(
+              onHorizontalDragEnd: (details) {
+                // Swipe right to left = go to next month
+                // Swipe left to right = go to previous month
+                if (details.primaryVelocity != null) {
+                  if (details.primaryVelocity! < -200) {
+                    // Swipe left (next month)
+                    _goToNextMonth();
+                  } else if (details.primaryVelocity! > 200) {
+                    // Swipe right (previous month)
+                    _goToPreviousMonth();
+                  }
+                }
+              },
+              child: transactionState.isLoading
+                  ? const SingleChildScrollView(
+                      child: ShimmerTransactionList(itemCount: 8),
+                    )
+                  : filteredTransactions.isEmpty
+                      ? _buildEmptyState()
+                      : ListView.builder(
                         itemCount: sortedDates.length,
                         itemBuilder: (context, dateIndex) {
                           final date = sortedDates[dateIndex];
@@ -762,94 +800,32 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                                         ? transaction.notes
                                         : transaction.category;
 
-                                return Dismissible(
-                                  key: Key('transaction_${transaction.id}'),
-                                  direction: DismissDirection.endToStart,
-                                  confirmDismiss: (direction) async {
-                                    return await showDialog<bool>(
-                                          context: context,
-                                          builder: (context) => AlertDialog(
-                                            backgroundColor:
-                                                AppColors.primarySurface,
-                                            title: Text(
-                                              'Delete Transaction',
-                                              style: TextStyle(
-                                                  color: AppColors.textPrimary),
-                                            ),
-                                            content: Text(
-                                              'Are you sure you want to delete "$displayTitle"?',
-                                              style: TextStyle(
-                                                  color: AppColors.textSecondary),
-                                            ),
-                                            actions: [
-                                              TextButton(
-                                                onPressed: () =>
-                                                    Navigator.pop(context, false),
-                                                child: Text(
-                                                  'Cancel',
-                                                  style: TextStyle(
-                                                      color:
-                                                          AppColors.textSecondary),
-                                                ),
-                                              ),
-                                              TextButton(
-                                                onPressed: () =>
-                                                    Navigator.pop(context, true),
-                                                child: Text(
-                                                  'Delete',
-                                                  style: TextStyle(
-                                                      color: AppColors.error),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ) ??
-                                        false;
+                                return TransactionCard(
+                                  id: transaction.id,
+                                  title: displayTitle,
+                                  category: transaction.category,
+                                  categoryColor: category.colorCode,
+                                  categoryIcon: category.iconName,
+                                  amount: transaction.amount,
+                                  transactionType: transaction.type,
+                                  walletId: transaction.walletId,
+                                  notes: transaction.notes,
+                                  onTap: () {
+                                    _editTransaction(transaction);
                                   },
-                                  onDismissed: (direction) {
+                                  onEdit: () {
+                                    _editTransaction(transaction);
+                                  },
+                                  onDelete: () {
                                     _deleteTransaction(transaction);
                                   },
-                                  background: Container(
-                                    alignment: Alignment.centerRight,
-                                    padding: const EdgeInsets.only(right: 24),
-                                    margin: const EdgeInsets.symmetric(
-                                        horizontal: 16, vertical: 6),
-                                    decoration: BoxDecoration(
-                                      color: AppColors.error,
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: const Icon(
-                                      Icons.delete_outline,
-                                      color: Colors.white,
-                                      size: 28,
-                                    ),
-                                  ),
-                                  child: TransactionCard(
-                                    id: transaction.id,
-                                    title: displayTitle,
-                                    category: transaction.category,
-                                    categoryColor: category.colorCode,
-                                    categoryIcon: category.iconName,
-                                    amount: transaction.amount,
-                                    transactionType: transaction.type,
-                                    walletId: transaction.walletId,
-                                    notes: transaction.notes,
-                                    onTap: () {
-                                      _editTransaction(transaction);
-                                    },
-                                    onEdit: () {
-                                      _editTransaction(transaction);
-                                    },
-                                    onDelete: () {
-                                      _deleteTransaction(transaction);
-                                    },
-                                  ),
                                 );
                               }),
                             ],
                           );
                         },
                       ),
+            ),
           ),
         ],
       ),
