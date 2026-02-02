@@ -241,3 +241,21 @@ final defaultCurrencyProvider = Provider<String>((ref) {
   final defaultWalletId = ref.watch(effectiveDefaultWalletIdProvider);
   return ref.watch(walletCurrencyProvider(defaultWalletId));
 });
+
+/// Get decimal preference from wallet ID
+final walletDecimalProvider = Provider.family<bool, String?>((ref, walletId) {
+  if (walletId == null) return true;
+  final walletState = ref.watch(walletProvider);
+  try {
+    final wallet = walletState.wallets.firstWhere((w) => w.id == walletId);
+    return wallet.useDecimals;
+  } catch (_) {
+    return true;
+  }
+});
+
+/// Default wallet's decimal preference (for reports and aggregations)
+final defaultDecimalProvider = Provider<bool>((ref) {
+  final defaultWalletId = ref.watch(effectiveDefaultWalletIdProvider);
+  return ref.watch(walletDecimalProvider(defaultWalletId));
+});

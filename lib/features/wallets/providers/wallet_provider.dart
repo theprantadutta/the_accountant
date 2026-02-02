@@ -106,6 +106,7 @@ class WalletNotifier extends StateNotifier<WalletState> {
     String? iconName,
     String? color,
     bool isDefault = false,
+    bool useDecimals = true,
   }) async {
     try {
       // Check premium limit for wallets
@@ -135,6 +136,7 @@ class WalletNotifier extends StateNotifier<WalletState> {
         iconName: Value(iconName ?? 'wallet'),
         color: Value(color ?? '#6366F1'),
         isDefault: Value(isDefault),
+        useDecimals: Value(useDecimals),
         syncStatus: const Value(1), // pendingCreate
         createdAt: Value(now),
         updatedAt: Value(now),
@@ -169,6 +171,7 @@ class WalletNotifier extends StateNotifier<WalletState> {
     String? iconName,
     String? color,
     bool? isDefault,
+    bool? useDecimals,
   }) async {
     try {
       // If setting as default, clear other defaults first
@@ -184,6 +187,7 @@ class WalletNotifier extends StateNotifier<WalletState> {
         iconName: iconName != null ? Value(iconName) : const Value.absent(),
         color: color != null ? Value(color) : const Value.absent(),
         isDefault: isDefault != null ? Value(isDefault) : const Value.absent(),
+        useDecimals: useDecimals != null ? Value(useDecimals) : const Value.absent(),
         updatedAt: Value(DateTime.now()),
       );
 

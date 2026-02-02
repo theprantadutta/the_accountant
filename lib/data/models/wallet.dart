@@ -16,6 +16,7 @@ class Wallets extends Table {
 
   // Flags
   BoolColumn get isDefault => boolean().withDefault(const Constant(false))();
+  BoolColumn get useDecimals => boolean().withDefault(const Constant(true))();
 
   // Display ordering
   IntColumn get orderIndex => integer().withDefault(const Constant(0))();

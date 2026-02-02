@@ -257,7 +257,7 @@ class _WalletCardState extends ConsumerState<_WalletCard>
                             balance * _balanceAnimation.value;
                         return Text(
                           isVisible
-                              ? _formatCurrency(animatedBalance, wallet.currency)
+                              ? _formatCurrency(animatedBalance, wallet.currency, wallet.useDecimals)
                               : '${CurrencyInfo.getSymbol(wallet.currency)} ****',
                           style: AppTypography.monoMedium.copyWith(
                             fontSize: 22,
@@ -319,9 +319,11 @@ class _WalletCardState extends ConsumerState<_WalletCard>
     );
   }
 
-  String _formatCurrency(double amount, String currencyCode) {
+  String _formatCurrency(double amount, String currencyCode, bool useDecimals) {
     final symbol = CurrencyInfo.getSymbol(currencyCode);
-    final formatted = NumberFormat('#,##0.00').format(amount.abs());
+    final formatter = useDecimals ? NumberFormat('#,##0.00') : NumberFormat('#,##0');
+    final displayAmount = useDecimals ? amount.abs() : amount.abs().round();
+    final formatted = formatter.format(displayAmount);
     final sign = amount < 0 ? '-' : '';
     return '$sign$symbol$formatted';
   }

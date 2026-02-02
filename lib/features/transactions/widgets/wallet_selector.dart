@@ -113,7 +113,7 @@ class WalletSelector extends ConsumerWidget {
                   ),
                   if (showBalance && selectedWallet != null)
                     Text(
-                      '${CurrencyInfo.getSymbol(selectedWallet.currency)}${selectedWallet.balance.toStringAsFixed(2)}',
+                      '${CurrencyInfo.getSymbol(selectedWallet.currency)}${selectedWallet.useDecimals ? selectedWallet.balance.toStringAsFixed(2) : selectedWallet.balance.round().toString()}',
                       style: TextStyle(
                         fontSize: 12,
                         color: theme.colorScheme.onSurfaceVariant,
@@ -316,7 +316,7 @@ class _WalletPickerSheet extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '${CurrencyInfo.getSymbol(wallet.currency)}${wallet.balance.toStringAsFixed(2)}',
+                    '${CurrencyInfo.getSymbol(wallet.currency)}${wallet.useDecimals ? wallet.balance.toStringAsFixed(2) : wallet.balance.round().toString()}',
                     style: TextStyle(
                       fontSize: 14,
                       color: theme.colorScheme.onSurfaceVariant,

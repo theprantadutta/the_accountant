@@ -561,16 +561,21 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
   Widget _buildSummaryCards() {
     final financialData = ref.watch(financialDataProvider);
     final displayCurrency = ref.watch(defaultCurrencyProvider);
+    final useDecimals = ref.watch(defaultDecimalProvider);
     final currencySymbol = CurrencyInfo.getSymbol(displayCurrency);
     final netSavings =
         financialData.monthlyIncome - financialData.monthlyExpenses;
     final growthPercentage = financialData.monthlyGrowthPercentage;
+    final formatter = useDecimals ? NumberFormat('#,##0.00') : NumberFormat('#,##0');
+
+    String formatAmount(double amount) {
+      return '$currencySymbol${formatter.format(useDecimals ? amount : amount.round())}';
+    }
 
     final summaryData = [
       {
         'title': 'Total Spent',
-        'amount':
-            '$currencySymbol${NumberFormat('#,##0.00').format(financialData.monthlyExpenses)}',
+        'amount': formatAmount(financialData.monthlyExpenses),
         'change':
             '${growthPercentage >= 0 ? '+' : ''}${growthPercentage.toStringAsFixed(1)}%',
         'color': const Color(0xFFFF6B6B),
@@ -581,8 +586,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
       },
       {
         'title': 'Total Earned',
-        'amount':
-            '$currencySymbol${NumberFormat('#,##0.00').format(financialData.monthlyIncome)}',
+        'amount': formatAmount(financialData.monthlyIncome),
         'change':
             '${growthPercentage >= 0 ? '+' : ''}${growthPercentage.toStringAsFixed(1)}%',
         'color': const Color(0xFF4ECDC4),
@@ -593,8 +597,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
       },
       {
         'title': 'Net Savings',
-        'amount':
-            '$currencySymbol${NumberFormat('#,##0.00').format(netSavings)}',
+        'amount': formatAmount(netSavings),
         'change':
             '${growthPercentage >= 0 ? '+' : ''}${growthPercentage.toStringAsFixed(1)}%',
         'color': const Color(0xFF45B7D1),
@@ -698,6 +701,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
     final currencySymbol = CurrencyInfo.getSymbol(
       ref.watch(defaultCurrencyProvider),
     );
+    final useDecimals = ref.watch(defaultDecimalProvider);
     // Use categorySpendingProvider which maps category IDs to names
     final categorySpending = ref.watch(categorySpendingProvider);
     final categoryState = ref.watch(categoryProvider);
@@ -705,6 +709,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
       0.0,
       (sum, amount) => sum + amount,
     );
+    final formatter = useDecimals ? NumberFormat('#,##0.00') : NumberFormat('#,##0');
 
     // Convert to list and sort by amount
     final categories =
@@ -729,7 +734,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
           return {
             'name': entry.key,
             'amount':
-                '$currencySymbol${NumberFormat('#,##0.00').format(entry.value)}',
+                '$currencySymbol${formatter.format(useDecimals ? entry.value : entry.value.round())}',
             'percentage': percentage,
             'color': categoryColor,
           };

@@ -100,6 +100,7 @@ class _WalletManagementScreenState
     required String icon,
     required String color,
     required bool isDefault,
+    required bool useDecimals,
   }) {
     final walletNotifier = ref.read(walletProvider.notifier);
     walletNotifier.addWallet(
@@ -109,6 +110,7 @@ class _WalletManagementScreenState
       iconName: icon,
       color: color,
       isDefault: isDefault,
+      useDecimals: useDecimals,
     );
 
     _nameController.clear();
@@ -555,12 +557,14 @@ class _WalletManagementScreenState
                   initialIcon: wallet.iconName,
                   initialColor: wallet.color,
                   initialIsDefault: wallet.isDefault ?? false,
+                  initialUseDecimals: wallet.useDecimals,
                   isEditing: true,
                   onSubmit: ({
                     required String currency,
                     required String icon,
                     required String color,
                     required bool isDefault,
+                    required bool useDecimals,
                   }) {
                     ref.read(walletProvider.notifier).updateWallet(
                       id: wallet.id,
@@ -570,6 +574,7 @@ class _WalletManagementScreenState
                       iconName: icon,
                       color: color,
                       isDefault: isDefault,
+                      useDecimals: useDecimals,
                     );
                     Navigator.pop(context);
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -867,7 +872,9 @@ class _WalletCardState extends ConsumerState<_WalletCard>
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            NumberFormat('#,##0.00').format(balance.abs()),
+                            wallet.useDecimals
+                                ? NumberFormat('#,##0.00').format(balance.abs())
+                                : NumberFormat('#,##0').format(balance.abs().round()),
                             style: TextStyle(
                               fontSize: 28,
                               fontWeight: FontWeight.bold,

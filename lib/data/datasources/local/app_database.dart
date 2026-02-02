@@ -58,7 +58,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 7;
+  int get schemaVersion => 8;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -176,6 +176,10 @@ class AppDatabase extends _$AppDatabase {
             await m.addColumn(settings, settings.numberFormat);
             await m.addColumn(settings, settings.biometricLockEnabled);
             await m.addColumn(settings, settings.autoLockTimeoutMinutes);
+          }
+          if (from < 8) {
+            // Add useDecimals column to wallets for per-wallet decimal display preference
+            await m.addColumn(wallets, wallets.useDecimals);
           }
         },
       );

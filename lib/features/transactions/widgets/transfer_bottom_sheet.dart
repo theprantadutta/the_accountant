@@ -798,7 +798,7 @@ class _WalletPickerSheet extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    '\$${wallet.balance.toStringAsFixed(2)}',
+                    '\$${wallet.useDecimals ? wallet.balance.toStringAsFixed(2) : wallet.balance.round().toString()}',
                     style: TextStyle(
                       fontSize: 12,
                       color: theme.colorScheme.onSurfaceVariant,

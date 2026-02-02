@@ -610,7 +610,12 @@ class _ResponsiveFinancialOverviewState
               final walletCurrency = ref.watch(
                 walletCurrencyProvider(transaction.walletId),
               );
+              final useDecimals = ref.watch(
+                walletDecimalProvider(transaction.walletId),
+              );
               final currencySymbol = CurrencyInfo.getSymbol(walletCurrency);
+              final formatter = useDecimals ? NumberFormat('#,##0.00') : NumberFormat('#,##0');
+              final displayAmount = useDecimals ? transaction.amount : transaction.amount.round();
 
               return Container(
                 margin: EdgeInsets.only(bottom: AppSpacing.md),
@@ -652,7 +657,7 @@ class _ResponsiveFinancialOverviewState
                       ),
                     ),
                     Text(
-                      '${isIncome ? '+' : '-'}$currencySymbol${NumberFormat('#,##0.00').format(transaction.amount)}',
+                      '${isIncome ? '+' : '-'}$currencySymbol${formatter.format(displayAmount)}',
                       style: AppTypography.monoSmall.copyWith(
                         color: isIncome ? AppColors.success : AppColors.error,
                         fontWeight: FontWeight.w600,
@@ -670,7 +675,9 @@ class _ResponsiveFinancialOverviewState
   Widget _buildBudgetProgress() {
     final items = ref.watch(budgetProgressDetailsProvider);
     final displayCurrency = ref.watch(defaultCurrencyProvider);
+    final useDecimals = ref.watch(defaultDecimalProvider);
     final currencySymbol = CurrencyInfo.getSymbol(displayCurrency);
+    final formatter = useDecimals ? NumberFormat('#,##0.00') : NumberFormat('#,##0');
 
     return GlassCard(
       variant: GlassCardVariant.success,
@@ -728,7 +735,7 @@ class _ResponsiveFinancialOverviewState
                       children: [
                         Text(item.budgetName, style: AppTypography.titleSmall),
                         Text(
-                          '$currencySymbol${NumberFormat('#,##0').format(spent)} / $currencySymbol${NumberFormat('#,##0').format(limit)}',
+                          '$currencySymbol${formatter.format(useDecimals ? spent : spent.round())} / $currencySymbol${formatter.format(useDecimals ? limit : limit.round())}',
                           style: AppTypography.monoSmall.copyWith(
                             color: AppColors.textSecondary,
                           ),

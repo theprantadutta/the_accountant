@@ -8,6 +8,7 @@ class SummaryCard extends StatelessWidget {
   final IconData icon;
   final Color iconColor;
   final bool isPositive;
+  final bool useDecimals;
 
   const SummaryCard({
     super.key,
@@ -17,14 +18,15 @@ class SummaryCard extends StatelessWidget {
     required this.icon,
     required this.iconColor,
     this.isPositive = true,
+    this.useDecimals = true,
   });
 
   @override
   Widget build(BuildContext context) {
     final formattedAmount = NumberFormat.currency(
       symbol: '$currency ',
-      decimalDigits: 2,
-    ).format(amount);
+      decimalDigits: useDecimals ? 2 : 0,
+    ).format(useDecimals ? amount : amount.round());
 
     return Card(
       margin: const EdgeInsets.all(8),

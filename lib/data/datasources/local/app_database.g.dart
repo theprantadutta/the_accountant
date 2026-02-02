@@ -1248,6 +1248,21 @@ class $WalletsTable extends Wallets with TableInfo<$WalletsTable, Wallet> {
     ),
     defaultValue: const Constant(false),
   );
+  static const VerificationMeta _useDecimalsMeta = const VerificationMeta(
+    'useDecimals',
+  );
+  @override
+  late final GeneratedColumn<bool> useDecimals = GeneratedColumn<bool>(
+    'use_decimals',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("use_decimals" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
   static const VerificationMeta _orderIndexMeta = const VerificationMeta(
     'orderIndex',
   );
@@ -1327,6 +1342,7 @@ class $WalletsTable extends Wallets with TableInfo<$WalletsTable, Wallet> {
     currency,
     balance,
     isDefault,
+    useDecimals,
     orderIndex,
     serverId,
     syncStatus,
@@ -1387,6 +1403,15 @@ class $WalletsTable extends Wallets with TableInfo<$WalletsTable, Wallet> {
       context.handle(
         _isDefaultMeta,
         isDefault.isAcceptableOrUnknown(data['is_default']!, _isDefaultMeta),
+      );
+    }
+    if (data.containsKey('use_decimals')) {
+      context.handle(
+        _useDecimalsMeta,
+        useDecimals.isAcceptableOrUnknown(
+          data['use_decimals']!,
+          _useDecimalsMeta,
+        ),
       );
     }
     if (data.containsKey('order_index')) {
@@ -1462,6 +1487,10 @@ class $WalletsTable extends Wallets with TableInfo<$WalletsTable, Wallet> {
         DriftSqlType.bool,
         data['${effectivePrefix}is_default'],
       )!,
+      useDecimals: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}use_decimals'],
+      )!,
       orderIndex: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}order_index'],
@@ -1503,6 +1532,7 @@ class Wallet extends DataClass implements Insertable<Wallet> {
   final String currency;
   final double balance;
   final bool isDefault;
+  final bool useDecimals;
   final int orderIndex;
   final String? serverId;
   final int syncStatus;
@@ -1517,6 +1547,7 @@ class Wallet extends DataClass implements Insertable<Wallet> {
     required this.currency,
     required this.balance,
     required this.isDefault,
+    required this.useDecimals,
     required this.orderIndex,
     this.serverId,
     required this.syncStatus,
@@ -1534,6 +1565,7 @@ class Wallet extends DataClass implements Insertable<Wallet> {
     map['currency'] = Variable<String>(currency);
     map['balance'] = Variable<double>(balance);
     map['is_default'] = Variable<bool>(isDefault);
+    map['use_decimals'] = Variable<bool>(useDecimals);
     map['order_index'] = Variable<int>(orderIndex);
     if (!nullToAbsent || serverId != null) {
       map['server_id'] = Variable<String>(serverId);
@@ -1556,6 +1588,7 @@ class Wallet extends DataClass implements Insertable<Wallet> {
       currency: Value(currency),
       balance: Value(balance),
       isDefault: Value(isDefault),
+      useDecimals: Value(useDecimals),
       orderIndex: Value(orderIndex),
       serverId: serverId == null && nullToAbsent
           ? const Value.absent()
@@ -1582,6 +1615,7 @@ class Wallet extends DataClass implements Insertable<Wallet> {
       currency: serializer.fromJson<String>(json['currency']),
       balance: serializer.fromJson<double>(json['balance']),
       isDefault: serializer.fromJson<bool>(json['isDefault']),
+      useDecimals: serializer.fromJson<bool>(json['useDecimals']),
       orderIndex: serializer.fromJson<int>(json['orderIndex']),
       serverId: serializer.fromJson<String?>(json['serverId']),
       syncStatus: serializer.fromJson<int>(json['syncStatus']),
@@ -1601,6 +1635,7 @@ class Wallet extends DataClass implements Insertable<Wallet> {
       'currency': serializer.toJson<String>(currency),
       'balance': serializer.toJson<double>(balance),
       'isDefault': serializer.toJson<bool>(isDefault),
+      'useDecimals': serializer.toJson<bool>(useDecimals),
       'orderIndex': serializer.toJson<int>(orderIndex),
       'serverId': serializer.toJson<String?>(serverId),
       'syncStatus': serializer.toJson<int>(syncStatus),
@@ -1618,6 +1653,7 @@ class Wallet extends DataClass implements Insertable<Wallet> {
     String? currency,
     double? balance,
     bool? isDefault,
+    bool? useDecimals,
     int? orderIndex,
     Value<String?> serverId = const Value.absent(),
     int? syncStatus,
@@ -1632,6 +1668,7 @@ class Wallet extends DataClass implements Insertable<Wallet> {
     currency: currency ?? this.currency,
     balance: balance ?? this.balance,
     isDefault: isDefault ?? this.isDefault,
+    useDecimals: useDecimals ?? this.useDecimals,
     orderIndex: orderIndex ?? this.orderIndex,
     serverId: serverId.present ? serverId.value : this.serverId,
     syncStatus: syncStatus ?? this.syncStatus,
@@ -1648,6 +1685,9 @@ class Wallet extends DataClass implements Insertable<Wallet> {
       currency: data.currency.present ? data.currency.value : this.currency,
       balance: data.balance.present ? data.balance.value : this.balance,
       isDefault: data.isDefault.present ? data.isDefault.value : this.isDefault,
+      useDecimals: data.useDecimals.present
+          ? data.useDecimals.value
+          : this.useDecimals,
       orderIndex: data.orderIndex.present
           ? data.orderIndex.value
           : this.orderIndex,
@@ -1671,6 +1711,7 @@ class Wallet extends DataClass implements Insertable<Wallet> {
           ..write('currency: $currency, ')
           ..write('balance: $balance, ')
           ..write('isDefault: $isDefault, ')
+          ..write('useDecimals: $useDecimals, ')
           ..write('orderIndex: $orderIndex, ')
           ..write('serverId: $serverId, ')
           ..write('syncStatus: $syncStatus, ')
@@ -1690,6 +1731,7 @@ class Wallet extends DataClass implements Insertable<Wallet> {
     currency,
     balance,
     isDefault,
+    useDecimals,
     orderIndex,
     serverId,
     syncStatus,
@@ -1708,6 +1750,7 @@ class Wallet extends DataClass implements Insertable<Wallet> {
           other.currency == this.currency &&
           other.balance == this.balance &&
           other.isDefault == this.isDefault &&
+          other.useDecimals == this.useDecimals &&
           other.orderIndex == this.orderIndex &&
           other.serverId == this.serverId &&
           other.syncStatus == this.syncStatus &&
@@ -1724,6 +1767,7 @@ class WalletsCompanion extends UpdateCompanion<Wallet> {
   final Value<String> currency;
   final Value<double> balance;
   final Value<bool> isDefault;
+  final Value<bool> useDecimals;
   final Value<int> orderIndex;
   final Value<String?> serverId;
   final Value<int> syncStatus;
@@ -1739,6 +1783,7 @@ class WalletsCompanion extends UpdateCompanion<Wallet> {
     this.currency = const Value.absent(),
     this.balance = const Value.absent(),
     this.isDefault = const Value.absent(),
+    this.useDecimals = const Value.absent(),
     this.orderIndex = const Value.absent(),
     this.serverId = const Value.absent(),
     this.syncStatus = const Value.absent(),
@@ -1755,6 +1800,7 @@ class WalletsCompanion extends UpdateCompanion<Wallet> {
     this.currency = const Value.absent(),
     this.balance = const Value.absent(),
     this.isDefault = const Value.absent(),
+    this.useDecimals = const Value.absent(),
     this.orderIndex = const Value.absent(),
     this.serverId = const Value.absent(),
     this.syncStatus = const Value.absent(),
@@ -1772,6 +1818,7 @@ class WalletsCompanion extends UpdateCompanion<Wallet> {
     Expression<String>? currency,
     Expression<double>? balance,
     Expression<bool>? isDefault,
+    Expression<bool>? useDecimals,
     Expression<int>? orderIndex,
     Expression<String>? serverId,
     Expression<int>? syncStatus,
@@ -1788,6 +1835,7 @@ class WalletsCompanion extends UpdateCompanion<Wallet> {
       if (currency != null) 'currency': currency,
       if (balance != null) 'balance': balance,
       if (isDefault != null) 'is_default': isDefault,
+      if (useDecimals != null) 'use_decimals': useDecimals,
       if (orderIndex != null) 'order_index': orderIndex,
       if (serverId != null) 'server_id': serverId,
       if (syncStatus != null) 'sync_status': syncStatus,
@@ -1806,6 +1854,7 @@ class WalletsCompanion extends UpdateCompanion<Wallet> {
     Value<String>? currency,
     Value<double>? balance,
     Value<bool>? isDefault,
+    Value<bool>? useDecimals,
     Value<int>? orderIndex,
     Value<String?>? serverId,
     Value<int>? syncStatus,
@@ -1822,6 +1871,7 @@ class WalletsCompanion extends UpdateCompanion<Wallet> {
       currency: currency ?? this.currency,
       balance: balance ?? this.balance,
       isDefault: isDefault ?? this.isDefault,
+      useDecimals: useDecimals ?? this.useDecimals,
       orderIndex: orderIndex ?? this.orderIndex,
       serverId: serverId ?? this.serverId,
       syncStatus: syncStatus ?? this.syncStatus,
@@ -1855,6 +1905,9 @@ class WalletsCompanion extends UpdateCompanion<Wallet> {
     }
     if (isDefault.present) {
       map['is_default'] = Variable<bool>(isDefault.value);
+    }
+    if (useDecimals.present) {
+      map['use_decimals'] = Variable<bool>(useDecimals.value);
     }
     if (orderIndex.present) {
       map['order_index'] = Variable<int>(orderIndex.value);
@@ -1890,6 +1943,7 @@ class WalletsCompanion extends UpdateCompanion<Wallet> {
           ..write('currency: $currency, ')
           ..write('balance: $balance, ')
           ..write('isDefault: $isDefault, ')
+          ..write('useDecimals: $useDecimals, ')
           ..write('orderIndex: $orderIndex, ')
           ..write('serverId: $serverId, ')
           ..write('syncStatus: $syncStatus, ')
@@ -10762,6 +10816,7 @@ typedef $$WalletsTableCreateCompanionBuilder =
       Value<String> currency,
       Value<double> balance,
       Value<bool> isDefault,
+      Value<bool> useDecimals,
       Value<int> orderIndex,
       Value<String?> serverId,
       Value<int> syncStatus,
@@ -10779,6 +10834,7 @@ typedef $$WalletsTableUpdateCompanionBuilder =
       Value<String> currency,
       Value<double> balance,
       Value<bool> isDefault,
+      Value<bool> useDecimals,
       Value<int> orderIndex,
       Value<String?> serverId,
       Value<int> syncStatus,
@@ -10870,6 +10926,11 @@ class $$WalletsTableFilterComposer
 
   ColumnFilters<bool> get isDefault => $composableBuilder(
     column: $table.isDefault,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get useDecimals => $composableBuilder(
+    column: $table.useDecimals,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -10998,6 +11059,11 @@ class $$WalletsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<bool> get useDecimals => $composableBuilder(
+    column: $table.useDecimals,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get orderIndex => $composableBuilder(
     column: $table.orderIndex,
     builder: (column) => ColumnOrderings(column),
@@ -11058,6 +11124,11 @@ class $$WalletsTableAnnotationComposer
 
   GeneratedColumn<bool> get isDefault =>
       $composableBuilder(column: $table.isDefault, builder: (column) => column);
+
+  GeneratedColumn<bool> get useDecimals => $composableBuilder(
+    column: $table.useDecimals,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<int> get orderIndex => $composableBuilder(
     column: $table.orderIndex,
@@ -11167,6 +11238,7 @@ class $$WalletsTableTableManager
                 Value<String> currency = const Value.absent(),
                 Value<double> balance = const Value.absent(),
                 Value<bool> isDefault = const Value.absent(),
+                Value<bool> useDecimals = const Value.absent(),
                 Value<int> orderIndex = const Value.absent(),
                 Value<String?> serverId = const Value.absent(),
                 Value<int> syncStatus = const Value.absent(),
@@ -11182,6 +11254,7 @@ class $$WalletsTableTableManager
                 currency: currency,
                 balance: balance,
                 isDefault: isDefault,
+                useDecimals: useDecimals,
                 orderIndex: orderIndex,
                 serverId: serverId,
                 syncStatus: syncStatus,
@@ -11199,6 +11272,7 @@ class $$WalletsTableTableManager
                 Value<String> currency = const Value.absent(),
                 Value<double> balance = const Value.absent(),
                 Value<bool> isDefault = const Value.absent(),
+                Value<bool> useDecimals = const Value.absent(),
                 Value<int> orderIndex = const Value.absent(),
                 Value<String?> serverId = const Value.absent(),
                 Value<int> syncStatus = const Value.absent(),
@@ -11214,6 +11288,7 @@ class $$WalletsTableTableManager
                 currency: currency,
                 balance: balance,
                 isDefault: isDefault,
+                useDecimals: useDecimals,
                 orderIndex: orderIndex,
                 serverId: serverId,
                 syncStatus: syncStatus,

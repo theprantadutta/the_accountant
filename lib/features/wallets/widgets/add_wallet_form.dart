@@ -16,6 +16,7 @@ typedef WalletFormSubmitCallback = void Function({
   required String icon,
   required String color,
   required bool isDefault,
+  required bool useDecimals,
 });
 
 /// Form for adding/editing a wallet with enhanced features
@@ -27,6 +28,7 @@ class AddWalletForm extends ConsumerStatefulWidget {
   final String? initialIcon;
   final String? initialColor;
   final bool initialIsDefault;
+  final bool initialUseDecimals;
   final WalletFormSubmitCallback onSubmit;
   final VoidCallback onCancel;
   final bool isEditing;
@@ -40,6 +42,7 @@ class AddWalletForm extends ConsumerStatefulWidget {
     this.initialIcon,
     this.initialColor,
     this.initialIsDefault = false,
+    this.initialUseDecimals = true,
     required this.onSubmit,
     required this.onCancel,
     this.isEditing = false,
@@ -54,6 +57,7 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
   late String _selectedIcon;
   late String _selectedColor;
   late bool _isDefault;
+  late bool _useDecimals;
 
   @override
   void initState() {
@@ -62,12 +66,14 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
     _selectedIcon = widget.initialIcon ?? 'wallet';
     _selectedColor = widget.initialColor ?? '#6366F1';
     _isDefault = widget.initialIsDefault;
+    _useDecimals = widget.initialUseDecimals;
   }
 
   String get selectedCurrency => _selectedCurrency;
   String get selectedIcon => _selectedIcon;
   String get selectedColor => _selectedColor;
   bool get isDefault => _isDefault;
+  bool get useDecimals => _useDecimals;
 
   void _showIconPicker(BuildContext context) {
     showModalBottomSheet(
@@ -294,6 +300,49 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
                   ],
                 ),
               ),
+              AppSpacing.gapMd,
+
+              // Use decimals toggle
+              Container(
+                padding: AppSpacing.paddingMd,
+                decoration: BoxDecoration(
+                  color: AppColors.glassWhite,
+                  borderRadius: AppSpacing.borderRadiusMd,
+                  border: Border.all(color: AppColors.glassBorder),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.numbers,
+                      color: _useDecimals
+                          ? AppColors.primaryAccent
+                          : AppColors.textSecondary,
+                    ),
+                    AppSpacing.gapHMd,
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Use Decimals', style: AppTypography.bodyLarge),
+                          Text(
+                            _useDecimals
+                                ? 'Show cents (e.g., \$1,234.56)'
+                                : 'Whole numbers only (e.g., \$1,235)',
+                            style: AppTypography.bodySmall.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Switch(
+                      value: _useDecimals,
+                      onChanged: (value) => setState(() => _useDecimals = value),
+                      activeColor: AppColors.primaryAccent,
+                    ),
+                  ],
+                ),
+              ),
               AppSpacing.gapLg,
 
               // Action buttons
@@ -318,6 +367,7 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
                             icon: _selectedIcon,
                             color: _selectedColor,
                             isDefault: _isDefault,
+                            useDecimals: _useDecimals,
                           );
                         }
                       },
@@ -341,8 +391,9 @@ class CompactWalletForm extends ConsumerStatefulWidget {
   final String? initialColor;
   final double? initialBalance;
   final bool initialIsDefault;
+  final bool initialUseDecimals;
   final Function(String name, String currency, String icon, String color,
-      double balance, bool isDefault) onSubmit;
+      double balance, bool isDefault, bool useDecimals) onSubmit;
 
   const CompactWalletForm({
     super.key,
@@ -352,6 +403,7 @@ class CompactWalletForm extends ConsumerStatefulWidget {
     this.initialColor,
     this.initialBalance,
     this.initialIsDefault = false,
+    this.initialUseDecimals = true,
     required this.onSubmit,
   });
 
@@ -367,6 +419,7 @@ class _CompactWalletFormState extends ConsumerState<CompactWalletForm> {
   late String _icon;
   late String _color;
   late bool _isDefault;
+  late bool _useDecimals;
 
   @override
   void initState() {
@@ -379,6 +432,7 @@ class _CompactWalletFormState extends ConsumerState<CompactWalletForm> {
     _icon = widget.initialIcon ?? 'wallet';
     _color = widget.initialColor ?? '#6366F1';
     _isDefault = widget.initialIsDefault;
+    _useDecimals = widget.initialUseDecimals;
   }
 
   @override
@@ -456,6 +510,18 @@ class _CompactWalletFormState extends ConsumerState<CompactWalletForm> {
             value: _isDefault,
             onChanged: (v) => setState(() => _isDefault = v),
           ),
+
+          // Use decimals toggle
+          SwitchListTile(
+            title: const Text('Use Decimals'),
+            subtitle: Text(
+              _useDecimals
+                  ? 'Show cents (e.g., \$1,234.56)'
+                  : 'Whole numbers only (e.g., \$1,235)',
+            ),
+            value: _useDecimals,
+            onChanged: (v) => setState(() => _useDecimals = v),
+          ),
           AppSpacing.gapLg,
 
           // Submit button
@@ -473,6 +539,7 @@ class _CompactWalletFormState extends ConsumerState<CompactWalletForm> {
                     _color,
                     balance,
                     _isDefault,
+                    _useDecimals,
                   );
                 }
               },

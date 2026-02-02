@@ -41,14 +41,15 @@ class TransactionCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final walletCurrency = ref.watch(walletCurrencyProvider(walletId));
+    final useDecimals = ref.watch(walletDecimalProvider(walletId));
     final color = ColorUtils.hexToColor(categoryColor);
     final isExpense = transactionType == 'expense';
 
     // Format amount with currency from the transaction's wallet
     final formattedAmount = NumberFormat.currency(
       symbol: CurrencyInfo.getSymbol(walletCurrency),
-      decimalDigits: 2,
-    ).format(amount);
+      decimalDigits: useDecimals ? 2 : 0,
+    ).format(useDecimals ? amount : amount.round());
 
     return GestureDetector(
       onTap: onTap,
