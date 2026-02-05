@@ -153,8 +153,11 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
                     child: Image.network(
                       authState.photoUrl!,
                       fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) =>
-                          const Icon(Icons.person, size: 60, color: Colors.white),
+                      errorBuilder: (context, error, stackTrace) => const Icon(
+                        Icons.person,
+                        size: 60,
+                        color: Colors.white,
+                      ),
                     ),
                   )
                 : const Icon(Icons.person, size: 60, color: Colors.white),
@@ -273,17 +276,11 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
         leading: Icon(icon, color: AppColors.textMuted),
         title: Text(
           label,
-          style: TextStyle(
-            color: AppColors.textMuted,
-            fontSize: 12,
-          ),
+          style: TextStyle(color: AppColors.textMuted, fontSize: 12),
         ),
         subtitle: Text(
           value,
-          style: TextStyle(
-            color: AppColors.textSecondary,
-            fontSize: 16,
-          ),
+          style: TextStyle(color: AppColors.textSecondary, fontSize: 16),
         ),
       ),
     );
@@ -340,8 +337,13 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
     );
   }
 
-  Widget _buildInfoRow(String label, String value, IconData icon,
-      {Color? valueColor, bool isSecondary = false}) {
+  Widget _buildInfoRow(
+    String label,
+    String value,
+    IconData icon, {
+    Color? valueColor,
+    bool isSecondary = false,
+  }) {
     return Row(
       children: [
         Container(
@@ -351,11 +353,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
             color: AppColors.primaryAccent.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(10),
           ),
-          child: Icon(
-            icon,
-            color: AppColors.primaryAccent,
-            size: 20,
-          ),
+          child: Icon(icon, color: AppColors.primaryAccent, size: 20),
         ),
         SizedBox(width: AppSpacing.md),
         Expanded(
@@ -364,15 +362,16 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
             children: [
               Text(
                 label,
-                style: TextStyle(
-                  color: AppColors.textMuted,
-                  fontSize: 12,
-                ),
+                style: TextStyle(color: AppColors.textMuted, fontSize: 12),
               ),
               Text(
                 value,
                 style: TextStyle(
-                  color: valueColor ?? (isSecondary ? AppColors.textMuted : AppColors.textPrimary),
+                  color:
+                      valueColor ??
+                      (isSecondary
+                          ? AppColors.textMuted
+                          : AppColors.textPrimary),
                   fontSize: isSecondary ? 12 : 14,
                   fontWeight: isSecondary ? FontWeight.normal : FontWeight.w500,
                 ),

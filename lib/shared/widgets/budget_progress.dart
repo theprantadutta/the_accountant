@@ -125,7 +125,9 @@ class BudgetProgress extends ConsumerWidget {
             Row(
               children: [
                 Icon(
-                  remaining >= 0 ? Icons.check_circle_outline : Icons.warning_amber_rounded,
+                  remaining >= 0
+                      ? Icons.check_circle_outline
+                      : Icons.warning_amber_rounded,
                   size: 16,
                   color: remaining >= 0 ? AppColors.success : AppColors.error,
                 ),
@@ -147,5 +149,4 @@ class BudgetProgress extends ConsumerWidget {
       ),
     );
   }
-
 }

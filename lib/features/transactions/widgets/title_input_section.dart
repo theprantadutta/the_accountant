@@ -127,13 +127,15 @@ class _TitleInputSectionState extends ConsumerState<TitleInputSection> {
 
     // If suggestion has a category, notify parent
     if (suggestion.categoryId != null && widget.onCategorySuggested != null) {
-      widget.onCategorySuggested!(CategorySuggestionResult(
-        categoryId: suggestion.categoryId!,
-        categoryName: suggestion.categoryName,
-        categoryColor: suggestion.categoryColor,
-        matchType: 'selected',
-        confidence: 1.0,
-      ));
+      widget.onCategorySuggested!(
+        CategorySuggestionResult(
+          categoryId: suggestion.categoryId!,
+          categoryName: suggestion.categoryName,
+          categoryColor: suggestion.categoryColor,
+          matchType: 'selected',
+          confidence: 1.0,
+        ),
+      );
     }
 
     // Close suggestions
@@ -156,9 +158,7 @@ class _TitleInputSectionState extends ConsumerState<TitleInputSection> {
         _buildTitleInput(color),
 
         // Suggestions Dropdown
-        if (_showSuggestions) ...[
-          _buildSuggestions(suggestionsState, color),
-        ],
+        if (_showSuggestions) ...[_buildSuggestions(suggestionsState, color)],
 
         // Recent Titles (when no search query)
         if (_showSuggestions &&
@@ -169,10 +169,7 @@ class _TitleInputSectionState extends ConsumerState<TitleInputSection> {
         ],
 
         // Notes Input
-        if (widget.showNotes) ...[
-          AppSpacing.gapLg,
-          _buildNotesInput(color),
-        ],
+        if (widget.showNotes) ...[AppSpacing.gapLg, _buildNotesInput(color)],
       ],
     );
   }
@@ -193,17 +190,11 @@ class _TitleInputSectionState extends ConsumerState<TitleInputSection> {
         TextField(
           controller: _titleController,
           focusNode: _titleFocusNode,
-          style: TextStyle(
-            fontSize: 18,
-            color: AppColors.textPrimary,
-          ),
+          style: TextStyle(fontSize: 18, color: AppColors.textPrimary),
           textCapitalization: TextCapitalization.sentences,
           decoration: InputDecoration(
             hintText: 'e.g., Coffee, Groceries, Salary...',
-            hintStyle: TextStyle(
-              color: AppColors.textMuted,
-              fontSize: 18,
-            ),
+            hintStyle: TextStyle(color: AppColors.textMuted, fontSize: 18),
             filled: true,
             fillColor: AppColors.primarySurface,
             border: OutlineInputBorder(
@@ -225,9 +216,7 @@ class _TitleInputSectionState extends ConsumerState<TitleInputSection> {
                     onPressed: () {
                       _titleController.clear();
                       widget.onTitleChanged('');
-                      ref
-                          .read(titleSuggestionsProvider.notifier)
-                          .clearSearch();
+                      ref.read(titleSuggestionsProvider.notifier).clearSearch();
                     },
                   )
                 : null,
@@ -314,20 +303,14 @@ class _TitleInputSectionState extends ConsumerState<TitleInputSection> {
         AppSpacing.gapSm,
         TextField(
           controller: _notesController,
-          style: TextStyle(
-            fontSize: 14,
-            color: AppColors.textPrimary,
-          ),
+          style: TextStyle(fontSize: 14, color: AppColors.textPrimary),
           maxLines: 3,
           minLines: 1,
           textCapitalization: TextCapitalization.sentences,
           onChanged: widget.onNotesChanged,
           decoration: InputDecoration(
             hintText: 'Add any additional notes...',
-            hintStyle: TextStyle(
-              color: AppColors.textMuted,
-              fontSize: 14,
-            ),
+            hintStyle: TextStyle(color: AppColors.textMuted, fontSize: 14),
             filled: true,
             fillColor: AppColors.primarySurface,
             border: OutlineInputBorder(
@@ -370,9 +353,7 @@ class _SuggestionTile extends StatelessWidget {
         padding: AppSpacing.paddingMd,
         decoration: BoxDecoration(
           border: Border(
-            bottom: BorderSide(
-              color: AppColors.divider.withValues(alpha: 0.5),
-            ),
+            bottom: BorderSide(color: AppColors.divider.withValues(alpha: 0.5)),
           ),
         ),
         child: Row(
@@ -383,8 +364,9 @@ class _SuggestionTile extends StatelessWidget {
                 width: 32,
                 height: 32,
                 decoration: BoxDecoration(
-                  color: _parseColor(suggestion.categoryColor!)
-                      .withValues(alpha: 0.2),
+                  color: _parseColor(
+                    suggestion.categoryColor!,
+                  ).withValues(alpha: 0.2),
                   borderRadius: AppSpacing.borderRadiusSm,
                 ),
                 child: Icon(
@@ -444,10 +426,7 @@ class _SuggestionTile extends StatelessWidget {
                 ),
                 child: Text(
                   '${suggestion.useCount}x',
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: AppColors.textMuted,
-                  ),
+                  style: TextStyle(fontSize: 10, color: AppColors.textMuted),
                 ),
               ),
           ],
@@ -493,9 +472,7 @@ class _RecentTitleChip extends StatelessWidget {
         decoration: BoxDecoration(
           color: chipColor.withValues(alpha: 0.1),
           borderRadius: AppSpacing.borderRadiusFull,
-          border: Border.all(
-            color: chipColor.withValues(alpha: 0.3),
-          ),
+          border: Border.all(color: chipColor.withValues(alpha: 0.3)),
         ),
         child: Text(
           suggestion.title,

@@ -24,13 +24,9 @@ class SubscriptionDashboardScreen extends ConsumerWidget {
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
-          title: Text(
-            'Subscriptions',
-            style: AppTypography.headlineSmall,
-          ),
+          title: Text('Subscriptions', style: AppTypography.headlineSmall),
           leading: IconButton(
-            icon:
-                Icon(Icons.arrow_back_ios_new, color: AppColors.textPrimary),
+            icon: Icon(Icons.arrow_back_ios_new, color: AppColors.textPrimary),
             onPressed: () => Navigator.pop(context),
           ),
         ),
@@ -57,11 +53,12 @@ class SubscriptionDashboardScreen extends ConsumerWidget {
                               ),
                             ),
                             AppSpacing.gapSm,
-                            ...state.activeSubscriptions
-                                .map((s) => _SubscriptionCard(
-                                      item: s,
-                                      key: ValueKey(s.id),
-                                    )),
+                            ...state.activeSubscriptions.map(
+                              (s) => _SubscriptionCard(
+                                item: s,
+                                key: ValueKey(s.id),
+                              ),
+                            ),
                           ],
 
                           // Paused subscriptions
@@ -74,11 +71,12 @@ class SubscriptionDashboardScreen extends ConsumerWidget {
                               ),
                             ),
                             AppSpacing.gapSm,
-                            ...state.pausedSubscriptions
-                                .map((s) => _SubscriptionCard(
-                                      item: s,
-                                      key: ValueKey(s.id),
-                                    )),
+                            ...state.pausedSubscriptions.map(
+                              (s) => _SubscriptionCard(
+                                item: s,
+                                key: ValueKey(s.id),
+                              ),
+                            ),
                           ],
 
                           // Bottom spacing
@@ -160,9 +158,7 @@ class SubscriptionDashboardScreen extends ConsumerWidget {
           AppSpacing.gapXs,
           Text(
             '${monthlyFormat.format(state.totalYearlyCost)} / year',
-            style: AppTypography.bodySmall.copyWith(
-              color: AppColors.textMuted,
-            ),
+            style: AppTypography.bodySmall.copyWith(color: AppColors.textMuted),
           ),
           AppSpacing.gapLg,
           // Stats row
@@ -174,21 +170,13 @@ class SubscriptionDashboardScreen extends ConsumerWidget {
                 '${state.activeCount}',
                 AppColors.success,
               ),
-              Container(
-                width: 1,
-                height: 30,
-                color: AppColors.glassBorder,
-              ),
+              Container(width: 1, height: 30, color: AppColors.glassBorder),
               _buildStatItem(
                 'Paused',
                 '${state.pausedSubscriptions.length}',
                 AppColors.textMuted,
               ),
-              Container(
-                width: 1,
-                height: 30,
-                color: AppColors.glassBorder,
-              ),
+              Container(width: 1, height: 30, color: AppColors.glassBorder),
               _buildStatItem(
                 'Total',
                 '${state.subscriptions.length}',
@@ -213,9 +201,7 @@ class SubscriptionDashboardScreen extends ConsumerWidget {
         ),
         Text(
           label,
-          style: AppTypography.labelSmall.copyWith(
-            color: AppColors.textMuted,
-          ),
+          style: AppTypography.labelSmall.copyWith(color: AppColors.textMuted),
         ),
       ],
     );
@@ -230,8 +216,7 @@ class _SubscriptionCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final dateFormat = DateFormat('MMM d, yyyy');
-    final walletCurrency =
-        ref.watch(walletCurrencyProvider(item.walletId));
+    final walletCurrency = ref.watch(walletCurrencyProvider(item.walletId));
     final symbol = CurrencyInfo.getSymbol(walletCurrency);
     final isPaused = !item.isActive;
 
@@ -249,16 +234,18 @@ class _SubscriptionCard extends ConsumerWidget {
                   width: 44,
                   height: 44,
                   decoration: BoxDecoration(
-                    color: (isPaused
-                            ? AppColors.textMuted
-                            : AppColors.primaryAccent)
-                        .withValues(alpha: 0.2),
+                    color:
+                        (isPaused
+                                ? AppColors.textMuted
+                                : AppColors.primaryAccent)
+                            .withValues(alpha: 0.2),
                     borderRadius: AppSpacing.borderRadiusMd,
                   ),
                   child: Icon(
                     Icons.subscriptions_rounded,
-                    color:
-                        isPaused ? AppColors.textMuted : AppColors.primaryAccent,
+                    color: isPaused
+                        ? AppColors.textMuted
+                        : AppColors.primaryAccent,
                     size: 22,
                   ),
                 ),
@@ -289,7 +276,9 @@ class _SubscriptionCard extends ConsumerWidget {
                                 vertical: 2,
                               ),
                               decoration: BoxDecoration(
-                                color: AppColors.textMuted.withValues(alpha: 0.2),
+                                color: AppColors.textMuted.withValues(
+                                  alpha: 0.2,
+                                ),
                                 borderRadius: AppSpacing.borderRadiusSm,
                               ),
                               child: Text(
@@ -384,9 +373,7 @@ class _SubscriptionCard extends ConsumerWidget {
                     label: Text(isPaused ? 'Resume' : 'Pause'),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: AppColors.textSecondary,
-                      side: BorderSide(
-                        color: AppColors.glassBorder,
-                      ),
+                      side: BorderSide(color: AppColors.glassBorder),
                       padding: const EdgeInsets.symmetric(vertical: 6),
                     ),
                   ),
@@ -423,9 +410,7 @@ class _SubscriptionCard extends ConsumerWidget {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: AppColors.primarySurface,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Row(
           children: [
             Container(
@@ -443,19 +428,13 @@ class _SubscriptionCard extends ConsumerWidget {
             const SizedBox(width: 12),
             Text(
               'Cancel Subscription',
-              style: TextStyle(
-                color: AppColors.textPrimary,
-                fontSize: 18,
-              ),
+              style: TextStyle(color: AppColors.textPrimary, fontSize: 18),
             ),
           ],
         ),
         content: Text(
           'Are you sure you want to cancel "${item.name}"? This will stop all future recurring payments.',
-          style: TextStyle(
-            color: AppColors.textSecondary,
-            height: 1.5,
-          ),
+          style: TextStyle(color: AppColors.textSecondary, height: 1.5),
         ),
         actions: [
           TextButton(

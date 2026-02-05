@@ -55,11 +55,11 @@ class PaymentMethodNotifier extends StateNotifier<PaymentMethodState> {
 
   PaymentMethodNotifier(this._db)
     : super(PaymentMethodState(paymentMethods: [], isLoading: false)) {
-    _loadPaymentMethods();
+    loadPaymentMethods();
   }
 
-  Future<void> _loadPaymentMethods() async {
-    state = state.copyWith(isLoading: true);
+  Future<void> loadPaymentMethods({bool silent = false}) async {
+    if (!silent) state = state.copyWith(isLoading: true);
     try {
       final dbPaymentMethods = await _db.getAllPaymentMethods();
       final paymentMethods = dbPaymentMethods
@@ -79,7 +79,7 @@ class PaymentMethodNotifier extends StateNotifier<PaymentMethodState> {
 
       state = state.copyWith(paymentMethods: paymentMethods, isLoading: false);
     } catch (e) {
-      state = state.copyWith(
+      if (!silent) state = state.copyWith(
         isLoading: false,
         errorMessage: 'Failed to load payment methods',
       );
@@ -111,7 +111,7 @@ class PaymentMethodNotifier extends StateNotifier<PaymentMethodState> {
       await _db.addPaymentMethod(newPaymentMethod);
 
       // Reload payment methods to get the new one
-      await _loadPaymentMethods();
+      await loadPaymentMethods();
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
@@ -150,7 +150,7 @@ class PaymentMethodNotifier extends StateNotifier<PaymentMethodState> {
       await _db.updatePaymentMethod(updatedPaymentMethod);
 
       // Reload payment methods to get the updated one
-      await _loadPaymentMethods();
+      await loadPaymentMethods();
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
@@ -166,7 +166,7 @@ class PaymentMethodNotifier extends StateNotifier<PaymentMethodState> {
       await _db.deletePaymentMethod(id);
 
       // Reload payment methods to reflect the deletion
-      await _loadPaymentMethods();
+      await loadPaymentMethods();
     } catch (e) {
       state = state.copyWith(
         isLoading: false,

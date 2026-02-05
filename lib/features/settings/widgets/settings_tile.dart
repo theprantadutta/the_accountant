@@ -5,11 +5,7 @@ import 'package:the_accountant/core/themes/app_spacing.dart';
 
 /// Icon container used in all settings tiles
 class SettingsIconBox extends StatelessWidget {
-  const SettingsIconBox({
-    super.key,
-    required this.icon,
-    this.color,
-  });
+  const SettingsIconBox({super.key, required this.icon, this.color});
 
   final IconData icon;
   final Color? color;
@@ -24,11 +20,7 @@ class SettingsIconBox extends StatelessWidget {
         color: effectiveColor.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(10),
       ),
-      child: Icon(
-        icon,
-        color: effectiveColor,
-        size: 22,
-      ),
+      child: Icon(icon, color: effectiveColor, size: 22),
     );
   }
 }
@@ -68,18 +60,13 @@ class SettingsNavigationTile extends StatelessWidget {
       subtitle: subtitle != null
           ? Text(
               subtitle!,
-              style: TextStyle(
-                color: AppColors.textMuted,
-                fontSize: 13,
-              ),
+              style: TextStyle(color: AppColors.textMuted, fontSize: 13),
             )
           : null,
-      trailing: trailing ??
+      trailing:
+          trailing ??
           (showChevron
-              ? Icon(
-                  Icons.chevron_right,
-                  color: AppColors.textMuted,
-                )
+              ? Icon(Icons.chevron_right, color: AppColors.textMuted)
               : null),
       onTap: () {
         HapticFeedback.selectionClick();
@@ -120,10 +107,7 @@ class SettingsActionTile extends StatelessWidget {
       subtitle: subtitle != null
           ? Text(
               subtitle!,
-              style: TextStyle(
-                color: AppColors.textMuted,
-                fontSize: 13,
-              ),
+              style: TextStyle(color: AppColors.textMuted, fontSize: 13),
             )
           : null,
       onTap: () {
@@ -167,10 +151,7 @@ class SettingsSwitchTile extends StatelessWidget {
       subtitle: subtitle != null
           ? Text(
               subtitle!,
-              style: TextStyle(
-                color: AppColors.textMuted,
-                fontSize: 13,
-              ),
+              style: TextStyle(color: AppColors.textMuted, fontSize: 13),
             )
           : null,
       trailing: Switch(
@@ -231,10 +212,7 @@ class SettingsSliderTile extends StatelessWidget {
           ),
           subtitle: Text(
             subtitle,
-            style: TextStyle(
-              color: AppColors.textMuted,
-              fontSize: 13,
-            ),
+            style: TextStyle(color: AppColors.textMuted, fontSize: 13),
           ),
         ),
         Padding(
@@ -266,11 +244,7 @@ class SettingsSliderTile extends StatelessWidget {
 
 /// A card that groups settings tiles with a header
 class SettingsSection extends StatelessWidget {
-  const SettingsSection({
-    super.key,
-    required this.title,
-    required this.tiles,
-  });
+  const SettingsSection({super.key, required this.title, required this.tiles});
 
   final String title;
   final List<Widget> tiles;

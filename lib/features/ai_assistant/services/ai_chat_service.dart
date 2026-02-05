@@ -9,7 +9,7 @@ class AiChatService {
   final Logger _logger = Logger();
 
   AiChatService({ApiService? apiService})
-      : _apiService = apiService ?? ApiService();
+    : _apiService = apiService ?? ApiService();
 
   /// Load chat history from the server
   Future<List<ChatMessage>> loadHistory({int? limit}) async {
@@ -49,10 +49,7 @@ class AiChatService {
         }
       }
 
-      throw AiChatException(
-        _getErrorMessage(e),
-        errorType: _getErrorType(e),
-      );
+      throw AiChatException(_getErrorMessage(e), errorType: _getErrorType(e));
     } catch (e) {
       _logger.e('Unexpected error loading chat history: $e');
       throw AiChatException(
@@ -74,7 +71,9 @@ class AiChatService {
       );
 
       _logger.i('AI chat response received');
-      return SendMessageResponse.fromJson(response.data as Map<String, dynamic>);
+      return SendMessageResponse.fromJson(
+        response.data as Map<String, dynamic>,
+      );
     } on DioException catch (e) {
       _logger.e('AI chat API error: ${e.message}');
 
@@ -90,10 +89,7 @@ class AiChatService {
       }
 
       // For other errors, create a fallback response
-      throw AiChatException(
-        _getErrorMessage(e),
-        errorType: _getErrorType(e),
-      );
+      throw AiChatException(_getErrorMessage(e), errorType: _getErrorType(e));
     } catch (e) {
       _logger.e('Unexpected error in AI chat: $e');
       throw AiChatException(

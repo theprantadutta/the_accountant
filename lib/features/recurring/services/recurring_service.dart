@@ -29,16 +29,23 @@ class RecurringService {
         // Keep creating instances until we're caught up
         DateTime nextOccurrence = config.nextOccurrence;
 
-        while (nextOccurrence.isBefore(now) || nextOccurrence.isAtSameMomentAs(now)) {
+        while (nextOccurrence.isBefore(now) ||
+            nextOccurrence.isAtSameMomentAs(now)) {
           // Get the base transaction
-          final baseTransaction = await _database.findTransactionById(config.baseTransactionId);
+          final baseTransaction = await _database.findTransactionById(
+            config.baseTransactionId,
+          );
           if (baseTransaction == null) {
             _logger.w('Base transaction not found for config ${config.id}');
             break;
           }
 
           // Create a new transaction instance
-          await _createTransactionInstance(baseTransaction, config, nextOccurrence);
+          await _createTransactionInstance(
+            baseTransaction,
+            config,
+            nextOccurrence,
+          );
           processedCount++;
 
           // Calculate next occurrence
@@ -49,9 +56,14 @@ class RecurringService {
           );
 
           // Check if we've passed the end date
-          if (config.endDate != null && nextOccurrence.isAfter(config.endDate!)) {
+          if (config.endDate != null &&
+              nextOccurrence.isAfter(config.endDate!)) {
             // Deactivate the recurring config
-            await _database.updateNextOccurrence(config.id, nextOccurrence, false);
+            await _database.updateNextOccurrence(
+              config.id,
+              nextOccurrence,
+              false,
+            );
             _logger.i('Recurring config ${config.id} ended');
             break;
           }
@@ -60,7 +72,11 @@ class RecurringService {
           await _database.updateNextOccurrence(config.id, nextOccurrence, true);
         }
       } catch (e, stack) {
-        _logger.e('Error processing recurring config ${config.id}: $e', error: e, stackTrace: stack);
+        _logger.e(
+          'Error processing recurring config ${config.id}: $e',
+          error: e,
+          stackTrace: stack,
+        );
       }
     }
 
@@ -161,14 +177,7 @@ class RecurringService {
       day = daysInMonth;
     }
 
-    return DateTime(
-      year,
-      month,
-      day,
-      date.hour,
-      date.minute,
-      date.second,
-    );
+    return DateTime(year, month, day, date.hour, date.minute, date.second);
   }
 
   /// Create a new recurring configuration
@@ -205,12 +214,14 @@ class RecurringService {
     await _database.addRecurringConfig(companion);
 
     // Mark the base transaction as recurring
-    await (_database.update(_database.transactions)
-          ..where((t) => t.id.equals(baseTransactionId)))
-        .write(const TransactionsCompanion(
-          isRecurring: Value(true),
-          transactionType: Value('regular'),
-        ));
+    await (_database.update(
+      _database.transactions,
+    )..where((t) => t.id.equals(baseTransactionId))).write(
+      const TransactionsCompanion(
+        isRecurring: Value(true),
+        transactionType: Value('regular'),
+      ),
+    );
 
     _logger.i('Created recurring config: $id');
     return id;
@@ -218,29 +229,36 @@ class RecurringService {
 
   /// Stop a recurring configuration
   Future<void> stopRecurring(String configId) async {
-    await (_database.update(_database.recurringConfigs)
-          ..where((r) => r.id.equals(configId)))
-        .write(RecurringConfigsCompanion(
-          isActive: const Value(false),
-          syncStatus: const Value(SyncStatus.pendingUpdate),
-          updatedAt: Value(DateTime.now()),
-        ));
+    await (_database.update(
+      _database.recurringConfigs,
+    )..where((r) => r.id.equals(configId))).write(
+      RecurringConfigsCompanion(
+        isActive: const Value(false),
+        syncStatus: const Value(SyncStatus.pendingUpdate),
+        updatedAt: Value(DateTime.now()),
+      ),
+    );
 
     _logger.i('Stopped recurring config: $configId');
   }
 
   /// Get all recurring configs with their base transaction info
-  Future<List<RecurringConfigWithTransaction>> getAllRecurringWithTransactions() async {
+  Future<List<RecurringConfigWithTransaction>>
+  getAllRecurringWithTransactions() async {
     final configs = await _database.getAllRecurringConfigs();
     final result = <RecurringConfigWithTransaction>[];
 
     for (final config in configs) {
-      final baseTransaction = await _database.findTransactionById(config.baseTransactionId);
+      final baseTransaction = await _database.findTransactionById(
+        config.baseTransactionId,
+      );
       if (baseTransaction != null) {
-        result.add(RecurringConfigWithTransaction(
-          config: config,
-          baseTransaction: baseTransaction,
-        ));
+        result.add(
+          RecurringConfigWithTransaction(
+            config: config,
+            baseTransaction: baseTransaction,
+          ),
+        );
       }
     }
 
@@ -248,17 +266,22 @@ class RecurringService {
   }
 
   /// Get active recurring configs
-  Future<List<RecurringConfigWithTransaction>> getActiveRecurringWithTransactions() async {
+  Future<List<RecurringConfigWithTransaction>>
+  getActiveRecurringWithTransactions() async {
     final configs = await _database.getActiveRecurringConfigs();
     final result = <RecurringConfigWithTransaction>[];
 
     for (final config in configs) {
-      final baseTransaction = await _database.findTransactionById(config.baseTransactionId);
+      final baseTransaction = await _database.findTransactionById(
+        config.baseTransactionId,
+      );
       if (baseTransaction != null) {
-        result.add(RecurringConfigWithTransaction(
-          config: config,
-          baseTransaction: baseTransaction,
-        ));
+        result.add(
+          RecurringConfigWithTransaction(
+            config: config,
+            baseTransaction: baseTransaction,
+          ),
+        );
       }
     }
 
@@ -279,17 +302,21 @@ class RecurringService {
     bool? isActive,
   }) async {
     final updates = RecurringConfigsCompanion(
-      reoccurrence: reoccurrence != null ? Value(reoccurrence) : const Value.absent(),
-      periodLength: periodLength != null ? Value(periodLength) : const Value.absent(),
+      reoccurrence: reoccurrence != null
+          ? Value(reoccurrence)
+          : const Value.absent(),
+      periodLength: periodLength != null
+          ? Value(periodLength)
+          : const Value.absent(),
       endDate: endDate != null ? Value(endDate) : const Value.absent(),
       isActive: isActive != null ? Value(isActive) : const Value.absent(),
       syncStatus: const Value(SyncStatus.pendingUpdate),
       updatedAt: Value(DateTime.now()),
     );
 
-    await (_database.update(_database.recurringConfigs)
-          ..where((r) => r.id.equals(configId)))
-        .write(updates);
+    await (_database.update(
+      _database.recurringConfigs,
+    )..where((r) => r.id.equals(configId))).write(updates);
 
     _logger.i('Updated recurring config: $configId');
   }
@@ -301,9 +328,7 @@ class RecurringService {
     if (config != null) {
       await (_database.update(_database.transactions)
             ..where((t) => t.id.equals(config.baseTransactionId)))
-          .write(const TransactionsCompanion(
-            isRecurring: Value(false),
-          ));
+          .write(const TransactionsCompanion(isRecurring: Value(false)));
     }
 
     // Delete the config

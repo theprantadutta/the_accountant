@@ -168,9 +168,7 @@ class WalletDropdownSwitcher extends ConsumerWidget {
         ref.read(selectedWalletIdProvider.notifier).state = walletId;
       },
       offset: const Offset(0, 48),
-      shape: RoundedRectangleBorder(
-        borderRadius: AppSpacing.borderRadiusMd,
-      ),
+      shape: RoundedRectangleBorder(borderRadius: AppSpacing.borderRadiusMd),
       color: AppColors.primarySurface,
       itemBuilder: (context) => [
         PopupMenuItem<String?>(
@@ -188,8 +186,7 @@ class WalletDropdownSwitcher extends ConsumerWidget {
               Text(
                 'All Wallets',
                 style: TextStyle(
-                  fontWeight:
-                      selectedWalletId == null ? FontWeight.bold : null,
+                  fontWeight: selectedWalletId == null ? FontWeight.bold : null,
                 ),
               ),
             ],
@@ -251,8 +248,9 @@ class WalletDropdownSwitcher extends ConsumerWidget {
                 width: 28,
                 height: 28,
                 decoration: BoxDecoration(
-                  color: WalletColors.parseColor(selectedWallet.color)
-                      .withValues(alpha: 0.2),
+                  color: WalletColors.parseColor(
+                    selectedWallet.color,
+                  ).withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(

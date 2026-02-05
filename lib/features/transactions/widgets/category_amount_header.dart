@@ -83,10 +83,7 @@ class CategoryAmountHeader extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            color.withValues(alpha: 0.5),
-            color.withValues(alpha: 0.35),
-          ],
+          colors: [color.withValues(alpha: 0.5), color.withValues(alpha: 0.35)],
         ),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [

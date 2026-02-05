@@ -14,15 +14,23 @@ class _PrefsKeys {
   static const String prefix = 'notification_prefs_';
   static const String dailyReminderEnabled = '${prefix}daily_reminder_enabled';
   static const String dailyReminderTime = '${prefix}daily_reminder_time';
-  static const String dailyReminderTimezone = '${prefix}daily_reminder_timezone';
+  static const String dailyReminderTimezone =
+      '${prefix}daily_reminder_timezone';
   static const String budgetAlertsEnabled = '${prefix}budget_alerts_enabled';
-  static const String budgetWarningThreshold = '${prefix}budget_warning_threshold';
-  static const String largeTransactionAlertsEnabled = '${prefix}large_transaction_alerts_enabled';
-  static const String largeTransactionThreshold = '${prefix}large_transaction_threshold';
-  static const String recurringRemindersEnabled = '${prefix}recurring_reminders_enabled';
-  static const String recurringReminderDaysBefore = '${prefix}recurring_reminder_days_before';
-  static const String subscriptionExpiryAlertsEnabled = '${prefix}subscription_expiry_alerts_enabled';
-  static const String promotionalNotificationsEnabled = '${prefix}promotional_notifications_enabled';
+  static const String budgetWarningThreshold =
+      '${prefix}budget_warning_threshold';
+  static const String largeTransactionAlertsEnabled =
+      '${prefix}large_transaction_alerts_enabled';
+  static const String largeTransactionThreshold =
+      '${prefix}large_transaction_threshold';
+  static const String recurringRemindersEnabled =
+      '${prefix}recurring_reminders_enabled';
+  static const String recurringReminderDaysBefore =
+      '${prefix}recurring_reminder_days_before';
+  static const String subscriptionExpiryAlertsEnabled =
+      '${prefix}subscription_expiry_alerts_enabled';
+  static const String promotionalNotificationsEnabled =
+      '${prefix}promotional_notifications_enabled';
   static const String lastSyncedAt = '${prefix}last_synced_at';
   static const String allPrefsJson = '${prefix}all_prefs_json';
 }
@@ -50,7 +58,8 @@ class NotificationPreferencesState {
     this.errorMessage,
     this.dailyReminderEnabled = true,
     this.dailyReminderTime = const TimeOfDay(hour: 19, minute: 0),
-    this.dailyReminderTimezone = 'Asia/Dhaka', // Default to local, will be updated
+    this.dailyReminderTimezone =
+        'Asia/Dhaka', // Default to local, will be updated
     this.budgetAlertsEnabled = true,
     this.budgetWarningThreshold = 80.0,
     this.largeTransactionAlertsEnabled = false,
@@ -83,35 +92,41 @@ class NotificationPreferencesState {
       errorMessage: errorMessage,
       dailyReminderEnabled: dailyReminderEnabled ?? this.dailyReminderEnabled,
       dailyReminderTime: dailyReminderTime ?? this.dailyReminderTime,
-      dailyReminderTimezone: dailyReminderTimezone ?? this.dailyReminderTimezone,
+      dailyReminderTimezone:
+          dailyReminderTimezone ?? this.dailyReminderTimezone,
       budgetAlertsEnabled: budgetAlertsEnabled ?? this.budgetAlertsEnabled,
-      budgetWarningThreshold: budgetWarningThreshold ?? this.budgetWarningThreshold,
+      budgetWarningThreshold:
+          budgetWarningThreshold ?? this.budgetWarningThreshold,
       largeTransactionAlertsEnabled:
           largeTransactionAlertsEnabled ?? this.largeTransactionAlertsEnabled,
       largeTransactionThreshold:
           largeTransactionThreshold ?? this.largeTransactionThreshold,
       recurringTransactionRemindersEnabled:
           recurringTransactionRemindersEnabled ??
-              this.recurringTransactionRemindersEnabled,
+          this.recurringTransactionRemindersEnabled,
       recurringReminderDaysBefore:
           recurringReminderDaysBefore ?? this.recurringReminderDaysBefore,
       subscriptionExpiryAlertsEnabled:
-          subscriptionExpiryAlertsEnabled ?? this.subscriptionExpiryAlertsEnabled,
+          subscriptionExpiryAlertsEnabled ??
+          this.subscriptionExpiryAlertsEnabled,
       promotionalNotificationsEnabled:
-          promotionalNotificationsEnabled ?? this.promotionalNotificationsEnabled,
+          promotionalNotificationsEnabled ??
+          this.promotionalNotificationsEnabled,
     );
   }
 
   /// Convert to JSON for storage
   Map<String, dynamic> toJson() => {
     'daily_reminder_enabled': dailyReminderEnabled,
-    'daily_reminder_time': '${dailyReminderTime.hour.toString().padLeft(2, '0')}:${dailyReminderTime.minute.toString().padLeft(2, '0')}',
+    'daily_reminder_time':
+        '${dailyReminderTime.hour.toString().padLeft(2, '0')}:${dailyReminderTime.minute.toString().padLeft(2, '0')}',
     'daily_reminder_timezone': dailyReminderTimezone,
     'budget_alerts_enabled': budgetAlertsEnabled,
     'budget_warning_threshold': budgetWarningThreshold,
     'large_transaction_alerts_enabled': largeTransactionAlertsEnabled,
     'large_transaction_threshold': largeTransactionThreshold,
-    'recurring_transaction_reminders_enabled': recurringTransactionRemindersEnabled,
+    'recurring_transaction_reminders_enabled':
+        recurringTransactionRemindersEnabled,
     'recurring_reminder_days_before': recurringReminderDaysBefore,
     'subscription_expiry_alerts_enabled': subscriptionExpiryAlertsEnabled,
     'promotional_notifications_enabled': promotionalNotificationsEnabled,
@@ -127,7 +142,7 @@ class NotificationPreferencesNotifier
   String _deviceTimezone = 'UTC';
 
   NotificationPreferencesNotifier(this._apiService)
-      : super(const NotificationPreferencesState()) {
+    : super(const NotificationPreferencesState()) {
     _initializeTimezone();
   }
 
@@ -195,20 +210,30 @@ class NotificationPreferencesNotifier
           dailyReminderEnabled: dailyEnabled,
           dailyReminderTime: time,
           dailyReminderTimezone: _deviceTimezone, // Always use device timezone
-          budgetAlertsEnabled: prefs.getBool(_PrefsKeys.budgetAlertsEnabled) ?? true,
-          budgetWarningThreshold: prefs.getDouble(_PrefsKeys.budgetWarningThreshold) ?? 80.0,
-          largeTransactionAlertsEnabled: prefs.getBool(_PrefsKeys.largeTransactionAlertsEnabled) ?? false,
-          largeTransactionThreshold: prefs.getDouble(_PrefsKeys.largeTransactionThreshold) ?? 500.0,
-          recurringTransactionRemindersEnabled: prefs.getBool(_PrefsKeys.recurringRemindersEnabled) ?? false,
-          recurringReminderDaysBefore: prefs.getInt(_PrefsKeys.recurringReminderDaysBefore) ?? 1,
-          subscriptionExpiryAlertsEnabled: prefs.getBool(_PrefsKeys.subscriptionExpiryAlertsEnabled) ?? true,
-          promotionalNotificationsEnabled: prefs.getBool(_PrefsKeys.promotionalNotificationsEnabled) ?? true,
+          budgetAlertsEnabled:
+              prefs.getBool(_PrefsKeys.budgetAlertsEnabled) ?? true,
+          budgetWarningThreshold:
+              prefs.getDouble(_PrefsKeys.budgetWarningThreshold) ?? 80.0,
+          largeTransactionAlertsEnabled:
+              prefs.getBool(_PrefsKeys.largeTransactionAlertsEnabled) ?? false,
+          largeTransactionThreshold:
+              prefs.getDouble(_PrefsKeys.largeTransactionThreshold) ?? 500.0,
+          recurringTransactionRemindersEnabled:
+              prefs.getBool(_PrefsKeys.recurringRemindersEnabled) ?? false,
+          recurringReminderDaysBefore:
+              prefs.getInt(_PrefsKeys.recurringReminderDaysBefore) ?? 1,
+          subscriptionExpiryAlertsEnabled:
+              prefs.getBool(_PrefsKeys.subscriptionExpiryAlertsEnabled) ?? true,
+          promotionalNotificationsEnabled:
+              prefs.getBool(_PrefsKeys.promotionalNotificationsEnabled) ?? true,
         );
         _logger.d('Loaded preferences from individual keys');
       } else {
         // First run - use defaults with device timezone
         state = state.copyWith(dailyReminderTimezone: _deviceTimezone);
-        _logger.d('Using default preferences with device timezone: $_deviceTimezone');
+        _logger.d(
+          'Using default preferences with device timezone: $_deviceTimezone',
+        );
       }
 
       // Sync local scheduled notification
@@ -224,21 +249,56 @@ class NotificationPreferencesNotifier
       final prefs = await SharedPreferences.getInstance();
 
       // Save as JSON (complete state)
-      await prefs.setString(_PrefsKeys.allPrefsJson, jsonEncode(state.toJson()));
+      await prefs.setString(
+        _PrefsKeys.allPrefsJson,
+        jsonEncode(state.toJson()),
+      );
 
       // Also save individual keys for backward compatibility
-      await prefs.setBool(_PrefsKeys.dailyReminderEnabled, state.dailyReminderEnabled);
-      await prefs.setString(_PrefsKeys.dailyReminderTime,
-        '${state.dailyReminderTime.hour.toString().padLeft(2, '0')}:${state.dailyReminderTime.minute.toString().padLeft(2, '0')}');
-      await prefs.setString(_PrefsKeys.dailyReminderTimezone, state.dailyReminderTimezone);
-      await prefs.setBool(_PrefsKeys.budgetAlertsEnabled, state.budgetAlertsEnabled);
-      await prefs.setDouble(_PrefsKeys.budgetWarningThreshold, state.budgetWarningThreshold);
-      await prefs.setBool(_PrefsKeys.largeTransactionAlertsEnabled, state.largeTransactionAlertsEnabled);
-      await prefs.setDouble(_PrefsKeys.largeTransactionThreshold, state.largeTransactionThreshold);
-      await prefs.setBool(_PrefsKeys.recurringRemindersEnabled, state.recurringTransactionRemindersEnabled);
-      await prefs.setInt(_PrefsKeys.recurringReminderDaysBefore, state.recurringReminderDaysBefore);
-      await prefs.setBool(_PrefsKeys.subscriptionExpiryAlertsEnabled, state.subscriptionExpiryAlertsEnabled);
-      await prefs.setBool(_PrefsKeys.promotionalNotificationsEnabled, state.promotionalNotificationsEnabled);
+      await prefs.setBool(
+        _PrefsKeys.dailyReminderEnabled,
+        state.dailyReminderEnabled,
+      );
+      await prefs.setString(
+        _PrefsKeys.dailyReminderTime,
+        '${state.dailyReminderTime.hour.toString().padLeft(2, '0')}:${state.dailyReminderTime.minute.toString().padLeft(2, '0')}',
+      );
+      await prefs.setString(
+        _PrefsKeys.dailyReminderTimezone,
+        state.dailyReminderTimezone,
+      );
+      await prefs.setBool(
+        _PrefsKeys.budgetAlertsEnabled,
+        state.budgetAlertsEnabled,
+      );
+      await prefs.setDouble(
+        _PrefsKeys.budgetWarningThreshold,
+        state.budgetWarningThreshold,
+      );
+      await prefs.setBool(
+        _PrefsKeys.largeTransactionAlertsEnabled,
+        state.largeTransactionAlertsEnabled,
+      );
+      await prefs.setDouble(
+        _PrefsKeys.largeTransactionThreshold,
+        state.largeTransactionThreshold,
+      );
+      await prefs.setBool(
+        _PrefsKeys.recurringRemindersEnabled,
+        state.recurringTransactionRemindersEnabled,
+      );
+      await prefs.setInt(
+        _PrefsKeys.recurringReminderDaysBefore,
+        state.recurringReminderDaysBefore,
+      );
+      await prefs.setBool(
+        _PrefsKeys.subscriptionExpiryAlertsEnabled,
+        state.subscriptionExpiryAlertsEnabled,
+      );
+      await prefs.setBool(
+        _PrefsKeys.promotionalNotificationsEnabled,
+        state.promotionalNotificationsEnabled,
+      );
 
       _logger.d('Saved preferences to local storage');
     } catch (e) {
@@ -247,7 +307,10 @@ class NotificationPreferencesNotifier
   }
 
   /// Apply preferences from JSON data
-  void _applyPreferencesFromJson(Map<String, dynamic> data, {bool useDeviceTimezone = false}) {
+  void _applyPreferencesFromJson(
+    Map<String, dynamic> data, {
+    bool useDeviceTimezone = false,
+  }) {
     TimeOfDay reminderTime = const TimeOfDay(hour: 19, minute: 0);
     final timeStr = data['daily_reminder_time'] as String?;
     if (timeStr != null) {
@@ -264,15 +327,23 @@ class NotificationPreferencesNotifier
       dailyReminderEnabled: data['daily_reminder_enabled'] ?? true,
       dailyReminderTime: reminderTime,
       // Always use device timezone for scheduling, ignore backend timezone
-      dailyReminderTimezone: useDeviceTimezone ? _deviceTimezone : (data['daily_reminder_timezone'] ?? _deviceTimezone),
+      dailyReminderTimezone: useDeviceTimezone
+          ? _deviceTimezone
+          : (data['daily_reminder_timezone'] ?? _deviceTimezone),
       budgetAlertsEnabled: data['budget_alerts_enabled'] ?? true,
-      budgetWarningThreshold: (data['budget_warning_threshold'] as num?)?.toDouble() ?? 80.0,
-      largeTransactionAlertsEnabled: data['large_transaction_alerts_enabled'] ?? false,
-      largeTransactionThreshold: (data['large_transaction_threshold'] as num?)?.toDouble() ?? 500.0,
-      recurringTransactionRemindersEnabled: data['recurring_transaction_reminders_enabled'] ?? false,
+      budgetWarningThreshold:
+          (data['budget_warning_threshold'] as num?)?.toDouble() ?? 80.0,
+      largeTransactionAlertsEnabled:
+          data['large_transaction_alerts_enabled'] ?? false,
+      largeTransactionThreshold:
+          (data['large_transaction_threshold'] as num?)?.toDouble() ?? 500.0,
+      recurringTransactionRemindersEnabled:
+          data['recurring_transaction_reminders_enabled'] ?? false,
       recurringReminderDaysBefore: data['recurring_reminder_days_before'] ?? 1,
-      subscriptionExpiryAlertsEnabled: data['subscription_expiry_alerts_enabled'] ?? true,
-      promotionalNotificationsEnabled: data['promotional_notifications_enabled'] ?? true,
+      subscriptionExpiryAlertsEnabled:
+          data['subscription_expiry_alerts_enabled'] ?? true,
+      promotionalNotificationsEnabled:
+          data['promotional_notifications_enabled'] ?? true,
     );
   }
 
@@ -347,10 +418,12 @@ class NotificationPreferencesNotifier
   /// Set daily reminder time.
   Future<void> setDailyReminderTime(TimeOfDay time) async {
     state = state.copyWith(dailyReminderTime: time);
-    final timeStr = '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}:00';
+    final timeStr =
+        '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}:00';
     await _updatePreference({
       'daily_reminder_time': timeStr,
-      'daily_reminder_timezone': _deviceTimezone, // Send device timezone to backend
+      'daily_reminder_timezone':
+          _deviceTimezone, // Send device timezone to backend
     });
     await _syncLocalDailyReminder();
   }
@@ -390,7 +463,9 @@ class NotificationPreferencesNotifier
   /// Toggle recurring transaction reminders.
   Future<void> setRecurringRemindersEnabled(bool enabled) async {
     state = state.copyWith(recurringTransactionRemindersEnabled: enabled);
-    await _updatePreference({'recurring_transaction_reminders_enabled': enabled});
+    await _updatePreference({
+      'recurring_transaction_reminders_enabled': enabled,
+    });
   }
 
   /// Set days before recurring reminder.
@@ -421,8 +496,11 @@ class NotificationPreferencesNotifier
 final _apiServiceProvider = Provider<ApiService>((ref) => ApiService());
 
 /// Provider for notification preferences.
-final notificationPreferencesProvider = StateNotifierProvider<
-    NotificationPreferencesNotifier, NotificationPreferencesState>((ref) {
-  final apiService = ref.watch(_apiServiceProvider);
-  return NotificationPreferencesNotifier(apiService);
-});
+final notificationPreferencesProvider =
+    StateNotifierProvider<
+      NotificationPreferencesNotifier,
+      NotificationPreferencesState
+    >((ref) {
+      final apiService = ref.watch(_apiServiceProvider);
+      return NotificationPreferencesNotifier(apiService);
+    });

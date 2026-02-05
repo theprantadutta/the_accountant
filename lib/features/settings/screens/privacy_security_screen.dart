@@ -13,7 +13,8 @@ class PrivacySecurityScreen extends ConsumerStatefulWidget {
   const PrivacySecurityScreen({super.key});
 
   @override
-  ConsumerState<PrivacySecurityScreen> createState() => _PrivacySecurityScreenState();
+  ConsumerState<PrivacySecurityScreen> createState() =>
+      _PrivacySecurityScreenState();
 }
 
 class _PrivacySecurityScreenState extends ConsumerState<PrivacySecurityScreen> {
@@ -44,14 +45,18 @@ class _PrivacySecurityScreenState extends ConsumerState<PrivacySecurityScreen> {
                 subtitle: 'Use fingerprint or face to unlock',
                 value: settingsState.biometricLockEnabled,
                 onChanged: (value) async {
-                  await ref.read(settingsProvider.notifier).setBiometricLock(value);
+                  await ref
+                      .read(settingsProvider.notifier)
+                      .setBiometricLock(value);
                 },
               ),
               if (settingsState.biometricLockEnabled)
                 SettingsNavigationTile(
                   icon: Icons.timer_outlined,
                   title: 'Auto-lock',
-                  subtitle: _getAutoLockLabel(settingsState.autoLockTimeoutMinutes),
+                  subtitle: _getAutoLockLabel(
+                    settingsState.autoLockTimeoutMinutes,
+                  ),
                   onTap: () => _showAutoLockPicker(),
                 ),
               SettingsNavigationTile(
@@ -145,7 +150,9 @@ class _PrivacySecurityScreenState extends ConsumerState<PrivacySecurityScreen> {
       ),
       builder: (context) => _buildPickerSheet(
         title: 'Auto-lock Timeout',
-        items: timeouts.map((t) => {'value': t['value'], 'label': t['label']}).toList(),
+        items: timeouts
+            .map((t) => {'value': t['value'], 'label': t['label']})
+            .toList(),
         selectedValue: currentTimeout,
       ),
     );
@@ -195,8 +202,12 @@ class _PrivacySecurityScreenState extends ConsumerState<PrivacySecurityScreen> {
                 title: Text(
                   item['label'],
                   style: TextStyle(
-                    color: isSelected ? AppColors.primaryAccent : AppColors.textPrimary,
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                    color: isSelected
+                        ? AppColors.primaryAccent
+                        : AppColors.textPrimary,
+                    fontWeight: isSelected
+                        ? FontWeight.w600
+                        : FontWeight.normal,
                   ),
                 ),
                 trailing: isSelected
@@ -219,7 +230,8 @@ class _PrivacySecurityScreenState extends ConsumerState<PrivacySecurityScreen> {
     final confirmed = await showConfirmationDialog(
       context: context,
       title: 'Clear Cache',
-      message: 'This will clear cached data and force a re-sync on next app launch. Your data will not be deleted.',
+      message:
+          'This will clear cached data and force a re-sync on next app launch. Your data will not be deleted.',
       confirmText: 'Clear Cache',
       isDangerous: false,
     );
@@ -254,7 +266,8 @@ class _PrivacySecurityScreenState extends ConsumerState<PrivacySecurityScreen> {
     final confirmed = await showConfirmationDialog(
       context: context,
       title: 'Clear All Data',
-      message: 'This will permanently delete ALL your transactions, budgets, wallets, categories, and settings. This action cannot be undone!',
+      message:
+          'This will permanently delete ALL your transactions, budgets, wallets, categories, and settings. This action cannot be undone!',
       confirmText: 'Delete Everything',
       isDangerous: true,
     );
@@ -264,7 +277,8 @@ class _PrivacySecurityScreenState extends ConsumerState<PrivacySecurityScreen> {
       final doubleConfirmed = await showConfirmationDialog(
         context: context,
         title: 'Are you absolutely sure?',
-        message: 'Type "DELETE" to confirm. All your financial data will be permanently erased.',
+        message:
+            'Type "DELETE" to confirm. All your financial data will be permanently erased.',
         confirmText: 'Yes, Delete All',
         isDangerous: true,
       );
@@ -324,13 +338,17 @@ class _PrivacySecurityScreenState extends ConsumerState<PrivacySecurityScreen> {
     final confirmed = await showConfirmationDialog(
       context: context,
       title: 'Delete Account',
-      message: 'This will permanently delete your account and all associated data from our servers. This action cannot be undone.',
+      message:
+          'This will permanently delete your account and all associated data from our servers. This action cannot be undone.',
       confirmText: 'Delete Account',
       isDangerous: true,
     );
 
     if (confirmed == true && mounted) {
-      showInfoSnackBar(context, 'Account deletion coming soon. Please contact support for now.');
+      showInfoSnackBar(
+        context,
+        'Account deletion coming soon. Please contact support for now.',
+      );
     }
   }
 }

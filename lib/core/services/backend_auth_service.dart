@@ -45,7 +45,9 @@ class BackendAuthService extends ChangeNotifier {
         // First, load cached user info for instant auth restoration
         final cachedInfo = await _apiService.getCachedUserInfo();
         if (cachedInfo != null) {
-          debugPrint('[BackendAuthService] Restoring auth from cached user info');
+          debugPrint(
+            '[BackendAuthService] Restoring auth from cached user info',
+          );
           _userId = cachedInfo['id'];
           _userEmail = cachedInfo['email'];
           _displayName = cachedInfo['display_name'];
@@ -76,7 +78,9 @@ class BackendAuthService extends ChangeNotifier {
       debugPrint('[BackendAuthService] Background refresh successful');
     } catch (e) {
       // Don't logout on network errors - the 401 handler will handle invalid tokens
-      debugPrint('[BackendAuthService] Background refresh failed (keeping cached state): $e');
+      debugPrint(
+        '[BackendAuthService] Background refresh failed (keeping cached state): $e',
+      );
     }
   }
 
@@ -175,9 +179,7 @@ class BackendAuthService extends ChangeNotifier {
   /// Authenticate with Firebase token (Google Sign-In)
   Future<void> authenticateWithGoogle(String firebaseToken) async {
     try {
-      debugPrint(
-        '[BackendAuthService] Authenticating with Firebase token...',
-      );
+      debugPrint('[BackendAuthService] Authenticating with Firebase token...');
       final response = await _apiService.authenticateWithFirebase(
         firebaseToken,
       );
@@ -282,7 +284,9 @@ class BackendAuthService extends ChangeNotifier {
       // Cache user info for offline auth restoration
       await _apiService.saveUserInfo(userInfo);
 
-      debugPrint('[BackendAuthService] User info refreshed: email=$_userEmail, displayName=$_displayName');
+      debugPrint(
+        '[BackendAuthService] User info refreshed: email=$_userEmail, displayName=$_displayName',
+      );
 
       notifyListeners();
     } catch (e) {

@@ -175,7 +175,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
     } catch (e) {
       String errorMessage = 'An error occurred during sign up';
       if (e.toString().contains('Email already registered')) {
-        errorMessage = 'The email address is already in use by another account.';
+        errorMessage =
+            'The email address is already in use by another account.';
       }
 
       state = state.copyWith(
@@ -202,7 +203,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
         return;
       }
 
-      debugPrint('[AuthProvider] Google Sign-In successful, getting Firebase ID token...');
+      debugPrint(
+        '[AuthProvider] Google Sign-In successful, getting Firebase ID token...',
+      );
 
       // Step 2: Get Firebase ID token
       final firebaseToken = await _googleSignIn.getFirebaseIdToken();
@@ -215,7 +218,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
         return;
       }
 
-      debugPrint('[AuthProvider] Got Firebase ID token, authenticating with backend...');
+      debugPrint(
+        '[AuthProvider] Got Firebase ID token, authenticating with backend...',
+      );
 
       // Step 3: Authenticate with backend
       try {
@@ -307,10 +312,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         errorMessage = 'Incorrect password. Please try again.';
       }
 
-      state = state.copyWith(
-        error: errorMessage,
-        isLoading: false,
-      );
+      state = state.copyWith(error: errorMessage, isLoading: false);
     }
   }
 
@@ -328,10 +330,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       await _googleSignIn.signOut();
       await SecureTokenStorage.clearAllTokens();
 
-      state = const AuthState(
-        isAuthenticated: false,
-        isLoading: false,
-      );
+      state = const AuthState(isAuthenticated: false, isLoading: false);
     } catch (e) {
       state = state.copyWith(error: 'An error occurred during sign out');
     }

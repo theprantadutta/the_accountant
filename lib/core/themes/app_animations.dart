@@ -121,52 +121,32 @@ class AppAnimations {
   // ============================================
 
   /// Fade transition
-  static Widget fadeTransition(
-    Animation<double> animation,
-    Widget child,
-  ) {
+  static Widget fadeTransition(Animation<double> animation, Widget child) {
     return FadeTransition(
-      opacity: CurvedAnimation(
-        parent: animation,
-        curve: easeOut,
-      ),
+      opacity: CurvedAnimation(parent: animation, curve: easeOut),
       child: child,
     );
   }
 
   /// Slide up transition
-  static Widget slideUpTransition(
-    Animation<double> animation,
-    Widget child,
-  ) {
+  static Widget slideUpTransition(Animation<double> animation, Widget child) {
     return SlideTransition(
       position: Tween<Offset>(
         begin: slideFromBottom,
         end: Offset.zero,
-      ).animate(CurvedAnimation(
-        parent: animation,
-        curve: easeOut,
-      )),
-      child: FadeTransition(
-        opacity: animation,
-        child: child,
-      ),
+      ).animate(CurvedAnimation(parent: animation, curve: easeOut)),
+      child: FadeTransition(opacity: animation, child: child),
     );
   }
 
   /// Scale fade transition
-  static Widget scaleFadeTransition(
-    Animation<double> animation,
-    Widget child,
-  ) {
+  static Widget scaleFadeTransition(Animation<double> animation, Widget child) {
     return ScaleTransition(
-      scale: Tween<double>(begin: enterScale, end: 1.0).animate(
-        CurvedAnimation(parent: animation, curve: easeOut),
-      ),
-      child: FadeTransition(
-        opacity: animation,
-        child: child,
-      ),
+      scale: Tween<double>(
+        begin: enterScale,
+        end: 1.0,
+      ).animate(CurvedAnimation(parent: animation, curve: easeOut)),
+      child: FadeTransition(opacity: animation, child: child),
     );
   }
 
@@ -223,16 +203,12 @@ class AppAnimations {
       Tween<double>(begin: enterScale, end: 1.0);
 
   /// Slide from bottom tween
-  static Tween<Offset> get slideUpTween => Tween<Offset>(
-        begin: slideFromBottom,
-        end: Offset.zero,
-      );
+  static Tween<Offset> get slideUpTween =>
+      Tween<Offset>(begin: slideFromBottom, end: Offset.zero);
 
   /// Slide from right tween
-  static Tween<Offset> get slideLeftTween => Tween<Offset>(
-        begin: slideFromRight,
-        end: Offset.zero,
-      );
+  static Tween<Offset> get slideLeftTween =>
+      Tween<Offset>(begin: slideFromRight, end: Offset.zero);
 }
 
 /// Extension for easier animation controller creation
@@ -241,9 +217,6 @@ extension AnimationControllerExtension on TickerProvider {
   AnimationController createController({
     Duration duration = AppAnimations.normal,
   }) {
-    return AnimationController(
-      vsync: this,
-      duration: duration,
-    );
+    return AnimationController(vsync: this, duration: duration);
   }
 }

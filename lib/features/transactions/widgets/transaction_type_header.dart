@@ -5,11 +5,7 @@ import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/core/themes/app_animations.dart';
 
 /// Transaction types for the type selector
-enum TransactionTypeSelection {
-  expense,
-  income,
-  transfer,
-}
+enum TransactionTypeSelection { expense, income, transfer }
 
 /// Extension for transaction type properties
 extension TransactionTypeExtension on TransactionTypeSelection {
@@ -127,13 +123,10 @@ class _TypeTabState extends State<_TypeTab>
       duration: AppAnimations.instant,
       vsync: this,
     );
-    _scaleAnimation = Tween<double>(
-      begin: 1.0,
-      end: AppAnimations.pressedScale,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: AppAnimations.easeOut,
-    ));
+    _scaleAnimation = Tween<double>(begin: 1.0, end: AppAnimations.pressedScale)
+        .animate(
+          CurvedAnimation(parent: _controller, curve: AppAnimations.easeOut),
+        );
   }
 
   @override
@@ -152,10 +145,7 @@ class _TypeTabState extends State<_TypeTab>
       child: AnimatedBuilder(
         animation: _scaleAnimation,
         builder: (context, child) {
-          return Transform.scale(
-            scale: _scaleAnimation.value,
-            child: child,
-          );
+          return Transform.scale(scale: _scaleAnimation.value, child: child);
         },
         child: AnimatedContainer(
           duration: AppAnimations.fast,
@@ -185,8 +175,9 @@ class _TypeTabState extends State<_TypeTab>
                 widget.type.label,
                 style: TextStyle(
                   fontSize: 13,
-                  fontWeight:
-                      widget.isSelected ? FontWeight.bold : FontWeight.normal,
+                  fontWeight: widget.isSelected
+                      ? FontWeight.bold
+                      : FontWeight.normal,
                   color: widget.isSelected
                       ? widget.type.color
                       : AppColors.textSecondary,
@@ -255,8 +246,9 @@ class TransactionTypeChips extends StatelessWidget {
                     type.label,
                     style: TextStyle(
                       fontSize: 12,
-                      fontWeight:
-                          isSelected ? FontWeight.bold : FontWeight.normal,
+                      fontWeight: isSelected
+                          ? FontWeight.bold
+                          : FontWeight.normal,
                       color: isSelected ? type.color : AppColors.textSecondary,
                     ),
                   ),

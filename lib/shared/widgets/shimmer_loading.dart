@@ -117,10 +117,7 @@ class ShimmerTransactionItem extends StatelessWidget {
 class ShimmerTransactionList extends StatelessWidget {
   final int itemCount;
 
-  const ShimmerTransactionList({
-    super.key,
-    this.itemCount = 5,
-  });
+  const ShimmerTransactionList({super.key, this.itemCount = 5});
 
   @override
   Widget build(BuildContext context) {
@@ -261,10 +258,7 @@ class ShimmerWalletCard extends StatelessWidget {
 class ShimmerWalletList extends StatelessWidget {
   final int itemCount;
 
-  const ShimmerWalletList({
-    super.key,
-    this.itemCount = 3,
-  });
+  const ShimmerWalletList({super.key, this.itemCount = 3});
 
   @override
   Widget build(BuildContext context) {

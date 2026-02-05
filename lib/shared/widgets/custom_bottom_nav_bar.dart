@@ -100,9 +100,13 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar>
                   final itemWidth = screenWidth / widget.items.length;
                   const pillWidth = 64.0;
 
-                  final previousX = _previousIndex * itemWidth + (itemWidth - pillWidth) / 2;
-                  final currentX = widget.currentIndex * itemWidth + (itemWidth - pillWidth) / 2;
-                  final x = previousX + (currentX - previousX) * _animation.value;
+                  final previousX =
+                      _previousIndex * itemWidth + (itemWidth - pillWidth) / 2;
+                  final currentX =
+                      widget.currentIndex * itemWidth +
+                      (itemWidth - pillWidth) / 2;
+                  final x =
+                      previousX + (currentX - previousX) * _animation.value;
 
                   return Transform.translate(
                     offset: Offset(x, 12),
@@ -225,7 +229,10 @@ class _NavItem extends StatelessWidget {
                       return FadeTransition(
                         opacity: animation,
                         child: ScaleTransition(
-                          scale: Tween<double>(begin: 0.8, end: 1.0).animate(animation),
+                          scale: Tween<double>(
+                            begin: 0.8,
+                            end: 1.0,
+                          ).animate(animation),
                           child: child,
                         ),
                       );
@@ -244,7 +251,10 @@ class _NavItem extends StatelessWidget {
                     right: 0,
                     top: 0,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 4,
+                        vertical: 2,
+                      ),
                       constraints: const BoxConstraints(minWidth: 16),
                       decoration: BoxDecoration(
                         color: AppColors.error,
@@ -339,10 +349,10 @@ class NavItems {
   );
 
   static List<NavItem> get defaultItems => [
-        home,
-        transactions,
-        aiAssistant,
-        reports,
-        settings,
-      ];
+    home,
+    transactions,
+    aiAssistant,
+    reports,
+    settings,
+  ];
 }

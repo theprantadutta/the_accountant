@@ -62,7 +62,9 @@ class ObjectivesService {
   }) async {
     final companion = ObjectivesCompanion(
       name: name != null ? Value(name) : const Value.absent(),
-      targetAmount: targetAmount != null ? Value(targetAmount) : const Value.absent(),
+      targetAmount: targetAmount != null
+          ? Value(targetAmount)
+          : const Value.absent(),
       endDate: endDate != null ? Value(endDate) : const Value.absent(),
       iconName: iconName != null ? Value(iconName) : const Value.absent(),
       color: color != null ? Value(color) : const Value.absent(),
@@ -72,9 +74,9 @@ class ObjectivesService {
       updatedAt: Value(DateTime.now()),
     );
 
-    await (_database.update(_database.objectives)
-          ..where((o) => o.id.equals(objectiveId)))
-        .write(companion);
+    await (_database.update(
+      _database.objectives,
+    )..where((o) => o.id.equals(objectiveId))).write(companion);
 
     _logger.i('Updated objective: $objectiveId');
   }
@@ -82,19 +84,26 @@ class ObjectivesService {
   /// Delete an objective
   Future<void> deleteObjective(String objectiveId) async {
     // First, remove all linked transactions
-    final linkedTransactions = await _database.getObjectiveTransactions(objectiveId);
+    final linkedTransactions = await _database.getObjectiveTransactions(
+      objectiveId,
+    );
     for (final link in linkedTransactions) {
-      await _database.removeObjectiveTransaction(objectiveId, link.transactionId);
+      await _database.removeObjectiveTransaction(
+        objectiveId,
+        link.transactionId,
+      );
     }
 
     // Then delete the objective (soft delete)
-    await (_database.update(_database.objectives)
-          ..where((o) => o.id.equals(objectiveId)))
-        .write(ObjectivesCompanion(
-          deletedAt: Value(DateTime.now()),
-          syncStatus: const Value(SyncStatus.pendingDelete),
-          updatedAt: Value(DateTime.now()),
-        ));
+    await (_database.update(
+      _database.objectives,
+    )..where((o) => o.id.equals(objectiveId))).write(
+      ObjectivesCompanion(
+        deletedAt: Value(DateTime.now()),
+        syncStatus: const Value(SyncStatus.pendingDelete),
+        updatedAt: Value(DateTime.now()),
+      ),
+    );
 
     _logger.i('Deleted objective: $objectiveId');
   }
@@ -103,24 +112,33 @@ class ObjectivesService {
   Future<void> linkTransaction(String objectiveId, String transactionId) async {
     final id = _uuid.v4();
 
-    await _database.addObjectiveTransaction(ObjectiveTransactionsCompanion(
-      id: Value(id),
-      objectiveId: Value(objectiveId),
-      transactionId: Value(transactionId),
-      createdAt: Value(DateTime.now()),
-    ));
+    await _database.addObjectiveTransaction(
+      ObjectiveTransactionsCompanion(
+        id: Value(id),
+        objectiveId: Value(objectiveId),
+        transactionId: Value(transactionId),
+        createdAt: Value(DateTime.now()),
+      ),
+    );
 
     _logger.d('Linked transaction $transactionId to objective $objectiveId');
   }
 
   /// Unlink a transaction from an objective
-  Future<void> unlinkTransaction(String objectiveId, String transactionId) async {
+  Future<void> unlinkTransaction(
+    String objectiveId,
+    String transactionId,
+  ) async {
     await _database.removeObjectiveTransaction(objectiveId, transactionId);
-    _logger.d('Unlinked transaction $transactionId from objective $objectiveId');
+    _logger.d(
+      'Unlinked transaction $transactionId from objective $objectiveId',
+    );
   }
 
   /// Get objective with full progress details
-  Future<ObjectiveWithProgress> getObjectiveWithProgress(String objectiveId) async {
+  Future<ObjectiveWithProgress> getObjectiveWithProgress(
+    String objectiveId,
+  ) async {
     final objective = await _database.findObjectiveById(objectiveId);
     if (objective == null) {
       throw Exception('Objective not found: $objectiveId');
@@ -195,7 +213,9 @@ class ObjectivesService {
     }
 
     // Calculate projected completion date based on average contribution
-    final linkedTransactions = await _database.getObjectiveTransactions(objective.id);
+    final linkedTransactions = await _database.getObjectiveTransactions(
+      objective.id,
+    );
     if (linkedTransactions.isNotEmpty && currentAmount > 0) {
       // Calculate average contribution per day
       final startDate = objective.startDate;
@@ -214,7 +234,9 @@ class ObjectivesService {
     // Get linked transactions
     final transactions = <Transaction>[];
     for (final link in linkedTransactions) {
-      final transaction = await _database.findTransactionById(link.transactionId);
+      final transaction = await _database.findTransactionById(
+        link.transactionId,
+      );
       if (transaction != null && transaction.deletedAt == null) {
         transactions.add(transaction);
       }
@@ -247,7 +269,10 @@ class ObjectivesService {
   Future<void> togglePinned(String objectiveId) async {
     final objective = await _database.findObjectiveById(objectiveId);
     if (objective != null) {
-      await updateObjective(objectiveId: objectiveId, isPinned: !objective.isPinned);
+      await updateObjective(
+        objectiveId: objectiveId,
+        isPinned: !objective.isPinned,
+      );
     }
   }
 

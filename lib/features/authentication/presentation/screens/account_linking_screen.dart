@@ -9,7 +9,8 @@ class AccountLinkingScreen extends ConsumerStatefulWidget {
   const AccountLinkingScreen({super.key});
 
   @override
-  ConsumerState<AccountLinkingScreen> createState() => _AccountLinkingScreenState();
+  ConsumerState<AccountLinkingScreen> createState() =>
+      _AccountLinkingScreenState();
 }
 
 class _AccountLinkingScreenState extends ConsumerState<AccountLinkingScreen>
@@ -53,9 +54,9 @@ class _AccountLinkingScreenState extends ConsumerState<AccountLinkingScreen>
 
   void _linkAccount() {
     if (_formKey.currentState!.validate()) {
-      ref.read(authProvider.notifier).linkGoogleAccount(
-        _passwordController.text,
-      );
+      ref
+          .read(authProvider.notifier)
+          .linkGoogleAccount(_passwordController.text);
     }
     HapticFeedback.lightImpact();
   }
@@ -282,10 +283,7 @@ class _AccountLinkingScreenState extends ConsumerState<AccountLinkingScreen>
                         ),
                         child: Row(
                           children: [
-                            const Icon(
-                              Icons.error_outline,
-                              color: Colors.red,
-                            ),
+                            const Icon(Icons.error_outline, color: Colors.red),
                             const SizedBox(width: 12),
                             Expanded(
                               child: Text(

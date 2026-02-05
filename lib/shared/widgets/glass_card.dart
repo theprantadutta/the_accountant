@@ -6,14 +6,14 @@ import 'package:the_accountant/core/themes/app_animations.dart';
 
 /// Card color variants for easy theming
 enum GlassCardVariant {
-  standard,  // Default indigo tint
-  accent,    // Stronger indigo
-  success,   // Green (income)
-  error,     // Red (expense)
-  info,      // Blue
-  warning,   // Amber
-  cyan,      // Cyan
-  purple,    // Purple
+  standard, // Default indigo tint
+  accent, // Stronger indigo
+  success, // Green (income)
+  error, // Red (expense)
+  info, // Blue
+  warning, // Amber
+  cyan, // Cyan
+  purple, // Purple
 }
 
 /// A modern glassmorphic card with optional blur, glow, and press animations.
@@ -128,13 +128,10 @@ class _GlassCardState extends State<GlassCard>
       vsync: this,
       duration: AppAnimations.quick,
     );
-    _scaleAnimation = Tween<double>(
-      begin: 1.0,
-      end: AppAnimations.tappedScale,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: AppAnimations.easeOut,
-    ));
+    _scaleAnimation = Tween<double>(begin: 1.0, end: AppAnimations.tappedScale)
+        .animate(
+          CurvedAnimation(parent: _controller, curve: AppAnimations.easeOut),
+        );
   }
 
   @override
@@ -165,8 +162,10 @@ class _GlassCardState extends State<GlassCard>
   Widget build(BuildContext context) {
     final borderRadius = widget.borderRadius ?? AppSpacing.borderRadiusXl;
     final effectiveGlowColor = widget.glowColor ?? AppColors.primaryGlow;
-    final effectiveGradient = widget.gradient ?? GlassCard.getVariantGradient(widget.variant);
-    final effectiveBorderColor = widget.borderColor ?? GlassCard.getVariantBorderColor(widget.variant);
+    final effectiveGradient =
+        widget.gradient ?? GlassCard.getVariantGradient(widget.variant);
+    final effectiveBorderColor =
+        widget.borderColor ?? GlassCard.getVariantBorderColor(widget.variant);
 
     Widget card = Container(
       width: widget.width,
@@ -218,10 +217,8 @@ class _GlassCardState extends State<GlassCard>
     if (widget.enablePressAnimation && widget.onTap != null) {
       card = AnimatedBuilder(
         animation: _scaleAnimation,
-        builder: (context, child) => Transform.scale(
-          scale: _scaleAnimation.value,
-          child: child,
-        ),
+        builder: (context, child) =>
+            Transform.scale(scale: _scaleAnimation.value, child: child),
         child: card,
       );
     }
@@ -274,27 +271,18 @@ class GlassListTile extends StatelessWidget {
       onTap: onTap,
       child: Row(
         children: [
-          if (leading != null) ...[
-            leading!,
-            AppSpacing.gapHMd,
-          ],
+          if (leading != null) ...[leading!, AppSpacing.gapHMd],
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
                 title,
-                if (subtitle != null) ...[
-                  AppSpacing.gapXs,
-                  subtitle!,
-                ],
+                if (subtitle != null) ...[AppSpacing.gapXs, subtitle!],
               ],
             ),
           ),
-          if (trailing != null) ...[
-            AppSpacing.gapHMd,
-            trailing!,
-          ],
+          if (trailing != null) ...[AppSpacing.gapHMd, trailing!],
         ],
       ),
     );

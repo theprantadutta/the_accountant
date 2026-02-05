@@ -43,8 +43,10 @@ class CurrencyService {
       final response = await _fetchWithFallback('/currencies.json');
       if (response != null) {
         final Map<String, dynamic> data = json.decode(response);
-        final currencies = data.map((key, value) =>
-            MapEntry(key.toString().toUpperCase(), value.toString()));
+        final currencies = data.map(
+          (key, value) =>
+              MapEntry(key.toString().toUpperCase(), value.toString()),
+        );
 
         // Cache the result
         await _cacheCurrencies(currencies);
@@ -112,7 +114,9 @@ class CurrencyService {
 
     // Check for custom rate in database
     final customRate = await _database.getExchangeRate(fromUpper, toUpper);
-    if (customRate != null && customRate.useCustomRate && customRate.customRate != null) {
+    if (customRate != null &&
+        customRate.useCustomRate &&
+        customRate.customRate != null) {
       return customRate.customRate!;
     }
 
@@ -245,7 +249,9 @@ class CurrencyService {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(_currenciesCacheKey, json.encode(currencies));
       await prefs.setInt(
-          _currenciesCacheTimeKey, DateTime.now().millisecondsSinceEpoch);
+        _currenciesCacheTimeKey,
+        DateTime.now().millisecondsSinceEpoch,
+      );
     } catch (e) {
       debugPrint('[CurrencyService] Cache write error: $e');
     }
@@ -279,7 +285,9 @@ class CurrencyService {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(_ratesCacheKey, json.encode(rates));
       await prefs.setInt(
-          _ratesCacheTimeKey, DateTime.now().millisecondsSinceEpoch);
+        _ratesCacheTimeKey,
+        DateTime.now().millisecondsSinceEpoch,
+      );
     } catch (e) {
       debugPrint('[CurrencyService] Cache write error: $e');
     }
@@ -319,11 +327,7 @@ class CurrencyInfo {
   final String name;
   final String? symbol;
 
-  const CurrencyInfo({
-    required this.code,
-    required this.name,
-    this.symbol,
-  });
+  const CurrencyInfo({required this.code, required this.name, this.symbol});
 
   /// Get currency symbol from code
   static String getSymbol(String code) {

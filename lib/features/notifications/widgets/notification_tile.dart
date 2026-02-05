@@ -48,11 +48,7 @@ class NotificationTile extends StatelessWidget {
                 color: typeColor.withValues(alpha: 0.15),
                 borderRadius: AppSpacing.borderRadiusMd,
               ),
-              child: Icon(
-                typeIcon,
-                color: typeColor,
-                size: AppSpacing.iconSm,
-              ),
+              child: Icon(typeIcon, color: typeColor, size: AppSpacing.iconSm),
             ),
             AppSpacing.gapHMd,
             // Content
@@ -66,8 +62,12 @@ class NotificationTile extends StatelessWidget {
                         child: Text(
                           notification.title,
                           style: AppTypography.labelLarge.copyWith(
-                            fontWeight: isRead ? FontWeight.normal : FontWeight.w600,
-                            color: isRead ? AppColors.textSecondary : AppColors.textPrimary,
+                            fontWeight: isRead
+                                ? FontWeight.normal
+                                : FontWeight.w600,
+                            color: isRead
+                                ? AppColors.textSecondary
+                                : AppColors.textPrimary,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -89,7 +89,9 @@ class NotificationTile extends StatelessWidget {
                   Text(
                     notification.body,
                     style: AppTypography.bodySmall.copyWith(
-                      color: isRead ? AppColors.textMuted : AppColors.textSecondary,
+                      color: isRead
+                          ? AppColors.textMuted
+                          : AppColors.textSecondary,
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,

@@ -30,7 +30,8 @@ class IAPService {
 
   // Callbacks
   Function(PurchaseStatus status, String? error)? onPurchaseUpdate;
-  Function(bool isPremium, String? tier, DateTime? expiresAt)? onSubscriptionUpdate;
+  Function(bool isPremium, String? tier, DateTime? expiresAt)?
+  onSubscriptionUpdate;
 
   // State
   bool _isAvailable = false;
@@ -141,14 +142,21 @@ class IAPService {
       _logger.i('Restore purchases initiated');
     } catch (e) {
       _logger.e('Restore error: $e');
-      onPurchaseUpdate?.call(PurchaseStatus.error, 'Failed to restore purchases');
+      onPurchaseUpdate?.call(
+        PurchaseStatus.error,
+        'Failed to restore purchases',
+      );
     }
   }
 
   /// Handle purchase updates from the store
-  Future<void> _onPurchaseUpdated(List<PurchaseDetails> purchaseDetailsList) async {
+  Future<void> _onPurchaseUpdated(
+    List<PurchaseDetails> purchaseDetailsList,
+  ) async {
     for (final purchaseDetails in purchaseDetailsList) {
-      _logger.d('Purchase update: ${purchaseDetails.productID} - ${purchaseDetails.status}');
+      _logger.d(
+        'Purchase update: ${purchaseDetails.productID} - ${purchaseDetails.status}',
+      );
 
       switch (purchaseDetails.status) {
         case PurchaseStatus.pending:
@@ -199,8 +207,7 @@ class IAPService {
       String? orderId;
 
       // Get platform-specific data
-      if (Platform.isAndroid &&
-          purchaseDetails is GooglePlayPurchaseDetails) {
+      if (Platform.isAndroid && purchaseDetails is GooglePlayPurchaseDetails) {
         purchaseToken = purchaseDetails.billingClientPurchase.purchaseToken;
         orderId = purchaseDetails.billingClientPurchase.orderId;
       } else if (Platform.isIOS) {

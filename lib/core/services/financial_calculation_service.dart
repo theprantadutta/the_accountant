@@ -48,7 +48,11 @@ class FinancialCalculationService {
     final walletCurrency = await _getWalletCurrency(walletId);
     if (walletCurrency == targetCurrency) return amount;
 
-    return await _currencyService.convert(amount, walletCurrency, targetCurrency);
+    return await _currencyService.convert(
+      amount,
+      walletCurrency,
+      targetCurrency,
+    );
   }
 
   /// Calculate total balance across all wallets (no conversion)
@@ -81,7 +85,9 @@ class FinancialCalculationService {
       for (final wallet in wallets) {
         // Get transactions for this wallet
         final transactions = await _db.getAllTransactions();
-        final walletTransactions = transactions.where((t) => t.walletId == wallet.id);
+        final walletTransactions = transactions.where(
+          (t) => t.walletId == wallet.id,
+        );
 
         double walletBalance = 0.0;
         for (final transaction in walletTransactions) {
@@ -154,7 +160,11 @@ class FinancialCalculationService {
       double total = 0.0;
 
       for (final t in incomeTransactions) {
-        final converted = await _convertAmount(t.amount, t.walletId, targetCurrency);
+        final converted = await _convertAmount(
+          t.amount,
+          t.walletId,
+          targetCurrency,
+        );
         total += converted;
       }
 
@@ -205,7 +215,11 @@ class FinancialCalculationService {
       double total = 0.0;
 
       for (final t in expenseTransactions) {
-        final converted = await _convertAmount(t.amount, t.walletId, targetCurrency);
+        final converted = await _convertAmount(
+          t.amount,
+          t.walletId,
+          targetCurrency,
+        );
         total += converted;
       }
 
@@ -323,7 +337,9 @@ class FinancialCalculationService {
         final categoryId = budget.categoryId;
         final categoryExpenses = transactions
             .where(
-              (t) => !t.isIncome && (categoryId == null || t.categoryId == categoryId),
+              (t) =>
+                  !t.isIncome &&
+                  (categoryId == null || t.categoryId == categoryId),
             )
             .fold(0.0, (sum, t) => sum + t.amount);
 
@@ -357,7 +373,9 @@ class FinancialCalculationService {
         final categoryId = budget.categoryId;
         final spent = transactions
             .where(
-              (t) => !t.isIncome && (categoryId == null || t.categoryId == categoryId),
+              (t) =>
+                  !t.isIncome &&
+                  (categoryId == null || t.categoryId == categoryId),
             )
             .fold(0.0, (sum, t) => sum + t.amount);
 

@@ -205,7 +205,9 @@ class _TransactionOptionsSectionState
         color: AppColors.primarySurface,
         borderRadius: AppSpacing.borderRadiusMd,
         border: Border.all(
-          color: isExpanded ? (valueColor ?? AppColors.primaryAccent) : AppColors.divider,
+          color: isExpanded
+              ? (valueColor ?? AppColors.primaryAccent)
+              : AppColors.divider,
         ),
       ),
       child: Column(
@@ -216,7 +218,11 @@ class _TransactionOptionsSectionState
             behavior: HitTestBehavior.opaque,
             child: Row(
               children: [
-                Icon(icon, size: 20, color: valueColor ?? AppColors.primaryAccent),
+                Icon(
+                  icon,
+                  size: 20,
+                  color: valueColor ?? AppColors.primaryAccent,
+                ),
                 AppSpacing.gapHSm,
                 Expanded(
                   child: Column(
@@ -255,8 +261,9 @@ class _TransactionOptionsSectionState
           // Expanded content
           AnimatedCrossFade(
             duration: AppAnimations.fast,
-            crossFadeState:
-                isExpanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+            crossFadeState: isExpanded
+                ? CrossFadeState.showSecond
+                : CrossFadeState.showFirst,
             firstChild: const SizedBox.shrink(),
             secondChild: expandedChild,
           ),
@@ -291,8 +298,8 @@ class _TransactionOptionsSectionState
                   widget.specialType == TransactionSpecialType.upcoming
                       ? 'This transaction is scheduled for a future date.'
                       : widget.specialType == TransactionSpecialType.credit
-                          ? 'When do you expect to be paid back?'
-                          : 'When do you need to pay them back?',
+                      ? 'When do you expect to be paid back?'
+                      : 'When do you need to pay them back?',
                   style: TextStyle(
                     fontSize: 12,
                     color: widget.specialType.color,
@@ -311,18 +318,11 @@ class _TransactionOptionsSectionState
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
-                  Icons.info_outline,
-                  size: 14,
-                  color: AppColors.textMuted,
-                ),
+                Icon(Icons.info_outline, size: 14, color: AppColors.textMuted),
                 const SizedBox(width: 4),
                 Text(
                   'Transaction will be marked as unpaid',
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: AppColors.textMuted,
-                  ),
+                  style: TextStyle(fontSize: 11, color: AppColors.textMuted),
                 ),
               ],
             ),
@@ -371,27 +371,17 @@ class TransactionOptionsCompact extends StatelessWidget {
               const SizedBox(width: 4),
               Text(
                 walletName!,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: AppColors.textSecondary,
-                ),
+                style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
               ),
               const SizedBox(width: 12),
             ],
 
             // Date
-            Icon(
-              Icons.event,
-              size: 16,
-              color: AppColors.textMuted,
-            ),
+            Icon(Icons.event, size: 16, color: AppColors.textMuted),
             const SizedBox(width: 4),
             Text(
               _formatDate(dateTime),
-              style: TextStyle(
-                fontSize: 12,
-                color: AppColors.textSecondary,
-              ),
+              style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
             ),
 
             const Spacer(),
@@ -402,11 +392,7 @@ class TransactionOptionsCompact extends StatelessWidget {
             // Chevron
             if (onTap != null) ...[
               const SizedBox(width: 8),
-              Icon(
-                Icons.chevron_right,
-                size: 20,
-                color: AppColors.textMuted,
-              ),
+              Icon(Icons.chevron_right, size: 20, color: AppColors.textMuted),
             ],
           ],
         ),

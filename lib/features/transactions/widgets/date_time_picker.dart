@@ -99,8 +99,7 @@ class DateTimePicker extends StatelessWidget {
     final presets = [
       (label: 'Yesterday', date: yesterday, enabled: true),
       (label: 'Today', date: today, enabled: true),
-      if (allowFutureDates)
-        (label: 'Tomorrow', date: tomorrow, enabled: true),
+      if (allowFutureDates) (label: 'Tomorrow', date: tomorrow, enabled: true),
     ];
 
     return Row(
@@ -149,9 +148,9 @@ class DateTimePicker extends StatelessWidget {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: Theme.of(context).colorScheme.copyWith(
-                  primary: accentColor ?? AppColors.primaryAccent,
-                  surface: AppColors.primarySurface,
-                ),
+              primary: accentColor ?? AppColors.primaryAccent,
+              surface: AppColors.primarySurface,
+            ),
           ),
           child: child!,
         );
@@ -180,9 +179,9 @@ class DateTimePicker extends StatelessWidget {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: Theme.of(context).colorScheme.copyWith(
-                  primary: accentColor ?? AppColors.primaryAccent,
-                  surface: AppColors.primarySurface,
-                ),
+              primary: accentColor ?? AppColors.primaryAccent,
+              surface: AppColors.primarySurface,
+            ),
           ),
           child: child!,
         );
@@ -286,25 +285,16 @@ class _DateButton extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColors.primarySurface,
           borderRadius: AppSpacing.borderRadiusMd,
-          border: Border.all(
-            color: AppColors.divider,
-          ),
+          border: Border.all(color: AppColors.divider),
         ),
         child: Row(
           children: [
-            Icon(
-              Icons.calendar_today,
-              size: 20,
-              color: color,
-            ),
+            Icon(Icons.calendar_today, size: 20, color: color),
             AppSpacing.gapHSm,
             Expanded(
               child: Text(
                 _formatDate(),
-                style: TextStyle(
-                  fontSize: 14,
-                  color: AppColors.textPrimary,
-                ),
+                style: TextStyle(fontSize: 14, color: AppColors.textPrimary),
               ),
             ),
             Icon(
@@ -344,25 +334,16 @@ class _TimeButton extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColors.primarySurface,
           borderRadius: AppSpacing.borderRadiusMd,
-          border: Border.all(
-            color: AppColors.divider,
-          ),
+          border: Border.all(color: AppColors.divider),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              Icons.access_time,
-              size: 20,
-              color: color,
-            ),
+            Icon(Icons.access_time, size: 20, color: color),
             const SizedBox(width: 8),
             Text(
               _formatTime(),
-              style: TextStyle(
-                fontSize: 14,
-                color: AppColors.textPrimary,
-              ),
+              style: TextStyle(fontSize: 14, color: AppColors.textPrimary),
               maxLines: 1,
               overflow: TextOverflow.visible,
             ),
@@ -405,25 +386,16 @@ class DateTimeSelector extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColors.primarySurface,
           borderRadius: AppSpacing.borderRadiusMd,
-          border: Border.all(
-            color: AppColors.divider,
-          ),
+          border: Border.all(color: AppColors.divider),
         ),
         child: Row(
           children: [
-            Icon(
-              Icons.event,
-              size: 20,
-              color: color,
-            ),
+            Icon(Icons.event, size: 20, color: color),
             AppSpacing.gapHSm,
             Expanded(
               child: Text(
                 _formatDateTime(),
-                style: TextStyle(
-                  fontSize: 14,
-                  color: AppColors.textPrimary,
-                ),
+                style: TextStyle(fontSize: 14, color: AppColors.textPrimary),
               ),
             ),
             Icon(
@@ -490,13 +462,9 @@ class DateTimeSelector extends StatelessWidget {
       );
 
       if (time != null) {
-        onDateTimeChanged(DateTime(
-          date.year,
-          date.month,
-          date.day,
-          time.hour,
-          time.minute,
-        ));
+        onDateTimeChanged(
+          DateTime(date.year, date.month, date.day, time.hour, time.minute),
+        );
       }
     }
   }

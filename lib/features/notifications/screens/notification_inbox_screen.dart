@@ -12,10 +12,12 @@ class NotificationInboxScreen extends ConsumerStatefulWidget {
   const NotificationInboxScreen({super.key});
 
   @override
-  ConsumerState<NotificationInboxScreen> createState() => _NotificationInboxScreenState();
+  ConsumerState<NotificationInboxScreen> createState() =>
+      _NotificationInboxScreenState();
 }
 
-class _NotificationInboxScreenState extends ConsumerState<NotificationInboxScreen> {
+class _NotificationInboxScreenState
+    extends ConsumerState<NotificationInboxScreen> {
   final ScrollController _scrollController = ScrollController();
 
   @override
@@ -75,7 +77,8 @@ class _NotificationInboxScreenState extends ConsumerState<NotificationInboxScree
         ],
       ),
       body: RefreshIndicator(
-        onRefresh: () => ref.read(notificationHistoryProvider.notifier).refresh(),
+        onRefresh: () =>
+            ref.read(notificationHistoryProvider.notifier).refresh(),
         color: AppColors.primaryAccent,
         backgroundColor: AppColors.primarySurface,
         child: _buildBody(state),
@@ -106,11 +109,7 @@ class _NotificationInboxScreenState extends ConsumerState<NotificationInboxScree
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.error_outline,
-              size: 48,
-              color: AppColors.error,
-            ),
+            Icon(Icons.error_outline, size: 48, color: AppColors.error),
             AppSpacing.gapLg,
             Text(
               message,
@@ -121,7 +120,8 @@ class _NotificationInboxScreenState extends ConsumerState<NotificationInboxScree
             ),
             AppSpacing.gapLg,
             TextButton(
-              onPressed: () => ref.read(notificationHistoryProvider.notifier).refresh(),
+              onPressed: () =>
+                  ref.read(notificationHistoryProvider.notifier).refresh(),
               child: Text(
                 'Try again',
                 style: AppTypography.labelMedium.copyWith(
@@ -174,7 +174,9 @@ class _NotificationInboxScreenState extends ConsumerState<NotificationInboxScree
     );
   }
 
-  List<dynamic> _groupNotificationsByDate(List<NotificationItem> notifications) {
+  List<dynamic> _groupNotificationsByDate(
+    List<NotificationItem> notifications,
+  ) {
     final List<dynamic> grouped = [];
     String? lastDateGroup;
 
@@ -216,7 +218,9 @@ class _NotificationInboxScreenState extends ConsumerState<NotificationInboxScree
 
     // Mark as read if not already
     if (!notification.isRead) {
-      ref.read(notificationHistoryProvider.notifier).markAsRead(notification.id);
+      ref
+          .read(notificationHistoryProvider.notifier)
+          .markAsRead(notification.id);
     }
 
     // Show notification detail in a bottom sheet
@@ -302,7 +306,11 @@ class _NotificationInboxScreenState extends ConsumerState<NotificationInboxScree
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final yesterday = today.subtract(const Duration(days: 1));
-    final notificationDate = DateTime(dateTime.year, dateTime.month, dateTime.day);
+    final notificationDate = DateTime(
+      dateTime.year,
+      dateTime.month,
+      dateTime.day,
+    );
 
     String dateStr;
     if (notificationDate == today) {

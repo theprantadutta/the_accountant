@@ -33,7 +33,8 @@ class _CurrencyPickerState extends ConsumerState<CurrencyPicker> {
   Widget build(BuildContext context) {
     final currencyState = ref.watch(currencyProvider);
     final selectedName = widget.selectedCurrency != null
-        ? currencyState.availableCurrencies[widget.selectedCurrency!.toUpperCase()]
+        ? currencyState.availableCurrencies[widget.selectedCurrency!
+              .toUpperCase()]
         : null;
 
     return Column(
@@ -90,10 +91,7 @@ class _CurrencyPickerState extends ConsumerState<CurrencyPicker> {
                     ],
                   ),
                 ),
-                Icon(
-                  Icons.arrow_drop_down,
-                  color: AppColors.textSecondary,
-                ),
+                Icon(Icons.arrow_drop_down, color: AppColors.textSecondary),
               ],
             ),
           ),
@@ -215,10 +213,7 @@ class _CurrencyPickerSheetState extends ConsumerState<_CurrencyPickerSheet> {
                   onPressed: () => Navigator.pop(context),
                   child: Text(
                     'Cancel',
-                    style: TextStyle(
-                      color: AppColors.textMuted,
-                      fontSize: 16,
-                    ),
+                    style: TextStyle(color: AppColors.textMuted, fontSize: 16),
                   ),
                 ),
               ],
@@ -256,12 +251,12 @@ class _CurrencyPickerSheetState extends ConsumerState<_CurrencyPickerSheet> {
           ),
           const SizedBox(height: 16),
           // Loading state
-          if (currencyState.isLoading && currencyState.availableCurrencies.isEmpty)
-            const Expanded(
-              child: Center(child: CircularProgressIndicator()),
-            )
+          if (currencyState.isLoading &&
+              currencyState.availableCurrencies.isEmpty)
+            const Expanded(child: Center(child: CircularProgressIndicator()))
           // Error state
-          else if (currencyState.error != null && currencyState.availableCurrencies.isEmpty)
+          else if (currencyState.error != null &&
+              currencyState.availableCurrencies.isEmpty)
             Expanded(
               child: Center(
                 child: Column(
@@ -272,7 +267,8 @@ class _CurrencyPickerSheetState extends ConsumerState<_CurrencyPickerSheet> {
                     Text(currencyState.error!, style: AppTypography.bodyMedium),
                     AppSpacing.gapMd,
                     ElevatedButton(
-                      onPressed: () => ref.read(currencyProvider.notifier).loadCurrencies(),
+                      onPressed: () =>
+                          ref.read(currencyProvider.notifier).loadCurrencies(),
                       child: const Text('Retry'),
                     ),
                   ],
@@ -385,7 +381,7 @@ class CurrencyDropdown extends ConsumerWidget {
     final currencies = currencyState.sortedCurrencyCodes;
 
     return DropdownButtonFormField<String>(
-      value: selectedCurrency,
+      initialValue: selectedCurrency,
       hint: Text(hint ?? 'Select currency'),
       decoration: InputDecoration(
         filled: true,
@@ -397,10 +393,7 @@ class CurrencyDropdown extends ConsumerWidget {
       ),
       items: currencies.map((code) {
         final name = currencyState.availableCurrencies[code] ?? code;
-        return DropdownMenuItem(
-          value: code,
-          child: Text('$code - $name'),
-        );
+        return DropdownMenuItem(value: code, child: Text('$code - $name'));
       }).toList(),
       onChanged: onChanged,
     );
@@ -412,13 +405,11 @@ class _CurrencySymbolBox extends StatelessWidget {
   final String symbol;
   final String code;
   final bool isSelected;
-  final double size;
 
   const _CurrencySymbolBox({
     required this.symbol,
     required this.code,
     this.isSelected = false,
-    this.size = 44,
   });
 
   @override
@@ -427,8 +418,8 @@ class _CurrencySymbolBox extends StatelessWidget {
     final fontSize = displayText.length > 2 ? 12.0 : 16.0;
 
     return Container(
-      width: size,
-      height: size,
+      width: 40,
+      height: 40,
       decoration: BoxDecoration(
         color: isSelected
             ? AppColors.primaryAccent.withValues(alpha: 0.15)

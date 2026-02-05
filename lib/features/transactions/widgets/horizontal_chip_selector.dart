@@ -67,7 +67,8 @@ class HorizontalChipSelector<T> extends StatelessWidget {
               itemBuilder: (context, index) {
                 final item = items[index];
                 final isSelected = item == selectedItem;
-                final color = colorBuilder?.call(item) ?? AppColors.primaryAccent;
+                final color =
+                    colorBuilder?.call(item) ?? AppColors.primaryAccent;
                 final icon = iconBuilder?.call(item);
 
                 return _ChipItem(
@@ -83,10 +84,7 @@ class HorizontalChipSelector<T> extends StatelessWidget {
               },
             ),
           ),
-          if (trailing != null) ...[
-            trailing!,
-            SizedBox(width: padding.right),
-          ],
+          if (trailing != null) ...[trailing!, SizedBox(width: padding.right)],
         ],
       ),
     );
@@ -121,7 +119,9 @@ class _ChipItem extends StatelessWidget {
               : AppColors.primarySurface,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
-            color: isSelected ? color.withValues(alpha: 0.5) : AppColors.divider,
+            color: isSelected
+                ? color.withValues(alpha: 0.5)
+                : AppColors.divider,
             width: 1,
           ),
         ),
@@ -186,11 +186,7 @@ class LabeledChipSection<T> extends StatelessWidget {
           child: Row(
             children: [
               if (labelIcon != null) ...[
-                Icon(
-                  labelIcon,
-                  size: 16,
-                  color: AppColors.textMuted,
-                ),
+                Icon(labelIcon, size: 16, color: AppColors.textMuted),
                 const SizedBox(width: 6),
               ],
               Text(

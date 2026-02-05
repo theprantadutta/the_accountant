@@ -29,13 +29,8 @@ Future<T?> showBlurredBottomSheet<T>({
       child: Container(
         decoration: BoxDecoration(
           gradient: AppColors.glassGradient,
-          borderRadius: const BorderRadius.vertical(
-            top: Radius.circular(24),
-          ),
-          border: Border.all(
-            color: AppColors.glassBorder,
-            width: 1,
-          ),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          border: Border.all(color: AppColors.glassBorder, width: 1),
           boxShadow: [
             BoxShadow(
               color: AppColors.glassShadow,
@@ -58,9 +53,7 @@ Future<T?> showBlurredBottomSheet<T>({
               ),
             ),
             // Content
-            Flexible(
-              child: builder(context),
-            ),
+            Flexible(child: builder(context)),
           ],
         ),
       ),
@@ -100,13 +93,8 @@ Future<T?> showBlurredDraggableSheet<T>({
         builder: (context, scrollController) => Container(
           decoration: BoxDecoration(
             gradient: AppColors.glassGradient,
-            borderRadius: const BorderRadius.vertical(
-              top: Radius.circular(24),
-            ),
-            border: Border.all(
-              color: AppColors.glassBorder,
-              width: 1,
-            ),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+            border: Border.all(color: AppColors.glassBorder, width: 1),
             boxShadow: [
               BoxShadow(
                 color: AppColors.glassShadow,
@@ -128,9 +116,7 @@ Future<T?> showBlurredDraggableSheet<T>({
                 ),
               ),
               // Content
-              Expanded(
-                child: builder(context, scrollController),
-              ),
+              Expanded(child: builder(context, scrollController)),
             ],
           ),
         ),

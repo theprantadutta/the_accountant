@@ -45,10 +45,7 @@ class WalletCardsSection extends ConsumerWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'Your Accounts',
-                style: AppTypography.titleMedium,
-              ),
+              Text('Your Accounts', style: AppTypography.titleMedium),
               GestureDetector(
                 onTap: () {
                   HapticFeedback.lightImpact();
@@ -100,9 +97,7 @@ class WalletCardsSection extends ConsumerWidget {
     HapticFeedback.lightImpact();
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => const WalletManagementScreen(),
-      ),
+      MaterialPageRoute(builder: (context) => const WalletManagementScreen()),
     );
   }
 }
@@ -273,7 +268,8 @@ class _WalletCardState extends ConsumerState<_WalletCard>
                                     ? _formatCurrency(
                                         animOutstanding,
                                         wallet.currency,
-                                        wallet.useDecimals)
+                                        wallet.useDecimals,
+                                      )
                                     : '${CurrencyInfo.getSymbol(wallet.currency)} ****',
                                 style: AppTypography.monoMedium.copyWith(
                                   fontSize: 20,
@@ -287,8 +283,9 @@ class _WalletCardState extends ConsumerState<_WalletCard>
                                 borderRadius: BorderRadius.circular(3),
                                 child: LinearProgressIndicator(
                                   value: usageRatio * _balanceAnimation.value,
-                                  backgroundColor:
-                                      walletColor.withValues(alpha: 0.15),
+                                  backgroundColor: walletColor.withValues(
+                                    alpha: 0.15,
+                                  ),
                                   valueColor: AlwaysStoppedAnimation<Color>(
                                     usageRatio > 0.8
                                         ? AppColors.error
@@ -327,8 +324,11 @@ class _WalletCardState extends ConsumerState<_WalletCard>
                               balance * _balanceAnimation.value;
                           return Text(
                             isVisible
-                                ? _formatCurrency(animatedBalance,
-                                    wallet.currency, wallet.useDecimals)
+                                ? _formatCurrency(
+                                    animatedBalance,
+                                    wallet.currency,
+                                    wallet.useDecimals,
+                                  )
                                 : '${CurrencyInfo.getSymbol(wallet.currency)} ****',
                             style: AppTypography.monoMedium.copyWith(
                               fontSize: 22,
@@ -463,40 +463,45 @@ class _WalletCardState extends ConsumerState<_WalletCard>
                   initialCreditLimit: wallet.creditLimit,
                   initialBillingCycleDay: wallet.billingCycleDay,
                   isEditing: true,
-                  onSubmit: ({
-                    required String currency,
-                    required String icon,
-                    required String color,
-                    required bool isDefault,
-                    required bool useDecimals,
-                    required WalletType walletType,
-                    required double? creditLimit,
-                    required int? billingCycleDay,
-                  }) {
-                    ref.read(walletProvider.notifier).updateWallet(
-                          id: wallet.id,
-                          name: editNameController.text,
-                          currency: currency,
-                          balance: double.tryParse(editBalanceController.text),
-                          iconName: icon,
-                          color: color,
-                          isDefault: isDefault,
-                          useDecimals: useDecimals,
-                          creditLimit: creditLimit,
-                          billingCycleDay: billingCycleDay,
+                  onSubmit:
+                      ({
+                        required String currency,
+                        required String icon,
+                        required String color,
+                        required bool isDefault,
+                        required bool useDecimals,
+                        required WalletType walletType,
+                        required double? creditLimit,
+                        required int? billingCycleDay,
+                      }) {
+                        ref
+                            .read(walletProvider.notifier)
+                            .updateWallet(
+                              id: wallet.id,
+                              name: editNameController.text,
+                              currency: currency,
+                              balance: double.tryParse(
+                                editBalanceController.text,
+                              ),
+                              iconName: icon,
+                              color: color,
+                              isDefault: isDefault,
+                              useDecimals: useDecimals,
+                              creditLimit: creditLimit,
+                              billingCycleDay: billingCycleDay,
+                            );
+                        Navigator.pop(sheetContext);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: const Text('Account updated successfully'),
+                            backgroundColor: AppColors.success,
+                            behavior: SnackBarBehavior.floating,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
                         );
-                    Navigator.pop(sheetContext);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: const Text('Account updated successfully'),
-                        backgroundColor: AppColors.success,
-                        behavior: SnackBarBehavior.floating,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                    );
-                  },
+                      },
                   onCancel: () => Navigator.pop(sheetContext),
                 ),
               ],
@@ -522,7 +527,9 @@ class _WalletCardState extends ConsumerState<_WalletCard>
 
   String _formatCurrency(double amount, String currencyCode, bool useDecimals) {
     final symbol = CurrencyInfo.getSymbol(currencyCode);
-    final formatter = useDecimals ? NumberFormat('#,##0.00') : NumberFormat('#,##0');
+    final formatter = useDecimals
+        ? NumberFormat('#,##0.00')
+        : NumberFormat('#,##0');
     final displayAmount = useDecimals ? amount.abs() : amount.abs().round();
     final formatted = formatter.format(displayAmount);
     final sign = amount < 0 ? '-' : '';
@@ -535,10 +542,7 @@ class _VisibilityToggle extends StatelessWidget {
   final bool isVisible;
   final VoidCallback onTap;
 
-  const _VisibilityToggle({
-    required this.isVisible,
-    required this.onTap,
-  });
+  const _VisibilityToggle({required this.isVisible, required this.onTap});
 
   @override
   Widget build(BuildContext context) {

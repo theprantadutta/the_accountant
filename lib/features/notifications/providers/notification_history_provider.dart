@@ -46,12 +46,14 @@ class NotificationHistoryState {
 }
 
 /// Notifier for managing notification history.
-class NotificationHistoryNotifier extends StateNotifier<NotificationHistoryState> {
+class NotificationHistoryNotifier
+    extends StateNotifier<NotificationHistoryState> {
   final ApiService _apiService;
   final Logger _logger = Logger();
   static const int _pageSize = 20;
 
-  NotificationHistoryNotifier(this._apiService) : super(const NotificationHistoryState());
+  NotificationHistoryNotifier(this._apiService)
+    : super(const NotificationHistoryState());
 
   /// Load the initial page of notifications.
   Future<void> loadNotifications() async {
@@ -67,7 +69,9 @@ class NotificationHistoryNotifier extends StateNotifier<NotificationHistoryState
 
       final List<dynamic> data = response.data as List<dynamic>;
       final notifications = data
-          .map((json) => NotificationItem.fromJson(json as Map<String, dynamic>))
+          .map(
+            (json) => NotificationItem.fromJson(json as Map<String, dynamic>),
+          )
           .toList();
 
       state = state.copyWith(
@@ -102,7 +106,9 @@ class NotificationHistoryNotifier extends StateNotifier<NotificationHistoryState
 
       final List<dynamic> data = response.data as List<dynamic>;
       final newNotifications = data
-          .map((json) => NotificationItem.fromJson(json as Map<String, dynamic>))
+          .map(
+            (json) => NotificationItem.fromJson(json as Map<String, dynamic>),
+          )
           .toList();
 
       state = state.copyWith(
@@ -191,10 +197,7 @@ class NotificationHistoryNotifier extends StateNotifier<NotificationHistoryState
   /// Refresh notifications (pull-to-refresh).
   Future<void> refresh() async {
     state = state.copyWith(currentPage: 1, hasMore: true);
-    await Future.wait([
-      loadNotifications(),
-      loadUnreadCount(),
-    ]);
+    await Future.wait([loadNotifications(), loadUnreadCount()]);
   }
 }
 
@@ -203,10 +206,13 @@ final _apiServiceProvider = Provider<ApiService>((ref) => ApiService());
 
 /// Provider for notification history.
 final notificationHistoryProvider =
-    StateNotifierProvider<NotificationHistoryNotifier, NotificationHistoryState>((ref) {
-  final apiService = ref.watch(_apiServiceProvider);
-  return NotificationHistoryNotifier(apiService);
-});
+    StateNotifierProvider<
+      NotificationHistoryNotifier,
+      NotificationHistoryState
+    >((ref) {
+      final apiService = ref.watch(_apiServiceProvider);
+      return NotificationHistoryNotifier(apiService);
+    });
 
 /// Provider that just returns the unread count for use in the app bar badge.
 final unreadNotificationCountProvider = Provider<int>((ref) {

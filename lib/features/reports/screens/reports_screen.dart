@@ -566,7 +566,9 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
     final netSavings =
         financialData.monthlyIncome - financialData.monthlyExpenses;
     final growthPercentage = financialData.monthlyGrowthPercentage;
-    final formatter = useDecimals ? NumberFormat('#,##0.00') : NumberFormat('#,##0');
+    final formatter = useDecimals
+        ? NumberFormat('#,##0.00')
+        : NumberFormat('#,##0');
 
     String formatAmount(double amount) {
       return '$currencySymbol${formatter.format(useDecimals ? amount : amount.round())}';
@@ -709,7 +711,9 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
       0.0,
       (sum, amount) => sum + amount,
     );
-    final formatter = useDecimals ? NumberFormat('#,##0.00') : NumberFormat('#,##0');
+    final formatter = useDecimals
+        ? NumberFormat('#,##0.00')
+        : NumberFormat('#,##0');
 
     // Convert to list and sort by amount
     final categories =

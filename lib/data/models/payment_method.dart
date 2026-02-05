@@ -9,8 +9,9 @@ class PaymentMethods extends Table {
   TextColumn get name => text()();
   TextColumn get iconName =>
       text().withDefault(const Constant('credit_card'))();
-  TextColumn get type =>
-      text().withDefault(const Constant('card'))(); // card, bank, cash, digital_wallet
+  TextColumn get type => text().withDefault(
+    const Constant('card'),
+  )(); // card, bank, cash, digital_wallet
 
   // Card-specific fields
   TextColumn get lastFourDigits => text().nullable()();
@@ -21,8 +22,9 @@ class PaymentMethods extends Table {
 
   // Sync fields
   TextColumn get serverId => text().nullable()();
-  IntColumn get syncStatus =>
-      integer().withDefault(const Constant(0))(); // 0=synced, 1=create, 2=update, 3=delete
+  IntColumn get syncStatus => integer().withDefault(
+    const Constant(0),
+  )(); // 0=synced, 1=create, 2=update, 3=delete
 
   // Timestamps
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();

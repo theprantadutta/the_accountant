@@ -61,13 +61,15 @@ class CompactDateTimePicker extends StatelessWidget {
 
     if (picked != null) {
       HapticFeedback.lightImpact();
-      onDateTimeChanged(DateTime(
-        picked.year,
-        picked.month,
-        picked.day,
-        selectedDateTime.hour,
-        selectedDateTime.minute,
-      ));
+      onDateTimeChanged(
+        DateTime(
+          picked.year,
+          picked.month,
+          picked.day,
+          selectedDateTime.hour,
+          selectedDateTime.minute,
+        ),
+      );
     }
   }
 
@@ -92,13 +94,15 @@ class CompactDateTimePicker extends StatelessWidget {
 
     if (picked != null) {
       HapticFeedback.lightImpact();
-      onDateTimeChanged(DateTime(
-        selectedDateTime.year,
-        selectedDateTime.month,
-        selectedDateTime.day,
-        picked.hour,
-        picked.minute,
-      ));
+      onDateTimeChanged(
+        DateTime(
+          selectedDateTime.year,
+          selectedDateTime.month,
+          selectedDateTime.day,
+          picked.hour,
+          picked.minute,
+        ),
+      );
     }
   }
 
@@ -164,10 +168,7 @@ class CompactDateTimePicker extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 // Hour
-                _TimeSegment(
-                  value: displayHour.toString(),
-                  color: accentColor,
-                ),
+                _TimeSegment(value: displayHour.toString(), color: accentColor),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 2),
                   child: Text(
@@ -217,10 +218,7 @@ class _TimeSegment extends StatelessWidget {
   final String value;
   final Color color;
 
-  const _TimeSegment({
-    required this.value,
-    required this.color,
-  });
+  const _TimeSegment({required this.value, required this.color});
 
   @override
   Widget build(BuildContext context) {

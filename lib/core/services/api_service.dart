@@ -64,14 +64,16 @@ class ApiService {
       InterceptorsWrapper(
         onRequest: (options, handler) async {
           // Skip token refresh for auth endpoints
-          final isAuthEndpoint = options.path.contains('/auth/refresh') ||
+          final isAuthEndpoint =
+              options.path.contains('/auth/refresh') ||
               options.path.contains('/auth/login') ||
               options.path.contains('/auth/register') ||
               options.path.contains('/auth/firebase');
 
           // Check if token is expiring soon and refresh it (unless we're already refreshing)
           if (!isAuthEndpoint && !_isRefreshing) {
-            final isExpiringSoon = await SecureTokenStorage.isTokenExpiringSoon();
+            final isExpiringSoon =
+                await SecureTokenStorage.isTokenExpiringSoon();
             if (isExpiringSoon) {
               _logger.i('Token expiring soon, attempting refresh...');
               await _refreshAccessToken();
@@ -110,23 +112,28 @@ class ApiService {
             final isPasswordError = errorDetail == 'Incorrect password';
 
             // Skip retry for auth endpoints to avoid infinite loops
-            final isAuthEndpoint = error.requestOptions.path.contains('/auth/refresh') ||
+            final isAuthEndpoint =
+                error.requestOptions.path.contains('/auth/refresh') ||
                 error.requestOptions.path.contains('/auth/login') ||
                 error.requestOptions.path.contains('/auth/register') ||
                 error.requestOptions.path.contains('/auth/firebase');
 
             if (!isPasswordError && !isAuthEndpoint && !_isRefreshing) {
               // Try to refresh the token before logging out
-              _logger.w('Received 401 Unauthorized - attempting token refresh before logout');
+              _logger.w(
+                'Received 401 Unauthorized - attempting token refresh before logout',
+              );
 
               final refreshToken = await SecureTokenStorage.getRefreshToken();
               if (refreshToken != null) {
                 _isRefreshing = true;
                 try {
-                  final refreshDio = Dio(BaseOptions(
-                    baseUrl: baseUrl + apiV1,
-                    headers: {'Content-Type': 'application/json'},
-                  ));
+                  final refreshDio = Dio(
+                    BaseOptions(
+                      baseUrl: baseUrl + apiV1,
+                      headers: {'Content-Type': 'application/json'},
+                    ),
+                  );
 
                   final refreshResponse = await refreshDio.post(
                     '/auth/refresh',
@@ -136,14 +143,17 @@ class ApiService {
                   if (refreshResponse.statusCode == 200) {
                     // Token refresh successful, retry the original request
                     final newAccessToken = refreshResponse.data['access_token'];
-                    final newRefreshToken = refreshResponse.data['refresh_token'];
+                    final newRefreshToken =
+                        refreshResponse.data['refresh_token'];
                     final expiresIn = refreshResponse.data['expires_in'] as int;
 
                     await saveToken(newAccessToken);
                     await SecureTokenStorage.storeRefreshToken(newRefreshToken);
                     await SecureTokenStorage.storeTokenExpiry(expiresIn);
 
-                    _logger.i('Token refresh successful on 401 - retrying original request');
+                    _logger.i(
+                      'Token refresh successful on 401 - retrying original request',
+                    );
 
                     // Retry the original request with new token
                     final opts = error.requestOptions;
@@ -155,7 +165,9 @@ class ApiService {
                       return handler.resolve(retryResponse);
                     } catch (retryError) {
                       _isRefreshing = false;
-                      _logger.e('Retry after token refresh failed: $retryError');
+                      _logger.e(
+                        'Retry after token refresh failed: $retryError',
+                      );
                       // Fall through to logout
                     }
                   }
@@ -172,7 +184,9 @@ class ApiService {
               onUnauthorized?.call();
             } else if (!isPasswordError && !isAuthEndpoint) {
               // Already refreshing, just trigger logout
-              _logger.w('Received 401 while already refreshing - triggering logout');
+              _logger.w(
+                'Received 401 while already refreshing - triggering logout',
+              );
               await deleteToken();
               onUnauthorized?.call();
             } else if (isPasswordError) {
@@ -214,10 +228,12 @@ class ApiService {
       _logger.i('Refreshing access token...');
 
       // Use a separate Dio instance for refresh to avoid interceptor loops
-      final refreshDio = Dio(BaseOptions(
-        baseUrl: baseUrl + apiV1,
-        headers: {'Content-Type': 'application/json'},
-      ));
+      final refreshDio = Dio(
+        BaseOptions(
+          baseUrl: baseUrl + apiV1,
+          headers: {'Content-Type': 'application/json'},
+        ),
+      );
 
       final response = await refreshDio.post(
         '/auth/refresh',
@@ -295,19 +311,34 @@ class ApiService {
       await _storage.write(key: 'cached_user_email', value: userInfo['email']);
     }
     if (userInfo['display_name'] != null) {
-      await _storage.write(key: 'cached_display_name', value: userInfo['display_name']);
+      await _storage.write(
+        key: 'cached_display_name',
+        value: userInfo['display_name'],
+      );
     }
     if (userInfo['photo_url'] != null) {
-      await _storage.write(key: 'cached_photo_url', value: userInfo['photo_url']);
+      await _storage.write(
+        key: 'cached_photo_url',
+        value: userInfo['photo_url'],
+      );
     }
     if (userInfo['is_premium'] != null) {
-      await _storage.write(key: 'cached_is_premium', value: userInfo['is_premium'].toString());
+      await _storage.write(
+        key: 'cached_is_premium',
+        value: userInfo['is_premium'].toString(),
+      );
     }
     if (userInfo['subscription_tier'] != null) {
-      await _storage.write(key: 'cached_subscription_tier', value: userInfo['subscription_tier']);
+      await _storage.write(
+        key: 'cached_subscription_tier',
+        value: userInfo['subscription_tier'],
+      );
     }
     if (userInfo['onboarding_completed'] != null) {
-      await _storage.write(key: 'cached_onboarding_completed', value: userInfo['onboarding_completed'].toString());
+      await _storage.write(
+        key: 'cached_onboarding_completed',
+        value: userInfo['onboarding_completed'].toString(),
+      );
     }
     _logger.i('User info cached successfully');
   }
@@ -324,8 +355,12 @@ class ApiService {
     final displayName = await _storage.read(key: 'cached_display_name');
     final photoUrl = await _storage.read(key: 'cached_photo_url');
     final isPremiumStr = await _storage.read(key: 'cached_is_premium');
-    final subscriptionTier = await _storage.read(key: 'cached_subscription_tier');
-    final onboardingCompletedStr = await _storage.read(key: 'cached_onboarding_completed');
+    final subscriptionTier = await _storage.read(
+      key: 'cached_subscription_tier',
+    );
+    final onboardingCompletedStr = await _storage.read(
+      key: 'cached_onboarding_completed',
+    );
 
     _logger.d('Loaded cached user info for: $email');
     return {

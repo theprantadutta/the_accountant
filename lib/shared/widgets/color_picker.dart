@@ -63,10 +63,7 @@ class ColorPicker extends StatelessWidget {
                     ),
                   ),
                 ),
-                Icon(
-                  Icons.arrow_drop_down,
-                  color: AppColors.textSecondary,
-                ),
+                Icon(Icons.arrow_drop_down, color: AppColors.textSecondary),
               ],
             ),
           ),
@@ -99,10 +96,7 @@ class _ColorPickerSheet extends StatefulWidget {
   final String? selectedColor;
   final ValueChanged<String> onColorSelected;
 
-  const _ColorPickerSheet({
-    this.selectedColor,
-    required this.onColorSelected,
-  });
+  const _ColorPickerSheet({this.selectedColor, required this.onColorSelected});
 
   @override
   State<_ColorPickerSheet> createState() => _ColorPickerSheetState();
@@ -234,8 +228,8 @@ class _ColorPickerSheetState extends State<_ColorPickerSheet> {
               itemCount: WalletColors.presetColors.length,
               itemBuilder: (context, index) {
                 final color = WalletColors.presetColors[index];
-                final isSelected = _selectedColor?.toUpperCase() ==
-                    color.toUpperCase();
+                final isSelected =
+                    _selectedColor?.toUpperCase() == color.toUpperCase();
 
                 return InkWell(
                   onTap: () {
@@ -259,8 +253,9 @@ class _ColorPickerSheetState extends State<_ColorPickerSheet> {
                       boxShadow: isSelected
                           ? [
                               BoxShadow(
-                                color: WalletColors.parseColor(color)
-                                    .withValues(alpha: 0.5),
+                                color: WalletColors.parseColor(
+                                  color,
+                                ).withValues(alpha: 0.5),
                                 blurRadius: 8,
                                 spreadRadius: 2,
                               ),
@@ -302,8 +297,7 @@ class InlineColorPicker extends StatelessWidget {
       spacing: 8,
       runSpacing: 8,
       children: colors.map((color) {
-        final isSelected =
-            selectedColor?.toUpperCase() == color.toUpperCase();
+        final isSelected = selectedColor?.toUpperCase() == color.toUpperCase();
         return InkWell(
           onTap: () => onColorSelected(color),
           borderRadius: BorderRadius.circular(8),

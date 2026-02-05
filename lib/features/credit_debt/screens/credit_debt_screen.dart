@@ -8,7 +8,8 @@ import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/core/themes/app_typography.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
-import 'package:the_accountant/data/models/transaction.dart' show TransactionSpecialType;
+import 'package:the_accountant/data/models/transaction.dart'
+    show TransactionSpecialType;
 import 'package:the_accountant/features/credit_debt/providers/credit_debt_provider.dart';
 import 'package:the_accountant/shared/widgets/glass_card.dart';
 
@@ -47,10 +48,7 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
-          title: Text(
-            'Credit & Debt',
-            style: AppTypography.headlineSmall,
-          ),
+          title: Text('Credit & Debt', style: AppTypography.headlineSmall),
           leading: IconButton(
             icon: Icon(Icons.arrow_back_ios_new, color: AppColors.textPrimary),
             onPressed: () => Navigator.pop(context),
@@ -59,9 +57,7 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
             // Filter toggle
             IconButton(
               icon: Icon(
-                _showOnlyUnpaid
-                    ? Icons.filter_alt
-                    : Icons.filter_alt_outlined,
+                _showOnlyUnpaid ? Icons.filter_alt : Icons.filter_alt_outlined,
                 color: _showOnlyUnpaid
                     ? AppColors.primaryAccent
                     : AppColors.textSecondary,
@@ -94,7 +90,11 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.arrow_upward, size: 18, color: AppColors.success),
+                    Icon(
+                      Icons.arrow_upward,
+                      size: 18,
+                      color: AppColors.success,
+                    ),
                     const SizedBox(width: 8),
                     Text('Credit (${state.creditTransactions.length})'),
                   ],
@@ -104,7 +104,11 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.arrow_downward, size: 18, color: AppColors.error),
+                    Icon(
+                      Icons.arrow_downward,
+                      size: 18,
+                      color: AppColors.error,
+                    ),
                     const SizedBox(width: 8),
                     Text('Debt (${state.debtTransactions.length})'),
                   ],
@@ -132,16 +136,16 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
                         _buildTransactionList(
                           _showOnlyUnpaid
                               ? state.creditTransactions
-                                  .where((t) => !t.isPaid)
-                                  .toList()
+                                    .where((t) => !t.isPaid)
+                                    .toList()
                               : state.creditTransactions,
                           isCredit: true,
                         ),
                         _buildTransactionList(
                           _showOnlyUnpaid
                               ? state.debtTransactions
-                                  .where((t) => !t.isPaid)
-                                  .toList()
+                                    .where((t) => !t.isPaid)
+                                    .toList()
                               : state.debtTransactions,
                           isCredit: false,
                         ),
@@ -195,9 +199,7 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
               ),
             ),
             Text(
-              isPositive
-                  ? 'Others owe you'
-                  : 'You owe others',
+              isPositive ? 'Others owe you' : 'You owe others',
               style: AppTypography.bodySmall.copyWith(
                 color: AppColors.textMuted,
               ),
@@ -247,11 +249,7 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
                     Icons.arrow_upward,
                   ),
                 ),
-                Container(
-                  width: 1,
-                  height: 60,
-                  color: AppColors.glassBorder,
-                ),
+                Container(width: 1, height: 60, color: AppColors.glassBorder),
                 Expanded(
                   child: _buildStatColumn(
                     'Debt (Borrowed)',
@@ -301,9 +299,7 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
         ),
         Text(
           'Pending: $unpaid',
-          style: AppTypography.labelSmall.copyWith(
-            color: AppColors.textMuted,
-          ),
+          style: AppTypography.labelSmall.copyWith(color: AppColors.textMuted),
         ),
       ],
     );
@@ -336,7 +332,8 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
         itemBuilder: (context, index) {
           final transaction = sorted[index];
           final transactionIsCredit =
-              isCredit ?? (transaction.specialType == TransactionSpecialType.credit);
+              isCredit ??
+              (transaction.specialType == TransactionSpecialType.credit);
           return _buildTransactionCard(transaction, transactionIsCredit);
         },
       ),
@@ -362,11 +359,7 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            icon,
-            size: 80,
-            color: AppColors.textMuted,
-          ),
+          Icon(icon, size: 80, color: AppColors.textMuted),
           AppSpacing.gapLg,
           Text(
             message,
@@ -391,12 +384,16 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
 
   Widget _buildTransactionCard(Transaction transaction, bool isCredit) {
     final dateFormat = DateFormat('MMM d, yyyy');
-    final walletCurrency = ref.watch(walletCurrencyProvider(transaction.walletId));
+    final walletCurrency = ref.watch(
+      walletCurrencyProvider(transaction.walletId),
+    );
     final currencyFormat = NumberFormat.currency(
       symbol: CurrencyInfo.getSymbol(walletCurrency),
     );
     final isPaid = transaction.isPaid;
-    final isOverdue = ref.read(creditDebtProvider.notifier).isOverdue(transaction);
+    final isOverdue = ref
+        .read(creditDebtProvider.notifier)
+        .isOverdue(transaction);
     final paidAmount = transaction.paidAmount;
     final totalAmount = transaction.amount;
     final paymentProgress = totalAmount > 0
@@ -440,7 +437,9 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
                             child: Text(
                               transaction.title.isNotEmpty
                                   ? transaction.title
-                                  : (isCredit ? 'Money Lent' : 'Money Borrowed'),
+                                  : (isCredit
+                                        ? 'Money Lent'
+                                        : 'Money Borrowed'),
                               style: AppTypography.titleSmall.copyWith(
                                 decoration: isPaid
                                     ? TextDecoration.lineThrough
@@ -497,13 +496,17 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
                           Icon(
                             Icons.calendar_today,
                             size: 12,
-                            color: isOverdue ? AppColors.error : AppColors.textMuted,
+                            color: isOverdue
+                                ? AppColors.error
+                                : AppColors.textMuted,
                           ),
                           const SizedBox(width: 4),
                           Text(
                             dateFormat.format(transaction.date),
                             style: AppTypography.labelSmall.copyWith(
-                              color: isOverdue ? AppColors.error : AppColors.textMuted,
+                              color: isOverdue
+                                  ? AppColors.error
+                                  : AppColors.textMuted,
                             ),
                           ),
                           if (transaction.notes != null &&
@@ -542,8 +545,7 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
                             ? AppColors.textMuted
                             : (isCredit ? AppColors.success : AppColors.error),
                         fontWeight: FontWeight.bold,
-                        decoration:
-                            isPaid ? TextDecoration.lineThrough : null,
+                        decoration: isPaid ? TextDecoration.lineThrough : null,
                       ),
                     ),
                     Text(
@@ -569,12 +571,13 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
                           borderRadius: BorderRadius.circular(3),
                           child: LinearProgressIndicator(
                             value: paymentProgress,
-                            backgroundColor: (isCredit
-                                    ? AppColors.success
-                                    : AppColors.error)
-                                .withValues(alpha: 0.15),
+                            backgroundColor:
+                                (isCredit ? AppColors.success : AppColors.error)
+                                    .withValues(alpha: 0.15),
                             valueColor: AlwaysStoppedAnimation<Color>(
-                              isCredit ? AppColors.success : AppColors.primaryAccent,
+                              isCredit
+                                  ? AppColors.success
+                                  : AppColors.primaryAccent,
                             ),
                             minHeight: 5,
                           ),
@@ -608,13 +611,15 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
                       icon: const Icon(Icons.payments_outlined, size: 16),
                       label: const Text('Record Payment'),
                       style: OutlinedButton.styleFrom(
-                        foregroundColor:
-                            isCredit ? AppColors.success : AppColors.primaryAccent,
+                        foregroundColor: isCredit
+                            ? AppColors.success
+                            : AppColors.primaryAccent,
                         side: BorderSide(
-                          color: (isCredit
-                                  ? AppColors.success
-                                  : AppColors.primaryAccent)
-                              .withValues(alpha: 0.4),
+                          color:
+                              (isCredit
+                                      ? AppColors.success
+                                      : AppColors.primaryAccent)
+                                  .withValues(alpha: 0.4),
                         ),
                         padding: const EdgeInsets.symmetric(vertical: 8),
                       ),
@@ -629,12 +634,11 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
                         _markAsSettled(transaction, isCredit);
                       },
                       icon: const Icon(Icons.check_circle, size: 16),
-                      label: Text(
-                        isCredit ? 'Collected' : 'Settled',
-                      ),
+                      label: Text(isCredit ? 'Collected' : 'Settled'),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            isCredit ? AppColors.success : AppColors.primaryAccent,
+                        backgroundColor: isCredit
+                            ? AppColors.success
+                            : AppColors.primaryAccent,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 8),
                       ),
@@ -652,7 +656,9 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
   void _showRecordPaymentDialog(Transaction transaction, bool isCredit) {
     final paymentController = TextEditingController();
     final remaining = transaction.amount - transaction.paidAmount;
-    final walletCurrency = ref.read(walletCurrencyProvider(transaction.walletId));
+    final walletCurrency = ref.read(
+      walletCurrencyProvider(transaction.walletId),
+    );
     final symbol = CurrencyInfo.getSymbol(walletCurrency);
 
     showDialog(
@@ -668,8 +674,9 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: (isCredit ? AppColors.success : AppColors.primaryAccent)
-                      .withValues(alpha: 0.15),
+                  color:
+                      (isCredit ? AppColors.success : AppColors.primaryAccent)
+                          .withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(
@@ -681,10 +688,7 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
               const SizedBox(width: 12),
               Text(
                 'Record Payment',
-                style: TextStyle(
-                  color: AppColors.textPrimary,
-                  fontSize: 18,
-                ),
+                style: TextStyle(color: AppColors.textPrimary, fontSize: 18),
               ),
             ],
           ),
@@ -693,25 +697,22 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                transaction.title.isNotEmpty ? transaction.title : (isCredit ? 'Money Lent' : 'Money Borrowed'),
-                style: TextStyle(
-                  color: AppColors.textSecondary,
-                  fontSize: 14,
-                ),
+                transaction.title.isNotEmpty
+                    ? transaction.title
+                    : (isCredit ? 'Money Lent' : 'Money Borrowed'),
+                style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
               ),
               const SizedBox(height: 4),
               Text(
                 'Remaining: $symbol${NumberFormat('#,##0.00').format(remaining)}',
-                style: TextStyle(
-                  color: AppColors.textMuted,
-                  fontSize: 12,
-                ),
+                style: TextStyle(color: AppColors.textMuted, fontSize: 12),
               ),
               const SizedBox(height: 16),
               TextField(
                 controller: paymentController,
-                keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
                 autofocus: true,
                 style: TextStyle(color: AppColors.textPrimary),
                 decoration: InputDecoration(
@@ -760,8 +761,7 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
                 if (amount > remaining) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content:
-                          const Text('Amount exceeds remaining balance'),
+                      content: const Text('Amount exceeds remaining balance'),
                       backgroundColor: AppColors.error,
                     ),
                   );
@@ -771,8 +771,9 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
                 _recordPayment(transaction, amount, isCredit);
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor:
-                    isCredit ? AppColors.success : AppColors.primaryAccent,
+                backgroundColor: isCredit
+                    ? AppColors.success
+                    : AppColors.primaryAccent,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
@@ -789,14 +790,17 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
   }
 
   void _recordPayment(
-      Transaction transaction, double amount, bool isCredit) async {
-    await ref.read(creditDebtProvider.notifier).recordPayment(
-          transactionId: transaction.id,
-          paymentAmount: amount,
-        );
+    Transaction transaction,
+    double amount,
+    bool isCredit,
+  ) async {
+    await ref
+        .read(creditDebtProvider.notifier)
+        .recordPayment(transactionId: transaction.id, paymentAmount: amount);
     if (mounted) {
-      final walletCurrency =
-          ref.read(walletCurrencyProvider(transaction.walletId));
+      final walletCurrency = ref.read(
+        walletCurrencyProvider(transaction.walletId),
+      );
       final symbol = CurrencyInfo.getSymbol(walletCurrency);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -824,7 +828,9 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
             label: 'Undo',
             textColor: Colors.white,
             onPressed: () {
-              ref.read(creditDebtProvider.notifier).markAsPending(transaction.id);
+              ref
+                  .read(creditDebtProvider.notifier)
+                  .markAsPending(transaction.id);
             },
           ),
         ),

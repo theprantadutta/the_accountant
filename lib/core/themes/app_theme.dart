@@ -74,18 +74,14 @@ class AppTheme {
     cardTheme: CardThemeData(
       color: AppColors.primarySurface,
       elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: AppSpacing.borderRadiusXl,
-      ),
+      shape: RoundedRectangleBorder(borderRadius: AppSpacing.borderRadiusXl),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         backgroundColor: AppColors.primaryAccent,
         foregroundColor: AppColors.textPrimary,
         elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: AppSpacing.borderRadiusMd,
-        ),
+        shape: RoundedRectangleBorder(borderRadius: AppSpacing.borderRadiusMd),
         padding: AppSpacing.paddingButton,
         minimumSize: Size(0, AppSpacing.buttonHeightMd),
       ),
@@ -94,9 +90,7 @@ class AppTheme {
       style: OutlinedButton.styleFrom(
         foregroundColor: AppColors.textPrimary,
         side: const BorderSide(color: AppColors.glassBorder),
-        shape: RoundedRectangleBorder(
-          borderRadius: AppSpacing.borderRadiusMd,
-        ),
+        shape: RoundedRectangleBorder(borderRadius: AppSpacing.borderRadiusMd),
         padding: AppSpacing.paddingButton,
         minimumSize: Size(0, AppSpacing.buttonHeightMd),
       ),
@@ -104,9 +98,7 @@ class AppTheme {
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
         foregroundColor: AppColors.primaryAccent,
-        shape: RoundedRectangleBorder(
-          borderRadius: AppSpacing.borderRadiusMd,
-        ),
+        shape: RoundedRectangleBorder(borderRadius: AppSpacing.borderRadiusMd),
         padding: AppSpacing.paddingButtonCompact,
       ),
     ),
@@ -153,24 +145,18 @@ class AppTheme {
       backgroundColor: AppColors.primaryAccent,
       foregroundColor: AppColors.textPrimary,
       elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: AppSpacing.borderRadiusLg,
-      ),
+      shape: RoundedRectangleBorder(borderRadius: AppSpacing.borderRadiusLg),
     ),
     snackBarTheme: SnackBarThemeData(
       backgroundColor: AppColors.primaryElevated,
       contentTextStyle: AppTypography.bodyMedium,
-      shape: RoundedRectangleBorder(
-        borderRadius: AppSpacing.borderRadiusMd,
-      ),
+      shape: RoundedRectangleBorder(borderRadius: AppSpacing.borderRadiusMd),
       behavior: SnackBarBehavior.floating,
     ),
     dialogTheme: DialogThemeData(
       backgroundColor: AppColors.primarySurface,
       surfaceTintColor: Colors.transparent,
-      shape: RoundedRectangleBorder(
-        borderRadius: AppSpacing.borderRadiusXl,
-      ),
+      shape: RoundedRectangleBorder(borderRadius: AppSpacing.borderRadiusXl),
     ),
     bottomSheetTheme: BottomSheetThemeData(
       backgroundColor: AppColors.primarySurface,
@@ -239,7 +225,8 @@ class AppTheme {
       decoration: BoxDecoration(
         gradient: gradient ?? primaryGradient,
         borderRadius: borderRadius ?? AppSpacing.borderRadiusLg,
-        boxShadow: boxShadow ??
+        boxShadow:
+            boxShadow ??
             [
               BoxShadow(
                 color: (gradient?.colors.first ?? AppColors.primaryAccent)

@@ -12,9 +12,10 @@ class PremiumLimitException implements Exception {
     required this.currentCount,
     required this.limit,
     String? message,
-  }) : message = message ??
-            'You\'ve reached the free tier limit of $limit ${entityType}s. '
-                'Upgrade to Premium for unlimited ${entityType}s.';
+  }) : message =
+           message ??
+           'You\'ve reached the free tier limit of $limit ${entityType}s. '
+               'Upgrade to Premium for unlimited ${entityType}s.';
 
   @override
   String toString() => message;

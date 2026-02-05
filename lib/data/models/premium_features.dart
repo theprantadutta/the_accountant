@@ -194,6 +194,12 @@ class PremiumFeatures extends Equatable {
   ];
 
   @override
-  List<Object?> get props =>
-      [isUnlocked, tier, features, purchaseDate, expiresAt, purchaseId];
+  List<Object?> get props => [
+    isUnlocked,
+    tier,
+    features,
+    purchaseDate,
+    expiresAt,
+    purchaseId,
+  ];
 }

@@ -3,32 +3,52 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
+import 'package:the_accountant/core/themes/app_typography.dart';
+import 'package:the_accountant/core/providers/currency_provider.dart';
+import 'package:the_accountant/core/services/currency_service.dart';
 import 'package:the_accountant/features/categories/providers/category_provider.dart';
 import 'package:the_accountant/features/transactions/providers/transaction_provider.dart';
 import 'package:the_accountant/features/transactions/screens/add_transaction_screen.dart';
+import 'package:the_accountant/shared/widgets/glass_card.dart';
 import 'package:the_accountant/shared/widgets/transaction_card.dart';
 import 'package:the_accountant/shared/widgets/shimmer_loading.dart';
 
-class TransactionListScreen extends ConsumerStatefulWidget {
-  const TransactionListScreen({super.key});
+class TransactionTypeScreen extends ConsumerStatefulWidget {
+  final String transactionType; // 'income' or 'expense'
+
+  const TransactionTypeScreen({super.key, required this.transactionType});
 
   @override
-  ConsumerState<TransactionListScreen> createState() =>
-      _TransactionListScreenState();
+  ConsumerState<TransactionTypeScreen> createState() =>
+      _TransactionTypeScreenState();
 }
 
-class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
+class _TransactionTypeScreenState extends ConsumerState<TransactionTypeScreen> {
   final TextEditingController _searchController = TextEditingController();
   final ScrollController _monthScrollController = ScrollController();
   late PageController _pageController;
 
   String _searchQuery = '';
-  String? _filterType;
   String? _filterCategory;
 
   late List<DateTime> _availableMonths;
   late int _currentPageIndex;
   bool _isExpandingMonths = false;
+
+  // Type-derived config
+  String get _title =>
+      widget.transactionType == 'income' ? 'Income' : 'Expenses';
+
+  Color get _accentColor =>
+      widget.transactionType == 'income' ? AppColors.success : AppColors.error;
+
+  IconData get _icon => widget.transactionType == 'income'
+      ? Icons.trending_up_rounded
+      : Icons.trending_down_rounded;
+
+  GlassCardVariant get _glassVariant => widget.transactionType == 'income'
+      ? GlassCardVariant.success
+      : GlassCardVariant.error;
 
   @override
   void initState() {
@@ -41,7 +61,6 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
     final now = DateTime.now();
     _availableMonths = _generateInitialMonths();
 
-    // Find the index of the current month
     _currentPageIndex = _availableMonths.indexWhere(
       (m) => m.year == now.year && m.month == now.month,
     );
@@ -49,7 +68,6 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
 
     _pageController = PageController(initialPage: _currentPageIndex);
 
-    // Scroll to current month chip after build
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _scrollToMonth(_currentPageIndex);
     });
@@ -58,8 +76,6 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
   List<DateTime> _generateInitialMonths() {
     final now = DateTime.now();
     final months = <DateTime>[];
-
-    // Generate from Jan of previous year to Dec of next year
     final startYear = now.year - 1;
     final endYear = now.year + 1;
 
@@ -68,75 +84,54 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
         months.add(DateTime(year, month));
       }
     }
-
     return months;
   }
 
   void _expandMonthsIfNeeded(int pageIndex) {
     if (_isExpandingMonths) return;
-
-    // Expand backwards if within 3 months of the start
-    if (pageIndex <= 2) {
-      _expandMonthsBackward();
-    }
-
-    // Expand forward if within 3 months of the end
-    if (pageIndex >= _availableMonths.length - 3) {
-      _expandMonthsForward();
-    }
+    if (pageIndex <= 2) _expandMonthsBackward();
+    if (pageIndex >= _availableMonths.length - 3) _expandMonthsForward();
   }
 
   void _expandMonthsBackward() {
     _isExpandingMonths = true;
-
     final firstMonth = _availableMonths.first;
     final newMonths = <DateTime>[];
 
-    // Add 12 more months before the first month
     for (int i = 12; i >= 1; i--) {
-      final newMonth = DateTime(firstMonth.year, firstMonth.month - i);
-      newMonths.add(newMonth);
+      newMonths.add(DateTime(firstMonth.year, firstMonth.month - i));
     }
 
     setState(() {
       _availableMonths = [...newMonths, ..._availableMonths];
-      // Adjust page index to account for new months
       _currentPageIndex += 12;
-      // Jump to the adjusted page without animation
       _pageController.jumpToPage(_currentPageIndex);
     });
-
     _isExpandingMonths = false;
   }
 
   void _expandMonthsForward() {
     _isExpandingMonths = true;
-
     final lastMonth = _availableMonths.last;
     final newMonths = <DateTime>[];
 
-    // Add 12 more months after the last month
     for (int i = 1; i <= 12; i++) {
-      final newMonth = DateTime(lastMonth.year, lastMonth.month + i);
-      newMonths.add(newMonth);
+      newMonths.add(DateTime(lastMonth.year, lastMonth.month + i));
     }
 
     setState(() {
       _availableMonths = [..._availableMonths, ...newMonths];
     });
-
     _isExpandingMonths = false;
   }
 
   void _scrollToMonth(int index) {
     if (!_monthScrollController.hasClients) return;
 
-    // Fixed chip width (95) + horizontal padding (4*2) = 103
     const itemWidth = 103.0;
     const listPadding = 12.0;
     final screenWidth = MediaQuery.of(context).size.width;
 
-    // Calculate offset to center the selected item
     final itemStart = listPadding + (index * itemWidth);
     final itemCenter = itemStart + (itemWidth / 2);
     final screenCenter = screenWidth / 2;
@@ -151,11 +146,9 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
 
   void _onPageChanged(int index) {
     if (_isExpandingMonths) return;
-
     setState(() {
       _currentPageIndex = index;
     });
-
     _scrollToMonth(index);
     _expandMonthsIfNeeded(index);
     HapticFeedback.selectionClick();
@@ -189,36 +182,30 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
     List<Transaction> transactions,
     DateTime month,
   ) {
-    List<Transaction> filtered = transactions;
+    // Pre-filter by transaction type
+    List<Transaction> filtered = transactions
+        .where((t) => t.type == widget.transactionType)
+        .toList();
 
     // Apply month filter
-    filtered = filtered.where((transaction) {
-      return transaction.date.year == month.year &&
-          transaction.date.month == month.month;
+    filtered = filtered.where((t) {
+      return t.date.year == month.year && t.date.month == month.month;
     }).toList();
 
     // Apply search filter
     if (_searchQuery.isNotEmpty) {
-      filtered = filtered.where((transaction) {
-        return transaction.title.toLowerCase().contains(_searchQuery) ||
-            transaction.notes.toLowerCase().contains(_searchQuery) ||
-            transaction.category.toLowerCase().contains(_searchQuery) ||
-            transaction.paymentMethod.toLowerCase().contains(_searchQuery);
+      filtered = filtered.where((t) {
+        return t.title.toLowerCase().contains(_searchQuery) ||
+            t.notes.toLowerCase().contains(_searchQuery) ||
+            t.category.toLowerCase().contains(_searchQuery) ||
+            t.paymentMethod.toLowerCase().contains(_searchQuery);
       }).toList();
-    }
-
-    // Apply type filter
-    if (_filterType != null) {
-      filtered = filtered
-          .where((transaction) => transaction.type == _filterType)
-          .toList();
     }
 
     // Apply category filter
     if (_filterCategory != null) {
-      filtered = filtered
-          .where((transaction) => transaction.categoryId == _filterCategory)
-          .toList();
+      filtered =
+          filtered.where((t) => t.categoryId == _filterCategory).toList();
     }
 
     return filtered;
@@ -236,7 +223,6 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
       );
       grouped.putIfAbsent(dateOnly, () => []).add(transaction);
     }
-    // Sort each group by time (newest first)
     for (final list in grouped.values) {
       list.sort((a, b) => b.date.compareTo(a.date));
     }
@@ -258,17 +244,12 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
       return 'Yesterday, ${dateFormat.format(date)}';
     } else if (date == tomorrow) {
       return 'Tomorrow, ${dateFormat.format(date)}';
-    } else if (date.isAfter(today) && date.difference(today).inDays <= 7) {
-      return '${dayFormat.format(date)}, ${dateFormat.format(date)}';
-    } else if (date.isBefore(today) && today.difference(date).inDays < 7) {
-      return '${dayFormat.format(date)}, ${dateFormat.format(date)}';
     } else {
       return '${dayFormat.format(date)}, ${dateFormat.format(date)}';
     }
   }
 
   Future<void> _editTransaction(Transaction transaction) async {
-    // Get the database transaction for editing
     final dbTransaction = await ref
         .read(transactionProvider.notifier)
         .getDatabaseTransactionById(transaction.id);
@@ -305,7 +286,10 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
 
   void _showFilterOptions(BuildContext context) {
     final categoryState = ref.read(categoryProvider);
-    final categories = categoryState.categories;
+    // Only show categories matching this transaction type
+    final categories = categoryState.categories
+        .where((c) => c.type == widget.transactionType)
+        .toList();
 
     showModalBottomSheet(
       context: context,
@@ -341,18 +325,17 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Filter Transactions',
+                        'Filter $_title',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                           color: AppColors.textPrimary,
                         ),
                       ),
-                      if (_filterType != null || _filterCategory != null)
+                      if (_filterCategory != null)
                         TextButton(
                           onPressed: () {
                             setState(() {
-                              _filterType = null;
                               _filterCategory = null;
                             });
                             Navigator.of(context).pop();
@@ -366,50 +349,6 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                   ),
                   const SizedBox(height: 20),
 
-                  // Transaction Type Section
-                  Text(
-                    'Transaction Type',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      _buildTypeChip(
-                        label: 'All',
-                        isSelected: _filterType == null || _filterType!.isEmpty,
-                        onTap: () {
-                          setState(() => _filterType = null);
-                          setModalState(() {});
-                        },
-                      ),
-                      const SizedBox(width: 8),
-                      _buildTypeChip(
-                        label: 'Income',
-                        isSelected: _filterType == 'income',
-                        color: AppColors.success,
-                        onTap: () {
-                          setState(() => _filterType = 'income');
-                          setModalState(() {});
-                        },
-                      ),
-                      const SizedBox(width: 8),
-                      _buildTypeChip(
-                        label: 'Expense',
-                        isSelected: _filterType == 'expense',
-                        color: AppColors.error,
-                        onTap: () {
-                          setState(() => _filterType = 'expense');
-                          setModalState(() {});
-                        },
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-
                   // Categories Section
                   Text(
                     'Categories',
@@ -421,23 +360,19 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                   ),
                   const SizedBox(height: 12),
 
-                  // Horizontally scrollable category chips
                   SizedBox(
                     height: 40,
                     child: ListView.builder(
                       scrollDirection: Axis.horizontal,
-                      itemCount: categories.length + 1, // +1 for "All" option
+                      itemCount: categories.length + 1,
                       itemBuilder: (context, index) {
                         if (index == 0) {
-                          // "All" option
                           return Padding(
                             padding: const EdgeInsets.only(right: 8),
                             child: _buildCategoryChip(
                               label: 'All',
                               colorCode: '#6366F1',
-                              isSelected:
-                                  _filterCategory == null ||
-                                  _filterCategory!.isEmpty,
+                              isSelected: _filterCategory == null,
                               onTap: () {
                                 setState(() => _filterCategory = null);
                                 setModalState(() {});
@@ -470,7 +405,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                     child: ElevatedButton(
                       onPressed: () => Navigator.of(context).pop(),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primaryAccent,
+                        backgroundColor: _accentColor,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
@@ -493,40 +428,6 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
           },
         );
       },
-    );
-  }
-
-  Widget _buildTypeChip({
-    required String label,
-    required bool isSelected,
-    Color? color,
-    required VoidCallback onTap,
-  }) {
-    final chipColor = color ?? AppColors.primaryAccent;
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? chipColor.withValues(alpha: 0.2)
-              : AppColors.primaryElevated,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: isSelected ? chipColor : AppColors.divider,
-            width: isSelected ? 2 : 1,
-          ),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-            color: isSelected ? chipColor : AppColors.textSecondary,
-          ),
-        ),
-      ),
     );
   }
 
@@ -567,12 +468,118 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
   Color _parseColor(String colorCode) {
     try {
       if (colorCode.startsWith('#')) {
-        return Color(int.parse(colorCode.substring(1), radix: 16) | 0xFF000000);
+        return Color(
+            int.parse(colorCode.substring(1), radix: 16) | 0xFF000000);
       }
       return Colors.grey;
     } catch (e) {
       return Colors.grey;
     }
+  }
+
+  Widget _buildSummaryCard(List<Transaction> allTransactions) {
+    final month = _availableMonths[_currentPageIndex];
+    final monthTransactions = allTransactions
+        .where((t) =>
+            t.type == widget.transactionType &&
+            t.date.year == month.year &&
+            t.date.month == month.month)
+        .toList();
+
+    final total =
+        monthTransactions.fold<double>(0, (sum, t) => sum + t.amount);
+    final count = monthTransactions.length;
+    final average = count > 0 ? total / count : 0.0;
+
+    final displayCurrency = ref.watch(defaultCurrencyProvider);
+    final useDecimals = ref.watch(defaultDecimalProvider);
+    final currencySymbol = CurrencyInfo.getSymbol(displayCurrency);
+    final formatter =
+        useDecimals ? NumberFormat('#,##0.00') : NumberFormat('#,##0');
+
+    final typeLabel = widget.transactionType == 'income'
+        ? 'Monthly Income'
+        : 'Monthly Expenses';
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: GlassCard(
+        variant: _glassVariant,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: _accentColor.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(_icon, color: _accentColor, size: 22),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  typeLabel,
+                  style: AppTypography.titleSmall.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Text(
+              '$currencySymbol${formatter.format(useDecimals ? total : total.round())}',
+              style: AppTypography.displaySmall.copyWith(
+                color: _accentColor,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                _buildStatItem(
+                  '$count',
+                  count == 1 ? 'transaction' : 'transactions',
+                ),
+                Container(
+                  width: 1,
+                  height: 24,
+                  margin: const EdgeInsets.symmetric(horizontal: 16),
+                  color: AppColors.divider,
+                ),
+                _buildStatItem(
+                  '$currencySymbol${formatter.format(useDecimals ? average : average.round())}',
+                  'avg per transaction',
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatItem(String value, String label) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          value,
+          style: AppTypography.titleSmall.copyWith(
+            color: AppColors.textPrimary,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        Text(
+          label,
+          style: AppTypography.labelSmall.copyWith(
+            color: AppColors.textMuted,
+          ),
+        ),
+      ],
+    );
   }
 
   Widget _buildMonthSelector() {
@@ -593,12 +600,12 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
           final isFutureMonth = month.isAfter(DateTime(now.year, now.month));
 
           final chipColor = isSelected
-              ? AppColors.primaryAccent
+              ? _accentColor
               : isCurrentMonth
-              ? AppColors.primaryAccent
-              : isFutureMonth
-              ? AppColors.success
-              : AppColors.textSecondary;
+                  ? _accentColor
+                  : isFutureMonth
+                      ? AppColors.success
+                      : AppColors.textSecondary;
 
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4),
@@ -615,8 +622,8 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                   gradient: isSelected
                       ? LinearGradient(
                           colors: [
-                            AppColors.primaryAccent,
-                            AppColors.primaryAccent.withValues(alpha: 0.8),
+                            _accentColor,
+                            _accentColor.withValues(alpha: 0.8),
                           ],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
@@ -626,20 +633,18 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
                     color: isSelected
-                        ? AppColors.primaryAccent
+                        ? _accentColor
                         : isCurrentMonth
-                        ? AppColors.primaryAccent
-                        : isFutureMonth
-                        ? AppColors.success.withValues(alpha: 0.4)
-                        : AppColors.divider,
+                            ? _accentColor
+                            : isFutureMonth
+                                ? AppColors.success.withValues(alpha: 0.4)
+                                : AppColors.divider,
                     width: isSelected || isCurrentMonth ? 2 : 1,
                   ),
                   boxShadow: isSelected
                       ? [
                           BoxShadow(
-                            color: AppColors.primaryAccent.withValues(
-                              alpha: 0.3,
-                            ),
+                            color: _accentColor.withValues(alpha: 0.3),
                             blurRadius: 8,
                             offset: const Offset(0, 2),
                           ),
@@ -651,9 +656,8 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                     DateFormat('MMM yyyy').format(month),
                     style: TextStyle(
                       fontSize: 13,
-                      fontWeight: isSelected
-                          ? FontWeight.bold
-                          : FontWeight.w600,
+                      fontWeight:
+                          isSelected ? FontWeight.bold : FontWeight.w600,
                       color: isSelected ? Colors.white : chipColor,
                     ),
                   ),
@@ -670,7 +674,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final isFuture = date.isAfter(today);
-    final headerColor = isFuture ? AppColors.success : AppColors.primaryAccent;
+    final headerColor = isFuture ? AppColors.success : _accentColor;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
@@ -712,22 +716,27 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
     final isFutureMonth = month.isAfter(DateTime(now.year, now.month));
     final isCurrentMonth = month.year == now.year && month.month == now.month;
 
+    final typeName = widget.transactionType == 'income' ? 'income' : 'expenses';
+
     IconData icon;
     String title;
     String subtitle;
 
     if (isFutureMonth) {
       icon = Icons.event_available_outlined;
-      title = 'No planned transactions';
-      subtitle =
-          'Add future payments for ${DateFormat('MMMM yyyy').format(month)}';
+      title = 'No planned $typeName';
+      subtitle = 'Add future $typeName for ${DateFormat('MMMM yyyy').format(month)}';
     } else if (isCurrentMonth) {
-      icon = Icons.receipt_long_outlined;
-      title = 'No transactions yet';
-      subtitle = 'Start tracking your expenses this month';
+      icon = widget.transactionType == 'income'
+          ? Icons.trending_up_rounded
+          : Icons.receipt_long_outlined;
+      title = 'No $typeName yet this month';
+      subtitle = widget.transactionType == 'income'
+          ? 'Start tracking your income this month'
+          : 'Start tracking your expenses this month';
     } else {
       icon = Icons.history_outlined;
-      title = 'No transactions found';
+      title = 'No $typeName in ${DateFormat('MMMM').format(month)}';
       subtitle = 'No records for ${DateFormat('MMMM yyyy').format(month)}';
     }
 
@@ -738,16 +747,10 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color:
-                  (isFutureMonth ? AppColors.success : AppColors.primaryAccent)
-                      .withValues(alpha: 0.1),
+              color: _accentColor.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
-            child: Icon(
-              icon,
-              size: 48,
-              color: isFutureMonth ? AppColors.success : AppColors.textMuted,
-            ),
+            child: Icon(icon, size: 48, color: _accentColor),
           ),
           const SizedBox(height: 20),
           Text(
@@ -780,7 +783,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
     );
     final groupedTransactions = _groupTransactionsByDate(filteredTransactions);
     final sortedDates = groupedTransactions.keys.toList()
-      ..sort((a, b) => b.compareTo(a)); // Newest first
+      ..sort((a, b) => b.compareTo(a));
 
     if (isLoading) {
       return const SingleChildScrollView(
@@ -801,9 +804,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Date header
             _buildDateHeader(date),
-            // Transactions for this date
             ...dayTransactions.map((transaction) {
               final categoryState = ref.watch(categoryProvider);
               final category = categoryState.categories.firstWhere(
@@ -821,8 +822,8 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
               final displayTitle = transaction.title.isNotEmpty
                   ? transaction.title
                   : transaction.notes.isNotEmpty
-                  ? transaction.notes
-                  : transaction.category;
+                      ? transaction.notes
+                      : transaction.category;
 
               return TransactionCard(
                 id: transaction.id,
@@ -834,15 +835,9 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                 transactionType: transaction.type,
                 walletId: transaction.walletId,
                 notes: transaction.notes,
-                onTap: () {
-                  _editTransaction(transaction);
-                },
-                onEdit: () {
-                  _editTransaction(transaction);
-                },
-                onDelete: () {
-                  _deleteTransaction(transaction);
-                },
+                onTap: () => _editTransaction(transaction),
+                onEdit: () => _editTransaction(transaction),
+                onDelete: () => _deleteTransaction(transaction),
               );
             }),
           ],
@@ -855,66 +850,103 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
   Widget build(BuildContext context) {
     final transactionState = ref.watch(transactionProvider);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Transactions'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.filter_list),
-            onPressed: () => _showFilterOptions(context),
-          ),
-        ],
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: AppColors.backgroundGradient,
       ),
-      body: Column(
-        children: [
-          // Month selector
-          _buildMonthSelector(),
-          // Search bar
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16.0,
-              vertical: 8.0,
-            ),
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: 'Search transactions...',
-                prefixIcon: const Icon(Icons.search),
-                suffixIcon: _searchQuery.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Icons.clear),
-                        onPressed: () {
-                          _searchController.clear();
-                          setState(() {
-                            _searchQuery = '';
-                          });
-                        },
-                      )
-                    : null,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          title: Text(
+            _title,
+            style: AppTypography.titleMedium,
+          ),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new_rounded),
+            onPressed: () => Navigator.pop(context),
+          ),
+          actions: [
+            IconButton(
+              icon: Icon(
+                Icons.filter_list,
+                color: _filterCategory != null
+                    ? _accentColor
+                    : AppColors.textPrimary,
               ),
+              onPressed: () => _showFilterOptions(context),
             ),
+          ],
+        ),
+        body: RefreshIndicator(
+          onRefresh: () async {
+            await ref
+                .read(transactionProvider.notifier)
+                .loadTransactions();
+          },
+          color: _accentColor,
+          backgroundColor: AppColors.primarySurface,
+          child: Column(
+            children: [
+              // Summary card
+              _buildSummaryCard(transactionState.transactions),
+
+              // Month selector
+              _buildMonthSelector(),
+
+              // Search bar
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16.0,
+                  vertical: 8.0,
+                ),
+                child: TextField(
+                  controller: _searchController,
+                  decoration: InputDecoration(
+                    hintText: widget.transactionType == 'income'
+                        ? 'Search income...'
+                        : 'Search expenses...',
+                    prefixIcon: const Icon(Icons.search),
+                    suffixIcon: _searchQuery.isNotEmpty
+                        ? IconButton(
+                            icon: const Icon(Icons.clear),
+                            onPressed: () {
+                              _searchController.clear();
+                              setState(() {
+                                _searchQuery = '';
+                              });
+                            },
+                          )
+                        : null,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    contentPadding:
+                        const EdgeInsets.symmetric(horizontal: 16),
+                  ),
+                ),
+              ),
+
+              // Transaction pages
+              Expanded(
+                child: PageView.builder(
+                  controller: _pageController,
+                  onPageChanged: _onPageChanged,
+                  itemCount: _availableMonths.length,
+                  itemBuilder: (context, index) {
+                    final month = _availableMonths[index];
+                    return _buildMonthPage(
+                      month,
+                      transactionState.transactions,
+                      transactionState.isLoading,
+                    );
+                  },
+                ),
+              ),
+            ],
           ),
-          // Transaction pages - horizontal swipe
-          Expanded(
-            child: PageView.builder(
-              controller: _pageController,
-              onPageChanged: _onPageChanged,
-              itemCount: _availableMonths.length,
-              itemBuilder: (context, index) {
-                final month = _availableMonths[index];
-                return _buildMonthPage(
-                  month,
-                  transactionState.transactions,
-                  transactionState.isLoading,
-                );
-              },
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }

@@ -50,41 +50,46 @@ class TransferService {
       throw Exception('Destination wallet not found: $destinationWalletId');
     }
 
-    final transferTitle = title ?? 'Transfer: ${sourceWallet.name} → ${destWallet.name}';
+    final transferTitle =
+        title ?? 'Transfer: ${sourceWallet.name} → ${destWallet.name}';
 
     // Transaction 1: Expense from source wallet
-    await _db.addTransaction(TransactionsCompanion(
-      id: Value(expenseId),
-      amount: Value(amount),
-      isIncome: const Value(false), // Expense from source
-      title: Value(transferTitle),
-      notes: Value(notes),
-      date: Value(date),
-      categoryId: const Value(SystemCategories.transferCategoryId),
-      walletId: Value(sourceWalletId),
-      transactionType: const Value('transfer'),
-      pairedTransactionId: Value(incomeId),
-      createdAt: Value(now),
-      updatedAt: Value(now),
-      syncStatus: const Value(SyncStatus.pendingCreate),
-    ));
+    await _db.addTransaction(
+      TransactionsCompanion(
+        id: Value(expenseId),
+        amount: Value(amount),
+        isIncome: const Value(false), // Expense from source
+        title: Value(transferTitle),
+        notes: Value(notes),
+        date: Value(date),
+        categoryId: const Value(SystemCategories.transferCategoryId),
+        walletId: Value(sourceWalletId),
+        transactionType: const Value('transfer'),
+        pairedTransactionId: Value(incomeId),
+        createdAt: Value(now),
+        updatedAt: Value(now),
+        syncStatus: const Value(SyncStatus.pendingCreate),
+      ),
+    );
 
     // Transaction 2: Income to destination wallet
-    await _db.addTransaction(TransactionsCompanion(
-      id: Value(incomeId),
-      amount: Value(amount),
-      isIncome: const Value(true), // Income to destination
-      title: Value(transferTitle),
-      notes: Value(notes),
-      date: Value(date),
-      categoryId: const Value(SystemCategories.transferCategoryId),
-      walletId: Value(destinationWalletId),
-      transactionType: const Value('transfer'),
-      pairedTransactionId: Value(expenseId),
-      createdAt: Value(now),
-      updatedAt: Value(now),
-      syncStatus: const Value(SyncStatus.pendingCreate),
-    ));
+    await _db.addTransaction(
+      TransactionsCompanion(
+        id: Value(incomeId),
+        amount: Value(amount),
+        isIncome: const Value(true), // Income to destination
+        title: Value(transferTitle),
+        notes: Value(notes),
+        date: Value(date),
+        categoryId: const Value(SystemCategories.transferCategoryId),
+        walletId: Value(destinationWalletId),
+        transactionType: const Value('transfer'),
+        pairedTransactionId: Value(expenseId),
+        createdAt: Value(now),
+        updatedAt: Value(now),
+        syncStatus: const Value(SyncStatus.pendingCreate),
+      ),
+    );
 
     return (expenseId, incomeId);
   }
@@ -109,7 +114,9 @@ class TransferService {
       throw Exception('Transaction is not a transfer (no paired transaction)');
     }
 
-    final pairedTransaction = await _db.findTransactionById(transaction.pairedTransactionId!);
+    final pairedTransaction = await _db.findTransactionById(
+      transaction.pairedTransactionId!,
+    );
     if (pairedTransaction == null) {
       throw Exception('Paired transaction not found');
     }
@@ -130,7 +137,9 @@ class TransferService {
       notes: notes != null ? Value(notes) : Value(expenseTxn.notes),
       date: date != null ? Value(date) : Value(expenseTxn.date),
       categoryId: Value(expenseTxn.categoryId),
-      walletId: sourceWalletId != null ? Value(sourceWalletId) : Value(expenseTxn.walletId),
+      walletId: sourceWalletId != null
+          ? Value(sourceWalletId)
+          : Value(expenseTxn.walletId),
       transactionType: Value(expenseTxn.transactionType),
       pairedTransactionId: Value(incomeTxn.id),
       createdAt: Value(expenseTxn.createdAt),
@@ -146,7 +155,9 @@ class TransferService {
       notes: notes != null ? Value(notes) : Value(incomeTxn.notes),
       date: date != null ? Value(date) : Value(incomeTxn.date),
       categoryId: Value(incomeTxn.categoryId),
-      walletId: destinationWalletId != null ? Value(destinationWalletId) : Value(incomeTxn.walletId),
+      walletId: destinationWalletId != null
+          ? Value(destinationWalletId)
+          : Value(incomeTxn.walletId),
       transactionType: Value(incomeTxn.transactionType),
       pairedTransactionId: Value(expenseTxn.id),
       createdAt: Value(incomeTxn.createdAt),

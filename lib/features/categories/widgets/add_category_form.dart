@@ -248,10 +248,7 @@ class _AddCategoryFormState extends ConsumerState<AddCategoryForm> {
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.03),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: _color.withValues(alpha: 0.3),
-          width: 1,
-        ),
+        border: Border.all(color: _color.withValues(alpha: 0.3), width: 1),
       ),
       child: Row(
         children: [
@@ -317,10 +314,7 @@ class _AddCategoryFormState extends ConsumerState<AddCategoryForm> {
     return TextField(
       controller: _nameController,
       focusNode: _focusNode,
-      style: TextStyle(
-        fontSize: 16,
-        color: AppColors.textPrimary,
-      ),
+      style: TextStyle(fontSize: 16, color: AppColors.textPrimary),
       onChanged: (_) => setState(() {}),
       decoration: InputDecoration(
         hintText: 'Enter category name',
@@ -356,7 +350,9 @@ class _AddCategoryFormState extends ConsumerState<AddCategoryForm> {
             child: GestureDetector(
               onTap: () {
                 HapticFeedback.lightImpact();
-                setState(() => _selectedType = AppConstants.categoryTypeExpense);
+                setState(
+                  () => _selectedType = AppConstants.categoryTypeExpense,
+                );
               },
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
@@ -442,11 +438,7 @@ class _AddCategoryFormState extends ConsumerState<AddCategoryForm> {
                   : null,
             ),
             child: isSelected
-                ? const Icon(
-                    Icons.check_rounded,
-                    color: Colors.white,
-                    size: 24,
-                  )
+                ? const Icon(Icons.check_rounded, color: Colors.white, size: 24)
                 : null,
           ),
         );

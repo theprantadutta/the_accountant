@@ -64,13 +64,9 @@ class _StatCardState extends State<StatCard>
       duration: AppAnimations.dramatic,
     );
 
-    _valueAnimation = Tween<double>(
-      begin: 0,
-      end: widget.value,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: AppAnimations.easeOut,
-    ));
+    _valueAnimation = Tween<double>(begin: 0, end: widget.value).animate(
+      CurvedAnimation(parent: _controller, curve: AppAnimations.easeOut),
+    );
 
     if (widget.animateValue) {
       _controller.forward();
@@ -81,13 +77,10 @@ class _StatCardState extends State<StatCard>
   void didUpdateWidget(StatCard oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.value != oldWidget.value && widget.animateValue) {
-      _valueAnimation = Tween<double>(
-        begin: oldWidget.value,
-        end: widget.value,
-      ).animate(CurvedAnimation(
-        parent: _controller,
-        curve: AppAnimations.easeOut,
-      ));
+      _valueAnimation = Tween<double>(begin: oldWidget.value, end: widget.value)
+          .animate(
+            CurvedAnimation(parent: _controller, curve: AppAnimations.easeOut),
+          );
       _controller.forward(from: 0);
     }
   }
@@ -194,10 +187,7 @@ class _StatCardState extends State<StatCard>
           // Trend indicator
           if (widget.trend != null && widget.trendValue != null) ...[
             AppSpacing.gapSm,
-            _TrendIndicator(
-              trend: widget.trend!,
-              value: widget.trendValue!,
-            ),
+            _TrendIndicator(trend: widget.trend!, value: widget.trendValue!),
           ],
 
           // Sparkline
@@ -219,18 +209,11 @@ class _StatCardState extends State<StatCard>
 }
 
 /// Trend direction enum
-enum TrendDirection {
-  up,
-  down,
-  neutral,
-}
+enum TrendDirection { up, down, neutral }
 
 /// Trend indicator widget
 class _TrendIndicator extends StatelessWidget {
-  const _TrendIndicator({
-    required this.trend,
-    required this.value,
-  });
+  const _TrendIndicator({required this.trend, required this.value});
 
   final TrendDirection trend;
   final String value;
@@ -240,28 +223,21 @@ class _TrendIndicator extends StatelessWidget {
     final color = trend == TrendDirection.up
         ? AppColors.success
         : trend == TrendDirection.down
-            ? AppColors.error
-            : AppColors.textMuted;
+        ? AppColors.error
+        : AppColors.textMuted;
 
     final icon = trend == TrendDirection.up
         ? Icons.trending_up
         : trend == TrendDirection.down
-            ? Icons.trending_down
-            : Icons.trending_flat;
+        ? Icons.trending_down
+        : Icons.trending_flat;
 
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(
-          icon,
-          size: AppSpacing.iconXs,
-          color: color,
-        ),
+        Icon(icon, size: AppSpacing.iconXs, color: color),
         AppSpacing.gapHXs,
-        Text(
-          value,
-          style: AppTypography.labelSmall.copyWith(color: color),
-        ),
+        Text(value, style: AppTypography.labelSmall.copyWith(color: color)),
       ],
     );
   }
@@ -269,10 +245,7 @@ class _TrendIndicator extends StatelessWidget {
 
 /// Mini sparkline chart widget
 class _MiniSparkline extends StatelessWidget {
-  const _MiniSparkline({
-    required this.data,
-    required this.color,
-  });
+  const _MiniSparkline({required this.data, required this.color});
 
   final List<double> data;
   final Color color;
@@ -281,19 +254,13 @@ class _MiniSparkline extends StatelessWidget {
   Widget build(BuildContext context) {
     return CustomPaint(
       size: const Size(double.infinity, 32),
-      painter: _SparklinePainter(
-        data: data,
-        color: color,
-      ),
+      painter: _SparklinePainter(data: data, color: color),
     );
   }
 }
 
 class _SparklinePainter extends CustomPainter {
-  _SparklinePainter({
-    required this.data,
-    required this.color,
-  });
+  _SparklinePainter({required this.data, required this.color});
 
   final List<double> data;
   final Color color;
@@ -338,10 +305,7 @@ class _SparklinePainter extends CustomPainter {
       ..shader = LinearGradient(
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
-        colors: [
-          color.withValues(alpha: 0.3),
-          color.withValues(alpha: 0.0),
-        ],
+        colors: [color.withValues(alpha: 0.3), color.withValues(alpha: 0.0)],
       ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
 
     canvas.drawPath(fillPath, fillPaint);
@@ -389,8 +353,8 @@ class CompactStat extends StatelessWidget {
     final trendColor = trend == TrendDirection.up
         ? AppColors.success
         : trend == TrendDirection.down
-            ? AppColors.error
-            : null;
+        ? AppColors.error
+        : null;
 
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -469,9 +433,7 @@ class HeroBalanceCard extends StatelessWidget {
                 ),
               ),
               AppSpacing.gapHXs,
-              Expanded(
-                child: _AnimatedBalance(value: balance),
-              ),
+              Expanded(child: _AnimatedBalance(value: balance)),
             ],
           ),
           AppSpacing.gapLg,
@@ -488,11 +450,7 @@ class HeroBalanceCard extends StatelessWidget {
                     isIncome: true,
                   ),
                 ),
-                Container(
-                  width: 1,
-                  height: 40,
-                  color: AppColors.glassBorder,
-                ),
+                Container(width: 1, height: 40, color: AppColors.glassBorder),
                 Expanded(
                   child: _IncomeExpenseItem(
                     label: 'Expenses',
@@ -553,10 +511,9 @@ class _AnimatedBalanceState extends State<_AnimatedBalance>
     super.didUpdateWidget(oldWidget);
     if (widget.value != oldWidget.value) {
       _animation = Tween<double>(begin: oldWidget.value, end: widget.value)
-          .animate(CurvedAnimation(
-        parent: _controller,
-        curve: AppAnimations.easeOut,
-      ));
+          .animate(
+            CurvedAnimation(parent: _controller, curve: AppAnimations.easeOut),
+          );
       _controller.forward(from: 0);
     }
   }
@@ -574,9 +531,7 @@ class _AnimatedBalanceState extends State<_AnimatedBalance>
       builder: (context, child) {
         return Text(
           _animation.value.toStringAsFixed(2),
-          style: AppTypography.monoLarge.copyWith(
-            fontSize: 42,
-          ),
+          style: AppTypography.monoLarge.copyWith(fontSize: 42),
         );
       },
     );
@@ -611,11 +566,7 @@ class _IncomeExpenseItem extends StatelessWidget {
               color: color.withValues(alpha: 0.15),
               shape: BoxShape.circle,
             ),
-            child: Icon(
-              icon,
-              size: AppSpacing.iconXs,
-              color: color,
-            ),
+            child: Icon(icon, size: AppSpacing.iconXs, color: color),
           ),
           AppSpacing.gapHSm,
           Column(
@@ -629,9 +580,7 @@ class _IncomeExpenseItem extends StatelessWidget {
               ),
               Text(
                 '$currencySymbol${value.toStringAsFixed(0)}',
-                style: AppTypography.monoSmall.copyWith(
-                  color: color,
-                ),
+                style: AppTypography.monoSmall.copyWith(color: color),
               ),
             ],
           ),

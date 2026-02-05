@@ -38,8 +38,12 @@ class NotificationItem {
       body: json['body'] as String,
       data: json['data'] as String?,
       status: NotificationStatus.fromString(json['status'] as String),
-      sentAt: json['sentAt'] != null ? DateTime.parse(json['sentAt'] as String) : null,
-      readAt: json['readAt'] != null ? DateTime.parse(json['readAt'] as String) : null,
+      sentAt: json['sentAt'] != null
+          ? DateTime.parse(json['sentAt'] as String)
+          : null,
+      readAt: json['readAt'] != null
+          ? DateTime.parse(json['readAt'] as String)
+          : null,
       createdAt: DateTime.parse(json['createdAt'] as String),
     );
   }

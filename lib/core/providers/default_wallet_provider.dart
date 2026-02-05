@@ -14,15 +14,9 @@ class DefaultWalletState {
   final String? walletId;
   final bool isLoaded;
 
-  const DefaultWalletState({
-    this.walletId,
-    this.isLoaded = false,
-  });
+  const DefaultWalletState({this.walletId, this.isLoaded = false});
 
-  DefaultWalletState copyWith({
-    String? walletId,
-    bool? isLoaded,
-  }) {
+  DefaultWalletState copyWith({String? walletId, bool? isLoaded}) {
     return DefaultWalletState(
       walletId: walletId ?? this.walletId,
       isLoaded: isLoaded ?? this.isLoaded,
@@ -36,10 +30,7 @@ class DefaultWalletNotifier extends Notifier<DefaultWalletState> {
   DefaultWalletState build() {
     final prefs = ref.watch(sharedPreferencesProvider);
     final walletId = prefs.getString(_defaultWalletKey);
-    return DefaultWalletState(
-      walletId: walletId,
-      isLoaded: true,
-    );
+    return DefaultWalletState(walletId: walletId, isLoaded: true);
   }
 
   /// Set the default wallet and persist to SharedPreferences
@@ -65,7 +56,8 @@ class DefaultWalletNotifier extends Notifier<DefaultWalletState> {
 /// Provider for default wallet notifier
 final defaultWalletProvider =
     NotifierProvider<DefaultWalletNotifier, DefaultWalletState>(
-        DefaultWalletNotifier.new);
+      DefaultWalletNotifier.new,
+    );
 
 /// Convenience provider to get just the default wallet ID
 final defaultWalletIdProvider = Provider<String?>((ref) {

@@ -6,6 +6,7 @@ import 'package:logger/logger.dart';
 import 'package:the_accountant/core/services/api_service.dart';
 import 'package:the_accountant/core/services/sync/sync_models.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
+import 'package:the_accountant/data/models/wallet.dart' show WalletType;
 import 'package:the_accountant/features/premium/providers/premium_provider.dart';
 import 'package:drift/drift.dart';
 
@@ -40,9 +41,9 @@ class SyncService {
     required ApiService apiService,
     required AppDatabase database,
     Ref? ref,
-  })  : _apiService = apiService,
-        _database = database,
-        _ref = ref;
+  }) : _apiService = apiService,
+       _database = database,
+       _ref = ref;
 
   /// Check if device is online
   Future<bool> isOnline() async {
@@ -128,7 +129,8 @@ class SyncService {
 
       _setState(SyncOperationState.success);
       _logger.i(
-          'Sync completed: pushed=$totalPushed, pulled=$totalPulled, conflicts=$totalConflicts');
+        'Sync completed: pushed=$totalPushed, pulled=$totalPulled, conflicts=$totalConflicts',
+      );
 
       return _lastResult!;
     } catch (e, stack) {
@@ -150,6 +152,7 @@ class SyncService {
     allChanges.addAll(await _getPendingBudgetChanges());
     allChanges.addAll(await _getPendingObjectiveChanges());
     allChanges.addAll(await _getPendingPaymentMethodChanges());
+    allChanges.addAll(await _getPendingRecurringConfigChanges());
 
     if (allChanges.isEmpty) {
       _logger.d('No pending changes to push');
@@ -193,102 +196,133 @@ class SyncService {
 
   Future<List<SyncChange>> _getPendingTransactionChanges() async {
     final changes = <SyncChange>[];
-    final records = await (_database.select(_database.transactions)
-          ..where((t) => t.syncStatus.isBiggerThanValue(0)))
-        .get();
+    final records = await (_database.select(
+      _database.transactions,
+    )..where((t) => t.syncStatus.isBiggerThanValue(0))).get();
 
     for (final r in records) {
-      changes.add(SyncChange(
-        tableName: 'transactions',
-        entityId: r.id,
-        operation: _getOperationFromStatus(r.syncStatus),
-        data: _transactionToMap(r),
-      ));
+      changes.add(
+        SyncChange(
+          tableName: 'transactions',
+          entityId: r.id,
+          operation: _getOperationFromStatus(r.syncStatus),
+          data: _transactionToMap(r),
+        ),
+      );
     }
     return changes;
   }
 
   Future<List<SyncChange>> _getPendingWalletChanges() async {
     final changes = <SyncChange>[];
-    final records = await (_database.select(_database.wallets)
-          ..where((w) => w.syncStatus.isBiggerThanValue(0)))
-        .get();
+    final records = await (_database.select(
+      _database.wallets,
+    )..where((w) => w.syncStatus.isBiggerThanValue(0))).get();
 
     for (final r in records) {
-      changes.add(SyncChange(
-        tableName: 'wallets',
-        entityId: r.id,
-        operation: _getOperationFromStatus(r.syncStatus),
-        data: _walletToMap(r),
-      ));
+      changes.add(
+        SyncChange(
+          tableName: 'wallets',
+          entityId: r.id,
+          operation: _getOperationFromStatus(r.syncStatus),
+          data: _walletToMap(r),
+        ),
+      );
     }
     return changes;
   }
 
   Future<List<SyncChange>> _getPendingCategoryChanges() async {
     final changes = <SyncChange>[];
-    final records = await (_database.select(_database.categories)
-          ..where((c) => c.syncStatus.isBiggerThanValue(0)))
-        .get();
+    final records = await (_database.select(
+      _database.categories,
+    )..where((c) => c.syncStatus.isBiggerThanValue(0))).get();
 
     for (final r in records) {
-      changes.add(SyncChange(
-        tableName: 'categories',
-        entityId: r.id,
-        operation: _getOperationFromStatus(r.syncStatus),
-        data: _categoryToMap(r),
-      ));
+      changes.add(
+        SyncChange(
+          tableName: 'categories',
+          entityId: r.id,
+          operation: _getOperationFromStatus(r.syncStatus),
+          data: _categoryToMap(r),
+        ),
+      );
     }
     return changes;
   }
 
   Future<List<SyncChange>> _getPendingBudgetChanges() async {
     final changes = <SyncChange>[];
-    final records = await (_database.select(_database.budgets)
-          ..where((b) => b.syncStatus.isBiggerThanValue(0)))
-        .get();
+    final records = await (_database.select(
+      _database.budgets,
+    )..where((b) => b.syncStatus.isBiggerThanValue(0))).get();
 
     for (final r in records) {
-      changes.add(SyncChange(
-        tableName: 'budgets',
-        entityId: r.id,
-        operation: _getOperationFromStatus(r.syncStatus),
-        data: _budgetToMap(r),
-      ));
+      changes.add(
+        SyncChange(
+          tableName: 'budgets',
+          entityId: r.id,
+          operation: _getOperationFromStatus(r.syncStatus),
+          data: _budgetToMap(r),
+        ),
+      );
     }
     return changes;
   }
 
   Future<List<SyncChange>> _getPendingObjectiveChanges() async {
     final changes = <SyncChange>[];
-    final records = await (_database.select(_database.objectives)
-          ..where((o) => o.syncStatus.isBiggerThanValue(0)))
-        .get();
+    final records = await (_database.select(
+      _database.objectives,
+    )..where((o) => o.syncStatus.isBiggerThanValue(0))).get();
 
     for (final r in records) {
-      changes.add(SyncChange(
-        tableName: 'objectives',
-        entityId: r.id,
-        operation: _getOperationFromStatus(r.syncStatus),
-        data: _objectiveToMap(r),
-      ));
+      changes.add(
+        SyncChange(
+          tableName: 'objectives',
+          entityId: r.id,
+          operation: _getOperationFromStatus(r.syncStatus),
+          data: _objectiveToMap(r),
+        ),
+      );
     }
     return changes;
   }
 
   Future<List<SyncChange>> _getPendingPaymentMethodChanges() async {
     final changes = <SyncChange>[];
-    final records = await (_database.select(_database.paymentMethods)
-          ..where((p) => p.syncStatus.isBiggerThanValue(0)))
-        .get();
+    final records = await (_database.select(
+      _database.paymentMethods,
+    )..where((p) => p.syncStatus.isBiggerThanValue(0))).get();
 
     for (final r in records) {
-      changes.add(SyncChange(
-        tableName: 'payment_methods',
-        entityId: r.id,
-        operation: _getOperationFromStatus(r.syncStatus),
-        data: _paymentMethodToMap(r),
-      ));
+      changes.add(
+        SyncChange(
+          tableName: 'payment_methods',
+          entityId: r.id,
+          operation: _getOperationFromStatus(r.syncStatus),
+          data: _paymentMethodToMap(r),
+        ),
+      );
+    }
+    return changes;
+  }
+
+  Future<List<SyncChange>> _getPendingRecurringConfigChanges() async {
+    final changes = <SyncChange>[];
+    final records = await (_database.select(
+      _database.recurringConfigs,
+    )..where((r) => r.syncStatus.isBiggerThanValue(0))).get();
+
+    for (final r in records) {
+      changes.add(
+        SyncChange(
+          tableName: 'recurring_configs',
+          entityId: r.id,
+          operation: _getOperationFromStatus(r.syncStatus),
+          data: _recurringConfigToMap(r),
+        ),
+      );
     }
     return changes;
   }
@@ -317,36 +351,42 @@ class SyncService {
       case 'payment_methods':
         await _applyPaymentMethodChange(change);
         break;
+      case 'recurring_configs':
+        await _applyRecurringConfigChange(change);
+        break;
     }
   }
 
   Future<void> _applyTransactionChange(SyncChange change) async {
-    final data = change.data;
+    final rawData = change.data;
     if (change.operation == 'delete') {
-      await (_database.update(_database.transactions)
-            ..where((t) => t.id.equals(change.entityId)))
-          .write(TransactionsCompanion(
-            deletedAt: Value(DateTime.now()),
-            syncStatus: const Value(SyncStatus.synced),
-          ));
+      await (_database.update(
+        _database.transactions,
+      )..where((t) => t.id.equals(change.entityId))).write(
+        TransactionsCompanion(
+          deletedAt: Value(DateTime.now()),
+          syncStatus: const Value(SyncStatus.synced),
+        ),
+      );
       return;
     }
 
-    if (data == null) return;
+    if (rawData == null) return;
+    final data = _normalizeKeys(rawData);
 
     // Check if record exists
-    final existing = await (_database.select(_database.transactions)
-          ..where((t) => t.id.equals(change.entityId)))
-        .getSingleOrNull();
+    final existing = await (_database.select(
+      _database.transactions,
+    )..where((t) => t.id.equals(change.entityId))).getSingleOrNull();
 
     final companion = TransactionsCompanion(
       id: Value(change.entityId),
       amount: Value((data['Amount'] as num?)?.toDouble() ?? 0.0),
       title: Value(data['Title'] ?? ''),
       notes: Value(data['Notes']),
-      date: Value(data['Date'] != null
-          ? DateTime.parse(data['Date'])
-          : DateTime.now()),
+      date: Value(
+        data['Date'] != null ? DateTime.parse(data['Date']) : DateTime.now(),
+      ),
       isIncome: Value(data['IsIncome'] ?? false),
       transactionType: Value(_parseTransactionType(data['Type'])),
       specialType: Value(data['SpecialType'] ?? 0),
@@ -355,6 +395,14 @@ class SyncService {
       paymentMethodId: Value(data['PaymentMethodId']),
       isPaid: Value(data['IsPaid'] ?? true),
       paidAmount: Value((data['PaidAmount'] as num?)?.toDouble() ?? 0.0),
+      originalDueDate: Value(
+        data['OriginalDueDate'] != null
+            ? DateTime.parse(data['OriginalDueDate'])
+            : null,
+      ),
+      skipPaid: Value(data['SkipPaid'] ?? false),
+      pairedTransactionId: Value(data['PairedTransactionId']),
+      recurringConfigId: Value(data['RecurringConfigId']),
       budgetId: Value(data['BudgetId']),
       objectiveId: Value(data['ObjectiveId']),
       receiptImageUrl: Value(data['ReceiptImageUrl']),
@@ -363,31 +411,34 @@ class SyncService {
     );
 
     if (existing != null) {
-      await (_database.update(_database.transactions)
-            ..where((t) => t.id.equals(change.entityId)))
-          .write(companion);
+      await (_database.update(
+        _database.transactions,
+      )..where((t) => t.id.equals(change.entityId))).write(companion);
     } else {
       await _database.into(_database.transactions).insert(companion);
     }
   }
 
   Future<void> _applyWalletChange(SyncChange change) async {
-    final data = change.data;
+    final rawData = change.data;
     if (change.operation == 'delete') {
-      await (_database.update(_database.wallets)
-            ..where((w) => w.id.equals(change.entityId)))
-          .write(WalletsCompanion(
-            deletedAt: Value(DateTime.now()),
-            syncStatus: const Value(SyncStatus.synced),
-          ));
+      await (_database.update(
+        _database.wallets,
+      )..where((w) => w.id.equals(change.entityId))).write(
+        WalletsCompanion(
+          deletedAt: Value(DateTime.now()),
+          syncStatus: const Value(SyncStatus.synced),
+        ),
+      );
       return;
     }
 
-    if (data == null) return;
+    if (rawData == null) return;
+    final data = _normalizeKeys(rawData);
 
-    final existing = await (_database.select(_database.wallets)
-          ..where((w) => w.id.equals(change.entityId)))
-        .getSingleOrNull();
+    final existing = await (_database.select(
+      _database.wallets,
+    )..where((w) => w.id.equals(change.entityId))).getSingleOrNull();
 
     final companion = WalletsCompanion(
       id: Value(change.entityId),
@@ -397,7 +448,7 @@ class SyncService {
       currency: Value(data['Currency'] ?? 'USD'),
       balance: Value((data['Balance'] as num?)?.toDouble() ?? 0.0),
       isDefault: Value(data['IsDefault'] ?? false),
-      walletType: Value(data['WalletType'] ?? 0),
+      walletType: Value(WalletType.values[(data['WalletType'] ?? 0) as int]),
       creditLimit: Value((data['CreditLimit'] as num?)?.toDouble()),
       billingCycleDay: Value(data['BillingCycleDay'] as int?),
       syncStatus: const Value(SyncStatus.synced),
@@ -405,31 +456,34 @@ class SyncService {
     );
 
     if (existing != null) {
-      await (_database.update(_database.wallets)
-            ..where((w) => w.id.equals(change.entityId)))
-          .write(companion);
+      await (_database.update(
+        _database.wallets,
+      )..where((w) => w.id.equals(change.entityId))).write(companion);
     } else {
       await _database.into(_database.wallets).insert(companion);
     }
   }
 
   Future<void> _applyCategoryChange(SyncChange change) async {
-    final data = change.data;
+    final rawData = change.data;
     if (change.operation == 'delete') {
-      await (_database.update(_database.categories)
-            ..where((c) => c.id.equals(change.entityId)))
-          .write(CategoriesCompanion(
-            deletedAt: Value(DateTime.now()),
-            syncStatus: const Value(SyncStatus.synced),
-          ));
+      await (_database.update(
+        _database.categories,
+      )..where((c) => c.id.equals(change.entityId))).write(
+        CategoriesCompanion(
+          deletedAt: Value(DateTime.now()),
+          syncStatus: const Value(SyncStatus.synced),
+        ),
+      );
       return;
     }
 
-    if (data == null) return;
+    if (rawData == null) return;
+    final data = _normalizeKeys(rawData);
 
-    final existing = await (_database.select(_database.categories)
-          ..where((c) => c.id.equals(change.entityId)))
-        .getSingleOrNull();
+    final existing = await (_database.select(
+      _database.categories,
+    )..where((c) => c.id.equals(change.entityId))).getSingleOrNull();
 
     final companion = CategoriesCompanion(
       id: Value(change.entityId),
@@ -444,42 +498,48 @@ class SyncService {
     );
 
     if (existing != null) {
-      await (_database.update(_database.categories)
-            ..where((c) => c.id.equals(change.entityId)))
-          .write(companion);
+      await (_database.update(
+        _database.categories,
+      )..where((c) => c.id.equals(change.entityId))).write(companion);
     } else {
       await _database.into(_database.categories).insert(companion);
     }
   }
 
   Future<void> _applyBudgetChange(SyncChange change) async {
-    final data = change.data;
+    final rawData = change.data;
     if (change.operation == 'delete') {
-      await (_database.update(_database.budgets)
-            ..where((b) => b.id.equals(change.entityId)))
-          .write(BudgetsCompanion(
-            deletedAt: Value(DateTime.now()),
-            syncStatus: const Value(SyncStatus.synced),
-          ));
+      await (_database.update(
+        _database.budgets,
+      )..where((b) => b.id.equals(change.entityId))).write(
+        BudgetsCompanion(
+          deletedAt: Value(DateTime.now()),
+          syncStatus: const Value(SyncStatus.synced),
+        ),
+      );
       return;
     }
 
-    if (data == null) return;
+    if (rawData == null) return;
+    final data = _normalizeKeys(rawData);
 
-    final existing = await (_database.select(_database.budgets)
-          ..where((b) => b.id.equals(change.entityId)))
-        .getSingleOrNull();
+    final existing = await (_database.select(
+      _database.budgets,
+    )..where((b) => b.id.equals(change.entityId))).getSingleOrNull();
 
     final companion = BudgetsCompanion(
       id: Value(change.entityId),
       name: Value(data['Name'] ?? ''),
       amount: Value((data['Amount'] as num?)?.toDouble() ?? 0.0),
       period: Value(_parseBudgetPeriod(data['Period'])),
-      startDate: Value(data['StartDate'] != null
-          ? DateTime.parse(data['StartDate'])
-          : DateTime.now()),
+      startDate: Value(
+        data['StartDate'] != null
+            ? DateTime.parse(data['StartDate'])
+            : DateTime.now(),
+      ),
       endDate: Value(
-          data['EndDate'] != null ? DateTime.parse(data['EndDate']) : null),
+        data['EndDate'] != null ? DateTime.parse(data['EndDate']) : null,
+      ),
       walletIds: Value(data['WalletIds']),
       categoryIds: Value(data['CategoryIds']),
       isIncome: Value(data['IsIncome'] ?? false),
@@ -490,31 +550,34 @@ class SyncService {
     );
 
     if (existing != null) {
-      await (_database.update(_database.budgets)
-            ..where((b) => b.id.equals(change.entityId)))
-          .write(companion);
+      await (_database.update(
+        _database.budgets,
+      )..where((b) => b.id.equals(change.entityId))).write(companion);
     } else {
       await _database.into(_database.budgets).insert(companion);
     }
   }
 
   Future<void> _applyObjectiveChange(SyncChange change) async {
-    final data = change.data;
+    final rawData = change.data;
     if (change.operation == 'delete') {
-      await (_database.update(_database.objectives)
-            ..where((o) => o.id.equals(change.entityId)))
-          .write(ObjectivesCompanion(
-            deletedAt: Value(DateTime.now()),
-            syncStatus: const Value(SyncStatus.synced),
-          ));
+      await (_database.update(
+        _database.objectives,
+      )..where((o) => o.id.equals(change.entityId))).write(
+        ObjectivesCompanion(
+          deletedAt: Value(DateTime.now()),
+          syncStatus: const Value(SyncStatus.synced),
+        ),
+      );
       return;
     }
 
-    if (data == null) return;
+    if (rawData == null) return;
+    final data = _normalizeKeys(rawData);
 
-    final existing = await (_database.select(_database.objectives)
-          ..where((o) => o.id.equals(change.entityId)))
-        .getSingleOrNull();
+    final existing = await (_database.select(
+      _database.objectives,
+    )..where((o) => o.id.equals(change.entityId))).getSingleOrNull();
 
     final companion = ObjectivesCompanion(
       id: Value(change.entityId),
@@ -524,11 +587,14 @@ class SyncService {
       targetAmount: Value((data['TargetAmount'] as num?)?.toDouble() ?? 0.0),
       type: Value(_parseObjectiveType(data['Type'])),
       walletId: Value(data['WalletId']),
-      startDate: Value(data['StartDate'] != null
-          ? DateTime.parse(data['StartDate'])
-          : DateTime.now()),
+      startDate: Value(
+        data['StartDate'] != null
+            ? DateTime.parse(data['StartDate'])
+            : DateTime.now(),
+      ),
       endDate: Value(
-          data['EndDate'] != null ? DateTime.parse(data['EndDate']) : null),
+        data['EndDate'] != null ? DateTime.parse(data['EndDate']) : null,
+      ),
       isPinned: Value(data['IsPinned'] ?? false),
       isArchived: Value(data['IsArchived'] ?? false),
       syncStatus: const Value(SyncStatus.synced),
@@ -536,31 +602,34 @@ class SyncService {
     );
 
     if (existing != null) {
-      await (_database.update(_database.objectives)
-            ..where((o) => o.id.equals(change.entityId)))
-          .write(companion);
+      await (_database.update(
+        _database.objectives,
+      )..where((o) => o.id.equals(change.entityId))).write(companion);
     } else {
       await _database.into(_database.objectives).insert(companion);
     }
   }
 
   Future<void> _applyPaymentMethodChange(SyncChange change) async {
-    final data = change.data;
+    final rawData = change.data;
     if (change.operation == 'delete') {
-      await (_database.update(_database.paymentMethods)
-            ..where((p) => p.id.equals(change.entityId)))
-          .write(PaymentMethodsCompanion(
-            deletedAt: Value(DateTime.now()),
-            syncStatus: const Value(SyncStatus.synced),
-          ));
+      await (_database.update(
+        _database.paymentMethods,
+      )..where((p) => p.id.equals(change.entityId))).write(
+        PaymentMethodsCompanion(
+          deletedAt: Value(DateTime.now()),
+          syncStatus: const Value(SyncStatus.synced),
+        ),
+      );
       return;
     }
 
-    if (data == null) return;
+    if (rawData == null) return;
+    final data = _normalizeKeys(rawData);
 
-    final existing = await (_database.select(_database.paymentMethods)
-          ..where((p) => p.id.equals(change.entityId)))
-        .getSingleOrNull();
+    final existing = await (_database.select(
+      _database.paymentMethods,
+    )..where((p) => p.id.equals(change.entityId))).getSingleOrNull();
 
     final companion = PaymentMethodsCompanion(
       id: Value(change.entityId),
@@ -572,15 +641,86 @@ class SyncService {
     );
 
     if (existing != null) {
-      await (_database.update(_database.paymentMethods)
-            ..where((p) => p.id.equals(change.entityId)))
-          .write(companion);
+      await (_database.update(
+        _database.paymentMethods,
+      )..where((p) => p.id.equals(change.entityId))).write(companion);
     } else {
       await _database.into(_database.paymentMethods).insert(companion);
     }
   }
 
+  Future<void> _applyRecurringConfigChange(SyncChange change) async {
+    final rawData = change.data;
+    // RecurringConfig has no deletedAt - uses isActive flag
+    if (change.operation == 'delete') {
+      await (_database.update(
+        _database.recurringConfigs,
+      )..where((r) => r.id.equals(change.entityId))).write(
+        RecurringConfigsCompanion(
+          isActive: const Value(false),
+          syncStatus: const Value(SyncStatus.synced),
+          updatedAt: Value(DateTime.now()),
+        ),
+      );
+      return;
+    }
+
+    if (rawData == null) return;
+    final data = _normalizeKeys(rawData);
+
+    final existing = await (_database.select(
+      _database.recurringConfigs,
+    )..where((r) => r.id.equals(change.entityId))).getSingleOrNull();
+
+    final companion = RecurringConfigsCompanion(
+      id: Value(change.entityId),
+      baseTransactionId: Value(data['BaseTransactionId'] ?? ''),
+      periodLength: Value(data['PeriodLength'] ?? 1),
+      reoccurrence: Value(_parseReoccurrence(data['Reoccurrence'])),
+      startDate: Value(
+        data['StartDate'] != null
+            ? DateTime.parse(data['StartDate'])
+            : DateTime.now(),
+      ),
+      endDate: Value(
+        data['EndDate'] != null ? DateTime.parse(data['EndDate']) : null,
+      ),
+      nextOccurrence: Value(
+        data['NextOccurrence'] != null
+            ? DateTime.parse(data['NextOccurrence'])
+            : DateTime.now(),
+      ),
+      isActive: Value(data['IsActive'] ?? true),
+      syncStatus: const Value(SyncStatus.synced),
+      updatedAt: Value(DateTime.now()),
+    );
+
+    if (existing != null) {
+      await (_database.update(
+        _database.recurringConfigs,
+      )..where((r) => r.id.equals(change.entityId))).write(companion);
+    } else {
+      await _database.into(_database.recurringConfigs).insert(companion);
+    }
+  }
+
   // ==================== CONVERSION HELPERS ====================
+
+  /// Normalize data map keys from snake_case to PascalCase.
+  /// The backend serializes with JsonNamingPolicy.SnakeCaseLower,
+  /// so pull data arrives as snake_case. This converts to PascalCase
+  /// to match what the apply methods expect.
+  Map<String, dynamic> _normalizeKeys(Map<String, dynamic> data) {
+    return data.map((key, value) {
+      final pascalKey = key
+          .split('_')
+          .map((part) => part.isEmpty
+              ? ''
+              : '${part[0].toUpperCase()}${part.substring(1)}')
+          .join();
+      return MapEntry(pascalKey, value);
+    });
+  }
 
   String _getOperationFromStatus(int status) {
     switch (status) {
@@ -647,82 +787,132 @@ class SyncService {
     return type?.toString() ?? 'goal';
   }
 
+  String _parseReoccurrence(dynamic reoccurrence) {
+    if (reoccurrence is int) {
+      switch (reoccurrence) {
+        case 0:
+          return 'daily';
+        case 1:
+          return 'weekly';
+        case 2:
+          return 'monthly';
+        case 3:
+          return 'yearly';
+        default:
+          return 'monthly';
+      }
+    }
+    return reoccurrence?.toString() ?? 'monthly';
+  }
+
+  int _reoccurrenceToInt(String reoccurrence) {
+    switch (reoccurrence.toLowerCase()) {
+      case 'daily':
+        return 0;
+      case 'weekly':
+        return 1;
+      case 'monthly':
+        return 2;
+      case 'yearly':
+        return 3;
+      default:
+        return 2;
+    }
+  }
+
   // ==================== MAP CONVERSIONS FOR PUSH ====================
 
   Map<String, dynamic> _transactionToMap(Transaction t) => {
-        'WalletId': t.walletId,
-        'CategoryId': t.categoryId,
-        'PaymentMethodId': t.paymentMethodId,
-        'Amount': t.amount,
-        'Title': t.title,
-        'Notes': t.notes,
-        'Date': t.date.toUtc().toIso8601String(),
-        'IsIncome': t.isIncome,
-        'Type': _transactionTypeToInt(t.transactionType),
-        'SpecialType': t.specialType,
-        'IsPaid': t.isPaid,
-        'OriginalDueDate': t.originalDueDate?.toUtc().toIso8601String(),
-        'SkipPaid': t.skipPaid,
-        'PaidAmount': t.paidAmount,
-        'PairedTransactionId': t.pairedTransactionId,
-        'RecurringConfigId': t.recurringConfigId,
-        'BudgetId': t.budgetId,
-        'ObjectiveId': t.objectiveId,
-        'ReceiptImageUrl': t.receiptImageUrl,
-      };
+    'WalletId': t.walletId,
+    'CategoryId': t.categoryId,
+    'PaymentMethodId': t.paymentMethodId,
+    'Amount': t.amount,
+    'Title': t.title,
+    'Notes': t.notes,
+    'Date': t.date.toUtc().toIso8601String(),
+    'IsIncome': t.isIncome,
+    'Type': _transactionTypeToInt(t.transactionType),
+    'SpecialType': t.specialType,
+    'IsPaid': t.isPaid,
+    'OriginalDueDate': t.originalDueDate?.toUtc().toIso8601String(),
+    'SkipPaid': t.skipPaid,
+    'PaidAmount': t.paidAmount,
+    'PairedTransactionId': t.pairedTransactionId,
+    'RecurringConfigId': t.recurringConfigId,
+    'BudgetId': t.budgetId,
+    'ObjectiveId': t.objectiveId,
+    'ReceiptImageUrl': t.receiptImageUrl,
+    'UpdatedAt': t.updatedAt.toUtc().toIso8601String(),
+  };
 
   Map<String, dynamic> _walletToMap(Wallet w) => {
-        'Name': w.name,
-        'Balance': w.balance,
-        'Currency': w.currency,
-        'Color': w.color,
-        'IconName': w.iconName,
-        'IsDefault': w.isDefault,
-        'WalletType': w.walletType.index,
-        'CreditLimit': w.creditLimit,
-        'BillingCycleDay': w.billingCycleDay,
-      };
+    'Name': w.name,
+    'Balance': w.balance,
+    'Currency': w.currency,
+    'Color': w.color,
+    'IconName': w.iconName,
+    'IsDefault': w.isDefault,
+    'WalletType': w.walletType.index,
+    'CreditLimit': w.creditLimit,
+    'BillingCycleDay': w.billingCycleDay,
+    'UpdatedAt': w.updatedAt.toUtc().toIso8601String(),
+  };
 
   Map<String, dynamic> _categoryToMap(Category c) => {
-        'Name': c.name,
-        'Color': c.color,
-        'IconName': c.iconName,
-        'IsIncome': c.isIncome,
-        'MainCategoryId': c.mainCategoryId,
-        'OrderIndex': c.orderIndex,
-      };
+    'Name': c.name,
+    'Color': c.color,
+    'IconName': c.iconName,
+    'IsIncome': c.isIncome,
+    'MainCategoryId': c.mainCategoryId,
+    'OrderIndex': c.orderIndex,
+    'UpdatedAt': c.updatedAt.toUtc().toIso8601String(),
+  };
 
   Map<String, dynamic> _budgetToMap(Budget b) => {
-        'Name': b.name,
-        'Amount': b.amount,
-        'StartDate': b.startDate.toUtc().toIso8601String(),
-        'EndDate': b.endDate?.toUtc().toIso8601String(),
-        'Period': _budgetPeriodToInt(b.period),
-        'WalletIds': b.walletIds,
-        'CategoryIds': b.categoryIds,
-        'IsIncome': b.isIncome,
-        'IsPinned': b.isPinned,
-        'IsArchived': b.isArchived,
-      };
+    'Name': b.name,
+    'Amount': b.amount,
+    'StartDate': b.startDate.toUtc().toIso8601String(),
+    'EndDate': b.endDate?.toUtc().toIso8601String(),
+    'Period': _budgetPeriodToInt(b.period),
+    'WalletIds': b.walletIds,
+    'CategoryIds': b.categoryIds,
+    'IsIncome': b.isIncome,
+    'IsPinned': b.isPinned,
+    'IsArchived': b.isArchived,
+    'UpdatedAt': b.updatedAt.toUtc().toIso8601String(),
+  };
 
   Map<String, dynamic> _objectiveToMap(Objective o) => {
-        'Name': o.name,
-        'TargetAmount': o.targetAmount,
-        'WalletId': o.walletId,
-        'IconName': o.iconName,
-        'Color': o.color,
-        'Type': _objectiveTypeToInt(o.type),
-        'StartDate': o.startDate.toUtc().toIso8601String(),
-        'EndDate': o.endDate?.toUtc().toIso8601String(),
-        'IsPinned': o.isPinned,
-        'IsArchived': o.isArchived,
-      };
+    'Name': o.name,
+    'TargetAmount': o.targetAmount,
+    'WalletId': o.walletId,
+    'IconName': o.iconName,
+    'Color': o.color,
+    'Type': _objectiveTypeToInt(o.type),
+    'StartDate': o.startDate.toUtc().toIso8601String(),
+    'EndDate': o.endDate?.toUtc().toIso8601String(),
+    'IsPinned': o.isPinned,
+    'IsArchived': o.isArchived,
+    'UpdatedAt': o.updatedAt.toUtc().toIso8601String(),
+  };
 
   Map<String, dynamic> _paymentMethodToMap(PaymentMethod p) => {
-        'Name': p.name,
-        'IconName': p.iconName,
-        'IsDefault': p.isDefault,
-      };
+    'Name': p.name,
+    'IconName': p.iconName,
+    'IsDefault': p.isDefault,
+    'UpdatedAt': p.updatedAt.toUtc().toIso8601String(),
+  };
+
+  Map<String, dynamic> _recurringConfigToMap(RecurringConfig r) => {
+    'BaseTransactionId': r.baseTransactionId,
+    'PeriodLength': r.periodLength,
+    'Reoccurrence': _reoccurrenceToInt(r.reoccurrence),
+    'StartDate': r.startDate.toUtc().toIso8601String(),
+    'EndDate': r.endDate?.toUtc().toIso8601String(),
+    'NextOccurrence': r.nextOccurrence.toUtc().toIso8601String(),
+    'IsActive': r.isActive,
+    'UpdatedAt': r.updatedAt.toUtc().toIso8601String(),
+  };
 
   int _transactionTypeToInt(String type) {
     switch (type.toLowerCase()) {
@@ -765,9 +955,11 @@ class SyncService {
 
   /// Mark all pending records as synced after successful push
   Future<void> _markPushedRecordsAsSynced() async {
-    await (_database.update(_database.transactions)
-          ..where((t) => t.syncStatus.isBiggerThanValue(0)))
-        .write(const TransactionsCompanion(syncStatus: Value(SyncStatus.synced)));
+    await (_database.update(
+      _database.transactions,
+    )..where((t) => t.syncStatus.isBiggerThanValue(0))).write(
+      const TransactionsCompanion(syncStatus: Value(SyncStatus.synced)),
+    );
 
     await (_database.update(_database.wallets)
           ..where((w) => w.syncStatus.isBiggerThanValue(0)))
@@ -785,9 +977,17 @@ class SyncService {
           ..where((o) => o.syncStatus.isBiggerThanValue(0)))
         .write(const ObjectivesCompanion(syncStatus: Value(SyncStatus.synced)));
 
-    await (_database.update(_database.paymentMethods)
-          ..where((p) => p.syncStatus.isBiggerThanValue(0)))
-        .write(const PaymentMethodsCompanion(syncStatus: Value(SyncStatus.synced)));
+    await (_database.update(
+      _database.paymentMethods,
+    )..where((p) => p.syncStatus.isBiggerThanValue(0))).write(
+      const PaymentMethodsCompanion(syncStatus: Value(SyncStatus.synced)),
+    );
+
+    await (_database.update(
+      _database.recurringConfigs,
+    )..where((r) => r.syncStatus.isBiggerThanValue(0))).write(
+      const RecurringConfigsCompanion(syncStatus: Value(SyncStatus.synced)),
+    );
   }
 
   /// Update sync state

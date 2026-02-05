@@ -1,7 +1,13 @@
+import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:the_accountant/data/models/premium_features.dart';
 import 'package:the_accountant/core/providers/theme_provider.dart';
+import 'package:the_accountant/core/providers/default_wallet_provider.dart';
+
+const String _premiumTierKey = 'premium_tier';
+const String _premiumExpiresAtKey = 'premium_expires_at';
+const String _premiumPurchaseIdKey = 'premium_purchase_id';
 
 class PremiumState {
   final PremiumFeatures features;
@@ -51,7 +57,89 @@ class PremiumNotifier extends StateNotifier<PremiumState> {
             features: [],
           ),
         ),
+      ) {
+    _loadPersistedPremiumStatus();
+  }
+
+  /// Load persisted premium status from SharedPreferences
+  void _loadPersistedPremiumStatus() {
+    try {
+      final prefs = _ref.read(sharedPreferencesProvider);
+      final tierStr = prefs.getString(_premiumTierKey);
+      if (tierStr == null) return;
+
+      final tier = SubscriptionTier.fromString(tierStr);
+      if (tier == SubscriptionTier.free) return;
+
+      final expiresAtStr = prefs.getString(_premiumExpiresAtKey);
+      final purchaseId = prefs.getString(_premiumPurchaseIdKey);
+
+      DateTime? expiresAt;
+      if (expiresAtStr != null) {
+        expiresAt = DateTime.tryParse(expiresAtStr);
+        // Don't restore if expired (unless lifetime)
+        if (expiresAt != null &&
+            expiresAt.isBefore(DateTime.now()) &&
+            tier != SubscriptionTier.premiumLifetime) {
+          _clearPersistedPremiumStatus();
+          return;
+        }
+      }
+
+      state = state.copyWith(
+        features: state.features.copyWith(
+          isUnlocked: true,
+          tier: tier,
+          features: PremiumFeatureIds.all,
+          expiresAt: expiresAt,
+          purchaseId: purchaseId,
+        ),
       );
+
+      // Defer theme update to avoid modifying another provider during initialization
+      Future.microtask(() {
+        _ref.read(themeProvider.notifier).unlockPremiumThemes();
+      });
+    } catch (_) {
+      // SharedPreferences may not be initialized yet - ignore
+    }
+  }
+
+  /// Persist premium status to SharedPreferences
+  void _persistPremiumStatus({
+    required SubscriptionTier tier,
+    DateTime? expiresAt,
+    String? purchaseId,
+  }) {
+    try {
+      final prefs = _ref.read(sharedPreferencesProvider);
+      prefs.setString(_premiumTierKey, tier.name);
+      if (expiresAt != null) {
+        prefs.setString(_premiumExpiresAtKey, expiresAt.toIso8601String());
+      } else {
+        prefs.remove(_premiumExpiresAtKey);
+      }
+      if (purchaseId != null) {
+        prefs.setString(_premiumPurchaseIdKey, purchaseId);
+      } else {
+        prefs.remove(_premiumPurchaseIdKey);
+      }
+    } catch (_) {
+      // Ignore persistence errors
+    }
+  }
+
+  /// Clear persisted premium status
+  void _clearPersistedPremiumStatus() {
+    try {
+      final prefs = _ref.read(sharedPreferencesProvider);
+      prefs.remove(_premiumTierKey);
+      prefs.remove(_premiumExpiresAtKey);
+      prefs.remove(_premiumPurchaseIdKey);
+    } catch (_) {
+      // Ignore persistence errors
+    }
+  }
 
   /// Update subscription status from backend or IAP
   void updateSubscription({
@@ -71,6 +159,17 @@ class PremiumNotifier extends StateNotifier<PremiumState> {
         purchaseId: purchaseId,
       ),
     );
+
+    // Persist to SharedPreferences
+    if (isPremium) {
+      _persistPremiumStatus(
+        tier: tier,
+        expiresAt: expiresAt,
+        purchaseId: purchaseId,
+      );
+    } else {
+      _clearPersistedPremiumStatus();
+    }
 
     // Update theme access
     if (isPremium) {
@@ -101,6 +200,8 @@ class PremiumNotifier extends StateNotifier<PremiumState> {
       ),
     );
 
+    _clearPersistedPremiumStatus();
+
     // Lock premium themes
     _ref.read(themeProvider.notifier).lockPremiumThemes();
   }
@@ -122,10 +223,7 @@ class PremiumNotifier extends StateNotifier<PremiumState> {
   }
 
   /// Check if user can add more of an entity (respects free tier limits)
-  bool canAddMore({
-    required String entityType,
-    required int currentCount,
-  }) {
+  bool canAddMore({required String entityType, required int currentCount}) {
     if (state.isPremium) return true;
 
     switch (entityType) {

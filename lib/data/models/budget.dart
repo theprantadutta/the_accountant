@@ -1,12 +1,7 @@
 import 'package:drift/drift.dart';
 
 /// Budget periods enum
-enum BudgetPeriod {
-  weekly,
-  monthly,
-  yearly,
-  custom,
-}
+enum BudgetPeriod { weekly, monthly, yearly, custom }
 
 /// Budgets table for spending limits tracking
 class Budgets extends Table {
@@ -15,9 +10,11 @@ class Budgets extends Table {
 
   // Budget details
   TextColumn get name => text()();
-  RealColumn get amount => real()(); // Renamed from 'limit' for clarity (limit is reserved in SQL)
-  TextColumn get period =>
-      text().withDefault(const Constant('monthly'))(); // weekly, monthly, yearly, custom
+  RealColumn get amount =>
+      real()(); // Renamed from 'limit' for clarity (limit is reserved in SQL)
+  TextColumn get period => text().withDefault(
+    const Constant('monthly'),
+  )(); // weekly, monthly, yearly, custom
 
   // Date range
   DateTimeColumn get startDate => dateTime()();
@@ -44,8 +41,9 @@ class Budgets extends Table {
 
   // Sync fields
   TextColumn get serverId => text().nullable()();
-  IntColumn get syncStatus =>
-      integer().withDefault(const Constant(0))(); // 0=synced, 1=create, 2=update, 3=delete
+  IntColumn get syncStatus => integer().withDefault(
+    const Constant(0),
+  )(); // 0=synced, 1=create, 2=update, 3=delete
 
   // Timestamps
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();

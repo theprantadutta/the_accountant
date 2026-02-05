@@ -78,7 +78,8 @@ class _AmountInputSheetState extends State<_AmountInputSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final color = widget.accentColor ??
+    final color =
+        widget.accentColor ??
         (widget.isIncome ? AppColors.success : AppColors.error);
 
     return BackdropFilter(
@@ -149,7 +150,9 @@ class _AmountInputSheetState extends State<_AmountInputSheet> {
                       decimal: true,
                     ),
                     inputFormatters: [
-                      FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
+                      FilteringTextInputFormatter.allow(
+                        RegExp(r'^\d*\.?\d{0,2}'),
+                      ),
                     ],
                     textAlign: TextAlign.center,
                     style: TextStyle(

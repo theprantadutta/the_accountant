@@ -108,10 +108,7 @@ class RegionalSettingsScreen extends ConsumerWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          label,
-          style: TextStyle(color: AppColors.textSecondary),
-        ),
+        Text(label, style: TextStyle(color: AppColors.textSecondary)),
         Text(
           value,
           style: TextStyle(
@@ -132,10 +129,36 @@ class RegionalSettingsScreen extends ConsumerWidget {
       case 'yyyy-MM-dd':
         return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
       case 'dd MMM yyyy':
-        final months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        final months = [
+          'Jan',
+          'Feb',
+          'Mar',
+          'Apr',
+          'May',
+          'Jun',
+          'Jul',
+          'Aug',
+          'Sep',
+          'Oct',
+          'Nov',
+          'Dec',
+        ];
         return '${date.day} ${months[date.month - 1]} ${date.year}';
       case 'MMM dd, yyyy':
-        final months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        final months = [
+          'Jan',
+          'Feb',
+          'Mar',
+          'Apr',
+          'May',
+          'Jun',
+          'Jul',
+          'Aug',
+          'Sep',
+          'Oct',
+          'Nov',
+          'Dec',
+        ];
         return '${months[date.month - 1]} ${date.day}, ${date.year}';
       default:
         return '${date.month}/${date.day}/${date.year}';
@@ -144,7 +167,10 @@ class RegionalSettingsScreen extends ConsumerWidget {
 
   String _formatNumber(double number, String format) {
     final intPart = number.floor().toString();
-    final decPart = ((number - number.floor()) * 100).round().toString().padLeft(2, '0');
+    final decPart = ((number - number.floor()) * 100)
+        .round()
+        .toString()
+        .padLeft(2, '0');
 
     String formatIntPart(String s, String thousand) {
       final result = StringBuffer();
@@ -224,7 +250,10 @@ class RegionalSettingsScreen extends ConsumerWidget {
     }
   }
 
-  Future<void> _showDateFormatPicker(BuildContext context, WidgetRef ref) async {
+  Future<void> _showDateFormatPicker(
+    BuildContext context,
+    WidgetRef ref,
+  ) async {
     final formats = ref.read(dateFormatsProvider);
     final currentFormat = ref.read(settingsProvider).dateFormat;
 
@@ -246,7 +275,10 @@ class RegionalSettingsScreen extends ConsumerWidget {
     }
   }
 
-  Future<void> _showNumberFormatPicker(BuildContext context, WidgetRef ref) async {
+  Future<void> _showNumberFormatPicker(
+    BuildContext context,
+    WidgetRef ref,
+  ) async {
     final formats = ref.read(numberFormatsProvider);
     final currentFormat = ref.read(settingsProvider).numberFormat;
 
@@ -317,8 +349,12 @@ class _PickerSheet extends StatelessWidget {
                 title: Text(
                   item['label']!,
                   style: TextStyle(
-                    color: isSelected ? AppColors.primaryAccent : AppColors.textPrimary,
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                    color: isSelected
+                        ? AppColors.primaryAccent
+                        : AppColors.textPrimary,
+                    fontWeight: isSelected
+                        ? FontWeight.w600
+                        : FontWeight.normal,
                   ),
                 ),
                 trailing: isSelected
@@ -423,7 +459,10 @@ class _CurrencyPickerSheetState extends State<_CurrencyPickerSheet> {
                 hintStyle: TextStyle(color: AppColors.textMuted),
                 prefixIcon: Icon(Icons.search, color: AppColors.textMuted),
                 border: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
               ),
             ),
           ),
@@ -441,8 +480,12 @@ class _CurrencyPickerSheetState extends State<_CurrencyPickerSheet> {
                 title: Text(
                   currency,
                   style: TextStyle(
-                    color: isSelected ? AppColors.primaryAccent : AppColors.textPrimary,
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                    color: isSelected
+                        ? AppColors.primaryAccent
+                        : AppColors.textPrimary,
+                    fontWeight: isSelected
+                        ? FontWeight.w600
+                        : FontWeight.normal,
                   ),
                 ),
                 trailing: isSelected

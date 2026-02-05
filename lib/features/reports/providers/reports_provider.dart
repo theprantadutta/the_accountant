@@ -186,7 +186,10 @@ class ReportsNotifier extends StateNotifier<ReportsState> {
       }
 
       // Load transactions for the period
-      final transactions = await _db.getTransactionsByDateRange(startDate, endDate);
+      final transactions = await _db.getTransactionsByDateRange(
+        startDate,
+        endDate,
+      );
 
       // Calculate totals
       double totalSpending = 0;
@@ -265,13 +268,15 @@ class ReportsNotifier extends StateNotifier<ReportsState> {
           ? (entry.value / totalSpending * 100)
           : 0.0;
 
-      result.add(CategorySpendingData(
-        categoryId: entry.key,
-        categoryName: category.name,
-        color: _parseColor(category.colorCode),
-        amount: entry.value,
-        percentage: percentage,
-      ));
+      result.add(
+        CategorySpendingData(
+          categoryId: entry.key,
+          categoryName: category.name,
+          color: _parseColor(category.colorCode),
+          amount: entry.value,
+          percentage: percentage,
+        ),
+      );
     }
 
     // Sort by amount descending
@@ -287,13 +292,15 @@ class ReportsNotifier extends StateNotifier<ReportsState> {
           : 0.0;
 
       if (otherTotal > 0) {
-        top5.add(CategorySpendingData(
-          categoryId: 'other',
-          categoryName: 'Other',
-          color: const Color(0xFF999999),
-          amount: otherTotal,
-          percentage: otherPercentage,
-        ));
+        top5.add(
+          CategorySpendingData(
+            categoryId: 'other',
+            categoryName: 'Other',
+            color: const Color(0xFF999999),
+            amount: otherTotal,
+            percentage: otherPercentage,
+          ),
+        );
       }
       return top5;
     }
@@ -315,36 +322,52 @@ class ReportsNotifier extends StateNotifier<ReportsState> {
       for (int i = 0; i < 7; i++) {
         final date = startDate.add(Duration(days: i));
         final dayExpenses = expenses
-            .where((t) =>
-                t.date.year == date.year &&
-                t.date.month == date.month &&
-                t.date.day == date.day)
+            .where(
+              (t) =>
+                  t.date.year == date.year &&
+                  t.date.month == date.month &&
+                  t.date.day == date.day,
+            )
             .fold(0.0, (sum, t) => sum + t.amount);
 
-        result.add(DailySpendingData(
-          date: date,
-          amount: dayExpenses,
-          dayLabel: _getDayLabel(date),
-        ));
+        result.add(
+          DailySpendingData(
+            date: date,
+            amount: dayExpenses,
+            dayLabel: _getDayLabel(date),
+          ),
+        );
       }
     } else if (timeframe == 1) {
       // Monthly - group by week
       final weeksInMonth = ((endDate.day - 1) ~/ 7) + 1;
       for (int week = 0; week < weeksInMonth; week++) {
-        final weekStart = DateTime(startDate.year, startDate.month, 1 + (week * 7));
-        final weekEnd = DateTime(startDate.year, startDate.month, (week + 1) * 7);
+        final weekStart = DateTime(
+          startDate.year,
+          startDate.month,
+          1 + (week * 7),
+        );
+        final weekEnd = DateTime(
+          startDate.year,
+          startDate.month,
+          (week + 1) * 7,
+        );
 
         final weekExpenses = expenses
-            .where((t) =>
-                t.date.isAfter(weekStart.subtract(const Duration(days: 1))) &&
-                t.date.isBefore(weekEnd.add(const Duration(days: 1))))
+            .where(
+              (t) =>
+                  t.date.isAfter(weekStart.subtract(const Duration(days: 1))) &&
+                  t.date.isBefore(weekEnd.add(const Duration(days: 1))),
+            )
             .fold(0.0, (sum, t) => sum + t.amount);
 
-        result.add(DailySpendingData(
-          date: weekStart,
-          amount: weekExpenses,
-          dayLabel: 'W${week + 1}',
-        ));
+        result.add(
+          DailySpendingData(
+            date: weekStart,
+            amount: weekExpenses,
+            dayLabel: 'W${week + 1}',
+          ),
+        );
       }
     } else {
       // Yearly - group by month
@@ -353,16 +376,22 @@ class ReportsNotifier extends StateNotifier<ReportsState> {
         final monthEnd = DateTime(startDate.year, month + 1, 0);
 
         final monthExpenses = expenses
-            .where((t) =>
-                t.date.isAfter(monthStart.subtract(const Duration(days: 1))) &&
-                t.date.isBefore(monthEnd.add(const Duration(days: 1))))
+            .where(
+              (t) =>
+                  t.date.isAfter(
+                    monthStart.subtract(const Duration(days: 1)),
+                  ) &&
+                  t.date.isBefore(monthEnd.add(const Duration(days: 1))),
+            )
             .fold(0.0, (sum, t) => sum + t.amount);
 
-        result.add(DailySpendingData(
-          date: monthStart,
-          amount: monthExpenses,
-          dayLabel: _getMonthLabel(month),
-        ));
+        result.add(
+          DailySpendingData(
+            date: monthStart,
+            amount: monthExpenses,
+            dayLabel: _getMonthLabel(month),
+          ),
+        );
       }
     }
 
@@ -382,22 +411,27 @@ class ReportsNotifier extends StateNotifier<ReportsState> {
 
       // Calculate spent amount
       final spent = transactions
-          .where((t) =>
-              !t.isIncome &&
-              (budget.categoryId.isEmpty || t.categoryId == budget.categoryId))
+          .where(
+            (t) =>
+                !t.isIncome &&
+                (budget.categoryId.isEmpty ||
+                    t.categoryId == budget.categoryId),
+          )
           .fold(0.0, (sum, t) => sum + t.amount);
 
       final percentage = budget.limit > 0 ? (spent / budget.limit) : 0.0;
 
-      result.add(BudgetComparisonData(
-        budgetId: budget.id,
-        budgetName: budget.name,
-        budgetLimit: budget.limit,
-        spent: spent,
-        color: const Color(0xFF667eea), // Default color
-        percentage: percentage,
-        isOverBudget: percentage > 1.0,
-      ));
+      result.add(
+        BudgetComparisonData(
+          budgetId: budget.id,
+          budgetName: budget.name,
+          budgetLimit: budget.limit,
+          spent: spent,
+          color: const Color(0xFF667eea), // Default color
+          percentage: percentage,
+          isOverBudget: percentage > 1.0,
+        ),
+      );
     }
 
     return result;
@@ -409,8 +443,20 @@ class ReportsNotifier extends StateNotifier<ReportsState> {
   }
 
   String _getMonthLabel(int month) {
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-                    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
     return months[month - 1];
   }
 
@@ -430,7 +476,9 @@ class ReportsNotifier extends StateNotifier<ReportsState> {
 }
 
 /// Provider for reports data
-final reportsProvider = StateNotifierProvider<ReportsNotifier, ReportsState>((ref) {
+final reportsProvider = StateNotifierProvider<ReportsNotifier, ReportsState>((
+  ref,
+) {
   final db = ref.watch(databaseProvider);
   return ReportsNotifier(db, ref);
 });

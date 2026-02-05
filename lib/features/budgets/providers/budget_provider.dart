@@ -58,16 +58,19 @@ class BudgetNotifier extends StateNotifier<BudgetState> {
   final AppDatabase _db;
   final Ref _ref;
 
-  BudgetNotifier(this._db, this._ref) : super(BudgetState(budgets: [], isLoading: false)) {
-    _loadBudgets();
+  BudgetNotifier(this._db, this._ref)
+    : super(BudgetState(budgets: [], isLoading: false)) {
+    loadBudgets();
   }
 
-  Future<void> _loadBudgets() async {
-    state = state.copyWith(isLoading: true);
+  Future<void> loadBudgets({bool silent = false}) async {
+    if (!silent) state = state.copyWith(isLoading: true);
     try {
       final dbBudgets = await _db.getAllBudgets();
       final budgets = dbBudgets
-          .where((b) => b.endDate != null) // Filter out budgets without end date
+          .where(
+            (b) => b.endDate != null,
+          ) // Filter out budgets without end date
           .map(
             (b) => Budget(
               id: b.id,
@@ -84,7 +87,7 @@ class BudgetNotifier extends StateNotifier<BudgetState> {
 
       state = state.copyWith(budgets: budgets, isLoading: false);
     } catch (e) {
-      state = state.copyWith(
+      if (!silent) state = state.copyWith(
         isLoading: false,
         errorMessage: 'Failed to load budgets',
       );
@@ -131,11 +134,13 @@ class BudgetNotifier extends StateNotifier<BudgetState> {
       await _db.addBudget(newBudget);
 
       // Reload budgets to get the new one
-      await _loadBudgets();
+      await loadBudgets();
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: e is PremiumLimitException ? e.message : 'Failed to add budget',
+        errorMessage: e is PremiumLimitException
+            ? e.message
+            : 'Failed to add budget',
       );
       rethrow; // Rethrow to let UI handle PremiumLimitException
     }
@@ -173,7 +178,7 @@ class BudgetNotifier extends StateNotifier<BudgetState> {
       await _db.updateBudget(updatedBudget);
 
       // Reload budgets to get the updated one
-      await _loadBudgets();
+      await loadBudgets();
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
@@ -189,7 +194,7 @@ class BudgetNotifier extends StateNotifier<BudgetState> {
       await _db.deleteBudget(id);
 
       // Reload budgets to reflect the deletion
-      await _loadBudgets();
+      await loadBudgets();
     } catch (e) {
       state = state.copyWith(
         isLoading: false,

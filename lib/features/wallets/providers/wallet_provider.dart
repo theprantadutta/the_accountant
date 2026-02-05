@@ -45,16 +45,16 @@ class WalletNotifier extends StateNotifier<WalletState> {
   final Ref _ref;
 
   WalletNotifier(this._database, this._ref)
-      : _balanceService = WalletBalanceService(_database),
-        super(WalletState(wallets: [])) {
+    : _balanceService = WalletBalanceService(_database),
+      super(WalletState(wallets: [])) {
     loadWallets();
   }
 
   /// Get the WalletBalanceService for external use
   WalletBalanceService get balanceService => _balanceService;
 
-  Future<void> loadWallets() async {
-    state = state.copyWith(isLoading: true);
+  Future<void> loadWallets({bool silent = false}) async {
+    if (!silent) state = state.copyWith(isLoading: true);
     try {
       final wallets = await _database.getAllWallets();
 
@@ -67,7 +67,7 @@ class WalletNotifier extends StateNotifier<WalletState> {
         walletBalances: walletBalances,
       );
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+      if (!silent) state = state.copyWith(isLoading: false, error: e.toString());
     }
   }
 
@@ -92,11 +92,13 @@ class WalletNotifier extends StateNotifier<WalletState> {
   /// Set a wallet as the default
   Future<void> setDefaultWallet(String walletId) async {
     await _clearOtherDefaults(walletId);
-    await _database.updateWallet(WalletsCompanion(
-      id: Value(walletId),
-      isDefault: const Value(true),
-      updatedAt: Value(DateTime.now()),
-    ));
+    await _database.updateWallet(
+      WalletsCompanion(
+        id: Value(walletId),
+        isDefault: const Value(true),
+        updatedAt: Value(DateTime.now()),
+      ),
+    );
     await loadWallets();
   }
 
@@ -161,11 +163,13 @@ class WalletNotifier extends StateNotifier<WalletState> {
   Future<void> _clearOtherDefaults(String? exceptId) async {
     for (final wallet in state.wallets) {
       if (wallet.id != exceptId && wallet.isDefault == true) {
-        await _database.updateWallet(WalletsCompanion(
-          id: Value(wallet.id),
-          isDefault: const Value(false),
-          updatedAt: Value(DateTime.now()),
-        ));
+        await _database.updateWallet(
+          WalletsCompanion(
+            id: Value(wallet.id),
+            isDefault: const Value(false),
+            updatedAt: Value(DateTime.now()),
+          ),
+        );
       }
     }
   }
@@ -196,9 +200,15 @@ class WalletNotifier extends StateNotifier<WalletState> {
         iconName: iconName != null ? Value(iconName) : const Value.absent(),
         color: color != null ? Value(color) : const Value.absent(),
         isDefault: isDefault != null ? Value(isDefault) : const Value.absent(),
-        useDecimals: useDecimals != null ? Value(useDecimals) : const Value.absent(),
-        creditLimit: creditLimit != null ? Value(creditLimit) : const Value.absent(),
-        billingCycleDay: billingCycleDay != null ? Value(billingCycleDay) : const Value.absent(),
+        useDecimals: useDecimals != null
+            ? Value(useDecimals)
+            : const Value.absent(),
+        creditLimit: creditLimit != null
+            ? Value(creditLimit)
+            : const Value.absent(),
+        billingCycleDay: billingCycleDay != null
+            ? Value(billingCycleDay)
+            : const Value.absent(),
         updatedAt: Value(DateTime.now()),
       );
 
@@ -284,7 +294,9 @@ final effectiveDefaultWalletIdProvider = Provider<String?>((ref) {
   if (walletState.wallets.isEmpty) return null;
 
   try {
-    final defaultWallet = walletState.wallets.firstWhere((w) => w.isDefault == true);
+    final defaultWallet = walletState.wallets.firstWhere(
+      (w) => w.isDefault == true,
+    );
     return defaultWallet.id;
   } catch (_) {
     return walletState.wallets.first.id;

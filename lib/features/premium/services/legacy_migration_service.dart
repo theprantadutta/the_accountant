@@ -31,9 +31,9 @@ class LegacyMigrationService {
     required Ref ref,
     required SharedPreferences prefs,
     ApiService? apiService,
-  })  : _ref = ref,
-        _prefs = prefs,
-        _apiService = apiService;
+  }) : _ref = ref,
+       _prefs = prefs,
+       _apiService = apiService;
 
   /// Check if migration has already been completed
   bool get isMigrationComplete =>
@@ -96,12 +96,16 @@ class LegacyMigrationService {
   void _migrateLocally() {
     final purchaseId = getLegacyPurchaseId();
 
-    _ref.read(premiumProvider.notifier).updateSubscription(
+    _ref
+        .read(premiumProvider.notifier)
+        .updateSubscription(
           tier: SubscriptionTier.premiumLifetime,
           purchaseId: purchaseId ?? 'legacy_migration',
         );
 
-    _logger.i('Local migration complete: tier=premiumLifetime, purchaseId=$purchaseId');
+    _logger.i(
+      'Local migration complete: tier=premiumLifetime, purchaseId=$purchaseId',
+    );
   }
 
   /// Migrate on backend to ensure sync works correctly

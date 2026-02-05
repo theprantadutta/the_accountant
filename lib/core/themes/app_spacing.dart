@@ -275,6 +275,5 @@ class AppSpacing {
   static EdgeInsets symmetricPadding({
     double horizontal = 0,
     double vertical = 0,
-  }) =>
-      EdgeInsets.symmetric(horizontal: horizontal, vertical: vertical);
+  }) => EdgeInsets.symmetric(horizontal: horizontal, vertical: vertical);
 }

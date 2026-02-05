@@ -11,7 +11,8 @@ import 'package:the_accountant/features/dashboard/widgets/responsive_financial_o
 import 'package:the_accountant/features/transactions/screens/transaction_list_screen.dart';
 import 'package:the_accountant/features/transactions/screens/add_transaction_screen.dart';
 import 'package:the_accountant/features/transactions/widgets/transaction_type_header.dart';
-import 'package:the_accountant/features/ai_assistant/screens/ai_assistant_screen.dart' show AIAssistantScreenGated;
+import 'package:the_accountant/features/ai_assistant/screens/ai_assistant_screen.dart'
+    show AIAssistantScreenGated;
 import 'package:the_accountant/features/settings/screens/settings_screen.dart';
 import 'package:the_accountant/features/reports/screens/reports_screen.dart';
 import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
@@ -155,7 +156,10 @@ class _MainNavigationContainerState
                                   TextButton.icon(
                                     onPressed: () {
                                       Navigator.pop(context);
-                                      Navigator.pushNamed(context, '/categories');
+                                      Navigator.pushNamed(
+                                        context,
+                                        '/categories',
+                                      );
                                     },
                                     icon: Icon(
                                       Icons.settings_outlined,
@@ -245,10 +249,7 @@ class _MainNavigationContainerState
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Categories',
-          style: AppTypography.titleMedium,
-        ),
+        Text('Categories', style: AppTypography.titleMedium),
         AppSpacing.gapLg,
         GridView.builder(
           shrinkWrap: true,
@@ -311,14 +312,10 @@ class _MainNavigationContainerState
     // Show loading while wallets are being fetched
     if (isLoadingWallets) {
       return Container(
-        decoration: BoxDecoration(
-          gradient: AppColors.backgroundGradient,
-        ),
+        decoration: BoxDecoration(gradient: AppColors.backgroundGradient),
         child: const Scaffold(
           backgroundColor: Colors.transparent,
-          body: Center(
-            child: CircularProgressIndicator(),
-          ),
+          body: Center(child: CircularProgressIndicator()),
         ),
       );
     }
@@ -334,22 +331,14 @@ class _MainNavigationContainerState
     }
 
     return Container(
-      decoration: BoxDecoration(
-        gradient: AppColors.backgroundGradient,
-      ),
+      decoration: BoxDecoration(gradient: AppColors.backgroundGradient),
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: _buildCustomAppBar(),
         extendBody: false,
-        body: IndexedStack(
-          index: _currentIndex,
-          children: _screens,
-        ),
+        body: IndexedStack(index: _currentIndex, children: _screens),
         floatingActionButton: _isFabVisible
-            ? NeoFAB(
-                icon: Icons.add,
-                onPressed: _showAddTransactionModal,
-              )
+            ? NeoFAB(icon: Icons.add, onPressed: _showAddTransactionModal)
             : null,
         floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
         bottomNavigationBar: CustomBottomNavBar(
@@ -402,10 +391,7 @@ class _MainNavigationContainerState
           ),
         ],
       ),
-      actions: [
-        _buildNotificationButton(),
-        AppSpacing.gapHSm,
-      ],
+      actions: [_buildNotificationButton(), AppSpacing.gapHSm],
     );
   }
 
@@ -438,10 +424,7 @@ class _MainNavigationContainerState
                 color: AppColors.error,
                 shape: BoxShape.circle,
               ),
-              constraints: BoxConstraints(
-                minWidth: 18,
-                minHeight: 18,
-              ),
+              constraints: BoxConstraints(minWidth: 18, minHeight: 18),
               child: Text(
                 unreadCount > 99 ? '99+' : unreadCount.toString(),
                 style: AppTypography.labelSmall.copyWith(

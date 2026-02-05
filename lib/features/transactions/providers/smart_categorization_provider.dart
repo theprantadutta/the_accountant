@@ -6,24 +6,26 @@ import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/features/transactions/services/smart_categorization_service.dart';
 
 /// Provider for the SmartCategorizationService instance
-final smartCategorizationServiceProvider =
-    Provider<SmartCategorizationService>((ref) {
-  final database = ref.watch(databaseProvider);
-  return SmartCategorizationService(database: database);
-});
+final smartCategorizationServiceProvider = Provider<SmartCategorizationService>(
+  (ref) {
+    final database = ref.watch(databaseProvider);
+    return SmartCategorizationService(database: database);
+  },
+);
 
 /// Provider for category suggestion based on title
 final categorySuggestionProvider =
     FutureProvider.family<CategorySuggestion?, String>((ref, title) async {
-  if (title.isEmpty) return null;
+      if (title.isEmpty) return null;
 
-  final service = ref.watch(smartCategorizationServiceProvider);
-  return await service.suggestCategory(title);
-});
+      final service = ref.watch(smartCategorizationServiceProvider);
+      return await service.suggestCategory(title);
+    });
 
 /// Provider for all associated titles
-final allAssociatedTitlesProvider =
-    FutureProvider<List<AssociatedTitle>>((ref) async {
+final allAssociatedTitlesProvider = FutureProvider<List<AssociatedTitle>>((
+  ref,
+) async {
   final service = ref.watch(smartCategorizationServiceProvider);
   return await service.getAllAssociations();
 });
@@ -54,10 +56,12 @@ class SmartCategorizationState {
 }
 
 /// Notifier for managing smart categorization
-class SmartCategorizationNotifier extends StateNotifier<SmartCategorizationState> {
+class SmartCategorizationNotifier
+    extends StateNotifier<SmartCategorizationState> {
   final Ref _ref;
 
-  SmartCategorizationNotifier(this._ref) : super(SmartCategorizationState(isLoading: true)) {
+  SmartCategorizationNotifier(this._ref)
+    : super(SmartCategorizationState(isLoading: true)) {
     _load();
   }
 
@@ -106,7 +110,8 @@ class SmartCategorizationNotifier extends StateNotifier<SmartCategorizationState
 
   /// Get associations for a specific category
   Future<List<AssociatedTitle>> getAssociationsForCategory(
-      String categoryId) async {
+    String categoryId,
+  ) async {
     final service = _ref.read(smartCategorizationServiceProvider);
     return await service.getAssociationsForCategory(categoryId);
   }
@@ -116,20 +121,23 @@ class SmartCategorizationNotifier extends StateNotifier<SmartCategorizationState
 }
 
 /// Provider for smart categorization notifier
-final smartCategorizationNotifierProvider = StateNotifierProvider<
-    SmartCategorizationNotifier, SmartCategorizationState>((ref) {
-  return SmartCategorizationNotifier(ref);
-});
+final smartCategorizationNotifierProvider =
+    StateNotifierProvider<
+      SmartCategorizationNotifier,
+      SmartCategorizationState
+    >((ref) {
+      return SmartCategorizationNotifier(ref);
+    });
 
 /// Provider for associations grouped by category
 final associationsByCategoryProvider =
     FutureProvider<Map<String, List<AssociatedTitle>>>((ref) async {
-  final associations = await ref.watch(allAssociatedTitlesProvider.future);
-  final grouped = <String, List<AssociatedTitle>>{};
+      final associations = await ref.watch(allAssociatedTitlesProvider.future);
+      final grouped = <String, List<AssociatedTitle>>{};
 
-  for (final association in associations) {
-    grouped.putIfAbsent(association.categoryId, () => []).add(association);
-  }
+      for (final association in associations) {
+        grouped.putIfAbsent(association.categoryId, () => []).add(association);
+      }
 
-  return grouped;
-});
+      return grouped;
+    });

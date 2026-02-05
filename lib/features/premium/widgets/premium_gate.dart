@@ -104,7 +104,10 @@ class _PremiumUpgradeScreen extends StatelessWidget {
           // Main content
           SafeArea(
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 24, vertical: isSmallScreen ? 8 : 16),
+              padding: EdgeInsets.symmetric(
+                horizontal: 24,
+                vertical: isSmallScreen ? 8 : 16,
+              ),
               child: Column(
                 children: [
                   // Hero Section - Feature Icon with glow
@@ -171,11 +174,7 @@ class _PremiumUpgradeScreen extends StatelessWidget {
               ),
             ],
           ),
-          child: Icon(
-            featureIcon,
-            size: innerIconSize,
-            color: Colors.white,
-          ),
+          child: Icon(featureIcon, size: innerIconSize, color: Colors.white),
         ),
         // Lock badge
         Positioned(
@@ -213,9 +212,7 @@ class _PremiumUpgradeScreen extends StatelessWidget {
               ],
             ),
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: AppColors.warning.withValues(alpha: 0.5),
-            ),
+            border: Border.all(color: AppColors.warning.withValues(alpha: 0.5)),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -266,7 +263,11 @@ class _PremiumUpgradeScreen extends StatelessWidget {
 
   Widget _buildBenefitsGrid(bool isSmallScreen) {
     final benefits = [
-      _BenefitItem(Icons.smart_toy_outlined, 'AI Insights', AppColors.primaryAccent),
+      _BenefitItem(
+        Icons.smart_toy_outlined,
+        'AI Insights',
+        AppColors.primaryAccent,
+      ),
       _BenefitItem(Icons.sync_rounded, 'Cloud Sync', AppColors.neonCyan),
       _BenefitItem(Icons.palette_outlined, 'Themes', AppColors.neonPink),
       _BenefitItem(Icons.all_inclusive, 'Unlimited', AppColors.success),
@@ -281,7 +282,9 @@ class _PremiumUpgradeScreen extends StatelessWidget {
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: benefits.map((b) => _buildBenefitItem(b, isSmallScreen)).toList(),
+        children: benefits
+            .map((b) => _buildBenefitItem(b, isSmallScreen))
+            .toList(),
       ),
     );
   }
@@ -342,7 +345,11 @@ class _PremiumUpgradeScreen extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.diamond_rounded, color: Colors.white, size: isSmallScreen ? 20 : 22),
+                Icon(
+                  Icons.diamond_rounded,
+                  color: Colors.white,
+                  size: isSmallScreen ? 20 : 22,
+                ),
                 const SizedBox(width: 10),
                 Text(
                   'Unlock Premium',
@@ -367,10 +374,7 @@ class _PremiumUpgradeScreen extends StatelessWidget {
             const SizedBox(width: 6),
             Text(
               'One-time purchase • Lifetime access',
-              style: TextStyle(
-                fontSize: 12,
-                color: AppColors.textMuted,
-              ),
+              style: TextStyle(fontSize: 12, color: AppColors.textMuted),
             ),
           ],
         ),
@@ -428,10 +432,7 @@ class PremiumFeatureGate extends ConsumerWidget {
             const SizedBox(width: 4),
             Text(
               'Premium',
-              style: TextStyle(
-                fontSize: 12,
-                color: AppColors.textMuted,
-              ),
+              style: TextStyle(fontSize: 12, color: AppColors.textMuted),
             ),
           ],
         ),

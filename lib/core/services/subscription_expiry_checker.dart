@@ -49,6 +49,8 @@ class SubscriptionExpiryChecker {
 }
 
 /// Provider for the subscription expiry checker
-final subscriptionExpiryCheckerProvider = Provider<SubscriptionExpiryChecker>((ref) {
+final subscriptionExpiryCheckerProvider = Provider<SubscriptionExpiryChecker>((
+  ref,
+) {
   return SubscriptionExpiryChecker();
 });

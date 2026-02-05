@@ -103,7 +103,8 @@ class _AmountInputState extends State<AmountInput> {
       // If last char is an operator, replace it
       final lastChar = _expression[_expression.length - 1];
       if (['+', '-', '*', '/'].contains(lastChar)) {
-        _expression = _expression.substring(0, _expression.length - 1) + operator;
+        _expression =
+            _expression.substring(0, _expression.length - 1) + operator;
       } else {
         _expression += operator;
       }
@@ -320,7 +321,9 @@ class _AmountInputState extends State<AmountInput> {
   }
 
   Widget _buildAmountDisplay(ThemeData theme, Color primaryColor) {
-    final displayExpression = _expression.replaceAll('*', '\u00D7').replaceAll('/', '\u00F7');
+    final displayExpression = _expression
+        .replaceAll('*', '\u00D7')
+        .replaceAll('/', '\u00F7');
 
     return Container(
       width: double.infinity,
@@ -382,9 +385,24 @@ class _AmountInputState extends State<AmountInput> {
         Row(
           children: [
             _buildButton('C', theme, onTap: _onClear, isOperator: true),
-            _buildButton('\u00F7', theme, onTap: () => _onOperator('/'), isOperator: true),
-            _buildButton('\u00D7', theme, onTap: () => _onOperator('*'), isOperator: true),
-            _buildButton('\u232B', theme, onTap: _onBackspace, isOperator: true),
+            _buildButton(
+              '\u00F7',
+              theme,
+              onTap: () => _onOperator('/'),
+              isOperator: true,
+            ),
+            _buildButton(
+              '\u00D7',
+              theme,
+              onTap: () => _onOperator('*'),
+              isOperator: true,
+            ),
+            _buildButton(
+              '\u232B',
+              theme,
+              onTap: _onBackspace,
+              isOperator: true,
+            ),
           ],
         ),
         Row(
@@ -392,7 +410,12 @@ class _AmountInputState extends State<AmountInput> {
             _buildButton('7', theme, onTap: () => _onDigit('7')),
             _buildButton('8', theme, onTap: () => _onDigit('8')),
             _buildButton('9', theme, onTap: () => _onDigit('9')),
-            _buildButton('-', theme, onTap: () => _onOperator('-'), isOperator: true),
+            _buildButton(
+              '-',
+              theme,
+              onTap: () => _onOperator('-'),
+              isOperator: true,
+            ),
           ],
         ),
         Row(
@@ -400,7 +423,12 @@ class _AmountInputState extends State<AmountInput> {
             _buildButton('4', theme, onTap: () => _onDigit('4')),
             _buildButton('5', theme, onTap: () => _onDigit('5')),
             _buildButton('6', theme, onTap: () => _onDigit('6')),
-            _buildButton('+', theme, onTap: () => _onOperator('+'), isOperator: true),
+            _buildButton(
+              '+',
+              theme,
+              onTap: () => _onOperator('+'),
+              isOperator: true,
+            ),
           ],
         ),
         Row(
@@ -408,15 +436,25 @@ class _AmountInputState extends State<AmountInput> {
             _buildButton('1', theme, onTap: () => _onDigit('1')),
             _buildButton('2', theme, onTap: () => _onDigit('2')),
             _buildButton('3', theme, onTap: () => _onDigit('3')),
-            _buildButton('=', theme, onTap: _onEquals, isPrimary: true, primaryColor: primaryColor),
+            _buildButton(
+              '=',
+              theme,
+              onTap: _onEquals,
+              isPrimary: true,
+              primaryColor: primaryColor,
+            ),
           ],
         ),
         Row(
           children: [
-            _buildButton('00', theme, onTap: () {
-              _onDigit('0');
-              _onDigit('0');
-            }),
+            _buildButton(
+              '00',
+              theme,
+              onTap: () {
+                _onDigit('0');
+                _onDigit('0');
+              },
+            ),
             _buildButton('0', theme, onTap: () => _onDigit('0')),
             _buildButton('.', theme, onTap: _onDecimal),
             const Expanded(child: SizedBox()), // Empty space to align
@@ -441,8 +479,8 @@ class _AmountInputState extends State<AmountInput> {
           color: isPrimary
               ? (primaryColor ?? theme.colorScheme.primary)
               : isOperator
-                  ? theme.colorScheme.surfaceContainerHighest
-                  : theme.colorScheme.surface,
+              ? theme.colorScheme.surfaceContainerHighest
+              : theme.colorScheme.surface,
           borderRadius: BorderRadius.circular(16),
           elevation: isPrimary ? 2 : 0,
           child: InkWell(
@@ -459,8 +497,8 @@ class _AmountInputState extends State<AmountInput> {
                   color: isPrimary
                       ? Colors.white
                       : isOperator
-                          ? theme.colorScheme.primary
-                          : theme.colorScheme.onSurface,
+                      ? theme.colorScheme.primary
+                      : theme.colorScheme.onSurface,
                 ),
               ),
             ),

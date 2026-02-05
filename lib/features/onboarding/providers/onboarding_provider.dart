@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/legacy.dart';
 import 'package:the_accountant/core/services/api_service.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
+import 'package:the_accountant/data/models/wallet.dart' show WalletType;
 
 /// State for onboarding flow
 class OnboardingState {
@@ -44,7 +45,7 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
   final AppDatabase _database;
 
   OnboardingNotifier(this._apiService, this._database)
-      : super(const OnboardingState());
+    : super(const OnboardingState());
 
   /// Check if user needs onboarding (first login only)
   Future<void> checkOnboardingStatus() async {
@@ -66,8 +67,11 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
       try {
         final cachedInfo = await _apiService.getCachedUserInfo();
         if (cachedInfo != null) {
-          final cachedOnboardingCompleted = cachedInfo['onboarding_completed'] ?? false;
-          debugPrint('[OnboardingProvider] Using cached onboarding status: $cachedOnboardingCompleted');
+          final cachedOnboardingCompleted =
+              cachedInfo['onboarding_completed'] ?? false;
+          debugPrint(
+            '[OnboardingProvider] Using cached onboarding status: $cachedOnboardingCompleted',
+          );
           state = state.copyWith(
             isLoading: false,
             needsOnboarding: !cachedOnboardingCompleted,
@@ -106,38 +110,46 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
     String? walletIcon,
     String? walletColor,
     double initialBalance = 0.0,
+    WalletType walletType = WalletType.cash,
+    double? creditLimit,
+    int? billingCycleDay,
   }) async {
     state = state.copyWith(isCompleting: true, error: null);
 
     try {
       // 1. Update user's default currency and mark onboarding as complete
-      await _apiService.put('/auth/me', data: {
-        'default_currency': defaultCurrency,
-        'onboarding_completed': true,
-      });
+      await _apiService.put(
+        '/auth/me',
+        data: {
+          'default_currency': defaultCurrency,
+          'onboarding_completed': true,
+        },
+      );
 
       // 2. Create default wallet locally
       final now = DateTime.now();
       final walletId = now.millisecondsSinceEpoch.toString();
 
-      await _database.addWallet(WalletsCompanion.insert(
-        id: walletId,
-        name: walletName,
-        iconName: Value(walletIcon ?? 'wallet'),
-        color: Value(walletColor ?? '#6366F1'),
-        currency: Value(defaultCurrency),
-        balance: Value(initialBalance),
-        isDefault: const Value(true),
-        orderIndex: const Value(0),
-        syncStatus: const Value(1), // pendingCreate
-        createdAt: Value(now),
-        updatedAt: Value(now),
-      ));
-
-      state = state.copyWith(
-        isCompleting: false,
-        needsOnboarding: false,
+      await _database.addWallet(
+        WalletsCompanion.insert(
+          id: walletId,
+          name: walletName,
+          iconName: Value(walletIcon ?? 'wallet'),
+          color: Value(walletColor ?? '#6366F1'),
+          currency: Value(defaultCurrency),
+          balance: Value(initialBalance),
+          isDefault: const Value(true),
+          walletType: Value(walletType),
+          creditLimit: Value(creditLimit),
+          billingCycleDay: Value(billingCycleDay),
+          orderIndex: const Value(0),
+          syncStatus: const Value(1), // pendingCreate
+          createdAt: Value(now),
+          updatedAt: Value(now),
+        ),
       );
+
+      state = state.copyWith(isCompleting: false, needsOnboarding: false);
     } catch (e) {
       debugPrint('[OnboardingProvider] Error completing onboarding: $e');
       state = state.copyWith(
@@ -152,14 +164,9 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
     state = state.copyWith(isCompleting: true, error: null);
 
     try {
-      await _apiService.put('/auth/me', data: {
-        'onboarding_completed': true,
-      });
+      await _apiService.put('/auth/me', data: {'onboarding_completed': true});
 
-      state = state.copyWith(
-        isCompleting: false,
-        needsOnboarding: false,
-      );
+      state = state.copyWith(isCompleting: false, needsOnboarding: false);
     } catch (e) {
       debugPrint('[OnboardingProvider] Error skipping onboarding: $e');
       state = state.copyWith(
@@ -173,7 +180,7 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
 /// Onboarding provider
 final onboardingProvider =
     StateNotifierProvider<OnboardingNotifier, OnboardingState>((ref) {
-  final apiService = ApiService();
-  final database = ref.watch(databaseProvider);
-  return OnboardingNotifier(apiService, database);
-});
+      final apiService = ApiService();
+      final database = ref.watch(databaseProvider);
+      return OnboardingNotifier(apiService, database);
+    });

@@ -190,7 +190,11 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
                             photoUrl,
                             fit: BoxFit.cover,
                             errorBuilder: (context, error, stackTrace) =>
-                                const Icon(Icons.person, size: 50, color: Colors.white),
+                                const Icon(
+                                  Icons.person,
+                                  size: 50,
+                                  color: Colors.white,
+                                ),
                           ),
                         )
                       : const Icon(Icons.person, size: 50, color: Colors.white),

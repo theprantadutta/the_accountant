@@ -71,15 +71,14 @@ class WalletSelector extends ConsumerWidget {
     Wallet? selectedWallet,
   ) {
     return GestureDetector(
-      onTap: () => _showWalletPicker(context, walletState.wallets, selectedWallet),
+      onTap: () =>
+          _showWalletPicker(context, walletState.wallets, selectedWallet),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
           color: theme.colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: theme.colorScheme.outline.withOpacity(0.2),
-          ),
+          border: Border.all(color: theme.colorScheme.outline.withOpacity(0.2)),
         ),
         child: Row(
           children: [
@@ -269,11 +268,7 @@ class _WalletPickerSheet extends StatelessWidget {
                 color: color.withOpacity(0.2),
                 shape: BoxShape.circle,
               ),
-              child: Icon(
-                Icons.account_balance_wallet,
-                color: color,
-                size: 24,
-              ),
+              child: Icon(Icons.account_balance_wallet, color: color, size: 24),
             ),
             const SizedBox(width: 16),
 
@@ -327,12 +322,7 @@ class _WalletPickerSheet extends StatelessWidget {
             ),
 
             // Selected Indicator
-            if (isSelected)
-              Icon(
-                Icons.check_circle,
-                color: color,
-                size: 24,
-              ),
+            if (isSelected) Icon(Icons.check_circle, color: color, size: 24),
           ],
         ),
       ),
@@ -380,7 +370,8 @@ class WalletSelectorCompact extends ConsumerWidget {
     }
 
     return GestureDetector(
-      onTap: () => _showWalletPicker(context, walletState.wallets, selectedWallet),
+      onTap: () =>
+          _showWalletPicker(context, walletState.wallets, selectedWallet),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(

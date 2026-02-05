@@ -6,6 +6,7 @@ import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/core/themes/app_theme.dart';
 import 'package:the_accountant/core/themes/app_typography.dart';
+import 'package:the_accountant/data/models/wallet.dart' show WalletType;
 import 'package:the_accountant/features/onboarding/providers/onboarding_provider.dart';
 import 'package:the_accountant/shared/widgets/color_picker.dart';
 import 'package:the_accountant/shared/widgets/currency_picker.dart';
@@ -30,17 +31,22 @@ class _PostSignupOnboardingScreenState
   String _selectedCurrency = 'USD';
 
   // Step 2: Wallet creation
-  final TextEditingController _walletNameController =
-      TextEditingController(text: 'Main Account');
+  final TextEditingController _walletNameController = TextEditingController(
+    text: 'Main Account',
+  );
   final TextEditingController _balanceController = TextEditingController();
+  final TextEditingController _creditLimitController = TextEditingController();
   String _selectedIcon = 'wallet';
   String _selectedColor = '#6366F1';
+  WalletType _walletType = WalletType.cash;
+  int? _billingCycleDay;
 
   @override
   void dispose() {
     _pageController.dispose();
     _walletNameController.dispose();
     _balanceController.dispose();
+    _creditLimitController.dispose();
     super.dispose();
   }
 
@@ -64,10 +70,34 @@ class _PostSignupOnboardingScreenState
     }
   }
 
+  static const _defaultIcons = {
+    WalletType.cash: 'wallet',
+    WalletType.bankAccount: 'account_balance',
+    WalletType.creditCard: 'credit_card',
+    WalletType.subscription: 'subscriptions',
+  };
+
+  static const _defaultColors = {
+    WalletType.cash: '#6366F1',
+    WalletType.bankAccount: '#06B6D4',
+    WalletType.creditCard: '#F59E0B',
+    WalletType.subscription: '#8B5CF6',
+  };
+
+  void _onWalletTypeChanged(WalletType type) {
+    setState(() {
+      _walletType = type;
+      _selectedIcon = _defaultIcons[type] ?? 'wallet';
+      _selectedColor = _defaultColors[type] ?? '#6366F1';
+    });
+  }
+
   Future<void> _completeOnboarding() async {
     final balance = double.tryParse(_balanceController.text) ?? 0.0;
 
-    await ref.read(onboardingProvider.notifier).completeOnboarding(
+    await ref
+        .read(onboardingProvider.notifier)
+        .completeOnboarding(
           defaultCurrency: _selectedCurrency,
           walletName: _walletNameController.text.trim().isEmpty
               ? 'Main Account'
@@ -75,6 +105,13 @@ class _PostSignupOnboardingScreenState
           walletIcon: _selectedIcon,
           walletColor: _selectedColor,
           initialBalance: balance,
+          walletType: _walletType,
+          creditLimit: _walletType == WalletType.creditCard
+              ? double.tryParse(_creditLimitController.text)
+              : null,
+          billingCycleDay: _walletType == WalletType.creditCard
+              ? _billingCycleDay
+              : null,
         );
   }
 
@@ -146,8 +183,9 @@ class _PostSignupOnboardingScreenState
                               label: 'Get Started',
                               style: NeoButtonStyle.primary,
                               isLoading: onboardingState.isCompleting,
-                              onPressed:
-                                  onboardingState.isCompleting ? null : _completeOnboarding,
+                              onPressed: onboardingState.isCompleting
+                                  ? null
+                                  : _completeOnboarding,
                             )
                           : NeoButton(
                               label: 'Continue',
@@ -184,11 +222,7 @@ class _PostSignupOnboardingScreenState
                 gradient: AppColors.primaryGradient,
                 borderRadius: BorderRadius.circular(30),
               ),
-              child: const Icon(
-                Icons.language,
-                size: 50,
-                color: Colors.white,
-              ),
+              child: const Icon(Icons.language, size: 50, color: Colors.white),
             ),
           ),
           AppSpacing.gapXl,
@@ -281,8 +315,9 @@ class _PostSignupOnboardingScreenState
               width: 100,
               height: 100,
               decoration: BoxDecoration(
-                color: WalletColors.parseColor(_selectedColor)
-                    .withValues(alpha: 0.2),
+                color: WalletColors.parseColor(
+                  _selectedColor,
+                ).withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(30),
                 border: Border.all(
                   color: WalletColors.parseColor(_selectedColor),
@@ -317,6 +352,80 @@ class _PostSignupOnboardingScreenState
             ),
           ),
           AppSpacing.gapXl,
+
+          // Account Type
+          Text('Account Type', style: AppTypography.labelMedium),
+          AppSpacing.gapSm,
+          SizedBox(
+            height: 40,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              children: WalletType.values.map((type) {
+                final isSelected = _walletType == type;
+                final label = switch (type) {
+                  WalletType.cash => 'Cash',
+                  WalletType.bankAccount => 'Bank Account',
+                  WalletType.creditCard => 'Credit Card',
+                  WalletType.subscription => 'Subscription',
+                };
+                final icon = switch (type) {
+                  WalletType.cash => Icons.wallet,
+                  WalletType.bankAccount => Icons.account_balance,
+                  WalletType.creditCard => Icons.credit_card,
+                  WalletType.subscription => Icons.subscriptions,
+                };
+                return Padding(
+                  padding: EdgeInsets.only(right: AppSpacing.sm),
+                  child: ChoiceChip(
+                    label: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          icon,
+                          size: 16,
+                          color: isSelected
+                              ? Colors.white
+                              : AppColors.textSecondary,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(label),
+                      ],
+                    ),
+                    selected: isSelected,
+                    onSelected: (_) => _onWalletTypeChanged(type),
+                    selectedColor: AppColors.primaryAccent,
+                    backgroundColor: AppColors.glassWhite,
+                    labelStyle: TextStyle(
+                      color: isSelected
+                          ? Colors.white
+                          : AppColors.textPrimary,
+                      fontSize: 13,
+                      fontWeight: isSelected
+                          ? FontWeight.w600
+                          : FontWeight.w400,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                      side: BorderSide(
+                        color: isSelected
+                            ? AppColors.primaryAccent
+                            : AppColors.glassBorder,
+                      ),
+                    ),
+                    showCheckmark: false,
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Account type cannot be changed later',
+            style: AppTypography.bodySmall.copyWith(
+              color: AppColors.textMuted,
+            ),
+          ),
+          AppSpacing.gapMd,
 
           // Wallet name
           Text('Account Name', style: AppTypography.labelMedium),
@@ -355,6 +464,55 @@ class _PostSignupOnboardingScreenState
             ),
           ),
           AppSpacing.gapMd,
+
+          // Credit Card specific fields
+          if (_walletType == WalletType.creditCard) ...[
+            Text('Credit Limit', style: AppTypography.labelMedium),
+            AppSpacing.gapSm,
+            TextFormField(
+              controller: _creditLimitController,
+              style: AppTypography.bodyLarge,
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              decoration: InputDecoration(
+                hintText: 'Enter credit limit',
+                prefixText: '${_getCurrencySymbol()} ',
+                filled: true,
+                fillColor: AppColors.glassWhite,
+                border: OutlineInputBorder(
+                  borderRadius: AppSpacing.borderRadiusMd,
+                  borderSide: BorderSide(color: AppColors.glassBorder),
+                ),
+              ),
+            ),
+            AppSpacing.gapMd,
+            Text('Billing Cycle Day (optional)', style: AppTypography.labelMedium),
+            AppSpacing.gapSm,
+            DropdownButtonFormField<int>(
+              value: _billingCycleDay,
+              decoration: InputDecoration(
+                hintText: 'Select billing day',
+                filled: true,
+                fillColor: AppColors.glassWhite,
+                border: OutlineInputBorder(
+                  borderRadius: AppSpacing.borderRadiusMd,
+                  borderSide: BorderSide(color: AppColors.glassBorder),
+                ),
+              ),
+              dropdownColor: AppColors.primarySurface,
+              style: AppTypography.bodyLarge,
+              items: List.generate(31, (i) => i + 1)
+                  .map(
+                    (day) => DropdownMenuItem(
+                      value: day,
+                      child: Text('Day $day'),
+                    ),
+                  )
+                  .toList(),
+              onChanged: (value) =>
+                  setState(() => _billingCycleDay = value),
+            ),
+            AppSpacing.gapMd,
+          ],
 
           // Icon and color pickers
           Row(
@@ -449,8 +607,9 @@ class _PostSignupOnboardingScreenState
                       width: 56,
                       height: 56,
                       decoration: BoxDecoration(
-                        color: WalletColors.parseColor(_selectedColor)
-                            .withValues(alpha: 0.2),
+                        color: WalletColors.parseColor(
+                          _selectedColor,
+                        ).withValues(alpha: 0.2),
                         borderRadius: AppSpacing.borderRadiusMd,
                       ),
                       child: Icon(

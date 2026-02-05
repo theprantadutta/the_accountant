@@ -93,10 +93,7 @@ class IAPNotifier extends StateNotifier<IAPState> {
         products: products,
       );
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        error: e.toString(),
-      );
+      state = state.copyWith(isLoading: false, error: e.toString());
     }
   }
 
@@ -108,12 +105,17 @@ class IAPNotifier extends StateNotifier<IAPState> {
     );
 
     // Refresh state after purchase
-    if (status == PurchaseStatus.purchased || status == PurchaseStatus.restored) {
+    if (status == PurchaseStatus.purchased ||
+        status == PurchaseStatus.restored) {
       _loadState();
     }
   }
 
-  void _onSubscriptionUpdate(bool isPremium, String? tier, DateTime? expiresAt) {
+  void _onSubscriptionUpdate(
+    bool isPremium,
+    String? tier,
+    DateTime? expiresAt,
+  ) {
     state = state.copyWith(
       isPremium: isPremium,
       currentTier: tier,
@@ -169,7 +171,9 @@ final isPremiumProvider = Provider<bool>((ref) {
 });
 
 /// Provider for subscription status
-final subscriptionStatusProvider = FutureProvider<SubscriptionStatus>((ref) async {
+final subscriptionStatusProvider = FutureProvider<SubscriptionStatus>((
+  ref,
+) async {
   final service = ref.watch(iapServiceProvider);
   return await service.checkSubscriptionStatus();
 });

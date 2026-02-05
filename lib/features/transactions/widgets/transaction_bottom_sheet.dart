@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:the_accountant/data/models/transaction.dart' show TransactionSpecialType;
+import 'package:the_accountant/data/models/transaction.dart'
+    show TransactionSpecialType;
 import 'package:the_accountant/features/categories/providers/category_provider.dart';
 import 'package:the_accountant/features/transactions/providers/smart_categorization_provider.dart';
 import 'package:the_accountant/features/transactions/providers/transaction_provider.dart';
@@ -15,18 +16,10 @@ import 'package:the_accountant/core/providers/currency_provider.dart';
 import 'package:the_accountant/core/services/currency_service.dart';
 
 /// Transaction creation steps
-enum TransactionStep {
-  amount,
-  category,
-  details,
-}
+enum TransactionStep { amount, category, details }
 
 /// Transaction type for the type selector
-enum TransactionType {
-  expense,
-  income,
-  transfer,
-}
+enum TransactionType { expense, income, transfer }
 
 /// Show the transaction bottom sheet
 /// Returns true if a transaction was created
@@ -45,10 +38,12 @@ class TransactionBottomSheet extends ConsumerStatefulWidget {
   const TransactionBottomSheet({super.key});
 
   @override
-  ConsumerState<TransactionBottomSheet> createState() => _TransactionBottomSheetState();
+  ConsumerState<TransactionBottomSheet> createState() =>
+      _TransactionBottomSheetState();
 }
 
-class _TransactionBottomSheetState extends ConsumerState<TransactionBottomSheet> {
+class _TransactionBottomSheetState
+    extends ConsumerState<TransactionBottomSheet> {
   TransactionStep _currentStep = TransactionStep.amount;
 
   // Transaction type (expense, income, transfer)
@@ -226,7 +221,8 @@ class _TransactionBottomSheetState extends ConsumerState<TransactionBottomSheet>
     try {
       final transactionNotifier = ref.read(transactionProvider.notifier);
       final walletNotifier = ref.read(walletProvider.notifier);
-      final effectiveWalletId = _selectedWalletId ?? walletNotifier.getDefaultWalletId();
+      final effectiveWalletId =
+          _selectedWalletId ?? walletNotifier.getDefaultWalletId();
 
       if (effectiveWalletId == null || effectiveWalletId.isEmpty) {
         _showError('Please select a wallet');
@@ -250,7 +246,9 @@ class _TransactionBottomSheetState extends ConsumerState<TransactionBottomSheet>
 
       // Learn from this transaction for smart categorization
       if (_title.isNotEmpty && _selectedCategory != null) {
-        final smartCategorizationService = ref.read(smartCategorizationServiceProvider);
+        final smartCategorizationService = ref.read(
+          smartCategorizationServiceProvider,
+        );
         await smartCategorizationService.addTitleAssociation(
           title: _title,
           categoryId: _selectedCategory!.id,
@@ -260,12 +258,17 @@ class _TransactionBottomSheetState extends ConsumerState<TransactionBottomSheet>
 
       if (mounted) {
         HapticFeedback.mediumImpact();
-        Navigator.pop(context, true); // Return true to indicate transaction was created
+        Navigator.pop(
+          context,
+          true,
+        ); // Return true to indicate transaction was created
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(_isIncome ? 'Income added!' : 'Expense added!'),
             behavior: SnackBarBehavior.floating,
-            backgroundColor: _isIncome ? Colors.green : Theme.of(context).colorScheme.primary,
+            backgroundColor: _isIncome
+                ? Colors.green
+                : Theme.of(context).colorScheme.primary,
           ),
         );
       }
@@ -348,7 +351,9 @@ class _TransactionBottomSheetState extends ConsumerState<TransactionBottomSheet>
           // Back/Close Button
           IconButton(
             icon: Icon(
-              _currentStep == TransactionStep.amount ? Icons.close : Icons.arrow_back,
+              _currentStep == TransactionStep.amount
+                  ? Icons.close
+                  : Icons.arrow_back,
             ),
             onPressed: _previousStep,
           ),
@@ -357,10 +362,7 @@ class _TransactionBottomSheetState extends ConsumerState<TransactionBottomSheet>
           Expanded(
             child: Text(
               _getStepTitle(),
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
           ),
@@ -540,7 +542,9 @@ class _TransactionBottomSheetState extends ConsumerState<TransactionBottomSheet>
           duration: const Duration(milliseconds: 200),
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
-            color: isSelected ? color.withValues(alpha: 0.2) : Colors.transparent,
+            color: isSelected
+                ? color.withValues(alpha: 0.2)
+                : Colors.transparent,
             borderRadius: BorderRadius.circular(8),
             border: isSelected
                 ? Border.all(color: color, width: 2)
@@ -560,7 +564,9 @@ class _TransactionBottomSheetState extends ConsumerState<TransactionBottomSheet>
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                  color: isSelected ? color : theme.colorScheme.onSurfaceVariant,
+                  color: isSelected
+                      ? color
+                      : theme.colorScheme.onSurfaceVariant,
                 ),
               ),
             ],
@@ -748,7 +754,9 @@ class _TransactionBottomSheetState extends ConsumerState<TransactionBottomSheet>
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? color.withValues(alpha: 0.15) : theme.colorScheme.surfaceContainerHighest,
+          color: isSelected
+              ? color.withValues(alpha: 0.15)
+              : theme.colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isSelected ? color : Colors.transparent,
@@ -836,17 +844,11 @@ class _TransactionBottomSheetState extends ConsumerState<TransactionBottomSheet>
         decoration: BoxDecoration(
           color: categoryColor.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: categoryColor.withValues(alpha: 0.3),
-          ),
+          border: Border.all(color: categoryColor.withValues(alpha: 0.3)),
         ),
         child: Row(
           children: [
-            Icon(
-              Icons.lightbulb_outline,
-              size: 18,
-              color: categoryColor,
-            ),
+            Icon(Icons.lightbulb_outline, size: 18, color: categoryColor),
             const SizedBox(width: 8),
             Expanded(
               child: Column(
@@ -913,10 +915,7 @@ class _TransactionBottomSheetState extends ConsumerState<TransactionBottomSheet>
               color: categoryColor.withOpacity(0.2),
               shape: BoxShape.circle,
             ),
-            child: Icon(
-              Icons.category,
-              color: categoryColor,
-            ),
+            child: Icon(Icons.category, color: categoryColor),
           ),
           const SizedBox(width: 16),
 
@@ -927,9 +926,7 @@ class _TransactionBottomSheetState extends ConsumerState<TransactionBottomSheet>
               children: [
                 Text(
                   _selectedCategory?.name ?? 'Category',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: const TextStyle(fontWeight: FontWeight.w600),
                 ),
                 Text(
                   _isIncome ? 'Income' : 'Expense',
@@ -1038,7 +1035,10 @@ class _TransactionBottomSheetState extends ConsumerState<TransactionBottomSheet>
                   }
                 },
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
                   decoration: BoxDecoration(
                     color: theme.colorScheme.surfaceContainerHighest,
                     borderRadius: BorderRadius.circular(12),
@@ -1053,9 +1053,7 @@ class _TransactionBottomSheetState extends ConsumerState<TransactionBottomSheet>
                       const SizedBox(width: 12),
                       Text(
                         _formatDate(_date),
-                        style: TextStyle(
-                          color: theme.colorScheme.onSurface,
-                        ),
+                        style: TextStyle(color: theme.colorScheme.onSurface),
                       ),
                       const Spacer(),
                       Icon(
@@ -1091,7 +1089,10 @@ class _TransactionBottomSheetState extends ConsumerState<TransactionBottomSheet>
                   }
                 },
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
                   decoration: BoxDecoration(
                     color: theme.colorScheme.surfaceContainerHighest,
                     borderRadius: BorderRadius.circular(12),
@@ -1106,9 +1107,7 @@ class _TransactionBottomSheetState extends ConsumerState<TransactionBottomSheet>
                       const SizedBox(width: 8),
                       Text(
                         _formatTime(_date),
-                        style: TextStyle(
-                          color: theme.colorScheme.onSurface,
-                        ),
+                        style: TextStyle(color: theme.colorScheme.onSurface),
                       ),
                     ],
                   ),
@@ -1140,9 +1139,7 @@ class _TransactionBottomSheetState extends ConsumerState<TransactionBottomSheet>
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
         border: Border(
-          top: BorderSide(
-            color: theme.colorScheme.outline.withOpacity(0.1),
-          ),
+          top: BorderSide(color: theme.colorScheme.outline.withOpacity(0.1)),
         ),
       ),
       child: SafeArea(
@@ -1160,10 +1157,7 @@ class _TransactionBottomSheetState extends ConsumerState<TransactionBottomSheet>
           ),
           child: Text(
             buttonText,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
         ),
       ),

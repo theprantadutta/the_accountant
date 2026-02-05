@@ -140,7 +140,9 @@ class _LoanChip extends StatelessWidget {
               : AppColors.primarySurface,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
-            color: isSelected ? color.withValues(alpha: 0.5) : AppColors.divider,
+            color: isSelected
+                ? color.withValues(alpha: 0.5)
+                : AppColors.divider,
             width: 1,
           ),
         ),
@@ -161,7 +163,9 @@ class _LoanChip extends StatelessWidget {
                   label,
                   style: TextStyle(
                     fontSize: 13,
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                    fontWeight: isSelected
+                        ? FontWeight.w600
+                        : FontWeight.normal,
                     color: isSelected ? color : AppColors.textSecondary,
                   ),
                 ),

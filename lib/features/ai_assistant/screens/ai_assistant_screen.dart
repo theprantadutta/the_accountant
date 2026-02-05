@@ -275,10 +275,7 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
           Expanded(
             child: Text(
               errorMessage ?? 'AI response may be limited',
-              style: TextStyle(
-                color: Colors.orange.shade200,
-                fontSize: 13,
-              ),
+              style: TextStyle(color: Colors.orange.shade200, fontSize: 13),
             ),
           ),
           GestureDetector(
@@ -348,12 +345,16 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
                         gradient: AppTheme.primaryGradient,
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFF667eea).withValues(alpha: 0.5),
+                            color: const Color(
+                              0xFF667eea,
+                            ).withValues(alpha: 0.5),
                             blurRadius: 16,
                             offset: const Offset(0, 4),
                           ),
                           BoxShadow(
-                            color: const Color(0xFF667eea).withValues(alpha: 0.3),
+                            color: const Color(
+                              0xFF667eea,
+                            ).withValues(alpha: 0.3),
                             blurRadius: 24,
                             spreadRadius: 2,
                           ),
@@ -494,7 +495,9 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
                             borderRadius: BorderRadius.circular(18),
                             boxShadow: [
                               BoxShadow(
-                                color: const Color(0xFF11998e).withValues(alpha: 0.4),
+                                color: const Color(
+                                  0xFF11998e,
+                                ).withValues(alpha: 0.4),
                                 blurRadius: 10,
                                 offset: const Offset(0, 2),
                               ),
@@ -661,7 +664,9 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
             color: Colors.white.withValues(alpha: animation.value),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF667eea).withValues(alpha: animation.value * 0.5),
+                color: const Color(
+                  0xFF667eea,
+                ).withValues(alpha: animation.value * 0.5),
                 blurRadius: 4,
               ),
             ],
@@ -720,13 +725,16 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
                   decoration: BoxDecoration(
                     gradient: isError
                         ? LinearGradient(
-                            colors: [Colors.orange.shade400, Colors.orange.shade600],
+                            colors: [
+                              Colors.orange.shade400,
+                              Colors.orange.shade600,
+                            ],
                           )
                         : (isWelcome
-                            ? AppTheme.primaryGradient
-                            : (isInsight
-                                  ? AppTheme.secondaryGradient
-                                  : AppTheme.primaryGradient)),
+                              ? AppTheme.primaryGradient
+                              : (isInsight
+                                    ? AppTheme.secondaryGradient
+                                    : AppTheme.primaryGradient)),
                     borderRadius: BorderRadius.circular(18),
                     boxShadow: [
                       BoxShadow(
@@ -740,12 +748,12 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
                     isError
                         ? Icons.warning_amber_rounded
                         : (isWelcome
-                            ? Icons.waving_hand
-                            : (isInsight
-                                  ? Icons.lightbulb
-                                  : (isSuggestion
-                                        ? Icons.tips_and_updates
-                                        : Icons.auto_awesome))),
+                              ? Icons.waving_hand
+                              : (isInsight
+                                    ? Icons.lightbulb
+                                    : (isSuggestion
+                                          ? Icons.tips_and_updates
+                                          : Icons.auto_awesome))),
                     color: Colors.white,
                     size: 18,
                   ),
@@ -772,10 +780,16 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
                         : (isError
                               ? Colors.orange.withValues(alpha: 0.15)
                               : (isInsight
-                                    ? const Color(0xFF667eea).withValues(alpha: 0.15)
+                                    ? const Color(
+                                        0xFF667eea,
+                                      ).withValues(alpha: 0.15)
                                     : (isSuggestion
-                                          ? const Color(0xFF11998e).withValues(alpha: 0.15)
-                                          : Colors.white.withValues(alpha: 0.08)))),
+                                          ? const Color(
+                                              0xFF11998e,
+                                            ).withValues(alpha: 0.15)
+                                          : Colors.white.withValues(
+                                              alpha: 0.08,
+                                            )))),
                     borderRadius: BorderRadius.only(
                       topLeft: const Radius.circular(20),
                       topRight: const Radius.circular(20),
@@ -786,8 +800,8 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
                       color: isUser
                           ? Colors.transparent
                           : (isError || isInsight || isSuggestion || isWelcome
-                              ? accentColor.withValues(alpha: 0.4)
-                              : Colors.white.withValues(alpha: 0.1)),
+                                ? accentColor.withValues(alpha: 0.4)
+                                : Colors.white.withValues(alpha: 0.1)),
                       width: 1,
                     ),
                     boxShadow: [
@@ -799,7 +813,11 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
                         )
                       else
                         BoxShadow(
-                          color: (isError || isInsight || isSuggestion || isWelcome)
+                          color:
+                              (isError ||
+                                  isInsight ||
+                                  isSuggestion ||
+                                  isWelcome)
                               ? accentColor.withValues(alpha: 0.15)
                               : Colors.black.withValues(alpha: 0.2),
                           blurRadius: 10,
@@ -812,7 +830,10 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
                         ? CrossAxisAlignment.end
                         : CrossAxisAlignment.start,
                     children: [
-                      if (isError || isInsight || isSuggestion || isWelcome) ...[
+                      if (isError ||
+                          isInsight ||
+                          isSuggestion ||
+                          isWelcome) ...[
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -820,10 +841,10 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
                               isError
                                   ? Icons.cloud_off
                                   : (isWelcome
-                                      ? Icons.auto_awesome
-                                      : (isInsight
-                                            ? Icons.analytics
-                                            : Icons.tips_and_updates)),
+                                        ? Icons.auto_awesome
+                                        : (isInsight
+                                              ? Icons.analytics
+                                              : Icons.tips_and_updates)),
                               color: accentColor,
                               size: 16,
                             ),
@@ -832,10 +853,10 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
                               isError
                                   ? 'Connection Issue'
                                   : (isWelcome
-                                      ? 'AI Assistant'
-                                      : (isInsight
-                                            ? 'Financial Insight'
-                                            : 'Pro Tips')),
+                                        ? 'AI Assistant'
+                                        : (isInsight
+                                              ? 'Financial Insight'
+                                              : 'Pro Tips')),
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: accentColor,
@@ -935,7 +956,9 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
                   ),
                   cursorColor: const Color(0xFF667eea),
                   decoration: InputDecoration(
-                    hintText: isLoading ? 'Waiting for response...' : 'Ask about your finances...',
+                    hintText: isLoading
+                        ? 'Waiting for response...'
+                        : 'Ask about your finances...',
                     hintStyle: TextStyle(
                       color: Colors.white.withValues(alpha: 0.4),
                       fontSize: 16,
@@ -964,10 +987,7 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
                 decoration: BoxDecoration(
                   gradient: isLoading
                       ? LinearGradient(
-                          colors: [
-                            Colors.grey.shade600,
-                            Colors.grey.shade700,
-                          ],
+                          colors: [Colors.grey.shade600, Colors.grey.shade700],
                         )
                       : AppTheme.primaryGradient,
                   borderRadius: BorderRadius.circular(23),
@@ -975,12 +995,16 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
                       ? null
                       : [
                           BoxShadow(
-                            color: const Color(0xFF667eea).withValues(alpha: 0.5),
+                            color: const Color(
+                              0xFF667eea,
+                            ).withValues(alpha: 0.5),
                             blurRadius: 14,
                             offset: const Offset(0, 4),
                           ),
                           BoxShadow(
-                            color: const Color(0xFF667eea).withValues(alpha: 0.3),
+                            color: const Color(
+                              0xFF667eea,
+                            ).withValues(alpha: 0.3),
                             blurRadius: 20,
                             spreadRadius: 1,
                           ),

@@ -213,9 +213,9 @@ class _CalculatorKeypadState extends State<CalculatorKeypad> {
       // Add thousand separators
       final number = int.tryParse(formattedDisplay) ?? 0;
       formattedDisplay = number.toString().replaceAllMapped(
-            RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-            (Match m) => '${m[1]},',
-          );
+        RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+        (Match m) => '${m[1]},',
+      );
     }
 
     return Container(
@@ -224,10 +224,7 @@ class _CalculatorKeypadState extends State<CalculatorKeypad> {
       decoration: BoxDecoration(
         color: AppColors.primarySurface,
         borderRadius: AppSpacing.borderRadiusLg,
-        border: Border.all(
-          color: accentColor.withValues(alpha: 0.3),
-          width: 1,
-        ),
+        border: Border.all(color: accentColor.withValues(alpha: 0.3), width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
@@ -236,10 +233,7 @@ class _CalculatorKeypadState extends State<CalculatorKeypad> {
           if (_operator != null)
             Text(
               '$_firstOperand $_operator',
-              style: TextStyle(
-                fontSize: 14,
-                color: AppColors.textMuted,
-              ),
+              style: TextStyle(fontSize: 14, color: AppColors.textMuted),
             ),
 
           // Main amount display
@@ -434,13 +428,10 @@ class _KeyButtonState extends State<_KeyButton>
       duration: AppAnimations.instant,
       vsync: this,
     );
-    _scaleAnimation = Tween<double>(
-      begin: 1.0,
-      end: AppAnimations.pressedScale,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: AppAnimations.easeOut,
-    ));
+    _scaleAnimation = Tween<double>(begin: 1.0, end: AppAnimations.pressedScale)
+        .animate(
+          CurvedAnimation(parent: _controller, curve: AppAnimations.easeOut),
+        );
   }
 
   @override
@@ -476,10 +467,7 @@ class _KeyButtonState extends State<_KeyButton>
         child: AnimatedBuilder(
           animation: _scaleAnimation,
           builder: (context, child) {
-            return Transform.scale(
-              scale: _scaleAnimation.value,
-              child: child,
-            );
+            return Transform.scale(scale: _scaleAnimation.value, child: child);
           },
           child: Container(
             height: 56,

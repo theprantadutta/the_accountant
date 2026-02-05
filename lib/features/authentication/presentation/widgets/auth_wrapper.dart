@@ -13,6 +13,7 @@ import 'package:the_accountant/core/services/secure_token_storage.dart';
 import 'package:the_accountant/core/services/api_service.dart';
 import 'package:the_accountant/features/premium/providers/premium_provider.dart';
 import 'package:the_accountant/data/models/premium_features.dart';
+import 'package:the_accountant/core/providers/sync_provider.dart';
 
 class AuthWrapper extends ConsumerStatefulWidget {
   const AuthWrapper({super.key});
@@ -21,7 +22,8 @@ class AuthWrapper extends ConsumerStatefulWidget {
   ConsumerState<AuthWrapper> createState() => _AuthWrapperState();
 }
 
-class _AuthWrapperState extends ConsumerState<AuthWrapper> with WidgetsBindingObserver {
+class _AuthWrapperState extends ConsumerState<AuthWrapper>
+    with WidgetsBindingObserver {
   bool _hasCheckedOnboarding = false;
   bool _hasRunStartupChecks = false;
 
@@ -41,7 +43,9 @@ class _AuthWrapperState extends ConsumerState<AuthWrapper> with WidgetsBindingOb
     if (authState.isAuthenticated && authState.subscriptionTier != 'free') {
       final tier = SubscriptionTier.fromString(authState.subscriptionTier);
       ref.read(premiumProvider.notifier).updateSubscription(tier: tier);
-      debugPrint('AuthWrapper: Synced premium status - tier: ${tier.displayName}');
+      debugPrint(
+        'AuthWrapper: Synced premium status - tier: ${tier.displayName}',
+      );
     }
   }
 
@@ -55,9 +59,14 @@ class _AuthWrapperState extends ConsumerState<AuthWrapper> with WidgetsBindingOb
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
 
-    // When app returns to foreground, check if token needs refresh
     if (state == AppLifecycleState.resumed) {
+      // When app returns to foreground, check if token needs refresh
       _checkAndRefreshTokenOnResume();
+      // Trigger auto-sync on resume
+      ref.read(syncNotifierProvider.notifier).triggerAutoSync();
+    } else if (state == AppLifecycleState.paused) {
+      // Stop periodic sync when app goes to background
+      ref.read(syncNotifierProvider.notifier).stopPeriodicSync();
     }
   }
 
@@ -72,7 +81,9 @@ class _AuthWrapperState extends ConsumerState<AuthWrapper> with WidgetsBindingOb
     // Check if token is expiring soon
     final isExpiringSoon = await SecureTokenStorage.isTokenExpiringSoon();
     if (isExpiringSoon) {
-      debugPrint('AuthWrapper: Token expiring soon on resume - triggering refresh check');
+      debugPrint(
+        'AuthWrapper: Token expiring soon on resume - triggering refresh check',
+      );
       // The API service will handle the actual refresh on the next request
       // But we can also proactively trigger a lightweight request to force refresh
       try {
@@ -86,7 +97,7 @@ class _AuthWrapperState extends ConsumerState<AuthWrapper> with WidgetsBindingOb
     }
   }
 
-  /// Run startup notification checks (subscription expiry, budget alerts)
+  /// Run startup notification checks (subscription expiry, budget alerts, auto-sync)
   Future<void> _runStartupChecks() async {
     debugPrint('AuthWrapper: Running startup notification checks');
 
@@ -96,6 +107,10 @@ class _AuthWrapperState extends ConsumerState<AuthWrapper> with WidgetsBindingOb
 
     // Trigger budget notification check
     ref.read(budgetNotificationProvider.notifier).checkBudgetsNow();
+
+    // Trigger auto-sync and start periodic sync
+    ref.read(syncNotifierProvider.notifier).triggerAutoSync();
+    ref.read(syncNotifierProvider.notifier).startPeriodicSync();
   }
 
   @override
@@ -106,13 +121,17 @@ class _AuthWrapperState extends ConsumerState<AuthWrapper> with WidgetsBindingOb
     // Listen for auth state changes to sync premium status
     ref.listen<AuthState>(authProvider, (previous, next) {
       // Sync premium when subscription tier changes
-      if (next.isAuthenticated && next.subscriptionTier != previous?.subscriptionTier) {
+      if (next.isAuthenticated &&
+          next.subscriptionTier != previous?.subscriptionTier) {
         _syncPremiumStatus();
       }
-      // Lock premium features on logout
+      // Lock premium features and stop sync on logout
       if (previous?.isAuthenticated == true && !next.isAuthenticated) {
         ref.read(premiumProvider.notifier).lockPremiumFeatures();
-        debugPrint('AuthWrapper: User logged out - locked premium features');
+        ref.read(syncNotifierProvider.notifier).stopPeriodicSync();
+        debugPrint(
+          'AuthWrapper: User logged out - locked premium features, stopped sync',
+        );
       }
     });
 

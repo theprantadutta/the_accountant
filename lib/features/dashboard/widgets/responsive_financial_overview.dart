@@ -21,10 +21,13 @@ import 'package:the_accountant/shared/widgets/shimmer_loading.dart';
 // import 'package:the_accountant/features/transactions/screens/add_transaction_screen.dart';
 // import 'package:the_accountant/features/transactions/widgets/transaction_type_header.dart';
 import 'package:the_accountant/features/credit_debt/screens/credit_debt_screen.dart';
+import 'package:the_accountant/features/credit_debt/providers/credit_debt_provider.dart';
 import 'package:the_accountant/features/subscriptions/screens/subscription_dashboard_screen.dart';
+import 'package:the_accountant/features/subscriptions/providers/subscription_dashboard_provider.dart';
 import 'package:the_accountant/features/budgets/screens/budget_list_screen.dart';
 import 'package:the_accountant/features/dashboard/widgets/wallet_cards_section.dart';
 import 'package:the_accountant/features/transactions/screens/transaction_list_screen.dart';
+import 'package:the_accountant/features/transactions/screens/transaction_type_screen.dart';
 
 class ResponsiveFinancialOverview extends ConsumerStatefulWidget {
   const ResponsiveFinancialOverview({super.key});
@@ -251,13 +254,28 @@ class _ResponsiveFinancialOverviewState
   }
 
   Widget _buildQuickLinks() {
+    final displayCurrency = ref.watch(defaultCurrencyProvider);
+    final currencySymbol = CurrencyInfo.getSymbol(displayCurrency);
+
+    final creditDebtState = ref.watch(creditDebtProvider);
+    final netBalance = creditDebtState.netBalance;
+
+    final subState = ref.watch(subscriptionDashboardProvider);
+    final monthlySubs = subState.totalMonthlyCost;
+
     return Row(
       children: [
         Expanded(
-          child: _QuickLinkCard(
-            icon: Icons.account_balance_wallet_rounded,
+          child: StatCard(
             label: 'Credit & Debt',
-            color: AppColors.neonCyan,
+            value: netBalance.abs(),
+            prefix: '${netBalance >= 0 ? '+' : '-'}$currencySymbol',
+            icon: Icons.account_balance_wallet_rounded,
+            iconColor: AppColors.neonCyan,
+            accentColor: AppColors.neonCyan,
+            variant: GlassCardVariant.cyan,
+            trend: netBalance >= 0 ? TrendDirection.up : TrendDirection.down,
+            trendValue: netBalance >= 0 ? 'Net credit' : 'Net debt',
             onTap: () {
               HapticFeedback.lightImpact();
               Navigator.push(
@@ -271,10 +289,16 @@ class _ResponsiveFinancialOverviewState
         ),
         const SizedBox(width: 12),
         Expanded(
-          child: _QuickLinkCard(
-            icon: Icons.subscriptions_rounded,
+          child: StatCard(
             label: 'Subscriptions',
-            color: AppColors.neonPurple,
+            value: monthlySubs,
+            prefix: currencySymbol,
+            icon: Icons.subscriptions_rounded,
+            iconColor: AppColors.neonPurple,
+            accentColor: AppColors.neonPurple,
+            variant: GlassCardVariant.purple,
+            trend: TrendDirection.down,
+            trendValue: 'Monthly',
             onTap: () {
               HapticFeedback.lightImpact();
               Navigator.push(
@@ -306,6 +330,16 @@ class _ResponsiveFinancialOverviewState
             accentColor: AppColors.success,
             trend: TrendDirection.up,
             trendValue: 'This month',
+            onTap: () {
+              HapticFeedback.lightImpact();
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      const TransactionTypeScreen(transactionType: 'income'),
+                ),
+              );
+            },
           ),
         ),
         AppSpacing.gapHMd,
@@ -319,6 +353,16 @@ class _ResponsiveFinancialOverviewState
             accentColor: AppColors.error,
             trend: TrendDirection.down,
             trendValue: 'This month',
+            onTap: () {
+              HapticFeedback.lightImpact();
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      const TransactionTypeScreen(transactionType: 'expense'),
+                ),
+              );
+            },
           ),
         ),
       ],
@@ -655,8 +699,12 @@ class _ResponsiveFinancialOverviewState
                 walletDecimalProvider(transaction.walletId),
               );
               final currencySymbol = CurrencyInfo.getSymbol(walletCurrency);
-              final formatter = useDecimals ? NumberFormat('#,##0.00') : NumberFormat('#,##0');
-              final displayAmount = useDecimals ? transaction.amount : transaction.amount.round();
+              final formatter = useDecimals
+                  ? NumberFormat('#,##0.00')
+                  : NumberFormat('#,##0');
+              final displayAmount = useDecimals
+                  ? transaction.amount
+                  : transaction.amount.round();
 
               return Container(
                 margin: EdgeInsets.only(bottom: AppSpacing.md),
@@ -718,7 +766,9 @@ class _ResponsiveFinancialOverviewState
     final displayCurrency = ref.watch(defaultCurrencyProvider);
     final useDecimals = ref.watch(defaultDecimalProvider);
     final currencySymbol = CurrencyInfo.getSymbol(displayCurrency);
-    final formatter = useDecimals ? NumberFormat('#,##0.00') : NumberFormat('#,##0');
+    final formatter = useDecimals
+        ? NumberFormat('#,##0.00')
+        : NumberFormat('#,##0');
 
     return GlassCard(
       variant: GlassCardVariant.success,
@@ -845,67 +895,6 @@ class _ResponsiveFinancialOverviewState
               );
             }),
         ],
-      ),
-    );
-  }
-}
-
-/// Quick link card for navigating to features from the dashboard
-class _QuickLinkCard extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final Color color;
-  final VoidCallback onTap;
-
-  const _QuickLinkCard({
-    required this.icon,
-    required this.label,
-    required this.color,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: color.withValues(alpha: 0.2),
-            width: 1,
-          ),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Icon(icon, color: color, size: 20),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                label,
-                style: AppTypography.labelMedium.copyWith(
-                  color: AppColors.textPrimary,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-            Icon(
-              Icons.chevron_right,
-              color: color.withValues(alpha: 0.6),
-              size: 20,
-            ),
-          ],
-        ),
       ),
     );
   }

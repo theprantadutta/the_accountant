@@ -74,10 +74,7 @@ class AboutScreen extends StatelessWidget {
             child: Text(
               '2024 The Accountant\nAll rights reserved.',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                color: AppColors.textMuted,
-                fontSize: 13,
-              ),
+              style: TextStyle(color: AppColors.textMuted, fontSize: 13),
             ),
           ),
           SizedBox(height: AppSpacing.lg),
@@ -86,10 +83,7 @@ class AboutScreen extends StatelessWidget {
           Center(
             child: Text(
               'Made with love for personal finance',
-              style: TextStyle(
-                color: AppColors.textMuted,
-                fontSize: 12,
-              ),
+              style: TextStyle(color: AppColors.textMuted, fontSize: 12),
             ),
           ),
         ],
@@ -133,10 +127,7 @@ class AboutScreen extends StatelessWidget {
         SizedBox(height: AppSpacing.xs),
         Text(
           'Your Personal Finance Companion',
-          style: TextStyle(
-            fontSize: 16,
-            color: AppColors.textSecondary,
-          ),
+          style: TextStyle(fontSize: 16, color: AppColors.textSecondary),
         ),
       ],
     );
@@ -164,10 +155,7 @@ class AboutScreen extends StatelessWidget {
         children: [
           Text(
             label,
-            style: TextStyle(
-              color: AppColors.textSecondary,
-              fontSize: 15,
-            ),
+            style: TextStyle(color: AppColors.textSecondary, fontSize: 15),
           ),
           Text(
             value,
@@ -188,11 +176,7 @@ class AboutScreen extends StatelessWidget {
     required VoidCallback onTap,
   }) {
     return ListTile(
-      leading: Icon(
-        icon,
-        color: AppColors.primaryAccent,
-        size: 22,
-      ),
+      leading: Icon(icon, color: AppColors.primaryAccent, size: 22),
       title: Text(
         title,
         style: TextStyle(
@@ -200,11 +184,7 @@ class AboutScreen extends StatelessWidget {
           fontWeight: FontWeight.w500,
         ),
       ),
-      trailing: Icon(
-        Icons.open_in_new,
-        color: AppColors.textMuted,
-        size: 18,
-      ),
+      trailing: Icon(Icons.open_in_new, color: AppColors.textMuted, size: 18),
       onTap: () {
         HapticFeedback.selectionClick();
         onTap();

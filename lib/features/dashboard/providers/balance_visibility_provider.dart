@@ -70,11 +70,14 @@ class BalanceVisibilityNotifier extends StateNotifier<Map<String, bool>> {
 
 final balanceVisibilityProvider =
     StateNotifierProvider<BalanceVisibilityNotifier, Map<String, bool>>((ref) {
-  return BalanceVisibilityNotifier();
-});
+      return BalanceVisibilityNotifier();
+    });
 
 /// Convenience provider to check visibility for a specific wallet
-final walletBalanceVisibleProvider = Provider.family<bool, String>((ref, walletId) {
+final walletBalanceVisibleProvider = Provider.family<bool, String>((
+  ref,
+  walletId,
+) {
   final visibilityMap = ref.watch(balanceVisibilityProvider);
   return visibilityMap[walletId] ?? true;
 });

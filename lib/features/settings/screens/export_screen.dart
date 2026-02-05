@@ -52,9 +52,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
 
           // Date range selection
           _buildSectionHeader('DATE RANGE'),
-          _buildSettingsCard([
-            _buildDateRangeTile(),
-          ]),
+          _buildSettingsCard([_buildDateRangeTile()]),
           SizedBox(height: AppSpacing.md),
 
           // Quick date options
@@ -128,10 +126,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
           Expanded(
             child: Text(
               'Export your financial data to analyze in other apps or keep as a backup.',
-              style: TextStyle(
-                color: AppColors.textSecondary,
-                fontSize: 14,
-              ),
+              style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
             ),
           ),
         ],
@@ -141,10 +136,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
 
   Widget _buildSectionHeader(String title) {
     return Padding(
-      padding: EdgeInsets.only(
-        left: AppSpacing.sm,
-        bottom: AppSpacing.sm,
-      ),
+      padding: EdgeInsets.only(left: AppSpacing.sm, bottom: AppSpacing.sm),
       child: Text(
         title,
         style: TextStyle(
@@ -191,11 +183,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
           color: AppColors.primaryAccent.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(10),
         ),
-        child: Icon(
-          Icons.date_range,
-          color: AppColors.primaryAccent,
-          size: 22,
-        ),
+        child: Icon(Icons.date_range, color: AppColors.primaryAccent, size: 22),
       ),
       title: Text(
         'Date Range',
@@ -206,10 +194,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
       ),
       subtitle: Text(
         rangeText,
-        style: TextStyle(
-          color: AppColors.textMuted,
-          fontSize: 13,
-        ),
+        style: TextStyle(color: AppColors.textMuted, fontSize: 13),
       ),
       trailing: Icon(Icons.chevron_right, color: AppColors.textMuted),
       onTap: _selectDateRange,
@@ -234,7 +219,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
     final isSelected = range == null
         ? _selectedDateRange == null
         : (_selectedDateRange?.start == range.start &&
-            _selectedDateRange?.end == range.end);
+              _selectedDateRange?.end == range.end);
 
     return FilterChip(
       label: Text(label),
@@ -292,10 +277,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
       ),
       subtitle: Text(
         subtitle,
-        style: TextStyle(
-          color: AppColors.textMuted,
-          fontSize: 13,
-        ),
+        style: TextStyle(color: AppColors.textMuted, fontSize: 13),
       ),
       trailing: Container(
         width: 24,
@@ -360,10 +342,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
       ),
       subtitle: Text(
         subtitle,
-        style: TextStyle(
-          color: AppColors.textMuted,
-          fontSize: 13,
-        ),
+        style: TextStyle(color: AppColors.textMuted, fontSize: 13),
       ),
     );
   }
@@ -375,9 +354,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
         backgroundColor: AppColors.primaryAccent,
         foregroundColor: Colors.white,
         padding: EdgeInsets.symmetric(vertical: AppSpacing.md),
-        shape: RoundedRectangleBorder(
-          borderRadius: AppSpacing.borderRadiusMd,
-        ),
+        shape: RoundedRectangleBorder(borderRadius: AppSpacing.borderRadiusMd),
       ),
       child: _isExporting
           ? SizedBox(
@@ -395,10 +372,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
                 SizedBox(width: AppSpacing.sm),
                 Text(
                   'Export ${_selectedFormat.toUpperCase()}',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                 ),
               ],
             ),
@@ -433,10 +407,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
 
   DateTimeRange _getThisMonthRange() {
     final now = DateTime.now();
-    return DateTimeRange(
-      start: DateTime(now.year, now.month, 1),
-      end: now,
-    );
+    return DateTimeRange(start: DateTime(now.year, now.month, 1), end: now);
   }
 
   DateTimeRange _getLastMonthRange() {
@@ -450,18 +421,12 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
 
   DateTimeRange _getLast3MonthsRange() {
     final now = DateTime.now();
-    return DateTimeRange(
-      start: DateTime(now.year, now.month - 3, 1),
-      end: now,
-    );
+    return DateTimeRange(start: DateTime(now.year, now.month - 3, 1), end: now);
   }
 
   DateTimeRange _getThisYearRange() {
     final now = DateTime.now();
-    return DateTimeRange(
-      start: DateTime(now.year, 1, 1),
-      end: now,
-    );
+    return DateTimeRange(start: DateTime(now.year, 1, 1), end: now);
   }
 
   Future<void> _exportData() async {
@@ -474,8 +439,12 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
       // Filter by date range
       final filteredTransactions = _selectedDateRange != null
           ? transactions.where((t) {
-              return t.date.isAfter(_selectedDateRange!.start.subtract(const Duration(days: 1))) &&
-                  t.date.isBefore(_selectedDateRange!.end.add(const Duration(days: 1)));
+              return t.date.isAfter(
+                    _selectedDateRange!.start.subtract(const Duration(days: 1)),
+                  ) &&
+                  t.date.isBefore(
+                    _selectedDateRange!.end.add(const Duration(days: 1)),
+                  );
             }).toList()
           : transactions;
 
@@ -576,7 +545,9 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('PDF report generated with ${transactions.length} transactions'),
+          content: Text(
+            'PDF report generated with ${transactions.length} transactions',
+          ),
           backgroundColor: AppColors.success,
         ),
       );

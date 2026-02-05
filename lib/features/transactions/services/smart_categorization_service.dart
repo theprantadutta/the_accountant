@@ -11,7 +11,8 @@ class SmartCategorizationService {
   final Logger _logger = Logger();
   final Uuid _uuid = const Uuid();
 
-  SmartCategorizationService({required AppDatabase database}) : _database = database;
+  SmartCategorizationService({required AppDatabase database})
+    : _database = database;
 
   /// Suggest a category based on the transaction title
   /// Returns null if no suggestion is found
@@ -51,7 +52,9 @@ class SmartCategorizationService {
     }
 
     // 3. Check for keyword matches in existing transactions
-    final keywordSuggestion = await _suggestFromTransactionHistory(normalizedTitle);
+    final keywordSuggestion = await _suggestFromTransactionHistory(
+      normalizedTitle,
+    );
     if (keywordSuggestion != null) {
       return keywordSuggestion;
     }
@@ -61,7 +64,9 @@ class SmartCategorizationService {
   }
 
   /// Suggest a category based on similar transaction titles in history
-  Future<CategorySuggestion?> _suggestFromTransactionHistory(String title) async {
+  Future<CategorySuggestion?> _suggestFromTransactionHistory(
+    String title,
+  ) async {
     // Get all transactions and their categories
     final transactions = await _database.getAllTransactions();
 
@@ -91,14 +96,17 @@ class SmartCategorizationService {
 
     // Find the category with the highest score
     if (categoryScores.isNotEmpty) {
-      final bestMatch = categoryScores.entries
-          .reduce((a, b) => a.value > b.value ? a : b);
+      final bestMatch = categoryScores.entries.reduce(
+        (a, b) => a.value > b.value ? a : b,
+      );
 
       if (bestMatch.value >= 2) {
         // Require at least 2 matches
         final category = categoryNames[bestMatch.key];
         if (category != null) {
-          _logger.d('Found history match for "$title" -> ${category.name} (score: ${bestMatch.value})');
+          _logger.d(
+            'Found history match for "$title" -> ${category.name} (score: ${bestMatch.value})',
+          );
           return CategorySuggestion(
             category: category,
             confidence: CategorySuggestionConfidence.history,
@@ -120,13 +128,20 @@ class SmartCategorizationService {
     if (title1.contains(title2) || title2.contains(title1)) return true;
 
     // Check for common words
-    final words1 = title1.split(RegExp(r'\s+')).where((w) => w.length > 2).toSet();
-    final words2 = title2.split(RegExp(r'\s+')).where((w) => w.length > 2).toSet();
+    final words1 = title1
+        .split(RegExp(r'\s+'))
+        .where((w) => w.length > 2)
+        .toSet();
+    final words2 = title2
+        .split(RegExp(r'\s+'))
+        .where((w) => w.length > 2)
+        .toSet();
 
     if (words1.isEmpty || words2.isEmpty) return false;
 
     final commonWords = words1.intersection(words2);
-    final similarity = commonWords.length / words1.length.clamp(1, double.infinity);
+    final similarity =
+        commonWords.length / words1.length.clamp(1, double.infinity);
 
     return similarity >= 0.5; // At least 50% common words
   }
@@ -144,31 +159,39 @@ class SmartCategorizationService {
     if (existing != null) {
       // Update if category changed
       if (existing.categoryId != transaction.categoryId) {
-        await (_database.update(_database.associatedTitles)
-              ..where((a) => a.id.equals(existing.id)))
-            .write(AssociatedTitlesCompanion(
-              categoryId: Value(transaction.categoryId!),
-              syncStatus: const Value(SyncStatus.pendingUpdate),
-              updatedAt: Value(DateTime.now()),
-            ));
-        _logger.d('Updated title association: "$normalizedTitle" -> ${transaction.categoryId}');
+        await (_database.update(
+          _database.associatedTitles,
+        )..where((a) => a.id.equals(existing.id))).write(
+          AssociatedTitlesCompanion(
+            categoryId: Value(transaction.categoryId!),
+            syncStatus: const Value(SyncStatus.pendingUpdate),
+            updatedAt: Value(DateTime.now()),
+          ),
+        );
+        _logger.d(
+          'Updated title association: "$normalizedTitle" -> ${transaction.categoryId}',
+        );
       }
       return;
     }
 
     // Create new association
     final id = _uuid.v4();
-    await _database.addAssociatedTitle(AssociatedTitlesCompanion(
-      id: Value(id),
-      title: Value(normalizedTitle),
-      categoryId: Value(transaction.categoryId!),
-      isExactMatch: const Value(true),
-      syncStatus: const Value(SyncStatus.pendingCreate),
-      createdAt: Value(DateTime.now()),
-      updatedAt: Value(DateTime.now()),
-    ));
+    await _database.addAssociatedTitle(
+      AssociatedTitlesCompanion(
+        id: Value(id),
+        title: Value(normalizedTitle),
+        categoryId: Value(transaction.categoryId!),
+        isExactMatch: const Value(true),
+        syncStatus: const Value(SyncStatus.pendingCreate),
+        createdAt: Value(DateTime.now()),
+        updatedAt: Value(DateTime.now()),
+      ),
+    );
 
-    _logger.d('Created title association: "$normalizedTitle" -> ${transaction.categoryId}');
+    _logger.d(
+      'Created title association: "$normalizedTitle" -> ${transaction.categoryId}',
+    );
   }
 
   /// Add a manual title association
@@ -181,33 +204,37 @@ class SmartCategorizationService {
     final id = _uuid.v4();
 
     // Check if already exists
-    final existing = await (_database.select(_database.associatedTitles)
-          ..where((a) => a.title.equals(normalizedTitle)))
-        .getSingleOrNull();
+    final existing = await (_database.select(
+      _database.associatedTitles,
+    )..where((a) => a.title.equals(normalizedTitle))).getSingleOrNull();
 
     if (existing != null) {
       // Update existing
-      await (_database.update(_database.associatedTitles)
-            ..where((a) => a.id.equals(existing.id)))
-          .write(AssociatedTitlesCompanion(
-            categoryId: Value(categoryId),
-            isExactMatch: Value(isExactMatch),
-            syncStatus: const Value(SyncStatus.pendingUpdate),
-            updatedAt: Value(DateTime.now()),
-          ));
+      await (_database.update(
+        _database.associatedTitles,
+      )..where((a) => a.id.equals(existing.id))).write(
+        AssociatedTitlesCompanion(
+          categoryId: Value(categoryId),
+          isExactMatch: Value(isExactMatch),
+          syncStatus: const Value(SyncStatus.pendingUpdate),
+          updatedAt: Value(DateTime.now()),
+        ),
+      );
       return existing.id;
     }
 
     // Create new
-    await _database.addAssociatedTitle(AssociatedTitlesCompanion(
-      id: Value(id),
-      title: Value(normalizedTitle),
-      categoryId: Value(categoryId),
-      isExactMatch: Value(isExactMatch),
-      syncStatus: const Value(SyncStatus.pendingCreate),
-      createdAt: Value(DateTime.now()),
-      updatedAt: Value(DateTime.now()),
-    ));
+    await _database.addAssociatedTitle(
+      AssociatedTitlesCompanion(
+        id: Value(id),
+        title: Value(normalizedTitle),
+        categoryId: Value(categoryId),
+        isExactMatch: Value(isExactMatch),
+        syncStatus: const Value(SyncStatus.pendingCreate),
+        createdAt: Value(DateTime.now()),
+        updatedAt: Value(DateTime.now()),
+      ),
+    );
 
     return id;
   }
@@ -219,7 +246,9 @@ class SmartCategorizationService {
   }
 
   /// Get all title associations for a category
-  Future<List<AssociatedTitle>> getAssociationsForCategory(String categoryId) async {
+  Future<List<AssociatedTitle>> getAssociationsForCategory(
+    String categoryId,
+  ) async {
     return await _database.getAssociatedTitlesForCategory(categoryId);
   }
 

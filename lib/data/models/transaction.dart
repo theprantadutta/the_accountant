@@ -5,11 +5,7 @@ import 'package:the_accountant/data/models/payment_method.dart';
 import 'package:the_accountant/data/models/recurring_config.dart';
 
 /// Transaction types enum (internal processing type)
-enum TransactionType {
-  regular,
-  transfer,
-  recurringInstance,
-}
+enum TransactionType { regular, transfer, recurringInstance }
 
 /// Transaction special types enum (like Cashew)
 /// Used for filtering and special handling of transactions
@@ -87,8 +83,9 @@ class Transactions extends Table {
   TextColumn get receiptImageUrl => text().nullable()();
 
   // Special transaction type (like Cashew)
-  IntColumn get specialType =>
-      intEnum<TransactionSpecialType>().withDefault(const Constant(0)).nullable()();
+  IntColumn get specialType => intEnum<TransactionSpecialType>()
+      .withDefault(const Constant(0))
+      .nullable()();
 
   // Paid status - for upcoming/debt/credit transactions
   // When true: transaction is paid/settled
@@ -107,8 +104,9 @@ class Transactions extends Table {
 
   // Sync fields
   TextColumn get serverId => text().nullable()();
-  IntColumn get syncStatus =>
-      integer().withDefault(const Constant(0))(); // 0=synced, 1=create, 2=update, 3=delete
+  IntColumn get syncStatus => integer().withDefault(
+    const Constant(0),
+  )(); // 0=synced, 1=create, 2=update, 3=delete
 
   // Timestamps
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();

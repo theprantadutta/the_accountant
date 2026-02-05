@@ -30,8 +30,9 @@ class Categories extends Table {
 
   // Sync fields
   TextColumn get serverId => text().nullable()();
-  IntColumn get syncStatus =>
-      integer().withDefault(const Constant(0))(); // 0=synced, 1=create, 2=update, 3=delete
+  IntColumn get syncStatus => integer().withDefault(
+    const Constant(0),
+  )(); // 0=synced, 1=create, 2=update, 3=delete
 
   // Timestamps
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();

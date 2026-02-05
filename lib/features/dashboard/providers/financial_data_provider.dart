@@ -66,8 +66,8 @@ class FinancialData {
 }
 
 class FinancialDataNotifier extends Notifier<FinancialData> {
-  late final FinancialCalculationService _calculationService;
-  late final CurrencyService _currencyService;
+  late FinancialCalculationService _calculationService;
+  late CurrencyService _currencyService;
   late String _displayCurrency;
 
   @override
@@ -95,8 +95,8 @@ class FinancialDataNotifier extends Notifier<FinancialData> {
     );
   }
 
-  Future<void> loadFinancialData() async {
-    state = state.copyWith(isLoading: true, error: null);
+  Future<void> loadFinancialData({bool silent = false}) async {
+    if (!silent) state = state.copyWith(isLoading: true, error: null);
 
     try {
       // Calculate current month date range

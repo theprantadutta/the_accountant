@@ -119,7 +119,9 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
       }
 
       HapticFeedback.mediumImpact();
-      ref.read(authProvider.notifier).signUpWithEmailAndPassword(
+      ref
+          .read(authProvider.notifier)
+          .signUpWithEmailAndPassword(
             _nameController.text.trim(),
             _emailController.text.trim(),
             _passwordController.text.trim(),
@@ -154,7 +156,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
               key: _formKey,
               child: ConstrainedBox(
                 constraints: BoxConstraints(
-                  minHeight: MediaQuery.of(context).size.height -
+                  minHeight:
+                      MediaQuery.of(context).size.height -
                       MediaQuery.of(context).padding.top -
                       MediaQuery.of(context).padding.bottom -
                       kToolbarHeight -
@@ -186,7 +189,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
                       AppSpacing.gapLg,
 
                       // Error Message
-                      if (authState.error != null) _buildErrorMessage(authState.error!),
+                      if (authState.error != null)
+                        _buildErrorMessage(authState.error!),
                     ],
                   ),
                 ),
@@ -233,13 +237,13 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
 
   Widget _buildWelcomeText() {
     return SlideTransition(
-      position: Tween<Offset>(
-        begin: const Offset(0, 0.3),
-        end: Offset.zero,
-      ).animate(CurvedAnimation(
-        parent: _animationController,
-        curve: const Interval(0.1, 0.5, curve: Curves.easeOut),
-      )),
+      position: Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero)
+          .animate(
+            CurvedAnimation(
+              parent: _animationController,
+              curve: const Interval(0.1, 0.5, curve: Curves.easeOut),
+            ),
+          ),
       child: FadeTransition(
         opacity: CurvedAnimation(
           parent: _animationController,
@@ -268,13 +272,13 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
 
   Widget _buildSignUpForm(AuthState authState) {
     return SlideTransition(
-      position: Tween<Offset>(
-        begin: const Offset(0, 0.3),
-        end: Offset.zero,
-      ).animate(CurvedAnimation(
-        parent: _animationController,
-        curve: const Interval(0.2, 0.7, curve: Curves.easeOut),
-      )),
+      position: Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero)
+          .animate(
+            CurvedAnimation(
+              parent: _animationController,
+              curve: const Interval(0.2, 0.7, curve: Curves.easeOut),
+            ),
+          ),
       child: FadeTransition(
         opacity: CurvedAnimation(
           parent: _animationController,
@@ -343,7 +347,9 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
                   if (value.length < 6) {
                     return 'Password must be at least 6 characters';
                   }
-                  if (!RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)').hasMatch(value)) {
+                  if (!RegExp(
+                    r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)',
+                  ).hasMatch(value)) {
                     return 'Must contain uppercase, lowercase, and number';
                   }
                   return null;
@@ -460,11 +466,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
                   : Border.all(color: AppColors.glassBorder),
             ),
             child: _acceptTerms
-                ? Icon(
-                    Icons.check,
-                    size: 16,
-                    color: AppColors.textPrimary,
-                  )
+                ? Icon(Icons.check, size: 16, color: AppColors.textPrimary)
                 : null,
           ),
           AppSpacing.gapHMd,
@@ -522,17 +524,17 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
                   pageBuilder: (context, animation, _) => const SignInScreen(),
                   transitionsBuilder: (context, animation, _, child) {
                     return SlideTransition(
-                      position: Tween<Offset>(
-                        begin: const Offset(-1.0, 0.0),
-                        end: Offset.zero,
-                      ).animate(CurvedAnimation(
-                        parent: animation,
-                        curve: AppAnimations.easeOut,
-                      )),
-                      child: FadeTransition(
-                        opacity: animation,
-                        child: child,
-                      ),
+                      position:
+                          Tween<Offset>(
+                            begin: const Offset(-1.0, 0.0),
+                            end: Offset.zero,
+                          ).animate(
+                            CurvedAnimation(
+                              parent: animation,
+                              curve: AppAnimations.easeOut,
+                            ),
+                          ),
+                      child: FadeTransition(opacity: animation, child: child),
                     );
                   },
                   transitionDuration: AppAnimations.normal,
@@ -556,9 +558,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
       padding: AppSpacing.paddingMd,
       decoration: BoxDecoration(
         color: AppColors.error.withValues(alpha: 0.1),
-        border: Border.all(
-          color: AppColors.error.withValues(alpha: 0.3),
-        ),
+        border: Border.all(color: AppColors.error.withValues(alpha: 0.3)),
         borderRadius: AppSpacing.borderRadiusMd,
       ),
       child: Row(
@@ -572,9 +572,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
           Expanded(
             child: Text(
               error,
-              style: AppTypography.bodySmall.copyWith(
-                color: AppColors.error,
-              ),
+              style: AppTypography.bodySmall.copyWith(color: AppColors.error),
             ),
           ),
         ],

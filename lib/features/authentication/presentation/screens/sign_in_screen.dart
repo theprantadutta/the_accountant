@@ -62,7 +62,9 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
   void _signIn() {
     if (_formKey.currentState!.validate()) {
       HapticFeedback.mediumImpact();
-      ref.read(authProvider.notifier).signInWithEmailAndPassword(
+      ref
+          .read(authProvider.notifier)
+          .signInWithEmailAndPassword(
             _emailController.text.trim(),
             _passwordController.text.trim(),
           );
@@ -90,7 +92,8 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
               key: _formKey,
               child: ConstrainedBox(
                 constraints: BoxConstraints(
-                  minHeight: MediaQuery.of(context).size.height -
+                  minHeight:
+                      MediaQuery.of(context).size.height -
                       MediaQuery.of(context).padding.top -
                       MediaQuery.of(context).padding.bottom -
                       48,
@@ -131,7 +134,8 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
                       AppSpacing.gapLg,
 
                       // Error Message
-                      if (authState.error != null) _buildErrorMessage(authState.error!),
+                      if (authState.error != null)
+                        _buildErrorMessage(authState.error!),
                     ],
                   ),
                 ),
@@ -178,13 +182,13 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
 
   Widget _buildWelcomeText() {
     return SlideTransition(
-      position: Tween<Offset>(
-        begin: const Offset(0, 0.3),
-        end: Offset.zero,
-      ).animate(CurvedAnimation(
-        parent: _animationController,
-        curve: const Interval(0.2, 0.6, curve: Curves.easeOut),
-      )),
+      position: Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero)
+          .animate(
+            CurvedAnimation(
+              parent: _animationController,
+              curve: const Interval(0.2, 0.6, curve: Curves.easeOut),
+            ),
+          ),
       child: FadeTransition(
         opacity: CurvedAnimation(
           parent: _animationController,
@@ -213,13 +217,13 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
 
   Widget _buildLoginForm(AuthState authState) {
     return SlideTransition(
-      position: Tween<Offset>(
-        begin: const Offset(0, 0.3),
-        end: Offset.zero,
-      ).animate(CurvedAnimation(
-        parent: _animationController,
-        curve: const Interval(0.3, 0.7, curve: Curves.easeOut),
-      )),
+      position: Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero)
+          .animate(
+            CurvedAnimation(
+              parent: _animationController,
+              curve: const Interval(0.3, 0.7, curve: Curves.easeOut),
+            ),
+          ),
       child: FadeTransition(
         opacity: CurvedAnimation(
           parent: _animationController,
@@ -319,12 +323,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
       ),
       child: Row(
         children: [
-          Expanded(
-            child: Container(
-              height: 1,
-              color: AppColors.glassBorder,
-            ),
-          ),
+          Expanded(child: Container(height: 1, color: AppColors.glassBorder)),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg),
             child: Text(
@@ -334,12 +333,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
               ),
             ),
           ),
-          Expanded(
-            child: Container(
-              height: 1,
-              color: AppColors.glassBorder,
-            ),
-          ),
+          Expanded(child: Container(height: 1, color: AppColors.glassBorder)),
         ],
       ),
     );
@@ -347,13 +341,13 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
 
   Widget _buildGoogleSignIn(AuthState authState) {
     return SlideTransition(
-      position: Tween<Offset>(
-        begin: const Offset(0, 0.3),
-        end: Offset.zero,
-      ).animate(CurvedAnimation(
-        parent: _animationController,
-        curve: const Interval(0.6, 0.9, curve: Curves.easeOut),
-      )),
+      position: Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero)
+          .animate(
+            CurvedAnimation(
+              parent: _animationController,
+              curve: const Interval(0.6, 0.9, curve: Curves.easeOut),
+            ),
+          ),
       child: FadeTransition(
         opacity: CurvedAnimation(
           parent: _animationController,
@@ -387,10 +381,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
                 ),
               ),
               AppSpacing.gapHMd,
-              Text(
-                'Continue with Google',
-                style: AppTypography.labelLarge,
-              ),
+              Text('Continue with Google', style: AppTypography.labelLarge),
             ],
           ),
         ),
@@ -422,17 +413,17 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
                   pageBuilder: (context, animation, _) => const SignUpScreen(),
                   transitionsBuilder: (context, animation, _, child) {
                     return SlideTransition(
-                      position: Tween<Offset>(
-                        begin: const Offset(1.0, 0.0),
-                        end: Offset.zero,
-                      ).animate(CurvedAnimation(
-                        parent: animation,
-                        curve: AppAnimations.easeOut,
-                      )),
-                      child: FadeTransition(
-                        opacity: animation,
-                        child: child,
-                      ),
+                      position:
+                          Tween<Offset>(
+                            begin: const Offset(1.0, 0.0),
+                            end: Offset.zero,
+                          ).animate(
+                            CurvedAnimation(
+                              parent: animation,
+                              curve: AppAnimations.easeOut,
+                            ),
+                          ),
+                      child: FadeTransition(opacity: animation, child: child),
                     );
                   },
                   transitionDuration: AppAnimations.normal,
@@ -453,20 +444,18 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
 
   Widget _buildErrorMessage(String error) {
     return SlideTransition(
-      position: Tween<Offset>(
-        begin: const Offset(0, 0.5),
-        end: Offset.zero,
-      ).animate(CurvedAnimation(
-        parent: _animationController,
-        curve: AppAnimations.easeOut,
-      )),
+      position: Tween<Offset>(begin: const Offset(0, 0.5), end: Offset.zero)
+          .animate(
+            CurvedAnimation(
+              parent: _animationController,
+              curve: AppAnimations.easeOut,
+            ),
+          ),
       child: Container(
         padding: AppSpacing.paddingMd,
         decoration: BoxDecoration(
           color: AppColors.error.withValues(alpha: 0.1),
-          border: Border.all(
-            color: AppColors.error.withValues(alpha: 0.3),
-          ),
+          border: Border.all(color: AppColors.error.withValues(alpha: 0.3)),
           borderRadius: AppSpacing.borderRadiusMd,
         ),
         child: Row(
@@ -480,9 +469,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
             Expanded(
               child: Text(
                 error,
-                style: AppTypography.bodySmall.copyWith(
-                  color: AppColors.error,
-                ),
+                style: AppTypography.bodySmall.copyWith(color: AppColors.error),
               ),
             ),
           ],

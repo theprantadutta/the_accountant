@@ -77,9 +77,7 @@ class UpcomingNotifier extends StateNotifier<UpcomingState> {
       await _db.markTransactionAsPaid(transactionId);
       await loadData(); // Refresh the list
     } catch (e) {
-      state = state.copyWith(
-        error: 'Failed to mark as paid: ${e.toString()}',
-      );
+      state = state.copyWith(error: 'Failed to mark as paid: ${e.toString()}');
     }
   }
 
@@ -117,8 +115,9 @@ class UpcomingNotifier extends StateNotifier<UpcomingState> {
 }
 
 /// Provider for upcoming/overdue transactions
-final upcomingProvider =
-    StateNotifierProvider<UpcomingNotifier, UpcomingState>((ref) {
-  final db = ref.watch(databaseProvider);
-  return UpcomingNotifier(db);
-});
+final upcomingProvider = StateNotifierProvider<UpcomingNotifier, UpcomingState>(
+  (ref) {
+    final db = ref.watch(databaseProvider);
+    return UpcomingNotifier(db);
+  },
+);

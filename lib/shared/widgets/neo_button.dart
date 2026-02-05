@@ -24,11 +24,7 @@ enum NeoButtonStyle {
 }
 
 /// Button size variants
-enum NeoButtonSize {
-  small,
-  medium,
-  large,
-}
+enum NeoButtonSize { small, medium, large }
 
 /// A modern, animated button with multiple style variants.
 ///
@@ -83,13 +79,10 @@ class _NeoButtonState extends State<NeoButton>
       vsync: this,
       duration: AppAnimations.quick,
     );
-    _scaleAnimation = Tween<double>(
-      begin: 1.0,
-      end: AppAnimations.pressedScale,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: AppAnimations.easeOut,
-    ));
+    _scaleAnimation = Tween<double>(begin: 1.0, end: AppAnimations.pressedScale)
+        .animate(
+          CurvedAnimation(parent: _controller, curve: AppAnimations.easeOut),
+        );
   }
 
   @override
@@ -208,10 +201,7 @@ class _NeoButtonState extends State<NeoButton>
 
   BoxBorder? _getBorder() {
     if (widget.style == NeoButtonStyle.secondary) {
-      return Border.all(
-        color: AppColors.glassBorder,
-        width: 1.5,
-      );
+      return Border.all(color: AppColors.glassBorder, width: 1.5);
     }
     return null;
   }
@@ -234,7 +224,9 @@ class _NeoButtonState extends State<NeoButton>
     final isDisabled = widget.onPressed == null || widget.isLoading;
     final foregroundColor = _getForegroundColor();
     final textStyle = _getTextStyle().copyWith(
-      color: isDisabled ? foregroundColor.withValues(alpha: 0.5) : foregroundColor,
+      color: isDisabled
+          ? foregroundColor.withValues(alpha: 0.5)
+          : foregroundColor,
     );
 
     Widget buttonContent = Row(
@@ -259,10 +251,7 @@ class _NeoButtonState extends State<NeoButton>
           ),
           AppSpacing.gapHSm,
         ],
-        Text(
-          widget.label,
-          style: textStyle,
-        ),
+        Text(widget.label, style: textStyle),
         if (widget.trailingIcon != null && !widget.isLoading) ...[
           AppSpacing.gapHSm,
           Icon(
@@ -275,9 +264,7 @@ class _NeoButtonState extends State<NeoButton>
     );
 
     Widget button = Container(
-      constraints: BoxConstraints(
-        minHeight: _getHeight(),
-      ),
+      constraints: BoxConstraints(minHeight: _getHeight()),
       padding: _getPadding(),
       decoration: BoxDecoration(
         gradient: isDisabled ? null : _getGradient(),
@@ -319,10 +306,8 @@ class _NeoButtonState extends State<NeoButton>
       onTapCancel: _handleTapCancel,
       child: AnimatedBuilder(
         animation: _scaleAnimation,
-        builder: (context, child) => Transform.scale(
-          scale: _scaleAnimation.value,
-          child: child,
-        ),
+        builder: (context, child) =>
+            Transform.scale(scale: _scaleAnimation.value, child: child),
         child: widget.isExpanded
             ? SizedBox(width: double.infinity, child: button)
             : button,
@@ -372,13 +357,10 @@ class _NeoIconButtonState extends State<NeoIconButton>
       vsync: this,
       duration: AppAnimations.quick,
     );
-    _scaleAnimation = Tween<double>(
-      begin: 1.0,
-      end: AppAnimations.pressedScale,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: AppAnimations.easeOut,
-    ));
+    _scaleAnimation = Tween<double>(begin: 1.0, end: AppAnimations.pressedScale)
+        .animate(
+          CurvedAnimation(parent: _controller, curve: AppAnimations.easeOut),
+        );
   }
 
   @override
@@ -399,20 +381,15 @@ class _NeoIconButtonState extends State<NeoIconButton>
       onTapCancel: () => _controller.reverse(),
       child: AnimatedBuilder(
         animation: _scaleAnimation,
-        builder: (context, child) => Transform.scale(
-          scale: _scaleAnimation.value,
-          child: child,
-        ),
+        builder: (context, child) =>
+            Transform.scale(scale: _scaleAnimation.value, child: child),
         child: Container(
           width: widget.size,
           height: widget.size,
           decoration: BoxDecoration(
             color: widget.backgroundColor ?? AppColors.glassWhite,
             shape: BoxShape.circle,
-            border: Border.all(
-              color: AppColors.glassBorder,
-              width: 1,
-            ),
+            border: Border.all(color: AppColors.glassBorder, width: 1),
             boxShadow: widget.enableGlow
                 ? [
                     BoxShadow(
@@ -433,10 +410,7 @@ class _NeoIconButtonState extends State<NeoIconButton>
     );
 
     if (widget.tooltip != null) {
-      return Tooltip(
-        message: widget.tooltip!,
-        child: button,
-      );
+      return Tooltip(message: widget.tooltip!, child: button);
     }
 
     return button;
@@ -475,13 +449,10 @@ class _NeoFABState extends State<NeoFAB> with SingleTickerProviderStateMixin {
       vsync: this,
       duration: AppAnimations.quick,
     );
-    _scaleAnimation = Tween<double>(
-      begin: 1.0,
-      end: AppAnimations.pressedScale,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: AppAnimations.easeOut,
-    ));
+    _scaleAnimation = Tween<double>(begin: 1.0, end: AppAnimations.pressedScale)
+        .animate(
+          CurvedAnimation(parent: _controller, curve: AppAnimations.easeOut),
+        );
   }
 
   @override
@@ -502,10 +473,8 @@ class _NeoFABState extends State<NeoFAB> with SingleTickerProviderStateMixin {
       onTapCancel: () => _controller.reverse(),
       child: AnimatedBuilder(
         animation: _scaleAnimation,
-        builder: (context, child) => Transform.scale(
-          scale: _scaleAnimation.value,
-          child: child,
-        ),
+        builder: (context, child) =>
+            Transform.scale(scale: _scaleAnimation.value, child: child),
         child: Container(
           width: widget.size,
           height: widget.size,
@@ -530,10 +499,7 @@ class _NeoFABState extends State<NeoFAB> with SingleTickerProviderStateMixin {
     );
 
     if (widget.heroTag != null) {
-      return Hero(
-        tag: widget.heroTag!,
-        child: fab,
-      );
+      return Hero(tag: widget.heroTag!, child: fab);
     }
 
     return fab;

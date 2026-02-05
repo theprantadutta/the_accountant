@@ -2,7 +2,8 @@ import 'package:drift/drift.dart' show Value;
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
-import 'package:the_accountant/data/models/transaction.dart' show TransactionSpecialType;
+import 'package:the_accountant/data/models/transaction.dart'
+    show TransactionSpecialType;
 import 'package:uuid/uuid.dart';
 
 /// State for credit and debt transactions
@@ -66,11 +67,10 @@ class CreditDebtState {
       allTransactions.where((t) => !t.isPaid).toList();
 
   /// Get overdue unpaid transactions (past original due date)
-  List<Transaction> get overdueTransactions =>
-      unpaidTransactions.where((t) {
-        final dueDate = t.originalDueDate ?? t.date;
-        return dueDate.isBefore(DateTime.now());
-      }).toList();
+  List<Transaction> get overdueTransactions => unpaidTransactions.where((t) {
+    final dueDate = t.originalDueDate ?? t.date;
+    return dueDate.isBefore(DateTime.now());
+  }).toList();
 
   /// Count of overdue transactions
   int get overdueCount => overdueTransactions.length;
@@ -111,17 +111,20 @@ class CreditDebtNotifier extends StateNotifier<CreditDebtState> {
       if (transaction == null) return;
 
       // Set paidAmount to full amount when marking as settled
-      await (_db.update(_db.transactions)
-            ..where((t) => t.id.equals(transactionId)))
-          .write(TransactionsCompanion(
-        isPaid: const Value(true),
-        paidAmount: Value(transaction.amount),
-        originalDueDate:
-            Value(transaction.originalDueDate ?? transaction.date),
-        date: Value(DateTime.now()),
-        syncStatus: const Value(SyncStatus.pendingUpdate),
-        updatedAt: Value(DateTime.now()),
-      ));
+      await (_db.update(
+        _db.transactions,
+      )..where((t) => t.id.equals(transactionId))).write(
+        TransactionsCompanion(
+          isPaid: const Value(true),
+          paidAmount: Value(transaction.amount),
+          originalDueDate: Value(
+            transaction.originalDueDate ?? transaction.date,
+          ),
+          date: Value(DateTime.now()),
+          syncStatus: const Value(SyncStatus.pendingUpdate),
+          updatedAt: Value(DateTime.now()),
+        ),
+      );
       await loadData();
     } catch (e) {
       state = state.copyWith(
@@ -140,8 +143,7 @@ class CreditDebtNotifier extends StateNotifier<CreditDebtState> {
       final transaction = await _db.findTransactionById(transactionId);
       if (transaction == null) return;
 
-      final isCredit =
-          transaction.specialType == TransactionSpecialType.credit;
+      final isCredit = transaction.specialType == TransactionSpecialType.credit;
       final newPaidAmount = transaction.paidAmount + paymentAmount;
       final isFullyPaid = newPaidAmount >= transaction.amount;
 
@@ -150,10 +152,10 @@ class CreditDebtNotifier extends StateNotifier<CreditDebtState> {
       final paymentTransaction = TransactionsCompanion(
         id: Value(const Uuid().v4()),
         amount: Value(paymentAmount),
-        title: Value(
-            '${isCredit ? "Received" : "Paid"}: ${transaction.title}'),
+        title: Value('${isCredit ? "Received" : "Paid"}: ${transaction.title}'),
         notes: Value(
-            'Partial payment for ${isCredit ? "credit" : "debt"}: ${transaction.title}'),
+          'Partial payment for ${isCredit ? "credit" : "debt"}: ${transaction.title}',
+        ),
         date: Value(now),
         // Credit repayment = income (you receive money back)
         // Debt repayment = expense (you pay money out)
@@ -167,14 +169,16 @@ class CreditDebtNotifier extends StateNotifier<CreditDebtState> {
       await _db.addTransaction(paymentTransaction);
 
       // Update the original loan transaction's paidAmount
-      await (_db.update(_db.transactions)
-            ..where((t) => t.id.equals(transactionId)))
-          .write(TransactionsCompanion(
-        paidAmount: Value(newPaidAmount),
-        isPaid: Value(isFullyPaid),
-        syncStatus: const Value(SyncStatus.pendingUpdate),
-        updatedAt: Value(now),
-      ));
+      await (_db.update(
+        _db.transactions,
+      )..where((t) => t.id.equals(transactionId))).write(
+        TransactionsCompanion(
+          paidAmount: Value(newPaidAmount),
+          isPaid: Value(isFullyPaid),
+          syncStatus: const Value(SyncStatus.pendingUpdate),
+          updatedAt: Value(now),
+        ),
+      );
 
       await loadData();
     } catch (e) {
@@ -189,13 +193,15 @@ class CreditDebtNotifier extends StateNotifier<CreditDebtState> {
     try {
       await _db.markTransactionAsUnpaid(transactionId);
       // Also reset paidAmount
-      await (_db.update(_db.transactions)
-            ..where((t) => t.id.equals(transactionId)))
-          .write(TransactionsCompanion(
-        paidAmount: const Value(0.0),
-        syncStatus: const Value(SyncStatus.pendingUpdate),
-        updatedAt: Value(DateTime.now()),
-      ));
+      await (_db.update(
+        _db.transactions,
+      )..where((t) => t.id.equals(transactionId))).write(
+        TransactionsCompanion(
+          paidAmount: const Value(0.0),
+          syncStatus: const Value(SyncStatus.pendingUpdate),
+          updatedAt: Value(DateTime.now()),
+        ),
+      );
       await loadData();
     } catch (e) {
       state = state.copyWith(
@@ -225,6 +231,6 @@ class CreditDebtNotifier extends StateNotifier<CreditDebtState> {
 /// Provider for credit/debt transactions
 final creditDebtProvider =
     StateNotifierProvider<CreditDebtNotifier, CreditDebtState>((ref) {
-  final db = ref.watch(databaseProvider);
-  return CreditDebtNotifier(db);
-});
+      final db = ref.watch(databaseProvider);
+      return CreditDebtNotifier(db);
+    });

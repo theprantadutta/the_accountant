@@ -1,4 +1,3 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
@@ -15,14 +14,18 @@ RecurringService recurringService(Ref ref) {
 
 /// Provider for all recurring configurations with their base transactions
 @riverpod
-Future<List<RecurringConfigWithTransaction>> allRecurringConfigs(Ref ref) async {
+Future<List<RecurringConfigWithTransaction>> allRecurringConfigs(
+  Ref ref,
+) async {
   final service = ref.watch(recurringServiceProvider);
   return await service.getAllRecurringWithTransactions();
 }
 
 /// Provider for active recurring configurations
 @riverpod
-Future<List<RecurringConfigWithTransaction>> activeRecurringConfigs(Ref ref) async {
+Future<List<RecurringConfigWithTransaction>> activeRecurringConfigs(
+  Ref ref,
+) async {
   final service = ref.watch(recurringServiceProvider);
   return await service.getActiveRecurringWithTransactions();
 }
@@ -129,11 +132,13 @@ Future<List<UpcomingRecurring>> upcomingRecurringTransactions(Ref ref) async {
   for (final config in configs) {
     if (config.nextOccurrence.isAfter(now) &&
         config.nextOccurrence.isBefore(thirtyDaysFromNow)) {
-      upcoming.add(UpcomingRecurring(
-        config: config,
-        dueDate: config.nextOccurrence,
-        daysUntilDue: config.nextOccurrence.difference(now).inDays,
-      ));
+      upcoming.add(
+        UpcomingRecurring(
+          config: config,
+          dueDate: config.nextOccurrence,
+          daysUntilDue: config.nextOccurrence.difference(now).inDays,
+        ),
+      );
     }
   }
 

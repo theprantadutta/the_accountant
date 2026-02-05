@@ -1,12 +1,7 @@
 import 'package:drift/drift.dart';
 
 /// Recurrence types enum
-enum RecurrenceType {
-  daily,
-  weekly,
-  monthly,
-  yearly,
-}
+enum RecurrenceType { daily, weekly, monthly, yearly }
 
 /// Recurring configurations table for scheduled transactions
 class RecurringConfigs extends Table {
@@ -19,8 +14,9 @@ class RecurringConfigs extends Table {
   // Recurrence settings
   IntColumn get periodLength =>
       integer().withDefault(const Constant(1))(); // e.g., every 2 weeks
-  TextColumn get reoccurrence =>
-      text().withDefault(const Constant('monthly'))(); // daily, weekly, monthly, yearly
+  TextColumn get reoccurrence => text().withDefault(
+    const Constant('monthly'),
+  )(); // daily, weekly, monthly, yearly
 
   // Date range
   DateTimeColumn get startDate => dateTime()();
@@ -32,8 +28,9 @@ class RecurringConfigs extends Table {
 
   // Sync fields
   TextColumn get serverId => text().nullable()();
-  IntColumn get syncStatus =>
-      integer().withDefault(const Constant(0))(); // 0=synced, 1=create, 2=update, 3=delete
+  IntColumn get syncStatus => integer().withDefault(
+    const Constant(0),
+  )(); // 0=synced, 1=create, 2=update, 3=delete
 
   // Timestamps
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();

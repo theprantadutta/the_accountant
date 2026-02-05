@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:the_accountant/data/datasources/local/app_database.dart' hide Transaction;
+import 'package:the_accountant/data/datasources/local/app_database.dart'
+    hide Transaction;
 import 'package:the_accountant/features/dashboard/widgets/wallet_switcher.dart';
 import 'package:the_accountant/features/transactions/providers/transaction_provider.dart';
 import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
@@ -96,9 +97,9 @@ final selectedWalletProvider = Provider<Wallet?>((ref) {
 
   final walletState = ref.watch(walletProvider);
   return walletState.wallets.cast<Wallet?>().firstWhere(
-        (w) => w?.id == selectedWalletId,
-        orElse: () => null,
-      );
+    (w) => w?.id == selectedWalletId,
+    orElse: () => null,
+  );
 });
 
 /// Provider for current display currency
@@ -112,9 +113,9 @@ final displayCurrencyProvider = Provider<String>((ref) {
   if (walletState.wallets.isNotEmpty) {
     // Try to find default wallet first
     final defaultWallet = walletState.wallets.cast<Wallet?>().firstWhere(
-          (w) => w?.isDefault == true,
-          orElse: () => walletState.wallets.first,
-        );
+      (w) => w?.isDefault == true,
+      orElse: () => walletState.wallets.first,
+    );
     return defaultWallet?.currency ?? 'USD';
   }
   return 'USD';

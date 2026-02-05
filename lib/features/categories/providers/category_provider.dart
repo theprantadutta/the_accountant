@@ -86,11 +86,11 @@ class CategoryNotifier extends StateNotifier<CategoryState> {
 
   CategoryNotifier(this._db, this._ref)
     : super(CategoryState(categories: [], isLoading: false)) {
-    _loadCategories();
+    loadCategories();
   }
 
-  Future<void> _loadCategories() async {
-    state = state.copyWith(isLoading: true);
+  Future<void> loadCategories({bool silent = false}) async {
+    if (!silent) state = state.copyWith(isLoading: true);
     try {
       final dbCategories = await _db.getAllCategories();
       final categories = dbCategories
@@ -109,7 +109,7 @@ class CategoryNotifier extends StateNotifier<CategoryState> {
 
       state = state.copyWith(categories: categories, isLoading: false);
     } catch (e) {
-      state = state.copyWith(
+      if (!silent) state = state.copyWith(
         isLoading: false,
         errorMessage: 'Failed to load categories',
       );
@@ -135,7 +135,9 @@ class CategoryNotifier extends StateNotifier<CategoryState> {
       if (!isDefault) {
         final premiumState = _ref.read(premiumProvider);
         if (!premiumState.isPremium) {
-          final customCount = state.categories.where((c) => !c.isDefault).length;
+          final customCount = state.categories
+              .where((c) => !c.isDefault)
+              .length;
           if (customCount >= FreeTierLimits.maxCustomCategories) {
             throw PremiumLimitException(
               entityType: 'category',
@@ -162,11 +164,13 @@ class CategoryNotifier extends StateNotifier<CategoryState> {
       await _db.addCategory(newCategory);
 
       // Reload categories to get the new one
-      await _loadCategories();
+      await loadCategories();
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: e is PremiumLimitException ? e.message : 'Failed to add category',
+        errorMessage: e is PremiumLimitException
+            ? e.message
+            : 'Failed to add category',
       );
       rethrow; // Rethrow to let UI handle PremiumLimitException
     }
@@ -214,7 +218,7 @@ class CategoryNotifier extends StateNotifier<CategoryState> {
       await _db.updateCategory(updatedCategory);
 
       // Reload categories to get the updated one
-      await _loadCategories();
+      await loadCategories();
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
@@ -236,7 +240,7 @@ class CategoryNotifier extends StateNotifier<CategoryState> {
       await _db.deleteCategory(id);
 
       // Reload categories to reflect the deletion
-      await _loadCategories();
+      await loadCategories();
     } catch (e) {
       state = state.copyWith(
         isLoading: false,

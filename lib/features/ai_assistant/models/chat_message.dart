@@ -63,7 +63,8 @@ class ChatMessage {
   /// Creates a welcome message
   factory ChatMessage.welcome() {
     return ChatMessage.ai(
-      text: "Hello! I'm your AI financial assistant. I'm here to help you manage your finances, analyze your spending, and provide personalized advice. How can I assist you today?",
+      text:
+          "Hello! I'm your AI financial assistant. I'm here to help you manage your finances, analyze your spending, and provide personalized advice. How can I assist you today?",
       isWelcome: true,
     );
   }
@@ -89,9 +90,11 @@ class ChatMessage {
       isFromUser: (json['is_from_user'] ?? json['isFromUser']) as bool,
       timestamp: DateTime.parse(json['timestamp'] as String),
       isInsight: (json['is_insight'] ?? json['isInsight']) as bool? ?? false,
-      isSuggestion: (json['is_suggestion'] ?? json['isSuggestion']) as bool? ?? false,
+      isSuggestion:
+          (json['is_suggestion'] ?? json['isSuggestion']) as bool? ?? false,
       isWelcome: (json['is_welcome'] ?? json['isWelcome']) as bool? ?? false,
-      isAiFallback: (json['is_ai_fallback'] ?? json['isAiFallback']) as bool? ?? false,
+      isAiFallback:
+          (json['is_ai_fallback'] ?? json['isAiFallback']) as bool? ?? false,
       aiErrorType: (json['ai_error_type'] ?? json['aiErrorType']) as String?,
     );
   }
@@ -143,9 +146,14 @@ class SendMessageResponse {
 
   factory SendMessageResponse.fromJson(Map<String, dynamic> json) {
     return SendMessageResponse(
-      userMessage: ChatMessage.fromJson((json['user_message'] ?? json['userMessage']) as Map<String, dynamic>),
-      aiMessage: ChatMessage.fromJson((json['ai_message'] ?? json['aiMessage']) as Map<String, dynamic>),
-      isAiFallback: (json['is_ai_fallback'] ?? json['isAiFallback']) as bool? ?? false,
+      userMessage: ChatMessage.fromJson(
+        (json['user_message'] ?? json['userMessage']) as Map<String, dynamic>,
+      ),
+      aiMessage: ChatMessage.fromJson(
+        (json['ai_message'] ?? json['aiMessage']) as Map<String, dynamic>,
+      ),
+      isAiFallback:
+          (json['is_ai_fallback'] ?? json['isAiFallback']) as bool? ?? false,
       aiErrorType: (json['ai_error_type'] ?? json['aiErrorType']) as String?,
     );
   }

@@ -45,7 +45,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   /// Check if any keywords match search query
   bool _matchesKeywords(List<String> keywords) {
     if (_searchQuery.isEmpty) return true;
-    return keywords.any((k) => k.toLowerCase().contains(_searchQuery.toLowerCase()));
+    return keywords.any(
+      (k) => k.toLowerCase().contains(_searchQuery.toLowerCase()),
+    );
   }
 
   @override
@@ -171,27 +173,34 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
     // ACCOUNT SECTION
     final accountTiles = <Widget>[];
-    if (_matchesSearch('Subscription') || _matchesKeywords(['premium', 'upgrade', 'plan'])) {
-      accountTiles.add(SettingsNavigationTile(
-        icon: Icons.workspace_premium,
-        iconColor: premiumState.isPremium ? Colors.amber : AppColors.textMuted,
-        title: 'Subscription',
-        subtitle: premiumState.isPremium
-            ? premiumState.tier.displayName
-            : 'Upgrade to Premium',
-        onTap: () => Navigator.pushNamed(context, '/premium'),
-        trailing: premiumState.isPremium
-            ? const Icon(Icons.verified, color: Colors.amber, size: 20)
-            : null,
-      ));
+    if (_matchesSearch('Subscription') ||
+        _matchesKeywords(['premium', 'upgrade', 'plan'])) {
+      accountTiles.add(
+        SettingsNavigationTile(
+          icon: Icons.workspace_premium,
+          iconColor: premiumState.isPremium
+              ? Colors.amber
+              : AppColors.textMuted,
+          title: 'Subscription',
+          subtitle: premiumState.isPremium
+              ? premiumState.tier.displayName
+              : 'Upgrade to Premium',
+          onTap: () => Navigator.pushNamed(context, '/premium'),
+          trailing: premiumState.isPremium
+              ? const Icon(Icons.verified, color: Colors.amber, size: 20)
+              : null,
+        ),
+      );
     }
     if (_matchesSearch('Sign Out') || _matchesKeywords(['logout', 'exit'])) {
-      accountTiles.add(SettingsActionTile(
-        icon: Icons.logout,
-        iconColor: AppColors.error,
-        title: 'Sign Out',
-        onTap: () => _showSignOutDialog(context, ref),
-      ));
+      accountTiles.add(
+        SettingsActionTile(
+          icon: Icons.logout,
+          iconColor: AppColors.error,
+          title: 'Sign Out',
+          onTap: () => _showSignOutDialog(context, ref),
+        ),
+      );
     }
     if (accountTiles.isNotEmpty) {
       sections.add(SettingsSection(title: 'ACCOUNT', tiles: accountTiles));
@@ -199,16 +208,20 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
     // REGIONAL SECTION
     final regionalTiles = <Widget>[];
-    if (_matchesSearch('Regional') || _matchesKeywords(['currency', 'date', 'format', 'language'])) {
-      regionalTiles.add(SettingsNavigationTile(
-        icon: Icons.language,
-        title: 'Regional Settings',
-        subtitle: '${settingsState.currency} - ${_getDateFormatLabel(settingsState.dateFormat, ref)}',
-        onTap: () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const RegionalSettingsScreen()),
+    if (_matchesSearch('Regional') ||
+        _matchesKeywords(['currency', 'date', 'format', 'language'])) {
+      regionalTiles.add(
+        SettingsNavigationTile(
+          icon: Icons.language,
+          title: 'Regional Settings',
+          subtitle:
+              '${settingsState.currency} - ${_getDateFormatLabel(settingsState.dateFormat, ref)}',
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const RegionalSettingsScreen()),
+          ),
         ),
-      ));
+      );
     }
     if (regionalTiles.isNotEmpty) {
       sections.add(SettingsSection(title: 'REGIONAL', tiles: regionalTiles));
@@ -216,62 +229,79 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
     // NOTIFICATIONS SECTION
     final notificationTiles = <Widget>[];
-    if (_matchesSearch('Notification') || _matchesKeywords(['reminder', 'alert', 'budget alert', 'daily'])) {
-      notificationTiles.add(SettingsNavigationTile(
-        icon: Icons.notifications_outlined,
-        title: 'Notification Settings',
-        subtitle: 'Daily reminders, budget alerts',
-        onTap: () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const NotificationsScreen()),
+    if (_matchesSearch('Notification') ||
+        _matchesKeywords(['reminder', 'alert', 'budget alert', 'daily'])) {
+      notificationTiles.add(
+        SettingsNavigationTile(
+          icon: Icons.notifications_outlined,
+          title: 'Notification Settings',
+          subtitle: 'Daily reminders, budget alerts',
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const NotificationsScreen()),
+          ),
         ),
-      ));
+      );
     }
     if (notificationTiles.isNotEmpty) {
-      sections.add(SettingsSection(title: 'NOTIFICATIONS', tiles: notificationTiles));
+      sections.add(
+        SettingsSection(title: 'NOTIFICATIONS', tiles: notificationTiles),
+      );
     }
 
     // PRIVACY & SECURITY SECTION
     final privacyTiles = <Widget>[];
-    if (_matchesSearch('Privacy') || _matchesSearch('Security') || _matchesKeywords(['biometric', 'lock', 'fingerprint', 'password'])) {
-      privacyTiles.add(SettingsNavigationTile(
-        icon: Icons.security,
-        title: 'Privacy & Security',
-        subtitle: 'Biometric lock, data management',
-        onTap: () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const PrivacySecurityScreen()),
+    if (_matchesSearch('Privacy') ||
+        _matchesSearch('Security') ||
+        _matchesKeywords(['biometric', 'lock', 'fingerprint', 'password'])) {
+      privacyTiles.add(
+        SettingsNavigationTile(
+          icon: Icons.security,
+          title: 'Privacy & Security',
+          subtitle: 'Biometric lock, data management',
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const PrivacySecurityScreen()),
+          ),
         ),
-      ));
+      );
     }
     if (privacyTiles.isNotEmpty) {
-      sections.add(SettingsSection(title: 'PRIVACY & SECURITY', tiles: privacyTiles));
+      sections.add(
+        SettingsSection(title: 'PRIVACY & SECURITY', tiles: privacyTiles),
+      );
     }
 
     // DATA MANAGEMENT SECTION
     final dataTiles = <Widget>[];
-    if (_matchesSearch('Backup') || _matchesKeywords(['restore', 'google drive', 'sync', 'cloud'])) {
-      dataTiles.add(SettingsNavigationTile(
-        icon: Icons.cloud_outlined,
-        title: 'Backup & Restore',
-        subtitle: 'Sync to Google Drive',
-        onTap: () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const BackupScreenGated()),
+    if (_matchesSearch('Backup') ||
+        _matchesKeywords(['restore', 'google drive', 'sync', 'cloud'])) {
+      dataTiles.add(
+        SettingsNavigationTile(
+          icon: Icons.cloud_outlined,
+          title: 'Backup & Restore',
+          subtitle: 'Sync to Google Drive',
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const BackupScreenGated()),
+          ),
+          trailing: premiumState.isPremium ? null : const PremiumBadge(),
         ),
-        trailing: premiumState.isPremium ? null : const PremiumBadge(),
-      ));
+      );
     }
-    if (_matchesSearch('Export') || _matchesKeywords(['csv', 'pdf', 'download', 'data'])) {
-      dataTiles.add(SettingsNavigationTile(
-        icon: Icons.download_outlined,
-        title: 'Export Data',
-        subtitle: 'Export to CSV or PDF',
-        onTap: () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const ExportScreen()),
+    if (_matchesSearch('Export') ||
+        _matchesKeywords(['csv', 'pdf', 'download', 'data'])) {
+      dataTiles.add(
+        SettingsNavigationTile(
+          icon: Icons.download_outlined,
+          title: 'Export Data',
+          subtitle: 'Export to CSV or PDF',
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const ExportScreen()),
+          ),
         ),
-      ));
+      );
     }
     if (dataTiles.isNotEmpty) {
       sections.add(SettingsSection(title: 'DATA MANAGEMENT', tiles: dataTiles));
@@ -279,37 +309,49 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
     // HELP & SUPPORT SECTION
     final helpTiles = <Widget>[];
-    if (_matchesSearch('Help') || _matchesSearch('FAQ') || _matchesKeywords(['question', 'guide'])) {
-      helpTiles.add(SettingsNavigationTile(
-        icon: Icons.help_outline,
-        title: 'Help & FAQ',
-        subtitle: 'Get answers to common questions',
-        onTap: () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const HelpScreen()),
+    if (_matchesSearch('Help') ||
+        _matchesSearch('FAQ') ||
+        _matchesKeywords(['question', 'guide'])) {
+      helpTiles.add(
+        SettingsNavigationTile(
+          icon: Icons.help_outline,
+          title: 'Help & FAQ',
+          subtitle: 'Get answers to common questions',
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const HelpScreen()),
+          ),
         ),
-      ));
+      );
     }
-    if (_matchesSearch('Contact') || _matchesSearch('Support') || _matchesKeywords(['email', 'feedback'])) {
-      helpTiles.add(SettingsActionTile(
-        icon: Icons.email_outlined,
-        title: 'Contact Support',
-        onTap: () => _launchEmail(),
-      ));
+    if (_matchesSearch('Contact') ||
+        _matchesSearch('Support') ||
+        _matchesKeywords(['email', 'feedback'])) {
+      helpTiles.add(
+        SettingsActionTile(
+          icon: Icons.email_outlined,
+          title: 'Contact Support',
+          onTap: () => _launchEmail(),
+        ),
+      );
     }
     if (_matchesSearch('Rate') || _matchesKeywords(['review', 'star'])) {
-      helpTiles.add(SettingsActionTile(
-        icon: Icons.star_outline,
-        title: 'Rate the App',
-        onTap: () => _rateApp(),
-      ));
+      helpTiles.add(
+        SettingsActionTile(
+          icon: Icons.star_outline,
+          title: 'Rate the App',
+          onTap: () => _rateApp(),
+        ),
+      );
     }
     if (_matchesSearch('Share') || _matchesKeywords(['friends', 'invite'])) {
-      helpTiles.add(SettingsActionTile(
-        icon: Icons.share_outlined,
-        title: 'Share with Friends',
-        onTap: () => _shareApp(),
-      ));
+      helpTiles.add(
+        SettingsActionTile(
+          icon: Icons.share_outlined,
+          title: 'Share with Friends',
+          onTap: () => _shareApp(),
+        ),
+      );
     }
     if (helpTiles.isNotEmpty) {
       sections.add(SettingsSection(title: 'HELP & SUPPORT', tiles: helpTiles));
@@ -317,16 +359,19 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
     // ABOUT SECTION
     final aboutTiles = <Widget>[];
-    if (_matchesSearch('About') || _matchesKeywords(['version', 'license', 'info'])) {
-      aboutTiles.add(SettingsNavigationTile(
-        icon: Icons.info_outline,
-        title: 'About The Accountant',
-        subtitle: 'Version, licenses, and more',
-        onTap: () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const AboutScreen()),
+    if (_matchesSearch('About') ||
+        _matchesKeywords(['version', 'license', 'info'])) {
+      aboutTiles.add(
+        SettingsNavigationTile(
+          icon: Icons.info_outline,
+          title: 'About The Accountant',
+          subtitle: 'Version, licenses, and more',
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const AboutScreen()),
+          ),
         ),
-      ));
+      );
     }
     if (aboutTiles.isNotEmpty) {
       sections.add(SettingsSection(title: 'ABOUT', tiles: aboutTiles));
@@ -372,7 +417,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   width: 2,
                 ),
               ),
-              child: authState.photoUrl != null && authState.photoUrl!.isNotEmpty
+              child:
+                  authState.photoUrl != null && authState.photoUrl!.isNotEmpty
                   ? ClipRRect(
                       borderRadius: BorderRadius.circular(30),
                       child: Image.network(
@@ -385,11 +431,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         ),
                       ),
                     )
-                  : const Icon(
-                      Icons.person,
-                      color: Colors.white,
-                      size: 28,
-                    ),
+                  : const Icon(Icons.person, color: Colors.white, size: 28),
             ),
             SizedBox(width: AppSpacing.md),
 
@@ -425,11 +467,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 color: Colors.white.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Icon(
-                Icons.edit,
-                color: Colors.white,
-                size: 18,
-              ),
+              child: const Icon(Icons.edit, color: Colors.white, size: 18),
             ),
           ],
         ),
@@ -471,9 +509,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final uri = Uri(
       scheme: 'mailto',
       path: 'support@theaccountant.app',
-      queryParameters: {
-        'subject': 'The Accountant App - Support Request',
-      },
+      queryParameters: {'subject': 'The Accountant App - Support Request'},
     );
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri);
@@ -481,7 +517,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   }
 
   Future<void> _rateApp() async {
-    final uri = Uri.parse('https://play.google.com/store/apps/details?id=com.theaccountant.app');
+    final uri = Uri.parse(
+      'https://play.google.com/store/apps/details?id=com.theaccountant.app',
+    );
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     }
@@ -490,7 +528,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   Future<void> _shareApp() async {
     await SharePlus.instance.share(
       ShareParams(
-        text: 'Check out The Accountant - a beautiful personal finance app!\n\nhttps://play.google.com/store/apps/details?id=com.theaccountant.app',
+        text:
+            'Check out The Accountant - a beautiful personal finance app!\n\nhttps://play.google.com/store/apps/details?id=com.theaccountant.app',
         subject: 'The Accountant - Personal Finance App',
       ),
     );

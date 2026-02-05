@@ -1,4 +1,3 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
@@ -145,7 +144,10 @@ class ObjectivesNotifier extends _$ObjectivesNotifier {
   }
 
   /// Unlink a transaction from an objective
-  Future<void> unlinkTransaction(String objectiveId, String transactionId) async {
+  Future<void> unlinkTransaction(
+    String objectiveId,
+    String transactionId,
+  ) async {
     final service = ref.read(objectivesServiceProvider);
     await service.unlinkTransaction(objectiveId, transactionId);
     ref.invalidateSelf();

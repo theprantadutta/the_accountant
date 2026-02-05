@@ -167,7 +167,9 @@ class _CategoryGridSelectorState extends ConsumerState<CategoryGridSelector>
         dividerColor: Colors.transparent,
         labelColor: AppColors.textPrimary,
         unselectedLabelColor: AppColors.textMuted,
-        labelStyle: AppTypography.labelMedium.copyWith(fontWeight: FontWeight.bold),
+        labelStyle: AppTypography.labelMedium.copyWith(
+          fontWeight: FontWeight.bold,
+        ),
         tabs: const [
           Tab(text: 'Expense'),
           Tab(text: 'Income'),
@@ -181,8 +183,9 @@ class _CategoryGridSelectorState extends ConsumerState<CategoryGridSelector>
         .where((c) => c.isIncome == _showingIncome)
         .toList();
 
-    final itemCount =
-        widget.showAddButton ? categories.length + 1 : categories.length;
+    final itemCount = widget.showAddButton
+        ? categories.length + 1
+        : categories.length;
 
     return GridView.builder(
       padding: EdgeInsets.all(AppSpacing.sm),
@@ -259,11 +262,7 @@ class _CategoryGridSelectorState extends ConsumerState<CategoryGridSelector>
                   color: color.withValues(alpha: 0.2),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(
-                  _getIconData(category),
-                  color: color,
-                  size: 18,
-                ),
+                child: Icon(_getIconData(category), color: color, size: 18),
               ),
             ),
             SizedBox(height: AppSpacing.xs),
@@ -348,7 +347,9 @@ class _CategoryGridSelectorState extends ConsumerState<CategoryGridSelector>
 
   /// Get icon based on category icon name
   IconData _getIconData(Category category) {
-    return IconRegistry.getIcon(category.name.toLowerCase().replaceAll(' ', '_'));
+    return IconRegistry.getIcon(
+      category.name.toLowerCase().replaceAll(' ', '_'),
+    );
   }
 }
 
@@ -419,11 +420,7 @@ class CategoryGridSelectorCompact extends ConsumerWidget {
                       color: color.withValues(alpha: 0.2),
                       shape: BoxShape.circle,
                     ),
-                    child: Icon(
-                      Icons.category,
-                      color: color,
-                      size: 14,
-                    ),
+                    child: Icon(Icons.category, color: color, size: 14),
                   ),
                   SizedBox(height: 2),
                   Text(

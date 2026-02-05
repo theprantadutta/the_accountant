@@ -106,7 +106,9 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
                     decoration: BoxDecoration(
                       color: AppColors.error.withValues(alpha: 0.1),
                       borderRadius: AppSpacing.borderRadiusMd,
-                      border: Border.all(color: AppColors.error.withValues(alpha: 0.3)),
+                      border: Border.all(
+                        color: AppColors.error.withValues(alpha: 0.3),
+                      ),
                     ),
                     child: Row(
                       children: [
@@ -115,11 +117,18 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
                         Expanded(
                           child: Text(
                             _errorMessage!,
-                            style: TextStyle(color: AppColors.error, fontSize: 14),
+                            style: TextStyle(
+                              color: AppColors.error,
+                              fontSize: 14,
+                            ),
                           ),
                         ),
                         IconButton(
-                          icon: Icon(Icons.close, color: AppColors.error, size: 18),
+                          icon: Icon(
+                            Icons.close,
+                            color: AppColors.error,
+                            size: 18,
+                          ),
                           onPressed: () => setState(() => _errorMessage = null),
                         ),
                       ],
@@ -140,7 +149,9 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
                         ),
                       )
                     : const Icon(Icons.restore, size: 18),
-                label: Text(iapState.isLoading ? 'Processing...' : 'Restore Purchases'),
+                label: Text(
+                  iapState.isLoading ? 'Processing...' : 'Restore Purchases',
+                ),
                 style: TextButton.styleFrom(
                   foregroundColor: AppColors.textSecondary,
                 ),
@@ -151,10 +162,7 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
               // Terms
               Text(
                 'Subscriptions will be charged to your payment method through your App Store or Google Play account. Subscriptions automatically renew unless canceled at least 24 hours before the end of the current period.',
-                style: TextStyle(
-                  fontSize: 11,
-                  color: AppColors.textMuted,
-                ),
+                style: TextStyle(fontSize: 11, color: AppColors.textMuted),
                 textAlign: TextAlign.center,
               ),
             ],
@@ -204,10 +212,7 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
           premiumState.isPremium
               ? 'Thank you for your support!'
               : 'Get the most out of your financial journey',
-          style: TextStyle(
-            fontSize: 16,
-            color: AppColors.textSecondary,
-          ),
+          style: TextStyle(fontSize: 16, color: AppColors.textSecondary),
           textAlign: TextAlign.center,
         ),
       ],
@@ -276,21 +281,76 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
           ),
         ),
         SizedBox(height: AppSpacing.md),
-        _buildFeatureRow(Icons.sync, 'Cloud Sync', 'Sync across all your devices', isPremium),
-        _buildFeatureRow(Icons.backup, 'Google Drive Backup', 'Encrypted cloud backups', isPremium),
-        _buildFeatureRow(Icons.smart_toy, 'AI Assistant', 'Gemini-powered financial advice', isPremium),
-        _buildFeatureRow(Icons.document_scanner, 'Receipt OCR', 'Scan receipts with AI', isPremium),
-        _buildFeatureRow(Icons.insights, 'AI Insights', 'Smart spending analysis', isPremium),
-        _buildFeatureRow(Icons.analytics, 'Advanced Reports', 'Monthly & yearly analytics', isPremium),
-        _buildFeatureRow(Icons.palette, 'Premium Themes', '5 exclusive color themes', isPremium),
-        _buildFeatureRow(Icons.all_inclusive, 'Unlimited Everything', 'No limits on wallets, budgets, etc.', isPremium),
-        _buildFeatureRow(Icons.download, 'Data Export', 'Export to CSV & PDF', isPremium),
-        _buildFeatureRow(Icons.support_agent, 'Priority Support', 'Faster response times', isPremium),
+        _buildFeatureRow(
+          Icons.sync,
+          'Cloud Sync',
+          'Sync across all your devices',
+          isPremium,
+        ),
+        _buildFeatureRow(
+          Icons.backup,
+          'Google Drive Backup',
+          'Encrypted cloud backups',
+          isPremium,
+        ),
+        _buildFeatureRow(
+          Icons.smart_toy,
+          'AI Assistant',
+          'Gemini-powered financial advice',
+          isPremium,
+        ),
+        _buildFeatureRow(
+          Icons.document_scanner,
+          'Receipt OCR',
+          'Scan receipts with AI',
+          isPremium,
+        ),
+        _buildFeatureRow(
+          Icons.insights,
+          'AI Insights',
+          'Smart spending analysis',
+          isPremium,
+        ),
+        _buildFeatureRow(
+          Icons.analytics,
+          'Advanced Reports',
+          'Monthly & yearly analytics',
+          isPremium,
+        ),
+        _buildFeatureRow(
+          Icons.palette,
+          'Premium Themes',
+          '5 exclusive color themes',
+          isPremium,
+        ),
+        _buildFeatureRow(
+          Icons.all_inclusive,
+          'Unlimited Everything',
+          'No limits on wallets, budgets, etc.',
+          isPremium,
+        ),
+        _buildFeatureRow(
+          Icons.download,
+          'Data Export',
+          'Export to CSV & PDF',
+          isPremium,
+        ),
+        _buildFeatureRow(
+          Icons.support_agent,
+          'Priority Support',
+          'Faster response times',
+          isPremium,
+        ),
       ],
     );
   }
 
-  Widget _buildFeatureRow(IconData icon, String title, String subtitle, bool isUnlocked) {
+  Widget _buildFeatureRow(
+    IconData icon,
+    String title,
+    String subtitle,
+    bool isUnlocked,
+  ) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: AppSpacing.xs),
       child: Row(
@@ -320,15 +380,14 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
-                    color: isUnlocked ? AppColors.textPrimary : AppColors.textSecondary,
+                    color: isUnlocked
+                        ? AppColors.textPrimary
+                        : AppColors.textSecondary,
                   ),
                 ),
                 Text(
                   subtitle,
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: AppColors.textMuted,
-                  ),
+                  style: TextStyle(fontSize: 13, color: AppColors.textMuted),
                 ),
               ],
             ),
@@ -347,38 +406,44 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
     // Get prices from IAP products if available
     final monthlyProduct = iapState.products.firstWhere(
       (p) => p.id == PremiumProductIds.monthly,
-      orElse: () => PremiumProduct(ProductDetails(
-        id: PremiumProductIds.monthly,
-        title: 'Monthly',
-        description: '',
-        price: '\$1.49',
-        rawPrice: 1.49,
-        currencyCode: 'USD',
-      )),
+      orElse: () => PremiumProduct(
+        ProductDetails(
+          id: PremiumProductIds.monthly,
+          title: 'Monthly',
+          description: '',
+          price: '\$1.49',
+          rawPrice: 1.49,
+          currencyCode: 'USD',
+        ),
+      ),
     );
 
     final yearlyProduct = iapState.products.firstWhere(
       (p) => p.id == PremiumProductIds.yearly,
-      orElse: () => PremiumProduct(ProductDetails(
-        id: PremiumProductIds.yearly,
-        title: 'Yearly',
-        description: '',
-        price: '\$9.99',
-        rawPrice: 9.99,
-        currencyCode: 'USD',
-      )),
+      orElse: () => PremiumProduct(
+        ProductDetails(
+          id: PremiumProductIds.yearly,
+          title: 'Yearly',
+          description: '',
+          price: '\$9.99',
+          rawPrice: 9.99,
+          currencyCode: 'USD',
+        ),
+      ),
     );
 
     final lifetimeProduct = iapState.products.firstWhere(
       (p) => p.id == PremiumProductIds.lifetime,
-      orElse: () => PremiumProduct(ProductDetails(
-        id: PremiumProductIds.lifetime,
-        title: 'Lifetime',
-        description: '',
-        price: '\$29.99',
-        rawPrice: 29.99,
-        currencyCode: 'USD',
-      )),
+      orElse: () => PremiumProduct(
+        ProductDetails(
+          id: PremiumProductIds.lifetime,
+          title: 'Lifetime',
+          description: '',
+          price: '\$29.99',
+          rawPrice: 29.99,
+          currencyCode: 'USD',
+        ),
+      ),
     );
 
     return Column(
@@ -402,7 +467,9 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
           period: '/month',
           description: 'Billed monthly',
           isRecommended: false,
-          isLoading: iapState.isLoading && _selectedProductId == PremiumProductIds.monthly,
+          isLoading:
+              iapState.isLoading &&
+              _selectedProductId == PremiumProductIds.monthly,
         ),
         SizedBox(height: AppSpacing.sm),
 
@@ -415,7 +482,9 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
           description: 'Save 44% - Best value!',
           isRecommended: true,
           badge: 'BEST VALUE',
-          isLoading: iapState.isLoading && _selectedProductId == PremiumProductIds.yearly,
+          isLoading:
+              iapState.isLoading &&
+              _selectedProductId == PremiumProductIds.yearly,
         ),
         SizedBox(height: AppSpacing.sm),
 
@@ -428,7 +497,9 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
           description: 'One-time purchase, forever access',
           isRecommended: false,
           badge: 'FOREVER',
-          isLoading: iapState.isLoading && _selectedProductId == PremiumProductIds.lifetime,
+          isLoading:
+              iapState.isLoading &&
+              _selectedProductId == PremiumProductIds.lifetime,
         ),
       ],
     );
@@ -452,14 +523,16 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
         duration: const Duration(milliseconds: 200),
         padding: EdgeInsets.all(AppSpacing.lg),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primaryElevated : AppColors.primarySurface,
+          color: isSelected
+              ? AppColors.primaryElevated
+              : AppColors.primarySurface,
           borderRadius: AppSpacing.borderRadiusLg,
           border: Border.all(
             color: isRecommended
                 ? AppColors.primaryAccent
                 : isSelected
-                    ? AppColors.primaryGlow
-                    : AppColors.glassBorder,
+                ? AppColors.primaryGlow
+                : AppColors.glassBorder,
             width: isRecommended || isSelected ? 2 : 1,
           ),
           boxShadow: isRecommended
@@ -511,7 +584,9 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     border: Border.all(
-                      color: isSelected ? AppColors.primaryAccent : AppColors.textMuted,
+                      color: isSelected
+                          ? AppColors.primaryAccent
+                          : AppColors.textMuted,
                       width: 2,
                     ),
                   ),
@@ -617,7 +692,9 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
       _errorMessage = null;
     });
 
-    final success = await ref.read(iapNotifierProvider.notifier).purchase(productId);
+    final success = await ref
+        .read(iapNotifierProvider.notifier)
+        .purchase(productId);
 
     if (!success && mounted) {
       // If purchase initiation failed, reset selection

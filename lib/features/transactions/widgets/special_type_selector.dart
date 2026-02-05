@@ -121,7 +121,8 @@ class SpecialTypeSelector extends StatelessWidget {
       TransactionSpecialType.subscription,
       TransactionSpecialType.upcoming,
       if (isIncome)
-        TransactionSpecialType.credit // They owe you, paying back
+        TransactionSpecialType
+            .credit // They owe you, paying back
       else
         TransactionSpecialType.debt, // You owe them, paying back
     ];
@@ -172,7 +173,9 @@ class SpecialTypeSelector extends StatelessWidget {
                   type.label,
                   style: TextStyle(
                     fontSize: 12,
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                    fontWeight: isSelected
+                        ? FontWeight.w600
+                        : FontWeight.normal,
                     color: isSelected ? type.color : AppColors.textSecondary,
                   ),
                 ),
@@ -242,20 +245,14 @@ class _SpecialTypeRadio extends StatelessWidget {
               height: 22,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: isSelected
-                    ? type.color
-                    : Colors.transparent,
+                color: isSelected ? type.color : Colors.transparent,
                 border: Border.all(
                   color: isSelected ? type.color : AppColors.textMuted,
                   width: 2,
                 ),
               ),
               child: isSelected
-                  ? Icon(
-                      Icons.check,
-                      size: 14,
-                      color: AppColors.textPrimary,
-                    )
+                  ? Icon(Icons.check, size: 14, color: AppColors.textPrimary)
                   : null,
             ),
             AppSpacing.gapHMd,
@@ -268,11 +265,7 @@ class _SpecialTypeRadio extends StatelessWidget {
                 color: type.color.withValues(alpha: 0.2),
                 borderRadius: AppSpacing.borderRadiusSm,
               ),
-              child: Icon(
-                type.icon,
-                size: 20,
-                color: type.color,
-              ),
+              child: Icon(type.icon, size: 20, color: type.color),
             ),
             AppSpacing.gapHMd,
 
@@ -285,7 +278,9 @@ class _SpecialTypeRadio extends StatelessWidget {
                     type.label,
                     style: TextStyle(
                       fontSize: 14,
-                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                      fontWeight: isSelected
+                          ? FontWeight.w600
+                          : FontWeight.w500,
                       color: isSelected ? type.color : AppColors.textPrimary,
                     ),
                   ),
@@ -311,11 +306,7 @@ class SpecialTypeIndicator extends StatelessWidget {
   final TransactionSpecialType type;
   final VoidCallback? onTap;
 
-  const SpecialTypeIndicator({
-    super.key,
-    required this.type,
-    this.onTap,
-  });
+  const SpecialTypeIndicator({super.key, required this.type, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -334,11 +325,7 @@ class SpecialTypeIndicator extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              type.icon,
-              size: 14,
-              color: type.color,
-            ),
+            Icon(type.icon, size: 14, color: type.color),
             const SizedBox(width: 4),
             Text(
               type.label,

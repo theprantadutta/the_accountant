@@ -48,16 +48,16 @@ class NotificationService {
 
     const DarwinInitializationSettings initializationSettingsIOS =
         DarwinInitializationSettings(
-      requestAlertPermission: true,
-      requestBadgePermission: true,
-      requestSoundPermission: true,
-    );
+          requestAlertPermission: true,
+          requestBadgePermission: true,
+          requestSoundPermission: true,
+        );
 
     final InitializationSettings initializationSettings =
         InitializationSettings(
-      android: initializationSettingsAndroid,
-      iOS: initializationSettingsIOS,
-    );
+          android: initializationSettingsAndroid,
+          iOS: initializationSettingsIOS,
+        );
 
     await _localNotificationsPlugin.initialize(
       settings: initializationSettings,
@@ -155,7 +155,9 @@ class NotificationService {
   /// Check if a budget notification should be shown (24-hour cooldown)
   Future<bool> _shouldShowBudgetNotification(String budgetId) async {
     final prefs = await SharedPreferences.getInstance();
-    final lastNotified = prefs.getString('$_keyLastBudgetNotification$budgetId');
+    final lastNotified = prefs.getString(
+      '$_keyLastBudgetNotification$budgetId',
+    );
     if (lastNotified == null) return true;
 
     final lastDate = DateTime.parse(lastNotified);
@@ -205,7 +207,8 @@ class NotificationService {
   }
 
   // Local storage key for subscription expiry notification tracking
-  static const String _keyLastSubscriptionWarning = 'last_subscription_expiry_warning';
+  static const String _keyLastSubscriptionWarning =
+      'last_subscription_expiry_warning';
 
   /// Check if subscription expiry notification should be shown (24-hour cooldown)
   Future<bool> _shouldShowSubscriptionNotification() async {

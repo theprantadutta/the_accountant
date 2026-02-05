@@ -12,16 +12,17 @@ import 'package:the_accountant/shared/widgets/icon_picker.dart';
 import 'package:the_accountant/shared/widgets/neo_button.dart';
 
 /// Callback type for AddWalletForm submission
-typedef WalletFormSubmitCallback = void Function({
-  required String currency,
-  required String icon,
-  required String color,
-  required bool isDefault,
-  required bool useDecimals,
-  required WalletType walletType,
-  required double? creditLimit,
-  required int? billingCycleDay,
-});
+typedef WalletFormSubmitCallback =
+    void Function({
+      required String currency,
+      required String icon,
+      required String color,
+      required bool isDefault,
+      required bool useDecimals,
+      required WalletType walletType,
+      required double? creditLimit,
+      required int? billingCycleDay,
+    });
 
 /// Form for adding/editing a wallet with enhanced features
 class AddWalletForm extends ConsumerStatefulWidget {
@@ -187,8 +188,9 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
                     width: 48,
                     height: 48,
                     decoration: BoxDecoration(
-                      color: WalletColors.parseColor(_selectedColor)
-                          .withValues(alpha: 0.2),
+                      color: WalletColors.parseColor(
+                        _selectedColor,
+                      ).withValues(alpha: 0.2),
                       borderRadius: AppSpacing.borderRadiusMd,
                     ),
                     alignment: Alignment.center,
@@ -234,26 +236,38 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
                         label: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(icon, size: 16,
-                              color: isSelected ? Colors.white : AppColors.textSecondary,
+                            Icon(
+                              icon,
+                              size: 16,
+                              color: isSelected
+                                  ? Colors.white
+                                  : AppColors.textSecondary,
                             ),
                             const SizedBox(width: 6),
                             Text(label),
                           ],
                         ),
                         selected: isSelected,
-                        onSelected: widget.isEditing ? null : (_) => _onWalletTypeChanged(type),
+                        onSelected: widget.isEditing
+                            ? null
+                            : (_) => _onWalletTypeChanged(type),
                         selectedColor: AppColors.primaryAccent,
                         backgroundColor: AppColors.glassWhite,
                         labelStyle: TextStyle(
-                          color: isSelected ? Colors.white : AppColors.textPrimary,
+                          color: isSelected
+                              ? Colors.white
+                              : AppColors.textPrimary,
                           fontSize: 13,
-                          fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                          fontWeight: isSelected
+                              ? FontWeight.w600
+                              : FontWeight.w400,
                         ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20),
                           side: BorderSide(
-                            color: isSelected ? AppColors.primaryAccent : AppColors.glassBorder,
+                            color: isSelected
+                                ? AppColors.primaryAccent
+                                : AppColors.glassBorder,
                           ),
                         ),
                         showCheckmark: false,
@@ -262,6 +276,15 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
                   }).toList(),
                 ),
               ),
+              if (!widget.isEditing) ...[
+                const SizedBox(height: 6),
+                Text(
+                  'Account type cannot be changed later',
+                  style: AppTypography.bodySmall.copyWith(
+                    color: AppColors.textMuted,
+                  ),
+                ),
+              ],
               AppSpacing.gapMd,
 
               // Wallet Name
@@ -312,7 +335,9 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
               TextFormField(
                 controller: widget.balanceController,
                 style: AppTypography.bodyLarge,
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
                 decoration: InputDecoration(
                   hintText: '0.00',
                   prefixText: '${CurrencyInfo.getSymbol(_selectedCurrency)} ',
@@ -350,7 +375,9 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
                 TextFormField(
                   controller: _creditLimitController,
                   style: AppTypography.bodyLarge,
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
                   decoration: InputDecoration(
                     hintText: 'Enter credit limit',
                     prefixText: '${CurrencyInfo.getSymbol(_selectedCurrency)} ',
@@ -386,7 +413,7 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
                 Text('Billing Cycle Day', style: AppTypography.labelMedium),
                 AppSpacing.gapSm,
                 DropdownButtonFormField<int>(
-                  value: _billingCycleDay,
+                  initialValue: _billingCycleDay,
                   decoration: InputDecoration(
                     hintText: 'Select billing day (optional)',
                     filled: true,
@@ -407,12 +434,15 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
                   dropdownColor: AppColors.primarySurface,
                   style: AppTypography.bodyLarge,
                   items: List.generate(31, (i) => i + 1)
-                      .map((day) => DropdownMenuItem(
-                            value: day,
-                            child: Text('Day $day'),
-                          ))
+                      .map(
+                        (day) => DropdownMenuItem(
+                          value: day,
+                          child: Text('Day $day'),
+                        ),
+                      )
                       .toList(),
-                  onChanged: (value) => setState(() => _billingCycleDay = value),
+                  onChanged: (value) =>
+                      setState(() => _billingCycleDay = value),
                 ),
                 AppSpacing.gapMd,
               ],
@@ -463,7 +493,10 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Set as Default', style: AppTypography.bodyLarge),
+                          Text(
+                            'Set as Default',
+                            style: AppTypography.bodyLarge,
+                          ),
                           Text(
                             'Use this wallet for new transactions',
                             style: AppTypography.bodySmall.copyWith(
@@ -476,7 +509,7 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
                     Switch(
                       value: _isDefault,
                       onChanged: (value) => setState(() => _isDefault = value),
-                      activeColor: AppColors.primaryAccent,
+                      activeThumbColor: AppColors.primaryAccent,
                     ),
                   ],
                 ),
@@ -518,8 +551,9 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
                     ),
                     Switch(
                       value: _useDecimals,
-                      onChanged: (value) => setState(() => _useDecimals = value),
-                      activeColor: AppColors.primaryAccent,
+                      onChanged: (value) =>
+                          setState(() => _useDecimals = value),
+                      activeThumbColor: AppColors.primaryAccent,
                     ),
                   ],
                 ),
@@ -539,7 +573,9 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
                   AppSpacing.gapHMd,
                   Expanded(
                     child: NeoButton(
-                      label: widget.isEditing ? 'Save Changes' : 'Create Wallet',
+                      label: widget.isEditing
+                          ? 'Save Changes'
+                          : 'Create Wallet',
                       style: NeoButtonStyle.primary,
                       onPressed: () {
                         if (widget.formKey.currentState?.validate() ?? false) {
@@ -553,7 +589,8 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
                             creditLimit: _walletType == WalletType.creditCard
                                 ? double.tryParse(_creditLimitController.text)
                                 : null,
-                            billingCycleDay: _walletType == WalletType.creditCard
+                            billingCycleDay:
+                                _walletType == WalletType.creditCard
                                 ? _billingCycleDay
                                 : null,
                           );
@@ -583,9 +620,19 @@ class CompactWalletForm extends ConsumerStatefulWidget {
   final WalletType initialWalletType;
   final double? initialCreditLimit;
   final int? initialBillingCycleDay;
-  final Function(String name, String currency, String icon, String color,
-      double balance, bool isDefault, bool useDecimals,
-      WalletType walletType, double? creditLimit, int? billingCycleDay) onSubmit;
+  final Function(
+    String name,
+    String currency,
+    String icon,
+    String color,
+    double balance,
+    bool isDefault,
+    bool useDecimals,
+    WalletType walletType,
+    double? creditLimit,
+    int? billingCycleDay,
+  )
+  onSubmit;
 
   const CompactWalletForm({
     super.key,
@@ -661,8 +708,7 @@ class _CompactWalletFormState extends ConsumerState<CompactWalletForm> {
               labelText: 'Wallet Name',
               border: OutlineInputBorder(),
             ),
-            validator: (v) =>
-                v?.isEmpty ?? true ? 'Please enter a name' : null,
+            validator: (v) => v?.isEmpty ?? true ? 'Please enter a name' : null,
           ),
           AppSpacing.gapMd,
 
@@ -811,10 +857,7 @@ class _LabeledIconButton extends StatelessWidget {
                   ),
                 ),
                 const Spacer(),
-                Icon(
-                  Icons.arrow_drop_down,
-                  color: AppColors.textSecondary,
-                ),
+                Icon(Icons.arrow_drop_down, color: AppColors.textSecondary),
               ],
             ),
           ),
@@ -869,10 +912,7 @@ class _LabeledColorButton extends StatelessWidget {
                   ),
                 ),
                 const Spacer(),
-                Icon(
-                  Icons.arrow_drop_down,
-                  color: AppColors.textSecondary,
-                ),
+                Icon(Icons.arrow_drop_down, color: AppColors.textSecondary),
               ],
             ),
           ),
@@ -955,7 +995,9 @@ class _IconPickerSheet extends StatelessWidget {
                           : AppColors.glassWhite,
                       borderRadius: AppSpacing.borderRadiusMd,
                       border: Border.all(
-                        color: isSelected ? selectedColor : AppColors.glassBorder,
+                        color: isSelected
+                            ? selectedColor
+                            : AppColors.glassBorder,
                         width: isSelected ? 2 : 1,
                       ),
                     ),
@@ -981,10 +1023,7 @@ class _ColorPickerSheet extends StatelessWidget {
   final String? selectedColor;
   final ValueChanged<String> onColorSelected;
 
-  const _ColorPickerSheet({
-    this.selectedColor,
-    required this.onColorSelected,
-  });
+  const _ColorPickerSheet({this.selectedColor, required this.onColorSelected});
 
   @override
   Widget build(BuildContext context) {
@@ -1052,8 +1091,9 @@ class _ColorPickerSheet extends StatelessWidget {
                       boxShadow: isSelected
                           ? [
                               BoxShadow(
-                                color: WalletColors.parseColor(color)
-                                    .withValues(alpha: 0.5),
+                                color: WalletColors.parseColor(
+                                  color,
+                                ).withValues(alpha: 0.5),
                                 blurRadius: 8,
                                 spreadRadius: 2,
                               ),

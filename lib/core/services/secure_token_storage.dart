@@ -11,7 +11,8 @@ class SecureTokenStorage {
   // Keys for storing different types of tokens
   static const _accessTokenKey = 'access_token';
   static const _refreshTokenKey = 'refresh_token';
-  static const _tokenExpiryKey = 'token_expiry';  // Unix timestamp in milliseconds
+  static const _tokenExpiryKey =
+      'token_expiry'; // Unix timestamp in milliseconds
   static const _userIdKey = 'user_id';
   static const _userEmailKey = 'user_email';
 
@@ -37,8 +38,12 @@ class SecureTokenStorage {
 
   // Store token expiry (takes expiresIn in seconds, stores as Unix timestamp)
   static Future<void> storeTokenExpiry(int expiresInSeconds) async {
-    final expiryTimestamp = DateTime.now().millisecondsSinceEpoch + (expiresInSeconds * 1000);
-    await _storage.write(key: _tokenExpiryKey, value: expiryTimestamp.toString());
+    final expiryTimestamp =
+        DateTime.now().millisecondsSinceEpoch + (expiresInSeconds * 1000);
+    await _storage.write(
+      key: _tokenExpiryKey,
+      value: expiryTimestamp.toString(),
+    );
   }
 
   // Get token expiry timestamp
@@ -51,7 +56,7 @@ class SecureTokenStorage {
   // Using 10 minutes buffer to ensure there's enough time to refresh
   static Future<bool> isTokenExpiringSoon() async {
     final expiry = await getTokenExpiry();
-    if (expiry == null) return true;  // No expiry means we should refresh
+    if (expiry == null) return true; // No expiry means we should refresh
 
     final now = DateTime.now().millisecondsSinceEpoch;
     final tenMinutesInMs = 10 * 60 * 1000;

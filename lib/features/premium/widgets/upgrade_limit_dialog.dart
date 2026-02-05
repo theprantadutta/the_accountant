@@ -57,9 +57,7 @@ class UpgradeLimitDialog extends StatelessWidget {
 
     return Dialog(
       backgroundColor: AppColors.primarySurface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -95,19 +93,13 @@ class UpgradeLimitDialog extends StatelessWidget {
             // Message
             Text(
               'You\'ve used $currentCount of $limit free $displayName.',
-              style: TextStyle(
-                fontSize: 15,
-                color: AppColors.textSecondary,
-              ),
+              style: TextStyle(fontSize: 15, color: AppColors.textSecondary),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
             Text(
               'Upgrade to Premium for unlimited $displayName and more!',
-              style: TextStyle(
-                fontSize: 14,
-                color: AppColors.textMuted,
-              ),
+              style: TextStyle(fontSize: 14, color: AppColors.textMuted),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
@@ -132,10 +124,12 @@ class UpgradeLimitDialog extends StatelessWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: onUpgrade ?? () {
-                      Navigator.pop(context, true);
-                      Navigator.pushNamed(context, '/premium');
-                    },
+                    onPressed:
+                        onUpgrade ??
+                        () {
+                          Navigator.pop(context, true);
+                          Navigator.pushNamed(context, '/premium');
+                        },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primaryAccent,
                       foregroundColor: Colors.white,

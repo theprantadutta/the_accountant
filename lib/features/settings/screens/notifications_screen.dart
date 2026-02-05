@@ -49,8 +49,9 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                   decoration: BoxDecoration(
                     color: AppColors.info.withValues(alpha: 0.1),
                     borderRadius: AppSpacing.borderRadiusLg,
-                    border:
-                        Border.all(color: AppColors.info.withValues(alpha: 0.3)),
+                    border: Border.all(
+                      color: AppColors.info.withValues(alpha: 0.3),
+                    ),
                   ),
                   child: Row(
                     children: [
@@ -339,10 +340,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
 }
 
 class _ReminderTimeTile extends StatelessWidget {
-  const _ReminderTimeTile({
-    required this.reminderTime,
-    required this.onTap,
-  });
+  const _ReminderTimeTile({required this.reminderTime, required this.onTap});
 
   final TimeOfDay reminderTime;
   final VoidCallback onTap;
@@ -368,7 +366,8 @@ class _ReminderTimeTile extends StatelessWidget {
 /// Debug section to test notifications
 class _NotificationDebugSection extends StatefulWidget {
   @override
-  State<_NotificationDebugSection> createState() => _NotificationDebugSectionState();
+  State<_NotificationDebugSection> createState() =>
+      _NotificationDebugSectionState();
 }
 
 class _NotificationDebugSectionState extends State<_NotificationDebugSection> {
@@ -471,8 +470,8 @@ class _NotificationDebugSectionState extends State<_NotificationDebugSection> {
                   _isLoading
                       ? 'Checking...'
                       : _hasExactAlarmPermission
-                          ? 'Granted'
-                          : 'Not granted - notifications may not work',
+                      ? 'Granted'
+                      : 'Not granted - notifications may not work',
                   style: TextStyle(
                     color: _hasExactAlarmPermission
                         ? AppColors.textSecondary
@@ -483,10 +482,7 @@ class _NotificationDebugSectionState extends State<_NotificationDebugSection> {
               const Divider(height: 1, indent: 16, endIndent: 16),
               // Device Timezone
               ListTile(
-                leading: const Icon(
-                  Icons.public,
-                  color: AppColors.info,
-                ),
+                leading: const Icon(Icons.public, color: AppColors.info),
                 title: const Text(
                   'Device Timezone',
                   style: TextStyle(color: AppColors.textPrimary),
@@ -500,9 +496,7 @@ class _NotificationDebugSectionState extends State<_NotificationDebugSection> {
               // Pending Notifications
               ListTile(
                 leading: Icon(
-                  _hasPendingReminder
-                      ? Icons.alarm_on
-                      : Icons.alarm_off,
+                  _hasPendingReminder ? Icons.alarm_on : Icons.alarm_off,
                   color: _hasPendingReminder
                       ? AppColors.success
                       : AppColors.warning,
@@ -518,7 +512,10 @@ class _NotificationDebugSectionState extends State<_NotificationDebugSection> {
                   style: const TextStyle(color: AppColors.textSecondary),
                 ),
                 trailing: IconButton(
-                  icon: const Icon(Icons.refresh, color: AppColors.textSecondary),
+                  icon: const Icon(
+                    Icons.refresh,
+                    color: AppColors.textSecondary,
+                  ),
                   onPressed: _checkStatus,
                 ),
               ),

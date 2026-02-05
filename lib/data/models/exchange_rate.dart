@@ -8,20 +8,23 @@ class ExchangeRates extends Table {
 
   // Currency pair (ISO 4217 codes)
   TextColumn get fromCurrency => text()(); // e.g., "USD"
-  TextColumn get toCurrency => text()();   // e.g., "EUR"
+  TextColumn get toCurrency => text()(); // e.g., "EUR"
 
   // Rates
-  RealColumn get apiRate => real().nullable()();      // Rate fetched from API
-  RealColumn get customRate => real().nullable()();   // User-defined override rate
-  BoolColumn get useCustomRate => boolean().withDefault(const Constant(false))();
+  RealColumn get apiRate => real().nullable()(); // Rate fetched from API
+  RealColumn get customRate =>
+      real().nullable()(); // User-defined override rate
+  BoolColumn get useCustomRate =>
+      boolean().withDefault(const Constant(false))();
 
   // API rate metadata
   DateTimeColumn get apiRateFetchedAt => dateTime().nullable()();
 
   // Sync fields
   TextColumn get serverId => text().nullable()();
-  IntColumn get syncStatus =>
-      integer().withDefault(const Constant(0))(); // 0=synced, 1=create, 2=update, 3=delete
+  IntColumn get syncStatus => integer().withDefault(
+    const Constant(0),
+  )(); // 0=synced, 1=create, 2=update, 3=delete
 
   // Timestamps
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();

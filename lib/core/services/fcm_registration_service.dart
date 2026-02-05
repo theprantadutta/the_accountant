@@ -32,7 +32,9 @@ class FcmRegistrationService {
         deviceId = androidInfo.id;
       } else if (Platform.isIOS) {
         final iosInfo = await _deviceInfo.iosInfo;
-        deviceId = iosInfo.identifierForVendor ?? DateTime.now().millisecondsSinceEpoch.toString();
+        deviceId =
+            iosInfo.identifierForVendor ??
+            DateTime.now().millisecondsSinceEpoch.toString();
       } else {
         deviceId = DateTime.now().millisecondsSinceEpoch.toString();
       }

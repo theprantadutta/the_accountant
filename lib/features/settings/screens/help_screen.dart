@@ -17,43 +17,53 @@ class _HelpScreenState extends State<HelpScreen> {
   final List<Map<String, String>> _faqItems = [
     {
       'question': 'How do I add a transaction?',
-      'answer': 'Tap the + button at the bottom of the home screen. Fill in the amount, select a category, choose a wallet, and optionally add notes. Tap Save to record your transaction.',
+      'answer':
+          'Tap the + button at the bottom of the home screen. Fill in the amount, select a category, choose a wallet, and optionally add notes. Tap Save to record your transaction.',
     },
     {
       'question': 'What is the difference between wallets and categories?',
-      'answer': 'Wallets represent where your money is stored (e.g., Cash, Bank Account, Credit Card). Categories describe what the money was spent on or where it came from (e.g., Food, Salary, Entertainment).',
+      'answer':
+          'Wallets represent where your money is stored (e.g., Cash, Bank Account, Credit Card). Categories describe what the money was spent on or where it came from (e.g., Food, Salary, Entertainment).',
     },
     {
       'question': 'How do I set up a budget?',
-      'answer': 'Go to the Budgets tab and tap "Create Budget". Choose a name, set your spending limit, select the time period (weekly/monthly), and pick which categories to track. The app will alert you when you approach your limit.',
+      'answer':
+          'Go to the Budgets tab and tap "Create Budget". Choose a name, set your spending limit, select the time period (weekly/monthly), and pick which categories to track. The app will alert you when you approach your limit.',
     },
     {
       'question': 'Can I track recurring transactions?',
-      'answer': 'Yes! When adding a transaction, enable the "Recurring" option. You can set it to repeat daily, weekly, monthly, or yearly. The app will automatically create these transactions for you.',
+      'answer':
+          'Yes! When adding a transaction, enable the "Recurring" option. You can set it to repeat daily, weekly, monthly, or yearly. The app will automatically create these transactions for you.',
     },
     {
       'question': 'How does the AI receipt scanner work?',
-      'answer': 'The receipt scanner uses machine learning to read your receipts. Take a photo of your receipt, and the AI will automatically extract the amount, date, and merchant name. You can review and edit before saving. This feature requires Premium.',
+      'answer':
+          'The receipt scanner uses machine learning to read your receipts. Take a photo of your receipt, and the AI will automatically extract the amount, date, and merchant name. You can review and edit before saving. This feature requires Premium.',
     },
     {
       'question': 'How do I backup my data?',
-      'answer': 'Go to Settings > Data Management > Backup & Restore. Connect your Google account to enable automatic backups to Google Drive. You can also manually trigger a backup anytime. Premium subscription required.',
+      'answer':
+          'Go to Settings > Data Management > Backup & Restore. Connect your Google account to enable automatic backups to Google Drive. You can also manually trigger a backup anytime. Premium subscription required.',
     },
     {
       'question': 'Can I use multiple currencies?',
-      'answer': 'Yes! Each wallet can have its own currency. The app supports automatic currency conversion using live exchange rates. You can also set custom exchange rates in Settings > Regional > Exchange Rates.',
+      'answer':
+          'Yes! Each wallet can have its own currency. The app supports automatic currency conversion using live exchange rates. You can also set custom exchange rates in Settings > Regional > Exchange Rates.',
     },
     {
       'question': 'How do I transfer money between wallets?',
-      'answer': 'When adding a transaction, select "Transfer" as the type. Choose the source wallet, destination wallet, and enter the amount. The app will automatically deduct from one and add to the other.',
+      'answer':
+          'When adding a transaction, select "Transfer" as the type. Choose the source wallet, destination wallet, and enter the amount. The app will automatically deduct from one and add to the other.',
     },
     {
       'question': 'What happens if I delete a category with transactions?',
-      'answer': 'Those transactions will be moved to "Uncategorized". You can then reassign them to a different category or leave them uncategorized.',
+      'answer':
+          'Those transactions will be moved to "Uncategorized". You can then reassign them to a different category or leave them uncategorized.',
     },
     {
       'question': 'How do I cancel my Premium subscription?',
-      'answer': 'Subscriptions are managed through Google Play or the App Store. Go to your device\'s subscription settings to manage or cancel your Premium subscription.',
+      'answer':
+          'Subscriptions are managed through Google Play or the App Store. Go to your device\'s subscription settings to manage or cancel your Premium subscription.',
     },
   ];
 
@@ -129,11 +139,7 @@ class _HelpScreenState extends State<HelpScreen> {
       ),
       child: Column(
         children: [
-          Icon(
-            Icons.lightbulb_outline,
-            size: 40,
-            color: Colors.white,
-          ),
+          Icon(Icons.lightbulb_outline, size: 40, color: Colors.white),
           SizedBox(height: AppSpacing.sm),
           Text(
             'Getting Started',
@@ -174,10 +180,7 @@ class _HelpScreenState extends State<HelpScreen> {
         trailing: AnimatedRotation(
           turns: isExpanded ? 0.5 : 0,
           duration: const Duration(milliseconds: 200),
-          child: Icon(
-            Icons.expand_more,
-            color: AppColors.textMuted,
-          ),
+          child: Icon(Icons.expand_more, color: AppColors.textMuted),
         ),
         onExpansionChanged: (expanded) {
           HapticFeedback.selectionClick();
@@ -220,11 +223,7 @@ class _HelpScreenState extends State<HelpScreen> {
       ),
       child: Column(
         children: [
-          Icon(
-            Icons.help_outline,
-            size: 40,
-            color: AppColors.primaryAccent,
-          ),
+          Icon(Icons.help_outline, size: 40, color: AppColors.primaryAccent),
           SizedBox(height: AppSpacing.sm),
           Text(
             'Still need help?',
@@ -237,10 +236,7 @@ class _HelpScreenState extends State<HelpScreen> {
           SizedBox(height: AppSpacing.xs),
           Text(
             'Our support team is here to help you',
-            style: TextStyle(
-              color: AppColors.textSecondary,
-              fontSize: 14,
-            ),
+            style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
           ),
           SizedBox(height: AppSpacing.md),
           ElevatedButton.icon(
@@ -265,9 +261,7 @@ class _HelpScreenState extends State<HelpScreen> {
     final uri = Uri(
       scheme: 'mailto',
       path: 'support@theaccountant.app',
-      queryParameters: {
-        'subject': 'The Accountant App - Help Request',
-      },
+      queryParameters: {'subject': 'The Accountant App - Help Request'},
     );
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri);

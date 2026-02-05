@@ -66,10 +66,7 @@ class TransactionCard extends ConsumerWidget {
             end: Alignment.bottomRight,
           ),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: color.withValues(alpha: 0.2),
-            width: 1,
-          ),
+          border: Border.all(color: color.withValues(alpha: 0.2), width: 1),
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(16),
@@ -104,7 +101,9 @@ class TransactionCard extends ConsumerWidget {
                       child: Icon(
                         categoryIcon != null
                             ? IconRegistry.getIcon(categoryIcon!)
-                            : (isExpense ? Icons.arrow_upward : Icons.arrow_downward),
+                            : (isExpense
+                                  ? Icons.arrow_upward
+                                  : Icons.arrow_downward),
                         color: color,
                         size: 24,
                       ),
@@ -266,10 +265,7 @@ class TransactionCard extends ConsumerWidget {
                         ),
                         Text(
                           category,
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: color,
-                          ),
+                          style: TextStyle(fontSize: 13, color: color),
                         ),
                       ],
                     ),
@@ -315,9 +311,7 @@ class TransactionCard extends ConsumerWidget {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: AppColors.primarySurface,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Row(
           children: [
             Container(
@@ -335,19 +329,13 @@ class TransactionCard extends ConsumerWidget {
             const SizedBox(width: 12),
             const Text(
               'Delete Transaction',
-              style: TextStyle(
-                color: AppColors.textPrimary,
-                fontSize: 18,
-              ),
+              style: TextStyle(color: AppColors.textPrimary, fontSize: 18),
             ),
           ],
         ),
         content: Text(
           'Are you sure you want to delete this transaction? This action cannot be undone.',
-          style: TextStyle(
-            color: AppColors.textSecondary,
-            height: 1.5,
-          ),
+          style: TextStyle(color: AppColors.textSecondary, height: 1.5),
         ),
         actions: [
           TextButton(
@@ -368,10 +356,7 @@ class TransactionCard extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(8),
               ),
             ),
-            child: const Text(
-              'Delete',
-              style: TextStyle(color: Colors.white),
-            ),
+            child: const Text('Delete', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -407,9 +392,7 @@ class _OptionTile extends StatelessWidget {
           fontWeight: FontWeight.w500,
         ),
       ),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       contentPadding: const EdgeInsets.symmetric(horizontal: 20),
     );
   }

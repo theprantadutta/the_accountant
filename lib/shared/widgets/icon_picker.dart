@@ -63,10 +63,7 @@ class IconPicker extends StatelessWidget {
                     style: AppTypography.bodyLarge,
                   ),
                 ),
-                Icon(
-                  Icons.arrow_drop_down,
-                  color: AppColors.textSecondary,
-                ),
+                Icon(Icons.arrow_drop_down, color: AppColors.textSecondary),
               ],
             ),
           ),
@@ -79,9 +76,11 @@ class IconPicker extends StatelessWidget {
     return iconName
         .replaceAll('_', ' ')
         .split(' ')
-        .map((word) => word.isNotEmpty
-            ? '${word[0].toUpperCase()}${word.substring(1)}'
-            : '')
+        .map(
+          (word) => word.isNotEmpty
+              ? '${word[0].toUpperCase()}${word.substring(1)}'
+              : '',
+        )
         .join(' ');
   }
 

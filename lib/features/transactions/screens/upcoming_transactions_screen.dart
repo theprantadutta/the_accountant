@@ -49,10 +49,7 @@ class _UpcomingTransactionsScreenState
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
-          title: Text(
-            'Upcoming & Overdue',
-            style: AppTypography.headlineSmall,
-          ),
+          title: Text('Upcoming & Overdue', style: AppTypography.headlineSmall),
           leading: IconButton(
             icon: Icon(Icons.arrow_back_ios_new, color: AppColors.textPrimary),
             onPressed: () => Navigator.pop(context),
@@ -140,9 +137,7 @@ class _UpcomingTransactionsScreenState
           ),
           AppSpacing.gapLg,
           Text(
-            isOverdue
-                ? 'No overdue transactions'
-                : 'No upcoming transactions',
+            isOverdue ? 'No overdue transactions' : 'No upcoming transactions',
             style: AppTypography.titleMedium.copyWith(
               color: AppColors.textSecondary,
             ),
@@ -178,7 +173,10 @@ class _UpcomingTransactionsScreenState
               decoration: BoxDecoration(
                 gradient: isOverdue
                     ? LinearGradient(
-                        colors: [AppColors.error, AppColors.error.withValues(alpha: 0.7)],
+                        colors: [
+                          AppColors.error,
+                          AppColors.error.withValues(alpha: 0.7),
+                        ],
                       )
                     : AppColors.primaryGradient,
                 borderRadius: AppSpacing.borderRadiusMd,
@@ -204,7 +202,9 @@ class _UpcomingTransactionsScreenState
                   Text(
                     currencyFormat.format(total),
                     style: AppTypography.headlineMedium.copyWith(
-                      color: isOverdue ? AppColors.error : AppColors.textPrimary,
+                      color: isOverdue
+                          ? AppColors.error
+                          : AppColors.textPrimary,
                     ),
                   ),
                 ],
@@ -236,7 +236,9 @@ class _UpcomingTransactionsScreenState
     );
 
     final dateFormat = DateFormat('MMM d, yyyy');
-    final walletCurrency = ref.watch(walletCurrencyProvider(transaction.walletId));
+    final walletCurrency = ref.watch(
+      walletCurrencyProvider(transaction.walletId),
+    );
     final currencyFormat = NumberFormat.currency(
       symbol: CurrencyInfo.getSymbol(walletCurrency),
     );
@@ -250,7 +252,9 @@ class _UpcomingTransactionsScreenState
 
     if (isOverdue) {
       final daysOverdue = DateTime.now().difference(transaction.date).inDays;
-      dueDateText = daysOverdue == 1 ? '1 day overdue' : '$daysOverdue days overdue';
+      dueDateText = daysOverdue == 1
+          ? '1 day overdue'
+          : '$daysOverdue days overdue';
       dueDateColor = AppColors.error;
     } else if (isToday) {
       dueDateText = 'Due today';
@@ -276,7 +280,9 @@ class _UpcomingTransactionsScreenState
                   width: 44,
                   height: 44,
                   decoration: BoxDecoration(
-                    color: _parseColor(category.colorCode).withValues(alpha: 0.2),
+                    color: _parseColor(
+                      category.colorCode,
+                    ).withValues(alpha: 0.2),
                     borderRadius: AppSpacing.borderRadiusMd,
                   ),
                   child: Icon(
@@ -425,9 +431,13 @@ class _UpcomingTransactionsScreenState
 
   IconData _getCategoryIcon(String categoryName) {
     final name = categoryName.toLowerCase();
-    if (name.contains('food') || name.contains('restaurant') || name.contains('dining')) {
+    if (name.contains('food') ||
+        name.contains('restaurant') ||
+        name.contains('dining')) {
       return Icons.restaurant;
-    } else if (name.contains('transport') || name.contains('car') || name.contains('gas')) {
+    } else if (name.contains('transport') ||
+        name.contains('car') ||
+        name.contains('gas')) {
       return Icons.directions_car;
     } else if (name.contains('shopping') || name.contains('shop')) {
       return Icons.shopping_bag;

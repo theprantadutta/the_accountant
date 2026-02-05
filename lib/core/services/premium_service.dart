@@ -28,18 +28,16 @@ class PremiumService {
 
   /// Check if user can add more of an entity type
   bool canAddMore(String entityType, int currentCount) {
-    return _ref.read(premiumProvider.notifier).canAddMore(
-          entityType: entityType,
-          currentCount: currentCount,
-        );
+    return _ref
+        .read(premiumProvider.notifier)
+        .canAddMore(entityType: entityType, currentCount: currentCount);
   }
 
   /// Get remaining count for an entity type
   int getRemainingCount(String entityType, int currentCount) {
-    return _ref.read(premiumProvider.notifier).getRemainingCount(
-          entityType: entityType,
-          currentCount: currentCount,
-        );
+    return _ref
+        .read(premiumProvider.notifier)
+        .getRemainingCount(entityType: entityType, currentCount: currentCount);
   }
 
   /// Get list of unlocked features

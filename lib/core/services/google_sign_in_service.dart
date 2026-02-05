@@ -21,14 +21,10 @@ class GoogleSignInService {
     if (webClientId != null &&
         webClientId.isNotEmpty &&
         webClientId != 'YOUR_GOOGLE_WEB_CLIENT_ID_HERE') {
-      _googleSignIn.initialize(
-        serverClientId: webClientId,
-      );
+      _googleSignIn.initialize(serverClientId: webClientId);
       debugPrint('Google Sign-In initialized with Web Client ID');
     } else {
-      debugPrint(
-        'GOOGLE_WEB_CLIENT_ID not properly configured in .env file',
-      );
+      debugPrint('GOOGLE_WEB_CLIENT_ID not properly configured in .env file');
     }
   }
 
@@ -58,10 +54,12 @@ class GoogleSignInService {
       // Check if authentication is supported on this platform
       if (_googleSignIn.supportsAuthenticate()) {
         // Use authenticate method for supported platforms
-        final GoogleSignInAccount googleUser =
-            await _googleSignIn.authenticate();
+        final GoogleSignInAccount googleUser = await _googleSignIn
+            .authenticate();
 
-        debugPrint('[Google Sign-In] Google user signed in: ${googleUser.email}');
+        debugPrint(
+          '[Google Sign-In] Google user signed in: ${googleUser.email}',
+        );
 
         // Obtain the auth details from the request
         final GoogleSignInAuthentication googleAuth = googleUser.authentication;
@@ -79,8 +77,9 @@ class GoogleSignInService {
         debugPrint('[Google Sign-In] Creating Firebase credential...');
 
         // Sign in to Firebase with the credential
-        final UserCredential result =
-            await _auth.signInWithCredential(credential);
+        final UserCredential result = await _auth.signInWithCredential(
+          credential,
+        );
 
         if (result.user != null) {
           debugPrint(
@@ -90,7 +89,9 @@ class GoogleSignInService {
 
         return result;
       } else {
-        debugPrint('[Google Sign-In] authenticate not supported on this platform');
+        debugPrint(
+          '[Google Sign-In] authenticate not supported on this platform',
+        );
         return null;
       }
     } on FirebaseAuthException catch (e) {
@@ -112,9 +113,7 @@ class GoogleSignInService {
     try {
       final user = currentUser;
       if (user == null) {
-        debugPrint(
-          '[Google Sign-In] Cannot get ID token: no user signed in',
-        );
+        debugPrint('[Google Sign-In] Cannot get ID token: no user signed in');
         return null;
       }
 

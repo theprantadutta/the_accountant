@@ -1,7 +1,8 @@
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
-import 'package:the_accountant/data/models/transaction.dart' show TransactionSpecialType;
+import 'package:the_accountant/data/models/transaction.dart'
+    show TransactionSpecialType;
 import 'package:the_accountant/features/recurring/services/recurring_service.dart';
 
 /// Aggregated subscription data for the dashboard
@@ -53,10 +54,7 @@ class SubscriptionItem {
   final RecurringConfig config;
   final Transaction baseTransaction;
 
-  SubscriptionItem({
-    required this.config,
-    required this.baseTransaction,
-  });
+  SubscriptionItem({required this.config, required this.baseTransaction});
 
   String get id => config.id;
   String get name =>
@@ -146,8 +144,8 @@ class SubscriptionDashboardNotifier
   final RecurringService _recurringService;
 
   SubscriptionDashboardNotifier(AppDatabase db)
-      : _recurringService = RecurringService(database: db),
-        super(const SubscriptionDashboardState()) {
+    : _recurringService = RecurringService(database: db),
+      super(const SubscriptionDashboardState()) {
     loadSubscriptions();
   }
 
@@ -157,8 +155,8 @@ class SubscriptionDashboardNotifier
 
     try {
       // Get all recurring configs with their base transactions
-      final allConfigs =
-          await _recurringService.getAllRecurringWithTransactions();
+      final allConfigs = await _recurringService
+          .getAllRecurringWithTransactions();
 
       // Filter to only subscription type transactions
       final subscriptionConfigs = allConfigs.where((item) {
@@ -167,10 +165,12 @@ class SubscriptionDashboardNotifier
       }).toList();
 
       final items = subscriptionConfigs
-          .map((item) => SubscriptionItem(
-                config: item.config,
-                baseTransaction: item.baseTransaction,
-              ))
+          .map(
+            (item) => SubscriptionItem(
+              config: item.config,
+              baseTransaction: item.baseTransaction,
+            ),
+          )
           .toList();
 
       // Sort: active first, then by next payment date
@@ -179,10 +179,7 @@ class SubscriptionDashboardNotifier
         return a.nextPayment.compareTo(b.nextPayment);
       });
 
-      state = state.copyWith(
-        subscriptions: items,
-        isLoading: false,
-      );
+      state = state.copyWith(subscriptions: items, isLoading: false);
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
@@ -240,8 +237,11 @@ class SubscriptionDashboardNotifier
 }
 
 /// Provider for subscription dashboard
-final subscriptionDashboardProvider = StateNotifierProvider<
-    SubscriptionDashboardNotifier, SubscriptionDashboardState>((ref) {
-  final db = ref.watch(databaseProvider);
-  return SubscriptionDashboardNotifier(db);
-});
+final subscriptionDashboardProvider =
+    StateNotifierProvider<
+      SubscriptionDashboardNotifier,
+      SubscriptionDashboardState
+    >((ref) {
+      final db = ref.watch(databaseProvider);
+      return SubscriptionDashboardNotifier(db);
+    });

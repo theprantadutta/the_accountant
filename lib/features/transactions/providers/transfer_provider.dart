@@ -48,7 +48,7 @@ class TransferNotifier extends StateNotifier<TransferState> {
   final Ref _ref;
 
   TransferNotifier(this._transferService, this._balanceService, this._ref)
-      : super(const TransferState()) {
+    : super(const TransferState()) {
     loadTransfers();
   }
 
@@ -57,10 +57,7 @@ class TransferNotifier extends StateNotifier<TransferState> {
     state = state.copyWith(isLoading: true, errorMessage: null);
     try {
       final transfers = await _transferService.getTransferTransactions();
-      state = state.copyWith(
-        isLoading: false,
-        transfers: transfers,
-      );
+      state = state.copyWith(isLoading: false, transfers: transfers);
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
@@ -201,9 +198,11 @@ class TransferNotifier extends StateNotifier<TransferState> {
 }
 
 /// Provider for transfer state and operations
-final transferProvider = StateNotifierProvider<TransferNotifier, TransferState>((ref) {
-  final transferService = ref.watch(transferServiceProvider);
-  final db = ref.watch(databaseProvider);
-  final balanceService = WalletBalanceService(db);
-  return TransferNotifier(transferService, balanceService, ref);
-});
+final transferProvider = StateNotifierProvider<TransferNotifier, TransferState>(
+  (ref) {
+    final transferService = ref.watch(transferServiceProvider);
+    final db = ref.watch(databaseProvider);
+    final balanceService = WalletBalanceService(db);
+    return TransferNotifier(transferService, balanceService, ref);
+  },
+);

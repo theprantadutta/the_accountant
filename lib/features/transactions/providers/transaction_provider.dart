@@ -7,9 +7,11 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:the_accountant/core/services/wallet_balance_service.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart' as db;
-import 'package:the_accountant/data/datasources/local/app_database.dart' show AppDatabase, TransactionsCompanion, SyncStatus;
+import 'package:the_accountant/data/datasources/local/app_database.dart'
+    show AppDatabase, TransactionsCompanion, SyncStatus;
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
-import 'package:the_accountant/data/models/transaction.dart' show TransactionSpecialType;
+import 'package:the_accountant/data/models/transaction.dart'
+    show TransactionSpecialType;
 import 'package:the_accountant/features/ai/services/category_assignment_service.dart';
 import 'package:the_accountant/features/settings/providers/settings_provider.dart';
 import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
@@ -81,17 +83,17 @@ class Transaction {
 
   /// Convert to new TransactionViewModel
   TransactionViewModel toViewModel() => TransactionViewModel(
-        id: id,
-        amount: amount,
-        isIncome: type == 'income',
-        title: title,
-        category: category,
-        categoryId: categoryId,
-        walletId: walletId,
-        date: date,
-        notes: notes,
-        paymentMethodId: null,
-      );
+    id: id,
+    amount: amount,
+    isIncome: type == 'income',
+    title: title,
+    category: category,
+    categoryId: categoryId,
+    walletId: walletId,
+    date: date,
+    notes: notes,
+    paymentMethodId: null,
+  );
 }
 
 class TransactionState {
@@ -128,42 +130,38 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
     : _walletBalanceService = WalletBalanceService(_db),
       _categoryAssignmentService = CategoryAssignmentService(),
       super(TransactionState(transactions: [], isLoading: false)) {
-    _loadTransactions();
+    loadTransactions();
   }
 
-  Future<void> _loadTransactions() async {
-    state = state.copyWith(isLoading: true);
+  Future<void> loadTransactions({bool silent = false}) async {
+    if (!silent) state = state.copyWith(isLoading: true);
     try {
       // Use JOIN query to get transactions with category names
       final dbResults = await _db.getAllTransactionsWithCategoryName();
-      final transactions = dbResults
-          .map(
-            (result) {
-              final t = result['transaction'] as db.Transaction;
-              final categoryName = result['categoryName'] as String;
-              return Transaction(
-                id: t.id,
-                amount: t.amount,
-                // Use isIncome to determine type (new approach)
-                type: t.isIncome ? 'income' : 'expense',
-                category: categoryName, // Now resolved from JOIN query
-                categoryId: t.categoryId ?? '',
-                walletId: t.walletId,
-                date: t.date,
-                title: t.title ?? '',
-                notes: t.notes ?? '',
-                paymentMethod: t.paymentMethodId ?? '',
-                isRecurring: false, // Deprecated - use RecurringConfigs
-                recurrencePattern: null, // Deprecated - use RecurringConfigs
-              );
-            },
-          )
-          .toList();
+      final transactions = dbResults.map((result) {
+        final t = result['transaction'] as db.Transaction;
+        final categoryName = result['categoryName'] as String;
+        return Transaction(
+          id: t.id,
+          amount: t.amount,
+          // Use isIncome to determine type (new approach)
+          type: t.isIncome ? 'income' : 'expense',
+          category: categoryName, // Now resolved from JOIN query
+          categoryId: t.categoryId ?? '',
+          walletId: t.walletId,
+          date: t.date,
+          title: t.title ?? '',
+          notes: t.notes ?? '',
+          paymentMethod: t.paymentMethodId ?? '',
+          isRecurring: false, // Deprecated - use RecurringConfigs
+          recurrencePattern: null, // Deprecated - use RecurringConfigs
+        );
+      }).toList();
 
       state = state.copyWith(transactions: transactions, isLoading: false);
     } catch (e) {
       if (mounted) {
-        state = state.copyWith(
+        if (!silent) state = state.copyWith(
           isLoading: false,
           errorMessage: 'Failed to load transactions: $e',
         );
@@ -226,7 +224,7 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
       await _db.addTransaction(newTransaction);
 
       // Reload transactions to get the new one
-      await _loadTransactions();
+      await loadTransactions();
 
       // Refresh dashboard and reports data for real-time updates
       _ref.read(financialDataProvider.notifier).refreshData();
@@ -265,8 +263,9 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
       final now = DateTime.now();
 
       // Determine paid status based on special type
-      final effectiveIsPaid = specialType == TransactionSpecialType.none ||
-          specialType == TransactionSpecialType.repetitive
+      final effectiveIsPaid =
+          specialType == TransactionSpecialType.none ||
+              specialType == TransactionSpecialType.repetitive
           ? true // Regular and repetitive are always paid
           : isPaid; // Others can be unpaid
 
@@ -306,7 +305,7 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
       }
 
       // Reload transactions to get the new one
-      await _loadTransactions();
+      await loadTransactions();
 
       // Refresh dashboard and reports data for real-time updates
       _ref.read(financialDataProvider.notifier).refreshData();
@@ -367,7 +366,9 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
         walletId: Value(walletId ?? existing.walletId),
         date: Value(date ?? existing.date),
         notes: Value(notes ?? existing.notes),
-        paymentMethodId: Value(paymentMethodId ?? paymentMethod ?? existing.paymentMethodId),
+        paymentMethodId: Value(
+          paymentMethodId ?? paymentMethod ?? existing.paymentMethodId,
+        ),
         // Preserve transaction metadata fields
         transactionType: Value(existing.transactionType),
         specialType: Value(existing.specialType),
@@ -441,7 +442,7 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
       await _ref.read(walletProvider.notifier).loadWallets();
 
       // Reload transactions to get the updated one
-      await _loadTransactions();
+      await loadTransactions();
 
       // Refresh dashboard and reports data for real-time updates
       _ref.read(financialDataProvider.notifier).refreshData();
@@ -476,7 +477,7 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
       await _db.deleteTransaction(id);
 
       // Reload transactions to reflect the deletion
-      await _loadTransactions();
+      await loadTransactions();
 
       // Refresh dashboard and reports data for real-time updates
       _ref.read(financialDataProvider.notifier).refreshData();

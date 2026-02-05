@@ -96,10 +96,7 @@ class _NeoTextFieldState extends State<NeoTextField>
       duration: AppAnimations.normal,
     );
     _shakeAnimation = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(
-        parent: _shakeController,
-        curve: Curves.elasticIn,
-      ),
+      CurvedAnimation(parent: _shakeController, curve: Curves.elasticIn),
     );
   }
 
@@ -149,8 +146,8 @@ class _NeoTextFieldState extends State<NeoTextField>
     final borderColor = hasError
         ? AppColors.error
         : _isFocused
-            ? AppColors.primaryAccent
-            : AppColors.glassBorder;
+        ? AppColors.primaryAccent
+        : AppColors.glassBorder;
 
     return AnimatedBuilder(
       animation: _shakeAnimation,
@@ -228,8 +225,8 @@ class _NeoTextFieldState extends State<NeoTextField>
                   color: hasError
                       ? AppColors.error
                       : _isFocused
-                          ? AppColors.primaryAccent
-                          : AppColors.textSecondary,
+                      ? AppColors.primaryAccent
+                      : AppColors.textSecondary,
                 ),
                 prefixIcon: widget.prefixIcon != null
                     ? Icon(
@@ -347,19 +344,14 @@ class _NeoSearchFieldState extends State<NeoSearchField> {
       decoration: BoxDecoration(
         color: AppColors.glassWhite,
         borderRadius: AppSpacing.borderRadiusFull,
-        border: Border.all(
-          color: AppColors.glassBorder,
-          width: 1,
-        ),
+        border: Border.all(color: AppColors.glassBorder, width: 1),
       ),
       child: TextField(
         controller: _controller,
         autofocus: widget.autofocus,
         onChanged: widget.onChanged,
         onSubmitted: widget.onSubmitted,
-        style: AppTypography.bodyMedium.copyWith(
-          color: AppColors.textPrimary,
-        ),
+        style: AppTypography.bodyMedium.copyWith(color: AppColors.textPrimary),
         cursorColor: AppColors.primaryAccent,
         decoration: InputDecoration(
           hintText: widget.hint,

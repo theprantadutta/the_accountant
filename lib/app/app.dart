@@ -35,7 +35,8 @@ class MyApp extends ConsumerWidget {
       home: const AuthWrapper(),
       routes: {
         '/onboarding': (context) => const OnboardingScreen(),
-        '/post-signup-onboarding': (context) => const PostSignupOnboardingScreen(),
+        '/post-signup-onboarding': (context) =>
+            const PostSignupOnboardingScreen(),
         '/signin': (context) => const SignInScreen(),
         '/signup': (context) => const SignUpScreen(),
         '/profile': (context) => const UserProfileScreen(),
@@ -48,7 +49,8 @@ class MyApp extends ConsumerWidget {
           return SupportScreen(userId: args ?? 'default_user');
         },
         '/settings/profile': (context) => const ProfileEditScreen(),
-        '/settings/privacy-security': (context) => const PrivacySecurityScreen(),
+        '/settings/privacy-security': (context) =>
+            const PrivacySecurityScreen(),
         '/settings/notifications': (context) => const NotificationsScreen(),
         '/settings/regional': (context) => const RegionalSettingsScreen(),
       },

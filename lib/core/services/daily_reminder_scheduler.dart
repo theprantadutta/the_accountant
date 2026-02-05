@@ -11,14 +11,16 @@ import 'package:timezone/timezone.dart' as tz;
 /// Service for scheduling daily expense reminder notifications locally.
 /// Uses flutter_local_notifications with zonedSchedule for precise timing.
 class DailyReminderScheduler {
-  static final DailyReminderScheduler _instance = DailyReminderScheduler._internal();
+  static final DailyReminderScheduler _instance =
+      DailyReminderScheduler._internal();
   factory DailyReminderScheduler() => _instance;
   DailyReminderScheduler._internal();
 
   static const int _dailyReminderId = 1001;
   static const String _channelId = 'daily_reminder_channel';
   static const String _channelName = 'Daily Reminders';
-  static const String _channelDescription = 'Daily expense reminder notifications';
+  static const String _channelDescription =
+      'Daily expense reminder notifications';
 
   // Local storage keys
   static const String _keyEnabled = 'daily_reminder_enabled';
@@ -36,16 +38,22 @@ class DailyReminderScheduler {
     if (!Platform.isAndroid) return true;
 
     final androidPlugin = _notificationsPlugin
-        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
 
     if (androidPlugin != null) {
       // Check if exact alarms are permitted
-      final canSchedule = await androidPlugin.canScheduleExactNotifications() ?? false;
+      final canSchedule =
+          await androidPlugin.canScheduleExactNotifications() ?? false;
       if (!canSchedule) {
         debugPrint('DailyReminderScheduler: Requesting exact alarm permission');
         // Request permission - this opens system settings on Android 12+
-        final granted = await androidPlugin.requestExactAlarmsPermission() ?? false;
-        debugPrint('DailyReminderScheduler: Exact alarm permission granted: $granted');
+        final granted =
+            await androidPlugin.requestExactAlarmsPermission() ?? false;
+        debugPrint(
+          'DailyReminderScheduler: Exact alarm permission granted: $granted',
+        );
         return granted;
       }
       return true;
@@ -64,7 +72,9 @@ class DailyReminderScheduler {
     try {
       final timezoneInfo = await FlutterTimezone.getLocalTimezone();
       tz.setLocalLocation(tz.getLocation(timezoneInfo.identifier));
-      debugPrint('DailyReminderScheduler: Device timezone: ${timezoneInfo.identifier}');
+      debugPrint(
+        'DailyReminderScheduler: Device timezone: ${timezoneInfo.identifier}',
+      );
     } catch (e) {
       debugPrint('DailyReminderScheduler: Failed to get device timezone: $e');
       // Fallback to UTC if device timezone can't be determined
@@ -95,7 +105,9 @@ class DailyReminderScheduler {
             minute: int.parse(parts[1]),
           );
           await scheduleDailyReminder(time: time, timezone: timezone);
-          debugPrint('DailyReminderScheduler: Restored reminder at $timeStr ($timezone)');
+          debugPrint(
+            'DailyReminderScheduler: Restored reminder at $timeStr ($timezone)',
+          );
         }
       }
     }
@@ -113,8 +125,12 @@ class DailyReminderScheduler {
     // Request exact alarm permission on Android 12+
     final hasPermission = await _requestExactAlarmPermission();
     if (!hasPermission) {
-      debugPrint('DailyReminderScheduler: Cannot schedule - exact alarm permission denied');
-      throw Exception('Exact alarm permission is required to schedule daily reminders');
+      debugPrint(
+        'DailyReminderScheduler: Cannot schedule - exact alarm permission denied',
+      );
+      throw Exception(
+        'Exact alarm permission is required to schedule daily reminders',
+      );
     }
 
     // Cancel any existing reminder first
@@ -125,7 +141,9 @@ class DailyReminderScheduler {
     try {
       location = tz.getLocation(timezone);
     } catch (e) {
-      debugPrint('DailyReminderScheduler: Invalid timezone $timezone, using device local');
+      debugPrint(
+        'DailyReminderScheduler: Invalid timezone $timezone, using device local',
+      );
       location = tz.local;
     }
 
@@ -155,7 +173,8 @@ class DailyReminderScheduler {
       icon: '@mipmap/ic_launcher',
       enableLights: true,
       enableVibration: true,
-      fullScreenIntent: true, // Shows as heads-up even when app is in foreground
+      fullScreenIntent:
+          true, // Shows as heads-up even when app is in foreground
       category: AndroidNotificationCategory.reminder,
       visibility: NotificationVisibility.public,
     );
@@ -182,7 +201,8 @@ class DailyReminderScheduler {
       await _notificationsPlugin.zonedSchedule(
         id: _dailyReminderId,
         title: 'Daily Expense Reminder',
-        body: "Don't forget to log your expenses today! Keep track of your spending.",
+        body:
+            "Don't forget to log your expenses today! Keep track of your spending.",
         scheduledDate: scheduledDate,
         notificationDetails: notificationDetails,
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
@@ -197,19 +217,28 @@ class DailyReminderScheduler {
     // Verify the notification was scheduled
     final pending = await _notificationsPlugin.pendingNotificationRequests();
     final isScheduled = pending.any((n) => n.id == _dailyReminderId);
-    debugPrint('DailyReminderScheduler: Notification scheduled successfully: $isScheduled');
+    debugPrint(
+      'DailyReminderScheduler: Notification scheduled successfully: $isScheduled',
+    );
 
     if (!isScheduled) {
-      debugPrint('DailyReminderScheduler: WARNING - Notification not found in pending list!');
+      debugPrint(
+        'DailyReminderScheduler: WARNING - Notification not found in pending list!',
+      );
     }
 
     // Save to local storage
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_keyEnabled, true);
-    await prefs.setString(_keyTime, '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}');
+    await prefs.setString(
+      _keyTime,
+      '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}',
+    );
     await prefs.setString(_keyTimezone, timezone);
 
-    debugPrint('DailyReminderScheduler: Scheduled daily reminder at ${time.hour}:${time.minute} ($timezone)');
+    debugPrint(
+      'DailyReminderScheduler: Scheduled daily reminder at ${time.hour}:${time.minute} ($timezone)',
+    );
     debugPrint('DailyReminderScheduler: Next notification: $scheduledDate');
   }
 
@@ -269,7 +298,9 @@ class DailyReminderScheduler {
   /// Get list of pending notifications (for debugging)
   Future<List<PendingNotificationRequest>> getPendingNotifications() async {
     final pending = await _notificationsPlugin.pendingNotificationRequests();
-    debugPrint('DailyReminderScheduler: ${pending.length} pending notifications');
+    debugPrint(
+      'DailyReminderScheduler: ${pending.length} pending notifications',
+    );
     for (final notification in pending) {
       debugPrint('  - ID: ${notification.id}, Title: ${notification.title}');
     }
@@ -280,7 +311,9 @@ class DailyReminderScheduler {
   Future<bool> isDailyReminderPending() async {
     final pending = await _notificationsPlugin.pendingNotificationRequests();
     final hasDailyReminder = pending.any((n) => n.id == _dailyReminderId);
-    debugPrint('DailyReminderScheduler: Daily reminder pending: $hasDailyReminder');
+    debugPrint(
+      'DailyReminderScheduler: Daily reminder pending: $hasDailyReminder',
+    );
     return hasDailyReminder;
   }
 
@@ -326,7 +359,9 @@ class DailyReminderScheduler {
     if (!Platform.isAndroid) return true;
 
     final androidPlugin = _notificationsPlugin
-        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
 
     if (androidPlugin != null) {
       return await androidPlugin.canScheduleExactNotifications() ?? false;

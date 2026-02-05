@@ -18,7 +18,9 @@ Future<bool?> showConfirmationDialog({
       message: message,
       cancelText: cancelText,
       confirmText: confirmText,
-      confirmColor: confirmColor ?? (isDangerous ? AppColors.error : AppColors.primaryAccent),
+      confirmColor:
+          confirmColor ??
+          (isDangerous ? AppColors.error : AppColors.primaryAccent),
       isDangerous: isDangerous,
     ),
   );
@@ -57,19 +59,11 @@ class ConfirmationDialog extends StatelessWidget {
           fontWeight: FontWeight.bold,
         ),
       ),
-      content: Text(
-        message,
-        style: TextStyle(
-          color: AppColors.textSecondary,
-        ),
-      ),
+      content: Text(message, style: TextStyle(color: AppColors.textSecondary)),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context, false),
-          child: Text(
-            cancelText,
-            style: TextStyle(color: AppColors.textMuted),
-          ),
+          child: Text(cancelText, style: TextStyle(color: AppColors.textMuted)),
         ),
         TextButton(
           onPressed: () => Navigator.pop(context, true),
@@ -103,14 +97,9 @@ Future<T?> showLoadingDialog<T>({
         content: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            CircularProgressIndicator(
-              color: AppColors.primaryAccent,
-            ),
+            CircularProgressIndicator(color: AppColors.primaryAccent),
             const SizedBox(width: 20),
-            Text(
-              message,
-              style: TextStyle(color: AppColors.textPrimary),
-            ),
+            Text(message, style: TextStyle(color: AppColors.textPrimary)),
           ],
         ),
       ),
@@ -139,17 +128,12 @@ void showSuccessSnackBar(BuildContext context, String message) {
         children: [
           const Icon(Icons.check_circle, color: Colors.white),
           const SizedBox(width: 8),
-          Text(
-            message,
-            style: const TextStyle(color: Colors.white),
-          ),
+          Text(message, style: const TextStyle(color: Colors.white)),
         ],
       ),
       backgroundColor: AppColors.success.withValues(alpha: 0.9),
       behavior: SnackBarBehavior.floating,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       margin: const EdgeInsets.all(16),
     ),
   );
@@ -164,18 +148,13 @@ void showErrorSnackBar(BuildContext context, String message) {
           const Icon(Icons.error_outline, color: Colors.white),
           const SizedBox(width: 8),
           Expanded(
-            child: Text(
-              message,
-              style: const TextStyle(color: Colors.white),
-            ),
+            child: Text(message, style: const TextStyle(color: Colors.white)),
           ),
         ],
       ),
       backgroundColor: AppColors.error.withValues(alpha: 0.9),
       behavior: SnackBarBehavior.floating,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       margin: const EdgeInsets.all(16),
     ),
   );
@@ -189,17 +168,12 @@ void showInfoSnackBar(BuildContext context, String message) {
         children: [
           const Icon(Icons.info_outline, color: Colors.white),
           const SizedBox(width: 8),
-          Text(
-            message,
-            style: const TextStyle(color: Colors.white),
-          ),
+          Text(message, style: const TextStyle(color: Colors.white)),
         ],
       ),
       backgroundColor: AppColors.info.withValues(alpha: 0.9),
       behavior: SnackBarBehavior.floating,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       margin: const EdgeInsets.all(16),
     ),
   );

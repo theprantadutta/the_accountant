@@ -13,13 +13,14 @@ class ExchangeRatesScreen extends ConsumerStatefulWidget {
   const ExchangeRatesScreen({super.key});
 
   @override
-  ConsumerState<ExchangeRatesScreen> createState() => _ExchangeRatesScreenState();
+  ConsumerState<ExchangeRatesScreen> createState() =>
+      _ExchangeRatesScreenState();
 }
 
 class _ExchangeRatesScreenState extends ConsumerState<ExchangeRatesScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
-  String _baseCurrency = 'USD';
+  final String _baseCurrency = 'USD';
 
   @override
   void dispose() {
@@ -133,9 +134,7 @@ class _ExchangeRatesScreenState extends ConsumerState<ExchangeRatesScreen> {
             AppSpacing.gapMd,
 
             // Rates list
-            Expanded(
-              child: _buildRatesList(currencyState),
-            ),
+            Expanded(child: _buildRatesList(currencyState)),
           ],
         ),
       ),
@@ -253,8 +252,9 @@ class _ExchangeRatesScreenState extends ConsumerState<ExchangeRatesScreen> {
             AppSpacing.gapMd,
             TextField(
               controller: controller,
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
               decoration: InputDecoration(
                 labelText: 'Custom rate',
                 filled: true,

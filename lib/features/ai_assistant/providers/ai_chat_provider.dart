@@ -48,8 +48,8 @@ class AiChatNotifier extends StateNotifier<AiChatState> {
   final AiChatService _aiChatService;
 
   AiChatNotifier()
-      : _aiChatService = AiChatService(),
-        super(const AiChatState());
+    : _aiChatService = AiChatService(),
+      super(const AiChatState());
 
   /// Load chat history from the server
   Future<void> loadHistory() async {
@@ -156,7 +156,8 @@ class AiChatNotifier extends StateNotifier<AiChatState> {
     } catch (e) {
       // Generic error handling
       final fallbackMessage = ChatMessage.ai(
-        text: "I'm having trouble connecting right now. Please try again in a moment.",
+        text:
+            "I'm having trouble connecting right now. Please try again in a moment.",
         isAiFallback: true,
         aiErrorType: 'unknown_error',
       );
@@ -174,10 +175,7 @@ class AiChatNotifier extends StateNotifier<AiChatState> {
   /// Clear all messages and start fresh with welcome message
   Future<void> clearMessages() async {
     await _aiChatService.clearHistory();
-    state = AiChatState(
-      messages: [ChatMessage.welcome()],
-      historyLoaded: true,
-    );
+    state = AiChatState(messages: [ChatMessage.welcome()], historyLoaded: true);
   }
 
   /// Clear error state
@@ -192,8 +190,10 @@ class AiChatNotifier extends StateNotifier<AiChatState> {
   /// Retry the last failed message
   Future<void> retryLastMessage() async {
     // Find the last user message
-    final lastUserMessage = state.messages.reversed
-        .firstWhere((m) => m.isFromUser, orElse: () => ChatMessage.user(text: ''));
+    final lastUserMessage = state.messages.reversed.firstWhere(
+      (m) => m.isFromUser,
+      orElse: () => ChatMessage.user(text: ''),
+    );
 
     if (lastUserMessage.text.isEmpty) return;
 
@@ -252,6 +252,8 @@ class AiChatNotifier extends StateNotifier<AiChatState> {
 }
 
 /// Provider for AI chat state
-final aiChatProvider = StateNotifierProvider<AiChatNotifier, AiChatState>((ref) {
+final aiChatProvider = StateNotifierProvider<AiChatNotifier, AiChatState>((
+  ref,
+) {
   return AiChatNotifier();
 });

@@ -62,9 +62,11 @@ class CurrencyState {
 
     final lowerQuery = query.toLowerCase();
     return availableCurrencies.entries
-        .where((entry) =>
-            entry.key.toLowerCase().contains(lowerQuery) ||
-            entry.value.toLowerCase().contains(lowerQuery))
+        .where(
+          (entry) =>
+              entry.key.toLowerCase().contains(lowerQuery) ||
+              entry.value.toLowerCase().contains(lowerQuery),
+        )
         .toList()
       ..sort((a, b) {
         // Prioritize exact code matches
@@ -103,10 +105,7 @@ class CurrencyNotifier extends StateNotifier<CurrencyState> {
 
     try {
       final currencies = await _currencyService.fetchAvailableCurrencies();
-      state = state.copyWith(
-        availableCurrencies: currencies,
-        isLoading: false,
-      );
+      state = state.copyWith(availableCurrencies: currencies, isLoading: false);
     } catch (e) {
       debugPrint('[CurrencyProvider] Error loading currencies: $e');
       state = state.copyWith(
@@ -206,17 +205,19 @@ final currencyServiceProvider = Provider<CurrencyService>((ref) {
 });
 
 /// Currency state provider
-final currencyProvider =
-    StateNotifierProvider<CurrencyNotifier, CurrencyState>((ref) {
-  final service = ref.watch(currencyServiceProvider);
-  return CurrencyNotifier(service);
-});
+final currencyProvider = StateNotifierProvider<CurrencyNotifier, CurrencyState>(
+  (ref) {
+    final service = ref.watch(currencyServiceProvider);
+    return CurrencyNotifier(service);
+  },
+);
 
 /// Provider for searching currencies
-final currencySearchProvider = Provider.family<List<MapEntry<String, String>>, String>((ref, query) {
-  final state = ref.watch(currencyProvider);
-  return state.searchCurrencies(query);
-});
+final currencySearchProvider =
+    Provider.family<List<MapEntry<String, String>>, String>((ref, query) {
+      final state = ref.watch(currencyProvider);
+      return state.searchCurrencies(query);
+    });
 
 /// Provider to get currency name by code
 final currencyNameProvider = Provider.family<String, String>((ref, code) {
@@ -225,7 +226,10 @@ final currencyNameProvider = Provider.family<String, String>((ref, code) {
 });
 
 /// Get currency from wallet ID
-final walletCurrencyProvider = Provider.family<String, String?>((ref, walletId) {
+final walletCurrencyProvider = Provider.family<String, String?>((
+  ref,
+  walletId,
+) {
   if (walletId == null) return 'USD';
   final walletState = ref.watch(walletProvider);
   try {

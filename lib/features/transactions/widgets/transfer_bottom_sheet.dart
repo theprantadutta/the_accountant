@@ -21,7 +21,8 @@ class TransferBottomSheet extends ConsumerStatefulWidget {
   const TransferBottomSheet({super.key});
 
   @override
-  ConsumerState<TransferBottomSheet> createState() => _TransferBottomSheetState();
+  ConsumerState<TransferBottomSheet> createState() =>
+      _TransferBottomSheetState();
 }
 
 class _TransferBottomSheetState extends ConsumerState<TransferBottomSheet> {
@@ -30,7 +31,7 @@ class _TransferBottomSheetState extends ConsumerState<TransferBottomSheet> {
   double _amount = 0.0;
   DateTime _date = DateTime.now();
   String _notes = '';
-  String _title = '';
+  final String _title = '';
   bool _isSaving = false;
 
   // Calculator display
@@ -92,14 +93,16 @@ class _TransferBottomSheetState extends ConsumerState<TransferBottomSheet> {
     setState(() => _isSaving = true);
 
     try {
-      final success = await ref.read(transferProvider.notifier).createTransfer(
-        sourceWalletId: _sourceWalletId!,
-        destinationWalletId: _destinationWalletId!,
-        amount: _amount,
-        date: _date,
-        notes: _notes.isEmpty ? null : _notes,
-        title: _title.isEmpty ? null : _title,
-      );
+      final success = await ref
+          .read(transferProvider.notifier)
+          .createTransfer(
+            sourceWalletId: _sourceWalletId!,
+            destinationWalletId: _destinationWalletId!,
+            amount: _amount,
+            date: _date,
+            notes: _notes.isEmpty ? null : _notes,
+            title: _title.isEmpty ? null : _title,
+          );
 
       if (success && mounted) {
         HapticFeedback.mediumImpact();
@@ -239,10 +242,7 @@ class _TransferBottomSheetState extends ConsumerState<TransferBottomSheet> {
           const Expanded(
             child: Text(
               'Transfer',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
           ),
@@ -289,10 +289,7 @@ class _TransferBottomSheetState extends ConsumerState<TransferBottomSheet> {
                 color: theme.colorScheme.primary.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
-              child: Icon(
-                Icons.swap_horiz,
-                color: theme.colorScheme.primary,
-              ),
+              child: Icon(Icons.swap_horiz, color: theme.colorScheme.primary),
             ),
           ),
         ),
@@ -304,7 +301,8 @@ class _TransferBottomSheetState extends ConsumerState<TransferBottomSheet> {
             label: 'To',
             wallet: destWallet,
             wallets: wallets,
-            onSelect: (wallet) => setState(() => _destinationWalletId = wallet.id),
+            onSelect: (wallet) =>
+                setState(() => _destinationWalletId = wallet.id),
             color: Colors.green.shade400,
           ),
         ),
@@ -328,7 +326,9 @@ class _TransferBottomSheetState extends ConsumerState<TransferBottomSheet> {
           color: theme.colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: wallet != null ? color.withValues(alpha: 0.5) : Colors.transparent,
+            color: wallet != null
+                ? color.withValues(alpha: 0.5)
+                : Colors.transparent,
             width: 2,
           ),
         ),
@@ -451,7 +451,10 @@ class _TransferBottomSheetState extends ConsumerState<TransferBottomSheet> {
                 }
               },
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   color: theme.colorScheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(8),
@@ -483,7 +486,10 @@ class _TransferBottomSheetState extends ConsumerState<TransferBottomSheet> {
             child: GestureDetector(
               onTap: () => _showNotesDialog(theme),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   color: theme.colorScheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(8),
@@ -527,9 +533,7 @@ class _TransferBottomSheetState extends ConsumerState<TransferBottomSheet> {
         title: const Text('Add Note'),
         content: TextField(
           controller: controller,
-          decoration: const InputDecoration(
-            hintText: 'Transfer notes...',
-          ),
+          decoration: const InputDecoration(hintText: 'Transfer notes...'),
           maxLines: 3,
           autofocus: true,
         ),
@@ -566,7 +570,12 @@ class _TransferBottomSheetState extends ConsumerState<TransferBottomSheet> {
             _buildButton('4', theme, onTap: () => _onDigit('4')),
             _buildButton('5', theme, onTap: () => _onDigit('5')),
             _buildButton('6', theme, onTap: () => _onDigit('6')),
-            _buildButton('\u232B', theme, onTap: _onBackspace, isOperator: true),
+            _buildButton(
+              '\u232B',
+              theme,
+              onTap: _onBackspace,
+              isOperator: true,
+            ),
           ],
         ),
         Row(
@@ -579,10 +588,14 @@ class _TransferBottomSheetState extends ConsumerState<TransferBottomSheet> {
         ),
         Row(
           children: [
-            _buildButton('00', theme, onTap: () {
-              _onDigit('0');
-              _onDigit('0');
-            }),
+            _buildButton(
+              '00',
+              theme,
+              onTap: () {
+                _onDigit('0');
+                _onDigit('0');
+              },
+            ),
             _buildButton('0', theme, onTap: () => _onDigit('0')),
             _buildButton('.', theme, onTap: _onDecimal),
             const Expanded(child: SizedBox()), // Empty space
@@ -655,10 +668,7 @@ class _TransferBottomSheetState extends ConsumerState<TransferBottomSheet> {
           ),
           child: Text(
             _isSaving ? 'Creating Transfer...' : 'Create Transfer',
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
         ),
       ),
@@ -756,7 +766,11 @@ class _WalletPickerSheet extends StatelessWidget {
     );
   }
 
-  Widget _buildWalletItem(BuildContext context, ThemeData theme, Wallet wallet) {
+  Widget _buildWalletItem(
+    BuildContext context,
+    ThemeData theme,
+    Wallet wallet,
+  ) {
     final color = _parseColor(wallet.color);
 
     return GestureDetector(
@@ -779,11 +793,7 @@ class _WalletPickerSheet extends StatelessWidget {
                 color: color.withValues(alpha: 0.2),
                 shape: BoxShape.circle,
               ),
-              child: Icon(
-                Icons.account_balance_wallet,
-                color: color,
-                size: 20,
-              ),
+              child: Icon(Icons.account_balance_wallet, color: color, size: 20),
             ),
             const SizedBox(width: 12),
             Expanded(

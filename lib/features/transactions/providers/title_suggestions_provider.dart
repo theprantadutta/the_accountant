@@ -1,5 +1,4 @@
 import 'package:drift/drift.dart' show Value;
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
@@ -131,13 +130,15 @@ class TitleSuggestionsNotifier extends StateNotifier<TitleSuggestionsState> {
     for (final assoc in associatedTitles) {
       if (assoc.title.toLowerCase().contains(lowerQuery)) {
         final category = await _db.findCategoryById(assoc.categoryId);
-        associatedMatches.add(TitleSuggestion(
-          title: assoc.title,
-          categoryId: assoc.categoryId,
-          categoryName: category?.name,
-          categoryColor: category?.color,
-          useCount: 100, // Higher priority for associated titles
-        ));
+        associatedMatches.add(
+          TitleSuggestion(
+            title: assoc.title,
+            categoryId: assoc.categoryId,
+            categoryName: category?.name,
+            categoryColor: category?.color,
+            useCount: 100, // Higher priority for associated titles
+          ),
+        );
       }
     }
 
@@ -230,24 +231,28 @@ class TitleSuggestionsNotifier extends StateNotifier<TitleSuggestionsState> {
       final existing = await _db.findExactTitleMatch(title);
       if (existing != null) {
         // Update existing
-        await _db.updateAssociatedTitle(AssociatedTitlesCompanion(
-          id: Value(existing.id),
-          title: Value(title.toLowerCase()),
-          categoryId: Value(categoryId),
-          isExactMatch: Value(isExactMatch),
-          updatedAt: Value(DateTime.now()),
-        ));
+        await _db.updateAssociatedTitle(
+          AssociatedTitlesCompanion(
+            id: Value(existing.id),
+            title: Value(title.toLowerCase()),
+            categoryId: Value(categoryId),
+            isExactMatch: Value(isExactMatch),
+            updatedAt: Value(DateTime.now()),
+          ),
+        );
       } else {
         // Create new
         final id = DateTime.now().millisecondsSinceEpoch.toString();
-        await _db.addAssociatedTitle(AssociatedTitlesCompanion(
-          id: Value(id),
-          title: Value(title.toLowerCase()),
-          categoryId: Value(categoryId),
-          isExactMatch: Value(isExactMatch),
-          createdAt: Value(DateTime.now()),
-          updatedAt: Value(DateTime.now()),
-        ));
+        await _db.addAssociatedTitle(
+          AssociatedTitlesCompanion(
+            id: Value(id),
+            title: Value(title.toLowerCase()),
+            categoryId: Value(categoryId),
+            isExactMatch: Value(isExactMatch),
+            createdAt: Value(DateTime.now()),
+            updatedAt: Value(DateTime.now()),
+          ),
+        );
       }
 
       // Refresh recent titles
@@ -282,9 +287,9 @@ class CategorySuggestionResult {
 
 /// Provider for title suggestions
 final titleSuggestionsProvider =
-    StateNotifierProvider<TitleSuggestionsNotifier, TitleSuggestionsState>(
-  (ref) {
-    final db = ref.watch(databaseProvider);
-    return TitleSuggestionsNotifier(db);
-  },
-);
+    StateNotifierProvider<TitleSuggestionsNotifier, TitleSuggestionsState>((
+      ref,
+    ) {
+      final db = ref.watch(databaseProvider);
+      return TitleSuggestionsNotifier(db);
+    });
