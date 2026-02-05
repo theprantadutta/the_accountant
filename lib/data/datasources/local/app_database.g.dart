@@ -1263,6 +1263,38 @@ class $WalletsTable extends Wallets with TableInfo<$WalletsTable, Wallet> {
     ),
     defaultValue: const Constant(true),
   );
+  @override
+  late final GeneratedColumnWithTypeConverter<WalletType, int> walletType =
+      GeneratedColumn<int>(
+        'wallet_type',
+        aliasedName,
+        false,
+        type: DriftSqlType.int,
+        requiredDuringInsert: false,
+        defaultValue: const Constant(0),
+      ).withConverter<WalletType>($WalletsTable.$converterwalletType);
+  static const VerificationMeta _creditLimitMeta = const VerificationMeta(
+    'creditLimit',
+  );
+  @override
+  late final GeneratedColumn<double> creditLimit = GeneratedColumn<double>(
+    'credit_limit',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _billingCycleDayMeta = const VerificationMeta(
+    'billingCycleDay',
+  );
+  @override
+  late final GeneratedColumn<int> billingCycleDay = GeneratedColumn<int>(
+    'billing_cycle_day',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _orderIndexMeta = const VerificationMeta(
     'orderIndex',
   );
@@ -1343,6 +1375,9 @@ class $WalletsTable extends Wallets with TableInfo<$WalletsTable, Wallet> {
     balance,
     isDefault,
     useDecimals,
+    walletType,
+    creditLimit,
+    billingCycleDay,
     orderIndex,
     serverId,
     syncStatus,
@@ -1411,6 +1446,24 @@ class $WalletsTable extends Wallets with TableInfo<$WalletsTable, Wallet> {
         useDecimals.isAcceptableOrUnknown(
           data['use_decimals']!,
           _useDecimalsMeta,
+        ),
+      );
+    }
+    if (data.containsKey('credit_limit')) {
+      context.handle(
+        _creditLimitMeta,
+        creditLimit.isAcceptableOrUnknown(
+          data['credit_limit']!,
+          _creditLimitMeta,
+        ),
+      );
+    }
+    if (data.containsKey('billing_cycle_day')) {
+      context.handle(
+        _billingCycleDayMeta,
+        billingCycleDay.isAcceptableOrUnknown(
+          data['billing_cycle_day']!,
+          _billingCycleDayMeta,
         ),
       );
     }
@@ -1491,6 +1544,20 @@ class $WalletsTable extends Wallets with TableInfo<$WalletsTable, Wallet> {
         DriftSqlType.bool,
         data['${effectivePrefix}use_decimals'],
       )!,
+      walletType: $WalletsTable.$converterwalletType.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}wallet_type'],
+        )!,
+      ),
+      creditLimit: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}credit_limit'],
+      ),
+      billingCycleDay: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}billing_cycle_day'],
+      ),
       orderIndex: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}order_index'],
@@ -1522,6 +1589,9 @@ class $WalletsTable extends Wallets with TableInfo<$WalletsTable, Wallet> {
   $WalletsTable createAlias(String alias) {
     return $WalletsTable(attachedDatabase, alias);
   }
+
+  static JsonTypeConverter2<WalletType, int, int> $converterwalletType =
+      const EnumIndexConverter<WalletType>(WalletType.values);
 }
 
 class Wallet extends DataClass implements Insertable<Wallet> {
@@ -1533,6 +1603,9 @@ class Wallet extends DataClass implements Insertable<Wallet> {
   final double balance;
   final bool isDefault;
   final bool useDecimals;
+  final WalletType walletType;
+  final double? creditLimit;
+  final int? billingCycleDay;
   final int orderIndex;
   final String? serverId;
   final int syncStatus;
@@ -1548,6 +1621,9 @@ class Wallet extends DataClass implements Insertable<Wallet> {
     required this.balance,
     required this.isDefault,
     required this.useDecimals,
+    required this.walletType,
+    this.creditLimit,
+    this.billingCycleDay,
     required this.orderIndex,
     this.serverId,
     required this.syncStatus,
@@ -1566,6 +1642,17 @@ class Wallet extends DataClass implements Insertable<Wallet> {
     map['balance'] = Variable<double>(balance);
     map['is_default'] = Variable<bool>(isDefault);
     map['use_decimals'] = Variable<bool>(useDecimals);
+    {
+      map['wallet_type'] = Variable<int>(
+        $WalletsTable.$converterwalletType.toSql(walletType),
+      );
+    }
+    if (!nullToAbsent || creditLimit != null) {
+      map['credit_limit'] = Variable<double>(creditLimit);
+    }
+    if (!nullToAbsent || billingCycleDay != null) {
+      map['billing_cycle_day'] = Variable<int>(billingCycleDay);
+    }
     map['order_index'] = Variable<int>(orderIndex);
     if (!nullToAbsent || serverId != null) {
       map['server_id'] = Variable<String>(serverId);
@@ -1589,6 +1676,13 @@ class Wallet extends DataClass implements Insertable<Wallet> {
       balance: Value(balance),
       isDefault: Value(isDefault),
       useDecimals: Value(useDecimals),
+      walletType: Value(walletType),
+      creditLimit: creditLimit == null && nullToAbsent
+          ? const Value.absent()
+          : Value(creditLimit),
+      billingCycleDay: billingCycleDay == null && nullToAbsent
+          ? const Value.absent()
+          : Value(billingCycleDay),
       orderIndex: Value(orderIndex),
       serverId: serverId == null && nullToAbsent
           ? const Value.absent()
@@ -1616,6 +1710,11 @@ class Wallet extends DataClass implements Insertable<Wallet> {
       balance: serializer.fromJson<double>(json['balance']),
       isDefault: serializer.fromJson<bool>(json['isDefault']),
       useDecimals: serializer.fromJson<bool>(json['useDecimals']),
+      walletType: $WalletsTable.$converterwalletType.fromJson(
+        serializer.fromJson<int>(json['walletType']),
+      ),
+      creditLimit: serializer.fromJson<double?>(json['creditLimit']),
+      billingCycleDay: serializer.fromJson<int?>(json['billingCycleDay']),
       orderIndex: serializer.fromJson<int>(json['orderIndex']),
       serverId: serializer.fromJson<String?>(json['serverId']),
       syncStatus: serializer.fromJson<int>(json['syncStatus']),
@@ -1636,6 +1735,11 @@ class Wallet extends DataClass implements Insertable<Wallet> {
       'balance': serializer.toJson<double>(balance),
       'isDefault': serializer.toJson<bool>(isDefault),
       'useDecimals': serializer.toJson<bool>(useDecimals),
+      'walletType': serializer.toJson<int>(
+        $WalletsTable.$converterwalletType.toJson(walletType),
+      ),
+      'creditLimit': serializer.toJson<double?>(creditLimit),
+      'billingCycleDay': serializer.toJson<int?>(billingCycleDay),
       'orderIndex': serializer.toJson<int>(orderIndex),
       'serverId': serializer.toJson<String?>(serverId),
       'syncStatus': serializer.toJson<int>(syncStatus),
@@ -1654,6 +1758,9 @@ class Wallet extends DataClass implements Insertable<Wallet> {
     double? balance,
     bool? isDefault,
     bool? useDecimals,
+    WalletType? walletType,
+    Value<double?> creditLimit = const Value.absent(),
+    Value<int?> billingCycleDay = const Value.absent(),
     int? orderIndex,
     Value<String?> serverId = const Value.absent(),
     int? syncStatus,
@@ -1669,6 +1776,11 @@ class Wallet extends DataClass implements Insertable<Wallet> {
     balance: balance ?? this.balance,
     isDefault: isDefault ?? this.isDefault,
     useDecimals: useDecimals ?? this.useDecimals,
+    walletType: walletType ?? this.walletType,
+    creditLimit: creditLimit.present ? creditLimit.value : this.creditLimit,
+    billingCycleDay: billingCycleDay.present
+        ? billingCycleDay.value
+        : this.billingCycleDay,
     orderIndex: orderIndex ?? this.orderIndex,
     serverId: serverId.present ? serverId.value : this.serverId,
     syncStatus: syncStatus ?? this.syncStatus,
@@ -1688,6 +1800,15 @@ class Wallet extends DataClass implements Insertable<Wallet> {
       useDecimals: data.useDecimals.present
           ? data.useDecimals.value
           : this.useDecimals,
+      walletType: data.walletType.present
+          ? data.walletType.value
+          : this.walletType,
+      creditLimit: data.creditLimit.present
+          ? data.creditLimit.value
+          : this.creditLimit,
+      billingCycleDay: data.billingCycleDay.present
+          ? data.billingCycleDay.value
+          : this.billingCycleDay,
       orderIndex: data.orderIndex.present
           ? data.orderIndex.value
           : this.orderIndex,
@@ -1712,6 +1833,9 @@ class Wallet extends DataClass implements Insertable<Wallet> {
           ..write('balance: $balance, ')
           ..write('isDefault: $isDefault, ')
           ..write('useDecimals: $useDecimals, ')
+          ..write('walletType: $walletType, ')
+          ..write('creditLimit: $creditLimit, ')
+          ..write('billingCycleDay: $billingCycleDay, ')
           ..write('orderIndex: $orderIndex, ')
           ..write('serverId: $serverId, ')
           ..write('syncStatus: $syncStatus, ')
@@ -1732,6 +1856,9 @@ class Wallet extends DataClass implements Insertable<Wallet> {
     balance,
     isDefault,
     useDecimals,
+    walletType,
+    creditLimit,
+    billingCycleDay,
     orderIndex,
     serverId,
     syncStatus,
@@ -1751,6 +1878,9 @@ class Wallet extends DataClass implements Insertable<Wallet> {
           other.balance == this.balance &&
           other.isDefault == this.isDefault &&
           other.useDecimals == this.useDecimals &&
+          other.walletType == this.walletType &&
+          other.creditLimit == this.creditLimit &&
+          other.billingCycleDay == this.billingCycleDay &&
           other.orderIndex == this.orderIndex &&
           other.serverId == this.serverId &&
           other.syncStatus == this.syncStatus &&
@@ -1768,6 +1898,9 @@ class WalletsCompanion extends UpdateCompanion<Wallet> {
   final Value<double> balance;
   final Value<bool> isDefault;
   final Value<bool> useDecimals;
+  final Value<WalletType> walletType;
+  final Value<double?> creditLimit;
+  final Value<int?> billingCycleDay;
   final Value<int> orderIndex;
   final Value<String?> serverId;
   final Value<int> syncStatus;
@@ -1784,6 +1917,9 @@ class WalletsCompanion extends UpdateCompanion<Wallet> {
     this.balance = const Value.absent(),
     this.isDefault = const Value.absent(),
     this.useDecimals = const Value.absent(),
+    this.walletType = const Value.absent(),
+    this.creditLimit = const Value.absent(),
+    this.billingCycleDay = const Value.absent(),
     this.orderIndex = const Value.absent(),
     this.serverId = const Value.absent(),
     this.syncStatus = const Value.absent(),
@@ -1801,6 +1937,9 @@ class WalletsCompanion extends UpdateCompanion<Wallet> {
     this.balance = const Value.absent(),
     this.isDefault = const Value.absent(),
     this.useDecimals = const Value.absent(),
+    this.walletType = const Value.absent(),
+    this.creditLimit = const Value.absent(),
+    this.billingCycleDay = const Value.absent(),
     this.orderIndex = const Value.absent(),
     this.serverId = const Value.absent(),
     this.syncStatus = const Value.absent(),
@@ -1819,6 +1958,9 @@ class WalletsCompanion extends UpdateCompanion<Wallet> {
     Expression<double>? balance,
     Expression<bool>? isDefault,
     Expression<bool>? useDecimals,
+    Expression<int>? walletType,
+    Expression<double>? creditLimit,
+    Expression<int>? billingCycleDay,
     Expression<int>? orderIndex,
     Expression<String>? serverId,
     Expression<int>? syncStatus,
@@ -1836,6 +1978,9 @@ class WalletsCompanion extends UpdateCompanion<Wallet> {
       if (balance != null) 'balance': balance,
       if (isDefault != null) 'is_default': isDefault,
       if (useDecimals != null) 'use_decimals': useDecimals,
+      if (walletType != null) 'wallet_type': walletType,
+      if (creditLimit != null) 'credit_limit': creditLimit,
+      if (billingCycleDay != null) 'billing_cycle_day': billingCycleDay,
       if (orderIndex != null) 'order_index': orderIndex,
       if (serverId != null) 'server_id': serverId,
       if (syncStatus != null) 'sync_status': syncStatus,
@@ -1855,6 +2000,9 @@ class WalletsCompanion extends UpdateCompanion<Wallet> {
     Value<double>? balance,
     Value<bool>? isDefault,
     Value<bool>? useDecimals,
+    Value<WalletType>? walletType,
+    Value<double?>? creditLimit,
+    Value<int?>? billingCycleDay,
     Value<int>? orderIndex,
     Value<String?>? serverId,
     Value<int>? syncStatus,
@@ -1872,6 +2020,9 @@ class WalletsCompanion extends UpdateCompanion<Wallet> {
       balance: balance ?? this.balance,
       isDefault: isDefault ?? this.isDefault,
       useDecimals: useDecimals ?? this.useDecimals,
+      walletType: walletType ?? this.walletType,
+      creditLimit: creditLimit ?? this.creditLimit,
+      billingCycleDay: billingCycleDay ?? this.billingCycleDay,
       orderIndex: orderIndex ?? this.orderIndex,
       serverId: serverId ?? this.serverId,
       syncStatus: syncStatus ?? this.syncStatus,
@@ -1909,6 +2060,17 @@ class WalletsCompanion extends UpdateCompanion<Wallet> {
     if (useDecimals.present) {
       map['use_decimals'] = Variable<bool>(useDecimals.value);
     }
+    if (walletType.present) {
+      map['wallet_type'] = Variable<int>(
+        $WalletsTable.$converterwalletType.toSql(walletType.value),
+      );
+    }
+    if (creditLimit.present) {
+      map['credit_limit'] = Variable<double>(creditLimit.value);
+    }
+    if (billingCycleDay.present) {
+      map['billing_cycle_day'] = Variable<int>(billingCycleDay.value);
+    }
     if (orderIndex.present) {
       map['order_index'] = Variable<int>(orderIndex.value);
     }
@@ -1944,6 +2106,9 @@ class WalletsCompanion extends UpdateCompanion<Wallet> {
           ..write('balance: $balance, ')
           ..write('isDefault: $isDefault, ')
           ..write('useDecimals: $useDecimals, ')
+          ..write('walletType: $walletType, ')
+          ..write('creditLimit: $creditLimit, ')
+          ..write('billingCycleDay: $billingCycleDay, ')
           ..write('orderIndex: $orderIndex, ')
           ..write('serverId: $serverId, ')
           ..write('syncStatus: $syncStatus, ')
@@ -3655,6 +3820,18 @@ class $TransactionsTable extends Transactions
         type: DriftSqlType.dateTime,
         requiredDuringInsert: false,
       );
+  static const VerificationMeta _paidAmountMeta = const VerificationMeta(
+    'paidAmount',
+  );
+  @override
+  late final GeneratedColumn<double> paidAmount = GeneratedColumn<double>(
+    'paid_amount',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0.0),
+  );
   static const VerificationMeta _skipPaidMeta = const VerificationMeta(
     'skipPaid',
   );
@@ -3752,6 +3929,7 @@ class $TransactionsTable extends Transactions
     specialType,
     isPaid,
     originalDueDate,
+    paidAmount,
     skipPaid,
     serverId,
     syncStatus,
@@ -3932,6 +4110,12 @@ class $TransactionsTable extends Transactions
         ),
       );
     }
+    if (data.containsKey('paid_amount')) {
+      context.handle(
+        _paidAmountMeta,
+        paidAmount.isAcceptableOrUnknown(data['paid_amount']!, _paidAmountMeta),
+      );
+    }
     if (data.containsKey('skip_paid')) {
       context.handle(
         _skipPaidMeta,
@@ -4067,6 +4251,10 @@ class $TransactionsTable extends Transactions
         DriftSqlType.dateTime,
         data['${effectivePrefix}original_due_date'],
       ),
+      paidAmount: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}paid_amount'],
+      )!,
       skipPaid: attachedDatabase.typeMapping.read(
         DriftSqlType.bool,
         data['${effectivePrefix}skip_paid'],
@@ -4130,6 +4318,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
   final TransactionSpecialType? specialType;
   final bool isPaid;
   final DateTime? originalDueDate;
+  final double paidAmount;
   final bool skipPaid;
   final String? serverId;
   final int syncStatus;
@@ -4159,6 +4348,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     this.specialType,
     required this.isPaid,
     this.originalDueDate,
+    required this.paidAmount,
     required this.skipPaid,
     this.serverId,
     required this.syncStatus,
@@ -4217,6 +4407,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     if (!nullToAbsent || originalDueDate != null) {
       map['original_due_date'] = Variable<DateTime>(originalDueDate);
     }
+    map['paid_amount'] = Variable<double>(paidAmount);
     map['skip_paid'] = Variable<bool>(skipPaid);
     if (!nullToAbsent || serverId != null) {
       map['server_id'] = Variable<String>(serverId);
@@ -4278,6 +4469,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       originalDueDate: originalDueDate == null && nullToAbsent
           ? const Value.absent()
           : Value(originalDueDate),
+      paidAmount: Value(paidAmount),
       skipPaid: Value(skipPaid),
       serverId: serverId == null && nullToAbsent
           ? const Value.absent()
@@ -4327,6 +4519,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       ),
       isPaid: serializer.fromJson<bool>(json['isPaid']),
       originalDueDate: serializer.fromJson<DateTime?>(json['originalDueDate']),
+      paidAmount: serializer.fromJson<double>(json['paidAmount']),
       skipPaid: serializer.fromJson<bool>(json['skipPaid']),
       serverId: serializer.fromJson<String?>(json['serverId']),
       syncStatus: serializer.fromJson<int>(json['syncStatus']),
@@ -4363,6 +4556,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       ),
       'isPaid': serializer.toJson<bool>(isPaid),
       'originalDueDate': serializer.toJson<DateTime?>(originalDueDate),
+      'paidAmount': serializer.toJson<double>(paidAmount),
       'skipPaid': serializer.toJson<bool>(skipPaid),
       'serverId': serializer.toJson<String?>(serverId),
       'syncStatus': serializer.toJson<int>(syncStatus),
@@ -4395,6 +4589,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     Value<TransactionSpecialType?> specialType = const Value.absent(),
     bool? isPaid,
     Value<DateTime?> originalDueDate = const Value.absent(),
+    double? paidAmount,
     bool? skipPaid,
     Value<String?> serverId = const Value.absent(),
     int? syncStatus,
@@ -4438,6 +4633,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     originalDueDate: originalDueDate.present
         ? originalDueDate.value
         : this.originalDueDate,
+    paidAmount: paidAmount ?? this.paidAmount,
     skipPaid: skipPaid ?? this.skipPaid,
     serverId: serverId.present ? serverId.value : this.serverId,
     syncStatus: syncStatus ?? this.syncStatus,
@@ -4493,6 +4689,9 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       originalDueDate: data.originalDueDate.present
           ? data.originalDueDate.value
           : this.originalDueDate,
+      paidAmount: data.paidAmount.present
+          ? data.paidAmount.value
+          : this.paidAmount,
       skipPaid: data.skipPaid.present ? data.skipPaid.value : this.skipPaid,
       serverId: data.serverId.present ? data.serverId.value : this.serverId,
       syncStatus: data.syncStatus.present
@@ -4529,6 +4728,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
           ..write('specialType: $specialType, ')
           ..write('isPaid: $isPaid, ')
           ..write('originalDueDate: $originalDueDate, ')
+          ..write('paidAmount: $paidAmount, ')
           ..write('skipPaid: $skipPaid, ')
           ..write('serverId: $serverId, ')
           ..write('syncStatus: $syncStatus, ')
@@ -4563,6 +4763,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     specialType,
     isPaid,
     originalDueDate,
+    paidAmount,
     skipPaid,
     serverId,
     syncStatus,
@@ -4596,6 +4797,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
           other.specialType == this.specialType &&
           other.isPaid == this.isPaid &&
           other.originalDueDate == this.originalDueDate &&
+          other.paidAmount == this.paidAmount &&
           other.skipPaid == this.skipPaid &&
           other.serverId == this.serverId &&
           other.syncStatus == this.syncStatus &&
@@ -4627,6 +4829,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
   final Value<TransactionSpecialType?> specialType;
   final Value<bool> isPaid;
   final Value<DateTime?> originalDueDate;
+  final Value<double> paidAmount;
   final Value<bool> skipPaid;
   final Value<String?> serverId;
   final Value<int> syncStatus;
@@ -4657,6 +4860,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     this.specialType = const Value.absent(),
     this.isPaid = const Value.absent(),
     this.originalDueDate = const Value.absent(),
+    this.paidAmount = const Value.absent(),
     this.skipPaid = const Value.absent(),
     this.serverId = const Value.absent(),
     this.syncStatus = const Value.absent(),
@@ -4688,6 +4892,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     this.specialType = const Value.absent(),
     this.isPaid = const Value.absent(),
     this.originalDueDate = const Value.absent(),
+    this.paidAmount = const Value.absent(),
     this.skipPaid = const Value.absent(),
     this.serverId = const Value.absent(),
     this.syncStatus = const Value.absent(),
@@ -4722,6 +4927,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     Expression<int>? specialType,
     Expression<bool>? isPaid,
     Expression<DateTime>? originalDueDate,
+    Expression<double>? paidAmount,
     Expression<bool>? skipPaid,
     Expression<String>? serverId,
     Expression<int>? syncStatus,
@@ -4754,6 +4960,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
       if (specialType != null) 'special_type': specialType,
       if (isPaid != null) 'is_paid': isPaid,
       if (originalDueDate != null) 'original_due_date': originalDueDate,
+      if (paidAmount != null) 'paid_amount': paidAmount,
       if (skipPaid != null) 'skip_paid': skipPaid,
       if (serverId != null) 'server_id': serverId,
       if (syncStatus != null) 'sync_status': syncStatus,
@@ -4787,6 +4994,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     Value<TransactionSpecialType?>? specialType,
     Value<bool>? isPaid,
     Value<DateTime?>? originalDueDate,
+    Value<double>? paidAmount,
     Value<bool>? skipPaid,
     Value<String?>? serverId,
     Value<int>? syncStatus,
@@ -4818,6 +5026,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
       specialType: specialType ?? this.specialType,
       isPaid: isPaid ?? this.isPaid,
       originalDueDate: originalDueDate ?? this.originalDueDate,
+      paidAmount: paidAmount ?? this.paidAmount,
       skipPaid: skipPaid ?? this.skipPaid,
       serverId: serverId ?? this.serverId,
       syncStatus: syncStatus ?? this.syncStatus,
@@ -4901,6 +5110,9 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     if (originalDueDate.present) {
       map['original_due_date'] = Variable<DateTime>(originalDueDate.value);
     }
+    if (paidAmount.present) {
+      map['paid_amount'] = Variable<double>(paidAmount.value);
+    }
     if (skipPaid.present) {
       map['skip_paid'] = Variable<bool>(skipPaid.value);
     }
@@ -4950,6 +5162,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
           ..write('specialType: $specialType, ')
           ..write('isPaid: $isPaid, ')
           ..write('originalDueDate: $originalDueDate, ')
+          ..write('paidAmount: $paidAmount, ')
           ..write('skipPaid: $skipPaid, ')
           ..write('serverId: $serverId, ')
           ..write('syncStatus: $syncStatus, ')
@@ -10817,6 +11030,9 @@ typedef $$WalletsTableCreateCompanionBuilder =
       Value<double> balance,
       Value<bool> isDefault,
       Value<bool> useDecimals,
+      Value<WalletType> walletType,
+      Value<double?> creditLimit,
+      Value<int?> billingCycleDay,
       Value<int> orderIndex,
       Value<String?> serverId,
       Value<int> syncStatus,
@@ -10835,6 +11051,9 @@ typedef $$WalletsTableUpdateCompanionBuilder =
       Value<double> balance,
       Value<bool> isDefault,
       Value<bool> useDecimals,
+      Value<WalletType> walletType,
+      Value<double?> creditLimit,
+      Value<int?> billingCycleDay,
       Value<int> orderIndex,
       Value<String?> serverId,
       Value<int> syncStatus,
@@ -10931,6 +11150,22 @@ class $$WalletsTableFilterComposer
 
   ColumnFilters<bool> get useDecimals => $composableBuilder(
     column: $table.useDecimals,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<WalletType, WalletType, int> get walletType =>
+      $composableBuilder(
+        column: $table.walletType,
+        builder: (column) => ColumnWithTypeConverterFilters(column),
+      );
+
+  ColumnFilters<double> get creditLimit => $composableBuilder(
+    column: $table.creditLimit,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get billingCycleDay => $composableBuilder(
+    column: $table.billingCycleDay,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -11064,6 +11299,21 @@ class $$WalletsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get walletType => $composableBuilder(
+    column: $table.walletType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get creditLimit => $composableBuilder(
+    column: $table.creditLimit,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get billingCycleDay => $composableBuilder(
+    column: $table.billingCycleDay,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get orderIndex => $composableBuilder(
     column: $table.orderIndex,
     builder: (column) => ColumnOrderings(column),
@@ -11127,6 +11377,22 @@ class $$WalletsTableAnnotationComposer
 
   GeneratedColumn<bool> get useDecimals => $composableBuilder(
     column: $table.useDecimals,
+    builder: (column) => column,
+  );
+
+  GeneratedColumnWithTypeConverter<WalletType, int> get walletType =>
+      $composableBuilder(
+        column: $table.walletType,
+        builder: (column) => column,
+      );
+
+  GeneratedColumn<double> get creditLimit => $composableBuilder(
+    column: $table.creditLimit,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get billingCycleDay => $composableBuilder(
+    column: $table.billingCycleDay,
     builder: (column) => column,
   );
 
@@ -11239,6 +11505,9 @@ class $$WalletsTableTableManager
                 Value<double> balance = const Value.absent(),
                 Value<bool> isDefault = const Value.absent(),
                 Value<bool> useDecimals = const Value.absent(),
+                Value<WalletType> walletType = const Value.absent(),
+                Value<double?> creditLimit = const Value.absent(),
+                Value<int?> billingCycleDay = const Value.absent(),
                 Value<int> orderIndex = const Value.absent(),
                 Value<String?> serverId = const Value.absent(),
                 Value<int> syncStatus = const Value.absent(),
@@ -11255,6 +11524,9 @@ class $$WalletsTableTableManager
                 balance: balance,
                 isDefault: isDefault,
                 useDecimals: useDecimals,
+                walletType: walletType,
+                creditLimit: creditLimit,
+                billingCycleDay: billingCycleDay,
                 orderIndex: orderIndex,
                 serverId: serverId,
                 syncStatus: syncStatus,
@@ -11273,6 +11545,9 @@ class $$WalletsTableTableManager
                 Value<double> balance = const Value.absent(),
                 Value<bool> isDefault = const Value.absent(),
                 Value<bool> useDecimals = const Value.absent(),
+                Value<WalletType> walletType = const Value.absent(),
+                Value<double?> creditLimit = const Value.absent(),
+                Value<int?> billingCycleDay = const Value.absent(),
                 Value<int> orderIndex = const Value.absent(),
                 Value<String?> serverId = const Value.absent(),
                 Value<int> syncStatus = const Value.absent(),
@@ -11289,6 +11564,9 @@ class $$WalletsTableTableManager
                 balance: balance,
                 isDefault: isDefault,
                 useDecimals: useDecimals,
+                walletType: walletType,
+                creditLimit: creditLimit,
+                billingCycleDay: billingCycleDay,
                 orderIndex: orderIndex,
                 serverId: serverId,
                 syncStatus: syncStatus,
@@ -12311,6 +12589,7 @@ typedef $$TransactionsTableCreateCompanionBuilder =
       Value<TransactionSpecialType?> specialType,
       Value<bool> isPaid,
       Value<DateTime?> originalDueDate,
+      Value<double> paidAmount,
       Value<bool> skipPaid,
       Value<String?> serverId,
       Value<int> syncStatus,
@@ -12343,6 +12622,7 @@ typedef $$TransactionsTableUpdateCompanionBuilder =
       Value<TransactionSpecialType?> specialType,
       Value<bool> isPaid,
       Value<DateTime?> originalDueDate,
+      Value<double> paidAmount,
       Value<bool> skipPaid,
       Value<String?> serverId,
       Value<int> syncStatus,
@@ -12568,6 +12848,11 @@ class $$TransactionsTableFilterComposer
 
   ColumnFilters<DateTime> get originalDueDate => $composableBuilder(
     column: $table.originalDueDate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get paidAmount => $composableBuilder(
+    column: $table.paidAmount,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -12819,6 +13104,11 @@ class $$TransactionsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<double> get paidAmount => $composableBuilder(
+    column: $table.paidAmount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<bool> get skipPaid => $composableBuilder(
     column: $table.skipPaid,
     builder: (column) => ColumnOrderings(column),
@@ -13024,6 +13314,11 @@ class $$TransactionsTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<double> get paidAmount => $composableBuilder(
+    column: $table.paidAmount,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<bool> get skipPaid =>
       $composableBuilder(column: $table.skipPaid, builder: (column) => column);
 
@@ -13220,6 +13515,7 @@ class $$TransactionsTableTableManager
                     const Value.absent(),
                 Value<bool> isPaid = const Value.absent(),
                 Value<DateTime?> originalDueDate = const Value.absent(),
+                Value<double> paidAmount = const Value.absent(),
                 Value<bool> skipPaid = const Value.absent(),
                 Value<String?> serverId = const Value.absent(),
                 Value<int> syncStatus = const Value.absent(),
@@ -13250,6 +13546,7 @@ class $$TransactionsTableTableManager
                 specialType: specialType,
                 isPaid: isPaid,
                 originalDueDate: originalDueDate,
+                paidAmount: paidAmount,
                 skipPaid: skipPaid,
                 serverId: serverId,
                 syncStatus: syncStatus,
@@ -13283,6 +13580,7 @@ class $$TransactionsTableTableManager
                     const Value.absent(),
                 Value<bool> isPaid = const Value.absent(),
                 Value<DateTime?> originalDueDate = const Value.absent(),
+                Value<double> paidAmount = const Value.absent(),
                 Value<bool> skipPaid = const Value.absent(),
                 Value<String?> serverId = const Value.absent(),
                 Value<int> syncStatus = const Value.absent(),
@@ -13313,6 +13611,7 @@ class $$TransactionsTableTableManager
                 specialType: specialType,
                 isPaid: isPaid,
                 originalDueDate: originalDueDate,
+                paidAmount: paidAmount,
                 skipPaid: skipPaid,
                 serverId: serverId,
                 syncStatus: syncStatus,

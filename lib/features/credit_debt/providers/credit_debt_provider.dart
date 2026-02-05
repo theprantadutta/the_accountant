@@ -1,7 +1,9 @@
+import 'package:drift/drift.dart' show Value;
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
 import 'package:the_accountant/data/models/transaction.dart' show TransactionSpecialType;
+import 'package:uuid/uuid.dart';
 
 /// State for credit and debt transactions
 class CreditDebtState {
@@ -62,6 +64,16 @@ class CreditDebtState {
   /// Get unpaid transactions
   List<Transaction> get unpaidTransactions =>
       allTransactions.where((t) => !t.isPaid).toList();
+
+  /// Get overdue unpaid transactions (past original due date)
+  List<Transaction> get overdueTransactions =>
+      unpaidTransactions.where((t) {
+        final dueDate = t.originalDueDate ?? t.date;
+        return dueDate.isBefore(DateTime.now());
+      }).toList();
+
+  /// Count of overdue transactions
+  int get overdueCount => overdueTransactions.length;
 }
 
 class CreditDebtNotifier extends StateNotifier<CreditDebtState> {
@@ -92,10 +104,24 @@ class CreditDebtNotifier extends StateNotifier<CreditDebtState> {
     }
   }
 
-  /// Mark a credit/debt as collected/paid
+  /// Mark a credit/debt as fully settled
   Future<void> markAsSettled(String transactionId) async {
     try {
-      await _db.markTransactionAsPaid(transactionId);
+      final transaction = await _db.findTransactionById(transactionId);
+      if (transaction == null) return;
+
+      // Set paidAmount to full amount when marking as settled
+      await (_db.update(_db.transactions)
+            ..where((t) => t.id.equals(transactionId)))
+          .write(TransactionsCompanion(
+        isPaid: const Value(true),
+        paidAmount: Value(transaction.amount),
+        originalDueDate:
+            Value(transaction.originalDueDate ?? transaction.date),
+        date: Value(DateTime.now()),
+        syncStatus: const Value(SyncStatus.pendingUpdate),
+        updatedAt: Value(DateTime.now()),
+      ));
       await loadData();
     } catch (e) {
       state = state.copyWith(
@@ -104,16 +130,85 @@ class CreditDebtNotifier extends StateNotifier<CreditDebtState> {
     }
   }
 
+  /// Record a partial payment on a credit/debt transaction.
+  /// Creates a new regular transaction for the payment and updates paidAmount.
+  Future<void> recordPayment({
+    required String transactionId,
+    required double paymentAmount,
+  }) async {
+    try {
+      final transaction = await _db.findTransactionById(transactionId);
+      if (transaction == null) return;
+
+      final isCredit =
+          transaction.specialType == TransactionSpecialType.credit;
+      final newPaidAmount = transaction.paidAmount + paymentAmount;
+      final isFullyPaid = newPaidAmount >= transaction.amount;
+
+      // Create a separate regular transaction for the payment
+      final now = DateTime.now();
+      final paymentTransaction = TransactionsCompanion(
+        id: Value(const Uuid().v4()),
+        amount: Value(paymentAmount),
+        title: Value(
+            '${isCredit ? "Received" : "Paid"}: ${transaction.title}'),
+        notes: Value(
+            'Partial payment for ${isCredit ? "credit" : "debt"}: ${transaction.title}'),
+        date: Value(now),
+        // Credit repayment = income (you receive money back)
+        // Debt repayment = expense (you pay money out)
+        isIncome: Value(isCredit),
+        walletId: Value(transaction.walletId),
+        categoryId: Value(transaction.categoryId),
+        syncStatus: const Value(SyncStatus.pendingCreate),
+        createdAt: Value(now),
+        updatedAt: Value(now),
+      );
+      await _db.addTransaction(paymentTransaction);
+
+      // Update the original loan transaction's paidAmount
+      await (_db.update(_db.transactions)
+            ..where((t) => t.id.equals(transactionId)))
+          .write(TransactionsCompanion(
+        paidAmount: Value(newPaidAmount),
+        isPaid: Value(isFullyPaid),
+        syncStatus: const Value(SyncStatus.pendingUpdate),
+        updatedAt: Value(now),
+      ));
+
+      await loadData();
+    } catch (e) {
+      state = state.copyWith(
+        error: 'Failed to record payment: ${e.toString()}',
+      );
+    }
+  }
+
   /// Mark as pending again
   Future<void> markAsPending(String transactionId) async {
     try {
       await _db.markTransactionAsUnpaid(transactionId);
+      // Also reset paidAmount
+      await (_db.update(_db.transactions)
+            ..where((t) => t.id.equals(transactionId)))
+          .write(TransactionsCompanion(
+        paidAmount: const Value(0.0),
+        syncStatus: const Value(SyncStatus.pendingUpdate),
+        updatedAt: Value(DateTime.now()),
+      ));
       await loadData();
     } catch (e) {
       state = state.copyWith(
         error: 'Failed to mark as pending: ${e.toString()}',
       );
     }
+  }
+
+  /// Check if a transaction is overdue
+  bool isOverdue(Transaction transaction) {
+    if (transaction.isPaid) return false;
+    final dueDate = transaction.originalDueDate ?? transaction.date;
+    return dueDate.isBefore(DateTime.now());
   }
 
   /// Check if transaction is credit type

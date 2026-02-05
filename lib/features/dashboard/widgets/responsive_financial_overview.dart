@@ -20,7 +20,8 @@ import 'package:the_accountant/shared/widgets/shimmer_loading.dart';
 // import 'package:the_accountant/features/transactions/screens/upcoming_transactions_screen.dart';
 // import 'package:the_accountant/features/transactions/screens/add_transaction_screen.dart';
 // import 'package:the_accountant/features/transactions/widgets/transaction_type_header.dart';
-// import 'package:the_accountant/features/credit_debt/screens/credit_debt_screen.dart';
+import 'package:the_accountant/features/credit_debt/screens/credit_debt_screen.dart';
+import 'package:the_accountant/features/subscriptions/screens/subscription_dashboard_screen.dart';
 import 'package:the_accountant/features/budgets/screens/budget_list_screen.dart';
 import 'package:the_accountant/features/dashboard/widgets/wallet_cards_section.dart';
 import 'package:the_accountant/features/transactions/screens/transaction_list_screen.dart';
@@ -146,10 +147,10 @@ class _ResponsiveFinancialOverviewState
 
                 AppSpacing.gapXl,
 
-                // Quick Actions
-                // _buildAnimatedSection(0.3, 0.6, _buildQuickActions()),
+                // Quick Links
+                _buildAnimatedSection(0.3, 0.6, _buildQuickLinks()),
 
-                // AppSpacing.gapXl,
+                AppSpacing.gapXl,
 
                 // Spending Chart
                 _buildAnimatedSection(0.4, 0.7, _buildSpendingChart()),
@@ -247,6 +248,46 @@ class _ResponsiveFinancialOverviewState
     if (hour < 12) return 'Morning';
     if (hour < 17) return 'Afternoon';
     return 'Evening';
+  }
+
+  Widget _buildQuickLinks() {
+    return Row(
+      children: [
+        Expanded(
+          child: _QuickLinkCard(
+            icon: Icons.account_balance_wallet_rounded,
+            label: 'Credit & Debt',
+            color: AppColors.neonCyan,
+            onTap: () {
+              HapticFeedback.lightImpact();
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const CreditDebtScreen(),
+                ),
+              );
+            },
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: _QuickLinkCard(
+            icon: Icons.subscriptions_rounded,
+            label: 'Subscriptions',
+            color: AppColors.neonPurple,
+            onTap: () {
+              HapticFeedback.lightImpact();
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const SubscriptionDashboardScreen(),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
   }
 
   Widget _buildQuickStats(double income, double expenses) {
@@ -804,6 +845,67 @@ class _ResponsiveFinancialOverviewState
               );
             }),
         ],
+      ),
+    );
+  }
+}
+
+/// Quick link card for navigating to features from the dashboard
+class _QuickLinkCard extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _QuickLinkCard({
+    required this.icon,
+    required this.label,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: color.withValues(alpha: 0.2),
+            width: 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(icon, color: color, size: 20),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                label,
+                style: AppTypography.labelMedium.copyWith(
+                  color: AppColors.textPrimary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            Icon(
+              Icons.chevron_right,
+              color: color.withValues(alpha: 0.6),
+              size: 20,
+            ),
+          ],
+        ),
       ),
     );
   }

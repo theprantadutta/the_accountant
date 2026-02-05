@@ -7,6 +7,7 @@ import 'package:the_accountant/core/services/currency_service.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
+import 'package:the_accountant/data/models/wallet.dart' show WalletType;
 import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
 import 'package:the_accountant/features/wallets/widgets/add_wallet_form.dart';
 import 'package:the_accountant/shared/widgets/color_picker.dart';
@@ -20,8 +21,8 @@ class WalletManagementScreen extends ConsumerStatefulWidget {
       _WalletManagementScreenState();
 }
 
-class _WalletManagementScreenState
-    extends ConsumerState<WalletManagementScreen> with TickerProviderStateMixin {
+class _WalletManagementScreenState extends ConsumerState<WalletManagementScreen>
+    with TickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _balanceController = TextEditingController();
@@ -101,6 +102,9 @@ class _WalletManagementScreenState
     required String color,
     required bool isDefault,
     required bool useDecimals,
+    required WalletType walletType,
+    required double? creditLimit,
+    required int? billingCycleDay,
   }) {
     final walletNotifier = ref.read(walletProvider.notifier);
     walletNotifier.addWallet(
@@ -111,6 +115,9 @@ class _WalletManagementScreenState
       color: color,
       isDefault: isDefault,
       useDecimals: useDecimals,
+      walletType: walletType,
+      creditLimit: creditLimit,
+      billingCycleDay: billingCycleDay,
     );
 
     _nameController.clear();
@@ -178,36 +185,20 @@ class _WalletManagementScreenState
             ],
           ),
 
-          // Wallet list
+          // Wallet list grouped by type
           if (walletState.isLoading)
             const SliverFillRemaining(
               child: Center(
-                child: CircularProgressIndicator(color: AppColors.primaryAccent),
+                child: CircularProgressIndicator(
+                  color: AppColors.primaryAccent,
+                ),
               ),
             )
           else if (wallets.isEmpty)
-            SliverFillRemaining(
-              child: _buildEmptyState(),
-            )
+            SliverFillRemaining(child: _buildEmptyState())
           else
-            SliverPadding(
-              padding: const EdgeInsets.all(16),
-              sliver: SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                    final wallet = wallets[index];
-                    return _WalletCard(
-                      wallet: wallet,
-                      index: index,
-                      onEdit: () => _showEditWalletSheet(wallet),
-                      onDelete: () => _showDeleteConfirmationDialog(wallet),
-                      onSetDefault: () => _setAsDefault(wallet),
-                    );
-                  },
-                  childCount: wallets.length,
-                ),
-              ),
-            ),
+            ..._buildGroupedWalletSlivers(wallets, walletState),
+          SliverToBoxAdapter(child: SizedBox(height: 100)),
         ],
       ),
       floatingActionButton: wallets.isNotEmpty
@@ -225,6 +216,115 @@ class _WalletManagementScreenState
             )
           : null,
     );
+  }
+
+  List<Widget> _buildGroupedWalletSlivers(
+    List<Wallet> wallets,
+    WalletState walletState,
+  ) {
+    // Group wallets by type
+    final grouped = <WalletType, List<Wallet>>{};
+    for (final wallet in wallets) {
+      grouped.putIfAbsent(wallet.walletType, () => []).add(wallet);
+    }
+
+    // Define display order
+    const typeOrder = [
+      WalletType.cash,
+      WalletType.bankAccount,
+      WalletType.creditCard,
+      WalletType.subscription,
+    ];
+
+    final slivers = <Widget>[];
+    var globalIndex = 0;
+
+    for (final type in typeOrder) {
+      final group = grouped[type];
+      if (group == null || group.isEmpty) continue;
+
+      // Section header
+      slivers.add(
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+            child: Row(
+              children: [
+                Icon(
+                  _walletTypeIcon(type),
+                  size: 16,
+                  color: AppColors.textSecondary,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  _walletTypeSectionLabel(type),
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textSecondary,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Divider(color: AppColors.divider, thickness: 1),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+
+      // Wallet cards in this group
+      slivers.add(
+        SliverPadding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          sliver: SliverList(
+            delegate: SliverChildBuilderDelegate((context, index) {
+              final wallet = group[index];
+              final cardIndex = globalIndex + index;
+              return _WalletCard(
+                wallet: wallet,
+                index: cardIndex,
+                onEdit: () => _showEditWalletSheet(wallet),
+                onDelete: () => _showDeleteConfirmationDialog(wallet),
+                onSetDefault: () => _setAsDefault(wallet),
+              );
+            }, childCount: group.length),
+          ),
+        ),
+      );
+
+      globalIndex += group.length;
+    }
+
+    return slivers;
+  }
+
+  static IconData _walletTypeIcon(WalletType type) {
+    switch (type) {
+      case WalletType.cash:
+        return Icons.wallet;
+      case WalletType.bankAccount:
+        return Icons.account_balance;
+      case WalletType.creditCard:
+        return Icons.credit_card;
+      case WalletType.subscription:
+        return Icons.subscriptions;
+    }
+  }
+
+  static String _walletTypeSectionLabel(WalletType type) {
+    switch (type) {
+      case WalletType.cash:
+        return 'CASH';
+      case WalletType.bankAccount:
+        return 'BANK ACCOUNTS';
+      case WalletType.creditCard:
+        return 'CREDIT CARDS';
+      case WalletType.subscription:
+        return 'SUBSCRIPTIONS';
+    }
   }
 
   Widget _buildHeader(List<Wallet> wallets, WalletState walletState) {
@@ -298,9 +398,9 @@ class _WalletManagementScreenState
                           fit: BoxFit.scaleDown,
                           alignment: Alignment.centerLeft,
                           child: Text(
-                            NumberFormat('#,##0.00').format(
-                              totalBalance * _headerAnimation.value,
-                            ),
+                            NumberFormat(
+                              '#,##0.00',
+                            ).format(totalBalance * _headerAnimation.value),
                             style: const TextStyle(
                               fontSize: 32,
                               fontWeight: FontWeight.bold,
@@ -445,19 +545,13 @@ class _WalletManagementScreenState
               const SizedBox(width: 12),
               Text(
                 'Delete Account',
-                style: TextStyle(
-                  color: AppColors.textPrimary,
-                  fontSize: 18,
-                ),
+                style: TextStyle(color: AppColors.textPrimary, fontSize: 18),
               ),
             ],
           ),
           content: Text(
             'Are you sure you want to delete "${wallet.name}"? This will also delete all transactions associated with this account.',
-            style: TextStyle(
-              color: AppColors.textSecondary,
-              height: 1.5,
-            ),
+            style: TextStyle(color: AppColors.textSecondary, height: 1.5),
           ),
           actions: [
             TextButton(
@@ -501,10 +595,9 @@ class _WalletManagementScreenState
 
   void _setAsDefault(Wallet wallet) {
     HapticFeedback.lightImpact();
-    ref.read(walletProvider.notifier).updateWallet(
-      id: wallet.id,
-      isDefault: true,
-    );
+    ref
+        .read(walletProvider.notifier)
+        .updateWallet(id: wallet.id, isDefault: true);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('${wallet.name} set as default'),
@@ -556,38 +649,51 @@ class _WalletManagementScreenState
                   initialCurrency: wallet.currency,
                   initialIcon: wallet.iconName,
                   initialColor: wallet.color,
-                  initialIsDefault: wallet.isDefault ?? false,
+                  initialIsDefault: wallet.isDefault,
                   initialUseDecimals: wallet.useDecimals,
+                  initialWalletType: wallet.walletType,
+                  initialCreditLimit: wallet.creditLimit,
+                  initialBillingCycleDay: wallet.billingCycleDay,
                   isEditing: true,
-                  onSubmit: ({
-                    required String currency,
-                    required String icon,
-                    required String color,
-                    required bool isDefault,
-                    required bool useDecimals,
-                  }) {
-                    ref.read(walletProvider.notifier).updateWallet(
-                      id: wallet.id,
-                      name: editNameController.text,
-                      currency: currency,
-                      balance: double.tryParse(editBalanceController.text),
-                      iconName: icon,
-                      color: color,
-                      isDefault: isDefault,
-                      useDecimals: useDecimals,
-                    );
-                    Navigator.pop(context);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: const Text('Account updated successfully'),
-                        backgroundColor: AppColors.success,
-                        behavior: SnackBarBehavior.floating,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                    );
-                  },
+                  onSubmit:
+                      ({
+                        required String currency,
+                        required String icon,
+                        required String color,
+                        required bool isDefault,
+                        required bool useDecimals,
+                        required WalletType walletType,
+                        required double? creditLimit,
+                        required int? billingCycleDay,
+                      }) {
+                        ref
+                            .read(walletProvider.notifier)
+                            .updateWallet(
+                              id: wallet.id,
+                              name: editNameController.text,
+                              currency: currency,
+                              balance: double.tryParse(
+                                editBalanceController.text,
+                              ),
+                              iconName: icon,
+                              color: color,
+                              isDefault: isDefault,
+                              useDecimals: useDecimals,
+                              creditLimit: creditLimit,
+                              billingCycleDay: billingCycleDay,
+                            );
+                        Navigator.pop(context);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: const Text('Account updated successfully'),
+                            backgroundColor: AppColors.success,
+                            behavior: SnackBarBehavior.floating,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                        );
+                      },
                   onCancel: () => Navigator.pop(context),
                 ),
               ],
@@ -632,12 +738,14 @@ class _WalletCardState extends ConsumerState<_WalletCard>
       duration: Duration(milliseconds: 400 + (widget.index * 100)),
       vsync: this,
     );
-    _slideAnimation = Tween<double>(begin: 50, end: 0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic),
-    );
-    _fadeAnimation = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
-    );
+    _slideAnimation = Tween<double>(
+      begin: 50,
+      end: 0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
+    _fadeAnimation = Tween<double>(
+      begin: 0,
+      end: 1,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
     _controller.forward();
   }
 
@@ -653,16 +761,20 @@ class _WalletCardState extends ConsumerState<_WalletCard>
     final walletColor = WalletColors.parseColor(wallet.color);
     final walletBalances = ref.watch(walletProvider).walletBalances;
     final balance = walletBalances[wallet.id] ?? wallet.balance;
+    final isCreditCard = wallet.walletType == WalletType.creditCard;
+    final creditLimit = wallet.creditLimit ?? 0.0;
+    final outstanding = isCreditCard ? balance.abs() : 0.0;
+    final available = isCreditCard ? (creditLimit - outstanding) : 0.0;
+    final usageRatio = isCreditCard && creditLimit > 0
+        ? (outstanding / creditLimit).clamp(0.0, 1.0)
+        : 0.0;
 
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) {
         return Transform.translate(
           offset: Offset(0, _slideAnimation.value),
-          child: Opacity(
-            opacity: _fadeAnimation.value,
-            child: child,
-          ),
+          child: Opacity(opacity: _fadeAnimation.value, child: child),
         );
       },
       child: GestureDetector(
@@ -778,8 +890,12 @@ class _WalletCardState extends ConsumerState<_WalletCard>
                                           vertical: 3,
                                         ),
                                         decoration: BoxDecoration(
-                                          color: AppColors.warning.withValues(alpha: 0.2),
-                                          borderRadius: BorderRadius.circular(6),
+                                          color: AppColors.warning.withValues(
+                                            alpha: 0.2,
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                            6,
+                                          ),
                                         ),
                                         child: Row(
                                           mainAxisSize: MainAxisSize.min,
@@ -805,24 +921,54 @@ class _WalletCardState extends ConsumerState<_WalletCard>
                                   ],
                                 ),
                                 const SizedBox(height: 4),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 8,
-                                    vertical: 3,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: walletColor.withValues(alpha: 0.15),
-                                    borderRadius: BorderRadius.circular(6),
-                                  ),
-                                  child: Text(
-                                    wallet.currency,
-                                    style: TextStyle(
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w600,
-                                      color: walletColor,
-                                      letterSpacing: 0.5,
+                                Row(
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 3,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: walletColor.withValues(
+                                          alpha: 0.15,
+                                        ),
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
+                                      child: Text(
+                                        wallet.currency,
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w600,
+                                          color: walletColor,
+                                          letterSpacing: 0.5,
+                                        ),
+                                      ),
                                     ),
-                                  ),
+                                    if (wallet.walletType !=
+                                        WalletType.cash) ...[
+                                      const SizedBox(width: 6),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 3,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.glassWhite,
+                                          borderRadius: BorderRadius.circular(
+                                            6,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          _walletTypeLabel(wallet.walletType),
+                                          style: TextStyle(
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.w500,
+                                            color: AppColors.textMuted,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ],
                                 ),
                               ],
                             ),
@@ -849,64 +995,208 @@ class _WalletCardState extends ConsumerState<_WalletCard>
 
                       const SizedBox(height: 20),
 
-                      // Balance
-                      Text(
-                        'Balance',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: AppColors.textMuted,
-                          fontWeight: FontWeight.w500,
+                      // Credit card specific layout
+                      if (isCreditCard && creditLimit > 0) ...[
+                        // Outstanding
+                        Text(
+                          'Outstanding',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: AppColors.textMuted,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 4),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            CurrencyInfo.getSymbol(wallet.currency),
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w300,
-                              color: balance >= 0 ? AppColors.textPrimary : AppColors.error,
+                        const SizedBox(height: 4),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              CurrencyInfo.getSymbol(wallet.currency),
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w300,
+                                color: AppColors.textPrimary,
+                              ),
                             ),
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            wallet.useDecimals
-                                ? NumberFormat('#,##0.00').format(balance.abs())
-                                : NumberFormat('#,##0').format(balance.abs().round()),
-                            style: TextStyle(
-                              fontSize: 28,
-                              fontWeight: FontWeight.bold,
-                              color: balance >= 0 ? AppColors.textPrimary : AppColors.error,
-                              letterSpacing: -0.5,
+                            const SizedBox(width: 4),
+                            Text(
+                              wallet.useDecimals
+                                  ? NumberFormat('#,##0.00').format(outstanding)
+                                  : NumberFormat(
+                                      '#,##0',
+                                    ).format(outstanding.round()),
+                              style: TextStyle(
+                                fontSize: 28,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.textPrimary,
+                                letterSpacing: -0.5,
+                              ),
                             ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        // Usage progress bar
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(4),
+                          child: LinearProgressIndicator(
+                            value: usageRatio,
+                            backgroundColor: walletColor.withValues(
+                              alpha: 0.15,
+                            ),
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              usageRatio > 0.8 ? AppColors.error : walletColor,
+                            ),
+                            minHeight: 6,
                           ),
-                          if (balance < 0)
-                            Padding(
-                              padding: const EdgeInsets.only(left: 8, bottom: 4),
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 6,
-                                  vertical: 2,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: AppColors.error.withValues(alpha: 0.15),
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                child: Text(
-                                  'OVERDRAWN',
+                        ),
+                        const SizedBox(height: 8),
+                        // Available credit + limit
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Available',
                                   style: TextStyle(
-                                    fontSize: 9,
-                                    fontWeight: FontWeight.bold,
-                                    color: AppColors.error,
-                                    letterSpacing: 0.5,
+                                    fontSize: 10,
+                                    color: AppColors.textMuted,
                                   ),
+                                ),
+                                Text(
+                                  '${CurrencyInfo.getSymbol(wallet.currency)}${wallet.useDecimals ? NumberFormat('#,##0.00').format(available) : NumberFormat('#,##0').format(available.round())}',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    color: available >= 0
+                                        ? AppColors.success
+                                        : AppColors.error,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Text(
+                                  'Limit',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: AppColors.textMuted,
+                                  ),
+                                ),
+                                Text(
+                                  '${CurrencyInfo.getSymbol(wallet.currency)}${wallet.useDecimals ? NumberFormat('#,##0.00').format(creditLimit) : NumberFormat('#,##0').format(creditLimit.round())}',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.textSecondary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        // Positive balance = overpayment / credit balance
+                        if (balance > 0)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 3,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColors.success.withValues(
+                                  alpha: 0.15,
+                                ),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                'CREDIT BALANCE',
+                                style: TextStyle(
+                                  fontSize: 9,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.success,
+                                  letterSpacing: 0.5,
                                 ),
                               ),
                             ),
-                        ],
-                      ),
+                          ),
+                      ] else ...[
+                        // Standard balance display for non-credit-card wallets
+                        Text(
+                          'Balance',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: AppColors.textMuted,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              CurrencyInfo.getSymbol(wallet.currency),
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w300,
+                                color: balance >= 0
+                                    ? AppColors.textPrimary
+                                    : AppColors.error,
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              wallet.useDecimals
+                                  ? NumberFormat(
+                                      '#,##0.00',
+                                    ).format(balance.abs())
+                                  : NumberFormat(
+                                      '#,##0',
+                                    ).format(balance.abs().round()),
+                              style: TextStyle(
+                                fontSize: 28,
+                                fontWeight: FontWeight.bold,
+                                color: balance >= 0
+                                    ? AppColors.textPrimary
+                                    : AppColors.error,
+                                letterSpacing: -0.5,
+                              ),
+                            ),
+                            if (balance < 0)
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                  left: 8,
+                                  bottom: 4,
+                                ),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 6,
+                                    vertical: 2,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.error.withValues(
+                                      alpha: 0.15,
+                                    ),
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Text(
+                                    'OVERDRAWN',
+                                    style: TextStyle(
+                                      fontSize: 9,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.error,
+                                      letterSpacing: 0.5,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ],
                     ],
                   ),
                 ),
@@ -916,6 +1206,19 @@ class _WalletCardState extends ConsumerState<_WalletCard>
         ),
       ),
     );
+  }
+
+  static String _walletTypeLabel(WalletType type) {
+    switch (type) {
+      case WalletType.bankAccount:
+        return 'Bank Account';
+      case WalletType.creditCard:
+        return 'Credit Card';
+      case WalletType.subscription:
+        return 'Subscription';
+      case WalletType.cash:
+        return 'Cash';
+    }
   }
 
   void _showOptionsMenu(BuildContext context) {
@@ -953,8 +1256,9 @@ class _WalletCardState extends ConsumerState<_WalletCard>
                     width: 44,
                     height: 44,
                     decoration: BoxDecoration(
-                      color: WalletColors.parseColor(widget.wallet.color)
-                          .withValues(alpha: 0.2),
+                      color: WalletColors.parseColor(
+                        widget.wallet.color,
+                      ).withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Icon(
@@ -1058,9 +1362,7 @@ class _OptionTile extends StatelessWidget {
           fontWeight: FontWeight.w500,
         ),
       ),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       contentPadding: const EdgeInsets.symmetric(horizontal: 12),
     );
   }

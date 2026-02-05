@@ -354,6 +354,7 @@ class SyncService {
       categoryId: Value(data['CategoryId']),
       paymentMethodId: Value(data['PaymentMethodId']),
       isPaid: Value(data['IsPaid'] ?? true),
+      paidAmount: Value((data['PaidAmount'] as num?)?.toDouble() ?? 0.0),
       budgetId: Value(data['BudgetId']),
       objectiveId: Value(data['ObjectiveId']),
       receiptImageUrl: Value(data['ReceiptImageUrl']),
@@ -391,11 +392,14 @@ class SyncService {
     final companion = WalletsCompanion(
       id: Value(change.entityId),
       name: Value(data['Name'] ?? ''),
-      iconName: Value(data['Icon'] ?? 'wallet'),
+      iconName: Value(data['Icon'] ?? data['IconName'] ?? 'wallet'),
       color: Value(data['Color'] ?? '#6366F1'),
       currency: Value(data['Currency'] ?? 'USD'),
       balance: Value((data['Balance'] as num?)?.toDouble() ?? 0.0),
       isDefault: Value(data['IsDefault'] ?? false),
+      walletType: Value(data['WalletType'] ?? 0),
+      creditLimit: Value((data['CreditLimit'] as num?)?.toDouble()),
+      billingCycleDay: Value(data['BillingCycleDay'] as int?),
       syncStatus: const Value(SyncStatus.synced),
       updatedAt: Value(DateTime.now()),
     );
@@ -659,6 +663,7 @@ class SyncService {
         'IsPaid': t.isPaid,
         'OriginalDueDate': t.originalDueDate?.toUtc().toIso8601String(),
         'SkipPaid': t.skipPaid,
+        'PaidAmount': t.paidAmount,
         'PairedTransactionId': t.pairedTransactionId,
         'RecurringConfigId': t.recurringConfigId,
         'BudgetId': t.budgetId,
@@ -673,6 +678,9 @@ class SyncService {
         'Color': w.color,
         'IconName': w.iconName,
         'IsDefault': w.isDefault,
+        'WalletType': w.walletType.index,
+        'CreditLimit': w.creditLimit,
+        'BillingCycleDay': w.billingCycleDay,
       };
 
   Map<String, dynamic> _categoryToMap(Category c) => {

@@ -5,6 +5,7 @@ import 'package:the_accountant/core/services/currency_service.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/core/themes/app_typography.dart';
+import 'package:the_accountant/data/models/wallet.dart' show WalletType;
 import 'package:the_accountant/shared/widgets/color_picker.dart';
 import 'package:the_accountant/shared/widgets/currency_picker.dart';
 import 'package:the_accountant/shared/widgets/icon_picker.dart';
@@ -17,6 +18,9 @@ typedef WalletFormSubmitCallback = void Function({
   required String color,
   required bool isDefault,
   required bool useDecimals,
+  required WalletType walletType,
+  required double? creditLimit,
+  required int? billingCycleDay,
 });
 
 /// Form for adding/editing a wallet with enhanced features
@@ -29,6 +33,9 @@ class AddWalletForm extends ConsumerStatefulWidget {
   final String? initialColor;
   final bool initialIsDefault;
   final bool initialUseDecimals;
+  final WalletType initialWalletType;
+  final double? initialCreditLimit;
+  final int? initialBillingCycleDay;
   final WalletFormSubmitCallback onSubmit;
   final VoidCallback onCancel;
   final bool isEditing;
@@ -43,6 +50,9 @@ class AddWalletForm extends ConsumerStatefulWidget {
     this.initialColor,
     this.initialIsDefault = false,
     this.initialUseDecimals = true,
+    this.initialWalletType = WalletType.cash,
+    this.initialCreditLimit,
+    this.initialBillingCycleDay,
     required this.onSubmit,
     required this.onCancel,
     this.isEditing = false,
@@ -58,6 +68,23 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
   late String _selectedColor;
   late bool _isDefault;
   late bool _useDecimals;
+  late WalletType _walletType;
+  final TextEditingController _creditLimitController = TextEditingController();
+  int? _billingCycleDay;
+
+  static const _defaultIcons = {
+    WalletType.cash: 'wallet',
+    WalletType.bankAccount: 'account_balance',
+    WalletType.creditCard: 'credit_card',
+    WalletType.subscription: 'subscriptions',
+  };
+
+  static const _defaultColors = {
+    WalletType.cash: '#6366F1',
+    WalletType.bankAccount: '#06B6D4',
+    WalletType.creditCard: '#F59E0B',
+    WalletType.subscription: '#8B5CF6',
+  };
 
   @override
   void initState() {
@@ -67,6 +94,29 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
     _selectedColor = widget.initialColor ?? '#6366F1';
     _isDefault = widget.initialIsDefault;
     _useDecimals = widget.initialUseDecimals;
+    _walletType = widget.initialWalletType;
+    if (widget.initialCreditLimit != null) {
+      _creditLimitController.text = widget.initialCreditLimit.toString();
+    }
+    _billingCycleDay = widget.initialBillingCycleDay;
+  }
+
+  @override
+  void dispose() {
+    _creditLimitController.dispose();
+    super.dispose();
+  }
+
+  void _onWalletTypeChanged(WalletType type) {
+    if (widget.isEditing) return; // Type is immutable after creation
+    setState(() {
+      _walletType = type;
+      // Set default icon and color for the type if user hasn't customized
+      if (!widget.isEditing) {
+        _selectedIcon = _defaultIcons[type] ?? 'wallet';
+        _selectedColor = _defaultColors[type] ?? '#6366F1';
+      }
+    });
   }
 
   String get selectedCurrency => _selectedCurrency;
@@ -157,6 +207,63 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
               ),
               AppSpacing.gapLg,
 
+              // Wallet Type Selector
+              Text('Account Type', style: AppTypography.labelMedium),
+              AppSpacing.gapSm,
+              SizedBox(
+                height: 40,
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
+                  children: WalletType.values.map((type) {
+                    final isSelected = _walletType == type;
+                    final label = switch (type) {
+                      WalletType.cash => 'Cash',
+                      WalletType.bankAccount => 'Bank Account',
+                      WalletType.creditCard => 'Credit Card',
+                      WalletType.subscription => 'Subscription',
+                    };
+                    final icon = switch (type) {
+                      WalletType.cash => Icons.wallet,
+                      WalletType.bankAccount => Icons.account_balance,
+                      WalletType.creditCard => Icons.credit_card,
+                      WalletType.subscription => Icons.subscriptions,
+                    };
+                    return Padding(
+                      padding: EdgeInsets.only(right: AppSpacing.sm),
+                      child: ChoiceChip(
+                        label: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(icon, size: 16,
+                              color: isSelected ? Colors.white : AppColors.textSecondary,
+                            ),
+                            const SizedBox(width: 6),
+                            Text(label),
+                          ],
+                        ),
+                        selected: isSelected,
+                        onSelected: widget.isEditing ? null : (_) => _onWalletTypeChanged(type),
+                        selectedColor: AppColors.primaryAccent,
+                        backgroundColor: AppColors.glassWhite,
+                        labelStyle: TextStyle(
+                          color: isSelected ? Colors.white : AppColors.textPrimary,
+                          fontSize: 13,
+                          fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                          side: BorderSide(
+                            color: isSelected ? AppColors.primaryAccent : AppColors.glassBorder,
+                          ),
+                        ),
+                        showCheckmark: false,
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+              AppSpacing.gapMd,
+
               // Wallet Name
               Text('Wallet Name', style: AppTypography.labelMedium),
               AppSpacing.gapSm,
@@ -235,6 +342,80 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
                 },
               ),
               AppSpacing.gapMd,
+
+              // Credit Card specific fields
+              if (_walletType == WalletType.creditCard) ...[
+                Text('Credit Limit', style: AppTypography.labelMedium),
+                AppSpacing.gapSm,
+                TextFormField(
+                  controller: _creditLimitController,
+                  style: AppTypography.bodyLarge,
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  decoration: InputDecoration(
+                    hintText: 'Enter credit limit',
+                    prefixText: '${CurrencyInfo.getSymbol(_selectedCurrency)} ',
+                    filled: true,
+                    fillColor: AppColors.glassWhite,
+                    border: OutlineInputBorder(
+                      borderRadius: AppSpacing.borderRadiusMd,
+                      borderSide: BorderSide(color: AppColors.glassBorder),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: AppSpacing.borderRadiusMd,
+                      borderSide: BorderSide(color: AppColors.glassBorder),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: AppSpacing.borderRadiusMd,
+                      borderSide: BorderSide(color: AppColors.primaryAccent),
+                    ),
+                  ),
+                  validator: (value) {
+                    if (_walletType == WalletType.creditCard) {
+                      if (value == null || value.isEmpty) {
+                        return 'Credit limit is required';
+                      }
+                      final limit = double.tryParse(value);
+                      if (limit == null || limit <= 0) {
+                        return 'Please enter a valid credit limit greater than 0';
+                      }
+                    }
+                    return null;
+                  },
+                ),
+                AppSpacing.gapMd,
+                Text('Billing Cycle Day', style: AppTypography.labelMedium),
+                AppSpacing.gapSm,
+                DropdownButtonFormField<int>(
+                  value: _billingCycleDay,
+                  decoration: InputDecoration(
+                    hintText: 'Select billing day (optional)',
+                    filled: true,
+                    fillColor: AppColors.glassWhite,
+                    border: OutlineInputBorder(
+                      borderRadius: AppSpacing.borderRadiusMd,
+                      borderSide: BorderSide(color: AppColors.glassBorder),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: AppSpacing.borderRadiusMd,
+                      borderSide: BorderSide(color: AppColors.glassBorder),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: AppSpacing.borderRadiusMd,
+                      borderSide: BorderSide(color: AppColors.primaryAccent),
+                    ),
+                  ),
+                  dropdownColor: AppColors.primarySurface,
+                  style: AppTypography.bodyLarge,
+                  items: List.generate(31, (i) => i + 1)
+                      .map((day) => DropdownMenuItem(
+                            value: day,
+                            child: Text('Day $day'),
+                          ))
+                      .toList(),
+                  onChanged: (value) => setState(() => _billingCycleDay = value),
+                ),
+                AppSpacing.gapMd,
+              ],
 
               // Icon and Color pickers in a row
               Row(
@@ -368,6 +549,13 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
                             color: _selectedColor,
                             isDefault: _isDefault,
                             useDecimals: _useDecimals,
+                            walletType: _walletType,
+                            creditLimit: _walletType == WalletType.creditCard
+                                ? double.tryParse(_creditLimitController.text)
+                                : null,
+                            billingCycleDay: _walletType == WalletType.creditCard
+                                ? _billingCycleDay
+                                : null,
                           );
                         }
                       },
@@ -392,8 +580,12 @@ class CompactWalletForm extends ConsumerStatefulWidget {
   final double? initialBalance;
   final bool initialIsDefault;
   final bool initialUseDecimals;
+  final WalletType initialWalletType;
+  final double? initialCreditLimit;
+  final int? initialBillingCycleDay;
   final Function(String name, String currency, String icon, String color,
-      double balance, bool isDefault, bool useDecimals) onSubmit;
+      double balance, bool isDefault, bool useDecimals,
+      WalletType walletType, double? creditLimit, int? billingCycleDay) onSubmit;
 
   const CompactWalletForm({
     super.key,
@@ -404,6 +596,9 @@ class CompactWalletForm extends ConsumerStatefulWidget {
     this.initialBalance,
     this.initialIsDefault = false,
     this.initialUseDecimals = true,
+    this.initialWalletType = WalletType.cash,
+    this.initialCreditLimit,
+    this.initialBillingCycleDay,
     required this.onSubmit,
   });
 
@@ -415,11 +610,14 @@ class _CompactWalletFormState extends ConsumerState<CompactWalletForm> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _nameController;
   late TextEditingController _balanceController;
+  late TextEditingController _creditLimitController;
   late String _currency;
   late String _icon;
   late String _color;
   late bool _isDefault;
   late bool _useDecimals;
+  late WalletType _walletType;
+  int? _billingCycleDay;
 
   @override
   void initState() {
@@ -428,17 +626,23 @@ class _CompactWalletFormState extends ConsumerState<CompactWalletForm> {
     _balanceController = TextEditingController(
       text: widget.initialBalance?.toString() ?? '',
     );
+    _creditLimitController = TextEditingController(
+      text: widget.initialCreditLimit?.toString() ?? '',
+    );
     _currency = widget.initialCurrency ?? 'USD';
     _icon = widget.initialIcon ?? 'wallet';
     _color = widget.initialColor ?? '#6366F1';
     _isDefault = widget.initialIsDefault;
     _useDecimals = widget.initialUseDecimals;
+    _walletType = widget.initialWalletType;
+    _billingCycleDay = widget.initialBillingCycleDay;
   }
 
   @override
   void dispose() {
     _nameController.dispose();
     _balanceController.dispose();
+    _creditLimitController.dispose();
     super.dispose();
   }
 
@@ -540,6 +744,13 @@ class _CompactWalletFormState extends ConsumerState<CompactWalletForm> {
                     balance,
                     _isDefault,
                     _useDecimals,
+                    _walletType,
+                    _walletType == WalletType.creditCard
+                        ? double.tryParse(_creditLimitController.text)
+                        : null,
+                    _walletType == WalletType.creditCard
+                        ? _billingCycleDay
+                        : null,
                   );
                 }
               },

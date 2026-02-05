@@ -4,6 +4,7 @@ import 'package:the_accountant/core/providers/default_wallet_provider.dart';
 import 'package:the_accountant/core/services/wallet_balance_service.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
+import 'package:the_accountant/data/models/wallet.dart' show WalletType;
 import 'package:the_accountant/data/models/premium_features.dart';
 import 'package:the_accountant/features/premium/exceptions/premium_limit_exception.dart';
 import 'package:the_accountant/features/premium/providers/premium_provider.dart';
@@ -107,6 +108,9 @@ class WalletNotifier extends StateNotifier<WalletState> {
     String? color,
     bool isDefault = false,
     bool useDecimals = true,
+    WalletType walletType = WalletType.cash,
+    double? creditLimit,
+    int? billingCycleDay,
   }) async {
     try {
       // Check premium limit for wallets
@@ -137,6 +141,9 @@ class WalletNotifier extends StateNotifier<WalletState> {
         color: Value(color ?? '#6366F1'),
         isDefault: Value(isDefault),
         useDecimals: Value(useDecimals),
+        walletType: Value(walletType),
+        creditLimit: Value(creditLimit),
+        billingCycleDay: Value(billingCycleDay),
         syncStatus: const Value(1), // pendingCreate
         createdAt: Value(now),
         updatedAt: Value(now),
@@ -172,6 +179,8 @@ class WalletNotifier extends StateNotifier<WalletState> {
     String? color,
     bool? isDefault,
     bool? useDecimals,
+    double? creditLimit,
+    int? billingCycleDay,
   }) async {
     try {
       // If setting as default, clear other defaults first
@@ -188,6 +197,8 @@ class WalletNotifier extends StateNotifier<WalletState> {
         color: color != null ? Value(color) : const Value.absent(),
         isDefault: isDefault != null ? Value(isDefault) : const Value.absent(),
         useDecimals: useDecimals != null ? Value(useDecimals) : const Value.absent(),
+        creditLimit: creditLimit != null ? Value(creditLimit) : const Value.absent(),
+        billingCycleDay: billingCycleDay != null ? Value(billingCycleDay) : const Value.absent(),
         updatedAt: Value(DateTime.now()),
       );
 

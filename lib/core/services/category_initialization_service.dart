@@ -117,11 +117,25 @@ class CategoryInitializationService {
             'orderIndex': 13,
           },
           {
+            'name': 'Loan',
+            'colorCode': '#E57373',
+            'iconName': 'account_balance',
+            'isIncome': false,
+            'orderIndex': 14,
+          },
+          {
+            'name': 'Loan Payment',
+            'colorCode': '#EF9A9A',
+            'iconName': 'payments',
+            'isIncome': false,
+            'orderIndex': 15,
+          },
+          {
             'name': 'Other Expenses',
             'colorCode': '#AED6F1',
             'iconName': 'more_horiz',
             'isIncome': false,
-            'orderIndex': 14,
+            'orderIndex': 16,
           },
           // Income Categories (isIncome: true)
           {
@@ -181,11 +195,25 @@ class CategoryInitializationService {
             'orderIndex': 7,
           },
           {
+            'name': 'Loan',
+            'colorCode': '#81C784',
+            'iconName': 'account_balance',
+            'isIncome': true,
+            'orderIndex': 8,
+          },
+          {
+            'name': 'Loan Received',
+            'colorCode': '#A5D6A7',
+            'iconName': 'payments',
+            'isIncome': true,
+            'orderIndex': 9,
+          },
+          {
             'name': 'Other Income',
             'colorCode': '#D2B4DE',
             'iconName': 'add_circle',
             'isIncome': true,
-            'orderIndex': 8,
+            'orderIndex': 10,
           },
         ];
 

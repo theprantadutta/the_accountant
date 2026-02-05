@@ -1,5 +1,20 @@
 import 'package:drift/drift.dart';
 
+/// Wallet types for categorizing accounts
+enum WalletType {
+  /// Physical cash
+  cash,
+
+  /// Bank account
+  bankAccount,
+
+  /// Credit card with limit and billing cycle
+  creditCard,
+
+  /// Subscription grouping wallet
+  subscription,
+}
+
 /// Wallets table for managing multiple accounts/wallets
 class Wallets extends Table {
   // Primary key - UUID string
@@ -17,6 +32,14 @@ class Wallets extends Table {
   // Flags
   BoolColumn get isDefault => boolean().withDefault(const Constant(false))();
   BoolColumn get useDecimals => boolean().withDefault(const Constant(true))();
+
+  // Wallet type (cash, bankAccount, creditCard, subscription)
+  IntColumn get walletType =>
+      intEnum<WalletType>().withDefault(const Constant(0))();
+
+  // Credit card specific fields
+  RealColumn get creditLimit => real().nullable()();
+  IntColumn get billingCycleDay => integer().nullable()(); // 1-31
 
   // Display ordering
   IntColumn get orderIndex => integer().withDefault(const Constant(0))();

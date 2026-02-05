@@ -7,6 +7,7 @@ import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/core/themes/app_typography.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
+import 'package:the_accountant/data/models/wallet.dart' show WalletType;
 import 'package:the_accountant/features/dashboard/providers/balance_visibility_provider.dart';
 import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
 import 'package:the_accountant/features/wallets/screens/wallet_management_screen.dart';
@@ -154,6 +155,13 @@ class _WalletCardState extends ConsumerState<_WalletCard>
     final isVisible = ref.watch(walletBalanceVisibleProvider(wallet.id));
     final walletBalances = ref.watch(walletProvider).walletBalances;
     final balance = walletBalances[wallet.id] ?? wallet.balance;
+    final isCreditCard = wallet.walletType == WalletType.creditCard;
+    final creditLimit = wallet.creditLimit ?? 0.0;
+    final outstanding = isCreditCard ? balance.abs() : 0.0;
+    final available = isCreditCard ? (creditLimit - outstanding) : 0.0;
+    final usageRatio = isCreditCard && creditLimit > 0
+        ? (outstanding / creditLimit).clamp(0.0, 1.0)
+        : 0.0;
 
     // Start animation when widget is built
     WidgetsBinding.instance.addPostFrameCallback((_) => _startAnimation());
@@ -164,7 +172,7 @@ class _WalletCardState extends ConsumerState<_WalletCard>
         // Could navigate to wallet details
       },
       child: Container(
-        width: 200,
+        width: isCreditCard ? 220 : 200,
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
@@ -249,43 +257,131 @@ class _WalletCardState extends ConsumerState<_WalletCard>
                     ),
                     AppSpacing.gapXs,
 
-                    // Balance
-                    AnimatedBuilder(
-                      animation: _balanceAnimation,
-                      builder: (context, child) {
-                        final animatedBalance =
-                            balance * _balanceAnimation.value;
-                        return Text(
-                          isVisible
-                              ? _formatCurrency(animatedBalance, wallet.currency, wallet.useDecimals)
-                              : '${CurrencyInfo.getSymbol(wallet.currency)} ****',
-                          style: AppTypography.monoMedium.copyWith(
-                            fontSize: 22,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.textPrimary,
-                          ),
-                        );
-                      },
-                    ),
+                    // Credit card: Outstanding + progress bar + available
+                    if (isCreditCard && creditLimit > 0) ...[
+                      AnimatedBuilder(
+                        animation: _balanceAnimation,
+                        builder: (context, child) {
+                          final animOutstanding =
+                              outstanding * _balanceAnimation.value;
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                isVisible
+                                    ? _formatCurrency(
+                                        animOutstanding,
+                                        wallet.currency,
+                                        wallet.useDecimals)
+                                    : '${CurrencyInfo.getSymbol(wallet.currency)} ****',
+                                style: AppTypography.monoMedium.copyWith(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.textPrimary,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              // Usage progress bar
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(3),
+                                child: LinearProgressIndicator(
+                                  value: usageRatio * _balanceAnimation.value,
+                                  backgroundColor:
+                                      walletColor.withValues(alpha: 0.15),
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    usageRatio > 0.8
+                                        ? AppColors.error
+                                        : walletColor,
+                                  ),
+                                  minHeight: 4,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              if (isVisible)
+                                Text(
+                                  'Available: ${_formatCurrency(available * _balanceAnimation.value, wallet.currency, wallet.useDecimals)}',
+                                  style: AppTypography.labelSmall.copyWith(
+                                    color: AppColors.textSecondary,
+                                    fontSize: 9,
+                                  ),
+                                )
+                              else
+                                Text(
+                                  'Available: ****',
+                                  style: AppTypography.labelSmall.copyWith(
+                                    color: AppColors.textSecondary,
+                                    fontSize: 9,
+                                  ),
+                                ),
+                            ],
+                          );
+                        },
+                      ),
+                    ] else ...[
+                      // Standard balance display
+                      AnimatedBuilder(
+                        animation: _balanceAnimation,
+                        builder: (context, child) {
+                          final animatedBalance =
+                              balance * _balanceAnimation.value;
+                          return Text(
+                            isVisible
+                                ? _formatCurrency(animatedBalance,
+                                    wallet.currency, wallet.useDecimals)
+                                : '${CurrencyInfo.getSymbol(wallet.currency)} ****',
+                            style: AppTypography.monoMedium.copyWith(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.textPrimary,
+                            ),
+                          );
+                        },
+                      ),
+                    ],
                     AppSpacing.gapXs,
 
-                    // Currency badge
-                    Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: AppSpacing.sm,
-                        vertical: AppSpacing.xs / 2,
-                      ),
-                      decoration: BoxDecoration(
-                        color: walletColor.withValues(alpha: 0.2),
-                        borderRadius: AppSpacing.borderRadiusSm,
-                      ),
-                      child: Text(
-                        wallet.currency,
-                        style: AppTypography.labelSmall.copyWith(
-                          color: walletColor,
-                          fontWeight: FontWeight.w600,
+                    // Type badge + currency
+                    Row(
+                      children: [
+                        Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: AppSpacing.sm,
+                            vertical: AppSpacing.xs / 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: walletColor.withValues(alpha: 0.2),
+                            borderRadius: AppSpacing.borderRadiusSm,
+                          ),
+                          child: Text(
+                            wallet.currency,
+                            style: AppTypography.labelSmall.copyWith(
+                              color: walletColor,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                         ),
-                      ),
+                        if (wallet.walletType != WalletType.cash) ...[
+                          const SizedBox(width: 4),
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: AppSpacing.sm,
+                              vertical: AppSpacing.xs / 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.glassWhite,
+                              borderRadius: AppSpacing.borderRadiusSm,
+                            ),
+                            child: Text(
+                              _walletTypeLabel(wallet.walletType),
+                              style: AppTypography.labelSmall.copyWith(
+                                color: AppColors.textMuted,
+                                fontWeight: FontWeight.w500,
+                                fontSize: 8,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
                   ],
                 ),
@@ -317,6 +413,19 @@ class _WalletCardState extends ConsumerState<_WalletCard>
         ),
       ),
     );
+  }
+
+  static String _walletTypeLabel(WalletType type) {
+    switch (type) {
+      case WalletType.bankAccount:
+        return 'Bank';
+      case WalletType.creditCard:
+        return 'Credit';
+      case WalletType.subscription:
+        return 'Subs';
+      case WalletType.cash:
+        return 'Cash';
+    }
   }
 
   String _formatCurrency(double amount, String currencyCode, bool useDecimals) {

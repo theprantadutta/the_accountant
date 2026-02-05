@@ -99,6 +99,9 @@ class Transactions extends Table {
   // Useful when a transaction is marked as paid (date updates to payment date)
   DateTimeColumn get originalDueDate => dateTime().nullable()();
 
+  // Track partial payments for credit/debt transactions
+  RealColumn get paidAmount => real().withDefault(const Constant(0.0))();
+
   // Skip this payment (for recurring unpaid transactions)
   BoolColumn get skipPaid => boolean().withDefault(const Constant(false))();
 

@@ -158,6 +158,7 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
     final currencyFormat = NumberFormat.currency(symbol: '\$');
     final netBalance = state.netBalance;
     final isPositive = netBalance >= 0;
+    final overdueCount = state.overdueCount;
 
     return Padding(
       padding: AppSpacing.paddingScreen.copyWith(bottom: 0),
@@ -199,6 +200,38 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
                 color: AppColors.textMuted,
               ),
             ),
+            // Overdue count badge
+            if (overdueCount > 0) ...[
+              AppSpacing.gapSm,
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 4,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.error.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.warning_amber_rounded,
+                      size: 14,
+                      color: AppColors.error,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      '$overdueCount overdue',
+                      style: AppTypography.labelSmall.copyWith(
+                        color: AppColors.error,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
             AppSpacing.gapLg,
             // Credit and Debt breakdown
             Row(
@@ -282,13 +315,24 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
       return _buildEmptyState(isCredit);
     }
 
+    // Sort: overdue unpaid first, then unpaid, then paid
+    final sorted = List<Transaction>.from(transactions);
+    final notifier = ref.read(creditDebtProvider.notifier);
+    sorted.sort((a, b) {
+      final aOverdue = notifier.isOverdue(a);
+      final bOverdue = notifier.isOverdue(b);
+      if (aOverdue != bOverdue) return aOverdue ? -1 : 1;
+      if (a.isPaid != b.isPaid) return a.isPaid ? 1 : -1;
+      return b.date.compareTo(a.date);
+    });
+
     return RefreshIndicator(
       onRefresh: () => ref.read(creditDebtProvider.notifier).refresh(),
       child: ListView.builder(
         padding: AppSpacing.paddingScreen,
-        itemCount: transactions.length,
+        itemCount: sorted.length,
         itemBuilder: (context, index) {
-          final transaction = transactions[index];
+          final transaction = sorted[index];
           final transactionIsCredit =
               isCredit ?? (transaction.specialType == TransactionSpecialType.credit);
           return _buildTransactionCard(transaction, transactionIsCredit);
@@ -350,6 +394,13 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
       symbol: CurrencyInfo.getSymbol(walletCurrency),
     );
     final isPaid = transaction.isPaid;
+    final isOverdue = ref.read(creditDebtProvider.notifier).isOverdue(transaction);
+    final paidAmount = transaction.paidAmount;
+    final totalAmount = transaction.amount;
+    final paymentProgress = totalAmount > 0
+        ? (paidAmount / totalAmount).clamp(0.0, 1.0)
+        : 0.0;
+    final hasPartialPayment = paidAmount > 0 && !isPaid;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
@@ -417,6 +468,24 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
+                            )
+                          else if (isOverdue)
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColors.error.withValues(alpha: 0.2),
+                                borderRadius: AppSpacing.borderRadiusSm,
+                              ),
+                              child: Text(
+                                'Overdue',
+                                style: AppTypography.labelSmall.copyWith(
+                                  color: AppColors.error,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
                             ),
                         ],
                       ),
@@ -426,13 +495,13 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
                           Icon(
                             Icons.calendar_today,
                             size: 12,
-                            color: AppColors.textMuted,
+                            color: isOverdue ? AppColors.error : AppColors.textMuted,
                           ),
                           const SizedBox(width: 4),
                           Text(
                             dateFormat.format(transaction.date),
                             style: AppTypography.labelSmall.copyWith(
-                              color: AppColors.textMuted,
+                              color: isOverdue ? AppColors.error : AppColors.textMuted,
                             ),
                           ),
                           if (transaction.notes != null &&
@@ -485,33 +554,257 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
                 ),
               ],
             ),
+            // Payment progress bar
+            if (!isPaid || hasPartialPayment) ...[
+              AppSpacing.gapMd,
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(3),
+                          child: LinearProgressIndicator(
+                            value: paymentProgress,
+                            backgroundColor: (isCredit
+                                    ? AppColors.success
+                                    : AppColors.error)
+                                .withValues(alpha: 0.15),
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              isCredit ? AppColors.success : AppColors.primaryAccent,
+                            ),
+                            minHeight: 5,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Paid: ${currencyFormat.format(paidAmount)} / ${currencyFormat.format(totalAmount)}',
+                          style: AppTypography.labelSmall.copyWith(
+                            color: AppColors.textMuted,
+                            fontSize: 9,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ],
             if (!isPaid) ...[
               AppSpacing.gapMd,
-              // Action button
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    HapticFeedback.mediumImpact();
-                    _markAsSettled(transaction, isCredit);
-                  },
-                  icon: const Icon(Icons.check_circle, size: 18),
-                  label: Text(
-                    isCredit ? 'Mark as Collected' : 'Mark as Paid',
+              // Action buttons row
+              Row(
+                children: [
+                  // Record Payment button
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () {
+                        HapticFeedback.lightImpact();
+                        _showRecordPaymentDialog(transaction, isCredit);
+                      },
+                      icon: const Icon(Icons.payments_outlined, size: 16),
+                      label: const Text('Record Payment'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor:
+                            isCredit ? AppColors.success : AppColors.primaryAccent,
+                        side: BorderSide(
+                          color: (isCredit
+                                  ? AppColors.success
+                                  : AppColors.primaryAccent)
+                              .withValues(alpha: 0.4),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                      ),
+                    ),
                   ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor:
-                        isCredit ? AppColors.success : AppColors.primaryAccent,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 10),
+                  const SizedBox(width: 8),
+                  // Mark as Settled button
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        HapticFeedback.mediumImpact();
+                        _markAsSettled(transaction, isCredit);
+                      },
+                      icon: const Icon(Icons.check_circle, size: 16),
+                      label: Text(
+                        isCredit ? 'Collected' : 'Settled',
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor:
+                            isCredit ? AppColors.success : AppColors.primaryAccent,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
             ],
           ],
         ),
       ),
     );
+  }
+
+  void _showRecordPaymentDialog(Transaction transaction, bool isCredit) {
+    final paymentController = TextEditingController();
+    final remaining = transaction.amount - transaction.paidAmount;
+    final walletCurrency = ref.read(walletCurrencyProvider(transaction.walletId));
+    final symbol = CurrencyInfo.getSymbol(walletCurrency);
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: AppColors.primarySurface,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: (isCredit ? AppColors.success : AppColors.primaryAccent)
+                      .withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  Icons.payments_outlined,
+                  color: isCredit ? AppColors.success : AppColors.primaryAccent,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                'Record Payment',
+                style: TextStyle(
+                  color: AppColors.textPrimary,
+                  fontSize: 18,
+                ),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                transaction.title.isNotEmpty ? transaction.title : (isCredit ? 'Money Lent' : 'Money Borrowed'),
+                style: TextStyle(
+                  color: AppColors.textSecondary,
+                  fontSize: 14,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Remaining: $symbol${NumberFormat('#,##0.00').format(remaining)}',
+                style: TextStyle(
+                  color: AppColors.textMuted,
+                  fontSize: 12,
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: paymentController,
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
+                autofocus: true,
+                style: TextStyle(color: AppColors.textPrimary),
+                decoration: InputDecoration(
+                  labelText: 'Payment Amount',
+                  prefixText: '$symbol ',
+                  prefixStyle: TextStyle(color: AppColors.textSecondary),
+                  labelStyle: TextStyle(color: AppColors.textSecondary),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: AppColors.glassBorder),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(
+                      color: isCredit
+                          ? AppColors.success
+                          : AppColors.primaryAccent,
+                    ),
+                  ),
+                  filled: true,
+                  fillColor: AppColors.glassWhite,
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(
+                'Cancel',
+                style: TextStyle(color: AppColors.textSecondary),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final amount = double.tryParse(paymentController.text);
+                if (amount == null || amount <= 0) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: const Text('Please enter a valid amount'),
+                      backgroundColor: AppColors.error,
+                    ),
+                  );
+                  return;
+                }
+                if (amount > remaining) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content:
+                          const Text('Amount exceeds remaining balance'),
+                      backgroundColor: AppColors.error,
+                    ),
+                  );
+                  return;
+                }
+                Navigator.of(context).pop();
+                _recordPayment(transaction, amount, isCredit);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor:
+                    isCredit ? AppColors.success : AppColors.primaryAccent,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: const Text(
+                'Record',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _recordPayment(
+      Transaction transaction, double amount, bool isCredit) async {
+    await ref.read(creditDebtProvider.notifier).recordPayment(
+          transactionId: transaction.id,
+          paymentAmount: amount,
+        );
+    if (mounted) {
+      final walletCurrency =
+          ref.read(walletCurrencyProvider(transaction.walletId));
+      final symbol = CurrencyInfo.getSymbol(walletCurrency);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Payment of $symbol${NumberFormat('#,##0.00').format(amount)} recorded',
+          ),
+          backgroundColor: AppColors.success,
+        ),
+      );
+    }
   }
 
   void _markAsSettled(Transaction transaction, bool isCredit) async {

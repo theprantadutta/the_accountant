@@ -58,7 +58,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 8;
+  int get schemaVersion => 9;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -180,6 +180,41 @@ class AppDatabase extends _$AppDatabase {
           if (from < 8) {
             // Add useDecimals column to wallets for per-wallet decimal display preference
             await m.addColumn(wallets, wallets.useDecimals);
+          }
+          if (from < 9) {
+            // Add wallet type columns
+            await m.addColumn(wallets, wallets.walletType);
+            await m.addColumn(wallets, wallets.creditLimit);
+            await m.addColumn(wallets, wallets.billingCycleDay);
+            // Add paidAmount column for partial loan payments
+            await m.addColumn(transactions, transactions.paidAmount);
+
+            // Seed loan categories for existing users
+            final now = DateTime.now().toIso8601String();
+            // Expense: Loan
+            await customStatement('''
+              INSERT INTO categories (id, name, icon_name, color, is_income, is_default, order_index, created_at, updated_at, sync_status)
+              SELECT 'default-loan-expense', 'Loan', 'account_balance', '#E57373', 0, 1, 14, '$now', '$now', 0
+              WHERE NOT EXISTS (SELECT 1 FROM categories WHERE name = 'Loan' AND is_income = 0 AND deleted_at IS NULL)
+            ''');
+            // Expense: Loan Payment
+            await customStatement('''
+              INSERT INTO categories (id, name, icon_name, color, is_income, is_default, order_index, created_at, updated_at, sync_status)
+              SELECT 'default-loan-payment', 'Loan Payment', 'payments', '#EF9A9A', 0, 1, 15, '$now', '$now', 0
+              WHERE NOT EXISTS (SELECT 1 FROM categories WHERE name = 'Loan Payment' AND is_income = 0 AND deleted_at IS NULL)
+            ''');
+            // Income: Loan
+            await customStatement('''
+              INSERT INTO categories (id, name, icon_name, color, is_income, is_default, order_index, created_at, updated_at, sync_status)
+              SELECT 'default-loan-income', 'Loan', 'account_balance', '#81C784', 1, 1, 8, '$now', '$now', 0
+              WHERE NOT EXISTS (SELECT 1 FROM categories WHERE name = 'Loan' AND is_income = 1 AND deleted_at IS NULL)
+            ''');
+            // Income: Loan Received
+            await customStatement('''
+              INSERT INTO categories (id, name, icon_name, color, is_income, is_default, order_index, created_at, updated_at, sync_status)
+              SELECT 'default-loan-received', 'Loan Received', 'payments', '#A5D6A7', 1, 1, 9, '$now', '$now', 0
+              WHERE NOT EXISTS (SELECT 1 FROM categories WHERE name = 'Loan Received' AND is_income = 1 AND deleted_at IS NULL)
+            ''');
           }
         },
       );
