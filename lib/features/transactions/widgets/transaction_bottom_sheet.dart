@@ -14,6 +14,10 @@ import 'package:the_accountant/features/transactions/widgets/wallet_selector.dar
 import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
 import 'package:the_accountant/core/providers/currency_provider.dart';
 import 'package:the_accountant/core/services/currency_service.dart';
+import 'package:the_accountant/core/themes/app_colors.dart';
+import 'package:the_accountant/features/recurring/providers/recurring_provider.dart';
+import 'package:the_accountant/features/subscriptions/providers/subscription_dashboard_provider.dart';
+import 'package:the_accountant/features/transactions/widgets/horizontal_chip_selector.dart';
 
 /// Transaction creation steps
 enum TransactionStep { amount, category, details }
@@ -59,6 +63,11 @@ class _TransactionBottomSheetState
   DateTime _date = DateTime.now();
   TransactionSpecialType _specialType = TransactionSpecialType.none;
   bool _isPaid = true;
+
+  // Subscription config
+  String _subscriptionFrequency = 'monthly';
+  int _subscriptionPeriodLength = 1;
+  DateTime? _subscriptionEndDate;
 
   bool _isSaving = false;
 
@@ -232,7 +241,7 @@ class _TransactionBottomSheetState
 
       // Use addTransactionFull for complete Cashew-style transaction creation
       // This method handles wallet balance updates internally
-      await transactionNotifier.addTransactionFull(
+      final newTransactionId = await transactionNotifier.addTransactionFull(
         amount: _amount,
         isIncome: _isIncome,
         categoryId: _selectedCategory!.id,
@@ -243,6 +252,20 @@ class _TransactionBottomSheetState
         specialType: _specialType,
         isPaid: _isPaid,
       );
+
+      // Create RecurringConfig for subscriptions
+      if (_specialType == TransactionSpecialType.subscription &&
+          newTransactionId != null) {
+        final recurringService = ref.read(recurringServiceProvider);
+        await recurringService.createRecurringConfig(
+          baseTransactionId: newTransactionId,
+          reoccurrence: _subscriptionFrequency,
+          periodLength: _subscriptionPeriodLength,
+          startDate: _date,
+          endDate: _subscriptionEndDate,
+        );
+        ref.read(subscriptionDashboardProvider.notifier).refresh();
+      }
 
       // Learn from this transaction for smart categorization
       if (_title.isNotEmpty && _selectedCategory != null) {
@@ -627,6 +650,8 @@ class _TransactionBottomSheetState
 
           // Special Type Selector
           _buildSpecialTypeSelector(theme),
+          if (_specialType == TransactionSpecialType.subscription)
+            _buildSubscriptionConfigSection(theme),
           const SizedBox(height: 16),
 
           // Notes
@@ -725,6 +750,171 @@ class _TransactionBottomSheetState
             dense: true,
           ),
         ],
+      ],
+    );
+  }
+
+  Widget _buildSubscriptionConfigSection(ThemeData theme) {
+    final frequencies = ['daily', 'weekly', 'monthly', 'yearly'];
+
+    String frequencyLabel(String freq) {
+      switch (freq) {
+        case 'daily':
+          return 'Daily';
+        case 'weekly':
+          return 'Weekly';
+        case 'monthly':
+          return 'Monthly';
+        case 'yearly':
+          return 'Yearly';
+        default:
+          return freq;
+      }
+    }
+
+    String periodUnit(String freq) {
+      switch (freq) {
+        case 'daily':
+          return _subscriptionPeriodLength == 1 ? 'day' : 'days';
+        case 'weekly':
+          return _subscriptionPeriodLength == 1 ? 'week' : 'weeks';
+        case 'monthly':
+          return _subscriptionPeriodLength == 1 ? 'month' : 'months';
+        case 'yearly':
+          return _subscriptionPeriodLength == 1 ? 'year' : 'years';
+        default:
+          return freq;
+      }
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 16),
+        Row(
+          children: [
+            Icon(Icons.autorenew, size: 16, color: AppColors.neonPurple),
+            const SizedBox(width: 6),
+            Text(
+              'Subscription Settings',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: AppColors.neonPurple,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        // Frequency chips
+        HorizontalChipSelector<String>(
+          items: frequencies,
+          selectedItem: _subscriptionFrequency,
+          labelBuilder: frequencyLabel,
+          colorBuilder: (_) => AppColors.neonPurple,
+          onSelected: (freq) {
+            setState(() => _subscriptionFrequency = freq);
+          },
+          padding: EdgeInsets.zero,
+        ),
+        const SizedBox(height: 12),
+        // Period stepper
+        Row(
+          children: [
+            Text(
+              'Every',
+              style: TextStyle(
+                fontSize: 14,
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(width: 8),
+            IconButton(
+              onPressed: _subscriptionPeriodLength > 1
+                  ? () => setState(() => _subscriptionPeriodLength--)
+                  : null,
+              icon: Icon(Icons.remove_circle_outline, size: 22),
+              color: theme.colorScheme.onSurfaceVariant,
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+            ),
+            Container(
+              width: 36,
+              alignment: Alignment.center,
+              child: Text(
+                '$_subscriptionPeriodLength',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: theme.colorScheme.onSurface,
+                ),
+              ),
+            ),
+            IconButton(
+              onPressed: _subscriptionPeriodLength < 365
+                  ? () => setState(() => _subscriptionPeriodLength++)
+                  : null,
+              icon: Icon(Icons.add_circle_outline, size: 22),
+              color: theme.colorScheme.onSurfaceVariant,
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+            ),
+            const SizedBox(width: 4),
+            Text(
+              periodUnit(_subscriptionFrequency),
+              style: TextStyle(
+                fontSize: 14,
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        // End date
+        GestureDetector(
+          onTap: () async {
+            final date = await showDatePicker(
+              context: context,
+              initialDate: _subscriptionEndDate ?? DateTime.now().add(const Duration(days: 365)),
+              firstDate: DateTime.now(),
+              lastDate: DateTime.now().add(const Duration(days: 3650)),
+            );
+            if (date != null) {
+              setState(() => _subscriptionEndDate = date);
+            }
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.surfaceContainerHighest,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.event, size: 18, color: theme.colorScheme.onSurfaceVariant),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    _subscriptionEndDate != null
+                        ? 'Ends: ${_subscriptionEndDate!.day}/${_subscriptionEndDate!.month}/${_subscriptionEndDate!.year}'
+                        : 'No end date',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: _subscriptionEndDate != null
+                          ? theme.colorScheme.onSurface
+                          : theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ),
+                if (_subscriptionEndDate != null)
+                  GestureDetector(
+                    onTap: () => setState(() => _subscriptionEndDate = null),
+                    child: Icon(Icons.clear, size: 18, color: theme.colorScheme.onSurfaceVariant),
+                  ),
+              ],
+            ),
+          ),
+        ),
       ],
     );
   }

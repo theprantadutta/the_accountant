@@ -7,7 +7,11 @@ import 'package:the_accountant/core/services/currency_service.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/core/themes/app_typography.dart';
+import 'package:the_accountant/data/models/transaction.dart'
+    show TransactionSpecialType;
 import 'package:the_accountant/features/subscriptions/providers/subscription_dashboard_provider.dart';
+import 'package:the_accountant/features/subscriptions/widgets/edit_subscription_bottom_sheet.dart';
+import 'package:the_accountant/features/transactions/screens/add_transaction_screen.dart';
 import 'package:the_accountant/shared/widgets/glass_card.dart';
 
 class SubscriptionDashboardScreen extends ConsumerWidget {
@@ -29,6 +33,19 @@ class SubscriptionDashboardScreen extends ConsumerWidget {
             icon: Icon(Icons.arrow_back_ios_new, color: AppColors.textPrimary),
             onPressed: () => Navigator.pop(context),
           ),
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () async {
+            final result = await showAddTransactionScreen(
+              context,
+              initialSpecialType: TransactionSpecialType.subscription,
+            );
+            if (result == true) {
+              ref.read(subscriptionDashboardProvider.notifier).refresh();
+            }
+          },
+          backgroundColor: AppColors.neonPurple,
+          child: const Icon(Icons.add, color: Colors.white),
         ),
         body: state.isLoading
             ? const Center(child: CircularProgressIndicator())
@@ -225,6 +242,15 @@ class _SubscriptionCard extends ConsumerWidget {
       child: GlassCard(
         padding: AppSpacing.paddingMd,
         variant: isPaused ? GlassCardVariant.standard : GlassCardVariant.purple,
+        onTap: () async {
+          final result = await showEditSubscriptionBottomSheet(
+            context,
+            item: item,
+          );
+          if (result == true) {
+            ref.read(subscriptionDashboardProvider.notifier).refresh();
+          }
+        },
         child: Column(
           children: [
             Row(

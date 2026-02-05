@@ -218,6 +218,28 @@ class SubscriptionDashboardNotifier
     }
   }
 
+  /// Update subscription recurring config properties
+  Future<void> updateSubscriptionConfig({
+    required String configId,
+    String? reoccurrence,
+    int? periodLength,
+    DateTime? endDate,
+  }) async {
+    try {
+      await _recurringService.updateRecurringConfig(
+        configId: configId,
+        reoccurrence: reoccurrence,
+        periodLength: periodLength,
+        endDate: endDate,
+      );
+      await loadSubscriptions();
+    } catch (e) {
+      state = state.copyWith(
+        error: 'Failed to update subscription: $e',
+      );
+    }
+  }
+
   /// Cancel (delete) a subscription
   Future<void> cancelSubscription(String configId) async {
     try {
