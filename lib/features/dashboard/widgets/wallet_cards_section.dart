@@ -11,6 +11,7 @@ import 'package:the_accountant/data/models/wallet.dart' show WalletType;
 import 'package:the_accountant/features/dashboard/providers/balance_visibility_provider.dart';
 import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
 import 'package:the_accountant/features/wallets/screens/wallet_management_screen.dart';
+import 'package:the_accountant/features/wallets/widgets/add_wallet_form.dart';
 import 'package:the_accountant/shared/widgets/color_picker.dart';
 import 'package:the_accountant/shared/widgets/icon_picker.dart';
 
@@ -169,7 +170,7 @@ class _WalletCardState extends ConsumerState<_WalletCard>
     return GestureDetector(
       onTap: () {
         HapticFeedback.lightImpact();
-        // Could navigate to wallet details
+        _showEditWalletSheet(context);
       },
       child: Container(
         width: isCreditCard ? 220 : 200,
@@ -409,6 +410,97 @@ class _WalletCardState extends ConsumerState<_WalletCard>
                   ),
                 ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showEditWalletSheet(BuildContext context) {
+    final wallet = widget.wallet;
+    final editNameController = TextEditingController(text: wallet.name);
+    final editBalanceController = TextEditingController(
+      text: wallet.balance.toString(),
+    );
+    final editFormKey = GlobalKey<FormState>();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AppColors.primarySurface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (sheetContext) => Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(sheetContext).viewInsets.bottom,
+        ),
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: AppSpacing.paddingLg,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 40,
+                  height: 4,
+                  margin: const EdgeInsets.only(bottom: 20),
+                  decoration: BoxDecoration(
+                    color: AppColors.divider,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                AddWalletForm(
+                  formKey: editFormKey,
+                  nameController: editNameController,
+                  balanceController: editBalanceController,
+                  initialCurrency: wallet.currency,
+                  initialIcon: wallet.iconName,
+                  initialColor: wallet.color,
+                  initialIsDefault: wallet.isDefault,
+                  initialUseDecimals: wallet.useDecimals,
+                  initialWalletType: wallet.walletType,
+                  initialCreditLimit: wallet.creditLimit,
+                  initialBillingCycleDay: wallet.billingCycleDay,
+                  isEditing: true,
+                  onSubmit: ({
+                    required String currency,
+                    required String icon,
+                    required String color,
+                    required bool isDefault,
+                    required bool useDecimals,
+                    required WalletType walletType,
+                    required double? creditLimit,
+                    required int? billingCycleDay,
+                  }) {
+                    ref.read(walletProvider.notifier).updateWallet(
+                          id: wallet.id,
+                          name: editNameController.text,
+                          currency: currency,
+                          balance: double.tryParse(editBalanceController.text),
+                          iconName: icon,
+                          color: color,
+                          isDefault: isDefault,
+                          useDecimals: useDecimals,
+                          creditLimit: creditLimit,
+                          billingCycleDay: billingCycleDay,
+                        );
+                    Navigator.pop(sheetContext);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: const Text('Account updated successfully'),
+                        backgroundColor: AppColors.success,
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                    );
+                  },
+                  onCancel: () => Navigator.pop(sheetContext),
+                ),
+              ],
+            ),
           ),
         ),
       ),

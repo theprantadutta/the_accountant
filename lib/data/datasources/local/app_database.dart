@@ -62,162 +62,11 @@ class AppDatabase extends _$AppDatabase {
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
-        onCreate: (m) => m.createAll(),
-        onUpgrade: (m, from, to) async {
-          if (from < 2) {
-            // Create new tables
-            await m.createTable(recurringConfigs);
-            await m.createTable(objectives);
-            await m.createTable(objectiveTransactions);
-            await m.createTable(associatedTitles);
-            await m.createTable(syncStates);
-
-            // Add new columns to categories
-            await m.addColumn(categories, categories.iconName);
-            await m.addColumn(categories, categories.color);
-            await m.addColumn(categories, categories.mainCategoryId);
-            await m.addColumn(categories, categories.isIncome);
-            await m.addColumn(categories, categories.orderIndex);
-            await m.addColumn(categories, categories.serverId);
-            await m.addColumn(categories, categories.syncStatus);
-            await m.addColumn(categories, categories.createdAt);
-            await m.addColumn(categories, categories.updatedAt);
-            await m.addColumn(categories, categories.deletedAt);
-
-            // Add new columns to wallets
-            await m.addColumn(wallets, wallets.iconName);
-            await m.addColumn(wallets, wallets.color);
-            await m.addColumn(wallets, wallets.isDefault);
-            await m.addColumn(wallets, wallets.orderIndex);
-            await m.addColumn(wallets, wallets.serverId);
-            await m.addColumn(wallets, wallets.syncStatus);
-            await m.addColumn(wallets, wallets.createdAt);
-            await m.addColumn(wallets, wallets.updatedAt);
-            await m.addColumn(wallets, wallets.deletedAt);
-
-            // Add new columns to transactions
-            await m.addColumn(transactions, transactions.title);
-            await m.addColumn(transactions, transactions.isIncome);
-            await m.addColumn(transactions, transactions.transactionType);
-            await m.addColumn(transactions, transactions.paymentMethodId);
-            await m.addColumn(transactions, transactions.pairedTransactionId);
-            await m.addColumn(transactions, transactions.recurringConfigId);
-            await m.addColumn(transactions, transactions.receiptImageUrl);
-            await m.addColumn(transactions, transactions.serverId);
-            await m.addColumn(transactions, transactions.syncStatus);
-            await m.addColumn(transactions, transactions.deletedAt);
-
-            // Add new columns to budgets
-            await m.addColumn(budgets, budgets.amount);
-            await m.addColumn(budgets, budgets.walletIds);
-            await m.addColumn(budgets, budgets.categoryIds);
-            await m.addColumn(budgets, budgets.isIncome);
-            await m.addColumn(budgets, budgets.isPinned);
-            await m.addColumn(budgets, budgets.isArchived);
-            await m.addColumn(budgets, budgets.serverId);
-            await m.addColumn(budgets, budgets.syncStatus);
-            await m.addColumn(budgets, budgets.deletedAt);
-
-            // Add new columns to payment_methods
-            await m.addColumn(paymentMethods, paymentMethods.iconName);
-            await m.addColumn(paymentMethods, paymentMethods.serverId);
-            await m.addColumn(paymentMethods, paymentMethods.syncStatus);
-            await m.addColumn(paymentMethods, paymentMethods.deletedAt);
-          }
-          if (from < 3) {
-            // Add special transaction type columns (Cashew parity)
-            await m.addColumn(transactions, transactions.specialType);
-            await m.addColumn(transactions, transactions.isPaid);
-            await m.addColumn(transactions, transactions.originalDueDate);
-            await m.addColumn(transactions, transactions.skipPaid);
-          }
-          if (from < 4) {
-            // Add exchange rates table for multi-currency support
-            await m.createTable(exchangeRates);
-          }
-          if (from < 5) {
-            // Migration v5: Standardize on isIncome field, deprecate legacy type fields
-            // Auto-convert transactions: set isIncome based on amount sign
-            // Positive amount = income, Negative amount = expense
-            await customStatement('''
-              UPDATE transactions
-              SET is_income = CASE
-                WHEN amount >= 0 THEN 1
-                ELSE 0
-              END
-              WHERE is_income IS NULL OR type = 'regular'
-            ''');
-
-            // Auto-convert categories: set isIncome based on legacy type field
-            await customStatement('''
-              UPDATE categories
-              SET is_income = CASE
-                WHEN type = 'income' THEN 1
-                ELSE 0
-              END
-              WHERE is_income IS NULL AND type IS NOT NULL
-            ''');
-
-            // Ensure all categories have isIncome set (default to expense if not set)
-            await customStatement('''
-              UPDATE categories
-              SET is_income = 0
-              WHERE is_income IS NULL
-            ''');
-          }
-          if (from < 6) {
-            // Add budget and objective assignment to transactions
-            await m.addColumn(transactions, transactions.budgetId);
-            await m.addColumn(transactions, transactions.objectiveId);
-          }
-          if (from < 7) {
-            // Add new settings columns for regional and security settings
-            await m.addColumn(settings, settings.dateFormat);
-            await m.addColumn(settings, settings.numberFormat);
-            await m.addColumn(settings, settings.biometricLockEnabled);
-            await m.addColumn(settings, settings.autoLockTimeoutMinutes);
-          }
-          if (from < 8) {
-            // Add useDecimals column to wallets for per-wallet decimal display preference
-            await m.addColumn(wallets, wallets.useDecimals);
-          }
-          if (from < 9) {
-            // Add wallet type columns
-            await m.addColumn(wallets, wallets.walletType);
-            await m.addColumn(wallets, wallets.creditLimit);
-            await m.addColumn(wallets, wallets.billingCycleDay);
-            // Add paidAmount column for partial loan payments
-            await m.addColumn(transactions, transactions.paidAmount);
-
-            // Seed loan categories for existing users
-            final now = DateTime.now().toIso8601String();
-            // Expense: Loan
-            await customStatement('''
-              INSERT INTO categories (id, name, icon_name, color, is_income, is_default, order_index, created_at, updated_at, sync_status)
-              SELECT 'default-loan-expense', 'Loan', 'account_balance', '#E57373', 0, 1, 14, '$now', '$now', 0
-              WHERE NOT EXISTS (SELECT 1 FROM categories WHERE name = 'Loan' AND is_income = 0 AND deleted_at IS NULL)
-            ''');
-            // Expense: Loan Payment
-            await customStatement('''
-              INSERT INTO categories (id, name, icon_name, color, is_income, is_default, order_index, created_at, updated_at, sync_status)
-              SELECT 'default-loan-payment', 'Loan Payment', 'payments', '#EF9A9A', 0, 1, 15, '$now', '$now', 0
-              WHERE NOT EXISTS (SELECT 1 FROM categories WHERE name = 'Loan Payment' AND is_income = 0 AND deleted_at IS NULL)
-            ''');
-            // Income: Loan
-            await customStatement('''
-              INSERT INTO categories (id, name, icon_name, color, is_income, is_default, order_index, created_at, updated_at, sync_status)
-              SELECT 'default-loan-income', 'Loan', 'account_balance', '#81C784', 1, 1, 8, '$now', '$now', 0
-              WHERE NOT EXISTS (SELECT 1 FROM categories WHERE name = 'Loan' AND is_income = 1 AND deleted_at IS NULL)
-            ''');
-            // Income: Loan Received
-            await customStatement('''
-              INSERT INTO categories (id, name, icon_name, color, is_income, is_default, order_index, created_at, updated_at, sync_status)
-              SELECT 'default-loan-received', 'Loan Received', 'payments', '#A5D6A7', 1, 1, 9, '$now', '$now', 0
-              WHERE NOT EXISTS (SELECT 1 FROM categories WHERE name = 'Loan Received' AND is_income = 1 AND deleted_at IS NULL)
-            ''');
-          }
-        },
-      );
+    onCreate: (m) => m.createAll(),
+    onUpgrade: (m, from, to) async {
+      // Handle database migrations here
+    },
+  );
 
   // ============================================================
   // Settings DAO methods
@@ -233,15 +82,18 @@ class AppDatabase extends _$AppDatabase {
   // ============================================================
   // Transaction DAO methods
   // ============================================================
-  Future<List<Transaction>> getAllTransactions() => (select(transactions)
-        ..where((t) => t.deletedAt.isNull()))
-      .get();
+  Future<List<Transaction>> getAllTransactions() =>
+      (select(transactions)..where((t) => t.deletedAt.isNull())).get();
 
   /// Get all transactions with category names via JOIN
   /// Returns a list of maps containing transaction data and resolved category info
-  Future<List<Map<String, dynamic>>> getAllTransactionsWithCategoryName() async {
+  Future<List<Map<String, dynamic>>>
+  getAllTransactionsWithCategoryName() async {
     final query = select(transactions).join([
-      leftOuterJoin(categories, categories.id.equalsExp(transactions.categoryId)),
+      leftOuterJoin(
+        categories,
+        categories.id.equalsExp(transactions.categoryId),
+      ),
     ]);
 
     query.where(transactions.deletedAt.isNull());
@@ -291,18 +143,20 @@ class AppDatabase extends _$AppDatabase {
           .get();
 
   /// Get all income transactions
-  Future<List<Transaction>> getIncomeTransactions() => (select(transactions)
-        ..where((t) => t.isIncome.equals(true))
-        ..where((t) => t.deletedAt.isNull())
-        ..orderBy([(t) => OrderingTerm.desc(t.date)]))
-      .get();
+  Future<List<Transaction>> getIncomeTransactions() =>
+      (select(transactions)
+            ..where((t) => t.isIncome.equals(true))
+            ..where((t) => t.deletedAt.isNull())
+            ..orderBy([(t) => OrderingTerm.desc(t.date)]))
+          .get();
 
   /// Get all expense transactions
-  Future<List<Transaction>> getExpenseTransactions() => (select(transactions)
-        ..where((t) => t.isIncome.equals(false))
-        ..where((t) => t.deletedAt.isNull())
-        ..orderBy([(t) => OrderingTerm.desc(t.date)]))
-      .get();
+  Future<List<Transaction>> getExpenseTransactions() =>
+      (select(transactions)
+            ..where((t) => t.isIncome.equals(false))
+            ..where((t) => t.deletedAt.isNull())
+            ..orderBy([(t) => OrderingTerm.desc(t.date)]))
+          .get();
 
   Future<List<Transaction>> getTransactionsByCategory(String categoryId) =>
       (select(transactions)
@@ -330,9 +184,9 @@ class AppDatabase extends _$AppDatabase {
           .get();
 
   /// Get transactions that need to be synced
-  Future<List<Transaction>> getPendingSyncTransactions() =>
-      (select(transactions)..where((t) => t.syncStatus.isBiggerThanValue(0)))
-          .get();
+  Future<List<Transaction>> getPendingSyncTransactions() => (select(
+    transactions,
+  )..where((t) => t.syncStatus.isBiggerThanValue(0))).get();
 
   /// Get recurring transaction instances
   Future<List<Transaction>> getRecurringInstances(String recurringConfigId) =>
@@ -342,40 +196,49 @@ class AppDatabase extends _$AppDatabase {
           .get();
 
   /// Get upcoming (unpaid future) transactions
-  Future<List<Transaction>> getUpcomingTransactions() => (select(transactions)
-        ..where((t) => t.isPaid.equals(false))
-        ..where((t) => t.date.isBiggerThanValue(DateTime.now()))
-        ..where((t) => t.deletedAt.isNull())
-        ..orderBy([(t) => OrderingTerm.asc(t.date)]))
-      .get();
+  Future<List<Transaction>> getUpcomingTransactions() =>
+      (select(transactions)
+            ..where((t) => t.isPaid.equals(false))
+            ..where((t) => t.date.isBiggerThanValue(DateTime.now()))
+            ..where((t) => t.deletedAt.isNull())
+            ..orderBy([(t) => OrderingTerm.asc(t.date)]))
+          .get();
 
   /// Get overdue (unpaid past) transactions
-  Future<List<Transaction>> getOverdueTransactions() => (select(transactions)
-        ..where((t) => t.isPaid.equals(false))
-        ..where((t) => t.date.isSmallerThanValue(DateTime.now()))
-        ..where((t) => t.deletedAt.isNull())
-        ..orderBy([(t) => OrderingTerm.asc(t.date)]))
-      .get();
+  Future<List<Transaction>> getOverdueTransactions() =>
+      (select(transactions)
+            ..where((t) => t.isPaid.equals(false))
+            ..where((t) => t.date.isSmallerThanValue(DateTime.now()))
+            ..where((t) => t.deletedAt.isNull())
+            ..orderBy([(t) => OrderingTerm.asc(t.date)]))
+          .get();
 
   /// Get credit transactions (money lent - they owe you)
-  Future<List<Transaction>> getCreditTransactions() => (select(transactions)
-        ..where((t) => t.specialType.equals(4)) // TransactionSpecialType.credit index
-        ..where((t) => t.deletedAt.isNull())
-        ..orderBy([(t) => OrderingTerm.desc(t.date)]))
-      .get();
+  Future<List<Transaction>> getCreditTransactions() =>
+      (select(transactions)
+            ..where(
+              (t) => t.specialType.equals(4),
+            ) // TransactionSpecialType.credit index
+            ..where((t) => t.deletedAt.isNull())
+            ..orderBy([(t) => OrderingTerm.desc(t.date)]))
+          .get();
 
   /// Get debt transactions (money borrowed - you owe them)
-  Future<List<Transaction>> getDebtTransactions() => (select(transactions)
-        ..where((t) => t.specialType.equals(5)) // TransactionSpecialType.debt index
-        ..where((t) => t.deletedAt.isNull())
-        ..orderBy([(t) => OrderingTerm.desc(t.date)]))
-      .get();
+  Future<List<Transaction>> getDebtTransactions() =>
+      (select(transactions)
+            ..where(
+              (t) => t.specialType.equals(5),
+            ) // TransactionSpecialType.debt index
+            ..where((t) => t.deletedAt.isNull())
+            ..orderBy([(t) => OrderingTerm.desc(t.date)]))
+          .get();
 
   /// Get all credit and debt transactions
   Future<List<Transaction>> getCreditDebtTransactions() async {
     final query = select(transactions)
-      ..where((t) =>
-          t.specialType.equals(4) | t.specialType.equals(5)) // credit or debt
+      ..where(
+        (t) => t.specialType.equals(4) | t.specialType.equals(5),
+      ) // credit or debt
       ..where((t) => t.deletedAt.isNull())
       ..orderBy([(t) => OrderingTerm.desc(t.date)]);
     return query.get();
@@ -384,8 +247,9 @@ class AppDatabase extends _$AppDatabase {
   /// Get unpaid credit/debt transactions
   Future<List<Transaction>> getUnpaidCreditDebtTransactions() async {
     final query = select(transactions)
-      ..where((t) =>
-          t.specialType.equals(4) | t.specialType.equals(5)) // credit or debt
+      ..where(
+        (t) => t.specialType.equals(4) | t.specialType.equals(5),
+      ) // credit or debt
       ..where((t) => t.isPaid.equals(false))
       ..where((t) => t.deletedAt.isNull())
       ..orderBy([(t) => OrderingTerm.desc(t.date)]);
@@ -393,11 +257,14 @@ class AppDatabase extends _$AppDatabase {
   }
 
   /// Get subscription transactions
-  Future<List<Transaction>> getSubscriptionTransactions() => (select(transactions)
-        ..where((t) => t.specialType.equals(2)) // TransactionSpecialType.subscription
-        ..where((t) => t.deletedAt.isNull())
-        ..orderBy([(t) => OrderingTerm.desc(t.date)]))
-      .get();
+  Future<List<Transaction>> getSubscriptionTransactions() =>
+      (select(transactions)
+            ..where(
+              (t) => t.specialType.equals(2),
+            ) // TransactionSpecialType.subscription
+            ..where((t) => t.deletedAt.isNull())
+            ..orderBy([(t) => OrderingTerm.desc(t.date)]))
+          .get();
 
   /// Mark transaction as paid
   Future<void> markTransactionAsPaid(String id, {DateTime? paymentDate}) async {
@@ -472,18 +339,23 @@ class AppDatabase extends _$AppDatabase {
   Future<int> deleteBudget(String id) =>
       (delete(budgets)..where((b) => b.id.equals(id))).go();
 
-  Future<List<Budget>> getActiveBudgets() => (select(budgets)
-        ..where((b) => b.startDate.isSmallerThanValue(DateTime.now()))
-        ..where(
-            (b) => b.endDate.isNull() | b.endDate.isBiggerThanValue(DateTime.now()))
-        ..where((b) => b.isArchived.equals(false))
-        ..where((b) => b.deletedAt.isNull()))
-      .get();
+  Future<List<Budget>> getActiveBudgets() =>
+      (select(budgets)
+            ..where((b) => b.startDate.isSmallerThanValue(DateTime.now()))
+            ..where(
+              (b) =>
+                  b.endDate.isNull() |
+                  b.endDate.isBiggerThanValue(DateTime.now()),
+            )
+            ..where((b) => b.isArchived.equals(false))
+            ..where((b) => b.deletedAt.isNull()))
+          .get();
 
-  Future<List<Budget>> getPinnedBudgets() => (select(budgets)
-        ..where((b) => b.isPinned.equals(true))
-        ..where((b) => b.deletedAt.isNull()))
-      .get();
+  Future<List<Budget>> getPinnedBudgets() =>
+      (select(budgets)
+            ..where((b) => b.isPinned.equals(true))
+            ..where((b) => b.deletedAt.isNull()))
+          .get();
 
   // ============================================================
   // Category DAO methods
@@ -511,25 +383,28 @@ class AppDatabase extends _$AppDatabase {
           .get();
 
   /// Get income categories
-  Future<List<Category>> getIncomeCategories() => (select(categories)
-        ..where((c) => c.isIncome.equals(true))
-        ..where((c) => c.deletedAt.isNull())
-        ..orderBy([(c) => OrderingTerm.asc(c.orderIndex)]))
-      .get();
+  Future<List<Category>> getIncomeCategories() =>
+      (select(categories)
+            ..where((c) => c.isIncome.equals(true))
+            ..where((c) => c.deletedAt.isNull())
+            ..orderBy([(c) => OrderingTerm.asc(c.orderIndex)]))
+          .get();
 
   /// Get expense categories
-  Future<List<Category>> getExpenseCategories() => (select(categories)
-        ..where((c) => c.isIncome.equals(false))
-        ..where((c) => c.deletedAt.isNull())
-        ..orderBy([(c) => OrderingTerm.asc(c.orderIndex)]))
-      .get();
+  Future<List<Category>> getExpenseCategories() =>
+      (select(categories)
+            ..where((c) => c.isIncome.equals(false))
+            ..where((c) => c.deletedAt.isNull())
+            ..orderBy([(c) => OrderingTerm.asc(c.orderIndex)]))
+          .get();
 
   /// Get main categories (no parent)
-  Future<List<Category>> getMainCategories() => (select(categories)
-        ..where((c) => c.mainCategoryId.isNull())
-        ..where((c) => c.deletedAt.isNull())
-        ..orderBy([(c) => OrderingTerm.asc(c.orderIndex)]))
-      .get();
+  Future<List<Category>> getMainCategories() =>
+      (select(categories)
+            ..where((c) => c.mainCategoryId.isNull())
+            ..where((c) => c.deletedAt.isNull())
+            ..orderBy([(c) => OrderingTerm.asc(c.orderIndex)]))
+          .get();
 
   /// Get subcategories for a main category
   Future<List<Category>> getSubcategories(String mainCategoryId) =>
@@ -545,37 +420,45 @@ class AppDatabase extends _$AppDatabase {
     final now = DateTime.now();
 
     // Create Transfer category if it doesn't exist
-    final transferCategory = await findCategoryById(SystemCategories.transferCategoryId);
+    final transferCategory = await findCategoryById(
+      SystemCategories.transferCategoryId,
+    );
     if (transferCategory == null) {
-      await into(categories).insert(CategoriesCompanion(
-        id: const Value(SystemCategories.transferCategoryId),
-        name: const Value('Transfer'),
-        iconName: const Value('swap_horiz'),
-        color: const Value('#9E9E9E'),
-        isIncome: const Value(false), // Treated as expense category
-        isDefault: const Value(true),
-        orderIndex: const Value(-1), // System categories at the end
-        createdAt: Value(now),
-        updatedAt: Value(now),
-        syncStatus: const Value(SyncStatus.synced),
-      ));
+      await into(categories).insert(
+        CategoriesCompanion(
+          id: const Value(SystemCategories.transferCategoryId),
+          name: const Value('Transfer'),
+          iconName: const Value('swap_horiz'),
+          color: const Value('#9E9E9E'),
+          isIncome: const Value(false), // Treated as expense category
+          isDefault: const Value(true),
+          orderIndex: const Value(-1), // System categories at the end
+          createdAt: Value(now),
+          updatedAt: Value(now),
+          syncStatus: const Value(SyncStatus.synced),
+        ),
+      );
     }
 
     // Create Balance Correction category if it doesn't exist
-    final correctionCategory = await findCategoryById(SystemCategories.balanceCorrectionCategoryId);
+    final correctionCategory = await findCategoryById(
+      SystemCategories.balanceCorrectionCategoryId,
+    );
     if (correctionCategory == null) {
-      await into(categories).insert(CategoriesCompanion(
-        id: const Value(SystemCategories.balanceCorrectionCategoryId),
-        name: const Value('Balance Correction'),
-        iconName: const Value('tune'),
-        color: const Value('#607D8B'),
-        isIncome: const Value(false),
-        isDefault: const Value(true),
-        orderIndex: const Value(-2),
-        createdAt: Value(now),
-        updatedAt: Value(now),
-        syncStatus: const Value(SyncStatus.synced),
-      ));
+      await into(categories).insert(
+        CategoriesCompanion(
+          id: const Value(SystemCategories.balanceCorrectionCategoryId),
+          name: const Value('Balance Correction'),
+          iconName: const Value('tune'),
+          color: const Value('#607D8B'),
+          isIncome: const Value(false),
+          isDefault: const Value(true),
+          orderIndex: const Value(-2),
+          createdAt: Value(now),
+          updatedAt: Value(now),
+          syncStatus: const Value(SyncStatus.synced),
+        ),
+      );
     }
   }
 
@@ -597,10 +480,11 @@ class AppDatabase extends _$AppDatabase {
       (delete(wallets)..where((w) => w.id.equals(id))).go();
 
   /// FIXED: Was incorrectly filtering by balance.equals(0.0)
-  Future<List<Wallet>> getDefaultWallets() => (select(wallets)
-        ..where((w) => w.isDefault.equals(true))
-        ..where((w) => w.deletedAt.isNull()))
-      .get();
+  Future<List<Wallet>> getDefaultWallets() =>
+      (select(wallets)
+            ..where((w) => w.isDefault.equals(true))
+            ..where((w) => w.deletedAt.isNull()))
+          .get();
 
   /// Update wallet balance
   Future<void> updateWalletBalance(String walletId, double newBalance) async {
@@ -618,9 +502,9 @@ class AppDatabase extends _$AppDatabase {
   // ============================================================
   Future<List<UserProfile>> getAllUserProfiles() => select(userProfiles).get();
 
-  Future<UserProfile?> findUserProfileById(String userId) =>
-      (select(userProfiles)..where((u) => u.userId.equals(userId)))
-          .getSingleOrNull();
+  Future<UserProfile?> findUserProfileById(String userId) => (select(
+    userProfiles,
+  )..where((u) => u.userId.equals(userId))).getSingleOrNull();
 
   Future<int> addUserProfile(UserProfilesCompanion entry) =>
       into(userProfiles).insert(entry);
@@ -637,9 +521,9 @@ class AppDatabase extends _$AppDatabase {
   Future<List<RecurringConfig>> getAllRecurringConfigs() =>
       select(recurringConfigs).get();
 
-  Future<RecurringConfig?> findRecurringConfigById(String id) =>
-      (select(recurringConfigs)..where((r) => r.id.equals(id)))
-          .getSingleOrNull();
+  Future<RecurringConfig?> findRecurringConfigById(String id) => (select(
+    recurringConfigs,
+  )..where((r) => r.id.equals(id))).getSingleOrNull();
 
   Future<int> addRecurringConfig(RecurringConfigsCompanion entry) =>
       into(recurringConfigs).insert(entry);
@@ -658,12 +542,17 @@ class AppDatabase extends _$AppDatabase {
   Future<List<RecurringConfig>> getDueRecurringConfigs() =>
       (select(recurringConfigs)
             ..where((r) => r.isActive.equals(true))
-            ..where((r) => r.nextOccurrence.isSmallerOrEqualValue(DateTime.now())))
+            ..where(
+              (r) => r.nextOccurrence.isSmallerOrEqualValue(DateTime.now()),
+            ))
           .get();
 
   /// Update next occurrence after processing
   Future<void> updateNextOccurrence(
-      String id, DateTime nextOccurrence, bool isActive) async {
+    String id,
+    DateTime nextOccurrence,
+    bool isActive,
+  ) async {
     await (update(recurringConfigs)..where((r) => r.id.equals(id))).write(
       RecurringConfigsCompanion(
         nextOccurrence: Value(nextOccurrence),
@@ -693,54 +582,61 @@ class AppDatabase extends _$AppDatabase {
       (delete(objectives)..where((o) => o.id.equals(id))).go();
 
   /// Get active (non-archived) objectives
-  Future<List<Objective>> getActiveObjectives() => (select(objectives)
-        ..where((o) => o.isArchived.equals(false))
-        ..where((o) => o.deletedAt.isNull()))
-      .get();
+  Future<List<Objective>> getActiveObjectives() =>
+      (select(objectives)
+            ..where((o) => o.isArchived.equals(false))
+            ..where((o) => o.deletedAt.isNull()))
+          .get();
 
   /// Get pinned objectives
-  Future<List<Objective>> getPinnedObjectives() => (select(objectives)
-        ..where((o) => o.isPinned.equals(true))
-        ..where((o) => o.deletedAt.isNull()))
-      .get();
+  Future<List<Objective>> getPinnedObjectives() =>
+      (select(objectives)
+            ..where((o) => o.isPinned.equals(true))
+            ..where((o) => o.deletedAt.isNull()))
+          .get();
 
   /// Get goals (saving type objectives)
-  Future<List<Objective>> getGoals() => (select(objectives)
-        ..where((o) => o.type.equals('goal'))
-        ..where((o) => o.deletedAt.isNull()))
-      .get();
+  Future<List<Objective>> getGoals() =>
+      (select(objectives)
+            ..where((o) => o.type.equals('goal'))
+            ..where((o) => o.deletedAt.isNull()))
+          .get();
 
   /// Get loans (debt type objectives)
-  Future<List<Objective>> getLoans() => (select(objectives)
-        ..where((o) => o.type.equals('loan'))
-        ..where((o) => o.deletedAt.isNull()))
-      .get();
+  Future<List<Objective>> getLoans() =>
+      (select(objectives)
+            ..where((o) => o.type.equals('loan'))
+            ..where((o) => o.deletedAt.isNull()))
+          .get();
 
   // ============================================================
   // Objective Transaction DAO methods
   // ============================================================
   Future<List<ObjectiveTransaction>> getObjectiveTransactions(
-          String objectiveId) =>
-      (select(objectiveTransactions)
-            ..where((ot) => ot.objectiveId.equals(objectiveId)))
-          .get();
+    String objectiveId,
+  ) => (select(
+    objectiveTransactions,
+  )..where((ot) => ot.objectiveId.equals(objectiveId))).get();
 
   Future<int> addObjectiveTransaction(ObjectiveTransactionsCompanion entry) =>
       into(objectiveTransactions).insert(entry);
 
   Future<int> removeObjectiveTransaction(
-          String objectiveId, String transactionId) =>
-      (delete(objectiveTransactions)
-            ..where((ot) =>
+    String objectiveId,
+    String transactionId,
+  ) =>
+      (delete(objectiveTransactions)..where(
+            (ot) =>
                 ot.objectiveId.equals(objectiveId) &
-                ot.transactionId.equals(transactionId)))
+                ot.transactionId.equals(transactionId),
+          ))
           .go();
 
   /// Get total amount contributed to an objective
   Future<double> getObjectiveProgress(String objectiveId) async {
-    final linkedTransactions = await (select(objectiveTransactions)
-          ..where((ot) => ot.objectiveId.equals(objectiveId)))
-        .get();
+    final linkedTransactions = await (select(
+      objectiveTransactions,
+    )..where((ot) => ot.objectiveId.equals(objectiveId))).get();
 
     double total = 0;
     for (final link in linkedTransactions) {
@@ -758,9 +654,9 @@ class AppDatabase extends _$AppDatabase {
   Future<List<AssociatedTitle>> getAllAssociatedTitles() =>
       select(associatedTitles).get();
 
-  Future<AssociatedTitle?> findAssociatedTitleById(String id) =>
-      (select(associatedTitles)..where((a) => a.id.equals(id)))
-          .getSingleOrNull();
+  Future<AssociatedTitle?> findAssociatedTitleById(String id) => (select(
+    associatedTitles,
+  )..where((a) => a.id.equals(id))).getSingleOrNull();
 
   Future<int> addAssociatedTitle(AssociatedTitlesCompanion entry) =>
       into(associatedTitles).insert(entry);
@@ -779,25 +675,25 @@ class AppDatabase extends _$AppDatabase {
           .getSingleOrNull();
 
   /// Find category suggestion by contains match
-  Future<List<AssociatedTitle>> findContainsTitleMatches() =>
-      (select(associatedTitles)..where((a) => a.isExactMatch.equals(false)))
-          .get();
+  Future<List<AssociatedTitle>> findContainsTitleMatches() => (select(
+    associatedTitles,
+  )..where((a) => a.isExactMatch.equals(false))).get();
 
   /// Get associated titles for a category
   Future<List<AssociatedTitle>> getAssociatedTitlesForCategory(
-          String categoryId) =>
-      (select(associatedTitles)
-            ..where((a) => a.categoryId.equals(categoryId)))
-          .get();
+    String categoryId,
+  ) => (select(
+    associatedTitles,
+  )..where((a) => a.categoryId.equals(categoryId))).get();
 
   // ============================================================
   // Sync State DAO methods
   // ============================================================
   Future<List<SyncState>> getAllSyncStates() => select(syncStates).get();
 
-  Future<SyncState?> getSyncStateForTable(String tableName) =>
-      (select(syncStates)..where((s) => s.syncTableName.equals(tableName)))
-          .getSingleOrNull();
+  Future<SyncState?> getSyncStateForTable(String tableName) => (select(
+    syncStates,
+  )..where((s) => s.syncTableName.equals(tableName))).getSingleOrNull();
 
   Future<int> addSyncState(SyncStatesCompanion entry) =>
       into(syncStates).insert(entry);
@@ -805,8 +701,9 @@ class AppDatabase extends _$AppDatabase {
   Future<void> updateSyncState(String tableName, int serverVersion) async {
     final existing = await getSyncStateForTable(tableName);
     if (existing != null) {
-      await (update(syncStates)..where((s) => s.syncTableName.equals(tableName)))
-          .write(
+      await (update(
+        syncStates,
+      )..where((s) => s.syncTableName.equals(tableName))).write(
         SyncStatesCompanion(
           lastServerVersion: Value(serverVersion),
           lastSyncAt: Value(DateTime.now()),
@@ -814,11 +711,13 @@ class AppDatabase extends _$AppDatabase {
         ),
       );
     } else {
-      await addSyncState(SyncStatesCompanion(
-        syncTableName: Value(tableName),
-        lastServerVersion: Value(serverVersion),
-        lastSyncAt: Value(DateTime.now()),
-      ));
+      await addSyncState(
+        SyncStatesCompanion(
+          syncTableName: Value(tableName),
+          lastServerVersion: Value(serverVersion),
+          lastSyncAt: Value(DateTime.now()),
+        ),
+      );
     }
   }
 
@@ -882,7 +781,10 @@ class AppDatabase extends _$AppDatabase {
       (select(exchangeRates)..where((e) => e.id.equals(id))).getSingleOrNull();
 
   /// Get exchange rate for a specific currency pair
-  Future<ExchangeRate?> getExchangeRate(String fromCurrency, String toCurrency) =>
+  Future<ExchangeRate?> getExchangeRate(
+    String fromCurrency,
+    String toCurrency,
+  ) =>
       (select(exchangeRates)
             ..where((e) => e.fromCurrency.equals(fromCurrency.toUpperCase()))
             ..where((e) => e.toCurrency.equals(toCurrency.toUpperCase())))
@@ -911,12 +813,20 @@ class AppDatabase extends _$AppDatabase {
 
     if (existing != null) {
       // Update existing
-      await (update(exchangeRates)..where((e) => e.id.equals(existing.id))).write(
+      await (update(
+        exchangeRates,
+      )..where((e) => e.id.equals(existing.id))).write(
         ExchangeRatesCompanion(
           apiRate: apiRate != null ? Value(apiRate) : const Value.absent(),
-          customRate: customRate != null ? Value(customRate) : const Value.absent(),
-          useCustomRate: useCustomRate != null ? Value(useCustomRate) : const Value.absent(),
-          apiRateFetchedAt: apiRateFetchedAt != null ? Value(apiRateFetchedAt) : const Value.absent(),
+          customRate: customRate != null
+              ? Value(customRate)
+              : const Value.absent(),
+          useCustomRate: useCustomRate != null
+              ? Value(useCustomRate)
+              : const Value.absent(),
+          apiRateFetchedAt: apiRateFetchedAt != null
+              ? Value(apiRateFetchedAt)
+              : const Value.absent(),
           updatedAt: Value(now),
           syncStatus: const Value(SyncStatus.pendingUpdate),
         ),
@@ -946,15 +856,17 @@ class AppDatabase extends _$AppDatabase {
       (select(exchangeRates)..where((e) => e.useCustomRate.equals(true))).get();
 
   /// Get exchange rates that need to be synced
-  Future<List<ExchangeRate>> getPendingSyncExchangeRates() =>
-      (select(exchangeRates)..where((e) => e.syncStatus.isBiggerThanValue(0)))
-          .get();
+  Future<List<ExchangeRate>> getPendingSyncExchangeRates() => (select(
+    exchangeRates,
+  )..where((e) => e.syncStatus.isBiggerThanValue(0))).get();
 
   /// Clear custom rate and use API rate
   Future<void> clearCustomRate(String fromCurrency, String toCurrency) async {
     final existing = await getExchangeRate(fromCurrency, toCurrency);
     if (existing != null) {
-      await (update(exchangeRates)..where((e) => e.id.equals(existing.id))).write(
+      await (update(
+        exchangeRates,
+      )..where((e) => e.id.equals(existing.id))).write(
         ExchangeRatesCompanion(
           customRate: const Value(null),
           useCustomRate: const Value(false),
@@ -966,7 +878,11 @@ class AppDatabase extends _$AppDatabase {
   }
 
   /// Set a custom rate override
-  Future<void> setCustomRate(String fromCurrency, String toCurrency, double rate) async {
+  Future<void> setCustomRate(
+    String fromCurrency,
+    String toCurrency,
+    double rate,
+  ) async {
     await upsertExchangeRate(
       fromCurrency: fromCurrency,
       toCurrency: toCurrency,
@@ -1049,30 +965,25 @@ class AppDatabase extends _$AppDatabase {
 
   /// Get database statistics for display in settings
   Future<Map<String, int>> getDatabaseStats() async {
-    final transactionCount = await (select(transactions)
-          ..where((t) => t.deletedAt.isNull()))
-        .get()
-        .then((list) => list.length);
+    final transactionCount = await (select(
+      transactions,
+    )..where((t) => t.deletedAt.isNull())).get().then((list) => list.length);
 
-    final categoryCount = await (select(categories)
-          ..where((c) => c.deletedAt.isNull()))
-        .get()
-        .then((list) => list.length);
+    final categoryCount = await (select(
+      categories,
+    )..where((c) => c.deletedAt.isNull())).get().then((list) => list.length);
 
-    final walletCount = await (select(wallets)
-          ..where((w) => w.deletedAt.isNull()))
-        .get()
-        .then((list) => list.length);
+    final walletCount = await (select(
+      wallets,
+    )..where((w) => w.deletedAt.isNull())).get().then((list) => list.length);
 
-    final budgetCount = await (select(budgets)
-          ..where((b) => b.deletedAt.isNull()))
-        .get()
-        .then((list) => list.length);
+    final budgetCount = await (select(
+      budgets,
+    )..where((b) => b.deletedAt.isNull())).get().then((list) => list.length);
 
-    final objectiveCount = await (select(objectives)
-          ..where((o) => o.deletedAt.isNull()))
-        .get()
-        .then((list) => list.length);
+    final objectiveCount = await (select(
+      objectives,
+    )..where((o) => o.deletedAt.isNull())).get().then((list) => list.length);
 
     return {
       'transactions': transactionCount,

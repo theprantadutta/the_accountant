@@ -155,7 +155,9 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
   }
 
   Widget _buildSummaryCard(CreditDebtState state) {
-    final currencyFormat = NumberFormat.currency(symbol: '\$');
+    final displayCurrency = ref.watch(defaultCurrencyProvider);
+    final currencySymbol = CurrencyInfo.getSymbol(displayCurrency);
+    final currencyFormat = NumberFormat.currency(symbol: currencySymbol);
     final netBalance = state.netBalance;
     final isPositive = netBalance >= 0;
     final overdueCount = state.overdueCount;
