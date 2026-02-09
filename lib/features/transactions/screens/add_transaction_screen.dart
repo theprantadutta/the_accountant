@@ -455,10 +455,14 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
       currencySymbol = CurrencyInfo.getSymbol(currentWallet.currency);
     }
 
-    return Scaffold(
-      backgroundColor: AppColors.primaryDark,
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: AppColors.backgroundGradient,
+      ),
+      child: Scaffold(
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
-        backgroundColor: AppColors.primaryDark,
+        backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.close),
@@ -564,6 +568,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
           _buildSaveButton(),
         ],
       ),
+    ),
     );
   }
 
@@ -767,9 +772,9 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.05),
+                color: sectionColor.withValues(alpha: 0.05),
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: AppColors.divider),
+                border: Border.all(color: sectionColor.withValues(alpha: 0.2)),
               ),
               child: Row(
                 children: [
@@ -946,15 +951,17 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
         decoration: InputDecoration(
           hintText: 'Title',
           hintStyle: TextStyle(color: AppColors.textMuted),
+          prefixIcon: Icon(Icons.edit_outlined, color: AppColors.textMuted, size: 20),
+          prefixIconConstraints: const BoxConstraints(minWidth: 48, minHeight: 0),
           filled: true,
-          fillColor: Colors.white.withValues(alpha: 0.05),
+          fillColor: AppColors.primarySurface.withValues(alpha: 0.5),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
-            borderSide: BorderSide.none,
+            borderSide: BorderSide(color: AppColors.glassBorder),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
-            borderSide: BorderSide.none,
+            borderSide: BorderSide(color: AppColors.glassBorder),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
@@ -980,15 +987,20 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
         decoration: InputDecoration(
           hintText: 'Notes (optional)',
           hintStyle: TextStyle(color: AppColors.textMuted),
+          prefixIcon: Padding(
+            padding: const EdgeInsets.only(bottom: 0),
+            child: Icon(Icons.notes_outlined, color: AppColors.textMuted, size: 20),
+          ),
+          prefixIconConstraints: const BoxConstraints(minWidth: 48, minHeight: 0),
           filled: true,
-          fillColor: Colors.white.withValues(alpha: 0.05),
+          fillColor: AppColors.primarySurface.withValues(alpha: 0.5),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
-            borderSide: BorderSide.none,
+            borderSide: BorderSide(color: AppColors.glassBorder),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
-            borderSide: BorderSide.none,
+            borderSide: BorderSide(color: AppColors.glassBorder),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
@@ -1007,8 +1019,8 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.primarySurface,
-        border: Border(top: BorderSide(color: AppColors.divider)),
+        color: Colors.transparent,
+        border: Border(top: BorderSide(color: AppColors.glassBorder)),
       ),
       child: SafeArea(
         top: false,

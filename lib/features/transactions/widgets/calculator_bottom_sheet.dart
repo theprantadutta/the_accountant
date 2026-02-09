@@ -86,8 +86,13 @@ class _AmountInputSheetState extends State<_AmountInputSheet> {
       filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
       child: Container(
         decoration: BoxDecoration(
-          color: AppColors.primaryDark,
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [AppColors.primaryDark, AppColors.primarySurface],
+          ),
           borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+          border: Border(top: BorderSide(color: color.withValues(alpha: 0.3))),
         ),
         child: Padding(
           padding: EdgeInsets.only(

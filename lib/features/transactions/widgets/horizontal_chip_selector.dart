@@ -116,12 +116,12 @@ class _ChipItem extends StatelessWidget {
         decoration: BoxDecoration(
           color: isSelected
               ? color.withValues(alpha: 0.1)
-              : AppColors.primarySurface,
+              : AppColors.glassWhite,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
             color: isSelected
                 ? color.withValues(alpha: 0.5)
-                : AppColors.divider,
+                : AppColors.glassBorder,
             width: 1,
           ),
         ),
