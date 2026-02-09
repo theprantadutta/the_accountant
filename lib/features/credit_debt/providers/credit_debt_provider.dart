@@ -6,6 +6,7 @@ import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
 import 'package:the_accountant/data/models/transaction.dart'
     show TransactionSpecialType;
+import 'package:the_accountant/core/services/reminder_scheduler_service.dart';
 import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
 import 'package:uuid/uuid.dart';
 
@@ -161,6 +162,12 @@ class CreditDebtNotifier extends StateNotifier<CreditDebtState> {
           updatedAt: Value(DateTime.now()),
         ),
       );
+
+      // Cancel any scheduled reminder
+      try {
+        await ReminderSchedulerService().cancelReminder(transactionId);
+      } catch (_) {}
+
       await loadData();
     } catch (e) {
       state = state.copyWith(
@@ -225,6 +232,13 @@ class CreditDebtNotifier extends StateNotifier<CreditDebtState> {
           updatedAt: Value(now),
         ),
       );
+
+      // Cancel reminder if fully paid
+      if (isFullyPaid) {
+        try {
+          await ReminderSchedulerService().cancelReminder(transactionId);
+        } catch (_) {}
+      }
 
       await loadData();
     } catch (e) {

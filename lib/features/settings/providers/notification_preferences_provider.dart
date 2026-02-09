@@ -7,6 +7,7 @@ import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:the_accountant/core/services/api_service.dart';
+import 'package:the_accountant/core/constants/background_task_constants.dart';
 import 'package:the_accountant/core/services/notification_service.dart';
 
 /// Local storage keys for notification preferences
@@ -27,6 +28,8 @@ class _PrefsKeys {
       '${prefix}recurring_reminders_enabled';
   static const String recurringReminderDaysBefore =
       '${prefix}recurring_reminder_days_before';
+  static const String reminderOffset =
+      '${prefix}reminder_offset_minutes';
   static const String subscriptionExpiryAlertsEnabled =
       '${prefix}subscription_expiry_alerts_enabled';
   static const String promotionalNotificationsEnabled =
@@ -49,6 +52,7 @@ class NotificationPreferencesState {
   final double largeTransactionThreshold;
   final bool recurringTransactionRemindersEnabled;
   final int recurringReminderDaysBefore;
+  final int reminderOffsetMinutes;
   final bool subscriptionExpiryAlertsEnabled;
   final bool promotionalNotificationsEnabled;
 
@@ -66,6 +70,7 @@ class NotificationPreferencesState {
     this.largeTransactionThreshold = 500.0,
     this.recurringTransactionRemindersEnabled = false,
     this.recurringReminderDaysBefore = 1,
+    this.reminderOffsetMinutes = BackgroundTaskConstants.defaultOffset,
     this.subscriptionExpiryAlertsEnabled = true,
     this.promotionalNotificationsEnabled = true,
   });
@@ -83,6 +88,7 @@ class NotificationPreferencesState {
     double? largeTransactionThreshold,
     bool? recurringTransactionRemindersEnabled,
     int? recurringReminderDaysBefore,
+    int? reminderOffsetMinutes,
     bool? subscriptionExpiryAlertsEnabled,
     bool? promotionalNotificationsEnabled,
   }) {
@@ -106,6 +112,8 @@ class NotificationPreferencesState {
           this.recurringTransactionRemindersEnabled,
       recurringReminderDaysBefore:
           recurringReminderDaysBefore ?? this.recurringReminderDaysBefore,
+      reminderOffsetMinutes:
+          reminderOffsetMinutes ?? this.reminderOffsetMinutes,
       subscriptionExpiryAlertsEnabled:
           subscriptionExpiryAlertsEnabled ??
           this.subscriptionExpiryAlertsEnabled,
@@ -128,6 +136,7 @@ class NotificationPreferencesState {
     'recurring_transaction_reminders_enabled':
         recurringTransactionRemindersEnabled,
     'recurring_reminder_days_before': recurringReminderDaysBefore,
+    'reminder_offset_minutes': reminderOffsetMinutes,
     'subscription_expiry_alerts_enabled': subscriptionExpiryAlertsEnabled,
     'promotional_notifications_enabled': promotionalNotificationsEnabled,
   };
@@ -222,6 +231,9 @@ class NotificationPreferencesNotifier
               prefs.getBool(_PrefsKeys.recurringRemindersEnabled) ?? false,
           recurringReminderDaysBefore:
               prefs.getInt(_PrefsKeys.recurringReminderDaysBefore) ?? 1,
+          reminderOffsetMinutes:
+              prefs.getInt(_PrefsKeys.reminderOffset) ??
+                  BackgroundTaskConstants.defaultOffset,
           subscriptionExpiryAlertsEnabled:
               prefs.getBool(_PrefsKeys.subscriptionExpiryAlertsEnabled) ?? true,
           promotionalNotificationsEnabled:
@@ -291,6 +303,15 @@ class NotificationPreferencesNotifier
         _PrefsKeys.recurringReminderDaysBefore,
         state.recurringReminderDaysBefore,
       );
+      await prefs.setInt(
+        _PrefsKeys.reminderOffset,
+        state.reminderOffsetMinutes,
+      );
+      // Also save to the key used by the background service
+      await prefs.setInt(
+        BackgroundTaskConstants.keyReminderOffset,
+        state.reminderOffsetMinutes,
+      );
       await prefs.setBool(
         _PrefsKeys.subscriptionExpiryAlertsEnabled,
         state.subscriptionExpiryAlertsEnabled,
@@ -340,6 +361,8 @@ class NotificationPreferencesNotifier
       recurringTransactionRemindersEnabled:
           data['recurring_transaction_reminders_enabled'] ?? false,
       recurringReminderDaysBefore: data['recurring_reminder_days_before'] ?? 1,
+      reminderOffsetMinutes: data['reminder_offset_minutes'] ??
+          BackgroundTaskConstants.defaultOffset,
       subscriptionExpiryAlertsEnabled:
           data['subscription_expiry_alerts_enabled'] ?? true,
       promotionalNotificationsEnabled:
@@ -472,6 +495,15 @@ class NotificationPreferencesNotifier
   Future<void> setRecurringReminderDaysBefore(int days) async {
     state = state.copyWith(recurringReminderDaysBefore: days);
     await _updatePreference({'recurring_reminder_days_before': days});
+  }
+
+  /// Set reminder offset in minutes (used by background service).
+  Future<void> setReminderOffset(int minutes) async {
+    state = state.copyWith(reminderOffsetMinutes: minutes);
+    await _updatePreference({'reminder_offset_minutes': minutes});
+    // Also save directly to the background service key
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(BackgroundTaskConstants.keyReminderOffset, minutes);
   }
 
   /// Toggle subscription expiry alerts.

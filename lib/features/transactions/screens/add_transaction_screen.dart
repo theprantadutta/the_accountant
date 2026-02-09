@@ -363,8 +363,9 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
               objectiveId: _selectedObjectiveId,
             );
 
-        // Create RecurringConfig for subscriptions
-        if (_specialType == TransactionSpecialType.subscription &&
+        // Create RecurringConfig for subscriptions and repetitive transactions
+        if ((_specialType == TransactionSpecialType.subscription ||
+                _specialType == TransactionSpecialType.repetitive) &&
             newTransactionId != null) {
           final recurringService = ref.read(recurringServiceProvider);
           await recurringService.createRecurringConfig(
@@ -535,7 +536,8 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                     // Regular transaction sections
                     // Special type chips (Default, Upcoming, Subscription)
                     _buildSpecialTypeChips(),
-                    if (_specialType == TransactionSpecialType.subscription)
+                    if (_specialType == TransactionSpecialType.subscription ||
+                        _specialType == TransactionSpecialType.repetitive)
                       _buildSubscriptionConfigSection(),
                     const SizedBox(height: 16),
 
@@ -570,6 +572,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
       TransactionSpecialType.none,
       TransactionSpecialType.upcoming,
       TransactionSpecialType.subscription,
+      TransactionSpecialType.repetitive,
     ];
 
     // Don't show if a loan type is selected
@@ -609,6 +612,8 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                   return 'Upcoming';
                 case TransactionSpecialType.subscription:
                   return 'Subscription';
+                case TransactionSpecialType.repetitive:
+                  return 'Repetitive';
                 default:
                   return type.label;
               }
@@ -625,6 +630,10 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
   }
 
   Widget _buildSubscriptionConfigSection() {
+    final isRepetitive = _specialType == TransactionSpecialType.repetitive;
+    final sectionColor = isRepetitive ? AppColors.neonBlue : AppColors.neonPurple;
+    final sectionIcon = isRepetitive ? Icons.repeat : Icons.autorenew;
+    final sectionTitle = isRepetitive ? 'Repeat Settings' : 'Subscription Settings';
     final frequencies = ['daily', 'weekly', 'monthly', 'yearly'];
 
     String frequencyLabel(String freq) {
@@ -665,14 +674,14 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
           const SizedBox(height: 16),
           Row(
             children: [
-              Icon(Icons.autorenew, size: 16, color: AppColors.neonPurple),
+              Icon(sectionIcon, size: 16, color: sectionColor),
               const SizedBox(width: 6),
               Text(
-                'Subscription Settings',
+                sectionTitle,
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
-                  color: AppColors.neonPurple,
+                  color: sectionColor,
                 ),
               ),
             ],
@@ -683,7 +692,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
             items: frequencies,
             selectedItem: _subscriptionFrequency,
             labelBuilder: frequencyLabel,
-            colorBuilder: (_) => AppColors.neonPurple,
+            colorBuilder: (_) => sectionColor,
             onSelected: (freq) {
               setState(() => _subscriptionFrequency = freq);
             },

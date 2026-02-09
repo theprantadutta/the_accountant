@@ -5,6 +5,8 @@ import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:the_accountant/core/services/fcm_registration_service.dart';
 import 'package:the_accountant/core/services/daily_reminder_scheduler.dart';
+import 'package:the_accountant/core/constants/background_task_constants.dart';
+import 'package:the_accountant/core/services/notification_action_handler.dart';
 
 class NotificationService {
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
@@ -62,6 +64,7 @@ class NotificationService {
     await _localNotificationsPlugin.initialize(
       settings: initializationSettings,
       onDidReceiveNotificationResponse: _onNotificationTapped,
+      onDidReceiveBackgroundNotificationResponse: onBackgroundNotificationAction,
     );
 
     // Handle foreground messages
@@ -99,7 +102,20 @@ class NotificationService {
   }
 
   /// Handle notification tap from local notification.
+  /// Also handles snooze/skip action buttons when app is in foreground.
   void _onNotificationTapped(NotificationResponse response) {
+    final actionId = response.actionId;
+    if (actionId != null && actionId.isNotEmpty) {
+      // Delegate action button presses to the shared handler
+      if (actionId == BackgroundTaskConstants.actionSnooze1Day ||
+          actionId == BackgroundTaskConstants.actionSnooze1Week ||
+          actionId == BackgroundTaskConstants.actionSnooze1Month ||
+          actionId == BackgroundTaskConstants.actionSkip) {
+        onBackgroundNotificationAction(response);
+        return;
+      }
+    }
+
     _logger.i('Notification tapped: ${response.payload}');
     // Handle navigation based on payload
   }

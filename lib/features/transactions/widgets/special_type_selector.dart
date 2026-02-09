@@ -124,6 +124,7 @@ class SpecialTypeSelector extends StatelessWidget {
     return [
       TransactionSpecialType.none,
       TransactionSpecialType.subscription,
+      TransactionSpecialType.repetitive,
       TransactionSpecialType.upcoming,
       if (isIncome)
         TransactionSpecialType

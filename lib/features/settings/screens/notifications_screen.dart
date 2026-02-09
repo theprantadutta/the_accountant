@@ -5,6 +5,7 @@ import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/core/services/daily_reminder_scheduler.dart';
+import 'package:the_accountant/core/constants/background_task_constants.dart';
 import 'package:the_accountant/features/settings/providers/notification_preferences_provider.dart';
 import 'package:the_accountant/features/settings/widgets/settings_tile.dart';
 
@@ -187,10 +188,10 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                     if (prefsState.recurringTransactionRemindersEnabled)
                       SettingsNavigationTile(
                         icon: Icons.calendar_today,
-                        title: 'Days Before Reminder',
-                        subtitle:
-                            '${prefsState.recurringReminderDaysBefore} day(s) before',
-                        onTap: () => _showDaysBeforeDialog(context),
+                        title: 'Remind Me Before Due Date',
+                        subtitle: BackgroundTaskConstants.offsetLabel(
+                            prefsState.reminderOffsetMinutes),
+                        onTap: () => _showReminderOffsetDialog(context),
                       ),
                   ],
                 ),
@@ -305,26 +306,25 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
     }
   }
 
-  Future<void> _showDaysBeforeDialog(BuildContext context) async {
+  Future<void> _showReminderOffsetDialog(BuildContext context) async {
     final prefsState = ref.read(notificationPreferencesProvider);
-    final List<int> options = [1, 2, 3, 5, 7, 14];
 
     final result = await showDialog<int>(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: AppColors.primarySurface,
-        title: const Text('Days Before Reminder'),
+        title: const Text('Remind Me Before Due Date'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
-          children: options.map((days) {
+          children: BackgroundTaskConstants.offsetOptions.map((minutes) {
             return ListTile(
-              title: Text('$days day${days == 1 ? '' : 's'} before'),
+              title: Text(BackgroundTaskConstants.offsetLabel(minutes)),
               leading: Radio<int>(
-                value: days,
-                groupValue: prefsState.recurringReminderDaysBefore,
+                value: minutes,
+                groupValue: prefsState.reminderOffsetMinutes,
                 onChanged: (value) => Navigator.pop(context, value),
               ),
-              onTap: () => Navigator.pop(context, days),
+              onTap: () => Navigator.pop(context, minutes),
             );
           }).toList(),
         ),
@@ -334,7 +334,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
     if (result != null) {
       await ref
           .read(notificationPreferencesProvider.notifier)
-          .setRecurringReminderDaysBefore(result);
+          .setReminderOffset(result);
     }
   }
 }

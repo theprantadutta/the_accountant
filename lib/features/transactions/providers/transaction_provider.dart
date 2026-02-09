@@ -12,6 +12,7 @@ import 'package:the_accountant/data/datasources/local/app_database.dart'
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
 import 'package:the_accountant/data/models/transaction.dart'
     show TransactionSpecialType;
+import 'package:the_accountant/core/services/reminder_scheduler_service.dart';
 import 'package:the_accountant/features/ai/services/category_assignment_service.dart';
 import 'package:the_accountant/features/settings/providers/settings_provider.dart';
 import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
@@ -317,6 +318,32 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
       _ref.read(financialDataProvider.notifier).refreshData();
       _ref.read(reportsProvider.notifier).loadReportsData();
 
+      // Schedule a due-date reminder for applicable special types
+      if (specialType == TransactionSpecialType.upcoming ||
+          specialType == TransactionSpecialType.credit ||
+          specialType == TransactionSpecialType.debt ||
+          specialType == TransactionSpecialType.subscription ||
+          specialType == TransactionSpecialType.repetitive) {
+        final reminderType = switch (specialType) {
+          TransactionSpecialType.credit => 'credit',
+          TransactionSpecialType.debt => 'debt',
+          TransactionSpecialType.subscription => 'subscription',
+          TransactionSpecialType.repetitive => 'repetitive',
+          _ => 'upcoming',
+        };
+        try {
+          await ReminderSchedulerService().scheduleReminder(
+            transactionId: id,
+            title: title ?? '',
+            amount: amount,
+            type: reminderType,
+            dueDate: originalDueDate ?? dateTime,
+          );
+        } catch (_) {
+          // Non-critical — don't fail the transaction
+        }
+      }
+
       return id; // Return the new transaction ID
     } catch (e) {
       state = state.copyWith(
@@ -465,6 +492,11 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
     state = state.copyWith(isLoading: true);
 
     try {
+      // Cancel any scheduled reminder for this transaction
+      try {
+        await ReminderSchedulerService().cancelReminder(id);
+      } catch (_) {}
+
       // First get the transaction to reverse its effect on wallet
       final transaction = await _db.findTransactionById(id);
       if (transaction != null && transaction.isPaid) {
