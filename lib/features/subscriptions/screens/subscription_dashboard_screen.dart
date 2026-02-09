@@ -28,7 +28,7 @@ class SubscriptionDashboardScreen extends ConsumerWidget {
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
-          title: Text('Subscriptions', style: AppTypography.headlineSmall),
+          title: Text('Recurring', style: AppTypography.headlineSmall),
           leading: IconButton(
             icon: Icon(Icons.arrow_back_ios_new, color: AppColors.textPrimary),
             onPressed: () => Navigator.pop(context),
@@ -38,13 +38,12 @@ class SubscriptionDashboardScreen extends ConsumerWidget {
           onPressed: () async {
             final result = await showAddTransactionScreen(
               context,
-              initialSpecialType: TransactionSpecialType.subscription,
             );
             if (result == true) {
               ref.read(subscriptionDashboardProvider.notifier).refresh();
             }
           },
-          backgroundColor: AppColors.neonPurple,
+          backgroundColor: AppColors.primaryAccent,
           child: const Icon(Icons.add, color: Colors.white),
         ),
         body: state.isLoading
@@ -117,7 +116,7 @@ class SubscriptionDashboardScreen extends ConsumerWidget {
           ),
           AppSpacing.gapLg,
           Text(
-            'No subscriptions',
+            'No subscriptions or bills',
             style: AppTypography.titleMedium.copyWith(
               color: AppColors.textSecondary,
             ),
@@ -126,7 +125,7 @@ class SubscriptionDashboardScreen extends ConsumerWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 32),
             child: Text(
-              'Add subscription transactions with recurring configs to track them here',
+              'Add subscription or recurring bill transactions to track them here',
               style: AppTypography.bodyMedium.copyWith(
                 color: AppColors.textMuted,
               ),
@@ -151,13 +150,13 @@ class SubscriptionDashboardScreen extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(
-                Icons.subscriptions_rounded,
+                Icons.autorenew,
                 color: AppColors.primaryAccent,
                 size: 24,
               ),
               const SizedBox(width: 8),
               Text(
-                'Monthly Cost',
+                'Recurring Cost',
                 style: AppTypography.titleMedium.copyWith(
                   color: AppColors.textSecondary,
                 ),
@@ -236,12 +235,22 @@ class _SubscriptionCard extends ConsumerWidget {
     final walletCurrency = ref.watch(walletCurrencyProvider(item.walletId));
     final symbol = CurrencyInfo.getSymbol(walletCurrency);
     final isPaused = !item.isActive;
+    final isRepetitive =
+        item.specialType == TransactionSpecialType.repetitive;
+    final accentColor =
+        isRepetitive ? AppColors.neonBlue : AppColors.primaryAccent;
+    final cardIcon =
+        isRepetitive ? Icons.repeat : Icons.subscriptions_rounded;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: GlassCard(
         padding: AppSpacing.paddingMd,
-        variant: isPaused ? GlassCardVariant.standard : GlassCardVariant.purple,
+        variant: isPaused
+            ? GlassCardVariant.standard
+            : (isRepetitive
+                ? GlassCardVariant.standard
+                : GlassCardVariant.purple),
         onTap: () async {
           final result = await showEditSubscriptionBottomSheet(
             context,
@@ -261,17 +270,13 @@ class _SubscriptionCard extends ConsumerWidget {
                   height: 44,
                   decoration: BoxDecoration(
                     color:
-                        (isPaused
-                                ? AppColors.textMuted
-                                : AppColors.primaryAccent)
+                        (isPaused ? AppColors.textMuted : accentColor)
                             .withValues(alpha: 0.2),
                     borderRadius: AppSpacing.borderRadiusMd,
                   ),
                   child: Icon(
-                    Icons.subscriptions_rounded,
-                    color: isPaused
-                        ? AppColors.textMuted
-                        : AppColors.primaryAccent,
+                    cardIcon,
+                    color: isPaused ? AppColors.textMuted : accentColor,
                     size: 22,
                   ),
                 ),
@@ -453,7 +458,9 @@ class _SubscriptionCard extends ConsumerWidget {
             ),
             const SizedBox(width: 12),
             Text(
-              'Cancel Subscription',
+              item.specialType == TransactionSpecialType.repetitive
+                  ? 'Cancel Recurring Bill'
+                  : 'Cancel Subscription',
               style: TextStyle(color: AppColors.textPrimary, fontSize: 18),
             ),
           ],
@@ -493,9 +500,11 @@ class _SubscriptionCard extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(8),
               ),
             ),
-            child: const Text(
-              'Cancel Subscription',
-              style: TextStyle(color: Colors.white),
+            child: Text(
+              item.specialType == TransactionSpecialType.repetitive
+                  ? 'Cancel Recurring Bill'
+                  : 'Cancel Subscription',
+              style: const TextStyle(color: Colors.white),
             ),
           ),
         ],

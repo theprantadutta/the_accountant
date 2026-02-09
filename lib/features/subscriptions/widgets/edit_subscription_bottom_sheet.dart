@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/providers/currency_provider.dart';
 import 'package:the_accountant/core/services/currency_service.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
+import 'package:the_accountant/data/models/transaction.dart'
+    show TransactionSpecialType;
 import 'package:the_accountant/features/subscriptions/providers/subscription_dashboard_provider.dart';
 import 'package:the_accountant/features/transactions/providers/transaction_provider.dart'
     hide Transaction;
@@ -67,12 +69,17 @@ class _EditSubscriptionBottomSheetState
     final walletCurrency = ref.read(walletCurrencyProvider(_walletId));
     final currencySymbol = CurrencyInfo.getSymbol(walletCurrency);
 
+    final isRepetitive =
+        widget.item.specialType == TransactionSpecialType.repetitive;
+    final calcAccent =
+        isRepetitive ? AppColors.neonBlue : AppColors.neonPurple;
+
     final amount = await showCalculatorBottomSheet(
       context: context,
       initialAmount: _amount,
       isIncome: widget.item.isIncome,
       currencySymbol: currencySymbol,
-      accentColor: AppColors.neonPurple,
+      accentColor: calcAccent,
     );
 
     if (amount != null) {
@@ -128,6 +135,10 @@ class _EditSubscriptionBottomSheetState
     final walletCurrency = ref.watch(walletCurrencyProvider(_walletId));
     final currencySymbol = CurrencyInfo.getSymbol(walletCurrency);
     final frequencies = ['daily', 'weekly', 'monthly', 'yearly'];
+    final isRepetitive =
+        widget.item.specialType == TransactionSpecialType.repetitive;
+    final accentColor =
+        isRepetitive ? AppColors.neonBlue : AppColors.neonPurple;
 
     String frequencyLabel(String freq) {
       switch (freq) {
@@ -189,10 +200,10 @@ class _EditSubscriptionBottomSheetState
                   color: AppColors.textSecondary,
                   onPressed: () => Navigator.pop(context),
                 ),
-                const Expanded(
+                Expanded(
                   child: Text(
-                    'Edit Subscription',
-                    style: TextStyle(
+                    isRepetitive ? 'Edit Recurring Bill' : 'Edit Subscription',
+                    style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
@@ -280,14 +291,14 @@ class _EditSubscriptionBottomSheetState
                   // Frequency
                   Row(
                     children: [
-                      Icon(Icons.autorenew, size: 16, color: AppColors.neonPurple),
+                      Icon(Icons.autorenew, size: 16, color: accentColor),
                       const SizedBox(width: 6),
                       Text(
                         'Frequency',
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
-                          color: AppColors.neonPurple,
+                          color: accentColor,
                         ),
                       ),
                     ],
@@ -297,7 +308,7 @@ class _EditSubscriptionBottomSheetState
                     items: frequencies,
                     selectedItem: _frequency,
                     labelBuilder: frequencyLabel,
-                    colorBuilder: (_) => AppColors.neonPurple,
+                    colorBuilder: (_) => accentColor,
                     onSelected: (freq) {
                       setState(() => _frequency = freq);
                     },
@@ -463,7 +474,7 @@ class _EditSubscriptionBottomSheetState
                 child: ElevatedButton(
                   onPressed: !_isSaving ? _save : null,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.neonPurple,
+                    backgroundColor: accentColor,
                     foregroundColor: Colors.white,
                     disabledBackgroundColor: AppColors.divider,
                     padding: const EdgeInsets.symmetric(vertical: 16),

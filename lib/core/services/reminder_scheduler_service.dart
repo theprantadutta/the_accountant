@@ -8,7 +8,7 @@ import 'package:the_accountant/core/constants/background_task_constants.dart';
 class ReminderSchedulerService {
   /// Schedule a one-off reminder for a transaction.
   ///
-  /// [type] should be one of: 'upcoming', 'credit', 'debt', 'subscription'.
+  /// [type] should be one of: 'upcoming', 'credit', 'debt', 'subscription', 'repetitive'.
   /// The reminder fires at `dueDate - offsetMinutes` from now.
   Future<void> scheduleReminder({
     required String transactionId,

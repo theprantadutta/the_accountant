@@ -57,8 +57,13 @@ class SubscriptionItem {
   SubscriptionItem({required this.config, required this.baseTransaction});
 
   String get id => config.id;
-  String get name =>
-      baseTransaction.title.isNotEmpty ? baseTransaction.title : 'Subscription';
+  TransactionSpecialType get specialType =>
+      baseTransaction.specialType ?? TransactionSpecialType.subscription;
+  String get name => baseTransaction.title.isNotEmpty
+      ? baseTransaction.title
+      : (specialType == TransactionSpecialType.repetitive
+          ? 'Recurring Bill'
+          : 'Subscription');
   double get amount => baseTransaction.amount;
   bool get isActive => config.isActive;
   bool get isIncome => baseTransaction.isIncome;
@@ -158,10 +163,12 @@ class SubscriptionDashboardNotifier
       final allConfigs = await _recurringService
           .getAllRecurringWithTransactions();
 
-      // Filter to only subscription type transactions
+      // Filter to subscription and repetitive type transactions
       final subscriptionConfigs = allConfigs.where((item) {
         return item.baseTransaction.specialType ==
-            TransactionSpecialType.subscription;
+                TransactionSpecialType.subscription ||
+            item.baseTransaction.specialType ==
+                TransactionSpecialType.repetitive;
       }).toList();
 
       final items = subscriptionConfigs
