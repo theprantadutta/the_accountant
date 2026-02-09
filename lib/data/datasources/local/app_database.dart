@@ -58,13 +58,43 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 9;
+  int get schemaVersion => 10;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
     onCreate: (m) => m.createAll(),
     onUpgrade: (m, from, to) async {
-      // Handle database migrations here
+      if (from < 10) {
+        // Fix credit/debt isIncome values and recalculate wallet balances
+        // Debt (borrowed) transactions should be isIncome=true (money comes IN)
+        await customStatement('''
+          UPDATE transactions
+          SET is_income = 1, updated_at = datetime('now')
+          WHERE special_type = 5 AND is_income = 0 AND deleted_at IS NULL
+        ''');
+
+        // Credit (lent) transactions should be isIncome=false (money goes OUT)
+        await customStatement('''
+          UPDATE transactions
+          SET is_income = 0, updated_at = datetime('now')
+          WHERE special_type = 4 AND is_income = 1 AND deleted_at IS NULL
+        ''');
+
+        // Recalculate all wallet balances from scratch
+        // Count paid transactions + credit/debt (special_type 4=credit, 5=debt)
+        // Skip unpaid upcoming transactions (special_type 1)
+        await customStatement('''
+          UPDATE wallets SET balance = COALESCE(
+            (SELECT SUM(
+              CASE WHEN t.is_income = 1 THEN t.amount ELSE -t.amount END
+            ) FROM transactions t
+            WHERE t.wallet_id = wallets.id
+              AND t.deleted_at IS NULL
+              AND (t.is_paid = 1 OR t.special_type IN (4, 5))),
+            0.0
+          ) WHERE deleted_at IS NULL
+        ''');
+      }
     },
   );
 

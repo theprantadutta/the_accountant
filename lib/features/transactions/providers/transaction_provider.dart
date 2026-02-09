@@ -292,8 +292,14 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
 
       await _db.addTransaction(newTransaction);
 
-      // Update wallet balance (only if transaction is paid)
-      if (effectiveIsPaid) {
+      // Credit/debt always affect balance (money has already moved)
+      // Upcoming only affects balance when paid
+      final shouldUpdateBalance =
+          specialType == TransactionSpecialType.credit ||
+          specialType == TransactionSpecialType.debt ||
+          effectiveIsPaid;
+
+      if (shouldUpdateBalance) {
         await _walletBalanceService.updateBalanceAfterTransaction(
           walletId: walletId,
           amount: amount,

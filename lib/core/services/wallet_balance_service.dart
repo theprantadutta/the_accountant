@@ -1,4 +1,6 @@
 import 'package:the_accountant/data/datasources/local/app_database.dart';
+import 'package:the_accountant/data/models/transaction.dart'
+    show TransactionSpecialType;
 
 /// Service for managing wallet balance calculations and updates.
 /// Ensures wallet balances stay in sync with transactions.
@@ -14,6 +16,13 @@ class WalletBalanceService {
 
     double balance = 0.0;
     for (final transaction in transactions) {
+      // Skip unpaid upcoming transactions (haven't happened yet)
+      // Credit/debt and all other types always count
+      if (!transaction.isPaid &&
+          transaction.specialType == TransactionSpecialType.upcoming) {
+        continue;
+      }
+
       if (transaction.isIncome) {
         balance += transaction.amount.abs();
       } else {

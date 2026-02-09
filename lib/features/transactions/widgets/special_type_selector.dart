@@ -83,9 +83,14 @@ extension TransactionSpecialTypeExtension on TransactionSpecialType {
   }
 
   /// Whether this type starts as unpaid
+  /// Credit/debt do NOT start unpaid - the money movement has already happened
   bool get startsUnpaid {
-    return this == TransactionSpecialType.upcoming ||
-        this == TransactionSpecialType.credit ||
+    return this == TransactionSpecialType.upcoming;
+  }
+
+  /// Whether this is a loan type (credit or debt)
+  bool get isLoanType {
+    return this == TransactionSpecialType.credit ||
         this == TransactionSpecialType.debt;
   }
 }

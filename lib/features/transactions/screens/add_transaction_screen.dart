@@ -327,11 +327,24 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
             );
       } else {
         final isPaid = !_specialType.startsUnpaid;
+
+        // Loan types override isIncome for correct balance direction:
+        // Credit (lent money) = expense (money going OUT of your wallet)
+        // Debt (borrowed money) = income (money coming INTO your wallet)
+        final bool effectiveIsIncome;
+        if (_specialType == TransactionSpecialType.credit) {
+          effectiveIsIncome = false; // Lending = money out
+        } else if (_specialType == TransactionSpecialType.debt) {
+          effectiveIsIncome = true; // Borrowing = money in
+        } else {
+          effectiveIsIncome = _isIncome;
+        }
+
         final newTransactionId = await ref
             .read(transactionProvider.notifier)
             .addTransactionFull(
               amount: _amount,
-              isIncome: _isIncome,
+              isIncome: effectiveIsIncome,
               categoryId: _selectedCategoryId!,
               walletId: _selectedWalletId!,
               dateTime: _selectedDateTime,

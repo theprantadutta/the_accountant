@@ -1,9 +1,12 @@
 import 'package:drift/drift.dart' show Value;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
+import 'package:the_accountant/core/services/wallet_balance_service.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
 import 'package:the_accountant/data/models/transaction.dart'
     show TransactionSpecialType;
+import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
 import 'package:uuid/uuid.dart';
 
 /// State for credit and debt transactions
@@ -78,8 +81,12 @@ class CreditDebtState {
 
 class CreditDebtNotifier extends StateNotifier<CreditDebtState> {
   final AppDatabase _db;
+  final WalletBalanceService _balanceService;
+  final Ref _ref;
 
-  CreditDebtNotifier(this._db) : super(const CreditDebtState()) {
+  CreditDebtNotifier(this._db, this._ref)
+    : _balanceService = WalletBalanceService(_db),
+      super(const CreditDebtState()) {
     loadData();
   }
 
@@ -110,7 +117,37 @@ class CreditDebtNotifier extends StateNotifier<CreditDebtState> {
       final transaction = await _db.findTransactionById(transactionId);
       if (transaction == null) return;
 
-      // Set paidAmount to full amount when marking as settled
+      final isCredit = transaction.specialType == TransactionSpecialType.credit;
+      final remaining = transaction.amount - transaction.paidAmount;
+
+      // If there's remaining unpaid amount, create a payment transaction
+      if (remaining > 0) {
+        final now = DateTime.now();
+        final paymentTransaction = TransactionsCompanion(
+          id: Value(const Uuid().v4()),
+          amount: Value(remaining),
+          title: Value('${isCredit ? "Received" : "Paid"}: ${transaction.title}'),
+          notes: Value('Settlement for ${isCredit ? "credit" : "debt"}: ${transaction.title}'),
+          date: Value(now),
+          isIncome: Value(isCredit),
+          walletId: Value(transaction.walletId),
+          categoryId: Value(transaction.categoryId),
+          syncStatus: const Value(SyncStatus.pendingCreate),
+          createdAt: Value(now),
+          updatedAt: Value(now),
+        );
+        await _db.addTransaction(paymentTransaction);
+
+        // Update wallet balance
+        await _balanceService.updateBalanceAfterTransaction(
+          walletId: transaction.walletId,
+          amount: remaining,
+          isIncome: isCredit,
+        );
+        await _ref.read(walletProvider.notifier).loadWallets();
+      }
+
+      // Mark original as settled
       await (_db.update(
         _db.transactions,
       )..where((t) => t.id.equals(transactionId))).write(
@@ -120,7 +157,6 @@ class CreditDebtNotifier extends StateNotifier<CreditDebtState> {
           originalDueDate: Value(
             transaction.originalDueDate ?? transaction.date,
           ),
-          date: Value(DateTime.now()),
           syncStatus: const Value(SyncStatus.pendingUpdate),
           updatedAt: Value(DateTime.now()),
         ),
@@ -167,6 +203,16 @@ class CreditDebtNotifier extends StateNotifier<CreditDebtState> {
         updatedAt: Value(now),
       );
       await _db.addTransaction(paymentTransaction);
+
+      // Update wallet balance for the payment
+      // Credit repayment = income (getting money back)
+      // Debt repayment = expense (paying money out)
+      await _balanceService.updateBalanceAfterTransaction(
+        walletId: transaction.walletId,
+        amount: paymentAmount,
+        isIncome: isCredit,
+      );
+      await _ref.read(walletProvider.notifier).loadWallets();
 
       // Update the original loan transaction's paidAmount
       await (_db.update(
@@ -232,5 +278,5 @@ class CreditDebtNotifier extends StateNotifier<CreditDebtState> {
 final creditDebtProvider =
     StateNotifierProvider<CreditDebtNotifier, CreditDebtState>((ref) {
       final db = ref.watch(databaseProvider);
-      return CreditDebtNotifier(db);
+      return CreditDebtNotifier(db, ref);
     });
