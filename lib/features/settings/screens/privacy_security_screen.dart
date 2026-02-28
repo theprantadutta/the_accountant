@@ -7,7 +7,7 @@ import 'package:the_accountant/data/datasources/local/database_provider.dart';
 import 'package:the_accountant/features/settings/providers/settings_provider.dart';
 import 'package:the_accountant/features/settings/widgets/settings_tile.dart';
 import 'package:the_accountant/features/settings/widgets/confirmation_dialog.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:the_accountant/features/legal/legal_document_viewer.dart';
 
 class PrivacySecurityScreen extends ConsumerStatefulWidget {
   const PrivacySecurityScreen({super.key});
@@ -312,26 +312,28 @@ class _PrivacySecurityScreenState extends ConsumerState<PrivacySecurityScreen> {
     }
   }
 
-  Future<void> _openPrivacyPolicy() async {
-    final uri = Uri.parse('https://theaccountant.app/privacy');
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } else {
-      if (mounted) {
-        showErrorSnackBar(context, 'Could not open privacy policy');
-      }
-    }
+  void _openPrivacyPolicy() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const LegalDocumentViewer(
+          title: 'Privacy Policy',
+          assetPath: 'assets/legal/privacy.md',
+        ),
+      ),
+    );
   }
 
-  Future<void> _openTermsOfService() async {
-    final uri = Uri.parse('https://theaccountant.app/terms');
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } else {
-      if (mounted) {
-        showErrorSnackBar(context, 'Could not open terms of service');
-      }
-    }
+  void _openTermsOfService() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const LegalDocumentViewer(
+          title: 'Terms of Service',
+          assetPath: 'assets/legal/terms.md',
+        ),
+      ),
+    );
   }
 
   Future<void> _showDeleteAccountDialog() async {

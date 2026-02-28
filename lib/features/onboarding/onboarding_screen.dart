@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:the_accountant/features/authentication/presentation/screens/sign_in_screen.dart';
+import 'package:the_accountant/features/legal/legal_acceptance_screen.dart';
 import 'package:the_accountant/features/settings/screens/theme_selection_screen.dart';
 import 'package:the_accountant/core/utils/animation_utils.dart';
 import 'package:the_accountant/core/themes/app_theme.dart';
 
 class OnboardingScreen extends StatefulWidget {
-  const OnboardingScreen({super.key});
+  final VoidCallback? onComplete;
+
+  const OnboardingScreen({super.key, this.onComplete});
 
   @override
   State<OnboardingScreen> createState() => _OnboardingScreenState();
@@ -341,17 +343,20 @@ class _OnboardingScreenState extends State<OnboardingScreen>
             borderRadius: BorderRadius.circular(16),
             onTap: () {
               if (_currentPage == _onboardingPages.length - 1) {
-                // Navigate to sign in screen
-                Navigator.pushReplacement(
-                  context,
-                  PageRouteBuilder(
-                    pageBuilder: (context, animation, _) =>
-                        const SignInScreen(),
-                    transitionsBuilder: (context, animation, _, child) {
-                      return FadeTransition(opacity: animation, child: child);
-                    },
-                  ),
-                );
+                if (widget.onComplete != null) {
+                  widget.onComplete!();
+                } else {
+                  Navigator.pushReplacement(
+                    context,
+                    PageRouteBuilder(
+                      pageBuilder: (context, animation, _) =>
+                          const LegalAcceptanceScreen(),
+                      transitionsBuilder: (context, animation, _, child) {
+                        return FadeTransition(opacity: animation, child: child);
+                      },
+                    ),
+                  );
+                }
               } else {
                 _pageController.nextPage(
                   duration: const Duration(milliseconds: 400),
@@ -382,15 +387,19 @@ class _OnboardingScreenState extends State<OnboardingScreen>
       animation: _fadeAnimation,
       child: TextButton(
         onPressed: () {
-          Navigator.pushReplacement(
-            context,
-            PageRouteBuilder(
-              pageBuilder: (context, animation, _) => const SignInScreen(),
-              transitionsBuilder: (context, animation, _, child) {
-                return FadeTransition(opacity: animation, child: child);
-              },
-            ),
-          );
+          if (widget.onComplete != null) {
+            widget.onComplete!();
+          } else {
+            Navigator.pushReplacement(
+              context,
+              PageRouteBuilder(
+                pageBuilder: (context, animation, _) => const LegalAcceptanceScreen(),
+                transitionsBuilder: (context, animation, _, child) {
+                  return FadeTransition(opacity: animation, child: child);
+                },
+              ),
+            );
+          }
         },
         child: Text(
           'Skip for now',

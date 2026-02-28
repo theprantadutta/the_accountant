@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
+import 'package:the_accountant/features/legal/legal_document_viewer.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class AboutScreen extends StatelessWidget {
@@ -36,18 +37,37 @@ class AboutScreen extends StatelessWidget {
             _buildLinkTile(
               icon: Icons.privacy_tip_outlined,
               title: 'Privacy Policy',
-              onTap: () => _launchUrl('https://theaccountant.app/privacy'),
+              isExternal: false,
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const LegalDocumentViewer(
+                    title: 'Privacy Policy',
+                    assetPath: 'assets/legal/privacy.md',
+                  ),
+                ),
+              ),
             ),
             _buildDivider(),
             _buildLinkTile(
               icon: Icons.description_outlined,
               title: 'Terms of Service',
-              onTap: () => _launchUrl('https://theaccountant.app/terms'),
+              isExternal: false,
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const LegalDocumentViewer(
+                    title: 'Terms of Service',
+                    assetPath: 'assets/legal/terms.md',
+                  ),
+                ),
+              ),
             ),
             _buildDivider(),
             _buildLinkTile(
               icon: Icons.code,
               title: 'Open Source Licenses',
+              isExternal: false,
               onTap: () => _showLicenses(context),
             ),
           ]),
@@ -174,6 +194,7 @@ class AboutScreen extends StatelessWidget {
     required IconData icon,
     required String title,
     required VoidCallback onTap,
+    bool isExternal = true,
   }) {
     return ListTile(
       leading: Icon(icon, color: AppColors.primaryAccent, size: 22),
@@ -184,7 +205,11 @@ class AboutScreen extends StatelessWidget {
           fontWeight: FontWeight.w500,
         ),
       ),
-      trailing: Icon(Icons.open_in_new, color: AppColors.textMuted, size: 18),
+      trailing: Icon(
+        isExternal ? Icons.open_in_new : Icons.chevron_right,
+        color: AppColors.textMuted,
+        size: 18,
+      ),
       onTap: () {
         HapticFeedback.selectionClick();
         onTap();

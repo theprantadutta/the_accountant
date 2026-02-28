@@ -14,6 +14,9 @@ import 'package:the_accountant/core/services/api_service.dart';
 import 'package:the_accountant/features/premium/providers/premium_provider.dart';
 import 'package:the_accountant/data/models/premium_features.dart';
 import 'package:the_accountant/core/providers/sync_provider.dart';
+import 'package:the_accountant/core/providers/intro_legal_provider.dart';
+import 'package:the_accountant/features/onboarding/onboarding_screen.dart';
+import 'package:the_accountant/features/legal/legal_acceptance_screen.dart';
 
 class AuthWrapper extends ConsumerStatefulWidget {
   const AuthWrapper({super.key});
@@ -188,7 +191,25 @@ class _AuthWrapperState extends ConsumerState<AuthWrapper>
       });
     }
 
-    // If not authenticated, show sign in screen
+    // If not authenticated, check intro/legal flow
+    final introLegalState = ref.watch(introLegalProvider);
+
+    if (!introLegalState.hasSeenIntro) {
+      return OnboardingScreen(
+        onComplete: () {
+          ref.read(introLegalProvider.notifier).markIntroSeen();
+        },
+      );
+    }
+
+    if (!introLegalState.hasAcceptedLegal) {
+      return LegalAcceptanceScreen(
+        onAccepted: () {
+          ref.read(introLegalProvider.notifier).markLegalAccepted();
+        },
+      );
+    }
+
     return const SignInScreen();
   }
 }

@@ -19,7 +19,7 @@ dependencies:
   
   # Database
   drift: ^2.20.0
-  sqlite3_flutter_libs: ^0.5.24
+  sqlite3_flutter_libs: ^0.5.0
   
   # Firebase
   firebase_core: ^4.0.0
@@ -28,6 +28,7 @@ dependencies:
   firebase_messaging: ^16.0.0
   
   # UI/Animations
+  flutter_markdown: ^0.7.6
   flutter_svg: ^2.0.10+1
   lottie: ^3.1.2
   animated_text_kit: ^4.2.2
@@ -42,7 +43,7 @@ dependencies:
   dio: ^5.4.0
   google_sign_in: ^7.1.1
   logger: ^2.0.2
-  googleapis: ^15.0.0
+  googleapis: ^16.0.0
   googleapis_auth: ^2.0.0
   extension_google_sign_in_as_googleapis_auth: ^3.0.0
   
@@ -62,8 +63,8 @@ dependencies:
   share_plus: ^12.0.0
   url_launcher: ^6.3.0
   permission_handler: ^12.0.1
-  flutter_local_notifications: ^20.0.0
-  timezone: ^0.10.0
+  flutter_local_notifications: ^21.0.0-dev.2
+  timezone: ^0.11.0
   flutter_timezone: ^5.0.1
   pdf: ^3.10.8
   printing: ^5.12.6
@@ -98,6 +99,7 @@ flutter:
 
   assets:
     - .env
+    - assets/legal/
   #   - assets/
   #   - assets/animations/
   #   - assets/icons/

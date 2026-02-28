@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/providers/theme_provider.dart';
 import 'package:the_accountant/core/themes/app_theme.dart';
-import 'package:the_accountant/features/onboarding/onboarding_screen.dart';
 import 'package:the_accountant/features/onboarding/screens/post_signup_onboarding_screen.dart';
 import 'package:the_accountant/features/premium/screens/premium_screen.dart';
 import 'package:the_accountant/features/support/screens/support_screen.dart';
@@ -34,7 +33,6 @@ class MyApp extends ConsumerWidget {
       themeMode: ThemeMode.dark,
       home: const AuthWrapper(),
       routes: {
-        '/onboarding': (context) => const OnboardingScreen(),
         '/post-signup-onboarding': (context) =>
             const PostSignupOnboardingScreen(),
         '/signin': (context) => const SignInScreen(),
