@@ -180,132 +180,142 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     required Gradient gradient,
     required bool isThemeSelection,
   }) {
-    return Padding(
-      padding: const EdgeInsets.all(24.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const SizedBox(height: 40),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final availableHeight = constraints.maxHeight - 48; // padding
+        final iconSize = (availableHeight * 0.32).clamp(100.0, 200.0);
+        final iconInnerSize = iconSize * 0.4;
 
-          // Animated floating icon
-          AnimatedBuilder(
-            animation: _floatingAnimation,
-            builder: (context, child) {
-              return Transform.translate(
-                offset: Offset(0, _floatingAnimation.value),
-                child: AnimationUtils.scaleTransition(
-                  animation: _scaleAnimation,
-                  child: AppTheme.gradientContainer(
-                    gradient: gradient,
-                    width: 200,
-                    height: 200,
-                    borderRadius: BorderRadius.circular(32),
-                    child: Center(
-                      child: Icon(icon, size: 80, color: Colors.white),
+        return Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Spacer(flex: 2),
+
+              // Animated floating icon
+              AnimatedBuilder(
+                animation: _floatingAnimation,
+                builder: (context, child) {
+                  return Transform.translate(
+                    offset: Offset(0, _floatingAnimation.value),
+                    child: AnimationUtils.scaleTransition(
+                      animation: _scaleAnimation,
+                      child: AppTheme.gradientContainer(
+                        gradient: gradient,
+                        width: iconSize,
+                        height: iconSize,
+                        borderRadius: BorderRadius.circular(32),
+                        child: Center(
+                          child: Icon(icon, size: iconInnerSize, color: Colors.white),
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-              );
-            },
-          ),
-
-          const SizedBox(height: 60),
-
-          // Animated title
-          AnimationUtils.slideTransition(
-            animation: _slideAnimation,
-            begin: const Offset(0, 0.5),
-            child: Text(
-              title,
-              style: const TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-                height: 1.2,
+                  );
+                },
               ),
-              textAlign: TextAlign.center,
-            ),
-          ),
 
-          const SizedBox(height: 24),
+              const Spacer(flex: 3),
 
-          // Animated description
-          AnimationUtils.slideTransition(
-            animation: _slideAnimation,
-            begin: const Offset(0, 1),
-            child: AppTheme.glassmorphicContainer(
-              child: Padding(
-                padding: const EdgeInsets.all(20),
+              // Animated title
+              AnimationUtils.slideTransition(
+                animation: _slideAnimation,
+                begin: const Offset(0, 0.5),
                 child: Text(
-                  description,
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.white.withValues(alpha: 0.9),
-                    height: 1.5,
+                  title,
+                  style: const TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    height: 1.2,
                   ),
                   textAlign: TextAlign.center,
                 ),
               ),
-            ),
-          ),
 
-          // Special content for theme selection page
-          if (isThemeSelection) ...[
-            const SizedBox(height: 32),
-            AnimationUtils.fadeTransition(
-              animation: _fadeAnimation,
-              child: AppTheme.gradientContainer(
-                gradient: AppTheme.secondaryGradient,
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(16),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        PageRouteBuilder(
-                          pageBuilder: (context, animation, _) =>
-                              const ThemeSelectionScreen(),
-                          transitionsBuilder: (context, animation, _, child) {
-                            return SlideTransition(
-                              position: Tween<Offset>(
-                                begin: const Offset(1.0, 0.0),
-                                end: Offset.zero,
-                              ).animate(animation),
-                              child: child,
-                            );
-                          },
-                        ),
-                      );
-                    },
-                    child: const Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 16,
+              const Spacer(),
+
+              // Animated description
+              AnimationUtils.slideTransition(
+                animation: _slideAnimation,
+                begin: const Offset(0, 1),
+                child: AppTheme.glassmorphicContainer(
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Text(
+                      description,
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.white.withValues(alpha: 0.9),
+                        height: 1.5,
                       ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.brush, color: Colors.white),
-                          SizedBox(width: 8),
-                          Text(
-                            'Explore Themes',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
+                      textAlign: TextAlign.center,
                     ),
                   ),
                 ),
               ),
-            ),
-          ],
-        ],
-      ),
+
+              // Special content for theme selection page
+              if (isThemeSelection) ...[
+                const Spacer(),
+                AnimationUtils.fadeTransition(
+                  animation: _fadeAnimation,
+                  child: AppTheme.gradientContainer(
+                    gradient: AppTheme.secondaryGradient,
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(16),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            PageRouteBuilder(
+                              pageBuilder: (context, animation, _) =>
+                                  const ThemeSelectionScreen(),
+                              transitionsBuilder: (context, animation, _, child) {
+                                return SlideTransition(
+                                  position: Tween<Offset>(
+                                    begin: const Offset(1.0, 0.0),
+                                    end: Offset.zero,
+                                  ).animate(animation),
+                                  child: child,
+                                );
+                              },
+                            ),
+                          );
+                        },
+                        child: const Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 24,
+                            vertical: 16,
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.brush, color: Colors.white),
+                              SizedBox(width: 8),
+                              Text(
+                                'Explore Themes',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+
+              const Spacer(),
+            ],
+          ),
+        );
+      },
     );
   }
 
