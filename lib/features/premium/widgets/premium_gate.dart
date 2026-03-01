@@ -52,9 +52,6 @@ class _PremiumUpgradeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenHeight = MediaQuery.of(context).size.height;
-    final isSmallScreen = screenHeight < 700;
-
     return Scaffold(
       backgroundColor: AppColors.primaryDark,
       extendBodyBehindAppBar: true,
@@ -103,34 +100,29 @@ class _PremiumUpgradeScreen extends StatelessWidget {
 
           // Main content
           SafeArea(
-            child: Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: 24,
-                vertical: isSmallScreen ? 8 : 16,
-              ),
-              child: Column(
-                children: [
-                  // Hero Section - Feature Icon with glow
-                  _buildHeroSection(isSmallScreen),
-
-                  SizedBox(height: isSmallScreen ? 16 : 24),
-
-                  // Feature Info
-                  _buildFeatureInfo(isSmallScreen),
-
-                  SizedBox(height: isSmallScreen ? 16 : 24),
-
-                  // Benefits Grid
-                  _buildBenefitsGrid(isSmallScreen),
-
-                  const Spacer(),
-
-                  // CTA Section
-                  _buildCTASection(context, isSmallScreen),
-
-                  SizedBox(height: isSmallScreen ? 8 : 16),
-                ],
-              ),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final scale =
+                    (constraints.maxHeight / 600).clamp(0.75, 1.0);
+                return Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 16 * scale,
+                  ),
+                  child: Column(
+                    children: [
+                      _buildHeroSection(scale),
+                      SizedBox(height: 20 * scale),
+                      _buildFeatureInfo(scale),
+                      SizedBox(height: 20 * scale),
+                      _buildBenefitsGrid(scale),
+                      const Spacer(),
+                      _buildCTASection(context, scale),
+                      SizedBox(height: 16 * scale),
+                    ],
+                  ),
+                );
+              },
             ),
           ),
         ],
@@ -138,17 +130,17 @@ class _PremiumUpgradeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildHeroSection(bool isSmallScreen) {
-    final iconSize = isSmallScreen ? 80.0 : 100.0;
-    final innerIconSize = isSmallScreen ? 40.0 : 50.0;
+  Widget _buildHeroSection(double scale) {
+    final iconSize = 80.0 * scale;
+    final innerIconSize = 40.0 * scale;
 
     return Stack(
       alignment: Alignment.center,
       children: [
         // Outer glow ring
         Container(
-          width: iconSize + 40,
-          height: iconSize + 40,
+          width: iconSize + 32 * scale,
+          height: iconSize + 32 * scale,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             gradient: RadialGradient(
@@ -179,9 +171,9 @@ class _PremiumUpgradeScreen extends StatelessWidget {
         // Lock badge
         Positioned(
           bottom: 0,
-          right: isSmallScreen ? 0 : 5,
+          right: 5 * scale,
           child: Container(
-            padding: EdgeInsets.all(isSmallScreen ? 6 : 8),
+            padding: EdgeInsets.all(8 * scale),
             decoration: BoxDecoration(
               color: AppColors.primaryDark,
               shape: BoxShape.circle,
@@ -189,7 +181,7 @@ class _PremiumUpgradeScreen extends StatelessWidget {
             ),
             child: Icon(
               Icons.lock_rounded,
-              size: isSmallScreen ? 14 : 16,
+              size: 16 * scale,
               color: AppColors.warning,
             ),
           ),
@@ -198,7 +190,7 @@ class _PremiumUpgradeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildFeatureInfo(bool isSmallScreen) {
+  Widget _buildFeatureInfo(double scale) {
     return Column(
       children: [
         // Premium badge
@@ -232,26 +224,26 @@ class _PremiumUpgradeScreen extends StatelessWidget {
           ),
         ),
 
-        SizedBox(height: isSmallScreen ? 12 : 16),
+        SizedBox(height: 16 * scale),
 
         // Feature name
         Text(
           featureName,
           style: TextStyle(
-            fontSize: isSmallScreen ? 24 : 28,
+            fontSize: 28 * scale,
             fontWeight: FontWeight.bold,
             color: AppColors.textPrimary,
           ),
           textAlign: TextAlign.center,
         ),
 
-        SizedBox(height: isSmallScreen ? 8 : 12),
+        SizedBox(height: 12 * scale),
 
         // Description
         Text(
           featureDescription,
           style: TextStyle(
-            fontSize: isSmallScreen ? 14 : 15,
+            fontSize: 14 + scale,
             color: AppColors.textSecondary,
             height: 1.4,
           ),
@@ -261,7 +253,7 @@ class _PremiumUpgradeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildBenefitsGrid(bool isSmallScreen) {
+  Widget _buildBenefitsGrid(double scale) {
     final benefits = [
       _BenefitItem(
         Icons.smart_toy_outlined,
@@ -274,7 +266,7 @@ class _PremiumUpgradeScreen extends StatelessWidget {
     ];
 
     return Container(
-      padding: EdgeInsets.all(isSmallScreen ? 12 : 16),
+      padding: EdgeInsets.all(16 * scale),
       decoration: BoxDecoration(
         color: AppColors.primarySurface.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(16),
@@ -283,34 +275,34 @@ class _PremiumUpgradeScreen extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: benefits
-            .map((b) => _buildBenefitItem(b, isSmallScreen))
+            .map((b) => _buildBenefitItem(b, scale))
             .toList(),
       ),
     );
   }
 
-  Widget _buildBenefitItem(_BenefitItem benefit, bool isSmallScreen) {
+  Widget _buildBenefitItem(_BenefitItem benefit, double scale) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
-          width: isSmallScreen ? 40 : 48,
-          height: isSmallScreen ? 40 : 48,
+          width: 48 * scale,
+          height: 48 * scale,
           decoration: BoxDecoration(
             color: benefit.color.withValues(alpha: 0.15),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Icon(
             benefit.icon,
-            size: isSmallScreen ? 20 : 24,
+            size: 24 * scale,
             color: benefit.color,
           ),
         ),
-        SizedBox(height: isSmallScreen ? 6 : 8),
+        SizedBox(height: 8 * scale),
         Text(
           benefit.label,
           style: TextStyle(
-            fontSize: isSmallScreen ? 11 : 12,
+            fontSize: 11 + scale,
             fontWeight: FontWeight.w500,
             color: AppColors.textSecondary,
           ),
@@ -319,7 +311,7 @@ class _PremiumUpgradeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCTASection(BuildContext context, bool isSmallScreen) {
+  Widget _buildCTASection(BuildContext context, double scale) {
     return Column(
       children: [
         // Main upgrade button
@@ -330,7 +322,7 @@ class _PremiumUpgradeScreen extends StatelessWidget {
           },
           child: Container(
             width: double.infinity,
-            padding: EdgeInsets.symmetric(vertical: isSmallScreen ? 14 : 16),
+            padding: EdgeInsets.symmetric(vertical: 16 * scale),
             decoration: BoxDecoration(
               gradient: AppColors.primaryGradient,
               borderRadius: BorderRadius.circular(14),
@@ -348,13 +340,13 @@ class _PremiumUpgradeScreen extends StatelessWidget {
                 Icon(
                   Icons.diamond_rounded,
                   color: Colors.white,
-                  size: isSmallScreen ? 20 : 22,
+                  size: 22 * scale,
                 ),
                 const SizedBox(width: 10),
                 Text(
                   'Unlock Premium',
                   style: TextStyle(
-                    fontSize: isSmallScreen ? 16 : 17,
+                    fontSize: 17 * scale,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),
@@ -364,7 +356,7 @@ class _PremiumUpgradeScreen extends StatelessWidget {
           ),
         ),
 
-        SizedBox(height: isSmallScreen ? 10 : 14),
+        SizedBox(height: 14 * scale),
 
         // Pricing hint
         Row(

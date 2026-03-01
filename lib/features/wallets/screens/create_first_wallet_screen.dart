@@ -413,42 +413,35 @@ class _CreateFirstWalletScreenState
 
                 const SizedBox(height: 24),
 
-                // Icon and color row
-                Row(
+                // Icon picker
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Icon', style: AppTypography.labelLarge),
-                          const SizedBox(height: 8),
-                          IconPicker(
-                            selectedIcon: _selectedIcon,
-                            selectedColor: WalletColors.parseColor(
-                              _selectedColor,
-                            ),
-                            onIconSelected: (icon) {
-                              setState(() => _selectedIcon = icon);
-                            },
-                          ),
-                        ],
+                    Text('Icon', style: AppTypography.labelLarge),
+                    const SizedBox(height: 8),
+                    IconPicker(
+                      selectedIcon: _selectedIcon,
+                      selectedColor: WalletColors.parseColor(
+                        _selectedColor,
                       ),
+                      onIconSelected: (icon) {
+                        setState(() => _selectedIcon = icon);
+                      },
                     ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Color', style: AppTypography.labelLarge),
-                          const SizedBox(height: 8),
-                          ColorPicker(
-                            selectedColor: _selectedColor,
-                            onColorSelected: (color) {
-                              setState(() => _selectedColor = color);
-                            },
-                          ),
-                        ],
-                      ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                // Color picker
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Color', style: AppTypography.labelLarge),
+                    const SizedBox(height: 8),
+                    ColorPicker(
+                      selectedColor: _selectedColor,
+                      onColorSelected: (color) {
+                        setState(() => _selectedColor = color);
+                      },
                     ),
                   ],
                 ),

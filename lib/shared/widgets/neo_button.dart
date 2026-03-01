@@ -251,7 +251,14 @@ class _NeoButtonState extends State<NeoButton>
           ),
           AppSpacing.gapHSm,
         ],
-        Text(widget.label, style: textStyle),
+        Flexible(
+          child: Text(
+            widget.label,
+            style: textStyle,
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+          ),
+        ),
         if (widget.trailingIcon != null && !widget.isLoading) ...[
           AppSpacing.gapHSm,
           Icon(

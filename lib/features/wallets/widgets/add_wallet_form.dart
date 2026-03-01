@@ -447,28 +447,19 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
                 AppSpacing.gapMd,
               ],
 
-              // Icon and Color pickers in a row
-              Row(
-                children: [
-                  // Icon picker
-                  Expanded(
-                    child: _LabeledIconButton(
-                      label: 'Icon',
-                      icon: _selectedIcon,
-                      color: WalletColors.parseColor(_selectedColor),
-                      onTap: () => _showIconPicker(context),
-                    ),
-                  ),
-                  AppSpacing.gapHMd,
-                  // Color picker
-                  Expanded(
-                    child: _LabeledColorButton(
-                      label: 'Color',
-                      color: _selectedColor,
-                      onTap: () => _showColorPicker(context),
-                    ),
-                  ),
-                ],
+              // Icon picker
+              _LabeledIconButton(
+                label: 'Icon',
+                icon: _selectedIcon,
+                color: WalletColors.parseColor(_selectedColor),
+                onTap: () => _showIconPicker(context),
+              ),
+              AppSpacing.gapMd,
+              // Color picker
+              _LabeledColorButton(
+                label: 'Color',
+                color: _selectedColor,
+                onTap: () => _showColorPicker(context),
               ),
               AppSpacing.gapMd,
 
@@ -731,26 +722,19 @@ class _CompactWalletFormState extends ConsumerState<CompactWalletForm> {
           ),
           AppSpacing.gapMd,
 
-          // Icon and color in row
-          Row(
-            children: [
-              Expanded(
-                child: IconPicker(
-                  label: 'Icon',
-                  selectedIcon: _icon,
-                  selectedColor: WalletColors.parseColor(_color),
-                  onIconSelected: (i) => setState(() => _icon = i),
-                ),
-              ),
-              AppSpacing.gapHMd,
-              Expanded(
-                child: ColorPicker(
-                  label: 'Color',
-                  selectedColor: _color,
-                  onColorSelected: (c) => setState(() => _color = c),
-                ),
-              ),
-            ],
+          // Icon picker
+          IconPicker(
+            label: 'Icon',
+            selectedIcon: _icon,
+            selectedColor: WalletColors.parseColor(_color),
+            onIconSelected: (i) => setState(() => _icon = i),
+          ),
+          AppSpacing.gapMd,
+          // Color picker
+          ColorPicker(
+            label: 'Color',
+            selectedColor: _color,
+            onColorSelected: (c) => setState(() => _color = c),
           ),
           AppSpacing.gapMd,
 
