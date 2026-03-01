@@ -28,7 +28,7 @@ dependencies:
   firebase_messaging: ^16.0.0
   
   # UI/Animations
-  flutter_markdown: ^0.7.6
+  flutter_markdown_plus: ^1.0.7
   flutter_svg: ^2.0.10+1
   lottie: ^3.1.2
   animated_text_kit: ^4.2.2

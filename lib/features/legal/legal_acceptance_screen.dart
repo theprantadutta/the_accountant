@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/core/themes/app_theme.dart';
@@ -21,7 +21,6 @@ class _LegalAcceptanceScreenState extends State<LegalAcceptanceScreen>
     with TickerProviderStateMixin {
   late TabController _tabController;
   late AnimationController _animationController;
-  late Animation<double> _fadeAnimation;
   late Animation<double> _slideAnimation;
   bool _accepted = false;
 
@@ -36,18 +35,13 @@ class _LegalAcceptanceScreenState extends State<LegalAcceptanceScreen>
     _tabController = TabController(length: 2, vsync: this);
 
     _animationController = AnimationController(
-      duration: const Duration(milliseconds: 800),
+      duration: const Duration(milliseconds: 400),
       vsync: this,
-    );
-
-    _fadeAnimation = CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
     );
 
     _slideAnimation = CurvedAnimation(
       parent: _animationController,
-      curve: Curves.elasticOut,
+      curve: Curves.easeOutCubic,
     );
 
     _animationController.forward();
@@ -99,11 +93,11 @@ class _LegalAcceptanceScreenState extends State<LegalAcceptanceScreen>
         body: SafeArea(
           child: Column(
             children: [
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
               // Header
               AnimationUtils.slideTransition(
                 animation: _slideAnimation,
-                begin: const Offset(0, 0.5),
+                begin: const Offset(0, 0.2),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: Column(
@@ -144,81 +138,75 @@ class _LegalAcceptanceScreenState extends State<LegalAcceptanceScreen>
               ),
               const SizedBox(height: 20),
               // Tab Bar
-              AnimationUtils.fadeTransition(
-                animation: _fadeAnimation,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: AppTheme.glassmorphicContainer(
-                    borderRadius: AppSpacing.borderRadiusMd,
-                    child: TabBar(
-                      controller: _tabController,
-                      indicatorSize: TabBarIndicatorSize.tab,
-                      indicator: BoxDecoration(
-                        gradient: AppColors.primaryGradient,
-                        borderRadius: AppSpacing.borderRadiusMd,
-                      ),
-                      dividerColor: Colors.transparent,
-                      labelColor: Colors.white,
-                      unselectedLabelColor:
-                          Colors.white.withValues(alpha: 0.6),
-                      labelStyle: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      unselectedLabelStyle: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                      ),
-                      tabs: const [
-                        Tab(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.privacy_tip_outlined, size: 18),
-                              SizedBox(width: 6),
-                              Text('Privacy Policy'),
-                            ],
-                          ),
-                        ),
-                        Tab(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.description_outlined, size: 18),
-                              SizedBox(width: 6),
-                              Text('Terms'),
-                            ],
-                          ),
-                        ),
-                      ],
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: AppTheme.glassmorphicContainer(
+                  borderRadius: AppSpacing.borderRadiusMd,
+                  child: TabBar(
+                    controller: _tabController,
+                    indicatorSize: TabBarIndicatorSize.tab,
+                    indicator: BoxDecoration(
+                      gradient: AppColors.primaryGradient,
+                      borderRadius: AppSpacing.borderRadiusMd,
                     ),
+                    dividerColor: Colors.transparent,
+                    labelColor: Colors.white,
+                    unselectedLabelColor:
+                        Colors.white.withValues(alpha: 0.6),
+                    labelStyle: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    unselectedLabelStyle: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    tabs: const [
+                      Tab(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.privacy_tip_outlined, size: 18),
+                            SizedBox(width: 6),
+                            Text('Privacy Policy'),
+                          ],
+                        ),
+                      ),
+                      Tab(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.description_outlined, size: 18),
+                            SizedBox(width: 6),
+                            Text('Terms'),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
               const SizedBox(height: 16),
               // Tab Content
               Expanded(
-                child: AnimationUtils.fadeTransition(
-                  animation: _fadeAnimation,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: AppTheme.glassmorphicContainer(
-                      child: ClipRRect(
-                        borderRadius: AppSpacing.borderRadiusXl,
-                        child: _isLoading
-                            ? const Center(
-                                child: CircularProgressIndicator(
-                                  color: AppColors.primaryAccent,
-                                ),
-                              )
-                            : TabBarView(
-                                controller: _tabController,
-                                children: [
-                                  _buildMarkdownTab(_privacyContent),
-                                  _buildMarkdownTab(_termsContent),
-                                ],
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: AppTheme.glassmorphicContainer(
+                    child: ClipRRect(
+                      borderRadius: AppSpacing.borderRadiusXl,
+                      child: _isLoading
+                          ? const Center(
+                              child: CircularProgressIndicator(
+                                color: AppColors.primaryAccent,
                               ),
-                      ),
+                            )
+                          : TabBarView(
+                              controller: _tabController,
+                              children: [
+                                _buildMarkdownTab(_privacyContent),
+                                _buildMarkdownTab(_termsContent),
+                              ],
+                            ),
                     ),
                   ),
                 ),
@@ -227,7 +215,7 @@ class _LegalAcceptanceScreenState extends State<LegalAcceptanceScreen>
               // Checkbox + Continue
               AnimationUtils.slideTransition(
                 animation: _slideAnimation,
-                begin: const Offset(0, 1),
+                begin: const Offset(0, 0.3),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: Column(
@@ -327,7 +315,7 @@ class _LegalAcceptanceScreenState extends State<LegalAcceptanceScreen>
                   ),
                 ),
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 16),
             ],
           ),
         ),
