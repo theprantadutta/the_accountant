@@ -962,6 +962,10 @@ class AppDatabase extends _$AppDatabase {
     // Clear sync states
     await delete(syncStates).go();
 
+    // Reset settings to defaults
+    await delete(settings).go();
+    await insertSettings(SettingsCompanion.insert());
+
     // Recreate system categories
     await ensureSystemCategoriesExist();
   }
@@ -990,6 +994,12 @@ class AppDatabase extends _$AppDatabase {
     ''');
     await customStatement('''
       UPDATE payment_methods SET sync_status = 1 WHERE sync_status = 0
+    ''');
+    await customStatement('''
+      UPDATE exchange_rates SET sync_status = 1 WHERE sync_status = 0
+    ''');
+    await customStatement('''
+      UPDATE recurring_configs SET sync_status = 1 WHERE sync_status = 0
     ''');
   }
 

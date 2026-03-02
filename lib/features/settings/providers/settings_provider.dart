@@ -131,6 +131,9 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
     }
   }
 
+  /// Reload settings from the database (e.g. after clearing all data).
+  Future<void> loadSettings() => _loadSettings();
+
   Future<void> _saveSettings() async {
     try {
       final updatedSettings = SettingsCompanion(
