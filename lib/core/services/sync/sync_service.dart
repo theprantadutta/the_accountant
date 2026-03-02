@@ -36,6 +36,7 @@ class SyncService {
 
   // Last sync timestamp
   DateTime? _lastSyncAt;
+  bool _lastSyncLoaded = false;
 
   SyncService({
     required ApiService apiService,
@@ -69,6 +70,11 @@ class SyncService {
         _setState(SyncOperationState.error);
         return SyncResult.failure('Cloud sync requires Premium subscription');
       }
+    }
+
+    // Load persisted timestamp on first sync
+    if (!_lastSyncLoaded) {
+      await _loadLastSyncTimestamp();
     }
 
     final startTime = DateTime.now();
@@ -115,8 +121,9 @@ class SyncService {
           }
         }
 
-        // Update last sync timestamp
+        // Update last sync timestamp (in memory and persisted)
         _lastSyncAt = DateTime.now();
+        await _saveLastSyncTimestamp(_lastSyncAt!);
       }
 
       final duration = DateTime.now().difference(startTime);
@@ -139,6 +146,18 @@ class SyncService {
       _lastResult = SyncResult.failure(e.toString());
       return _lastResult!;
     }
+  }
+
+  /// Load persisted last sync timestamp from DB
+  Future<void> _loadLastSyncTimestamp() async {
+    _lastSyncAt = await _database.getLastSyncTimestamp();
+    _lastSyncLoaded = true;
+    _logger.d('Loaded persisted lastSyncAt: $_lastSyncAt');
+  }
+
+  /// Save last sync timestamp to DB
+  Future<void> _saveLastSyncTimestamp(DateTime timestamp) async {
+    await _database.setLastSyncTimestamp(timestamp);
   }
 
   /// Push all pending local changes to server

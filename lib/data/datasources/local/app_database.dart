@@ -16,6 +16,19 @@ import 'package:the_accountant/data/models/exchange_rate.dart';
 
 part 'app_database.g.dart';
 
+/// Data class for export queries with resolved category/wallet names
+class ExportTransaction {
+  final Transaction transaction;
+  final String categoryName;
+  final String walletName;
+
+  const ExportTransaction({
+    required this.transaction,
+    required this.categoryName,
+    required this.walletName,
+  });
+}
+
 /// Sync status values
 class SyncStatus {
   static const int synced = 0;
@@ -139,6 +152,41 @@ class AppDatabase extends _$AppDatabase {
         'categoryColor': cat?.color ?? '#808080',
         'categoryIconName': cat?.iconName ?? 'category',
       };
+    }).toList();
+  }
+
+  /// Get transactions for export with resolved category and wallet names via JOIN
+  Future<List<ExportTransaction>> getTransactionsForExport({
+    DateTime? start,
+    DateTime? end,
+  }) async {
+    final query = select(transactions).join([
+      leftOuterJoin(
+        categories,
+        categories.id.equalsExp(transactions.categoryId),
+      ),
+      leftOuterJoin(
+        wallets,
+        wallets.id.equalsExp(transactions.walletId),
+      ),
+    ]);
+
+    query.where(transactions.deletedAt.isNull());
+    if (start != null && end != null) {
+      query.where(transactions.date.isBetweenValues(start, end));
+    }
+    query.orderBy([OrderingTerm.desc(transactions.date)]);
+
+    final results = await query.get();
+    return results.map((row) {
+      final txn = row.readTable(transactions);
+      final cat = row.readTableOrNull(categories);
+      final wallet = row.readTableOrNull(wallets);
+      return ExportTransaction(
+        transaction: txn,
+        categoryName: cat?.name ?? 'Uncategorized',
+        walletName: wallet?.name ?? 'Unknown',
+      );
     }).toList();
   }
 
@@ -919,6 +967,39 @@ class AppDatabase extends _$AppDatabase {
       customRate: rate,
       useCustomRate: true,
     );
+  }
+
+  // ============================================================
+  // Global Sync Timestamp Methods
+  // ============================================================
+
+  /// Get the persisted last-sync timestamp (stored as a '_global' row in SyncStates)
+  Future<DateTime?> getLastSyncTimestamp() async {
+    final row = await (select(syncStates)
+          ..where((s) => s.syncTableName.equals('_global')))
+        .getSingleOrNull();
+    return row?.lastSyncAt;
+  }
+
+  /// Upsert the global last-sync timestamp
+  Future<void> setLastSyncTimestamp(DateTime timestamp) async {
+    final existing = await (select(syncStates)
+          ..where((s) => s.syncTableName.equals('_global')))
+        .getSingleOrNull();
+
+    if (existing != null) {
+      await (update(syncStates)
+            ..where((s) => s.syncTableName.equals('_global')))
+          .write(SyncStatesCompanion(
+        lastSyncAt: Value(timestamp),
+        updatedAt: Value(DateTime.now()),
+      ));
+    } else {
+      await into(syncStates).insert(SyncStatesCompanion(
+        syncTableName: const Value('_global'),
+        lastSyncAt: Value(timestamp),
+      ));
+    }
   }
 
   // ============================================================

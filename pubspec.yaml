@@ -43,10 +43,6 @@ dependencies:
   dio: ^5.4.0
   google_sign_in: ^7.1.1
   logger: ^2.0.2
-  googleapis: ^16.0.0
-  googleapis_auth: ^2.0.0
-  extension_google_sign_in_as_googleapis_auth: ^3.0.0
-  
   # Environment
   flutter_dotenv: ^6.0.0
   

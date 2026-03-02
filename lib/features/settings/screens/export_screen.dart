@@ -8,10 +8,31 @@ import 'package:share_plus/share_plus.dart' show SharePlus, ShareParams, XFile;
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/core/utils/date_formatter.dart';
+import 'package:the_accountant/core/services/currency_service.dart';
+import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
+import 'package:the_accountant/data/models/premium_features.dart';
+import 'package:the_accountant/features/premium/widgets/premium_gate.dart';
 import 'package:the_accountant/features/settings/providers/settings_provider.dart';
 import 'package:the_accountant/features/settings/services/pdf_export_service.dart';
 import 'package:the_accountant/core/providers/currency_provider.dart';
+
+/// Gated export screen that requires premium subscription
+class ExportScreenGated extends ConsumerWidget {
+  const ExportScreenGated({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return PremiumGate(
+      featureId: PremiumFeatureIds.dataExport,
+      featureName: 'Export Data',
+      featureDescription:
+          'Export your financial data to CSV or PDF for analysis in other apps or as a backup.',
+      featureIcon: Icons.download_outlined,
+      child: const ExportScreen(),
+    );
+  }
+}
 
 class ExportScreen extends ConsumerStatefulWidget {
   const ExportScreen({super.key});
@@ -24,6 +45,8 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
   DateTimeRange? _selectedDateRange;
   String _selectedFormat = 'csv';
   bool _isExporting = false;
+  bool _includeCategories = true;
+  bool _includeWallets = true;
 
   @override
   void initState() {
@@ -88,20 +111,27 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
               subtitle: 'All income and expense records',
               checked: true,
               enabled: false,
+              onChanged: null,
             ),
             _buildDivider(),
             _buildCheckboxTile(
               title: 'Categories',
               subtitle: 'Category breakdown and totals',
-              checked: true,
+              checked: _includeCategories,
               enabled: true,
+              onChanged: (value) {
+                setState(() => _includeCategories = value);
+              },
             ),
             _buildDivider(),
             _buildCheckboxTile(
               title: 'Wallets',
               subtitle: 'Wallet balances and history',
-              checked: true,
+              checked: _includeWallets,
               enabled: true,
+              onChanged: (value) {
+                setState(() => _includeWallets = value);
+              },
             ),
           ]),
           SizedBox(height: AppSpacing.xl),
@@ -175,7 +205,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
     final df = ref.watch(dateFormatSettingProvider);
     final rangeText = _selectedDateRange != null
         ? '${AppDateFormatter.formatDate(_selectedDateRange!.start, df)} - ${AppDateFormatter.formatDate(_selectedDateRange!.end, df)}'
-        : 'Select date range';
+        : 'All Time';
 
     return ListTile(
       leading: Container(
@@ -318,6 +348,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
     required String subtitle,
     required bool checked,
     required bool enabled,
+    required void Function(bool)? onChanged,
   }) {
     return ListTile(
       leading: Container(
@@ -346,6 +377,12 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
         subtitle,
         style: TextStyle(color: AppColors.textMuted, fontSize: 13),
       ),
+      onTap: enabled && onChanged != null
+          ? () {
+              HapticFeedback.selectionClick();
+              onChanged(!checked);
+            }
+          : null,
     );
   }
 
@@ -436,24 +473,19 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
 
     try {
       final db = ref.read(databaseProvider);
-      final transactions = await db.getAllTransactions();
 
-      // Filter by date range
-      final filteredTransactions = _selectedDateRange != null
-          ? transactions.where((t) {
-              return t.date.isAfter(
-                    _selectedDateRange!.start.subtract(const Duration(days: 1)),
-                  ) &&
-                  t.date.isBefore(
-                    _selectedDateRange!.end.add(const Duration(days: 1)),
-                  );
-            }).toList()
-          : transactions;
+      // Use DB-level JOIN query with date filtering
+      final transactions = await db.getTransactionsForExport(
+        start: _selectedDateRange?.start,
+        end: _selectedDateRange?.end != null
+            ? _selectedDateRange!.end.add(const Duration(days: 1))
+            : null,
+      );
 
       if (_selectedFormat == 'csv') {
-        await _exportToCsv(filteredTransactions);
+        await _exportToCsv(transactions);
       } else {
-        await _exportToPdf(filteredTransactions);
+        await _exportToPdf(transactions);
       }
     } catch (e) {
       if (mounted) {
@@ -471,24 +503,32 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
     }
   }
 
-  Future<void> _exportToCsv(List<dynamic> transactions) async {
+  Future<void> _exportToCsv(List<ExportTransaction> transactions) async {
     // Build CSV content
     final buffer = StringBuffer();
 
-    // Header
-    buffer.writeln('Date,Title,Amount,Type,Category,Wallet,Notes');
+    // Build header based on include options
+    final headers = <String>['Date', 'Title', 'Amount', 'Type'];
+    if (_includeCategories) headers.add('Category');
+    if (_includeWallets) headers.add('Wallet');
+    headers.add('Notes');
+    buffer.writeln(headers.join(','));
 
     // Data rows
-    for (final t in transactions) {
+    for (final item in transactions) {
+      final t = item.transaction;
       final date = DateFormat('yyyy-MM-dd').format(t.date);
-      final title = _escapeCsv(t.title ?? '');
+      final title = _escapeCsv(t.title);
       final amount = t.amount.toStringAsFixed(2);
       final type = t.isIncome == true ? 'Income' : 'Expense';
-      final category = _escapeCsv(t.categoryId ?? 'Uncategorized');
-      final wallet = _escapeCsv(t.walletId ?? '');
       final notes = _escapeCsv(t.notes ?? '');
 
-      buffer.writeln('$date,$title,$amount,$type,$category,$wallet,$notes');
+      final fields = <String>[date, title, amount, type];
+      if (_includeCategories) fields.add(_escapeCsv(item.categoryName));
+      if (_includeWallets) fields.add(_escapeCsv(item.walletName));
+      fields.add(notes);
+
+      buffer.writeln(fields.join(','));
     }
 
     // Save to file
@@ -515,24 +555,17 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
     }
   }
 
-  Future<void> _exportToPdf(List<dynamic> transactions) async {
-    if (_selectedDateRange == null) return;
-
+  Future<void> _exportToPdf(List<ExportTransaction> transactions) async {
     final currency = ref.read(defaultCurrencyProvider);
+    final currencySymbol = CurrencyInfo.getSymbol(currency);
 
-    // Convert to Transaction list
-    final typedTransactions = transactions.cast<dynamic>().toList();
-
-    // Generate PDF
+    // Generate PDF — dateRange can be null for "All Time"
     final file = await PdfExportService.generateTransactionReport(
-      transactions: typedTransactions.cast(),
-      dateRange: DateTimeRange(
-        start: _selectedDateRange!.start,
-        end: _selectedDateRange!.end,
-      ),
-      currency: currency,
-      includeCategories: true,
-      includeWallets: true,
+      transactions: transactions,
+      dateRange: _selectedDateRange,
+      currencySymbol: currencySymbol,
+      includeCategories: _includeCategories,
+      includeWallets: _includeWallets,
       dateFormat: ref.read(dateFormatSettingProvider),
       numberFormat: ref.read(numberFormatSettingProvider),
     );

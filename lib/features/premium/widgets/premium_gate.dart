@@ -58,7 +58,6 @@ class _PremiumUpgradeScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        automaticallyImplyLeading: false,
       ),
       body: Stack(
         children: [

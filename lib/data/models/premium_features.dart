@@ -46,8 +46,6 @@ enum SubscriptionTier {
 class PremiumFeatureIds {
   // Core premium features
   static const String cloudSync = 'cloud_sync';
-  static const String googleDriveBackup = 'google_drive_backup';
-
   // AI features
   static const String aiAssistant = 'ai_assistant';
   static const String receiptOcr = 'receipt_ocr';
@@ -74,7 +72,6 @@ class PremiumFeatureIds {
   /// All premium feature IDs
   static const List<String> all = [
     cloudSync,
-    googleDriveBackup,
     aiAssistant,
     receiptOcr,
     aiInsights,
@@ -168,7 +165,6 @@ class PremiumFeatures extends Equatable {
   /// Display-friendly feature list for UI
   static const List<String> allFeatureDisplayNames = [
     'Cloud Sync',
-    'Google Drive Backup',
     'AI Assistant',
     'Receipt OCR',
     'AI Insights',

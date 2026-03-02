@@ -6,8 +6,9 @@ import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/features/authentication/providers/auth_provider.dart';
 import 'package:the_accountant/features/premium/providers/premium_provider.dart';
 import 'package:the_accountant/features/settings/providers/settings_provider.dart';
-import 'package:the_accountant/features/settings/screens/backup_screen.dart';
+import 'package:the_accountant/features/settings/screens/sync_settings_screen.dart';
 import 'package:the_accountant/features/settings/screens/about_screen.dart';
+import 'package:the_accountant/features/settings/screens/contact_support_screen.dart';
 import 'package:the_accountant/features/settings/screens/help_screen.dart';
 import 'package:the_accountant/features/settings/screens/export_screen.dart';
 import 'package:the_accountant/features/settings/screens/profile_edit_screen.dart';
@@ -274,16 +275,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
     // DATA MANAGEMENT SECTION
     final dataTiles = <Widget>[];
-    if (_matchesSearch('Backup') ||
-        _matchesKeywords(['restore', 'google drive', 'sync', 'cloud'])) {
+    if (_matchesSearch('Cloud Sync') ||
+        _matchesKeywords(['sync', 'cloud', 'backup'])) {
       dataTiles.add(
         SettingsNavigationTile(
-          icon: Icons.cloud_outlined,
-          title: 'Backup & Restore',
-          subtitle: 'Sync to Google Drive',
+          icon: Icons.sync,
+          title: 'Cloud Sync',
+          subtitle: 'Sync your data across devices',
           onTap: () => Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => const BackupScreenGated()),
+            MaterialPageRoute(builder: (_) => const SyncSettingsScreenGated()),
           ),
           trailing: premiumState.isPremium ? null : const PremiumBadge(),
         ),
@@ -298,8 +299,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           subtitle: 'Export to CSV or PDF',
           onTap: () => Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => const ExportScreen()),
+            MaterialPageRoute(builder: (_) => const ExportScreenGated()),
           ),
+          trailing: premiumState.isPremium ? null : const PremiumBadge(),
         ),
       );
     }
@@ -328,10 +330,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         _matchesSearch('Support') ||
         _matchesKeywords(['email', 'feedback'])) {
       helpTiles.add(
-        SettingsActionTile(
+        SettingsNavigationTile(
           icon: Icons.email_outlined,
           title: 'Contact Support',
-          onTap: () => _launchEmail(),
+          subtitle: 'Questions, complaints, or feedback',
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const ContactSupportScreen(),
+            ),
+          ),
         ),
       );
     }
@@ -505,20 +513,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     }
   }
 
-  Future<void> _launchEmail() async {
-    final uri = Uri(
-      scheme: 'mailto',
-      path: 'support@theaccountant.app',
-      queryParameters: {'subject': 'The Accountant App - Support Request'},
-    );
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri);
-    }
-  }
-
   Future<void> _rateApp() async {
     final uri = Uri.parse(
-      'https://play.google.com/store/apps/details?id=com.theaccountant.app',
+      'https://play.google.com/store/apps/details?id=com.pranta.theaccountant',
     );
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
@@ -529,7 +526,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     await SharePlus.instance.share(
       ShareParams(
         text:
-            'Check out The Accountant - a beautiful personal finance app!\n\nhttps://play.google.com/store/apps/details?id=com.theaccountant.app',
+            'Check out The Accountant - a beautiful personal finance app!\n\nhttps://play.google.com/store/apps/details?id=com.pranta.theaccountant',
         subject: 'The Accountant - Personal Finance App',
       ),
     );

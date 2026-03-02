@@ -10,9 +10,9 @@ import 'package:the_accountant/data/datasources/local/app_database.dart';
 
 class PdfExportService {
   static Future<File> generateTransactionReport({
-    required List<Transaction> transactions,
-    required DateTimeRange dateRange,
-    required String currency,
+    required List<ExportTransaction> transactions,
+    DateTimeRange? dateRange,
+    required String currencySymbol,
     bool includeCategories = true,
     bool includeWallets = true,
     String dateFormat = 'MM/dd/yyyy',
@@ -26,26 +26,26 @@ class PdfExportService {
     final categoryTotals = <String, double>{};
     final walletTotals = <String, double>{};
 
-    for (final txn in transactions) {
+    for (final item in transactions) {
+      final txn = item.transaction;
       if (txn.isIncome == true) {
         totalIncome += txn.amount.abs();
       } else {
         totalExpense += txn.amount.abs();
       }
 
-      // Category totals
-      final categoryId = txn.categoryId ?? 'Uncategorized';
-      categoryTotals[categoryId] =
-          (categoryTotals[categoryId] ?? 0) + txn.amount.abs();
+      // Category totals using resolved name
+      categoryTotals[item.categoryName] =
+          (categoryTotals[item.categoryName] ?? 0) + txn.amount.abs();
 
-      // Wallet totals
-      final walletId = txn.walletId ?? 'Unknown';
-      walletTotals[walletId] = (walletTotals[walletId] ?? 0) + txn.amount.abs();
+      // Wallet totals using resolved name
+      walletTotals[item.walletName] =
+          (walletTotals[item.walletName] ?? 0) + txn.amount.abs();
     }
 
     final netAmount = totalIncome - totalExpense;
     final currencyFormatter = AppNumberFormatter.currency(
-      currency,
+      currencySymbol,
       numberFormat,
       decimalDigits: 2,
     );
@@ -78,7 +78,15 @@ class PdfExportService {
             pw.SizedBox(height: 20),
           ],
 
-          // Recent Transactions
+          // Wallet Breakdown
+          if (includeWallets && walletTotals.isNotEmpty) ...[
+            _buildSectionTitle('Wallet Breakdown'),
+            pw.SizedBox(height: 10),
+            _buildWalletTable(walletTotals, currencyFormatter),
+            pw.SizedBox(height: 20),
+          ],
+
+          // Transactions
           _buildSectionTitle('Transactions'),
           pw.SizedBox(height: 10),
           _buildTransactionTable(
@@ -93,20 +101,32 @@ class PdfExportService {
 
     // Save PDF to file
     final output = await getTemporaryDirectory();
-    final startDate = AppDateFormatter.formatDate(dateRange.start, dateFormat)
-        .replaceAll(' ', '_')
-        .replaceAll(',', '');
-    final endDate = AppDateFormatter.formatDate(dateRange.end, dateFormat)
-        .replaceAll(' ', '_')
-        .replaceAll(',', '');
-    final fileName = 'the_accountant_report_${startDate}_to_$endDate.pdf';
+    String fileName;
+    if (dateRange != null) {
+      final startDate = AppDateFormatter.formatDate(dateRange.start, dateFormat)
+          .replaceAll('/', '-')
+          .replaceAll(' ', '_')
+          .replaceAll(',', '');
+      final endDate = AppDateFormatter.formatDate(dateRange.end, dateFormat)
+          .replaceAll('/', '-')
+          .replaceAll(' ', '_')
+          .replaceAll(',', '');
+      fileName = 'the_accountant_report_${startDate}_to_$endDate.pdf';
+    } else {
+      final dateStr = DateFormat('yyyyMMdd_HHmmss').format(DateTime.now());
+      fileName = 'the_accountant_report_all_time_$dateStr.pdf';
+    }
     final file = File('${output.path}/$fileName');
     await file.writeAsBytes(await pdf.save());
 
     return file;
   }
 
-  static pw.Widget _buildHeader(DateTimeRange dateRange, String dateFormat) {
+  static pw.Widget _buildHeader(DateTimeRange? dateRange, String dateFormat) {
+    final periodText = dateRange != null
+        ? '${AppDateFormatter.formatDate(dateRange.start, dateFormat)} - ${AppDateFormatter.formatDate(dateRange.end, dateFormat)}'
+        : 'All Time';
+
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
@@ -153,7 +173,7 @@ class PdfExportService {
                   ),
                   pw.SizedBox(height: 4),
                   pw.Text(
-                    '${AppDateFormatter.formatDate(dateRange.start, dateFormat)} - ${AppDateFormatter.formatDate(dateRange.end, dateFormat)}',
+                    periodText,
                     style: const pw.TextStyle(
                       fontSize: 12,
                       color: PdfColors.indigo,
@@ -259,6 +279,14 @@ class PdfExportService {
 
     final total = sortedCategories.fold<double>(0, (sum, e) => sum + e.value);
 
+    // Show top 15 + "Other" row if more than 15 categories
+    final displayCategories = sortedCategories.length > 15
+        ? sortedCategories.take(15).toList()
+        : sortedCategories;
+    final otherTotal = sortedCategories.length > 15
+        ? sortedCategories.skip(15).fold<double>(0, (sum, e) => sum + e.value)
+        : 0.0;
+
     return pw.Table(
       border: pw.TableBorder.all(color: PdfColors.grey300),
       children: [
@@ -280,8 +308,75 @@ class PdfExportService {
           ],
         ),
         // Data rows
-        ...sortedCategories.take(10).map((entry) {
+        ...displayCategories.map((entry) {
           final percentage = (entry.value / total * 100).toStringAsFixed(1);
+          return pw.TableRow(
+            children: [
+              _buildTableCell(entry.key),
+              _buildTableCell(
+                currencyFormatter.format(entry.value),
+                alignment: pw.Alignment.centerRight,
+              ),
+              _buildTableCell(
+                '$percentage%',
+                alignment: pw.Alignment.centerRight,
+              ),
+            ],
+          );
+        }),
+        // "Other" row if needed
+        if (otherTotal > 0)
+          pw.TableRow(
+            children: [
+              _buildTableCell('Other'),
+              _buildTableCell(
+                currencyFormatter.format(otherTotal),
+                alignment: pw.Alignment.centerRight,
+              ),
+              _buildTableCell(
+                '${(otherTotal / total * 100).toStringAsFixed(1)}%',
+                alignment: pw.Alignment.centerRight,
+              ),
+            ],
+          ),
+      ],
+    );
+  }
+
+  static pw.Widget _buildWalletTable(
+    Map<String, double> walletTotals,
+    NumberFormat currencyFormatter,
+  ) {
+    final sortedWallets = walletTotals.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+
+    final total = sortedWallets.fold<double>(0, (sum, e) => sum + e.value);
+
+    return pw.Table(
+      border: pw.TableBorder.all(color: PdfColors.grey300),
+      children: [
+        // Header
+        pw.TableRow(
+          decoration: const pw.BoxDecoration(color: PdfColors.grey200),
+          children: [
+            _buildTableCell('Wallet', isHeader: true),
+            _buildTableCell(
+              'Total',
+              isHeader: true,
+              alignment: pw.Alignment.centerRight,
+            ),
+            _buildTableCell(
+              '%',
+              isHeader: true,
+              alignment: pw.Alignment.centerRight,
+            ),
+          ],
+        ),
+        // Data rows
+        ...sortedWallets.map((entry) {
+          final percentage = total > 0
+              ? (entry.value / total * 100).toStringAsFixed(1)
+              : '0.0';
           return pw.TableRow(
             children: [
               _buildTableCell(entry.key),
@@ -301,7 +396,7 @@ class PdfExportService {
   }
 
   static pw.Widget _buildTransactionTable(
-    List<Transaction> transactions,
+    List<ExportTransaction> transactions,
     NumberFormat currencyFormatter,
     String dateFormat,
   ) {
@@ -328,14 +423,15 @@ class PdfExportService {
             ),
           ],
         ),
-        // Data rows (limit to 50 for performance)
-        ...transactions.take(50).map((txn) {
+        // All transaction rows (no cap)
+        ...transactions.map((item) {
+          final txn = item.transaction;
           final isIncome = txn.isIncome == true;
           return pw.TableRow(
             children: [
               _buildTableCell(AppDateFormatter.formatDate(txn.date, dateFormat)),
-              _buildTableCell(txn.title ?? 'No title'),
-              _buildTableCell(txn.categoryId ?? 'Uncategorized'),
+              _buildTableCell(txn.title.isEmpty ? 'No title' : txn.title),
+              _buildTableCell(item.categoryName),
               pw.Container(
                 padding: const pw.EdgeInsets.all(8),
                 alignment: pw.Alignment.centerRight,
