@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import 'package:the_accountant/core/providers/currency_provider.dart';
 import 'package:the_accountant/core/services/currency_service.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/core/themes/app_typography.dart';
+import 'package:the_accountant/core/utils/date_formatter.dart';
+import 'package:the_accountant/core/utils/number_formatter.dart';
 import 'package:the_accountant/data/models/transaction.dart'
     show TransactionSpecialType;
+import 'package:the_accountant/features/settings/providers/settings_provider.dart';
 import 'package:the_accountant/features/subscriptions/providers/subscription_dashboard_provider.dart';
 import 'package:the_accountant/features/subscriptions/widgets/edit_subscription_bottom_sheet.dart';
 import 'package:the_accountant/features/transactions/screens/add_transaction_screen.dart';
@@ -57,7 +59,7 @@ class SubscriptionDashboardScreen extends ConsumerWidget {
                         padding: AppSpacing.paddingScreen,
                         children: [
                           // Summary header
-                          _buildSummaryCard(state),
+                          _buildSummaryCard(state, ref),
                           AppSpacing.gapLg,
 
                           // Active subscriptions
@@ -137,8 +139,8 @@ class SubscriptionDashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildSummaryCard(SubscriptionDashboardState state) {
-    final monthlyFormat = NumberFormat.currency(symbol: '\$');
+  Widget _buildSummaryCard(SubscriptionDashboardState state, WidgetRef ref) {
+    final monthlyFormat = AppNumberFormatter.currency('\$', ref.watch(numberFormatSettingProvider));
 
     return GlassCard(
       padding: AppSpacing.paddingLg,
@@ -231,7 +233,7 @@ class _SubscriptionCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final dateFormat = DateFormat('MMM d, yyyy');
+    final df = ref.watch(dateFormatSettingProvider);
     final walletCurrency = ref.watch(walletCurrencyProvider(item.walletId));
     final symbol = CurrencyInfo.getSymbol(walletCurrency);
     final isPaused = !item.isActive;
@@ -342,7 +344,7 @@ class _SubscriptionCard extends ConsumerWidget {
                             ),
                             const SizedBox(width: 3),
                             Text(
-                              'Next: ${dateFormat.format(item.nextPayment)}',
+                              'Next: ${AppDateFormatter.formatDate(item.nextPayment, df)}',
                               style: AppTypography.labelSmall.copyWith(
                                 color: AppColors.textMuted,
                                 fontSize: 9,
@@ -359,7 +361,7 @@ class _SubscriptionCard extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      '$symbol${NumberFormat('#,##0.00').format(item.amount)}',
+                      '$symbol${AppNumberFormatter.get(ref.watch(numberFormatSettingProvider)).format(item.amount)}',
                       style: AppTypography.titleMedium.copyWith(
                         color: isPaused
                             ? AppColors.textMuted

@@ -3,7 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
+import 'package:the_accountant/core/utils/date_formatter.dart';
 import 'package:the_accountant/features/categories/providers/category_provider.dart';
+import 'package:the_accountant/features/settings/providers/settings_provider.dart';
 import 'package:the_accountant/features/transactions/providers/transaction_provider.dart';
 import 'package:the_accountant/features/transactions/screens/add_transaction_screen.dart';
 import 'package:the_accountant/shared/widgets/transaction_card.dart';
@@ -249,21 +251,22 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
     final yesterday = today.subtract(const Duration(days: 1));
     final tomorrow = today.add(const Duration(days: 1));
 
-    final dateFormat = DateFormat('MMM d');
+    final df = ref.watch(dateFormatSettingProvider);
+    final shortDate = AppDateFormatter.formatShortDate(date, df);
     final dayFormat = DateFormat('EEEE');
 
     if (date == today) {
-      return 'Today, ${dateFormat.format(date)}';
+      return 'Today, $shortDate';
     } else if (date == yesterday) {
-      return 'Yesterday, ${dateFormat.format(date)}';
+      return 'Yesterday, $shortDate';
     } else if (date == tomorrow) {
-      return 'Tomorrow, ${dateFormat.format(date)}';
+      return 'Tomorrow, $shortDate';
     } else if (date.isAfter(today) && date.difference(today).inDays <= 7) {
-      return '${dayFormat.format(date)}, ${dateFormat.format(date)}';
+      return '${dayFormat.format(date)}, $shortDate';
     } else if (date.isBefore(today) && today.difference(date).inDays < 7) {
-      return '${dayFormat.format(date)}, ${dateFormat.format(date)}';
+      return '${dayFormat.format(date)}, $shortDate';
     } else {
-      return '${dayFormat.format(date)}, ${dateFormat.format(date)}';
+      return '${dayFormat.format(date)}, $shortDate';
     }
   }
 

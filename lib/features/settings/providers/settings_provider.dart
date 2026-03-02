@@ -216,6 +216,14 @@ final settingsProvider = StateNotifierProvider<SettingsNotifier, SettingsState>(
   },
 );
 
+// Convenience providers for regional settings
+final dateFormatSettingProvider = Provider<String>(
+  (ref) => ref.watch(settingsProvider).dateFormat,
+);
+final numberFormatSettingProvider = Provider<String>(
+  (ref) => ref.watch(settingsProvider).numberFormat,
+);
+
 // Currency provider for easy access to supported currencies
 final currenciesProvider = Provider<List<String>>((ref) {
   return AppConstants.supportedCurrencies;

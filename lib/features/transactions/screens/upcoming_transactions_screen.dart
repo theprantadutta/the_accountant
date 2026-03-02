@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import 'package:the_accountant/core/providers/currency_provider.dart';
 import 'package:the_accountant/core/services/currency_service.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/core/themes/app_typography.dart';
+import 'package:the_accountant/core/utils/date_formatter.dart';
+import 'package:the_accountant/core/utils/number_formatter.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
+import 'package:the_accountant/features/settings/providers/settings_provider.dart';
 import 'package:the_accountant/features/transactions/providers/upcoming_provider.dart';
 import 'package:the_accountant/features/categories/providers/category_provider.dart'
     as cat_provider;
@@ -159,7 +161,8 @@ class _UpcomingTransactionsScreenState
 
   Widget _buildSummaryCard(List<Transaction> transactions, bool isOverdue) {
     final total = transactions.fold(0.0, (sum, t) => sum + t.amount);
-    final currencyFormat = NumberFormat.currency(symbol: '\$');
+    final nf = ref.watch(numberFormatSettingProvider);
+    final currencyFormat = AppNumberFormatter.currency('\$', nf);
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
@@ -235,12 +238,14 @@ class _UpcomingTransactionsScreenState
       ),
     );
 
-    final dateFormat = DateFormat('MMM d, yyyy');
+    final df = ref.watch(dateFormatSettingProvider);
     final walletCurrency = ref.watch(
       walletCurrencyProvider(transaction.walletId),
     );
-    final currencyFormat = NumberFormat.currency(
-      symbol: CurrencyInfo.getSymbol(walletCurrency),
+    final nf = ref.watch(numberFormatSettingProvider);
+    final currencyFormat = AppNumberFormatter.currency(
+      CurrencyInfo.getSymbol(walletCurrency),
+      nf,
     );
 
     final daysUntilDue = transaction.date.difference(DateTime.now()).inDays;
@@ -323,7 +328,7 @@ class _UpcomingTransactionsScreenState
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            dateFormat.format(transaction.date),
+                            AppDateFormatter.formatDate(transaction.date, df),
                             style: AppTypography.labelSmall.copyWith(
                               color: AppColors.textMuted,
                             ),

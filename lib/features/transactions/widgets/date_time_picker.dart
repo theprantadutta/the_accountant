@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/core/themes/app_animations.dart';
+import 'package:the_accountant/core/utils/date_formatter.dart';
 import 'package:intl/intl.dart';
 
 /// Date and time picker widget for transaction creation.
@@ -26,6 +27,9 @@ class DateTimePicker extends StatelessWidget {
   /// Whether to allow future dates
   final bool allowFutureDates;
 
+  /// Date format setting string from regional settings
+  final String? dateFormat;
+
   const DateTimePicker({
     super.key,
     required this.selectedDateTime,
@@ -34,6 +38,7 @@ class DateTimePicker extends StatelessWidget {
     this.label = 'Date & Time',
     this.showTime = true,
     this.allowFutureDates = true,
+    this.dateFormat,
   });
 
   @override
@@ -68,6 +73,7 @@ class DateTimePicker extends StatelessWidget {
                 dateTime: selectedDateTime,
                 onTap: () => _showDatePicker(context),
                 color: color,
+                dateFormat: dateFormat,
               ),
             ),
             AppSpacing.gapHSm,
@@ -253,27 +259,18 @@ class _DateButton extends StatelessWidget {
   final DateTime dateTime;
   final VoidCallback onTap;
   final Color color;
+  final String? dateFormat;
 
   const _DateButton({
     required this.dateTime,
     required this.onTap,
     required this.color,
+    this.dateFormat,
   });
 
   String _formatDate() {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final date = DateTime(dateTime.year, dateTime.month, dateTime.day);
-
-    if (date == today) {
-      return 'Today';
-    } else if (date == today.subtract(const Duration(days: 1))) {
-      return 'Yesterday';
-    } else if (date == today.add(const Duration(days: 1))) {
-      return 'Tomorrow';
-    } else {
-      return DateFormat('MMM d, y').format(dateTime);
-    }
+    final df = dateFormat ?? 'MM/dd/yyyy';
+    return AppDateFormatter.formatRelativeDate(dateTime, df);
   }
 
   @override
@@ -366,6 +363,7 @@ class DateTimeSelector extends StatelessWidget {
   final ValueChanged<DateTime> onDateTimeChanged;
   final Color? accentColor;
   final bool showTime;
+  final String? dateFormat;
 
   const DateTimeSelector({
     super.key,
@@ -373,6 +371,7 @@ class DateTimeSelector extends StatelessWidget {
     required this.onDateTimeChanged,
     this.accentColor,
     this.showTime = true,
+    this.dateFormat,
   });
 
   @override
@@ -410,24 +409,8 @@ class DateTimeSelector extends StatelessWidget {
   }
 
   String _formatDateTime() {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final date = DateTime(
-      selectedDateTime.year,
-      selectedDateTime.month,
-      selectedDateTime.day,
-    );
-
-    String dateStr;
-    if (date == today) {
-      dateStr = 'Today';
-    } else if (date == today.subtract(const Duration(days: 1))) {
-      dateStr = 'Yesterday';
-    } else if (date == today.add(const Duration(days: 1))) {
-      dateStr = 'Tomorrow';
-    } else {
-      dateStr = DateFormat('MMM d').format(selectedDateTime);
-    }
+    final df = dateFormat ?? 'MM/dd/yyyy';
+    final dateStr = AppDateFormatter.formatRelativeDate(selectedDateTime, df);
 
     if (showTime) {
       final timeStr = DateFormat('h:mm a').format(selectedDateTime);

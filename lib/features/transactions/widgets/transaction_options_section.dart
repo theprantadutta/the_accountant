@@ -4,7 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/core/themes/app_animations.dart';
+import 'package:the_accountant/core/utils/date_formatter.dart';
 import 'package:the_accountant/data/models/transaction.dart';
+import 'package:the_accountant/features/settings/providers/settings_provider.dart';
 import 'package:the_accountant/features/transactions/widgets/date_time_picker.dart';
 import 'package:the_accountant/features/transactions/widgets/special_type_selector.dart';
 import 'package:the_accountant/features/transactions/widgets/wallet_selector.dart';
@@ -110,6 +112,7 @@ class _TransactionOptionsSectionState
             accentColor: color,
             label: '',
             showTime: true,
+            dateFormat: ref.watch(dateFormatSettingProvider),
           ),
         ),
         AppSpacing.gapSm,
@@ -339,6 +342,7 @@ class TransactionOptionsCompact extends StatelessWidget {
   final DateTime dateTime;
   final TransactionSpecialType specialType;
   final VoidCallback? onTap;
+  final String? dateFormat;
 
   const TransactionOptionsCompact({
     super.key,
@@ -346,6 +350,7 @@ class TransactionOptionsCompact extends StatelessWidget {
     required this.dateTime,
     required this.specialType,
     this.onTap,
+    this.dateFormat,
   });
 
   @override
@@ -401,18 +406,7 @@ class TransactionOptionsCompact extends StatelessWidget {
   }
 
   String _formatDate(DateTime date) {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final dateOnly = DateTime(date.year, date.month, date.day);
-
-    if (dateOnly == today) {
-      return 'Today';
-    } else if (dateOnly == today.subtract(const Duration(days: 1))) {
-      return 'Yesterday';
-    } else if (dateOnly == today.add(const Duration(days: 1))) {
-      return 'Tomorrow';
-    } else {
-      return '${date.day}/${date.month}/${date.year}';
-    }
+    final df = dateFormat ?? 'MM/dd/yyyy';
+    return AppDateFormatter.formatRelativeDate(date, df);
   }
 }

@@ -4,6 +4,8 @@ import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'package:the_accountant/core/utils/date_formatter.dart';
+import 'package:the_accountant/core/utils/number_formatter.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 
 class PdfExportService {
@@ -13,6 +15,8 @@ class PdfExportService {
     required String currency,
     bool includeCategories = true,
     bool includeWallets = true,
+    String dateFormat = 'MM/dd/yyyy',
+    String numberFormat = 'comma_dot',
   }) async {
     final pdf = pw.Document();
 
@@ -40,9 +44,9 @@ class PdfExportService {
     }
 
     final netAmount = totalIncome - totalExpense;
-    final dateFormatter = DateFormat('MMM d, yyyy');
-    final currencyFormatter = NumberFormat.currency(
-      symbol: currency,
+    final currencyFormatter = AppNumberFormatter.currency(
+      currency,
+      numberFormat,
       decimalDigits: 2,
     );
 
@@ -53,7 +57,7 @@ class PdfExportService {
         margin: const pw.EdgeInsets.all(40),
         build: (context) => [
           // Header
-          _buildHeader(dateRange, dateFormatter),
+          _buildHeader(dateRange, dateFormat),
           pw.SizedBox(height: 20),
 
           // Summary Section
@@ -80,7 +84,7 @@ class PdfExportService {
           _buildTransactionTable(
             transactions,
             currencyFormatter,
-            dateFormatter,
+            dateFormat,
           ),
         ],
         footer: (context) => _buildFooter(context),
@@ -89,12 +93,10 @@ class PdfExportService {
 
     // Save PDF to file
     final output = await getTemporaryDirectory();
-    final startDate = dateFormatter
-        .format(dateRange.start)
+    final startDate = AppDateFormatter.formatDate(dateRange.start, dateFormat)
         .replaceAll(' ', '_')
         .replaceAll(',', '');
-    final endDate = dateFormatter
-        .format(dateRange.end)
+    final endDate = AppDateFormatter.formatDate(dateRange.end, dateFormat)
         .replaceAll(' ', '_')
         .replaceAll(',', '');
     final fileName = 'the_accountant_report_${startDate}_to_$endDate.pdf';
@@ -104,7 +106,7 @@ class PdfExportService {
     return file;
   }
 
-  static pw.Widget _buildHeader(DateTimeRange dateRange, DateFormat formatter) {
+  static pw.Widget _buildHeader(DateTimeRange dateRange, String dateFormat) {
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
@@ -151,7 +153,7 @@ class PdfExportService {
                   ),
                   pw.SizedBox(height: 4),
                   pw.Text(
-                    '${formatter.format(dateRange.start)} - ${formatter.format(dateRange.end)}',
+                    '${AppDateFormatter.formatDate(dateRange.start, dateFormat)} - ${AppDateFormatter.formatDate(dateRange.end, dateFormat)}',
                     style: const pw.TextStyle(
                       fontSize: 12,
                       color: PdfColors.indigo,
@@ -301,7 +303,7 @@ class PdfExportService {
   static pw.Widget _buildTransactionTable(
     List<Transaction> transactions,
     NumberFormat currencyFormatter,
-    DateFormat dateFormatter,
+    String dateFormat,
   ) {
     return pw.Table(
       border: pw.TableBorder.all(color: PdfColors.grey300),
@@ -331,7 +333,7 @@ class PdfExportService {
           final isIncome = txn.isIncome == true;
           return pw.TableRow(
             children: [
-              _buildTableCell(dateFormatter.format(txn.date)),
+              _buildTableCell(AppDateFormatter.formatDate(txn.date, dateFormat)),
               _buildTableCell(txn.title ?? 'No title'),
               _buildTableCell(txn.categoryId ?? 'Uncategorized'),
               pw.Container(

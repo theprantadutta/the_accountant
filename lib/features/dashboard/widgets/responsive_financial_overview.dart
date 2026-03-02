@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
@@ -14,6 +13,8 @@ import 'package:the_accountant/features/reports/providers/reports_provider.dart'
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/core/providers/currency_provider.dart';
 import 'package:the_accountant/core/services/currency_service.dart';
+import 'package:the_accountant/core/utils/number_formatter.dart';
+import 'package:the_accountant/features/settings/providers/settings_provider.dart';
 import 'package:the_accountant/shared/widgets/glass_card.dart';
 import 'package:the_accountant/shared/widgets/stat_card.dart';
 import 'package:the_accountant/shared/widgets/shimmer_loading.dart';
@@ -699,9 +700,8 @@ class _ResponsiveFinancialOverviewState
                 walletDecimalProvider(transaction.walletId),
               );
               final currencySymbol = CurrencyInfo.getSymbol(walletCurrency);
-              final formatter = useDecimals
-                  ? NumberFormat('#,##0.00')
-                  : NumberFormat('#,##0');
+              final nf = ref.watch(numberFormatSettingProvider);
+              final formatter = AppNumberFormatter.get(nf, useDecimals: useDecimals);
               final displayAmount = useDecimals
                   ? transaction.amount
                   : transaction.amount.round();
@@ -766,9 +766,8 @@ class _ResponsiveFinancialOverviewState
     final displayCurrency = ref.watch(defaultCurrencyProvider);
     final useDecimals = ref.watch(defaultDecimalProvider);
     final currencySymbol = CurrencyInfo.getSymbol(displayCurrency);
-    final formatter = useDecimals
-        ? NumberFormat('#,##0.00')
-        : NumberFormat('#,##0');
+    final nf = ref.watch(numberFormatSettingProvider);
+    final formatter = AppNumberFormatter.get(nf, useDecimals: useDecimals);
 
     return GlassCard(
       variant: GlassCardVariant.success,

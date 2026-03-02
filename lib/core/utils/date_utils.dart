@@ -1,4 +1,5 @@
 import 'package:intl/intl.dart';
+import 'package:the_accountant/core/utils/date_formatter.dart';
 
 class CustomDateUtils {
   /// Format a DateTime as Month Year (e.g., January 2023)
@@ -7,10 +8,9 @@ class CustomDateUtils {
     return formatter.format(date);
   }
 
-  /// Format a DateTime as MM/dd/yyyy
-  static String formatShortDate(DateTime date) {
-    final formatter = DateFormat('MM/dd/yyyy');
-    return formatter.format(date);
+  /// Format a DateTime using the user's date format setting
+  static String formatShortDate(DateTime date, {String dateFormat = 'MM/dd/yyyy'}) {
+    return AppDateFormatter.formatDate(date, dateFormat);
   }
 
   /// Get the first day of the month for a given date

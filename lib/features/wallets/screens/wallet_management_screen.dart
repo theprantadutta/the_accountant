@@ -2,12 +2,13 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import 'package:the_accountant/core/services/currency_service.dart';
+import 'package:the_accountant/core/utils/number_formatter.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/data/models/wallet.dart' show WalletType;
+import 'package:the_accountant/features/settings/providers/settings_provider.dart';
 import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
 import 'package:the_accountant/features/wallets/widgets/add_wallet_form.dart';
 import 'package:the_accountant/shared/widgets/color_picker.dart';
@@ -85,6 +86,7 @@ class _WalletManagementScreenState extends ConsumerState<WalletManagementScreen>
                   formKey: _formKey,
                   nameController: _nameController,
                   balanceController: _balanceController,
+                  initialCurrency: ref.read(settingsProvider).currency,
                   onSubmit: _submitForm,
                   onCancel: () => Navigator.pop(context),
                 ),
@@ -398,9 +400,7 @@ class _WalletManagementScreenState extends ConsumerState<WalletManagementScreen>
                           fit: BoxFit.scaleDown,
                           alignment: Alignment.centerLeft,
                           child: Text(
-                            NumberFormat(
-                              '#,##0.00',
-                            ).format(totalBalance * _headerAnimation.value),
+                            AppNumberFormatter.get(ref.watch(numberFormatSettingProvider)).format(totalBalance * _headerAnimation.value),
                             style: const TextStyle(
                               fontSize: 32,
                               fontWeight: FontWeight.bold,
@@ -1020,11 +1020,7 @@ class _WalletCardState extends ConsumerState<_WalletCard>
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              wallet.useDecimals
-                                  ? NumberFormat('#,##0.00').format(outstanding)
-                                  : NumberFormat(
-                                      '#,##0',
-                                    ).format(outstanding.round()),
+                              AppNumberFormatter.get(ref.watch(numberFormatSettingProvider), useDecimals: wallet.useDecimals).format(wallet.useDecimals ? outstanding : outstanding.round()),
                               style: TextStyle(
                                 fontSize: 28,
                                 fontWeight: FontWeight.bold,
@@ -1065,7 +1061,7 @@ class _WalletCardState extends ConsumerState<_WalletCard>
                                   ),
                                 ),
                                 Text(
-                                  '${CurrencyInfo.getSymbol(wallet.currency)}${wallet.useDecimals ? NumberFormat('#,##0.00').format(available) : NumberFormat('#,##0').format(available.round())}',
+                                  '${CurrencyInfo.getSymbol(wallet.currency)}${AppNumberFormatter.get(ref.watch(numberFormatSettingProvider), useDecimals: wallet.useDecimals).format(wallet.useDecimals ? available : available.round())}',
                                   style: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w600,
@@ -1087,7 +1083,7 @@ class _WalletCardState extends ConsumerState<_WalletCard>
                                   ),
                                 ),
                                 Text(
-                                  '${CurrencyInfo.getSymbol(wallet.currency)}${wallet.useDecimals ? NumberFormat('#,##0.00').format(creditLimit) : NumberFormat('#,##0').format(creditLimit.round())}',
+                                  '${CurrencyInfo.getSymbol(wallet.currency)}${AppNumberFormatter.get(ref.watch(numberFormatSettingProvider), useDecimals: wallet.useDecimals).format(wallet.useDecimals ? creditLimit : creditLimit.round())}',
                                   style: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w600,
@@ -1150,13 +1146,7 @@ class _WalletCardState extends ConsumerState<_WalletCard>
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              wallet.useDecimals
-                                  ? NumberFormat(
-                                      '#,##0.00',
-                                    ).format(balance.abs())
-                                  : NumberFormat(
-                                      '#,##0',
-                                    ).format(balance.abs().round()),
+                              AppNumberFormatter.get(ref.watch(numberFormatSettingProvider), useDecimals: wallet.useDecimals).format(wallet.useDecimals ? balance.abs() : balance.abs().round()),
                               style: TextStyle(
                                 fontSize: 28,
                                 fontWeight: FontWeight.bold,

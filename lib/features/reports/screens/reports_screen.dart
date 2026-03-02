@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:intl/intl.dart';
 import 'package:the_accountant/core/providers/currency_provider.dart';
 import 'package:the_accountant/core/services/currency_service.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
@@ -13,6 +12,8 @@ import 'package:the_accountant/features/transactions/providers/transaction_provi
 import 'package:the_accountant/features/budgets/providers/budget_provider.dart';
 import 'package:the_accountant/features/categories/providers/category_provider.dart';
 import 'package:the_accountant/features/reports/providers/reports_provider.dart';
+import 'package:the_accountant/features/settings/providers/settings_provider.dart';
+import 'package:the_accountant/core/utils/number_formatter.dart';
 import 'package:the_accountant/features/premium/providers/premium_provider.dart';
 
 class ReportsScreen extends ConsumerStatefulWidget {
@@ -566,9 +567,8 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
     final netSavings =
         financialData.monthlyIncome - financialData.monthlyExpenses;
     final growthPercentage = financialData.monthlyGrowthPercentage;
-    final formatter = useDecimals
-        ? NumberFormat('#,##0.00')
-        : NumberFormat('#,##0');
+    final nf = ref.watch(numberFormatSettingProvider);
+    final formatter = AppNumberFormatter.get(nf, useDecimals: useDecimals);
 
     String formatAmount(double amount) {
       return '$currencySymbol${formatter.format(useDecimals ? amount : amount.round())}';
@@ -711,9 +711,8 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
       0.0,
       (sum, amount) => sum + amount,
     );
-    final formatter = useDecimals
-        ? NumberFormat('#,##0.00')
-        : NumberFormat('#,##0');
+    final nf = ref.watch(numberFormatSettingProvider);
+    final formatter = AppNumberFormatter.get(nf, useDecimals: useDecimals);
 
     // Convert to list and sort by amount
     final categories =

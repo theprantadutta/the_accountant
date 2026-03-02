@@ -8,6 +8,7 @@ import 'package:the_accountant/data/datasources/local/app_database.dart'
 import 'package:the_accountant/data/models/transaction.dart'
     show TransactionSpecialType;
 import 'package:the_accountant/features/categories/providers/category_provider.dart';
+import 'package:the_accountant/features/settings/providers/settings_provider.dart';
 import 'package:the_accountant/features/transactions/providers/transaction_provider.dart'
     hide Transaction;
 import 'package:the_accountant/features/transactions/providers/transfer_provider.dart';
@@ -522,6 +523,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                       setState(() => _selectedDateTime = dateTime);
                     },
                     accentColor: _accentColor,
+                    dateFormat: ref.watch(dateFormatSettingProvider),
                   ),
                   const SizedBox(height: 16),
 

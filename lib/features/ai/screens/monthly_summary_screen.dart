@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/features/ai/providers/monthly_summary_provider.dart';
+import 'package:the_accountant/features/settings/providers/settings_provider.dart';
 import 'package:the_accountant/features/transactions/providers/transaction_provider.dart';
 import 'package:the_accountant/features/premium/widgets/premium_gate.dart';
 import 'package:the_accountant/data/models/premium_features.dart';
@@ -107,11 +108,11 @@ class _MonthlySummaryScreenState extends ConsumerState<MonthlySummaryScreen> {
                       child: SummaryCard(
                         title: 'Income',
                         amount: monthlySummaryState.summary!.totalIncome,
-                        currency: '\$', // Add required currency parameter
-                        icon: Icons.trending_up, // Add required icon parameter
-                        iconColor:
-                            Colors.green, // Add required iconColor parameter
+                        currency: '\$',
+                        icon: Icons.trending_up,
+                        iconColor: Colors.green,
                         isPositive: true,
+                        numberFormat: ref.watch(numberFormatSettingProvider),
                       ),
                     ),
                     const SizedBox(width: 16),
@@ -119,12 +120,11 @@ class _MonthlySummaryScreenState extends ConsumerState<MonthlySummaryScreen> {
                       child: SummaryCard(
                         title: 'Expenses',
                         amount: monthlySummaryState.summary!.totalExpenses,
-                        currency: '\$', // Add required currency parameter
-                        icon:
-                            Icons.trending_down, // Add required icon parameter
-                        iconColor:
-                            Colors.red, // Add required iconColor parameter
+                        currency: '\$',
+                        icon: Icons.trending_down,
+                        iconColor: Colors.red,
                         isPositive: false,
+                        numberFormat: ref.watch(numberFormatSettingProvider),
                       ),
                     ),
                   ],
@@ -134,13 +134,13 @@ class _MonthlySummaryScreenState extends ConsumerState<MonthlySummaryScreen> {
                 SummaryCard(
                   title: 'Net Savings',
                   amount: monthlySummaryState.summary!.netSavings,
-                  currency: '\$', // Add required currency parameter
-                  icon: Icons
-                      .account_balance_wallet, // Add required icon parameter
+                  currency: '\$',
+                  icon: Icons.account_balance_wallet,
                   iconColor: monthlySummaryState.summary!.netSavings >= 0
                       ? Colors.green
-                      : Colors.red, // Add required iconColor parameter
+                      : Colors.red,
                   isPositive: monthlySummaryState.summary!.netSavings >= 0,
+                  numberFormat: ref.watch(numberFormatSettingProvider),
                 ),
                 const SizedBox(height: 16),
 

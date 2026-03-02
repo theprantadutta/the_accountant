@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
+import 'package:the_accountant/core/utils/date_formatter.dart';
 
 /// Compact date and time picker displayed in a single row.
 /// Shows date as "Today", "Yesterday", "Tomorrow", or formatted date.
@@ -10,31 +10,19 @@ class CompactDateTimePicker extends StatelessWidget {
   final DateTime selectedDateTime;
   final ValueChanged<DateTime> onDateTimeChanged;
   final Color accentColor;
+  final String? dateFormat;
 
   const CompactDateTimePicker({
     super.key,
     required this.selectedDateTime,
     required this.onDateTimeChanged,
     required this.accentColor,
+    this.dateFormat,
   });
 
   String _getDateLabel(DateTime date) {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final selected = DateTime(date.year, date.month, date.day);
-
-    final difference = selected.difference(today).inDays;
-
-    if (difference == 0) return 'Today';
-    if (difference == -1) return 'Yesterday';
-    if (difference == 1) return 'Tomorrow';
-
-    // For dates within the same year, show "Jan 12"
-    if (date.year == now.year) {
-      return DateFormat('MMM d').format(date);
-    }
-    // For other years, show "Jan 12, 2025"
-    return DateFormat('MMM d, y').format(date);
+    final df = dateFormat ?? 'MM/dd/yyyy';
+    return AppDateFormatter.formatRelativeDate(date, df);
   }
 
   Future<void> _showDatePicker(BuildContext context) async {

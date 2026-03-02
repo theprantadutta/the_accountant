@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import 'package:the_accountant/core/providers/currency_provider.dart';
 import 'package:the_accountant/core/services/currency_service.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/utils/color_utils.dart';
 import 'package:the_accountant/core/utils/icon_registry.dart';
+import 'package:the_accountant/core/utils/number_formatter.dart';
+import 'package:the_accountant/features/settings/providers/settings_provider.dart';
 
 class TransactionCard extends ConsumerWidget {
   final String id;
@@ -46,8 +47,10 @@ class TransactionCard extends ConsumerWidget {
     final isExpense = transactionType == 'expense';
 
     // Format amount with currency from the transaction's wallet
-    final formattedAmount = NumberFormat.currency(
-      symbol: CurrencyInfo.getSymbol(walletCurrency),
+    final nf = ref.watch(numberFormatSettingProvider);
+    final formattedAmount = AppNumberFormatter.currency(
+      CurrencyInfo.getSymbol(walletCurrency),
+      nf,
       decimalDigits: useDecimals ? 2 : 0,
     ).format(useDecimals ? amount : amount.round());
 

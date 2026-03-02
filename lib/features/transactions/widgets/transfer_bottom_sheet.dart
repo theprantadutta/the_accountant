@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:the_accountant/core/utils/date_formatter.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
+import 'package:the_accountant/features/settings/providers/settings_provider.dart';
 import 'package:the_accountant/features/transactions/providers/transfer_provider.dart';
 import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
 
@@ -688,18 +690,8 @@ class _TransferBottomSheetState extends ConsumerState<TransferBottomSheet> {
   }
 
   String _formatDate(DateTime date) {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final yesterday = today.subtract(const Duration(days: 1));
-    final dateOnly = DateTime(date.year, date.month, date.day);
-
-    if (dateOnly == today) {
-      return 'Today';
-    } else if (dateOnly == yesterday) {
-      return 'Yesterday';
-    } else {
-      return '${date.day}/${date.month}/${date.year}';
-    }
+    final df = ref.watch(dateFormatSettingProvider);
+    return AppDateFormatter.formatRelativeDate(date, df);
   }
 }
 

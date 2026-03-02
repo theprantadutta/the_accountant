@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import 'package:the_accountant/core/providers/currency_provider.dart';
 import 'package:the_accountant/core/services/currency_service.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/core/themes/app_typography.dart';
+import 'package:the_accountant/core/utils/date_formatter.dart';
+import 'package:the_accountant/core/utils/number_formatter.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/data/models/transaction.dart'
     show TransactionSpecialType;
 import 'package:the_accountant/features/credit_debt/providers/credit_debt_provider.dart';
+import 'package:the_accountant/features/settings/providers/settings_provider.dart';
 import 'package:the_accountant/shared/widgets/glass_card.dart';
 
 class CreditDebtScreen extends ConsumerStatefulWidget {
@@ -161,7 +163,7 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
   Widget _buildSummaryCard(CreditDebtState state) {
     final displayCurrency = ref.watch(defaultCurrencyProvider);
     final currencySymbol = CurrencyInfo.getSymbol(displayCurrency);
-    final currencyFormat = NumberFormat.currency(symbol: currencySymbol);
+    final currencyFormat = AppNumberFormatter.currency(currencySymbol, ref.watch(numberFormatSettingProvider));
     final netBalance = state.netBalance;
     final isPositive = netBalance >= 0;
     final overdueCount = state.overdueCount;
@@ -383,12 +385,13 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
   }
 
   Widget _buildTransactionCard(Transaction transaction, bool isCredit) {
-    final dateFormat = DateFormat('MMM d, yyyy');
+    final df = ref.watch(dateFormatSettingProvider);
     final walletCurrency = ref.watch(
       walletCurrencyProvider(transaction.walletId),
     );
-    final currencyFormat = NumberFormat.currency(
-      symbol: CurrencyInfo.getSymbol(walletCurrency),
+    final currencyFormat = AppNumberFormatter.currency(
+      CurrencyInfo.getSymbol(walletCurrency),
+      ref.watch(numberFormatSettingProvider),
     );
     final isPaid = transaction.isPaid;
     final isOverdue = ref
@@ -502,7 +505,7 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            dateFormat.format(transaction.date),
+                            AppDateFormatter.formatDate(transaction.date, df),
                             style: AppTypography.labelSmall.copyWith(
                               color: isOverdue
                                   ? AppColors.error
@@ -704,7 +707,7 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
               ),
               const SizedBox(height: 4),
               Text(
-                'Remaining: $symbol${NumberFormat('#,##0.00').format(remaining)}',
+                'Remaining: $symbol${AppNumberFormatter.get(ref.watch(numberFormatSettingProvider)).format(remaining)}',
                 style: TextStyle(color: AppColors.textMuted, fontSize: 12),
               ),
               const SizedBox(height: 16),
@@ -805,7 +808,7 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Payment of $symbol${NumberFormat('#,##0.00').format(amount)} recorded',
+            'Payment of $symbol${AppNumberFormatter.get(ref.watch(numberFormatSettingProvider)).format(amount)} recorded',
           ),
           backgroundColor: AppColors.success,
         ),

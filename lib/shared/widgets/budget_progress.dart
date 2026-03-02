@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/services/currency_service.dart';
 import 'package:the_accountant/core/providers/currency_provider.dart';
-import 'package:the_accountant/features/transactions/providers/transaction_provider.dart';
+import 'package:the_accountant/core/utils/number_formatter.dart';
 import 'package:the_accountant/features/settings/providers/settings_provider.dart';
+import 'package:the_accountant/features/transactions/providers/transaction_provider.dart';
 
 class BudgetProgress extends ConsumerWidget {
   final String budgetName;
@@ -28,7 +28,6 @@ class BudgetProgress extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final transactionState = ref.watch(transactionProvider);
-    final settings = ref.watch(settingsProvider);
     final useDecimals = ref.watch(defaultDecimalProvider);
 
     // Calculate spent amount for this budget's category and date range
@@ -45,19 +44,23 @@ class BudgetProgress extends ConsumerWidget {
     final percentage = limit > 0 ? (spent / limit).clamp(0.0, 1.0) : 0.0;
     final remaining = limit - spent;
 
+    final nf = ref.watch(numberFormatSettingProvider);
     final decimalDigits = useDecimals ? 2 : 0;
-    final formattedLimit = NumberFormat.currency(
-      symbol: CurrencyInfo.getSymbol(settings.currency),
+    final formattedLimit = AppNumberFormatter.currency(
+      CurrencyInfo.getSymbol(currency),
+      nf,
       decimalDigits: decimalDigits,
     ).format(useDecimals ? limit : limit.round());
 
-    final formattedSpent = NumberFormat.currency(
-      symbol: CurrencyInfo.getSymbol(settings.currency),
+    final formattedSpent = AppNumberFormatter.currency(
+      CurrencyInfo.getSymbol(currency),
+      nf,
       decimalDigits: decimalDigits,
     ).format(useDecimals ? spent : spent.round());
 
-    final formattedRemaining = NumberFormat.currency(
-      symbol: CurrencyInfo.getSymbol(settings.currency),
+    final formattedRemaining = AppNumberFormatter.currency(
+      CurrencyInfo.getSymbol(currency),
+      nf,
       decimalDigits: decimalDigits,
     ).format(useDecimals ? remaining.abs() : remaining.abs().round());
 

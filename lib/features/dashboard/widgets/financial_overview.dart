@@ -6,8 +6,10 @@ import 'package:the_accountant/features/transactions/providers/transaction_provi
 import 'package:the_accountant/features/budgets/providers/budget_provider.dart';
 import 'package:the_accountant/core/providers/currency_provider.dart';
 import 'package:the_accountant/core/services/currency_service.dart';
+import 'package:the_accountant/core/utils/date_formatter.dart';
+import 'package:the_accountant/core/utils/number_formatter.dart';
+import 'package:the_accountant/features/settings/providers/settings_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 
 class FinancialOverview extends ConsumerWidget {
   const FinancialOverview({super.key});
@@ -61,6 +63,7 @@ class FinancialOverview extends ConsumerWidget {
                     icon: Icons.account_balance_wallet,
                     iconColor: Colors.blue,
                     isPositive: netBalance >= 0,
+                    numberFormat: ref.watch(numberFormatSettingProvider),
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -72,6 +75,7 @@ class FinancialOverview extends ConsumerWidget {
                     icon: Icons.trending_down,
                     iconColor: Colors.red,
                     isPositive: false,
+                    numberFormat: ref.watch(numberFormatSettingProvider),
                   ),
                 ),
               ],
@@ -180,11 +184,11 @@ class FinancialOverview extends ConsumerWidget {
                           ),
                           title: Text(transaction.category),
                           subtitle: Text(
-                            DateFormat('MMM dd, yyyy').format(transaction.date),
+                            AppDateFormatter.formatDate(transaction.date, ref.watch(dateFormatSettingProvider)),
                           ),
                           trailing: Text(
                             '${transaction.type == 'income' ? '+' : '-'}'
-                            '${NumberFormat.currency(symbol: currencySymbol).format(transaction.amount)}',
+                            '${AppNumberFormatter.currency(currencySymbol, ref.watch(numberFormatSettingProvider)).format(transaction.amount)}',
                             style: TextStyle(
                               color: transaction.type == 'income'
                                   ? Colors.green
@@ -315,7 +319,7 @@ class _FinancialItem extends StatelessWidget {
         const SizedBox(height: 8),
         Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
         Text(
-          NumberFormat.currency(symbol: '\$').format(amount),
+          AppNumberFormatter.currency('\$', 'comma_dot').format(amount),
           style: TextStyle(color: color, fontWeight: FontWeight.bold),
         ),
       ],

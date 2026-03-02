@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:the_accountant/core/utils/number_formatter.dart';
 
 class SummaryCard extends StatelessWidget {
   final String title;
@@ -9,6 +9,7 @@ class SummaryCard extends StatelessWidget {
   final Color iconColor;
   final bool isPositive;
   final bool useDecimals;
+  final String numberFormat;
 
   const SummaryCard({
     super.key,
@@ -19,12 +20,14 @@ class SummaryCard extends StatelessWidget {
     required this.iconColor,
     this.isPositive = true,
     this.useDecimals = true,
+    this.numberFormat = 'comma_dot',
   });
 
   @override
   Widget build(BuildContext context) {
-    final formattedAmount = NumberFormat.currency(
-      symbol: '$currency ',
+    final formattedAmount = AppNumberFormatter.currency(
+      '$currency ',
+      numberFormat,
       decimalDigits: useDecimals ? 2 : 0,
     ).format(useDecimals ? amount : amount.round());
 

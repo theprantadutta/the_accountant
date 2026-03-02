@@ -6,7 +6,10 @@ import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_typography.dart';
 import 'package:the_accountant/core/providers/currency_provider.dart';
 import 'package:the_accountant/core/services/currency_service.dart';
+import 'package:the_accountant/core/utils/date_formatter.dart';
+import 'package:the_accountant/core/utils/number_formatter.dart';
 import 'package:the_accountant/features/categories/providers/category_provider.dart';
+import 'package:the_accountant/features/settings/providers/settings_provider.dart';
 import 'package:the_accountant/features/transactions/providers/transaction_provider.dart';
 import 'package:the_accountant/features/transactions/screens/add_transaction_screen.dart';
 import 'package:the_accountant/shared/widgets/glass_card.dart';
@@ -235,17 +238,18 @@ class _TransactionTypeScreenState extends ConsumerState<TransactionTypeScreen> {
     final yesterday = today.subtract(const Duration(days: 1));
     final tomorrow = today.add(const Duration(days: 1));
 
-    final dateFormat = DateFormat('MMM d');
+    final df = ref.watch(dateFormatSettingProvider);
+    final shortDate = AppDateFormatter.formatShortDate(date, df);
     final dayFormat = DateFormat('EEEE');
 
     if (date == today) {
-      return 'Today, ${dateFormat.format(date)}';
+      return 'Today, $shortDate';
     } else if (date == yesterday) {
-      return 'Yesterday, ${dateFormat.format(date)}';
+      return 'Yesterday, $shortDate';
     } else if (date == tomorrow) {
-      return 'Tomorrow, ${dateFormat.format(date)}';
+      return 'Tomorrow, $shortDate';
     } else {
-      return '${dayFormat.format(date)}, ${dateFormat.format(date)}';
+      return '${dayFormat.format(date)}, $shortDate';
     }
   }
 
@@ -494,8 +498,8 @@ class _TransactionTypeScreenState extends ConsumerState<TransactionTypeScreen> {
     final displayCurrency = ref.watch(defaultCurrencyProvider);
     final useDecimals = ref.watch(defaultDecimalProvider);
     final currencySymbol = CurrencyInfo.getSymbol(displayCurrency);
-    final formatter =
-        useDecimals ? NumberFormat('#,##0.00') : NumberFormat('#,##0');
+    final nf = ref.watch(numberFormatSettingProvider);
+    final formatter = AppNumberFormatter.get(nf, useDecimals: useDecimals);
 
     final typeLabel = widget.transactionType == 'income'
         ? 'Monthly Income'

@@ -7,9 +7,11 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart' show SharePlus, ShareParams, XFile;
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
+import 'package:the_accountant/core/utils/date_formatter.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
-import 'package:the_accountant/features/settings/services/pdf_export_service.dart';
 import 'package:the_accountant/features/settings/providers/settings_provider.dart';
+import 'package:the_accountant/features/settings/services/pdf_export_service.dart';
+import 'package:the_accountant/core/providers/currency_provider.dart';
 
 class ExportScreen extends ConsumerStatefulWidget {
   const ExportScreen({super.key});
@@ -170,9 +172,9 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
   }
 
   Widget _buildDateRangeTile() {
-    final dateFormat = DateFormat('MMM d, yyyy');
+    final df = ref.watch(dateFormatSettingProvider);
     final rangeText = _selectedDateRange != null
-        ? '${dateFormat.format(_selectedDateRange!.start)} - ${dateFormat.format(_selectedDateRange!.end)}'
+        ? '${AppDateFormatter.formatDate(_selectedDateRange!.start, df)} - ${AppDateFormatter.formatDate(_selectedDateRange!.end, df)}'
         : 'Select date range';
 
     return ListTile(
@@ -516,8 +518,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
   Future<void> _exportToPdf(List<dynamic> transactions) async {
     if (_selectedDateRange == null) return;
 
-    final settingsState = ref.read(settingsProvider);
-    final currency = settingsState.currency;
+    final currency = ref.read(defaultCurrencyProvider);
 
     // Convert to Transaction list
     final typedTransactions = transactions.cast<dynamic>().toList();
@@ -532,6 +533,8 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
       currency: currency,
       includeCategories: true,
       includeWallets: true,
+      dateFormat: ref.read(dateFormatSettingProvider),
+      numberFormat: ref.read(numberFormatSettingProvider),
     );
 
     // Share the file

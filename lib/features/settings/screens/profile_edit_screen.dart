@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/core/services/backend_auth_service.dart';
+import 'package:the_accountant/core/utils/date_formatter.dart';
 import 'package:the_accountant/features/authentication/providers/auth_provider.dart';
+import 'package:the_accountant/features/settings/providers/settings_provider.dart';
 import 'package:the_accountant/features/settings/widgets/confirmation_dialog.dart';
 
 class ProfileEditScreen extends ConsumerStatefulWidget {
@@ -310,7 +311,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
           _buildInfoRow(
             'Member Since',
             authState.createdAt != null
-                ? DateFormat('MMMM d, yyyy').format(authState.createdAt!)
+                ? AppDateFormatter.formatDate(authState.createdAt!, ref.watch(dateFormatSettingProvider))
                 : 'Unknown',
             Icons.calendar_today_outlined,
           ),

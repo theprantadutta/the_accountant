@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import 'package:the_accountant/core/services/currency_service.dart';
+import 'package:the_accountant/core/utils/number_formatter.dart';
+import 'package:the_accountant/features/settings/providers/settings_provider.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/core/themes/app_typography.dart';
@@ -527,9 +528,8 @@ class _WalletCardState extends ConsumerState<_WalletCard>
 
   String _formatCurrency(double amount, String currencyCode, bool useDecimals) {
     final symbol = CurrencyInfo.getSymbol(currencyCode);
-    final formatter = useDecimals
-        ? NumberFormat('#,##0.00')
-        : NumberFormat('#,##0');
+    final nf = ref.watch(numberFormatSettingProvider);
+    final formatter = AppNumberFormatter.get(nf, useDecimals: useDecimals);
     final displayAmount = useDecimals ? amount.abs() : amount.abs().round();
     final formatted = formatter.format(displayAmount);
     final sign = amount < 0 ? '-' : '';
