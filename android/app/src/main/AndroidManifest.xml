@@ -8,6 +8,8 @@
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
     <!-- Required for exact alarm scheduling on Android 14+ -->
     <uses-permission android:name="android.permission.USE_EXACT_ALARM"/>
+    <!-- Required for biometric authentication -->
+    <uses-permission android:name="android.permission.USE_BIOMETRIC"/>
 
     <application
         android:label="The Accountant"

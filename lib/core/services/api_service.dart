@@ -562,6 +562,21 @@ class ApiService {
     }
   }
 
+  /// Change or set password
+  Future<void> changePassword({
+    String? currentPassword,
+    required String newPassword,
+  }) async {
+    try {
+      await _dio.post('/auth/change-password', data: {
+        if (currentPassword != null) 'currentPassword': currentPassword,
+        'newPassword': newPassword,
+      });
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   // ============================================================================
   // Generic HTTP Methods (for future backend services)
   // ============================================================================

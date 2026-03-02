@@ -261,6 +261,21 @@ class BackendAuthService extends ChangeNotifier {
     }
   }
 
+  /// Change or set password
+  Future<void> changePassword({
+    String? currentPassword,
+    required String newPassword,
+  }) async {
+    try {
+      await _apiService.changePassword(
+        currentPassword: currentPassword,
+        newPassword: newPassword,
+      );
+    } catch (e) {
+      throw Exception('$e');
+    }
+  }
+
   /// Apply user info map to local state and notify listeners
   void _applyUserInfo(Map<String, dynamic> userInfo) {
     _userId = userInfo['id'];

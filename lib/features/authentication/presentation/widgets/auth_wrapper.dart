@@ -17,6 +17,8 @@ import 'package:the_accountant/core/providers/sync_provider.dart';
 import 'package:the_accountant/core/providers/intro_legal_provider.dart';
 import 'package:the_accountant/features/onboarding/onboarding_screen.dart';
 import 'package:the_accountant/features/legal/legal_acceptance_screen.dart';
+import 'package:the_accountant/features/settings/providers/settings_provider.dart';
+import 'package:the_accountant/features/settings/screens/lock_screen.dart';
 
 class AuthWrapper extends ConsumerStatefulWidget {
   const AuthWrapper({super.key});
@@ -29,6 +31,8 @@ class _AuthWrapperState extends ConsumerState<AuthWrapper>
     with WidgetsBindingObserver {
   bool _hasCheckedOnboarding = false;
   bool _hasRunStartupChecks = false;
+  bool _isLocked = false;
+  DateTime? _pausedAt;
 
   @override
   void initState() {
@@ -63,13 +67,41 @@ class _AuthWrapperState extends ConsumerState<AuthWrapper>
     super.didChangeAppLifecycleState(state);
 
     if (state == AppLifecycleState.resumed) {
+      // Check biometric lock on resume
+      _checkBiometricLockOnResume();
       // When app returns to foreground, check if token needs refresh
       _checkAndRefreshTokenOnResume();
       // Trigger auto-sync on resume
       ref.read(syncNotifierProvider.notifier).triggerAutoSync();
     } else if (state == AppLifecycleState.paused) {
+      _pausedAt = DateTime.now();
       // Stop periodic sync when app goes to background
       ref.read(syncNotifierProvider.notifier).stopPeriodicSync();
+    }
+  }
+
+  /// Check if the app should be locked based on biometric settings and timeout
+  void _checkBiometricLockOnResume() {
+    final settings = ref.read(settingsProvider);
+    if (!settings.biometricLockEnabled) return;
+
+    final timeout = settings.autoLockTimeoutMinutes;
+
+    // -1 means "Never"
+    if (timeout == -1) return;
+
+    // 0 means "Immediately" — always lock
+    if (timeout == 0) {
+      setState(() => _isLocked = true);
+      return;
+    }
+
+    // Check if enough time has elapsed
+    if (_pausedAt != null) {
+      final elapsed = DateTime.now().difference(_pausedAt!).inMinutes;
+      if (elapsed >= timeout) {
+        setState(() => _isLocked = true);
+      }
     }
   }
 
@@ -175,6 +207,13 @@ class _AuthWrapperState extends ConsumerState<AuthWrapper>
           _runStartupChecks();
           setState(() => _hasRunStartupChecks = true);
         });
+      }
+
+      // Show lock screen if biometric lock triggered
+      if (_isLocked) {
+        return LockScreen(
+          onUnlocked: () => setState(() => _isLocked = false),
+        );
       }
 
       // Show main app

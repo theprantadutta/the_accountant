@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:the_accountant/core/services/biometric_service.dart';
+import 'package:the_accountant/core/services/backend_auth_service.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
 import 'package:the_accountant/features/settings/providers/settings_provider.dart';
 import 'package:the_accountant/features/settings/widgets/settings_tile.dart';
 import 'package:the_accountant/features/settings/widgets/confirmation_dialog.dart';
+import 'package:the_accountant/features/settings/widgets/change_password_dialog.dart';
 import 'package:the_accountant/features/legal/legal_document_viewer.dart';
 
 class PrivacySecurityScreen extends ConsumerStatefulWidget {
@@ -20,6 +23,30 @@ class PrivacySecurityScreen extends ConsumerStatefulWidget {
 class _PrivacySecurityScreenState extends ConsumerState<PrivacySecurityScreen> {
   bool _isClearingCache = false;
   bool _isClearingData = false;
+  bool? _hasPassword;
+  final BackendAuthService _authService = BackendAuthService();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAuthProviders();
+  }
+
+  Future<void> _loadAuthProviders() async {
+    try {
+      final providers = await _authService.getAuthProviders();
+      if (mounted) {
+        setState(() {
+          _hasPassword = providers['hasPassword'] as bool? ?? false;
+        });
+      }
+    } catch (e) {
+      // Default to true if we can't determine
+      if (mounted) {
+        setState(() => _hasPassword = true);
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,6 +72,24 @@ class _PrivacySecurityScreenState extends ConsumerState<PrivacySecurityScreen> {
                 subtitle: 'Use fingerprint or face to unlock',
                 value: settingsState.biometricLockEnabled,
                 onChanged: (value) async {
+                  if (value) {
+                    // Check if biometrics are available
+                    final isAvailable =
+                        await BiometricService().isAvailable();
+                    if (!isAvailable) {
+                      if (mounted) {
+                        showErrorSnackBar(
+                          context,
+                          'Biometric authentication not available on this device',
+                        );
+                      }
+                      return;
+                    }
+                    // Confirm identity before enabling
+                    final authenticated =
+                        await BiometricService().authenticate();
+                    if (!authenticated) return;
+                  }
                   await ref
                       .read(settingsProvider.notifier)
                       .setBiometricLock(value);
@@ -61,10 +106,29 @@ class _PrivacySecurityScreenState extends ConsumerState<PrivacySecurityScreen> {
                 ),
               SettingsNavigationTile(
                 icon: Icons.lock_outline,
-                title: 'Change Password',
-                subtitle: 'Update your account password',
-                onTap: () {
-                  showInfoSnackBar(context, 'Password change coming soon');
+                title: _hasPassword == false
+                    ? 'Set Password'
+                    : 'Change Password',
+                subtitle: _hasPassword == false
+                    ? 'Add password to your account'
+                    : 'Update your account password',
+                onTap: () async {
+                  final hasPassword = _hasPassword ?? true;
+                  final result = await showChangePasswordDialog(
+                    context: context,
+                    hasPassword: hasPassword,
+                    authService: _authService,
+                  );
+                  if (result == true && mounted) {
+                    showSuccessSnackBar(
+                      context,
+                      hasPassword
+                          ? 'Password changed successfully'
+                          : 'Password set successfully',
+                    );
+                    // Refresh auth providers to update hasPassword state
+                    _loadAuthProviders();
+                  }
                 },
               ),
             ],
