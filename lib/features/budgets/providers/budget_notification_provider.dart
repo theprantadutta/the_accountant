@@ -1,32 +1,26 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:the_accountant/features/budgets/providers/budget_provider.dart';
 import 'package:the_accountant/features/transactions/providers/transaction_provider.dart';
 import 'package:the_accountant/core/services/notification_service.dart';
+import 'package:the_accountant/features/settings/providers/notification_preferences_provider.dart';
 
 class BudgetNotificationState {
-  final bool isEnabled;
-  final double
-  warningThreshold; // Percentage at which to send warning (e.g., 80%)
   final bool isLoading;
   final String? errorMessage;
 
   BudgetNotificationState({
-    required this.isEnabled,
-    required this.warningThreshold,
     required this.isLoading,
     this.errorMessage,
   });
 
   BudgetNotificationState copyWith({
-    bool? isEnabled,
-    double? warningThreshold,
     bool? isLoading,
     String? errorMessage,
   }) {
     return BudgetNotificationState(
-      isEnabled: isEnabled ?? this.isEnabled,
-      warningThreshold: warningThreshold ?? this.warningThreshold,
       isLoading: isLoading ?? this.isLoading,
       errorMessage: errorMessage,
     );
@@ -36,29 +30,26 @@ class BudgetNotificationState {
 class BudgetNotificationNotifier
     extends StateNotifier<BudgetNotificationState> {
   final Ref _ref;
+  Timer? _timer;
 
   BudgetNotificationNotifier(this._ref)
-    : super(
-        BudgetNotificationState(
-          isEnabled: true,
-          warningThreshold: 80.0,
-          isLoading: false,
-        ),
-      ) {
-    // Check budgets periodically
-    _checkBudgetsPeriodically();
-  }
-
-  void _checkBudgetsPeriodically() {
+    : super(BudgetNotificationState(isLoading: false)) {
     // Check budgets every hour
-    Future.delayed(const Duration(hours: 1), () {
+    _timer = Timer.periodic(const Duration(hours: 1), (_) {
       _checkBudgets();
-      _checkBudgetsPeriodically(); // Recursive call
     });
   }
 
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
   Future<void> _checkBudgets() async {
-    if (!state.isEnabled) return;
+    final prefs = _ref.read(notificationPreferencesProvider);
+    if (!prefs.budgetAlertsEnabled) return;
+    final threshold = prefs.budgetWarningThreshold;
 
     try {
       final budgetState = _ref.read(budgetProvider);
@@ -85,7 +76,7 @@ class BudgetNotificationNotifier
             : 0.0;
 
         // Send notification if budget is over threshold
-        if (percentage >= state.warningThreshold) {
+        if (percentage >= threshold) {
           await NotificationService().showBudgetWarningNotification(
             budget.name,
             percentage,
@@ -96,14 +87,6 @@ class BudgetNotificationNotifier
     } catch (e) {
       state = state.copyWith(errorMessage: 'Failed to check budgets');
     }
-  }
-
-  void setEnabled(bool enabled) {
-    state = state.copyWith(isEnabled: enabled);
-  }
-
-  void setWarningThreshold(double threshold) {
-    state = state.copyWith(warningThreshold: threshold);
   }
 
   Future<void> checkBudgetsNow() async {

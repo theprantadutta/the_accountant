@@ -14,6 +14,8 @@ import 'package:the_accountant/data/models/transaction.dart'
     show TransactionSpecialType;
 import 'package:the_accountant/core/services/reminder_scheduler_service.dart';
 import 'package:the_accountant/features/ai/services/category_assignment_service.dart';
+import 'package:the_accountant/features/settings/providers/notification_preferences_provider.dart';
+import 'package:the_accountant/core/services/notification_service.dart';
 import 'package:the_accountant/features/settings/providers/settings_provider.dart';
 import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
 import 'package:the_accountant/features/dashboard/providers/financial_data_provider.dart';
@@ -342,6 +344,19 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
         } catch (_) {
           // Non-critical — don't fail the transaction
         }
+      }
+
+      // Check for large transaction alert
+      try {
+        final notifPrefs = _ref.read(notificationPreferencesProvider);
+        if (notifPrefs.largeTransactionAlertsEnabled &&
+            amount >= notifPrefs.largeTransactionThreshold) {
+          await NotificationService().showLargeTransactionNotification(
+            amount, title ?? '', isIncome,
+          );
+        }
+      } catch (_) {
+        // Non-critical — don't fail the transaction
       }
 
       return id; // Return the new transaction ID

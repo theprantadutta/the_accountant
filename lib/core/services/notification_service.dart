@@ -135,8 +135,10 @@ class NotificationService {
   }
 
   static Future<void> _handleBackgroundMessage(RemoteMessage message) async {
-    // Handle background messages
-    // This method must be static
+    debugPrint(
+      'NotificationService: Background FCM - '
+      'id: ${message.messageId}, data: ${message.data}',
+    );
   }
 
   Future<void> _showLocalNotification(
@@ -263,6 +265,24 @@ class NotificationService {
     // Record that we showed this notification
     await _recordSubscriptionNotification();
     _logger.i('Subscription expiry notification shown for $subscriptionName');
+  }
+
+  Future<void> showLargeTransactionNotification(
+    double amount,
+    String title,
+    bool isIncome,
+  ) async {
+    final alertTitle = isIncome ? 'Large Income Alert' : 'Large Expense Alert';
+    final body = title.isNotEmpty
+        ? '${isIncome ? "Income" : "Expense"} of \$${amount.toStringAsFixed(2)} recorded: $title'
+        : '${isIncome ? "Income" : "Expense"} of \$${amount.toStringAsFixed(2)} recorded';
+
+    await _showLocalNotification(
+      alertTitle,
+      body,
+      id: 8000 + (title.hashCode % 500).abs(),
+    );
+    _logger.i('Large transaction notification shown: $alertTitle');
   }
 
   Future<String?> getToken() async {
