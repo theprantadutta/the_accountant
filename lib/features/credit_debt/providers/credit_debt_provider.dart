@@ -251,6 +251,21 @@ class CreditDebtNotifier extends StateNotifier<CreditDebtState> {
   /// Mark as pending again
   Future<void> markAsPending(String transactionId) async {
     try {
+      final transaction = await _db.findTransactionById(transactionId);
+      if (transaction == null) return;
+
+      // Reverse the balance effect of any payments made before resetting
+      if (transaction.paidAmount > 0) {
+        final isCredit =
+            transaction.specialType == TransactionSpecialType.credit;
+        await _balanceService.updateBalanceAfterTransaction(
+          walletId: transaction.walletId,
+          amount: transaction.paidAmount,
+          isIncome: !isCredit, // Reverse the payment direction
+        );
+        await _ref.read(walletProvider.notifier).loadWallets();
+      }
+
       await _db.markTransactionAsUnpaid(transactionId);
       // Also reset paidAmount
       await (_db.update(

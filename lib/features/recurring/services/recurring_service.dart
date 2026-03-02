@@ -2,6 +2,7 @@ import 'package:logger/logger.dart';
 import 'package:uuid/uuid.dart';
 import 'package:drift/drift.dart';
 
+import 'package:the_accountant/core/services/wallet_balance_service.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 
 /// Service for managing recurring transactions
@@ -26,6 +27,12 @@ class RecurringService {
 
     for (final config in dueConfigs) {
       try {
+        // Pre-load existing instance dates to avoid O(n²) queries in the loop
+        final existingInstances = await _database.getRecurringInstances(config.id);
+        final existingDates = existingInstances
+            .map((t) => DateTime(t.date.year, t.date.month, t.date.day))
+            .toSet();
+
         // Keep creating instances until we're caught up
         DateTime nextOccurrence = config.nextOccurrence;
 
@@ -45,6 +52,7 @@ class RecurringService {
             baseTransaction,
             config,
             nextOccurrence,
+            existingDates,
           );
           processedCount++;
 
@@ -84,12 +92,26 @@ class RecurringService {
     return processedCount;
   }
 
-  /// Create a transaction instance from a recurring config
+  /// Create a transaction instance from a recurring config.
+  /// Skips creation if a matching instance already exists (deduplication).
+  /// [existingDates] is a pre-loaded set of day-level dates for this config,
+  /// updated in-place as new instances are created to avoid re-querying.
   Future<void> _createTransactionInstance(
     Transaction baseTransaction,
     RecurringConfig config,
     DateTime date,
+    Set<DateTime> existingDates,
   ) async {
+    // Deduplication: check against the pre-loaded set of existing dates
+    final dateOnly = DateTime(date.year, date.month, date.day);
+    final alreadyExists = existingDates.contains(dateOnly);
+    if (alreadyExists) {
+      _logger.d(
+        'Skipping duplicate recurring instance for config ${config.id} on $dateOnly',
+      );
+      return;
+    }
+
     final newId = _uuid.v4();
 
     final companion = TransactionsCompanion(
@@ -116,17 +138,16 @@ class RecurringService {
 
     await _database.addTransaction(companion);
 
-    // Update wallet balance
-    final wallet = await _database.findWalletById(baseTransaction.walletId);
-    if (wallet != null) {
-      final balanceChange = baseTransaction.isIncome
-          ? baseTransaction.amount
-          : -baseTransaction.amount;
-      await _database.updateWalletBalance(
-        wallet.id,
-        wallet.balance + balanceChange,
-      );
-    }
+    // Track the new date to prevent duplicates within the same processing run
+    existingDates.add(dateOnly);
+
+    // Update wallet balance via service (consistent with all other paths)
+    final balanceService = WalletBalanceService(_database);
+    await balanceService.updateBalanceAfterTransaction(
+      walletId: baseTransaction.walletId,
+      amount: baseTransaction.amount,
+      isIncome: baseTransaction.isIncome,
+    );
 
     _logger.d('Created recurring transaction instance: $newId');
   }

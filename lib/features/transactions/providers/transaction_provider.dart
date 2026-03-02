@@ -268,9 +268,10 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
       // Determine paid status based on special type
       final effectiveIsPaid =
           specialType == TransactionSpecialType.none ||
-              specialType == TransactionSpecialType.repetitive
-          ? true // Regular and repetitive are always paid
-          : isPaid; // Others can be unpaid
+              specialType == TransactionSpecialType.repetitive ||
+              specialType == TransactionSpecialType.subscription
+          ? true // Regular, repetitive, and subscription are always paid
+          : isPaid; // Others (upcoming, credit, debt) can be unpaid
 
       final newTransaction = TransactionsCompanion(
         id: Value(id),
@@ -320,17 +321,15 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
       _ref.read(financialDataProvider.notifier).refreshData();
       _ref.read(reportsProvider.notifier).loadReportsData();
 
-      // Schedule a due-date reminder for applicable special types
+      // Schedule a due-date reminder for applicable special types.
+      // Subscription and repetitive types are excluded — their recurring config
+      // handles future notifications via the periodic background task.
       if (specialType == TransactionSpecialType.upcoming ||
           specialType == TransactionSpecialType.credit ||
-          specialType == TransactionSpecialType.debt ||
-          specialType == TransactionSpecialType.subscription ||
-          specialType == TransactionSpecialType.repetitive) {
+          specialType == TransactionSpecialType.debt) {
         final reminderType = switch (specialType) {
           TransactionSpecialType.credit => 'credit',
           TransactionSpecialType.debt => 'debt',
-          TransactionSpecialType.subscription => 'subscription',
-          TransactionSpecialType.repetitive => 'repetitive',
           _ => 'upcoming',
         };
         try {

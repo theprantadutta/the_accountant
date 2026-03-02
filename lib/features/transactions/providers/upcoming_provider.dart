@@ -1,6 +1,9 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
+import 'package:the_accountant/core/services/wallet_balance_service.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
+import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
 
 /// State for upcoming and overdue transactions
 class UpcomingState {
@@ -45,8 +48,12 @@ class UpcomingState {
 
 class UpcomingNotifier extends StateNotifier<UpcomingState> {
   final AppDatabase _db;
+  final WalletBalanceService _walletBalanceService;
+  final Ref _ref;
 
-  UpcomingNotifier(this._db) : super(const UpcomingState()) {
+  UpcomingNotifier(this._db, this._ref)
+    : _walletBalanceService = WalletBalanceService(_db),
+      super(const UpcomingState()) {
     loadData();
   }
 
@@ -75,6 +82,19 @@ class UpcomingNotifier extends StateNotifier<UpcomingState> {
   Future<void> markAsPaid(String transactionId) async {
     try {
       await _db.markTransactionAsPaid(transactionId);
+
+      // Update wallet balance — the transaction is now paid so it should
+      // affect the wallet balance
+      final transaction = await _db.findTransactionById(transactionId);
+      if (transaction != null) {
+        await _walletBalanceService.updateBalanceAfterTransaction(
+          walletId: transaction.walletId,
+          amount: transaction.amount,
+          isIncome: transaction.isIncome,
+        );
+        await _ref.read(walletProvider.notifier).loadWallets();
+      }
+
       await loadData(); // Refresh the list
     } catch (e) {
       state = state.copyWith(error: 'Failed to mark as paid: ${e.toString()}');
@@ -84,7 +104,23 @@ class UpcomingNotifier extends StateNotifier<UpcomingState> {
   /// Mark a transaction as unpaid
   Future<void> markAsUnpaid(String transactionId) async {
     try {
+      // Read the transaction before marking unpaid to get its current state
+      final transaction = await _db.findTransactionById(transactionId);
+
       await _db.markTransactionAsUnpaid(transactionId);
+
+      // Reverse the wallet balance effect — the transaction is no longer paid
+      // so its effect on the wallet should be removed
+      if (transaction != null && transaction.isPaid) {
+        await _walletBalanceService.updateBalanceAfterTransaction(
+          walletId: transaction.walletId,
+          amount: transaction.amount,
+          isIncome: transaction.isIncome,
+          isDelete: true,
+        );
+        await _ref.read(walletProvider.notifier).loadWallets();
+      }
+
       await loadData(); // Refresh the list
     } catch (e) {
       state = state.copyWith(
@@ -118,6 +154,6 @@ class UpcomingNotifier extends StateNotifier<UpcomingState> {
 final upcomingProvider = StateNotifierProvider<UpcomingNotifier, UpcomingState>(
   (ref) {
     final db = ref.watch(databaseProvider);
-    return UpcomingNotifier(db);
+    return UpcomingNotifier(db, ref);
   },
 );

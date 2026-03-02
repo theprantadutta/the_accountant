@@ -277,6 +277,7 @@ class AppDatabase extends _$AppDatabase {
   Future<List<Transaction>> getUpcomingTransactions() =>
       (select(transactions)
             ..where((t) => t.isPaid.equals(false))
+            ..where((t) => t.skipPaid.equals(false))
             ..where((t) => t.date.isBiggerThanValue(DateTime.now()))
             ..where((t) => t.deletedAt.isNull())
             ..orderBy([(t) => OrderingTerm.asc(t.date)]))
@@ -286,6 +287,7 @@ class AppDatabase extends _$AppDatabase {
   Future<List<Transaction>> getOverdueTransactions() =>
       (select(transactions)
             ..where((t) => t.isPaid.equals(false))
+            ..where((t) => t.skipPaid.equals(false))
             ..where((t) => t.date.isSmallerThanValue(DateTime.now()))
             ..where((t) => t.deletedAt.isNull())
             ..orderBy([(t) => OrderingTerm.asc(t.date)]))
