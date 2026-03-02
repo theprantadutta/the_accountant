@@ -28,38 +28,12 @@ void callbackDispatcher() {
 }
 
 void main() async {
+  // Minimum required before runApp()
   WidgetsFlutterBinding.ensureInitialized();
   await EnvService.init();
-  await Firebase.initializeApp();
-
-  // Initialize notification service (requests permission + sets up FCM handlers)
-  await NotificationService().initialize();
-
-  // Initialize WorkManager for background tasks
-  await Workmanager().initialize(callbackDispatcher);
-  await Workmanager().registerPeriodicTask(
-    BackgroundTaskConstants.periodicTaskUniqueName,
-    BackgroundTaskConstants.periodicTaskName,
-    frequency: const Duration(hours: 1),
-    existingWorkPolicy: ExistingPeriodicWorkPolicy.keep,
-    constraints: Constraints(networkType: NetworkType.notRequired),
-  );
-
-  // Initialize SharedPreferences
+  await Firebase.initializeApp(); // Required: GoogleSignInService accesses FirebaseAuth.instance at provider creation
   final prefs = await SharedPreferences.getInstance();
-
-  // Initialize database and default data
   final db = constructDb();
-
-  // Initialize default categories (user creates their own wallets during onboarding)
-  final categoryService = CategoryInitializationService(db);
-  await categoryService.initializeDefaultCategories();
-
-  // Ensure system categories exist (Transfer, Balance Correction)
-  await db.ensureSystemCategoriesExist();
-
-  // Run startup catch-up for any missed recurring transactions
-  await BackgroundTaskService.runStartupProcessing(db);
 
   runApp(
     ProviderScope(
@@ -70,4 +44,45 @@ void main() async {
       child: const MyApp(),
     ),
   );
+
+  // Non-essential init runs after first frame is rendered
+  _initializeServicesInBackground(db);
+}
+
+/// Initialize services that don't need to block the first frame.
+/// Notifications, WorkManager, categories, and recurring transactions
+/// all run here so the app renders faster.
+Future<void> _initializeServicesInBackground(dynamic db) async {
+  try {
+    await NotificationService().initialize();
+  } catch (e) {
+    debugPrint('[main] Notification init failed: $e');
+  }
+
+  try {
+    await Workmanager().initialize(callbackDispatcher);
+    await Workmanager().registerPeriodicTask(
+      BackgroundTaskConstants.periodicTaskUniqueName,
+      BackgroundTaskConstants.periodicTaskName,
+      frequency: const Duration(hours: 1),
+      existingWorkPolicy: ExistingPeriodicWorkPolicy.keep,
+      constraints: Constraints(networkType: NetworkType.notRequired),
+    );
+  } catch (e) {
+    debugPrint('[main] WorkManager init failed: $e');
+  }
+
+  try {
+    final categoryService = CategoryInitializationService(db);
+    await categoryService.initializeDefaultCategories();
+    await db.ensureSystemCategoriesExist();
+  } catch (e) {
+    debugPrint('[main] Category init failed: $e');
+  }
+
+  try {
+    await BackgroundTaskService.runStartupProcessing(db);
+  } catch (e) {
+    debugPrint('[main] Startup processing failed: $e');
+  }
 }

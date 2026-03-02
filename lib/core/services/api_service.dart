@@ -442,9 +442,18 @@ class ApiService {
   }
 
   /// Get current user
-  Future<Map<String, dynamic>> getCurrentUser() async {
+  /// [timeout] overrides the default Dio timeout for this request.
+  Future<Map<String, dynamic>> getCurrentUser({Duration? timeout}) async {
     try {
-      final response = await _dio.get('/auth/me');
+      final response = await _dio.get(
+        '/auth/me',
+        options: timeout != null
+            ? Options(
+                sendTimeout: timeout,
+                receiveTimeout: timeout,
+              )
+            : null,
+      );
       return response.data;
     } on DioException catch (e) {
       throw _handleError(e);

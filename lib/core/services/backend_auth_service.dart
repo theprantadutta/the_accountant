@@ -70,11 +70,16 @@ class BackendAuthService extends ChangeNotifier {
     }
   }
 
-  /// Refresh user info in background without affecting auth state on failure
+  /// Refresh user info in background without affecting auth state on failure.
+  /// Uses a shorter timeout since we already have cached data.
   Future<void> _refreshUserInfoInBackground() async {
     try {
       debugPrint('[BackendAuthService] Refreshing user info in background...');
-      await refreshUserInfo();
+      final userInfo = await _apiService.getCurrentUser(
+        timeout: const Duration(seconds: 5),
+      );
+      _applyUserInfo(userInfo);
+      await _apiService.saveUserInfo(userInfo);
       debugPrint('[BackendAuthService] Background refresh successful');
     } catch (e) {
       // Don't logout on network errors - the 401 handler will handle invalid tokens
@@ -256,39 +261,39 @@ class BackendAuthService extends ChangeNotifier {
     }
   }
 
+  /// Apply user info map to local state and notify listeners
+  void _applyUserInfo(Map<String, dynamic> userInfo) {
+    _userId = userInfo['id'];
+    _userEmail = userInfo['email'];
+    _displayName = userInfo['display_name'];
+    _photoUrl = userInfo['photo_url'];
+    _isPremium = userInfo['is_premium'] ?? false;
+    _subscriptionTier = userInfo['subscription_tier'] ?? 'free';
+    _isAuthenticated = true;
+
+    if (userInfo['subscription_expires_at'] != null) {
+      _subscriptionExpiresAt = DateTime.parse(
+        userInfo['subscription_expires_at'],
+      );
+    }
+
+    if (userInfo['created_at'] != null) {
+      _createdAt = DateTime.parse(userInfo['created_at']);
+    }
+
+    debugPrint(
+      '[BackendAuthService] User info applied: email=$_userEmail, displayName=$_displayName',
+    );
+
+    notifyListeners();
+  }
+
   /// Refresh user information and subscription status
   Future<void> refreshUserInfo() async {
     try {
       final userInfo = await _apiService.getCurrentUser();
-
-      _userId = userInfo['id'];
-      _userEmail = userInfo['email'];
-      _displayName = userInfo['display_name'];
-      _photoUrl = userInfo['photo_url'];
-      _isPremium = userInfo['is_premium'] ?? false;
-      _subscriptionTier = userInfo['subscription_tier'] ?? 'free';
-      _isAuthenticated = true;
-
-      // Parse expiration date if present
-      if (userInfo['subscription_expires_at'] != null) {
-        _subscriptionExpiresAt = DateTime.parse(
-          userInfo['subscription_expires_at'],
-        );
-      }
-
-      // Parse created_at date if present
-      if (userInfo['created_at'] != null) {
-        _createdAt = DateTime.parse(userInfo['created_at']);
-      }
-
-      // Cache user info for offline auth restoration
+      _applyUserInfo(userInfo);
       await _apiService.saveUserInfo(userInfo);
-
-      debugPrint(
-        '[BackendAuthService] User info refreshed: email=$_userEmail, displayName=$_displayName',
-      );
-
-      notifyListeners();
     } catch (e) {
       throw Exception('Failed to fetch user info: $e');
     }

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:the_accountant/core/providers/connectivity_provider.dart';
 import 'package:the_accountant/core/services/api_service.dart';
 import 'package:the_accountant/core/services/sync/sync_models.dart';
 import 'package:the_accountant/core/services/sync/sync_service.dart';
@@ -34,6 +35,8 @@ class SyncNotifier extends Notifier<SyncOperationState> {
   StreamSubscription<SyncOperationState>? _subscription;
   Timer? _periodicSyncTimer;
 
+  bool _wasOnline = true;
+
   @override
   SyncOperationState build() {
     // Listen to sync service state changes
@@ -42,6 +45,16 @@ class SyncNotifier extends Notifier<SyncOperationState> {
     _subscription?.cancel();
     _subscription = syncService.stateStream.listen((newState) {
       state = newState;
+    });
+
+    // Auto-sync when connectivity transitions from offline to online
+    ref.listen<bool>(isOnlineProvider, (previous, next) {
+      final wasOffline = previous == false || !_wasOnline;
+      _wasOnline = next;
+      if (wasOffline && next) {
+        debugPrint('[SyncNotifier] Connectivity restored, triggering auto-sync');
+        triggerAutoSync();
+      }
     });
 
     ref.onDispose(() {
@@ -130,8 +143,3 @@ final isSyncingProvider = Provider<bool>((ref) {
   return state == SyncOperationState.syncing;
 });
 
-/// Provider to check if device is online
-final isOnlineProvider = FutureProvider<bool>((ref) async {
-  final syncService = ref.watch(syncServiceProvider);
-  return await syncService.isOnline();
-});

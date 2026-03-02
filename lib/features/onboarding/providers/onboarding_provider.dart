@@ -48,11 +48,34 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
     : super(const OnboardingState());
 
   /// Check if user needs onboarding (first login only)
+  /// Uses cache-first approach: returns instantly from cache, refreshes from network in background.
   Future<void> checkOnboardingStatus() async {
     state = state.copyWith(isLoading: true, error: null);
 
+    // Try cache first for instant response
     try {
-      // Fetch user info from backend
+      final cachedInfo = await _apiService.getCachedUserInfo();
+      if (cachedInfo != null) {
+        final cachedOnboardingCompleted =
+            cachedInfo['onboarding_completed'] ?? false;
+        debugPrint(
+          '[OnboardingProvider] Using cached onboarding status: $cachedOnboardingCompleted',
+        );
+        state = state.copyWith(
+          isLoading: false,
+          needsOnboarding: !cachedOnboardingCompleted,
+        );
+
+        // Refresh from network in background (don't block UI)
+        _refreshOnboardingStatusInBackground();
+        return;
+      }
+    } catch (_) {
+      // Ignore cache errors, fall through to network
+    }
+
+    // No cache available (brand-new user) - must hit network
+    try {
       final userInfo = await _apiService.getCurrentUser();
       final onboardingCompleted = userInfo['onboarding_completed'] ?? false;
 
@@ -63,30 +86,34 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
     } catch (e) {
       debugPrint('[OnboardingProvider] Error checking onboarding status: $e');
 
-      // Try to get cached status when API fails
-      try {
-        final cachedInfo = await _apiService.getCachedUserInfo();
-        if (cachedInfo != null) {
-          final cachedOnboardingCompleted =
-              cachedInfo['onboarding_completed'] ?? false;
-          debugPrint(
-            '[OnboardingProvider] Using cached onboarding status: $cachedOnboardingCompleted',
-          );
-          state = state.copyWith(
-            isLoading: false,
-            needsOnboarding: !cachedOnboardingCompleted,
-          );
-          return;
-        }
-      } catch (_) {
-        // Ignore cache errors
-      }
-
-      // If no cached status, assume onboarding not needed (for existing users)
+      // No cache and no network - assume onboarding not needed (for existing users)
       state = state.copyWith(
         isLoading: false,
         needsOnboarding: false,
         error: 'Failed to check onboarding status',
+      );
+    }
+  }
+
+  /// Refresh onboarding status from network without blocking UI
+  Future<void> _refreshOnboardingStatusInBackground() async {
+    try {
+      final userInfo = await _apiService.getCurrentUser(
+        timeout: const Duration(seconds: 5),
+      );
+      final onboardingCompleted = userInfo['onboarding_completed'] ?? false;
+      final needsOnboarding = !onboardingCompleted;
+
+      // Only update state if it changed
+      if (state.needsOnboarding != needsOnboarding) {
+        debugPrint(
+          '[OnboardingProvider] Background refresh updated onboarding status: $needsOnboarding',
+        );
+        state = state.copyWith(needsOnboarding: needsOnboarding);
+      }
+    } catch (e) {
+      debugPrint(
+        '[OnboardingProvider] Background refresh failed (keeping cached state): $e',
       );
     }
   }
