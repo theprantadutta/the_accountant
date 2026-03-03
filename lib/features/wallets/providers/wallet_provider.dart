@@ -96,6 +96,7 @@ class WalletNotifier extends StateNotifier<WalletState> {
       WalletsCompanion(
         id: Value(walletId),
         isDefault: const Value(true),
+        syncStatus: const Value(SyncStatus.pendingUpdate),
         updatedAt: Value(DateTime.now()),
       ),
     );
@@ -167,6 +168,7 @@ class WalletNotifier extends StateNotifier<WalletState> {
           WalletsCompanion(
             id: Value(wallet.id),
             isDefault: const Value(false),
+            syncStatus: const Value(SyncStatus.pendingUpdate),
             updatedAt: Value(DateTime.now()),
           ),
         );
@@ -209,6 +211,7 @@ class WalletNotifier extends StateNotifier<WalletState> {
         billingCycleDay: billingCycleDay != null
             ? Value(billingCycleDay)
             : const Value.absent(),
+        syncStatus: const Value(SyncStatus.pendingUpdate),
         updatedAt: Value(DateTime.now()),
       );
 

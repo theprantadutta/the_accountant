@@ -127,6 +127,7 @@ class BudgetNotifier extends StateNotifier<BudgetState> {
         period: Value(period),
         startDate: Value(startDate),
         endDate: Value(endDate),
+        syncStatus: const Value(SyncStatus.pendingCreate),
         createdAt: Value(now),
         updatedAt: Value(now),
       );
@@ -171,6 +172,7 @@ class BudgetNotifier extends StateNotifier<BudgetState> {
         period: Value(period ?? existing.period),
         startDate: Value(startDate ?? existing.startDate),
         endDate: Value(endDate ?? existing.endDate),
+        syncStatus: const Value(SyncStatus.pendingUpdate),
         createdAt: Value(existing.createdAt),
         updatedAt: Value(DateTime.now()),
       );

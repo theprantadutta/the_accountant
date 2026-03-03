@@ -220,6 +220,7 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
         date: Value(date),
         notes: Value(notes),
         paymentMethodId: Value(paymentMethodId ?? paymentMethod),
+        syncStatus: const Value(SyncStatus.pendingCreate),
         createdAt: Value(now),
         updatedAt: Value(now),
       );
@@ -290,6 +291,7 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
         budgetId: Value(budgetId),
         objectiveId: Value(objectiveId),
         recurringConfigId: Value(recurringConfigId),
+        syncStatus: const Value(SyncStatus.pendingCreate),
         createdAt: Value(now),
         updatedAt: Value(now),
       );

@@ -159,6 +159,7 @@ class CategoryNotifier extends StateNotifier<CategoryState> {
         mainCategoryId: Value(mainCategoryId),
         isDefault: Value(isDefault),
         isIncome: Value(categoryIsIncome), // Use isIncome field
+        syncStatus: const Value(SyncStatus.pendingCreate),
       );
 
       await _db.addCategory(newCategory);
@@ -213,6 +214,7 @@ class CategoryNotifier extends StateNotifier<CategoryState> {
         mainCategoryId: Value(mainCategoryId ?? existing.mainCategoryId),
         isDefault: Value(isDefault ?? existing.isDefault),
         isIncome: Value(categoryIsIncome ?? existing.isIncome),
+        syncStatus: const Value(SyncStatus.pendingUpdate),
       );
 
       await _db.updateCategory(updatedCategory);

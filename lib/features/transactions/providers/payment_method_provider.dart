@@ -104,6 +104,7 @@ class PaymentMethodNotifier extends StateNotifier<PaymentMethodState> {
         lastFourDigits: Value(lastFourDigits),
         institution: Value(institution),
         isDefault: Value(isDefault),
+        syncStatus: const Value(SyncStatus.pendingCreate),
         createdAt: Value(now),
         updatedAt: Value(now),
       );
@@ -143,6 +144,7 @@ class PaymentMethodNotifier extends StateNotifier<PaymentMethodState> {
         lastFourDigits: Value(lastFourDigits ?? existing.lastFourDigits),
         institution: Value(institution ?? existing.institution),
         isDefault: Value(isDefault ?? existing.isDefault),
+        syncStatus: const Value(SyncStatus.pendingUpdate),
         createdAt: Value(existing.createdAt),
         updatedAt: Value(DateTime.now()),
       );
