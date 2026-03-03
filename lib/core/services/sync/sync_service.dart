@@ -164,13 +164,16 @@ class SyncService {
   Future<SyncPushResponse?> _pushAllChanges() async {
     final allChanges = <SyncChange>[];
 
-    // Collect pending changes from all tables
-    allChanges.addAll(await _getPendingTransactionChanges());
+    // Collect pending changes in dependency order:
+    // Phase 1: Independent entities (no FK deps on other synced tables)
     allChanges.addAll(await _getPendingWalletChanges());
     allChanges.addAll(await _getPendingCategoryChanges());
+    allChanges.addAll(await _getPendingPaymentMethodChanges());
     allChanges.addAll(await _getPendingBudgetChanges());
     allChanges.addAll(await _getPendingObjectiveChanges());
-    allChanges.addAll(await _getPendingPaymentMethodChanges());
+    // Phase 2: Transactions (depends on wallets, categories, etc.)
+    allChanges.addAll(await _getPendingTransactionChanges());
+    // Phase 3: Recurring configs (depends on transactions via BaseTransactionId)
     allChanges.addAll(await _getPendingRecurringConfigChanges());
 
     if (allChanges.isEmpty) {
