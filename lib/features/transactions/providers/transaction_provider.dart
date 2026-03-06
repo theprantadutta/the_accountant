@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'package:the_accountant/core/services/analytics_service.dart';
 import 'package:the_accountant/core/services/wallet_balance_service.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart' as db;
 import 'package:the_accountant/data/datasources/local/app_database.dart'
@@ -319,6 +320,8 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
       // Reload transactions to get the new one
       await loadTransactions();
 
+      AnalyticsService().logTransactionCreate();
+
       // Refresh dashboard and reports data for real-time updates
       _ref.read(financialDataProvider.notifier).refreshData();
       _ref.read(reportsProvider.notifier).loadReportsData();
@@ -493,6 +496,8 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
       // Reload transactions to get the updated one
       await loadTransactions();
 
+      AnalyticsService().logTransactionUpdate();
+
       // Refresh dashboard and reports data for real-time updates
       _ref.read(financialDataProvider.notifier).refreshData();
       _ref.read(reportsProvider.notifier).loadReportsData();
@@ -529,6 +534,8 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
       }
 
       await _db.deleteTransaction(id);
+
+      AnalyticsService().logTransactionDelete();
 
       // Reload transactions to reflect the deletion
       await loadTransactions();

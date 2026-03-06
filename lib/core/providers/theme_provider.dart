@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/legacy.dart';
+import 'package:the_accountant/core/services/analytics_service.dart';
 import 'package:the_accountant/core/themes/app_theme.dart';
 import 'package:the_accountant/core/themes/premium_themes.dart';
 
@@ -41,6 +42,7 @@ class ThemeNotifier extends StateNotifier<ThemeState> {
   void setTheme(String themeName) {
     final isPremium = PremiumThemes.themeNames.contains(themeName);
 
+    AnalyticsService().logThemeChange();
     state = state.copyWith(currentTheme: themeName, isPremiumTheme: isPremium);
   }
 

@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart' show Value;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
+import 'package:the_accountant/core/services/analytics_service.dart';
 import 'package:the_accountant/core/services/wallet_balance_service.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
@@ -168,6 +169,7 @@ class CreditDebtNotifier extends StateNotifier<CreditDebtState> {
         await ReminderSchedulerService().cancelReminder(transactionId);
       } catch (_) {}
 
+      AnalyticsService().logCreditDebtSettled();
       await loadData();
     } catch (e) {
       state = state.copyWith(
@@ -240,6 +242,7 @@ class CreditDebtNotifier extends StateNotifier<CreditDebtState> {
         } catch (_) {}
       }
 
+      AnalyticsService().logCreditDebtPayment();
       await loadData();
     } catch (e) {
       state = state.copyWith(

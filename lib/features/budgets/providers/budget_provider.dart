@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
+import 'package:the_accountant/core/services/analytics_service.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/data/models/premium_features.dart';
@@ -133,6 +134,7 @@ class BudgetNotifier extends StateNotifier<BudgetState> {
       );
 
       await _db.addBudget(newBudget);
+      AnalyticsService().logBudgetCreate();
 
       // Reload budgets to get the new one
       await loadBudgets();
@@ -194,6 +196,7 @@ class BudgetNotifier extends StateNotifier<BudgetState> {
 
     try {
       await _db.deleteBudget(id);
+      AnalyticsService().logBudgetDelete();
 
       // Reload budgets to reflect the deletion
       await loadBudgets();

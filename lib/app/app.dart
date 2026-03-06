@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/providers/theme_provider.dart';
+import 'package:the_accountant/core/services/analytics_service.dart';
 import 'package:the_accountant/core/themes/app_theme.dart';
 import 'package:the_accountant/features/onboarding/screens/post_signup_onboarding_screen.dart';
 import 'package:the_accountant/features/premium/screens/premium_screen.dart';
@@ -31,6 +32,7 @@ class MyApp extends ConsumerWidget {
       theme: currentTheme,
       darkTheme: currentTheme,
       themeMode: ThemeMode.dark,
+      navigatorObservers: [AnalyticsService().observer],
       home: const AuthWrapper(),
       routes: {
         '/post-signup-onboarding': (context) =>

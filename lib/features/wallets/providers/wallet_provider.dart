@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:the_accountant/core/providers/default_wallet_provider.dart';
+import 'package:the_accountant/core/services/analytics_service.dart';
 import 'package:the_accountant/core/services/wallet_balance_service.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
@@ -153,6 +154,7 @@ class WalletNotifier extends StateNotifier<WalletState> {
       );
 
       await _database.addWallet(wallet);
+      AnalyticsService().logWalletCreate();
       loadWallets(); // Refresh the list
     } catch (e) {
       state = state.copyWith(error: e.toString());
@@ -225,6 +227,7 @@ class WalletNotifier extends StateNotifier<WalletState> {
   Future<void> deleteWallet(String id) async {
     try {
       await _database.deleteWallet(id);
+      AnalyticsService().logWalletDelete();
       loadWallets(); // Refresh the list
     } catch (e) {
       state = state.copyWith(error: e.toString());

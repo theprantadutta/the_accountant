@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/legacy.dart';
+import 'package:the_accountant/core/services/analytics_service.dart';
 import 'package:the_accountant/core/services/api_service.dart';
 import 'package:the_accountant/core/services/backend_auth_service.dart';
 import 'package:the_accountant/core/services/google_sign_in_service.dart';
@@ -127,6 +128,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
       await SecureTokenStorage.storeUserId(_backendAuth.userId ?? '');
       await SecureTokenStorage.storeUserEmail(email);
 
+      AnalyticsService().logLogin(method: 'email');
+
       state = state.copyWith(
         isAuthenticated: true,
         userId: _backendAuth.userId,
@@ -164,6 +167,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
       // Store basic info
       await SecureTokenStorage.storeUserId(_backendAuth.userId ?? '');
       await SecureTokenStorage.storeUserEmail(email);
+
+      AnalyticsService().logSignUp(method: 'email');
 
       state = state.copyWith(
         isAuthenticated: true,
@@ -229,6 +234,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
         // Store basic info
         await SecureTokenStorage.storeUserId(_backendAuth.userId ?? '');
         await SecureTokenStorage.storeUserEmail(_backendAuth.userEmail ?? '');
+
+        AnalyticsService().logLogin(method: 'google');
 
         state = state.copyWith(
           isAuthenticated: true,
@@ -326,6 +333,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   Future<void> signOut() async {
     try {
+      AnalyticsService().logLogout();
       await _backendAuth.logout();
       await _googleSignIn.signOut();
       await SecureTokenStorage.clearAllTokens();

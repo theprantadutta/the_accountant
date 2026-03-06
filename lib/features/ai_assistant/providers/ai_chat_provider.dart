@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/legacy.dart';
+import 'package:the_accountant/core/services/analytics_service.dart';
 import 'package:the_accountant/features/ai_assistant/models/chat_message.dart';
 import 'package:the_accountant/features/ai_assistant/services/ai_chat_service.dart';
 
@@ -98,6 +99,8 @@ class AiChatNotifier extends StateNotifier<AiChatState> {
   /// Send a message and get AI response
   Future<void> sendMessage(String text) async {
     if (text.trim().isEmpty) return;
+
+    AnalyticsService().logAiChatMessage();
 
     // Add user message immediately for UI feedback
     final tempUserMessage = ChatMessage.user(text: text.trim());

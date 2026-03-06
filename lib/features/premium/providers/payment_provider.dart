@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
+import 'package:the_accountant/core/services/analytics_service.dart';
 import 'package:the_accountant/core/services/payment_service.dart';
 import 'package:the_accountant/features/premium/providers/premium_provider.dart';
 
@@ -76,6 +77,7 @@ class PaymentNotifier extends StateNotifier<PaymentState> {
   }
 
   void _handlePurchaseSuccess(String message) {
+    AnalyticsService().logPremiumPurchase();
     state = state.copyWith(
       isPremiumUnlocked: true,
       successMessage: message,
@@ -124,6 +126,7 @@ class PaymentNotifier extends StateNotifier<PaymentState> {
 
     try {
       await _paymentService!.restorePurchases();
+      AnalyticsService().logPremiumRestore();
       // The restore result will be handled by the payment service callbacks
     } catch (e) {
       state = state.copyWith(isLoading: false, errorMessage: e.toString());

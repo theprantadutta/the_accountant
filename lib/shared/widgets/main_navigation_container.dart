@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:the_accountant/core/services/analytics_service.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/core/themes/app_typography.dart';
@@ -68,6 +69,7 @@ class _MainNavigationContainerState
       // Update FAB visibility based on screen
       _updateFabVisibility(index);
 
+      AnalyticsService().logScreenView(screenName: _screenTitles[index]);
       HapticFeedback.lightImpact();
     }
   }
