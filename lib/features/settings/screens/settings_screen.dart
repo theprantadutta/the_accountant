@@ -398,7 +398,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             iconColor: Colors.orange,
             title: 'Test Crash',
             subtitle: 'Trigger a test exception for Crashlytics',
-            onTap: () => throw Exception('Test Crashlytics exception'),
+            onTap: () async {
+              await FirebaseCrashlytics.instance
+                  .setCrashlyticsCollectionEnabled(true);
+              final exception = Exception('Test Crashlytics exception');
+              await FirebaseCrashlytics.instance.recordError(
+                exception,
+                StackTrace.current,
+                reason: 'Manual test crash from settings',
+              );
+              await FirebaseCrashlytics.instance
+                  .setCrashlyticsCollectionEnabled(false);
+            },
           ),
         );
       }
