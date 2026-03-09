@@ -1,5 +1,9 @@
+import 'dart:ui';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workmanager/workmanager.dart';
 import 'package:the_accountant/app/app.dart';
@@ -32,6 +36,12 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EnvService.init();
   await Firebase.initializeApp(); // Required: GoogleSignInService accesses FirebaseAuth.instance at provider creation
+  await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(!kDebugMode);
+  FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+  PlatformDispatcher.instance.onError = (error, stack) {
+    FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+    return true;
+  };
   final prefs = await SharedPreferences.getInstance();
   final db = constructDb();
 

@@ -1,5 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
@@ -383,6 +385,26 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     }
     if (aboutTiles.isNotEmpty) {
       sections.add(SettingsSection(title: 'ABOUT', tiles: aboutTiles));
+    }
+
+    // DEVELOPER SECTION (debug mode only)
+    if (kDebugMode) {
+      final devTiles = <Widget>[];
+      if (_matchesSearch('Test Crash') ||
+          _matchesKeywords(['crash', 'debug', 'crashlytics'])) {
+        devTiles.add(
+          SettingsActionTile(
+            icon: Icons.bug_report,
+            iconColor: Colors.orange,
+            title: 'Test Crash',
+            subtitle: 'Trigger a test exception for Crashlytics',
+            onTap: () => throw Exception('Test Crashlytics exception'),
+          ),
+        );
+      }
+      if (devTiles.isNotEmpty) {
+        sections.add(SettingsSection(title: 'DEVELOPER', tiles: devTiles));
+      }
     }
 
     return sections;
