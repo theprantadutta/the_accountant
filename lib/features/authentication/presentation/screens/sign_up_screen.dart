@@ -133,6 +133,12 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
 
+    ref.listen<AuthState>(authProvider, (previous, next) {
+      if (previous?.isAuthenticated != true && next.isAuthenticated) {
+        Navigator.of(context).popUntil((route) => route.isFirst);
+      }
+    });
+
     return Container(
       decoration: BoxDecoration(gradient: AppColors.backgroundGradient),
       child: Scaffold(
