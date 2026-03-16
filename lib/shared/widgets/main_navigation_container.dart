@@ -20,6 +20,8 @@ import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
 import 'package:the_accountant/features/wallets/screens/create_first_wallet_screen.dart';
 import 'package:the_accountant/features/notifications/providers/notification_history_provider.dart';
 import 'package:the_accountant/features/notifications/screens/notification_inbox_screen.dart';
+import 'package:the_accountant/core/providers/walkthrough_provider.dart';
+import 'package:the_accountant/features/walkthrough/walkthrough_service.dart';
 
 class MainNavigationContainer extends ConsumerStatefulWidget {
   const MainNavigationContainer({super.key});
@@ -33,6 +35,14 @@ class _MainNavigationContainerState
     extends ConsumerState<MainNavigationContainer> {
   int _currentIndex = 0;
   bool _isFabVisible = true;
+
+  // Walkthrough keys
+  final GlobalKey _balanceKey = GlobalKey();
+  final GlobalKey _fabKey = GlobalKey();
+  final GlobalKey _notificationKey = GlobalKey();
+  final GlobalKey _navHomeKey = GlobalKey();
+  final GlobalKey _navActivityKey = GlobalKey();
+  final GlobalKey _navAIKey = GlobalKey();
 
   // Define the screens for each navigation item
   final List<Widget> _screens = [
@@ -54,9 +64,30 @@ class _MainNavigationContainerState
   @override
   void initState() {
     super.initState();
-    // Load unread notification count
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Load unread notification count
       ref.read(notificationHistoryProvider.notifier).loadUnreadCount();
+
+      // Trigger walkthrough for new users
+      final walkthroughState = ref.read(walkthroughProvider);
+      if (!walkthroughState.hasSeenWalkthrough) {
+        Future.delayed(const Duration(milliseconds: 500), () {
+          if (mounted) {
+            WalkthroughService.showDashboardWalkthrough(
+              context,
+              ref,
+              {
+                'balance': _balanceKey,
+                'fab': _fabKey,
+                'notification': _notificationKey,
+                'navHome': _navHomeKey,
+                'navActivity': _navActivityKey,
+                'navAI': _navAIKey,
+              },
+            );
+          }
+        });
+      }
     });
   }
 
@@ -338,15 +369,34 @@ class _MainNavigationContainerState
         backgroundColor: Colors.transparent,
         appBar: _buildCustomAppBar(),
         extendBody: false,
-        body: IndexedStack(index: _currentIndex, children: _screens),
+        body: IndexedStack(
+          index: _currentIndex,
+          children: _screens.asMap().entries.map((entry) {
+            if (entry.key == 0) {
+              return KeyedSubtree(key: _balanceKey, child: entry.value);
+            }
+            return entry.value;
+          }).toList(),
+        ),
         floatingActionButton: _isFabVisible
-            ? NeoFAB(icon: Icons.add, onPressed: _showAddTransactionModal)
+            ? NeoFAB(
+                key: _fabKey,
+                icon: Icons.add,
+                onPressed: _showAddTransactionModal,
+              )
             : null,
         floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
         bottomNavigationBar: CustomBottomNavBar(
           currentIndex: _currentIndex,
           onTap: _onNavigationTapped,
           items: NavItems.defaultItems,
+          itemKeys: [
+            _navHomeKey,
+            _navActivityKey,
+            _navAIKey,
+            null, // Reports
+            null, // Settings
+          ],
         ),
       ),
     );
@@ -393,7 +443,10 @@ class _MainNavigationContainerState
           ),
         ],
       ),
-      actions: [_buildNotificationButton(), AppSpacing.gapHSm],
+      actions: [
+        KeyedSubtree(key: _notificationKey, child: _buildNotificationButton()),
+        AppSpacing.gapHSm,
+      ],
     );
   }
 

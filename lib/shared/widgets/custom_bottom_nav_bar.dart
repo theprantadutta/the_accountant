@@ -15,12 +15,14 @@ class CustomBottomNavBar extends StatefulWidget {
   final int currentIndex;
   final Function(int) onTap;
   final List<NavItem> items;
+  final List<GlobalKey?>? itemKeys;
 
   const CustomBottomNavBar({
     super.key,
     required this.currentIndex,
     required this.onTap,
     required this.items,
+    this.itemKeys,
   });
 
   @override
@@ -128,14 +130,25 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar>
                 final isSelected = widget.currentIndex == index;
                 final isAiButton = index == 2;
 
-                return Expanded(
-                  child: _NavItem(
-                    item: item,
-                    isSelected: isSelected,
-                    isAiButton: isAiButton,
-                    onTap: () => _handleTap(index),
-                  ),
+                Widget navItem = _NavItem(
+                  item: item,
+                  isSelected: isSelected,
+                  isAiButton: isAiButton,
+                  onTap: () => _handleTap(index),
                 );
+
+                final hasKey = widget.itemKeys != null &&
+                    index < widget.itemKeys!.length &&
+                    widget.itemKeys![index] != null;
+
+                if (hasKey) {
+                  navItem = KeyedSubtree(
+                    key: widget.itemKeys![index]!,
+                    child: navItem,
+                  );
+                }
+
+                return Expanded(child: navItem);
               }),
             ),
           ],

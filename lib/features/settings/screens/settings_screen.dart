@@ -21,6 +21,7 @@ import 'package:the_accountant/features/settings/widgets/settings_tile.dart';
 import 'package:the_accountant/features/settings/widgets/confirmation_dialog.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:share_plus/share_plus.dart' show SharePlus, ShareParams;
+import 'package:the_accountant/core/providers/walkthrough_provider.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -360,6 +361,24 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           icon: Icons.share_outlined,
           title: 'Share with Friends',
           onTap: () => _shareApp(),
+        ),
+      );
+    }
+    if (_matchesSearch('Replay App Tour') ||
+        _matchesKeywords(['walkthrough', 'tour', 'tutorial', 'guide', 'replay'])) {
+      helpTiles.add(
+        SettingsActionTile(
+          icon: Icons.play_circle_outline,
+          title: 'Replay App Tour',
+          subtitle: 'See the feature walkthrough again',
+          onTap: () {
+            ref.read(walkthroughProvider.notifier).resetWalkthrough();
+            Navigator.pushNamedAndRemoveUntil(
+              context,
+              '/dashboard',
+              (route) => false,
+            );
+          },
         ),
       );
     }
