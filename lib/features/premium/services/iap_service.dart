@@ -5,14 +5,15 @@ import 'package:in_app_purchase_android/in_app_purchase_android.dart';
 import 'package:logger/logger.dart';
 
 import 'package:the_accountant/core/services/api_service.dart';
+import 'package:the_accountant/features/premium/constants/product_ids.dart';
 
-/// Product IDs for premium subscriptions
+/// Product IDs for premium subscriptions (delegates to TheAccountantProducts)
 class PremiumProductIds {
-  static const String monthly = 'premium_monthly';
-  static const String yearly = 'premium_yearly';
-  static const String lifetime = 'premium_lifetime';
+  static String get monthly => TheAccountantProducts.monthly;
+  static String get yearly => TheAccountantProducts.yearly;
+  static String get lifetime => TheAccountantProducts.lifetime;
 
-  static const Set<String> all = {monthly, yearly, lifetime};
+  static Set<String> get all => TheAccountantProducts.allProductIds;
 }
 
 /// IAP Service for handling in-app purchases
@@ -270,18 +271,25 @@ class IAPService {
         if (daysRemaining < 0) daysRemaining = 0;
       }
 
+      // Parse grace period
+      DateTime? gracePeriodEndsAt;
+      if (data['gracePeriodEndsAt'] != null) {
+        gracePeriodEndsAt = DateTime.parse(data['gracePeriodEndsAt']);
+      }
+      final isInGracePeriod = data['isInGracePeriod'] == true;
+
       // Map backend tier to product ID
       String? tier;
       final backendTier = data['tier']?.toString();
       if (backendTier != null) {
         switch (backendTier) {
-          case 'Monthly':
+          case 'PremiumMonthly':
             tier = PremiumProductIds.monthly;
             break;
-          case 'Yearly':
+          case 'PremiumYearly':
             tier = PremiumProductIds.yearly;
             break;
-          case 'Lifetime':
+          case 'PremiumLifetime':
             tier = PremiumProductIds.lifetime;
             break;
         }
@@ -292,6 +300,8 @@ class IAPService {
         tier: tier,
         expiresAt: expiresAt,
         daysRemaining: daysRemaining,
+        gracePeriodEndsAt: gracePeriodEndsAt,
+        isInGracePeriod: isInGracePeriod,
       );
     } catch (e) {
       _logger.e('Error checking subscription status: $e');
@@ -311,28 +321,25 @@ class SubscriptionStatus {
   final String? tier;
   final DateTime? expiresAt;
   final int? daysRemaining;
+  final DateTime? gracePeriodEndsAt;
+  final bool isInGracePeriod;
 
   SubscriptionStatus({
     required this.isPremium,
     this.tier,
     this.expiresAt,
     this.daysRemaining,
+    this.gracePeriodEndsAt,
+    this.isInGracePeriod = false,
   });
 
-  bool get isLifetime => tier == PremiumProductIds.lifetime;
+  bool get isLifetime =>
+      tier != null && tier!.toLowerCase().contains('lifetime');
   bool get isExpiringSoon => daysRemaining != null && daysRemaining! <= 7;
 
   String get tierDisplayName {
-    switch (tier) {
-      case PremiumProductIds.monthly:
-        return 'Premium Monthly';
-      case PremiumProductIds.yearly:
-        return 'Premium Yearly';
-      case PremiumProductIds.lifetime:
-        return 'Premium Lifetime';
-      default:
-        return 'Free';
-    }
+    if (tier == null) return 'Free';
+    return TheAccountantProducts.getTierDisplayName(tier!);
   }
 }
 
@@ -348,28 +355,14 @@ class PremiumProduct {
   String get price => details.price;
 
   String get displayTitle {
-    switch (id) {
-      case PremiumProductIds.monthly:
-        return 'Monthly';
-      case PremiumProductIds.yearly:
-        return 'Yearly';
-      case PremiumProductIds.lifetime:
-        return 'Lifetime';
-      default:
-        return title;
-    }
+    final lower = id.toLowerCase();
+    if (lower.contains('monthly')) return 'Monthly';
+    if (lower.contains('yearly')) return 'Yearly';
+    if (lower.contains('lifetime')) return 'Lifetime';
+    return title;
   }
 
-  String? get savings {
-    // Calculate savings compared to monthly
-    // This would require comparing prices
-    if (id == PremiumProductIds.yearly) {
-      return 'Save ~40%';
-    } else if (id == PremiumProductIds.lifetime) {
-      return 'Best Value';
-    }
-    return null;
-  }
+  String? get savings => TheAccountantProducts.getSavingsText(id);
 
-  bool get isRecommended => id == PremiumProductIds.yearly;
+  bool get isRecommended => id.toLowerCase().contains('yearly');
 }

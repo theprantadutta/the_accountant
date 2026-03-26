@@ -28,6 +28,8 @@ class IAPState {
   final List<PremiumProduct> products;
   final String? error;
   final PurchaseStatus? lastPurchaseStatus;
+  final DateTime? gracePeriodEndsAt;
+  final bool isInGracePeriod;
 
   const IAPState({
     this.isLoading = false,
@@ -37,6 +39,8 @@ class IAPState {
     this.products = const [],
     this.error,
     this.lastPurchaseStatus,
+    this.gracePeriodEndsAt,
+    this.isInGracePeriod = false,
   });
 
   IAPState copyWith({
@@ -47,6 +51,8 @@ class IAPState {
     List<PremiumProduct>? products,
     String? error,
     PurchaseStatus? lastPurchaseStatus,
+    DateTime? gracePeriodEndsAt,
+    bool? isInGracePeriod,
   }) {
     return IAPState(
       isLoading: isLoading ?? this.isLoading,
@@ -56,6 +62,8 @@ class IAPState {
       products: products ?? this.products,
       error: error,
       lastPurchaseStatus: lastPurchaseStatus ?? this.lastPurchaseStatus,
+      gracePeriodEndsAt: gracePeriodEndsAt ?? this.gracePeriodEndsAt,
+      isInGracePeriod: isInGracePeriod ?? this.isInGracePeriod,
     );
   }
 }
@@ -91,6 +99,8 @@ class IAPNotifier extends StateNotifier<IAPState> {
         currentTier: status?.tier,
         expiresAt: status?.expiresAt,
         products: products,
+        gracePeriodEndsAt: status?.gracePeriodEndsAt,
+        isInGracePeriod: status?.isInGracePeriod ?? false,
       );
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
