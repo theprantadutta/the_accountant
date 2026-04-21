@@ -3,7 +3,7 @@ description: "A personal finance management application with a focus on privacy,
 
 publish_to: 'none'
 
-version: 1.0.9+10
+version: 1.0.10+11
 
 environment:
   sdk: ^3.9.0
@@ -92,7 +92,7 @@ dev_dependencies:
   
   # Code generation
   riverpod_generator: ^4.0.3
-  drift_dev: ^2.32.0
+  drift_dev: ^2.32.1
   build_runner: ^2.11.1
 
 dependency_overrides:
