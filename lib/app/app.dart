@@ -4,6 +4,7 @@ import 'package:the_accountant/core/providers/theme_provider.dart';
 import 'package:the_accountant/core/services/analytics_service.dart';
 import 'package:the_accountant/core/themes/app_theme.dart';
 import 'package:the_accountant/features/onboarding/screens/post_signup_onboarding_screen.dart';
+import 'package:the_accountant/features/premium/providers/premium_sync_provider.dart';
 import 'package:the_accountant/features/premium/screens/premium_screen.dart';
 import 'package:the_accountant/features/support/screens/support_screen.dart';
 import 'package:the_accountant/features/authentication/presentation/screens/sign_in_screen.dart';
@@ -26,6 +27,9 @@ class MyApp extends ConsumerWidget {
     // Watch theme changes
     final themeState = ref.watch(themeProvider);
     final currentTheme = AppTheme.getCurrentTheme(themeState.currentTheme);
+
+    // Activate IAP → Premium state bridge (needs to be alive for app lifetime)
+    ref.watch(premiumIapSyncProvider);
 
     return MaterialApp(
       title: 'The Accountant',

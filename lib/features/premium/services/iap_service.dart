@@ -233,20 +233,20 @@ class IAPService {
       );
 
       final data = response.data;
-      final valid = data['valid'] == true;
+      final valid = data['success'] == true;
 
       if (valid) {
         // Update subscription status
         onSubscriptionUpdate?.call(
           true,
-          data['subscription_tier'],
+          _mapTierToProductId(data['new_tier']?.toString()),
           data['expires_at'] != null
               ? DateTime.parse(data['expires_at'])
               : null,
         );
         _logger.i('Purchase verified successfully');
       } else {
-        _logger.w('Purchase verification failed: ${data['message']}');
+        _logger.w('Purchase verification failed: ${data['error']}');
       }
 
       return valid;
@@ -262,42 +262,25 @@ class IAPService {
       final response = await _apiService.get('/iap/subscription-status');
       final data = response.data;
 
-      // Calculate days remaining if expiresAt is present
+      // Calculate days remaining if expires_at is present
       int? daysRemaining;
       DateTime? expiresAt;
-      if (data['expiresAt'] != null) {
-        expiresAt = DateTime.parse(data['expiresAt']);
+      if (data['expires_at'] != null) {
+        expiresAt = DateTime.parse(data['expires_at']);
         daysRemaining = expiresAt.difference(DateTime.now()).inDays;
         if (daysRemaining < 0) daysRemaining = 0;
       }
 
       // Parse grace period
       DateTime? gracePeriodEndsAt;
-      if (data['gracePeriodEndsAt'] != null) {
-        gracePeriodEndsAt = DateTime.parse(data['gracePeriodEndsAt']);
+      if (data['grace_period_ends_at'] != null) {
+        gracePeriodEndsAt = DateTime.parse(data['grace_period_ends_at']);
       }
-      final isInGracePeriod = data['isInGracePeriod'] == true;
-
-      // Map backend tier to product ID
-      String? tier;
-      final backendTier = data['tier']?.toString();
-      if (backendTier != null) {
-        switch (backendTier) {
-          case 'PremiumMonthly':
-            tier = PremiumProductIds.monthly;
-            break;
-          case 'PremiumYearly':
-            tier = PremiumProductIds.yearly;
-            break;
-          case 'PremiumLifetime':
-            tier = PremiumProductIds.lifetime;
-            break;
-        }
-      }
+      final isInGracePeriod = data['is_in_grace_period'] == true;
 
       return SubscriptionStatus(
-        isPremium: data['isPremium'] == true,
-        tier: tier,
+        isPremium: data['is_premium'] == true,
+        tier: _mapTierToProductId(data['tier']?.toString()),
         expiresAt: expiresAt,
         daysRemaining: daysRemaining,
         gracePeriodEndsAt: gracePeriodEndsAt,
@@ -306,6 +289,25 @@ class IAPService {
     } catch (e) {
       _logger.e('Error checking subscription status: $e');
       return SubscriptionStatus(isPremium: false);
+    }
+  }
+
+  /// Map backend SubscriptionTier enum (serialized as snake_case) to a platform-aware product ID.
+  /// Tolerates both snake_case (current) and PascalCase (legacy) for defensive parsing.
+  String? _mapTierToProductId(String? backendTier) {
+    if (backendTier == null) return null;
+    switch (backendTier) {
+      case 'premium_monthly':
+      case 'PremiumMonthly':
+        return PremiumProductIds.monthly;
+      case 'premium_yearly':
+      case 'PremiumYearly':
+        return PremiumProductIds.yearly;
+      case 'premium_lifetime':
+      case 'PremiumLifetime':
+        return PremiumProductIds.lifetime;
+      default:
+        return null;
     }
   }
 

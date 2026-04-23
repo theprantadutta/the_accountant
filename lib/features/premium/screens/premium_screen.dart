@@ -10,7 +10,22 @@ import 'package:the_accountant/features/premium/providers/premium_provider.dart'
 import 'package:the_accountant/features/premium/services/iap_service.dart';
 
 class PremiumScreen extends ConsumerStatefulWidget {
-  const PremiumScreen({super.key});
+  /// Optional name of the feature that triggered this paywall (e.g. "AI Chat").
+  /// Shown in the hero as "You tried to use {featureName}, which is Premium."
+  final String? triggerFeatureName;
+
+  /// Overrides the default "Unlock Premium" heading.
+  final String? customTitle;
+
+  /// Overrides the default tagline below the heading.
+  final String? customDescription;
+
+  const PremiumScreen({
+    super.key,
+    this.triggerFeatureName,
+    this.customTitle,
+    this.customDescription,
+  });
 
   @override
   ConsumerState<PremiumScreen> createState() => _PremiumScreenState();
@@ -56,6 +71,12 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
               backgroundColor: AppColors.success,
             ),
           );
+
+          // Close the paywall on successful purchase so the user lands back
+          // on the screen that prompted the upgrade.
+          if (Navigator.of(context).canPop()) {
+            Navigator.of(context).pop(true);
+          }
         }
       }
     });
@@ -173,6 +194,13 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
   }
 
   Widget _buildHeader(PremiumState premiumState) {
+    final headline = widget.customTitle ??
+        (premiumState.isPremium ? 'Premium Active' : 'Unlock Premium');
+    final tagline = widget.customDescription ??
+        (premiumState.isPremium
+            ? 'Thank you for your support!'
+            : 'Get the most out of your financial journey');
+
     return Column(
       children: [
         // Premium icon with glow effect
@@ -200,21 +228,52 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
         ),
         SizedBox(height: AppSpacing.lg),
         Text(
-          premiumState.isPremium ? 'Premium Active' : 'Unlock Premium',
+          headline,
           style: const TextStyle(
             fontSize: 28,
             fontWeight: FontWeight.bold,
             color: AppColors.textPrimary,
           ),
+          textAlign: TextAlign.center,
         ),
         SizedBox(height: AppSpacing.xs),
         Text(
-          premiumState.isPremium
-              ? 'Thank you for your support!'
-              : 'Get the most out of your financial journey',
+          tagline,
           style: TextStyle(fontSize: 16, color: AppColors.textSecondary),
           textAlign: TextAlign.center,
         ),
+        if (!premiumState.isPremium && widget.triggerFeatureName != null) ...[
+          SizedBox(height: AppSpacing.md),
+          Container(
+            padding: EdgeInsets.symmetric(
+              horizontal: AppSpacing.md,
+              vertical: AppSpacing.sm,
+            ),
+            decoration: BoxDecoration(
+              color: AppColors.primaryAccent.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(999),
+              border: Border.all(
+                color: AppColors.primaryAccent.withValues(alpha: 0.3),
+              ),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.lock_outline,
+                    size: 14, color: AppColors.primaryAccent),
+                SizedBox(width: AppSpacing.xs),
+                Text(
+                  '${widget.triggerFeatureName} is a Premium feature',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.primaryAccent,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ],
     );
   }

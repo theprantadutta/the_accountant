@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/features/premium/providers/premium_provider.dart';
+import 'package:the_accountant/features/premium/utils/paywall_utils.dart';
 
 /// Widget that gates content behind premium subscription
 /// Shows an upgrade prompt for free users, actual content for premium users
@@ -36,6 +37,10 @@ class PremiumGate extends ConsumerWidget {
       featureIcon: featureIcon,
     );
   }
+}
+
+void _openPaywall(BuildContext context, {String? featureName}) {
+  PaywallUtils.showPaywall(context, featureName: featureName);
 }
 
 /// Upgrade prompt screen shown when a premium feature is accessed by free users
@@ -317,7 +322,7 @@ class _PremiumUpgradeScreen extends StatelessWidget {
         GestureDetector(
           onTap: () {
             HapticFeedback.mediumImpact();
-            Navigator.pushNamed(context, '/premium');
+            _openPaywall(context, featureName: featureName);
           },
           child: Container(
             width: double.infinity,
@@ -408,7 +413,7 @@ class PremiumFeatureGate extends ConsumerWidget {
 
   Widget _buildLockedIndicator(BuildContext context) {
     return GestureDetector(
-      onTap: () => Navigator.pushNamed(context, '/premium'),
+      onTap: () => _openPaywall(context),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
