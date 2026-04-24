@@ -8,11 +8,13 @@ Complete setup instructions for Google Play, App Store, and backend configuratio
 
 ### Subscription Plans
 
-| Product | Android Product ID | iOS Product ID | Price | Type |
-|---------|-------------------|----------------|-------|------|
-| Monthly | `com.pranta.the_accountant.premium.monthly` | `premium_monthly` | $2.99/month | Auto-renewable subscription |
-| Yearly | `com.pranta.the_accountant.premium.yearly` | `premium_yearly` | $19.99/year | Auto-renewable subscription |
-| Lifetime | `com.pranta.the_accountant.premium.lifetime` | `premium_lifetime` | $49.99 | One-time purchase |
+Product IDs are unified across both platforms (Google Play limits product IDs to 40 characters, so we use short flat names rather than reverse-DNS).
+
+| Product | Product ID (both platforms) | Price | Type |
+|---------|-----------------------------|-------|------|
+| Monthly | `accountant_premium_monthly` | $2.99/month | Auto-renewable subscription |
+| Yearly | `accountant_premium_yearly` | $19.99/year | Auto-renewable subscription |
+| Lifetime | `accountant_premium_lifetime` | $49.99 | One-time purchase |
 
 ### Package/Bundle IDs
 - **Android Package Name:** `com.pranta.the_accountant`
@@ -47,7 +49,7 @@ Complete setup instructions for Google Play, App Store, and backend configuratio
 2. Click **Create subscription**
 
 #### Monthly Subscription
-- **Product ID:** `com.pranta.the_accountant.premium.monthly`
+- **Product ID:** `accountant_premium_monthly`
 - **Name:** The Accountant Premium Monthly
 - **Description:** Unlock all premium features with a monthly subscription
 - Create a **Base Plan**:
@@ -56,7 +58,7 @@ Complete setup instructions for Google Play, App Store, and backend configuratio
   - Renewal type: **Auto-renewing**
 
 #### Yearly Subscription
-- **Product ID:** `com.pranta.the_accountant.premium.yearly`
+- **Product ID:** `accountant_premium_yearly`
 - **Name:** The Accountant Premium Yearly
 - **Description:** Save 44% with an annual subscription to all premium features
 - Create a **Base Plan**:
@@ -68,7 +70,7 @@ Complete setup instructions for Google Play, App Store, and backend configuratio
 
 1. Go to **Monetize** > **In-app products**
 2. Click **Create product**
-- **Product ID:** `com.pranta.the_accountant.premium.lifetime`
+- **Product ID:** `accountant_premium_lifetime`
 - **Name:** The Accountant Premium Lifetime
 - **Description:** Unlock all premium features forever with a one-time purchase
 - **Price:** $49.99
@@ -200,14 +202,14 @@ Within the "The Accountant Premium" group, create:
 
 #### Monthly
 - **Reference Name:** Premium Monthly
-- **Product ID:** `premium_monthly`
+- **Product ID:** `accountant_premium_monthly`
 - **Duration:** 1 Month
 - **Price:** $2.99 (Tier based on region)
 - Add localization: Display Name, Description
 
 #### Yearly
 - **Reference Name:** Premium Yearly
-- **Product ID:** `premium_yearly`
+- **Product ID:** `accountant_premium_yearly`
 - **Duration:** 1 Year
 - **Price:** $19.99
 - Add localization
@@ -217,7 +219,7 @@ Within the "The Accountant Premium" group, create:
 1. Go to **In-App Purchases** tab
 2. Click **+** > **Non-Consumable**
 - **Reference Name:** Premium Lifetime
-- **Product ID:** `premium_lifetime`
+- **Product ID:** `accountant_premium_lifetime`
 - **Price:** $49.99
 - Add localization
 
@@ -313,16 +315,18 @@ These can also be configured in `appsettings.json`:
 
 ### Subscription Status Response
 
+Backend serializes responses as snake_case (`Program.cs:119`):
+
 ```json
 {
-  "tier": "PremiumMonthly",
-  "expiresAt": "2026-04-26T00:00:00Z",
-  "isPremium": true,
-  "productId": "com.pranta.the_accountant.premium.monthly",
+  "tier": "premium_monthly",
+  "expires_at": "2026-04-26T00:00:00Z",
+  "is_premium": true,
+  "product_id": "accountant_premium_monthly",
   "platform": "android",
-  "gracePeriodEndsAt": null,
-  "isInGracePeriod": false,
-  "daysUntilGracePeriodEnds": 0
+  "grace_period_ends_at": null,
+  "is_in_grace_period": false,
+  "days_until_grace_period_ends": 0
 }
 ```
 

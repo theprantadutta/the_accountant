@@ -16,9 +16,9 @@ Same as Play Store — the frontend uses identical product IDs on both platforms
 
 | Name | Product ID | Type |
 |---|---|---|
-| Monthly | `com.pranta.the_accountant.premium.monthly` | Auto-renewable subscription |
-| Yearly | `com.pranta.the_accountant.premium.yearly` | Auto-renewable subscription |
-| Lifetime | `com.pranta.the_accountant.premium.lifetime` | Non-consumable |
+| Monthly | `accountant_premium_monthly` | Auto-renewable subscription |
+| Yearly | `accountant_premium_yearly` | Auto-renewable subscription |
+| Lifetime | `accountant_premium_lifetime` | Non-consumable |
 
 ## 1. Create the subscription group
 
@@ -34,7 +34,7 @@ Monthly and yearly must live in the **same subscription group** so users can upg
 
 1. Features → In-App Purchases → **Create → Auto-Renewable Subscription**.
 2. **Reference name:** `Premium Monthly`
-3. **Product ID:** `com.pranta.the_accountant.premium.monthly`
+3. **Product ID:** `accountant_premium_monthly`
 4. **Subscription Group:** `premium_access`
 5. **Subscription duration:** 1 month
 6. **Price schedule:** Create a new price schedule → Price tier matching **$2.99 USD** → apply to all territories.
@@ -50,7 +50,7 @@ Monthly and yearly must live in the **same subscription group** so users can upg
 Repeat section 2 with:
 
 - **Reference name:** `Premium Yearly`
-- **Product ID:** `com.pranta.the_accountant.premium.yearly`
+- **Product ID:** `accountant_premium_yearly`
 - **Same subscription group:** `premium_access`
 - **Subscription duration:** 1 year
 - **Price tier:** matching **$19.99 USD**
@@ -61,7 +61,7 @@ Repeat section 2 with:
 
 1. Features → In-App Purchases → **Create → Non-Consumable**.
 2. **Reference name:** `Premium Lifetime`
-3. **Product ID:** `com.pranta.the_accountant.premium.lifetime`
+3. **Product ID:** `accountant_premium_lifetime`
 4. **Price tier:** matching **$49.99 USD**.
 5. **Description:** `One-time purchase. Permanent Premium access — never renews, never expires.`
 6. Upload review screenshot + notes.

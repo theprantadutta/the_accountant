@@ -15,9 +15,9 @@ Step-by-step setup for The Accountant's in-app products in Google Play Console.
 
 | Name | Product ID | Type |
 |---|---|---|
-| Monthly | `com.pranta.the_accountant.premium.monthly` | Auto-renewing subscription |
-| Yearly | `com.pranta.the_accountant.premium.yearly` | Auto-renewing subscription |
-| Lifetime | `com.pranta.the_accountant.premium.lifetime` | One-time managed product |
+| Monthly | `accountant_premium_monthly` | Auto-renewing subscription |
+| Yearly | `accountant_premium_yearly` | Auto-renewing subscription |
+| Lifetime | `accountant_premium_lifetime` | One-time managed product |
 
 These IDs are hard-coded in:
 - Frontend: `lib/features/premium/constants/product_ids.dart`
@@ -28,7 +28,7 @@ These IDs are hard-coded in:
 ## 1. Create the Monthly subscription
 
 1. Play Console → your app → **Monetize → Products → Subscriptions → Create subscription**.
-2. **Product ID:** `com.pranta.the_accountant.premium.monthly`
+2. **Product ID:** `accountant_premium_monthly`
 3. **Name:** `Premium Monthly`
 4. **Description:** `Unlock AI insights, receipt OCR, unlimited wallets, cloud sync, and premium themes.`
 5. **Benefits (bullets, optional but recommended):**
@@ -62,7 +62,7 @@ These IDs are hard-coded in:
 
 Repeat section 1 with:
 
-- **Product ID:** `com.pranta.the_accountant.premium.yearly`
+- **Product ID:** `accountant_premium_yearly`
 - **Name:** `Premium Yearly`
 - **Description:** `Save 44% with annual billing. All Premium features included.`
 - **Base plan ID:** `yearly-autorenewing`, billing period 1 year, price $19.99
@@ -72,7 +72,7 @@ Repeat section 1 with:
 ## 3. Create the Lifetime one-time purchase
 
 1. Play Console → **Monetize → Products → In-app products → Create product**.
-2. **Product ID:** `com.pranta.the_accountant.premium.lifetime`
+2. **Product ID:** `accountant_premium_lifetime`
 3. **Name:** `Premium Lifetime`
 4. **Description:** `One-time purchase for lifetime Premium access. Never expires.`
 5. **Price:** $49.99 USD

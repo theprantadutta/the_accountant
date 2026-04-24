@@ -1,37 +1,29 @@
-import 'dart:io';
-
-/// Product IDs and billing constants for The Accountant premium subscriptions
+/// Product IDs and billing constants for The Accountant premium subscriptions.
+///
+/// IDs are unified across Android and iOS so the backend's ProductTierMapping
+/// only needs to know one string per product. Google Play limits product IDs
+/// to 40 characters — keep new IDs within that budget.
 class TheAccountantProducts {
   static const String packageName = 'com.pranta.the_accountant';
   static const String iosBundleId = 'com.pranta.theAccountant';
 
-  // Google Play Product IDs (Android)
-  static const String premiumMonthlyAndroid =
-      'com.pranta.the_accountant.premium.monthly';
-  static const String premiumYearlyAndroid =
-      'com.pranta.the_accountant.premium.yearly';
-  static const String premiumLifetimeAndroid =
-      'com.pranta.the_accountant.premium.lifetime';
-
-  // iOS App Store Product IDs
-  static const String premiumMonthlyIos = 'premium_monthly';
-  static const String premiumYearlyIos = 'premium_yearly';
-  static const String premiumLifetimeIos = 'premium_lifetime';
+  // Canonical product IDs (same on Play Store and App Store)
+  static const String premiumMonthly = 'accountant_premium_monthly';
+  static const String premiumYearly = 'accountant_premium_yearly';
+  static const String premiumLifetime = 'accountant_premium_lifetime';
 
   // Pricing (USD - fallback values when store prices unavailable)
   static const double monthlyPrice = 2.99;
   static const double yearlyPrice = 19.99;
   static const double lifetimePrice = 49.99;
 
-  // Platform-aware product IDs
-  static String get monthly =>
-      Platform.isIOS ? premiumMonthlyIos : premiumMonthlyAndroid;
-  static String get yearly =>
-      Platform.isIOS ? premiumYearlyIos : premiumYearlyAndroid;
-  static String get lifetime =>
-      Platform.isIOS ? premiumLifetimeIos : premiumLifetimeAndroid;
+  // Platform-aware getters retained for API compatibility with existing callers
+  static String get monthly => premiumMonthly;
+  static String get yearly => premiumYearly;
+  static String get lifetime => premiumLifetime;
 
-  static Set<String> get allProductIds => {monthly, yearly, lifetime};
+  static Set<String> get allProductIds =>
+      {premiumMonthly, premiumYearly, premiumLifetime};
 
   // Google Play test product IDs
   static const String testPurchased = 'android.test.purchased';

@@ -79,7 +79,7 @@ regressed.
    Expected:
    - `subscription_tier = 'premium_yearly'`
    - `subscription_expires_at ≈ now() + 365 days`
-   - `iap_product_id = 'com.pranta.the_accountant.premium.yearly'`
+   - `iap_product_id = 'accountant_premium_yearly'`
    - `iap_purchase_token` populated (long opaque string)
    - `iap_platform = 'android'`
    - `grace_period_ends_at IS NULL`
@@ -95,9 +95,9 @@ regressed.
    `verification_status = 'verified'`.
 7. **Log check** (backend stdout):
    ```
-   [INFO] Verifying purchase for user ..., product com.pranta.the_accountant.premium.yearly, platform android
+   [INFO] Verifying purchase for user ..., product accountant_premium_yearly, platform android
    [INFO] Subscription verification for com...yearly: Valid=True, ExpiryTime=..., PaymentState=1
-   [INFO] Acknowledged subscription purchase com.pranta.the_accountant.premium.yearly
+   [INFO] Acknowledged subscription purchase accountant_premium_yearly
    [INFO] Purchase verified successfully for user ..., product com...yearly
    ```
 8. **State propagation check** in the app: navigate to Settings → premium status
@@ -109,7 +109,7 @@ regressed.
 Same as above, but tap **Lifetime**. Expected DB state:
 - `subscription_tier = 'premium_lifetime'`
 - `subscription_expires_at IS NULL` (never expires)
-- `iap_product_id = 'com.pranta.the_accountant.premium.lifetime'`
+- `iap_product_id = 'accountant_premium_lifetime'`
 
 ## iOS sandbox testing
 
@@ -153,7 +153,7 @@ PAYLOAD=$(echo -n '{
     "version": "1.0",
     "notificationType": 3,
     "purchaseToken": "<real purchase token from users.iap_purchase_token>",
-    "subscriptionId": "com.pranta.the_accountant.premium.yearly"
+    "subscriptionId": "accountant_premium_yearly"
   }
 }' | base64)
 
