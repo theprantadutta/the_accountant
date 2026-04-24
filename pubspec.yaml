@@ -3,7 +3,7 @@ description: "A personal finance management application with a focus on privacy,
 
 publish_to: 'none'
 
-version: 1.0.11+12
+version: 1.0.12+13
 
 environment:
   sdk: ^3.9.0
@@ -84,6 +84,7 @@ dependencies:
   # google_mlkit_face_detection: 0.12.0  # Commenting out as not needed for receipts
 
   in_app_purchase_android: ^0.4.0+8
+  in_app_update: ^4.2.3
 
 dev_dependencies:
   flutter_test:

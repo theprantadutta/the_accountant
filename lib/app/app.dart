@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:in_app_update/in_app_update.dart';
 import 'package:the_accountant/core/providers/theme_provider.dart';
 import 'package:the_accountant/core/services/analytics_service.dart';
 import 'package:the_accountant/core/themes/app_theme.dart';
@@ -19,11 +20,62 @@ import 'package:the_accountant/features/settings/screens/regional_settings_scree
 import 'package:the_accountant/shared/widgets/main_navigation_container.dart';
 import 'package:the_accountant/features/authentication/presentation/widgets/auth_wrapper.dart';
 
-class MyApp extends ConsumerWidget {
+class MyApp extends ConsumerStatefulWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends ConsumerState<MyApp> {
+  @override
+  void initState() {
+    super.initState();
+    // Check for Play Store updates after the first frame is rendered.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkForAppUpdate();
+    });
+  }
+
+  /// Check Google Play for an available update and install it. Prefers the
+  /// immediate update flow (blocking) and falls back to the flexible flow
+  /// (background download + restart) when immediate is not allowed.
+  ///
+  /// Silently fails — update-check errors must not block the user. Throws a
+  /// PlatformException on iOS, which the try/catch absorbs.
+  Future<void> _checkForAppUpdate() async {
+    if (!mounted) return;
+
+    try {
+      debugPrint('Checking for app update...');
+      final AppUpdateInfo updateInfo = await InAppUpdate.checkForUpdate();
+
+      debugPrint('Update availability: ${updateInfo.updateAvailability}');
+      debugPrint('Immediate update allowed: ${updateInfo.immediateUpdateAllowed}');
+      debugPrint('Flexible update allowed: ${updateInfo.flexibleUpdateAllowed}');
+
+      if (updateInfo.updateAvailability != UpdateAvailability.updateAvailable) {
+        debugPrint('No update available.');
+        return;
+      }
+
+      if (updateInfo.immediateUpdateAllowed) {
+        debugPrint('Starting immediate update flow.');
+        await InAppUpdate.performImmediateUpdate();
+        debugPrint('Immediate update completed.');
+      } else if (updateInfo.flexibleUpdateAllowed) {
+        debugPrint('Immediate update not allowed, falling back to flexible.');
+        await InAppUpdate.startFlexibleUpdate();
+        await InAppUpdate.completeFlexibleUpdate();
+        debugPrint('Flexible update completed.');
+      }
+    } catch (e) {
+      debugPrint('Error checking for app update: $e');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     // Watch theme changes
     final themeState = ref.watch(themeProvider);
     final currentTheme = AppTheme.getCurrentTheme(themeState.currentTheme);
