@@ -5,7 +5,7 @@ Step-by-step setup for The Accountant's in-app products in Google Play Console.
 ## Prerequisites
 
 - [ ] Google Play Console developer account (https://play.google.com/console)
-- [ ] App record created with package name **`com.pranta.the_accountant`**
+- [ ] App record created with package name **`com.pranta.theaccountant`**
 - [ ] Merchant account created and linked under **Setup → Payments profile**
 - [ ] At least one signed AAB uploaded to **Testing → Internal testing** track
   (Play Console requires this before IAP products can be configured)

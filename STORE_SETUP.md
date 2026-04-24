@@ -17,7 +17,7 @@ Product IDs are unified across both platforms (Google Play limits product IDs to
 | Lifetime | `accountant_premium_lifetime` | $49.99 | One-time purchase |
 
 ### Package/Bundle IDs
-- **Android Package Name:** `com.pranta.the_accountant`
+- **Android Package Name:** `com.pranta.theaccountant`
 - **iOS Bundle ID:** `com.pranta.theAccountant`
 
 ### Premium Features (Unlocked at any tier)
@@ -253,7 +253,7 @@ Add these to your backend `.env` file or deployment environment:
 ```env
 # Google Play
 GOOGLE_PLAY_SERVICE_ACCOUNT_KEY_PATH=google-play-service-account.json
-GOOGLE_PLAY_PACKAGE_NAME=com.pranta.the_accountant
+GOOGLE_PLAY_PACKAGE_NAME=com.pranta.theaccountant
 GOOGLE_PLAY_PUBSUB_VERIFICATION_TOKEN=<your-32-char-hex-token>
 
 # Apple App Store
@@ -275,7 +275,7 @@ These can also be configured in `appsettings.json`:
 {
   "GooglePlay": {
     "ServiceAccountKeyPath": "google-play-service-account.json",
-    "PackageName": "com.pranta.the_accountant",
+    "PackageName": "com.pranta.theaccountant",
     "WebhookToken": "<your-webhook-token>"
   },
   "Apple": {

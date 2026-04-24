@@ -4,7 +4,7 @@
 /// only needs to know one string per product. Google Play limits product IDs
 /// to 40 characters — keep new IDs within that budget.
 class TheAccountantProducts {
-  static const String packageName = 'com.pranta.the_accountant';
+  static const String packageName = 'com.pranta.theaccountant';
   static const String iosBundleId = 'com.pranta.theAccountant';
 
   // Canonical product IDs (same on Play Store and App Store)

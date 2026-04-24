@@ -199,7 +199,7 @@ in `appsettings.json`:
 {
   "GooglePlay": {
     "ServiceAccountKeyPath": "/etc/the-accountant/google-play-service-account.json",
-    "PackageName": "com.pranta.the_accountant"
+    "PackageName": "com.pranta.theaccountant"
   }
 }
 ```

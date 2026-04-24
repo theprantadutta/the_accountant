@@ -147,7 +147,7 @@ fake message to the RTDN topic:
 # Construct a fake RTDN payload (base64-encoded JSON)
 PAYLOAD=$(echo -n '{
   "version": "1.0",
-  "packageName": "com.pranta.the_accountant",
+  "packageName": "com.pranta.theaccountant",
   "eventTimeMillis": "'$(date +%s)'000",
   "subscriptionNotification": {
     "version": "1.0",

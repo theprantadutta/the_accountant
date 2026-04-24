@@ -4,8 +4,9 @@ class BillingConfig {
   static const bool isTestMode =
       bool.fromEnvironment('BILLING_TEST_MODE', defaultValue: false);
 
-  /// Package name for the app
-  static const String packageName = 'com.pranta.the_accountant';
+  /// Package name for the app (matches Android applicationId and Google Play
+  /// registration — distinct from the Android namespace which uses an underscore).
+  static const String packageName = 'com.pranta.theaccountant';
 
   // Retry configuration
   static const int maxRetryAttempts = 3;
