@@ -144,4 +144,4 @@ iOS is stricter than Android. Before going live:
 - **"Cannot connect to iTunes Store"** during purchase → sandbox tester not signed in at the iOS **Settings** level (not just within the app).
 - **Product not found** in the paywall → product is still in "Waiting for Review" or not linked to the current bundle ID.
 - **Purchase goes through but backend rejects** → check `Apple:SharedSecret` is set; check `AppleStoreKitVerificationService` logs; prod/sandbox fallback on status 21007 should trigger automatically.
-- **ASSN v2 test notifications time out** → confirm webhook endpoint `https://accountant.pranta.dev/api/v1/webhooks/apple` is publicly reachable and responds 200 within 10s.
+- **ASSN v2 test notifications time out** → confirm webhook endpoint `https://theaccountant.pranta.dev/api/v1/webhooks/apple` is publicly reachable and responds 200 within 10s.

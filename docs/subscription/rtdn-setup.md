@@ -67,7 +67,7 @@ The `WebhookService.VerifyWebhookToken` method uses `FixedTimeEquals` to check t
 ```bash
 gcloud pubsub subscriptions create play-rtdn-push \
   --topic=play-rtdn \
-  --push-endpoint="https://accountant.pranta.dev/api/v1/webhooks/google-play?token=<WEBHOOK_TOKEN>" \
+  --push-endpoint="https://theaccountant.pranta.dev/api/v1/webhooks/google-play?token=<WEBHOOK_TOKEN>" \
   --ack-deadline=60 \
   --project=the-accountant-prod
 ```
@@ -103,7 +103,7 @@ gcloud pubsub subscriptions update play-rtdn-push \
 ### A.7 — Verification
 
 ```bash
-curl -s https://accountant.pranta.dev/api/v1/webhooks/health | jq
+curl -s https://theaccountant.pranta.dev/api/v1/webhooks/health | jq
 ```
 
 Expected response:
@@ -130,8 +130,8 @@ root CA.
 
 1. App Store Connect → your app → **App Information**.
 2. Scroll to **App Store Server Notifications → V2**.
-3. **Production Server URL:** `https://accountant.pranta.dev/api/v1/webhooks/apple`
-4. **Sandbox Server URL:** `https://accountant.pranta.dev/api/v1/webhooks/apple`
+3. **Production Server URL:** `https://theaccountant.pranta.dev/api/v1/webhooks/apple`
+4. **Sandbox Server URL:** `https://theaccountant.pranta.dev/api/v1/webhooks/apple`
    (same URL — `AppleWebhookService` auto-detects the environment from the signed payload).
 5. Save.
 
@@ -217,7 +217,7 @@ Run these after completing Parts A–C:
 
 ```bash
 curl -X POST \
-  "https://accountant.pranta.dev/api/v1/webhooks/google-play?token=<WebhookToken>" \
+  "https://theaccountant.pranta.dev/api/v1/webhooks/google-play?token=<WebhookToken>" \
   -H "Content-Type: application/json" \
   -d '{"message":{"data":"eyJ2ZXJzaW9uIjoiMS4wIn0="},"subscription":"test"}'
 ```

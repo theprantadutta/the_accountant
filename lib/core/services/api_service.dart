@@ -26,7 +26,7 @@ class ApiService {
   static final String _devUrl =
       dotenv.env['API_BASE_URL_DEV'] ?? 'http://localhost:8002';
   static final String _prodUrl =
-      dotenv.env['API_BASE_URL_PROD'] ?? 'https://accountant.pranta.dev';
+      dotenv.env['API_BASE_URL_PROD'] ?? 'https://theaccountant.pranta.dev';
   static final String baseUrl = kReleaseMode ? _prodUrl : _devUrl;
   static const String apiV1 = '/api/v1';
 

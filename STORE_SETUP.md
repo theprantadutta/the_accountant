@@ -164,7 +164,7 @@ Save this token - you'll need it for both the Pub/Sub subscription and backend c
    - Subscription ID: `theaccountant-rtdn-push`
    - Select topic: `theaccountant-play-rtdn`
    - Delivery type: **Push**
-   - Endpoint URL: `https://accountant.pranta.dev/api/v1/webhooks/google-play?token=YOUR_WEBHOOK_TOKEN`
+   - Endpoint URL: `https://theaccountant.pranta.dev/api/v1/webhooks/google-play?token=YOUR_WEBHOOK_TOKEN`
    - Acknowledgement deadline: **20 seconds**
    - Message retention: **7 days**
 3. Click **Create**
@@ -227,8 +227,8 @@ Within the "The Accountant Premium" group, create:
 
 1. Go to **General** > **App Information**
 2. Under **App Store Server Notifications**:
-   - Production Server URL: `https://accountant.pranta.dev/api/v1/webhooks/apple`
-   - Sandbox Server URL: `https://accountant.pranta.dev/api/v1/webhooks/apple`
+   - Production Server URL: `https://theaccountant.pranta.dev/api/v1/webhooks/apple`
+   - Sandbox Server URL: `https://theaccountant.pranta.dev/api/v1/webhooks/apple`
    - Version: **Version 2**
 3. Click **Save**
 
