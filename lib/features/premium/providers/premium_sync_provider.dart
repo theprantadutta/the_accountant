@@ -10,17 +10,29 @@ import 'package:the_accountant/features/premium/providers/premium_provider.dart'
 /// Without this bridge, a successful purchase updates `IAPState` but
 /// `PremiumGate` / `isFeatureUnlocked` keep returning free-tier results.
 final premiumIapSyncProvider = Provider<void>((ref) {
+  // Only listen to real transitions. `fireImmediately: true` would trigger on
+  // the initial IAPState (isPremium=false, before the backend has been
+  // contacted) and wipe SharedPreferences-cached premium for returning users.
   ref.listen<IAPState>(iapNotifierProvider, (previous, next) {
-    final tierChanged = previous?.currentTier != next.currentTier;
-    final expiryChanged = previous?.expiresAt != next.expiresAt;
-    final premiumChanged = previous?.isPremium != next.isPremium;
+    // Ignore intermediate "loading" states where we have no confirmed answer.
+    if (next.isLoading) return;
+    // Ignore the very first real emission — `previous` is null, which means
+    // we've just woken up and have no basis to compare against yet.
+    if (previous == null) return;
 
+    final tierChanged = previous.currentTier != next.currentTier;
+    final expiryChanged = previous.expiresAt != next.expiresAt;
+    final premiumChanged = previous.isPremium != next.isPremium;
     if (!tierChanged && !expiryChanged && !premiumChanged) return;
 
     final premiumNotifier = ref.read(premiumProvider.notifier);
 
     if (!next.isPremium) {
-      premiumNotifier.lockPremiumFeatures();
+      // Only downgrade if we were previously holding a premium state. Avoids
+      // clearing persisted premium when IAP hasn't actually confirmed loss.
+      if (previous.isPremium) {
+        premiumNotifier.lockPremiumFeatures();
+      }
       return;
     }
 
@@ -29,7 +41,7 @@ final premiumIapSyncProvider = Provider<void>((ref) {
       expiresAt: next.expiresAt,
       purchaseId: next.currentTier,
     );
-  }, fireImmediately: true);
+  });
 });
 
 SubscriptionTier _mapProductIdToTier(String? productId) {

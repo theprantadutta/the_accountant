@@ -49,34 +49,39 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
     final premiumState = ref.watch(premiumProvider);
     final iapState = ref.watch(iapNotifierProvider);
 
-    // Listen for purchase status changes
+    // Listen for purchase status changes. Gate every branch on a status
+    // transition (previous != next) — IAPState updates multiple times after a
+    // purchase (verify response, refresh, product reload) and the listener
+    // must fire exactly once per event or it double-pops the navigator.
     ref.listen<IAPState>(iapNotifierProvider, (previous, next) {
       if (next.error != null && next.error != previous?.error) {
         setState(() => _errorMessage = next.error);
       }
 
+      final statusChanged = previous?.lastPurchaseStatus != next.lastPurchaseStatus;
+      if (!statusChanged) return;
+
       if (next.lastPurchaseStatus == PurchaseStatus.purchased ||
           next.lastPurchaseStatus == PurchaseStatus.restored) {
-        // Refresh IAP state after successful purchase
-        ref.read(iapNotifierProvider.notifier).refresh();
+        // IAPNotifier already calls _loadState() after purchase; no manual
+        // refresh needed here or we'd create a listener-refresh loop.
+        if (!mounted) return;
 
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                next.lastPurchaseStatus == PurchaseStatus.restored
-                    ? 'Purchases restored successfully!'
-                    : 'Purchase completed successfully!',
-              ),
-              backgroundColor: AppColors.success,
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              next.lastPurchaseStatus == PurchaseStatus.restored
+                  ? 'Purchases restored successfully!'
+                  : 'Purchase completed successfully!',
             ),
-          );
+            backgroundColor: AppColors.success,
+          ),
+        );
 
-          // Close the paywall on successful purchase so the user lands back
-          // on the screen that prompted the upgrade.
-          if (Navigator.of(context).canPop()) {
-            Navigator.of(context).pop(true);
-          }
+        // Close the paywall on successful purchase so the user lands back
+        // on the screen that prompted the upgrade.
+        if (Navigator.of(context).canPop()) {
+          Navigator.of(context).pop(true);
         }
       }
     });
