@@ -179,14 +179,6 @@ class PremiumNotifier extends StateNotifier<PremiumState> {
     }
   }
 
-  /// Legacy method - unlock all premium features (for backward compatibility)
-  void unlockPremiumFeatures() {
-    updateSubscription(
-      tier: SubscriptionTier.premiumLifetime,
-      purchaseId: 'legacy_unlock',
-    );
-  }
-
   /// Lock premium features (e.g., subscription expired)
   void lockPremiumFeatures() {
     state = state.copyWith(
