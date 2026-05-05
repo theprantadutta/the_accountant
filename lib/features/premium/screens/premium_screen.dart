@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:the_accountant/core/services/analytics_service.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/data/models/premium_features.dart';
@@ -34,14 +35,28 @@ class PremiumScreen extends ConsumerStatefulWidget {
 class _PremiumScreenState extends ConsumerState<PremiumScreen> {
   String? _selectedProductId;
   String? _errorMessage;
+  bool _purchaseCompleted = false;
+  bool _emptyStateLogged = false;
+  bool _unavailableLogged = false;
 
   @override
   void initState() {
     super.initState();
+    AnalyticsService().logPaywallShown(
+      featureName: widget.triggerFeatureName,
+    );
     // Load products when screen opens
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(iapNotifierProvider.notifier).loadProducts();
     });
+  }
+
+  @override
+  void dispose() {
+    if (!_purchaseCompleted) {
+      AnalyticsService().logPaywallDismissed();
+    }
+    super.dispose();
   }
 
   @override
@@ -56,33 +71,58 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
     ref.listen<IAPState>(iapNotifierProvider, (previous, next) {
       if (next.error != null && next.error != previous?.error) {
         setState(() => _errorMessage = next.error);
+        AnalyticsService().logPaywallPurchaseError(
+          productId: _selectedProductId ?? 'unknown',
+          stage: 'iap_state_error',
+          error: next.error,
+        );
       }
 
       final statusChanged = previous?.lastPurchaseStatus != next.lastPurchaseStatus;
       if (!statusChanged) return;
 
-      if (next.lastPurchaseStatus == PurchaseStatus.purchased ||
-          next.lastPurchaseStatus == PurchaseStatus.restored) {
-        // IAPNotifier already calls _loadState() after purchase; no manual
-        // refresh needed here or we'd create a listener-refresh loop.
-        if (!mounted) return;
+      switch (next.lastPurchaseStatus) {
+        case PurchaseStatus.canceled:
+          AnalyticsService().logPaywallPurchaseCanceled(
+            productId: _selectedProductId ?? 'unknown',
+          );
+          break;
+        case PurchaseStatus.error:
+          AnalyticsService().logPaywallPurchaseError(
+            productId: _selectedProductId ?? 'unknown',
+            stage: 'purchase_status_error',
+            error: next.error,
+          );
+          break;
+        case PurchaseStatus.purchased:
+        case PurchaseStatus.restored:
+          AnalyticsService().logPremiumPurchase(productId: _selectedProductId);
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              next.lastPurchaseStatus == PurchaseStatus.restored
-                  ? 'Purchases restored successfully!'
-                  : 'Purchase completed successfully!',
+          // IAPNotifier already calls _loadState() after purchase; no manual
+          // refresh needed here or we'd create a listener-refresh loop.
+          if (!mounted) return;
+
+          _purchaseCompleted = true;
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                next.lastPurchaseStatus == PurchaseStatus.restored
+                    ? 'Purchases restored successfully!'
+                    : 'Purchase completed successfully!',
+              ),
+              backgroundColor: AppColors.success,
             ),
-            backgroundColor: AppColors.success,
-          ),
-        );
+          );
 
-        // Close the paywall on successful purchase so the user lands back
-        // on the screen that prompted the upgrade.
-        if (Navigator.of(context).canPop()) {
-          Navigator.of(context).pop(true);
-        }
+          // Close the paywall on successful purchase so the user lands back
+          // on the screen that prompted the upgrade.
+          if (Navigator.of(context).canPop()) {
+            Navigator.of(context).pop(true);
+          }
+          break;
+        default:
+          break;
       }
     });
 
@@ -117,8 +157,11 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
               _buildFeaturesSection(premiumState.isPremium),
               SizedBox(height: AppSpacing.xl),
 
-              // Subscription tiers (only show if not premium)
+              // IAP availability banner — drives users away from a silent
+              // dead-end when Play Services isn't installed or products
+              // haven't loaded.
               if (!premiumState.isPremium) ...[
+                _buildIapStatusBanner(iapState),
                 _buildSubscriptionTiers(iapState),
                 SizedBox(height: AppSpacing.lg),
               ],
@@ -466,7 +509,112 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
     );
   }
 
+  /// Surface IAP failure modes that would otherwise leave the user staring at
+  /// a paywall they can't interact with. Three cases:
+  ///   - IAP unavailable on this device (no Play Services, sideloaded build, etc.)
+  ///   - Products still loading (initial spinner)
+  ///   - Products done loading but the list came back empty (Play Console
+  ///     mismatch or network failure during queryProductDetails)
+  Widget _buildIapStatusBanner(IAPState iapState) {
+    final iapAvailable = ref.watch(iapAvailableProvider);
+
+    if (!iapAvailable) {
+      if (!_unavailableLogged) {
+        _unavailableLogged = true;
+        AnalyticsService().logPaywallIapUnavailable();
+      }
+      return _buildBanner(
+        icon: Icons.warning_amber_rounded,
+        message:
+            'In-app purchases are unavailable on this device. Make sure you have '
+            'Google Play Services installed and the app is from the Play Store.',
+        color: AppColors.error,
+      );
+    }
+
+    if (iapState.isLoading && iapState.products.isEmpty) {
+      return _buildBanner(
+        icon: Icons.hourglass_top_rounded,
+        message: 'Loading subscription options…',
+        color: AppColors.primaryAccent,
+        showSpinner: true,
+      );
+    }
+
+    if (iapState.products.isEmpty) {
+      if (!_emptyStateLogged) {
+        _emptyStateLogged = true;
+        AnalyticsService().logPaywallProductsEmpty();
+      }
+      return _buildBanner(
+        icon: Icons.cloud_off_rounded,
+        message:
+            "Couldn't load subscription options. Check your connection and tap "
+            'Try Again. If this keeps happening, please contact support.',
+        color: AppColors.error,
+        actionLabel: 'Try Again',
+        onAction: () => ref.read(iapNotifierProvider.notifier).loadProducts(),
+      );
+    }
+
+    return const SizedBox.shrink();
+  }
+
+  Widget _buildBanner({
+    required IconData icon,
+    required String message,
+    required Color color,
+    String? actionLabel,
+    VoidCallback? onAction,
+    bool showSpinner = false,
+  }) {
+    return Container(
+      margin: EdgeInsets.only(bottom: AppSpacing.md),
+      padding: EdgeInsets.all(AppSpacing.md),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: AppSpacing.borderRadiusMd,
+        border: Border.all(color: color.withValues(alpha: 0.3)),
+      ),
+      child: Row(
+        children: [
+          if (showSpinner)
+            SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(strokeWidth: 2, color: color),
+            )
+          else
+            Icon(icon, color: color),
+          SizedBox(width: AppSpacing.sm),
+          Expanded(
+            child: Text(
+              message,
+              style: TextStyle(color: color, fontSize: 13, height: 1.4),
+            ),
+          ),
+          if (actionLabel != null && onAction != null) ...[
+            SizedBox(width: AppSpacing.sm),
+            TextButton(
+              onPressed: onAction,
+              style: TextButton.styleFrom(
+                foregroundColor: color,
+                padding: EdgeInsets.symmetric(horizontal: AppSpacing.sm),
+              ),
+              child: Text(actionLabel),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
   Widget _buildSubscriptionTiers(IAPState iapState) {
+    // No real products to sell — the banner above already explains why.
+    // Don't render fallback-priced tier cards because tapping them would just
+    // surface a "Product not found" snackbar.
+    if (iapState.products.isEmpty) return const SizedBox.shrink();
+
     // Get prices from IAP products if available
     final monthlyProduct = iapState.products.firstWhere(
       (p) => p.id == PremiumProductIds.monthly,
@@ -750,6 +898,7 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
 
   Future<void> _purchaseProduct(String productId) async {
     HapticFeedback.mediumImpact();
+    AnalyticsService().logPaywallPurchaseStarted(productId: productId);
 
     setState(() {
       _selectedProductId = productId;
@@ -761,6 +910,10 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
         .purchase(productId);
 
     if (!success && mounted) {
+      AnalyticsService().logPaywallPurchaseError(
+        productId: productId,
+        stage: 'buy_request_failed',
+      );
       // If purchase initiation failed, reset selection
       setState(() {
         _selectedProductId = null;

@@ -63,8 +63,50 @@ class AnalyticsService {
   Future<void> logCreditDebtSettled() => _logEvent('credit_debt_settled');
   Future<void> logCreditDebtPayment() => _logEvent('credit_debt_payment');
 
-  // Premium events
-  Future<void> logPremiumPurchase() => _logEvent('premium_purchase');
+  // Premium events — full funnel so we can see where users drop off:
+  //   paywall_shown -> paywall_purchase_started -> premium_purchase
+  //                                               \-> paywall_purchase_canceled
+  //                                               \-> paywall_purchase_error
+  //   paywall_dismissed (closed without purchase)
+  //   paywall_iap_unavailable / paywall_products_empty (dead-end states)
+  Future<void> logPaywallShown({String? source, String? featureName}) =>
+      _logEvent('paywall_shown', parameters: <String, Object>{
+        'source': ?source,
+        'feature_name': ?featureName,
+      });
+
+  Future<void> logPaywallPurchaseStarted({required String productId}) =>
+      _logEvent('paywall_purchase_started',
+          parameters: {'product_id': productId});
+
+  Future<void> logPaywallPurchaseCanceled({required String productId}) =>
+      _logEvent('paywall_purchase_canceled',
+          parameters: {'product_id': productId});
+
+  Future<void> logPaywallPurchaseError({
+    required String productId,
+    required String stage,
+    String? error,
+  }) =>
+      _logEvent('paywall_purchase_error', parameters: {
+        'product_id': productId,
+        'stage': stage,
+        'error': ?error,
+      });
+
+  Future<void> logPaywallDismissed({String? source}) =>
+      _logEvent('paywall_dismissed',
+          parameters: {'source': ?source});
+
+  Future<void> logPaywallIapUnavailable() =>
+      _logEvent('paywall_iap_unavailable');
+
+  Future<void> logPaywallProductsEmpty() => _logEvent('paywall_products_empty');
+
+  Future<void> logPremiumPurchase({String? productId}) =>
+      _logEvent('premium_purchase',
+          parameters: {'product_id': ?productId});
+
   Future<void> logPremiumRestore() => _logEvent('premium_restore');
 
   // AI chat

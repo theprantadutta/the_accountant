@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/data/models/premium_features.dart';
+import 'package:the_accountant/features/authentication/providers/auth_provider.dart';
 import 'package:the_accountant/features/premium/constants/product_ids.dart';
 import 'package:the_accountant/features/premium/providers/iap_provider.dart';
 import 'package:the_accountant/features/premium/providers/premium_provider.dart';
@@ -10,6 +11,19 @@ import 'package:the_accountant/features/premium/providers/premium_provider.dart'
 /// Without this bridge, a successful purchase updates `IAPState` but
 /// `PremiumGate` / `isFeatureUnlocked` keep returning free-tier results.
 final premiumIapSyncProvider = Provider<void>((ref) {
+  // When the user transitions from unauthenticated -> authenticated (login,
+  // session restore on app launch), kick IAPNotifier to re-query the backend.
+  // Without this, /iap/subscription-status was called before the auth token
+  // existed and IAPState.isPremium stayed false even for returning subscribers
+  // signing in on a fresh device.
+  ref.listen<AuthState>(authProvider, (previous, next) {
+    final justAuthenticated =
+        next.isAuthenticated && previous?.isAuthenticated != true;
+    if (justAuthenticated) {
+      ref.read(iapNotifierProvider.notifier).refresh();
+    }
+  });
+
   // Only listen to real transitions. `fireImmediately: true` would trigger on
   // the initial IAPState (isPremium=false, before the backend has been
   // contacted) and wipe SharedPreferences-cached premium for returning users.
