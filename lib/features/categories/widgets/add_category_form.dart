@@ -7,6 +7,8 @@ import 'package:the_accountant/features/categories/providers/category_provider.d
 import 'package:the_accountant/core/constants/app_constants.dart';
 import 'package:the_accountant/core/utils/color_utils.dart';
 import 'package:the_accountant/core/utils/icon_registry.dart';
+import 'package:the_accountant/features/premium/exceptions/premium_limit_exception.dart';
+import 'package:the_accountant/features/premium/widgets/upgrade_limit_dialog.dart';
 
 class AddCategoryForm extends ConsumerStatefulWidget {
   final Category? category;
@@ -84,7 +86,7 @@ class _AddCategoryFormState extends ConsumerState<AddCategoryForm> {
     super.dispose();
   }
 
-  void _submitForm() {
+  Future<void> _submitForm() async {
     final name = _nameController.text.trim();
     if (name.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -98,25 +100,40 @@ class _AddCategoryFormState extends ConsumerState<AddCategoryForm> {
 
     final categoryProviderNotifier = ref.read(categoryProvider.notifier);
 
-    if (widget.category != null) {
-      categoryProviderNotifier.updateCategory(
-        id: widget.category!.id,
-        name: name,
-        colorCode: _selectedColor,
-        type: _selectedType,
-        iconName: _selectedIcon,
-      );
-    } else {
-      categoryProviderNotifier.addCategory(
-        name: name,
-        colorCode: _selectedColor,
-        type: _selectedType,
-        iconName: _selectedIcon,
-      );
-    }
+    try {
+      if (widget.category != null) {
+        await categoryProviderNotifier.updateCategory(
+          id: widget.category!.id,
+          name: name,
+          colorCode: _selectedColor,
+          type: _selectedType,
+          iconName: _selectedIcon,
+        );
+      } else {
+        await categoryProviderNotifier.addCategory(
+          name: name,
+          colorCode: _selectedColor,
+          type: _selectedType,
+          iconName: _selectedIcon,
+        );
+      }
 
-    HapticFeedback.mediumImpact();
-    Navigator.pop(context);
+      HapticFeedback.mediumImpact();
+      if (mounted) Navigator.pop(context);
+    } on PremiumLimitException catch (e) {
+      if (mounted) {
+        await UpgradeLimitDialog.showFromException(context, e);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to save category: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    }
   }
 
   Color get _color => ColorUtils.hexToColor(_selectedColor);

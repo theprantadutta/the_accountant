@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/constants/app_constants.dart';
 import 'package:the_accountant/features/budgets/providers/budget_provider.dart';
+import 'package:the_accountant/features/premium/exceptions/premium_limit_exception.dart';
+import 'package:the_accountant/features/premium/widgets/upgrade_limit_dialog.dart';
 
 class AddBudgetScreen extends ConsumerStatefulWidget {
   const AddBudgetScreen({super.key});
@@ -79,24 +81,33 @@ class _AddBudgetScreenState extends ConsumerState<AddBudgetScreen> {
     }
   }
 
-  void _submitForm() {
-    if (_formKey.currentState!.validate()) {
-      final limit = double.tryParse(_limitController.text);
-      if (limit != null &&
-          limit > 0 &&
-          _startDate != null &&
-          _endDate != null) {
-        ref
-            .read(budgetProvider.notifier)
-            .addBudget(
-              name: _nameController.text,
-              categoryId: _selectedCategoryId,
-              limit: limit,
-              period: _selectedPeriod,
-              startDate: _startDate!,
-              endDate: _endDate!,
-            );
-        Navigator.pop(context);
+  Future<void> _submitForm() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    final limit = double.tryParse(_limitController.text);
+    if (limit == null || limit <= 0 || _startDate == null || _endDate == null) {
+      return;
+    }
+
+    try {
+      await ref.read(budgetProvider.notifier).addBudget(
+            name: _nameController.text,
+            categoryId: _selectedCategoryId,
+            limit: limit,
+            period: _selectedPeriod,
+            startDate: _startDate!,
+            endDate: _endDate!,
+          );
+      if (mounted) Navigator.pop(context);
+    } on PremiumLimitException catch (e) {
+      if (mounted) {
+        await UpgradeLimitDialog.showFromException(context, e);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to create budget: $e')),
+        );
       }
     }
   }

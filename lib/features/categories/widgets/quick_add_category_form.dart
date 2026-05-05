@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/features/categories/providers/category_provider.dart';
 import 'package:the_accountant/core/utils/color_utils.dart';
 import 'package:the_accountant/core/themes/app_theme.dart';
+import 'package:the_accountant/features/premium/exceptions/premium_limit_exception.dart';
+import 'package:the_accountant/features/premium/widgets/upgrade_limit_dialog.dart';
 
 class QuickAddCategoryForm extends ConsumerStatefulWidget {
   final String presetType;
@@ -62,8 +64,11 @@ class _QuickAddCategoryFormState extends ConsumerState<QuickAddCategoryForm> {
             .first;
 
         widget.onCategoryAdded(newCategory.name, newCategory.id);
+      } on PremiumLimitException catch (e) {
+        if (mounted) {
+          await UpgradeLimitDialog.showFromException(context, e);
+        }
       } catch (e) {
-        // Handle error
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(

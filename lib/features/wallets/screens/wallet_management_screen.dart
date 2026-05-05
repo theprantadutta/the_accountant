@@ -9,6 +9,8 @@ import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/data/models/wallet.dart' show WalletType;
 import 'package:the_accountant/features/settings/providers/settings_provider.dart';
+import 'package:the_accountant/features/premium/exceptions/premium_limit_exception.dart';
+import 'package:the_accountant/features/premium/widgets/upgrade_limit_dialog.dart';
 import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
 import 'package:the_accountant/features/wallets/widgets/add_wallet_form.dart';
 import 'package:the_accountant/shared/widgets/color_picker.dart';
@@ -98,7 +100,7 @@ class _WalletManagementScreenState extends ConsumerState<WalletManagementScreen>
     );
   }
 
-  void _submitForm({
+  Future<void> _submitForm({
     required String currency,
     required String icon,
     required String color,
@@ -107,33 +109,47 @@ class _WalletManagementScreenState extends ConsumerState<WalletManagementScreen>
     required WalletType walletType,
     required double? creditLimit,
     required int? billingCycleDay,
-  }) {
+  }) async {
     final walletNotifier = ref.read(walletProvider.notifier);
-    walletNotifier.addWallet(
-      name: _nameController.text,
-      currency: currency,
-      balance: double.tryParse(_balanceController.text) ?? 0.0,
-      iconName: icon,
-      color: color,
-      isDefault: isDefault,
-      useDecimals: useDecimals,
-      walletType: walletType,
-      creditLimit: creditLimit,
-      billingCycleDay: billingCycleDay,
-    );
 
-    _nameController.clear();
-    _balanceController.clear();
-    Navigator.pop(context);
+    try {
+      await walletNotifier.addWallet(
+        name: _nameController.text,
+        currency: currency,
+        balance: double.tryParse(_balanceController.text) ?? 0.0,
+        iconName: icon,
+        color: color,
+        isDefault: isDefault,
+        useDecimals: useDecimals,
+        walletType: walletType,
+        creditLimit: creditLimit,
+        billingCycleDay: billingCycleDay,
+      );
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('Wallet created successfully'),
-        backgroundColor: AppColors.success,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      ),
-    );
+      _nameController.clear();
+      _balanceController.clear();
+
+      if (!mounted) return;
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Wallet created successfully'),
+          backgroundColor: AppColors.success,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        ),
+      );
+    } on PremiumLimitException catch (e) {
+      if (mounted) {
+        await UpgradeLimitDialog.showFromException(context, e);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to create wallet: $e')),
+        );
+      }
+    }
   }
 
   @override
