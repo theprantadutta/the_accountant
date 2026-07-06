@@ -29,18 +29,18 @@ class PdfExportService {
     for (final item in transactions) {
       final txn = item.transaction;
       if (txn.isIncome == true) {
-        totalIncome += txn.amount.abs();
+        totalIncome += txn.amount.abs() / 100.0;
       } else {
-        totalExpense += txn.amount.abs();
+        totalExpense += txn.amount.abs() / 100.0;
       }
 
       // Category totals using resolved name
       categoryTotals[item.categoryName] =
-          (categoryTotals[item.categoryName] ?? 0) + txn.amount.abs();
+          (categoryTotals[item.categoryName] ?? 0) + txn.amount.abs() / 100.0;
 
       // Wallet totals using resolved name
       walletTotals[item.walletName] =
-          (walletTotals[item.walletName] ?? 0) + txn.amount.abs();
+          (walletTotals[item.walletName] ?? 0) + txn.amount.abs() / 100.0;
     }
 
     final netAmount = totalIncome - totalExpense;
@@ -436,7 +436,7 @@ class PdfExportService {
                 padding: const pw.EdgeInsets.all(8),
                 alignment: pw.Alignment.centerRight,
                 child: pw.Text(
-                  '${isIncome ? '+' : '-'}${currencyFormatter.format(txn.amount.abs())}',
+                  '${isIncome ? '+' : '-'}${currencyFormatter.format(txn.amount.abs() / 100.0)}',
                   style: pw.TextStyle(
                     fontSize: 10,
                     color: isIncome ? PdfColors.green700 : PdfColors.red700,

@@ -194,11 +194,12 @@ class ReportsNotifier extends StateNotifier<ReportsState> {
       // Calculate totals
       double totalSpending = 0;
       double totalIncome = 0;
+      // t.amount is integer cents; reports work in major-unit dollars (double).
       for (final t in transactions) {
         if (!t.isIncome) {
-          totalSpending += t.amount;
+          totalSpending += t.amount / 100.0;
         } else if (t.isIncome) {
-          totalIncome += t.amount;
+          totalIncome += t.amount / 100.0;
         }
       }
 
@@ -245,7 +246,8 @@ class ReportsNotifier extends StateNotifier<ReportsState> {
     // Sum by category
     for (final t in expenses) {
       final categoryId = t.categoryId ?? 'uncategorized';
-      categoryTotals[categoryId] = (categoryTotals[categoryId] ?? 0) + t.amount;
+      categoryTotals[categoryId] =
+          (categoryTotals[categoryId] ?? 0) + t.amount / 100.0;
     }
 
     // Get category details and convert to CategorySpendingData
@@ -328,7 +330,7 @@ class ReportsNotifier extends StateNotifier<ReportsState> {
                   t.date.month == date.month &&
                   t.date.day == date.day,
             )
-            .fold(0.0, (sum, t) => sum + t.amount);
+            .fold(0.0, (sum, t) => sum + t.amount / 100.0);
 
         result.add(
           DailySpendingData(
@@ -359,7 +361,7 @@ class ReportsNotifier extends StateNotifier<ReportsState> {
                   t.date.isAfter(weekStart.subtract(const Duration(days: 1))) &&
                   t.date.isBefore(weekEnd.add(const Duration(days: 1))),
             )
-            .fold(0.0, (sum, t) => sum + t.amount);
+            .fold(0.0, (sum, t) => sum + t.amount / 100.0);
 
         result.add(
           DailySpendingData(
@@ -383,7 +385,7 @@ class ReportsNotifier extends StateNotifier<ReportsState> {
                   ) &&
                   t.date.isBefore(monthEnd.add(const Duration(days: 1))),
             )
-            .fold(0.0, (sum, t) => sum + t.amount);
+            .fold(0.0, (sum, t) => sum + t.amount / 100.0);
 
         result.add(
           DailySpendingData(
@@ -417,7 +419,7 @@ class ReportsNotifier extends StateNotifier<ReportsState> {
                 (budget.categoryId.isEmpty ||
                     t.categoryId == budget.categoryId),
           )
-          .fold(0.0, (sum, t) => sum + t.amount);
+          .fold(0.0, (sum, t) => sum + t.amount / 100.0);
 
       final percentage = budget.limit > 0 ? (spent / budget.limit) : 0.0;
 

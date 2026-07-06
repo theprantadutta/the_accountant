@@ -5,6 +5,7 @@ import 'package:the_accountant/core/services/currency_service.dart';
 import 'package:the_accountant/core/utils/number_formatter.dart';
 import 'package:the_accountant/features/settings/providers/settings_provider.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
+import 'package:the_accountant/core/utils/currency_formatter.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/core/themes/app_typography.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
@@ -151,9 +152,10 @@ class _WalletCardState extends ConsumerState<_WalletCard>
     final walletColor = WalletColors.parseColor(wallet.color);
     final isVisible = ref.watch(walletBalanceVisibleProvider(wallet.id));
     final walletBalances = ref.watch(walletProvider).walletBalances;
-    final balance = walletBalances[wallet.id] ?? wallet.balance;
+    // Balances/limits are integer cents; display works in major-unit dollars.
+    final balance = (walletBalances[wallet.id] ?? wallet.balance) / 100.0;
     final isCreditCard = wallet.walletType == WalletType.creditCard;
-    final creditLimit = wallet.creditLimit ?? 0.0;
+    final creditLimit = (wallet.creditLimit ?? 0) / 100.0;
     final outstanding = isCreditCard ? balance.abs() : 0.0;
     final available = isCreditCard ? (creditLimit - outstanding) : 0.0;
     final usageRatio = isCreditCard && creditLimit > 0
@@ -421,7 +423,7 @@ class _WalletCardState extends ConsumerState<_WalletCard>
     final wallet = widget.wallet;
     final editNameController = TextEditingController(text: wallet.name);
     final editBalanceController = TextEditingController(
-      text: wallet.balance.toString(),
+      text: (wallet.balance / 100.0).toStringAsFixed(2),
     );
     final editFormKey = GlobalKey<FormState>();
 
@@ -461,7 +463,9 @@ class _WalletCardState extends ConsumerState<_WalletCard>
                   initialIsDefault: wallet.isDefault,
                   initialUseDecimals: wallet.useDecimals,
                   initialWalletType: wallet.walletType,
-                  initialCreditLimit: wallet.creditLimit,
+                  initialCreditLimit: wallet.creditLimit == null
+                      ? null
+                      : wallet.creditLimit! / 100.0,
                   initialBillingCycleDay: wallet.billingCycleDay,
                   isEditing: true,
                   onSubmit:
@@ -481,14 +485,15 @@ class _WalletCardState extends ConsumerState<_WalletCard>
                               id: wallet.id,
                               name: editNameController.text,
                               currency: currency,
-                              balance: double.tryParse(
-                                editBalanceController.text,
-                              ),
+                              balance: editBalanceController.text
+                                  .toCentsOrNull(),
                               iconName: icon,
                               color: color,
                               isDefault: isDefault,
                               useDecimals: useDecimals,
-                              creditLimit: creditLimit,
+                              creditLimit: creditLimit == null
+                                  ? null
+                                  : (creditLimit * 100).round(),
                               billingCycleDay: billingCycleDay,
                             );
                         Navigator.pop(sheetContext);

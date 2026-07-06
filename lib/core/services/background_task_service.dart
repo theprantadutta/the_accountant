@@ -92,13 +92,13 @@ class BackgroundTaskService {
               (t.id.hashCode % 500),
           title: 'Upcoming: $title',
           body:
-              '${t.isIncome ? "Income" : "Expense"} of ${t.amount.toStringAsFixed(2)} is due soon.',
+              '${t.isIncome ? "Income" : "Expense"} of ${(t.amount / 100).toStringAsFixed(2)} is due soon.',
           channelId: BackgroundTaskConstants.upcomingChannelId,
           channelName: BackgroundTaskConstants.upcomingChannelName,
           channelDesc: BackgroundTaskConstants.upcomingChannelDesc,
           transactionId: t.id,
           transactionTitle: t.title,
-          amount: t.amount,
+          amount: t.amount / 100.0,
           type: 'upcoming',
           dueDate: t.originalDueDate ?? t.date,
         );
@@ -126,13 +126,13 @@ class BackgroundTaskService {
               (t.id.hashCode % 500),
           title: 'Overdue ${isCredit ? "Credit" : "Debt"}: $title',
           body:
-              '${t.amount.toStringAsFixed(2)} is overdue. Tap to review.',
+              '${(t.amount / 100).toStringAsFixed(2)} is overdue. Tap to review.',
           channelId: BackgroundTaskConstants.loanChannelId,
           channelName: BackgroundTaskConstants.loanChannelName,
           channelDesc: BackgroundTaskConstants.loanChannelDesc,
           transactionId: t.id,
           transactionTitle: t.title,
-          amount: t.amount,
+          amount: t.amount / 100.0,
           type: loanType,
           dueDate: t.originalDueDate ?? t.date,
         );

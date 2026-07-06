@@ -269,7 +269,7 @@ class _ResponsiveFinancialOverviewState
         Expanded(
           child: StatCard(
             label: 'Credit & Debt',
-            value: netBalance.abs(),
+            value: netBalance.abs() / 100.0, // cents -> major-unit dollars
             prefix: '${netBalance >= 0 ? '+' : '-'}$currencySymbol',
             icon: Icons.account_balance_wallet_rounded,
             iconColor: AppColors.neonCyan,
@@ -702,9 +702,10 @@ class _ResponsiveFinancialOverviewState
               final currencySymbol = CurrencyInfo.getSymbol(walletCurrency);
               final nf = ref.watch(numberFormatSettingProvider);
               final formatter = AppNumberFormatter.get(nf, useDecimals: useDecimals);
+              // transaction.amount is integer cents; display in major-unit dollars.
               final displayAmount = useDecimals
-                  ? transaction.amount
-                  : transaction.amount.round();
+                  ? transaction.amount / 100.0
+                  : (transaction.amount / 100.0).round();
 
               return Container(
                 margin: EdgeInsets.only(bottom: AppSpacing.md),
@@ -807,8 +808,9 @@ class _ResponsiveFinancialOverviewState
             )
           else
             ...items.map((item) {
-              final spent = item.spent;
-              final limit = item.limit;
+              // BudgetProgressItem holds integer cents; display in major-unit dollars.
+              final spent = item.spent / 100.0;
+              final limit = item.limit / 100.0;
               final percentage = limit <= 0 ? 0.0 : spent / limit;
               final isOverBudget = percentage > 1.0;
               final barColor = Color(

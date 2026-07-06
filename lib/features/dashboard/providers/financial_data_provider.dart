@@ -124,12 +124,15 @@ class FinancialDataNotifier extends Notifier<FinancialData> {
         _calculationService.getRecentTransactions(),
       ]);
 
+      // Money values arrive as integer minor units (cents) from the calculation
+      // service; this provider exposes them as major-unit dollars (double).
       state = state.copyWith(
-        totalBalance: results[0] as double,
-        monthlyIncome: results[1] as double,
-        monthlyExpenses: results[2] as double,
+        totalBalance: (results[0] as int) / 100.0,
+        monthlyIncome: (results[1] as int) / 100.0,
+        monthlyExpenses: (results[2] as int) / 100.0,
         monthlyGrowthPercentage: results[3] as double,
-        categorySpending: results[4] as Map<String, double>,
+        categorySpending: (results[4] as Map<String, int>)
+            .map((k, v) => MapEntry(k, v / 100.0)),
         budgetProgress: results[5] as Map<String, double>,
         budgetProgressDetails: results[6] as List<BudgetProgressItem>,
         recentTransactions: results[7] as List<Transaction>,

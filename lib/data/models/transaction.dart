@@ -34,8 +34,8 @@ class Transactions extends Table {
   // Primary key - UUID string
   TextColumn get id => text().customConstraint('UNIQUE NOT NULL')();
 
-  // Transaction details
-  RealColumn get amount => real()();
+  // Transaction details (integer minor units / cents)
+  IntColumn get amount => integer()();
   TextColumn get title => text().withDefault(const Constant(''))();
   TextColumn get notes => text().nullable()();
   DateTimeColumn get date => dateTime()();
@@ -96,8 +96,8 @@ class Transactions extends Table {
   // Useful when a transaction is marked as paid (date updates to payment date)
   DateTimeColumn get originalDueDate => dateTime().nullable()();
 
-  // Track partial payments for credit/debt transactions
-  RealColumn get paidAmount => real().withDefault(const Constant(0.0))();
+  // Track partial payments for credit/debt transactions (integer minor units / cents)
+  IntColumn get paidAmount => integer().withDefault(const Constant(0))();
 
   // Skip this payment (for recurring unpaid transactions)
   BoolColumn get skipPaid => boolean().withDefault(const Constant(false))();

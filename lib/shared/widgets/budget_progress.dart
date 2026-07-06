@@ -39,7 +39,7 @@ class BudgetProgress extends ConsumerWidget {
               transaction.date.isAfter(startDate) &&
               transaction.date.isBefore(endDate),
         )
-        .fold(0.0, (sum, transaction) => sum + transaction.amount);
+        .fold(0.0, (sum, transaction) => sum + transaction.amount / 100.0);
 
     final percentage = limit > 0 ? (spent / limit).clamp(0.0, 1.0) : 0.0;
     final remaining = limit - spent;

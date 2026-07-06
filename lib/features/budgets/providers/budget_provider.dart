@@ -77,7 +77,9 @@ class BudgetNotifier extends StateNotifier<BudgetState> {
               id: b.id,
               name: b.name,
               categoryId: b.categoryId ?? '',
-              limit: b.limit ?? b.amount, // Use amount if limit is null
+              // Legacy view model keeps `limit` as major-unit dollars. The money column
+              // `amount` is now integer cents, so convert it when falling back.
+              limit: b.limit ?? (b.amount / 100.0), // Use amount (cents) if limit is null
               period: b.period,
               startDate: b.startDate,
               endDate: b.endDate!, // Safe because we filtered above

@@ -96,8 +96,6 @@ dev_dependencies:
   drift_dev: ^2.32.1
   build_runner: ^2.11.1
 
-dependency_overrides:
-  analyzer: ^10.0.0
 
 flutter:
   uses-material-design: true

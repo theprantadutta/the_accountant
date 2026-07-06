@@ -23,16 +23,16 @@ class MonthlySummaryService {
       // Calculate totals and category breakdown
       for (final transaction in monthTransactions) {
         if (transaction.type == 'income') {
-          totalIncome += transaction.amount;
+          totalIncome += transaction.amount / 100.0;
         } else {
-          totalExpenses += transaction.amount;
+          totalExpenses += transaction.amount / 100.0;
 
           // Add to category breakdown
           if (categoryBreakdown.containsKey(transaction.categoryId)) {
             categoryBreakdown[transaction.categoryId] =
-                categoryBreakdown[transaction.categoryId]! + transaction.amount;
+                categoryBreakdown[transaction.categoryId]! + transaction.amount / 100.0;
           } else {
-            categoryBreakdown[transaction.categoryId] = transaction.amount;
+            categoryBreakdown[transaction.categoryId] = transaction.amount / 100.0;
           }
         }
       }
@@ -50,7 +50,7 @@ class MonthlySummaryService {
       double previousMonthExpenses = 0.0;
       for (final transaction in previousMonthTransactions) {
         if (transaction.type == 'expense') {
-          previousMonthExpenses += transaction.amount;
+          previousMonthExpenses += transaction.amount / 100.0;
         }
       }
 

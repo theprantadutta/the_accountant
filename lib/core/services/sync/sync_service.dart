@@ -38,6 +38,9 @@ class SyncService {
   DateTime? _lastSyncAt;
   bool _lastSyncLoaded = false;
 
+  // Synchronous re-entrancy guard for syncAll (set before any await).
+  bool _syncInProgress = false;
+
   SyncService({
     required ApiService apiService,
     required AppDatabase database,
@@ -59,10 +62,21 @@ class SyncService {
   /// Full sync operation - pushes local changes, pulls remote changes
   /// Requires Premium subscription
   Future<SyncResult> syncAll() async {
-    if (_state == SyncOperationState.syncing) {
+    // Synchronous guard set BEFORE any await, so overlapping triggers (app-resume,
+    // connectivity-restored, the periodic timer) cannot start two syncs concurrently and
+    // double-push the same pending set.
+    if (_syncInProgress) {
       return SyncResult.failure('Sync already in progress');
     }
+    _syncInProgress = true;
+    try {
+      return await _runSync();
+    } finally {
+      _syncInProgress = false;
+    }
+  }
 
+  Future<SyncResult> _runSync() async {
     // Check premium status - sync is a premium feature
     if (_ref != null) {
       final premiumState = _ref.read(premiumProvider);
@@ -98,13 +112,22 @@ class SyncService {
 
     try {
       // Step 1: Push all local changes
-      final pushResult = await _pushAllChanges();
-      if (pushResult != null) {
-        totalPushed = pushResult.appliedCount;
-        totalConflicts = pushResult.conflicts.length;
+      final push = await _pushAllChanges();
+      if (push.response != null) {
+        totalPushed = push.response!.appliedCount;
+        final conflicts = push.response!.conflicts;
+        totalConflicts = conflicts.length;
 
-        // Mark pushed records as synced
-        await _markPushedRecordsAsSynced();
+        // Only mark records the server actually accepted. Records the server rejected
+        // (conflict / newer server version) are LEFT pending so the pull below can bring
+        // the authoritative server copy and overwrite them — instead of silently marking a
+        // rejected local edit as "synced" and losing it.
+        final conflictKeys =
+            conflicts.map((c) => '${c.tableName}:${c.entityId}').toSet();
+        final appliedChanges = push.pushed
+            .where((c) => !conflictKeys.contains('${c.tableName}:${c.entityId}'))
+            .toList();
+        await _markChangesSynced(appliedChanges);
       }
 
       // Step 2: Pull all remote changes
@@ -117,12 +140,19 @@ class SyncService {
           totalPulled += changes.length;
 
           for (final change in changes) {
-            await _applyPulledChange(tableName, change);
+            // Guard each record so one malformed row can't abort the whole pull.
+            try {
+              await _applyPulledChange(tableName, change);
+            } catch (e, s) {
+              _logger.w('Skipping bad $tableName record ${change.entityId}: $e',
+                  error: e, stackTrace: s);
+            }
           }
         }
 
-        // Update last sync timestamp (in memory and persisted)
-        _lastSyncAt = DateTime.now();
+        // Advance the cursor using the SERVER's timestamp (falling back to local time only
+        // if absent), so client clock skew can't skip server-side changes on the next pull.
+        _lastSyncAt = pullResult.serverTime ?? DateTime.now();
         await _saveLastSyncTimestamp(_lastSyncAt!);
       }
 
@@ -160,8 +190,11 @@ class SyncService {
     await _database.setLastSyncTimestamp(timestamp);
   }
 
-  /// Push all pending local changes to server
-  Future<SyncPushResponse?> _pushAllChanges() async {
+  /// Push all pending local changes to server.
+  /// Returns the server response together with the exact set of changes pushed, so the
+  /// caller can mark only the accepted records as synced (see [_markChangesSynced]).
+  Future<({SyncPushResponse? response, List<SyncChange> pushed})>
+      _pushAllChanges() async {
     final allChanges = <SyncChange>[];
 
     // Collect pending changes in dependency order:
@@ -178,7 +211,7 @@ class SyncService {
 
     if (allChanges.isEmpty) {
       _logger.d('No pending changes to push');
-      return null;
+      return (response: null, pushed: allChanges);
     }
 
     _logger.d('Pushing ${allChanges.length} changes');
@@ -188,7 +221,10 @@ class SyncService {
         '/sync/push',
         data: SyncPushRequest(changes: allChanges).toJson(),
       );
-      return SyncPushResponse.fromJson(response.data);
+      return (
+        response: SyncPushResponse.fromJson(response.data),
+        pushed: allChanges,
+      );
     } catch (e) {
       _logger.e('Push failed: $e');
       rethrow;
@@ -403,7 +439,7 @@ class SyncService {
 
     final companion = TransactionsCompanion(
       id: Value(change.entityId),
-      amount: Value((data['Amount'] as num?)?.toDouble() ?? 0.0),
+      amount: Value((data['Amount'] as num?)?.toInt() ?? 0),
       title: Value(data['Title'] ?? ''),
       notes: Value(data['Notes']),
       date: Value(
@@ -416,7 +452,7 @@ class SyncService {
       categoryId: Value(data['CategoryId']),
       paymentMethodId: Value(data['PaymentMethodId']),
       isPaid: Value(data['IsPaid'] ?? true),
-      paidAmount: Value((data['PaidAmount'] as num?)?.toDouble() ?? 0.0),
+      paidAmount: Value((data['PaidAmount'] as num?)?.toInt() ?? 0),
       originalDueDate: Value(
         data['OriginalDueDate'] != null
             ? DateTime.parse(data['OriginalDueDate'])
@@ -468,10 +504,11 @@ class SyncService {
       iconName: Value(data['Icon'] ?? data['IconName'] ?? 'wallet'),
       color: Value(data['Color'] ?? '#6366F1'),
       currency: Value(data['Currency'] ?? 'USD'),
-      balance: Value((data['Balance'] as num?)?.toDouble() ?? 0.0),
+      balance: Value((data['Balance'] as num?)?.toInt() ?? 0),
+      openingBalance: Value((data['OpeningBalance'] as num?)?.toInt() ?? 0),
       isDefault: Value(data['IsDefault'] ?? false),
-      walletType: Value(WalletType.values[(data['WalletType'] ?? 0) as int]),
-      creditLimit: Value((data['CreditLimit'] as num?)?.toDouble()),
+      walletType: Value(_parseWalletType(data['WalletType'])),
+      creditLimit: Value((data['CreditLimit'] as num?)?.toInt()),
       billingCycleDay: Value(data['BillingCycleDay'] as int?),
       syncStatus: const Value(SyncStatus.synced),
       updatedAt: Value(DateTime.now()),
@@ -510,10 +547,11 @@ class SyncService {
     final companion = CategoriesCompanion(
       id: Value(change.entityId),
       name: Value(data['Name'] ?? ''),
-      iconName: Value(data['Icon'] ?? 'category'),
+      // Push writes 'IconName'/'MainCategoryId'; read those first (fall back to the old keys).
+      iconName: Value(data['IconName'] ?? data['Icon'] ?? 'category'),
       color: Value(data['Color'] ?? '#6366F1'),
       isIncome: Value(data['IsIncome'] ?? false),
-      mainCategoryId: Value(data['ParentCategoryId']),
+      mainCategoryId: Value(data['MainCategoryId'] ?? data['ParentCategoryId']),
       orderIndex: Value(data['OrderIndex'] ?? 0),
       syncStatus: const Value(SyncStatus.synced),
       updatedAt: Value(DateTime.now()),
@@ -552,7 +590,7 @@ class SyncService {
     final companion = BudgetsCompanion(
       id: Value(change.entityId),
       name: Value(data['Name'] ?? ''),
-      amount: Value((data['Amount'] as num?)?.toDouble() ?? 0.0),
+      amount: Value((data['Amount'] as num?)?.toInt() ?? 0),
       period: Value(_parseBudgetPeriod(data['Period'])),
       startDate: Value(
         data['StartDate'] != null
@@ -604,9 +642,9 @@ class SyncService {
     final companion = ObjectivesCompanion(
       id: Value(change.entityId),
       name: Value(data['Name'] ?? ''),
-      iconName: Value(data['Icon'] ?? 'flag'),
+      iconName: Value(data['IconName'] ?? data['Icon'] ?? 'flag'),
       color: Value(data['Color'] ?? '#6366F1'),
-      targetAmount: Value((data['TargetAmount'] as num?)?.toDouble() ?? 0.0),
+      targetAmount: Value((data['TargetAmount'] as num?)?.toInt() ?? 0),
       type: Value(_parseObjectiveType(data['Type'])),
       walletId: Value(data['WalletId']),
       startDate: Value(
@@ -656,7 +694,7 @@ class SyncService {
     final companion = PaymentMethodsCompanion(
       id: Value(change.entityId),
       name: Value(data['Name'] ?? ''),
-      iconName: Value(data['Icon'] ?? 'credit_card'),
+      iconName: Value(data['IconName'] ?? data['Icon'] ?? 'credit_card'),
       isDefault: Value(data['IsDefault'] ?? false),
       syncStatus: const Value(SyncStatus.synced),
       updatedAt: Value(DateTime.now()),
@@ -827,6 +865,19 @@ class SyncService {
     return reoccurrence?.toString() ?? 'monthly';
   }
 
+  /// Safely coerce a server-supplied wallet type (int / numeric string) into a valid
+  /// [WalletType], clamping out-of-range values instead of throwing a RangeError.
+  WalletType _parseWalletType(dynamic value) {
+    int index;
+    if (value is int) {
+      index = value;
+    } else {
+      index = int.tryParse(value?.toString() ?? '') ?? 0;
+    }
+    if (index < 0 || index >= WalletType.values.length) index = 0;
+    return WalletType.values[index];
+  }
+
   int _reoccurrenceToInt(String reoccurrence) {
     switch (reoccurrence.toLowerCase()) {
       case 'daily':
@@ -870,6 +921,7 @@ class SyncService {
   Map<String, dynamic> _walletToMap(Wallet w) => {
     'Name': w.name,
     'Balance': w.balance,
+    'OpeningBalance': w.openingBalance,
     'Currency': w.currency,
     'Color': w.color,
     'IconName': w.iconName,
@@ -975,41 +1027,100 @@ class SyncService {
     }
   }
 
-  /// Mark all pending records as synced after successful push
-  Future<void> _markPushedRecordsAsSynced() async {
-    await (_database.update(
-      _database.transactions,
-    )..where((t) => t.syncStatus.isBiggerThanValue(0))).write(
-      const TransactionsCompanion(syncStatus: Value(SyncStatus.synced)),
-    );
+  /// Mark exactly the accepted pushed records as synced. For accepted deletes the local
+  /// (already soft-deleted) row is hard-deleted so tombstones don't accumulate forever.
+  /// Records NOT in [applied] (i.e. server conflicts) are intentionally left pending.
+  Future<void> _markChangesSynced(List<SyncChange> applied) async {
+    for (final c in applied) {
+      if (c.operation == 'delete') {
+        await _hardDeleteLocal(c.tableName, c.entityId);
+      } else {
+        await _setRecordSynced(c.tableName, c.entityId);
+      }
+    }
+  }
 
-    await (_database.update(_database.wallets)
-          ..where((w) => w.syncStatus.isBiggerThanValue(0)))
-        .write(const WalletsCompanion(syncStatus: Value(SyncStatus.synced)));
+  Future<void> _setRecordSynced(String table, String id) async {
+    switch (table) {
+      case 'transactions':
+        await (_database.update(_database.transactions)
+              ..where((t) => t.id.equals(id)))
+            .write(const TransactionsCompanion(
+                syncStatus: Value(SyncStatus.synced)));
+        break;
+      case 'wallets':
+        await (_database.update(_database.wallets)..where((w) => w.id.equals(id)))
+            .write(
+                const WalletsCompanion(syncStatus: Value(SyncStatus.synced)));
+        break;
+      case 'categories':
+        await (_database.update(_database.categories)
+              ..where((c) => c.id.equals(id)))
+            .write(
+                const CategoriesCompanion(syncStatus: Value(SyncStatus.synced)));
+        break;
+      case 'budgets':
+        await (_database.update(_database.budgets)..where((b) => b.id.equals(id)))
+            .write(
+                const BudgetsCompanion(syncStatus: Value(SyncStatus.synced)));
+        break;
+      case 'objectives':
+        await (_database.update(_database.objectives)
+              ..where((o) => o.id.equals(id)))
+            .write(
+                const ObjectivesCompanion(syncStatus: Value(SyncStatus.synced)));
+        break;
+      case 'payment_methods':
+        await (_database.update(_database.paymentMethods)
+              ..where((p) => p.id.equals(id)))
+            .write(const PaymentMethodsCompanion(
+                syncStatus: Value(SyncStatus.synced)));
+        break;
+      case 'recurring_configs':
+        await (_database.update(_database.recurringConfigs)
+              ..where((r) => r.id.equals(id)))
+            .write(const RecurringConfigsCompanion(
+                syncStatus: Value(SyncStatus.synced)));
+        break;
+    }
+  }
 
-    await (_database.update(_database.categories)
-          ..where((c) => c.syncStatus.isBiggerThanValue(0)))
-        .write(const CategoriesCompanion(syncStatus: Value(SyncStatus.synced)));
-
-    await (_database.update(_database.budgets)
-          ..where((b) => b.syncStatus.isBiggerThanValue(0)))
-        .write(const BudgetsCompanion(syncStatus: Value(SyncStatus.synced)));
-
-    await (_database.update(_database.objectives)
-          ..where((o) => o.syncStatus.isBiggerThanValue(0)))
-        .write(const ObjectivesCompanion(syncStatus: Value(SyncStatus.synced)));
-
-    await (_database.update(
-      _database.paymentMethods,
-    )..where((p) => p.syncStatus.isBiggerThanValue(0))).write(
-      const PaymentMethodsCompanion(syncStatus: Value(SyncStatus.synced)),
-    );
-
-    await (_database.update(
-      _database.recurringConfigs,
-    )..where((r) => r.syncStatus.isBiggerThanValue(0))).write(
-      const RecurringConfigsCompanion(syncStatus: Value(SyncStatus.synced)),
-    );
+  Future<void> _hardDeleteLocal(String table, String id) async {
+    switch (table) {
+      case 'transactions':
+        await (_database.delete(_database.transactions)
+              ..where((t) => t.id.equals(id)))
+            .go();
+        break;
+      case 'wallets':
+        await (_database.delete(_database.wallets)..where((w) => w.id.equals(id)))
+            .go();
+        break;
+      case 'categories':
+        await (_database.delete(_database.categories)
+              ..where((c) => c.id.equals(id)))
+            .go();
+        break;
+      case 'budgets':
+        await (_database.delete(_database.budgets)..where((b) => b.id.equals(id)))
+            .go();
+        break;
+      case 'objectives':
+        await (_database.delete(_database.objectives)
+              ..where((o) => o.id.equals(id)))
+            .go();
+        break;
+      case 'payment_methods':
+        await (_database.delete(_database.paymentMethods)
+              ..where((p) => p.id.equals(id)))
+            .go();
+        break;
+      case 'recurring_configs':
+        // Recurring configs have no soft-delete column; the server keeps the row inactive,
+        // so we just clear the pending flag rather than removing it locally.
+        await _setRecordSynced(table, id);
+        break;
+    }
   }
 
   /// Update sync state

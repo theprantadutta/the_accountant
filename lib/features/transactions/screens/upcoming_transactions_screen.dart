@@ -160,7 +160,7 @@ class _UpcomingTransactionsScreenState
   }
 
   Widget _buildSummaryCard(List<Transaction> transactions, bool isOverdue) {
-    final total = transactions.fold(0.0, (sum, t) => sum + t.amount);
+    final total = transactions.fold(0.0, (sum, t) => sum + t.amount / 100.0);
     final nf = ref.watch(numberFormatSettingProvider);
     final currencyFormat = AppNumberFormatter.currency('\$', nf);
 
@@ -340,7 +340,7 @@ class _UpcomingTransactionsScreenState
                 ),
                 // Amount
                 Text(
-                  currencyFormat.format(transaction.amount),
+                  currencyFormat.format(transaction.amount / 100.0),
                   style: AppTypography.titleMedium.copyWith(
                     color: transaction.isIncome
                         ? AppColors.success

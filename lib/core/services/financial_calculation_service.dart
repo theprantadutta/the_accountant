@@ -1,5 +1,7 @@
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/core/services/currency_service.dart';
+import 'package:the_accountant/data/models/transaction.dart'
+    show TransactionSpecialType;
 
 class BudgetProgressItem {
   final String budgetId;
@@ -7,8 +9,8 @@ class BudgetProgressItem {
   final String categoryId;
   final String categoryName;
   final String colorCode; // e.g. #RRGGBB
-  final double spent;
-  final double limit;
+  final int spent; // integer minor units / cents
+  final int limit; // integer minor units / cents
 
   const BudgetProgressItem({
     required this.budgetId,
@@ -30,6 +32,13 @@ class FinancialCalculationService {
 
   FinancialCalculationService(this._db, [this._currencyService]);
 
+  /// Whether a transaction contributes to realized totals/balances.
+  /// Unpaid "upcoming" transactions haven't happened yet, so they are excluded — this
+  /// matches WalletBalanceService.calculateWalletBalance so dashboard/report figures agree
+  /// with the stored wallet balances.
+  static bool _isRealized(Transaction t) =>
+      !(!t.isPaid && t.specialType == TransactionSpecialType.upcoming);
+
   /// Get wallet currency by ID (returns 'USD' if not found)
   Future<String> _getWalletCurrency(String? walletId) async {
     if (walletId == null) return 'USD';
@@ -37,77 +46,61 @@ class FinancialCalculationService {
     return wallet?.currency ?? 'USD';
   }
 
-  /// Convert amount from wallet currency to target currency
-  Future<double> _convertAmount(
-    double amount,
+  /// Convert amount (integer minor units / cents) from wallet currency to target currency.
+  /// CurrencyService works in double dollars, so we convert cents→dollars for the rate math
+  /// then round back to int cents at the boundary.
+  Future<int> _convertAmount(
+    int amountCents,
     String? walletId,
     String targetCurrency,
   ) async {
-    if (_currencyService == null) return amount;
+    if (_currencyService == null) return amountCents;
 
     final walletCurrency = await _getWalletCurrency(walletId);
-    if (walletCurrency == targetCurrency) return amount;
+    if (walletCurrency == targetCurrency) return amountCents;
 
-    return await _currencyService.convert(
-      amount,
+    final converted = await _currencyService.convert(
+      amountCents / 100.0,
       walletCurrency,
       targetCurrency,
     );
+    return (converted * 100).round();
   }
 
-  /// Calculate total balance across all wallets (no conversion)
-  Future<double> getTotalBalance() async {
+  /// Calculate total balance across all wallets (no conversion).
+  /// Uses the authoritative stored wallet balances (which already reflect opening balance +
+  /// realized transaction effects) rather than re-summing transactions with a different
+  /// filter — the two used to diverge whenever unpaid "upcoming" items existed.
+  Future<int> getTotalBalance() async {
     try {
-      final transactions = await _db.getAllTransactions();
-      double totalBalance = 0.0;
-
-      for (final transaction in transactions) {
-        if (transaction.isIncome) {
-          totalBalance += transaction.amount;
-        } else {
-          totalBalance -= transaction.amount;
-        }
-      }
-
-      return totalBalance;
+      final wallets = await _db.getAllWallets();
+      return wallets.fold<int>(0, (sum, w) => sum + w.balance);
     } catch (e) {
-      return 0.0;
+      return 0;
     }
   }
 
   /// Calculate total balance with currency conversion
   /// Converts all amounts to the target currency
-  Future<double> getTotalBalanceConverted(String targetCurrency) async {
+  Future<int> getTotalBalanceConverted(String targetCurrency) async {
     try {
       final wallets = await _db.getAllWallets();
-      double totalBalance = 0.0;
+      int totalBalance = 0;
 
       for (final wallet in wallets) {
-        // Get transactions for this wallet
-        final transactions = await _db.getAllTransactions();
-        final walletTransactions = transactions.where(
-          (t) => t.walletId == wallet.id,
-        );
+        // wallet.balance is the authoritative running balance (opening balance + realized
+        // transaction effects). Do NOT also sum transactions here — that double-counted every
+        // transaction (balance ≈ opening + 2×Σtxns).
+        int walletBalance = wallet.balance;
 
-        double walletBalance = 0.0;
-        for (final transaction in walletTransactions) {
-          if (transaction.isIncome) {
-            walletBalance += transaction.amount;
-          } else {
-            walletBalance -= transaction.amount;
-          }
-        }
-
-        // Add initial balance from wallet
-        walletBalance += wallet.balance;
-
-        // Convert to target currency
+        // Convert to target currency (rate math in double dollars, back to int cents)
         if (_currencyService != null && wallet.currency != targetCurrency) {
-          walletBalance = await _currencyService.convert(
-            walletBalance,
+          final converted = await _currencyService.convert(
+            walletBalance / 100.0,
             wallet.currency,
             targetCurrency,
           );
+          walletBalance = (converted * 100).round();
         }
 
         totalBalance += walletBalance;
@@ -115,12 +108,12 @@ class FinancialCalculationService {
 
       return totalBalance;
     } catch (e) {
-      return 0.0;
+      return 0;
     }
   }
 
   /// Calculate total income for a specific period (no conversion)
-  Future<double> getTotalIncome({
+  Future<int> getTotalIncome({
     DateTime? startDate,
     DateTime? endDate,
   }) async {
@@ -134,15 +127,15 @@ class FinancialCalculationService {
       }
 
       return transactions
-          .where((t) => t.isIncome)
-          .fold<double>(0.0, (sum, t) => sum + t.amount);
+          .where((t) => t.isIncome && _isRealized(t))
+          .fold<int>(0, (sum, t) => sum + t.amount);
     } catch (e) {
-      return 0.0;
+      return 0;
     }
   }
 
   /// Calculate total income with currency conversion
-  Future<double> getTotalIncomeConverted({
+  Future<int> getTotalIncomeConverted({
     DateTime? startDate,
     DateTime? endDate,
     required String targetCurrency,
@@ -156,8 +149,9 @@ class FinancialCalculationService {
         transactions = await _db.getAllTransactions();
       }
 
-      final incomeTransactions = transactions.where((t) => t.isIncome);
-      double total = 0.0;
+      final incomeTransactions =
+          transactions.where((t) => t.isIncome && _isRealized(t));
+      int total = 0;
 
       for (final t in incomeTransactions) {
         final converted = await _convertAmount(
@@ -170,12 +164,12 @@ class FinancialCalculationService {
 
       return total;
     } catch (e) {
-      return 0.0;
+      return 0;
     }
   }
 
   /// Calculate total expenses for a specific period (no conversion)
-  Future<double> getTotalExpenses({
+  Future<int> getTotalExpenses({
     DateTime? startDate,
     DateTime? endDate,
   }) async {
@@ -189,15 +183,15 @@ class FinancialCalculationService {
       }
 
       return transactions
-          .where((t) => !t.isIncome)
-          .fold<double>(0.0, (sum, t) => sum + t.amount);
+          .where((t) => !t.isIncome && _isRealized(t))
+          .fold<int>(0, (sum, t) => sum + t.amount);
     } catch (e) {
-      return 0.0;
+      return 0;
     }
   }
 
   /// Calculate total expenses with currency conversion
-  Future<double> getTotalExpensesConverted({
+  Future<int> getTotalExpensesConverted({
     DateTime? startDate,
     DateTime? endDate,
     required String targetCurrency,
@@ -211,8 +205,9 @@ class FinancialCalculationService {
         transactions = await _db.getAllTransactions();
       }
 
-      final expenseTransactions = transactions.where((t) => !t.isIncome);
-      double total = 0.0;
+      final expenseTransactions =
+          transactions.where((t) => !t.isIncome && _isRealized(t));
+      int total = 0;
 
       for (final t in expenseTransactions) {
         final converted = await _convertAmount(
@@ -225,34 +220,24 @@ class FinancialCalculationService {
 
       return total;
     } catch (e) {
-      return 0.0;
+      return 0;
     }
   }
 
-  /// Calculate balance for a specific wallet
-  Future<double> getWalletBalance(String walletId) async {
+  /// Calculate balance for a specific wallet.
+  /// Returns the authoritative stored balance so it agrees with the total-balance figures
+  /// (both exclude unpaid "upcoming" transactions).
+  Future<int> getWalletBalance(String walletId) async {
     try {
-      final transactions = await _db.getAllTransactions();
-      double balance = 0.0;
-
-      for (final transaction in transactions.where(
-        (t) => t.walletId == walletId,
-      )) {
-        if (transaction.isIncome) {
-          balance += transaction.amount;
-        } else {
-          balance -= transaction.amount;
-        }
-      }
-
-      return balance;
+      final wallet = await _db.findWalletById(walletId);
+      return wallet?.balance ?? 0;
     } catch (e) {
-      return 0.0;
+      return 0;
     }
   }
 
   /// Calculate spending by category for the current month
-  Future<Map<String, double>> getSpendingByCategory() async {
+  Future<Map<String, int>> getSpendingByCategory() async {
     try {
       final now = DateTime.now();
       final startOfMonth = DateTime(now.year, now.month, 1);
@@ -262,15 +247,16 @@ class FinancialCalculationService {
         startOfMonth,
         endOfMonth,
       );
-      final expenses = transactions.where((t) => !t.isIncome);
+      final expenses =
+          transactions.where((t) => !t.isIncome && _isRealized(t));
 
-      final Map<String, double> categorySpending = {};
+      final Map<String, int> categorySpending = {};
 
       for (final transaction in expenses) {
         final categoryId = transaction.categoryId;
         if (categoryId != null) {
           categorySpending[categoryId] =
-              (categorySpending[categoryId] ?? 0.0) + transaction.amount;
+              (categorySpending[categoryId] ?? 0) + transaction.amount;
         }
       }
 
@@ -281,7 +267,7 @@ class FinancialCalculationService {
   }
 
   /// Calculate spending by category with currency conversion
-  Future<Map<String, double>> getSpendingByCategoryConverted(
+  Future<Map<String, int>> getSpendingByCategoryConverted(
     String targetCurrency,
   ) async {
     try {
@@ -293,9 +279,10 @@ class FinancialCalculationService {
         startOfMonth,
         endOfMonth,
       );
-      final expenses = transactions.where((t) => !t.isIncome);
+      final expenses =
+          transactions.where((t) => !t.isIncome && _isRealized(t));
 
-      final Map<String, double> categorySpending = {};
+      final Map<String, int> categorySpending = {};
 
       for (final transaction in expenses) {
         final categoryId = transaction.categoryId;
@@ -306,7 +293,7 @@ class FinancialCalculationService {
             targetCurrency,
           );
           categorySpending[categoryId] =
-              (categorySpending[categoryId] ?? 0.0) + converted;
+              (categorySpending[categoryId] ?? 0) + converted;
         }
       }
 
@@ -339,9 +326,10 @@ class FinancialCalculationService {
             .where(
               (t) =>
                   !t.isIncome &&
+                  _isRealized(t) &&
                   (categoryId == null || t.categoryId == categoryId),
             )
-            .fold(0.0, (sum, t) => sum + t.amount);
+            .fold<int>(0, (sum, t) => sum + t.amount);
 
         final progressPercentage = (categoryExpenses / budgetAmount) * 100;
         budgetProgress[budget.id] = progressPercentage.clamp(0.0, 100.0);
@@ -375,9 +363,10 @@ class FinancialCalculationService {
             .where(
               (t) =>
                   !t.isIncome &&
+                  _isRealized(t) &&
                   (categoryId == null || t.categoryId == categoryId),
             )
-            .fold(0.0, (sum, t) => sum + t.amount);
+            .fold<int>(0, (sum, t) => sum + t.amount);
 
         Category? category;
         if (categoryId != null) {

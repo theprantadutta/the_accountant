@@ -15,9 +15,28 @@ class RecurringService {
 
   RecurringService({required AppDatabase database}) : _database = database;
 
+  /// Guards against concurrent processing within the same isolate (e.g. the periodic
+  /// foreground trigger firing while a resume-triggered run is still in flight). Static so
+  /// it holds across separate RecurringService instances. Cross-isolate concurrency (a
+  /// background worker isolate) is additionally bounded by the day-level dedup below.
+  static bool _isProcessing = false;
+
   /// Process all due recurring transactions
   /// Creates transaction instances and updates next occurrence dates
   Future<int> processRecurringTransactions() async {
+    if (_isProcessing) {
+      _logger.d('Recurring processing already in progress; skipping concurrent run');
+      return 0;
+    }
+    _isProcessing = true;
+    try {
+      return await _processRecurringTransactions();
+    } finally {
+      _isProcessing = false;
+    }
+  }
+
+  Future<int> _processRecurringTransactions() async {
     final now = DateTime.now();
     int processedCount = 0;
 
@@ -407,7 +426,7 @@ class RecurringConfigWithTransaction {
       ? baseTransaction.title
       : 'Recurring Transaction';
 
-  double get amount => baseTransaction.amount;
+  int get amount => baseTransaction.amount; // integer minor units / cents
   bool get isIncome => baseTransaction.isIncome;
   bool get isActive => config.isActive;
   DateTime get nextOccurrence => config.nextOccurrence;

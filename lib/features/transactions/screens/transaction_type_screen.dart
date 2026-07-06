@@ -491,7 +491,7 @@ class _TransactionTypeScreenState extends ConsumerState<TransactionTypeScreen> {
         .toList();
 
     final total =
-        monthTransactions.fold<double>(0, (sum, t) => sum + t.amount);
+        monthTransactions.fold<double>(0, (sum, t) => sum + t.amount / 100.0);
     final count = monthTransactions.length;
     final average = count > 0 ? total / count : 0.0;
 
@@ -835,7 +835,7 @@ class _TransactionTypeScreenState extends ConsumerState<TransactionTypeScreen> {
                 category: transaction.category,
                 categoryColor: category.colorCode,
                 categoryIcon: category.iconName,
-                amount: transaction.amount,
+                amount: transaction.amount / 100.0, // cents -> major-unit dollars
                 transactionType: transaction.type,
                 walletId: transaction.walletId,
                 notes: transaction.notes,

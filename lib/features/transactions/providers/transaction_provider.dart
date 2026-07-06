@@ -27,7 +27,7 @@ import 'package:uuid/uuid.dart';
 /// Uses isIncome boolean instead of deprecated type string
 class TransactionViewModel {
   final String id;
-  final double amount;
+  final int amount; // integer minor units / cents
   final bool isIncome;
   final String title;
   final String category;
@@ -58,7 +58,7 @@ class TransactionViewModel {
 /// Kept for backward compatibility with existing code
 class Transaction {
   final String id;
-  final double amount;
+  final int amount; // integer minor units / cents
   final String type;
   final String category;
   final String categoryId;
@@ -177,7 +177,7 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
   /// [isIncome] - true for income, false for expense
   /// [type] - @deprecated, use isIncome instead. Kept for backward compatibility.
   Future<void> addTransaction({
-    required double amount,
+    required int amount, // integer minor units / cents
     String? type, // @deprecated - use isIncome instead
     bool? isIncome, // New: use this instead of type
     required String category,
@@ -246,7 +246,7 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
   /// This method supports all new fields including special types,
   /// budget/objective assignment, and proper date+time handling.
   Future<String?> addTransactionFull({
-    required double amount,
+    required int amount, // integer minor units / cents
     required bool isIncome,
     required String categoryId,
     required String walletId,
@@ -341,7 +341,7 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
           await ReminderSchedulerService().scheduleReminder(
             transactionId: id,
             title: title ?? '',
-            amount: amount,
+            amount: amount / 100.0, // reminder service works in major-unit dollars
             type: reminderType,
             dueDate: originalDueDate ?? dateTime,
           );
@@ -353,10 +353,11 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
       // Check for large transaction alert
       try {
         final notifPrefs = _ref.read(notificationPreferencesProvider);
+        // Threshold is a user preference expressed in major-unit dollars.
         if (notifPrefs.largeTransactionAlertsEnabled &&
-            amount >= notifPrefs.largeTransactionThreshold) {
+            amount / 100.0 >= notifPrefs.largeTransactionThreshold) {
           await NotificationService().showLargeTransactionNotification(
-            amount, title ?? '', isIncome,
+            amount / 100.0, title ?? '', isIncome,
           );
         }
       } catch (_) {
@@ -378,7 +379,7 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
   /// [type] - @deprecated, use isIncome instead. Kept for backward compatibility.
   Future<void> updateTransaction({
     required String id,
-    double? amount,
+    int? amount, // integer minor units / cents
     String? type, // @deprecated - use isIncome instead
     bool? isIncome, // New: use this instead of type
     String? title,
@@ -453,10 +454,16 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
       final oldIsIncome = existing.isIncome;
       final newIsIncome = transactionIsIncome ?? existing.isIncome;
 
-      // Only process if the transaction was/is paid
-      final wasPaid = existing.isPaid;
+      // A transaction affects the wallet balance if it is paid, OR it is a credit/debt entry
+      // (the money already moved). This mirrors calculateWalletBalance and addTransactionFull,
+      // so editing a credit/debt (or any balance-affecting) transaction keeps the stored
+      // balance correct instead of silently skipping the reverse-then-apply. specialType and
+      // isPaid are preserved across the update, so this predicate holds for both old and new.
+      final affectsBalance = existing.isPaid ||
+          existing.specialType == TransactionSpecialType.credit ||
+          existing.specialType == TransactionSpecialType.debt;
 
-      if (wasPaid) {
+      if (affectsBalance) {
         if (oldWalletId == newWalletId) {
           // Same wallet - only update if amount or type changed
           if (oldAmount != newAmount || oldIsIncome != newIsIncome) {
@@ -533,7 +540,10 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
         await _ref.read(walletProvider.notifier).loadWallets();
       }
 
-      await _db.deleteTransaction(id);
+      // Soft-delete (sets deletedAt + pendingDelete) so the deletion is pushed to the
+      // server on the next sync. A hard delete would never propagate and the row could
+      // resurrect on a full pull.
+      await _db.softDeleteTransaction(id);
 
       AnalyticsService().logTransactionDelete();
 
@@ -574,14 +584,14 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
         .toList();
   }
 
-  double getTotalAmountByType(String type) {
+  int getTotalAmountByType(String type) {
     return state.transactions
         .where((t) => t.type == type)
-        .fold(0.0, (sum, t) => sum + t.amount);
+        .fold<int>(0, (sum, t) => sum + t.amount);
   }
 
-  double getWalletBalance(String walletId) {
-    return state.transactions.where((t) => t.walletId == walletId).fold(0.0, (
+  int getWalletBalance(String walletId) {
+    return state.transactions.where((t) => t.walletId == walletId).fold<int>(0, (
       sum,
       t,
     ) {
@@ -593,12 +603,12 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
     });
   }
 
-  Map<String, double> getAllWalletBalances() {
-    final Map<String, double> balances = {};
+  Map<String, int> getAllWalletBalances() {
+    final Map<String, int> balances = {};
 
     for (var transaction in state.transactions) {
       if (!balances.containsKey(transaction.walletId)) {
-        balances[transaction.walletId] = 0.0;
+        balances[transaction.walletId] = 0;
       }
 
       if (transaction.type == 'income') {
@@ -627,7 +637,7 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
       csv.write(
         [
           transaction.id,
-          transaction.amount.toString(),
+          (transaction.amount / 100.0).toStringAsFixed(2),
           transaction.type,
           transaction.category,
           transaction.categoryId,
@@ -700,7 +710,7 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
       csv.write(
         [
           transaction.id,
-          transaction.amount.toString(),
+          (transaction.amount / 100.0).toStringAsFixed(2),
           transaction.type,
           transaction.category,
           transaction.categoryId,
@@ -762,9 +772,9 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
           .toList();
     }
 
-    // Calculate totals
-    double totalIncome = 0.0;
-    double totalExpense = 0.0;
+    // Calculate totals (integer minor units / cents)
+    int totalIncome = 0;
+    int totalExpense = 0;
 
     for (final transaction in filteredTransactions) {
       if (transaction.type == 'income') {
@@ -818,7 +828,7 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
                         ),
                       ),
                       pw.Text(
-                        '\$${totalIncome.toStringAsFixed(2)}',
+                        '\$${(totalIncome / 100.0).toStringAsFixed(2)}',
                         style: pw.TextStyle(
                           fontSize: 18,
                           color: PdfColors.green,
@@ -836,7 +846,7 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
                         ),
                       ),
                       pw.Text(
-                        '\$${totalExpense.toStringAsFixed(2)}',
+                        '\$${(totalExpense / 100.0).toStringAsFixed(2)}',
                         style: pw.TextStyle(fontSize: 18, color: PdfColors.red),
                       ),
                     ],
@@ -851,7 +861,7 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
                         ),
                       ),
                       pw.Text(
-                        '\$${netBalance.toStringAsFixed(2)}',
+                        '\$${(netBalance / 100.0).toStringAsFixed(2)}',
                         style: pw.TextStyle(
                           fontSize: 18,
                           color: netBalance >= 0
@@ -879,7 +889,7 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
                     transaction.date.toString().split(' ').first,
                     transaction.type,
                     transaction.category,
-                    '\$${transaction.amount.toStringAsFixed(2)}',
+                    '\$${(transaction.amount / 100.0).toStringAsFixed(2)}',
                     transaction.notes,
                   ];
                 }).toList(),

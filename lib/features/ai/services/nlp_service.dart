@@ -288,7 +288,7 @@ class NLPService {
     // Calculate totals
     double totalSpent = 0.0;
     for (final transaction in categoryTransactions) {
-      totalSpent += transaction.amount;
+      totalSpent += transaction.amount / 100.0;
     }
 
     // Generate response
@@ -324,7 +324,7 @@ class NLPService {
     // Calculate totals
     double totalIncome = 0.0;
     for (final transaction in incomeTransactions) {
-      totalIncome += transaction.amount;
+      totalIncome += transaction.amount / 100.0;
     }
 
     // Generate response
@@ -358,7 +358,7 @@ class NLPService {
     // Calculate total spent on this category
     double totalSpent = 0.0;
     for (final transaction in categoryTransactions) {
-      totalSpent += transaction.amount;
+      totalSpent += transaction.amount / 100.0;
     }
 
     // Generate response
@@ -385,9 +385,9 @@ class NLPService {
 
     for (final transaction in filteredTransactions) {
       if (transaction.type == 'income') {
-        totalIncome += transaction.amount;
+        totalIncome += transaction.amount / 100.0;
       } else {
-        totalExpenses += transaction.amount;
+        totalExpenses += transaction.amount / 100.0;
       }
     }
 
@@ -436,7 +436,7 @@ class NLPService {
     // Calculate total spent on this category
     double totalSpent = 0.0;
     for (final transaction in categoryTransactions) {
-      totalSpent += transaction.amount;
+      totalSpent += transaction.amount / 100.0;
     }
 
     // Generate response
@@ -557,7 +557,7 @@ class NLPService {
   double _getTotalExpenses(List<Transaction> transactions) {
     return transactions
         .where((t) => t.type == 'expense')
-        .fold(0.0, (sum, t) => sum + t.amount);
+        .fold(0.0, (sum, t) => sum + t.amount / 100.0);
   }
 
   /// Get category rank
@@ -569,9 +569,9 @@ class NLPService {
       if (transaction.type == 'expense') {
         if (categorySpending.containsKey(transaction.category)) {
           categorySpending[transaction.category] =
-              categorySpending[transaction.category]! + transaction.amount;
+              categorySpending[transaction.category]! + transaction.amount / 100.0;
         } else {
-          categorySpending[transaction.category] = transaction.amount;
+          categorySpending[transaction.category] = transaction.amount / 100.0;
         }
       }
     }

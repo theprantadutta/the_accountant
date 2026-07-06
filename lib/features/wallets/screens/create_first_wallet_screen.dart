@@ -78,13 +78,14 @@ class _CreateFirstWalletScreenState
       await walletNotifier.addWallet(
         name: _nameController.text.trim(),
         currency: _selectedCurrency,
-        balance: double.tryParse(_balanceController.text) ?? 0.0,
+        balance: ((double.tryParse(_balanceController.text) ?? 0.0) * 100)
+            .round(), // dollars -> integer cents
         iconName: _selectedIcon,
         color: _selectedColor,
         isDefault: true, // First wallet is always default
         walletType: _walletType,
         creditLimit: _walletType == WalletType.creditCard
-            ? double.tryParse(_creditLimitController.text)
+            ? ((double.tryParse(_creditLimitController.text) ?? 0) * 100).round()
             : null,
         billingCycleDay: _walletType == WalletType.creditCard
             ? _billingCycleDay

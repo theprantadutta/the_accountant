@@ -16,6 +16,47 @@ class SecureTokenStorage {
   static const _userIdKey = 'user_id';
   static const _userEmailKey = 'user_email';
 
+  // Cached premium entitlement (moved out of plaintext SharedPreferences).
+  static const _premiumTierKey = 'premium_tier';
+  static const _premiumExpiresAtKey = 'premium_expires_at';
+  static const _premiumPurchaseIdKey = 'premium_purchase_id';
+
+  /// Persist the cached premium entitlement in secure storage. This is only a UX cache —
+  /// the backend remains the source of truth — but keeping it out of plaintext prefs makes
+  /// it harder to flip client-only premium (themes, etc.) by editing an unencrypted file.
+  static Future<void> storePremiumEntitlement({
+    required String tier,
+    String? expiresAtIso,
+    String? purchaseId,
+  }) async {
+    await _storage.write(key: _premiumTierKey, value: tier);
+    if (expiresAtIso != null) {
+      await _storage.write(key: _premiumExpiresAtKey, value: expiresAtIso);
+    } else {
+      await _storage.delete(key: _premiumExpiresAtKey);
+    }
+    if (purchaseId != null) {
+      await _storage.write(key: _premiumPurchaseIdKey, value: purchaseId);
+    } else {
+      await _storage.delete(key: _premiumPurchaseIdKey);
+    }
+  }
+
+  static Future<({String? tier, String? expiresAtIso, String? purchaseId})>
+  getPremiumEntitlement() async {
+    return (
+      tier: await _storage.read(key: _premiumTierKey),
+      expiresAtIso: await _storage.read(key: _premiumExpiresAtKey),
+      purchaseId: await _storage.read(key: _premiumPurchaseIdKey),
+    );
+  }
+
+  static Future<void> clearPremiumEntitlement() async {
+    await _storage.delete(key: _premiumTierKey);
+    await _storage.delete(key: _premiumExpiresAtKey);
+    await _storage.delete(key: _premiumPurchaseIdKey);
+  }
+
   // Store access token
   static Future<void> storeAccessToken(String token) async {
     await _storage.write(key: _accessTokenKey, value: token);

@@ -88,7 +88,7 @@ class ObjectivesNotifier extends _$ObjectivesNotifier {
 
     final id = await service.createObjective(
       name: name,
-      targetAmount: targetAmount,
+      targetAmount: (targetAmount * 100).round(), // dollars -> integer cents
       type: type,
       startDate: startDate,
       endDate: endDate,
@@ -118,7 +118,9 @@ class ObjectivesNotifier extends _$ObjectivesNotifier {
     await service.updateObjective(
       objectiveId: objectiveId,
       name: name,
-      targetAmount: targetAmount,
+      targetAmount: targetAmount == null
+          ? null
+          : (targetAmount * 100).round(), // dollars -> integer cents
       endDate: endDate,
       iconName: iconName,
       color: color,

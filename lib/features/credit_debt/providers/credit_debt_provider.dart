@@ -39,26 +39,28 @@ class CreditDebtState {
     );
   }
 
-  /// Get total credit (money lent out - they owe you)
-  double get totalCredit =>
-      creditTransactions.fold(0.0, (sum, t) => sum + t.amount);
+  /// Get total credit (money lent out - they owe you) — integer minor units / cents
+  int get totalCredit =>
+      creditTransactions.fold<int>(0, (sum, t) => sum + t.amount);
 
-  /// Get unpaid credit
-  double get unpaidCredit => creditTransactions
-      .where((t) => !t.isPaid)
-      .fold(0.0, (sum, t) => sum + t.amount);
+  /// Outstanding credit still owed to you (remaining = amount − paidAmount) — cents.
+  /// Settlement is tracked by paidAmount, NOT the overloaded isPaid flag (a fresh loan is
+  /// isPaid=true yet still fully outstanding; a partial payment must not flip it to "settled").
+  int get unpaidCredit => creditTransactions
+      .where((t) => t.paidAmount < t.amount)
+      .fold<int>(0, (sum, t) => sum + (t.amount - t.paidAmount));
 
-  /// Get total debt (money borrowed - you owe them)
-  double get totalDebt =>
-      debtTransactions.fold(0.0, (sum, t) => sum + t.amount);
+  /// Get total debt (money borrowed - you owe them) — integer minor units / cents
+  int get totalDebt =>
+      debtTransactions.fold<int>(0, (sum, t) => sum + t.amount);
 
-  /// Get unpaid debt
-  double get unpaidDebt => debtTransactions
-      .where((t) => !t.isPaid)
-      .fold(0.0, (sum, t) => sum + t.amount);
+  /// Outstanding debt you still owe (remaining = amount − paidAmount) — cents.
+  int get unpaidDebt => debtTransactions
+      .where((t) => t.paidAmount < t.amount)
+      .fold<int>(0, (sum, t) => sum + (t.amount - t.paidAmount));
 
-  /// Net balance (positive = others owe you more, negative = you owe more)
-  double get netBalance => totalCredit - totalDebt;
+  /// Net balance (positive = others owe you more, negative = you owe more) — cents
+  int get netBalance => totalCredit - totalDebt;
 
   /// Get all transactions sorted by date
   List<Transaction> get allTransactions {
@@ -67,9 +69,9 @@ class CreditDebtState {
     return all;
   }
 
-  /// Get unpaid transactions
+  /// Not-yet-fully-settled transactions (by remaining paidAmount, not the isPaid flag).
   List<Transaction> get unpaidTransactions =>
-      allTransactions.where((t) => !t.isPaid).toList();
+      allTransactions.where((t) => t.paidAmount < t.amount).toList();
 
   /// Get overdue unpaid transactions (past original due date)
   List<Transaction> get overdueTransactions => unpaidTransactions.where((t) {
@@ -182,7 +184,7 @@ class CreditDebtNotifier extends StateNotifier<CreditDebtState> {
   /// Creates a new regular transaction for the payment and updates paidAmount.
   Future<void> recordPayment({
     required String transactionId,
-    required double paymentAmount,
+    required int paymentAmount, // integer minor units / cents
   }) async {
     try {
       final transaction = await _db.findTransactionById(transactionId);
@@ -275,7 +277,7 @@ class CreditDebtNotifier extends StateNotifier<CreditDebtState> {
         _db.transactions,
       )..where((t) => t.id.equals(transactionId))).write(
         TransactionsCompanion(
-          paidAmount: const Value(0.0),
+          paidAmount: const Value(0),
           syncStatus: const Value(SyncStatus.pendingUpdate),
           updatedAt: Value(DateTime.now()),
         ),
@@ -290,7 +292,8 @@ class CreditDebtNotifier extends StateNotifier<CreditDebtState> {
 
   /// Check if a transaction is overdue
   bool isOverdue(Transaction transaction) {
-    if (transaction.isPaid) return false;
+    // Settled = fully paid off by amount, regardless of the isPaid flag.
+    if (transaction.paidAmount >= transaction.amount) return false;
     final dueDate = transaction.originalDueDate ?? transaction.date;
     return dueDate.isBefore(DateTime.now());
   }

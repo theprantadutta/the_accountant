@@ -71,7 +71,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 10;
+  int get schemaVersion => 11;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -107,6 +107,44 @@ class AppDatabase extends _$AppDatabase {
             0.0
           ) WHERE deleted_at IS NULL
         ''');
+      }
+
+      if (from < 11) {
+        // Convert all MONEY from REAL (double dollars) to INTEGER minor units (cents).
+        // SQLite column affinity is loose, so we focus on converting the stored VALUES.
+        // Order matters: (1) multiply money by 100, (2) add opening_balance column,
+        // (3) backfill opening_balance from now-integer cents values.
+
+        // 1) Convert money values to integer cents.
+        await customStatement(
+          'UPDATE wallets SET balance = CAST(ROUND(balance * 100) AS INTEGER), '
+          'credit_limit = CASE WHEN credit_limit IS NULL THEN NULL '
+          'ELSE CAST(ROUND(credit_limit * 100) AS INTEGER) END;',
+        );
+        await customStatement(
+          'UPDATE transactions SET amount = CAST(ROUND(amount * 100) AS INTEGER), '
+          'paid_amount = CAST(ROUND(paid_amount * 100) AS INTEGER);',
+        );
+        await customStatement(
+          'UPDATE budgets SET amount = CAST(ROUND(amount * 100) AS INTEGER);',
+        );
+        await customStatement(
+          'UPDATE objectives SET target_amount = CAST(ROUND(target_amount * 100) AS INTEGER);',
+        );
+
+        // 2) Add the new opening_balance column (defaults to 0).
+        await m.addColumn(wallets, wallets.openingBalance);
+
+        // 3) Backfill opening_balance so that
+        //    opening_balance + Σ(realized txn effects) == current balance.
+        //    Money is already integer cents at this point.
+        await customStatement(
+          'UPDATE wallets SET opening_balance = balance - COALESCE('
+          '(SELECT SUM(CASE WHEN t.is_income = 1 THEN t.amount ELSE -t.amount END) '
+          'FROM transactions t WHERE t.wallet_id = wallets.id '
+          'AND t.deleted_at IS NULL '
+          'AND (t.is_paid = 1 OR t.special_type IN (4, 5))), 0);',
+        );
       }
     },
   );
@@ -559,6 +597,33 @@ class AppDatabase extends _$AppDatabase {
   Future<int> deleteWallet(String id) =>
       (delete(wallets)..where((w) => w.id.equals(id))).go();
 
+  /// Soft-delete a wallet (sets deletedAt + marks for sync) so the deletion propagates
+  /// to the server instead of being a local-only hard delete.
+  Future<void> softDeleteWallet(String id) async {
+    await (update(wallets)..where((w) => w.id.equals(id))).write(
+      WalletsCompanion(
+        deletedAt: Value(DateTime.now()),
+        syncStatus: const Value(SyncStatus.pendingDelete),
+        updatedAt: Value(DateTime.now()),
+      ),
+    );
+  }
+
+  /// Soft-delete every not-already-deleted transaction belonging to a wallet, marking them
+  /// for sync. Called when a wallet is deleted so its transactions don't become orphans
+  /// that keep skewing dashboard/report totals.
+  Future<void> softDeleteTransactionsForWallet(String walletId) async {
+    await (update(transactions)
+          ..where((t) => t.walletId.equals(walletId) & t.deletedAt.isNull()))
+        .write(
+      TransactionsCompanion(
+        deletedAt: Value(DateTime.now()),
+        syncStatus: const Value(SyncStatus.pendingDelete),
+        updatedAt: Value(DateTime.now()),
+      ),
+    );
+  }
+
   /// FIXED: Was incorrectly filtering by balance.equals(0.0)
   Future<List<Wallet>> getDefaultWallets() =>
       (select(wallets)
@@ -566,8 +631,8 @@ class AppDatabase extends _$AppDatabase {
             ..where((w) => w.deletedAt.isNull()))
           .get();
 
-  /// Update wallet balance
-  Future<void> updateWalletBalance(String walletId, double newBalance) async {
+  /// Update wallet balance (integer minor units / cents)
+  Future<void> updateWalletBalance(String walletId, int newBalance) async {
     await (update(wallets)..where((w) => w.id.equals(walletId))).write(
       WalletsCompanion(
         balance: Value(newBalance),
@@ -712,13 +777,13 @@ class AppDatabase extends _$AppDatabase {
           ))
           .go();
 
-  /// Get total amount contributed to an objective
-  Future<double> getObjectiveProgress(String objectiveId) async {
+  /// Get total amount contributed to an objective (integer minor units / cents)
+  Future<int> getObjectiveProgress(String objectiveId) async {
     final linkedTransactions = await (select(
       objectiveTransactions,
     )..where((ot) => ot.objectiveId.equals(objectiveId))).get();
 
-    double total = 0;
+    int total = 0;
     for (final link in linkedTransactions) {
       final transaction = await findTransactionById(link.transactionId);
       if (transaction != null && transaction.deletedAt == null) {

@@ -242,7 +242,7 @@ class _TransactionBottomSheetState
       // Use addTransactionFull for complete Cashew-style transaction creation
       // This method handles wallet balance updates internally
       final newTransactionId = await transactionNotifier.addTransactionFull(
-        amount: _amount,
+        amount: (_amount * 100).round(), // dollars -> integer cents
         isIncome: _isIncome,
         categoryId: _selectedCategory!.id,
         walletId: effectiveWalletId,

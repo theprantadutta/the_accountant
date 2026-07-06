@@ -160,7 +160,8 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
     _titleController.text = t.title;
     _notesController.text = t.notes ?? '';
     _selectedCategoryId = t.categoryId;
-    _amount = t.amount;
+    // t.amount is integer cents; the input accumulator works in major-unit dollars.
+    _amount = t.amount / 100.0;
     _selectedWalletId = t.walletId;
     _selectedDateTime = t.date;
     // Load category details
@@ -300,7 +301,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
             .createTransfer(
               sourceWalletId: _fromWalletId!,
               destinationWalletId: _toWalletId!,
-              amount: _amount,
+              amount: (_amount * 100).round(), // dollars -> integer cents
               date: _selectedDateTime,
               title: _titleController.text.isEmpty
                   ? 'Transfer'
@@ -314,7 +315,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
             .read(transactionProvider.notifier)
             .updateTransaction(
               id: widget.existingTransaction!.id,
-              amount: _amount,
+              amount: (_amount * 100).round(), // dollars -> integer cents
               isIncome: _isIncome,
               title: _titleController.text.isEmpty
                   ? null
@@ -344,7 +345,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
         final newTransactionId = await ref
             .read(transactionProvider.notifier)
             .addTransactionFull(
-              amount: _amount,
+              amount: (_amount * 100).round(), // dollars -> integer cents
               isIncome: effectiveIsIncome,
               categoryId: _selectedCategoryId!,
               walletId: _selectedWalletId!,

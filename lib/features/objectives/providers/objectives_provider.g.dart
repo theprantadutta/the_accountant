@@ -323,7 +323,7 @@ final class ObjectivesNotifierProvider
 }
 
 String _$objectivesNotifierHash() =>
-    r'983559d7f9954dad7864e599cfccb40d88299638';
+    r'1f93a2bab5d944521299451b29f24da1cc08409d';
 
 /// Notifier for managing objectives
 

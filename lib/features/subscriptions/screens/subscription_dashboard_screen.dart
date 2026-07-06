@@ -167,7 +167,7 @@ class SubscriptionDashboardScreen extends ConsumerWidget {
           ),
           AppSpacing.gapSm,
           Text(
-            monthlyFormat.format(state.totalMonthlyCost),
+            monthlyFormat.format(state.totalMonthlyCost / 100.0),
             style: AppTypography.displaySmall.copyWith(
               color: AppColors.textPrimary,
               fontWeight: FontWeight.bold,
@@ -175,7 +175,7 @@ class SubscriptionDashboardScreen extends ConsumerWidget {
           ),
           AppSpacing.gapXs,
           Text(
-            '${monthlyFormat.format(state.totalYearlyCost)} / year',
+            '${monthlyFormat.format(state.totalYearlyCost / 100.0)} / year',
             style: AppTypography.bodySmall.copyWith(color: AppColors.textMuted),
           ),
           AppSpacing.gapLg,
@@ -361,7 +361,7 @@ class _SubscriptionCard extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      '$symbol${AppNumberFormatter.get(ref.watch(numberFormatSettingProvider)).format(item.amount)}',
+                      '$symbol${AppNumberFormatter.get(ref.watch(numberFormatSettingProvider)).format(item.amount / 100.0)}',
                       style: AppTypography.titleMedium.copyWith(
                         color: isPaused
                             ? AppColors.textMuted

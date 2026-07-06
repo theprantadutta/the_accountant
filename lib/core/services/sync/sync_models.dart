@@ -65,7 +65,14 @@ class SyncPullResponse {
   final Map<String, List<SyncChange>> changes;
   final Map<String, int> currentVersions;
 
-  SyncPullResponse({required this.changes, required this.currentVersions});
+  /// Server clock at the start of this pull; used as the `since` cursor for the next pull.
+  final DateTime? serverTime;
+
+  SyncPullResponse({
+    required this.changes,
+    required this.currentVersions,
+    this.serverTime,
+  });
 
   factory SyncPullResponse.fromJson(Map<String, dynamic> json) {
     final changesJson =
@@ -90,7 +97,17 @@ class SyncPullResponse {
       versions[key] = value as int? ?? 0;
     });
 
-    return SyncPullResponse(changes: changes, currentVersions: versions);
+    final serverTimeRaw =
+        json['server_time'] ?? json['serverTime'] ?? json['ServerTime'];
+    final serverTime = serverTimeRaw is String
+        ? DateTime.tryParse(serverTimeRaw)?.toUtc()
+        : null;
+
+    return SyncPullResponse(
+      changes: changes,
+      currentVersions: versions,
+      serverTime: serverTime,
+    );
   }
 }
 

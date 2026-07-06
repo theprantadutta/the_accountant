@@ -68,7 +68,8 @@ final balancesByCurrencyProvider = Provider<Map<String, double>>((ref) {
 
   for (final wallet in walletState.wallets) {
     final currency = wallet.currency;
-    balances[currency] = (balances[currency] ?? 0) + wallet.balance;
+    // wallet.balance is integer cents; expose major-unit dollars.
+    balances[currency] = (balances[currency] ?? 0) + wallet.balance / 100.0;
   }
 
   return balances;
@@ -79,7 +80,7 @@ final filteredIncomeProvider = Provider<double>((ref) {
   final transactions = ref.watch(filteredTransactionsProvider);
   return transactions
       .where((t) => t.type == 'income')
-      .fold(0.0, (sum, t) => sum + t.amount);
+      .fold(0.0, (sum, t) => sum + t.amount / 100.0);
 });
 
 /// Provider for total expenses in selected period/wallet
@@ -87,7 +88,7 @@ final filteredExpensesProvider = Provider<double>((ref) {
   final transactions = ref.watch(filteredTransactionsProvider);
   return transactions
       .where((t) => t.type == 'expense')
-      .fold(0.0, (sum, t) => sum + t.amount);
+      .fold(0.0, (sum, t) => sum + t.amount / 100.0);
 });
 
 /// Provider for selected wallet details

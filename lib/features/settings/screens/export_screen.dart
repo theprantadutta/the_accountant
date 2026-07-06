@@ -519,7 +519,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
       final t = item.transaction;
       final date = DateFormat('yyyy-MM-dd').format(t.date);
       final title = _escapeCsv(t.title);
-      final amount = t.amount.toStringAsFixed(2);
+      final amount = (t.amount / 100.0).toStringAsFixed(2);
       final type = t.isIncome == true ? 'Income' : 'Expense';
       final notes = _escapeCsv(t.notes ?? '');
 

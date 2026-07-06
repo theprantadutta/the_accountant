@@ -16,7 +16,7 @@ class WalletState {
   final List<Wallet> wallets;
   final bool isLoading;
   final String? error;
-  final Map<String, double> walletBalances; // Add wallet balances
+  final Map<String, int> walletBalances; // wallet balances in integer minor units (cents)
 
   WalletState({
     required this.wallets,
@@ -29,7 +29,7 @@ class WalletState {
     List<Wallet>? wallets,
     bool? isLoading,
     String? error,
-    Map<String, double>? walletBalances,
+    Map<String, int>? walletBalances,
   }) {
     return WalletState(
       wallets: wallets ?? this.wallets,
@@ -107,13 +107,13 @@ class WalletNotifier extends StateNotifier<WalletState> {
   Future<void> addWallet({
     required String name,
     required String currency,
-    double balance = 0.0,
+    int balance = 0,
     String? iconName,
     String? color,
     bool isDefault = false,
     bool useDecimals = true,
     WalletType walletType = WalletType.cash,
-    double? creditLimit,
+    int? creditLimit,
     int? billingCycleDay,
   }) async {
     try {
@@ -141,6 +141,8 @@ class WalletNotifier extends StateNotifier<WalletState> {
         name: Value(name),
         currency: Value(currency),
         balance: Value(balance),
+        // Opening balance is the wallet's initial balance (in cents)
+        openingBalance: Value(balance),
         iconName: Value(iconName ?? 'wallet'),
         color: Value(color ?? '#6366F1'),
         isDefault: Value(isDefault),
@@ -182,12 +184,12 @@ class WalletNotifier extends StateNotifier<WalletState> {
     required String id,
     String? name,
     String? currency,
-    double? balance,
+    int? balance,
     String? iconName,
     String? color,
     bool? isDefault,
     bool? useDecimals,
-    double? creditLimit,
+    int? creditLimit,
     int? billingCycleDay,
   }) async {
     try {
@@ -226,7 +228,11 @@ class WalletNotifier extends StateNotifier<WalletState> {
 
   Future<void> deleteWallet(String id) async {
     try {
-      await _database.deleteWallet(id);
+      // Cascade: soft-delete this wallet's transactions first (so they don't become
+      // orphans that keep skewing totals and so their deletions sync), then soft-delete
+      // the wallet itself so the wallet deletion also propagates to the server.
+      await _database.softDeleteTransactionsForWallet(id);
+      await _database.softDeleteWallet(id);
       AnalyticsService().logWalletDelete();
       loadWallets(); // Refresh the list
     } catch (e) {
@@ -248,13 +254,13 @@ class WalletNotifier extends StateNotifier<WalletState> {
         .toList();
   }
 
-  // Get the calculated balance for a wallet
-  double getWalletBalance(String walletId) {
-    return state.walletBalances[walletId] ?? 0.0;
+  // Get the calculated balance for a wallet (integer minor units / cents)
+  int getWalletBalance(String walletId) {
+    return state.walletBalances[walletId] ?? 0;
   }
 
-  // Get all wallet balances
-  Map<String, double> getAllWalletBalances() {
+  // Get all wallet balances (integer minor units / cents)
+  Map<String, int> getAllWalletBalances() {
     return state.walletBalances;
   }
 }

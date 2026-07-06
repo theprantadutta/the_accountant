@@ -33,13 +33,13 @@ class UpcomingState {
     );
   }
 
-  /// Get total upcoming amount
+  /// Get total upcoming amount (major-unit dollars; amounts are integer cents)
   double get totalUpcoming =>
-      upcomingTransactions.fold(0.0, (sum, t) => sum + t.amount);
+      upcomingTransactions.fold(0.0, (sum, t) => sum + t.amount / 100.0);
 
-  /// Get total overdue amount
+  /// Get total overdue amount (major-unit dollars; amounts are integer cents)
   double get totalOverdue =>
-      overdueTransactions.fold(0.0, (sum, t) => sum + t.amount);
+      overdueTransactions.fold(0.0, (sum, t) => sum + t.amount / 100.0);
 
   /// Check if there are any pending items
   bool get hasPendingItems =>

@@ -52,7 +52,8 @@ class _EditSubscriptionBottomSheetState
     super.initState();
     final item = widget.item;
     _titleController = TextEditingController(text: item.name);
-    _amount = item.amount;
+    // item.amount is integer cents; input accumulator works in major-unit dollars.
+    _amount = item.amount / 100.0;
     _frequency = item.frequency.toLowerCase();
     _periodLength = item.periodLength;
     _endDate = item.config.endDate;
@@ -96,7 +97,7 @@ class _EditSubscriptionBottomSheetState
       await ref.read(transactionProvider.notifier).updateTransaction(
             id: widget.item.baseTransaction.id,
             title: _titleController.text.isEmpty ? null : _titleController.text,
-            amount: _amount,
+            amount: (_amount * 100).round(), // dollars -> integer cents
             walletId: _walletId,
           );
 

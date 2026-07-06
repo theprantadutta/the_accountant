@@ -164,10 +164,14 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
           iconName: Value(walletIcon ?? 'wallet'),
           color: Value(walletColor ?? '#6366F1'),
           currency: Value(defaultCurrency),
-          balance: Value(initialBalance),
+          // UI provides major-unit dollars; store integer cents.
+          balance: Value((initialBalance * 100).round()),
+          openingBalance: Value((initialBalance * 100).round()),
           isDefault: const Value(true),
           walletType: Value(walletType),
-          creditLimit: Value(creditLimit),
+          creditLimit: Value(
+            creditLimit == null ? null : (creditLimit * 100).round(),
+          ),
           billingCycleDay: Value(billingCycleDay),
           orderIndex: const Value(0),
           syncStatus: const Value(1), // pendingCreate

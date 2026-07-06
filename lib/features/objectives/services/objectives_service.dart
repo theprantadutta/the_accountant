@@ -15,7 +15,7 @@ class ObjectivesService {
   /// Create a new objective (goal or loan)
   Future<String> createObjective({
     required String name,
-    required double targetAmount,
+    required int targetAmount, // integer minor units / cents
     required String type, // 'goal' or 'loan'
     required DateTime startDate,
     DateTime? endDate,
@@ -53,7 +53,7 @@ class ObjectivesService {
   Future<void> updateObjective({
     required String objectiveId,
     String? name,
-    double? targetAmount,
+    int? targetAmount, // integer minor units / cents
     DateTime? endDate,
     String? iconName,
     String? color,
@@ -304,7 +304,7 @@ class ObjectivesService {
 /// Objective with calculated progress information
 class ObjectiveWithProgress {
   final Objective objective;
-  final double currentAmount;
+  final int currentAmount; // integer minor units / cents
   final double progressPercent;
   final Duration? timeRemaining;
   final double? dailyTarget;
@@ -323,7 +323,7 @@ class ObjectiveWithProgress {
 
   // Convenience getters
   String get name => objective.name;
-  double get targetAmount => objective.targetAmount;
+  int get targetAmount => objective.targetAmount; // integer minor units / cents
   String get type => objective.type;
   bool get isGoal => objective.type == 'goal';
   bool get isLoan => objective.type == 'loan';
@@ -331,7 +331,7 @@ class ObjectiveWithProgress {
   bool get isArchived => objective.isArchived;
   bool get isComplete => progressPercent >= 100;
 
-  double get remainingAmount => targetAmount - currentAmount;
+  int get remainingAmount => targetAmount - currentAmount; // integer minor units / cents
 
   String get progressText {
     if (isComplete) {
@@ -357,6 +357,7 @@ class ObjectiveWithProgress {
 
   String? get dailyTargetText {
     if (dailyTarget == null || dailyTarget! <= 0) return null;
-    return '\$${dailyTarget!.toStringAsFixed(2)}/day needed';
+    // dailyTarget is in minor units (cents) per day; show major-unit dollars.
+    return '\$${(dailyTarget! / 100).toStringAsFixed(2)}/day needed';
   }
 }

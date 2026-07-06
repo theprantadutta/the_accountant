@@ -26,8 +26,11 @@ class Wallets extends Table {
   TextColumn get color => text().withDefault(const Constant('#6366F1'))();
   TextColumn get currency => text().withDefault(const Constant('USD'))();
 
-  // Balance tracking
-  RealColumn get balance => real().withDefault(const Constant(0.0))();
+  // Balance tracking (integer minor units / cents)
+  IntColumn get balance => integer().withDefault(const Constant(0))();
+
+  // Opening balance (integer minor units / cents) - the wallet's starting balance
+  IntColumn get openingBalance => integer().withDefault(const Constant(0))();
 
   // Flags
   BoolColumn get isDefault => boolean().withDefault(const Constant(false))();
@@ -37,8 +40,8 @@ class Wallets extends Table {
   IntColumn get walletType =>
       intEnum<WalletType>().withDefault(const Constant(0))();
 
-  // Credit card specific fields
-  RealColumn get creditLimit => real().nullable()();
+  // Credit card specific fields (integer minor units / cents)
+  IntColumn get creditLimit => integer().nullable()();
   IntColumn get billingCycleDay => integer().nullable()(); // 1-31
 
   // Display ordering

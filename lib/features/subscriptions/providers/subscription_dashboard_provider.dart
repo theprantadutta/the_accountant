@@ -64,7 +64,7 @@ class SubscriptionItem {
       : (specialType == TransactionSpecialType.repetitive
           ? 'Recurring Bill'
           : 'Subscription');
-  double get amount => baseTransaction.amount;
+  int get amount => baseTransaction.amount; // integer minor units / cents
   bool get isActive => config.isActive;
   bool get isIncome => baseTransaction.isIncome;
   String get frequency => config.reoccurrence;
@@ -86,7 +86,7 @@ class SubscriptionItem {
       case 'yearly':
         return amount / (12 * periodLength);
       default:
-        return amount;
+        return amount.toDouble();
     }
   }
 
@@ -125,7 +125,7 @@ class SubscriptionItem {
     final suffix = periodLength == 1
         ? _shortFrequency(frequency)
         : '/$periodLength${_shortFrequency(frequency)}';
-    return '\$${amount.toStringAsFixed(2)}$suffix';
+    return '\$${(amount / 100).toStringAsFixed(2)}$suffix';
   }
 
   static String _shortFrequency(String freq) {

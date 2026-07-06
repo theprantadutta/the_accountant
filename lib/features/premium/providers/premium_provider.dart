@@ -4,10 +4,13 @@ import 'package:flutter_riverpod/legacy.dart';
 import 'package:the_accountant/data/models/premium_features.dart';
 import 'package:the_accountant/core/providers/theme_provider.dart';
 import 'package:the_accountant/core/providers/default_wallet_provider.dart';
+import 'package:the_accountant/core/services/secure_token_storage.dart';
 
-const String _premiumTierKey = 'premium_tier';
-const String _premiumExpiresAtKey = 'premium_expires_at';
-const String _premiumPurchaseIdKey = 'premium_purchase_id';
+// Legacy SharedPreferences keys — retained only to migrate any existing plaintext
+// entitlement into secure storage (see _migrateLegacyPlaintextEntitlement), then wiped.
+const String _legacyPremiumTierKey = 'premium_tier';
+const String _legacyPremiumExpiresAtKey = 'premium_expires_at';
+const String _legacyPremiumPurchaseIdKey = 'premium_purchase_id';
 
 class PremiumState {
   final PremiumFeatures features;
@@ -58,30 +61,31 @@ class PremiumNotifier extends StateNotifier<PremiumState> {
           ),
         ),
       ) {
-    _loadPersistedPremiumStatus();
+    unawaited(_loadPersistedPremiumStatus());
   }
 
-  /// Load persisted premium status from SharedPreferences
-  void _loadPersistedPremiumStatus() {
+  /// Load the cached premium status from secure storage (migrating any legacy plaintext
+  /// copy out of SharedPreferences first). Async — until it completes the state stays free,
+  /// which is a safe fail-closed default; the backend refresh is the source of truth.
+  Future<void> _loadPersistedPremiumStatus() async {
     try {
-      final prefs = _ref.read(sharedPreferencesProvider);
-      final tierStr = prefs.getString(_premiumTierKey);
+      await _migrateLegacyPlaintextEntitlement();
+
+      final stored = await SecureTokenStorage.getPremiumEntitlement();
+      final tierStr = stored.tier;
       if (tierStr == null) return;
 
       final tier = SubscriptionTier.fromString(tierStr);
       if (tier == SubscriptionTier.free) return;
 
-      final expiresAtStr = prefs.getString(_premiumExpiresAtKey);
-      final purchaseId = prefs.getString(_premiumPurchaseIdKey);
-
       DateTime? expiresAt;
-      if (expiresAtStr != null) {
-        expiresAt = DateTime.tryParse(expiresAtStr);
+      if (stored.expiresAtIso != null) {
+        expiresAt = DateTime.tryParse(stored.expiresAtIso!);
         // Don't restore if expired (unless lifetime)
         if (expiresAt != null &&
             expiresAt.isBefore(DateTime.now()) &&
             tier != SubscriptionTier.premiumLifetime) {
-          _clearPersistedPremiumStatus();
+          await SecureTokenStorage.clearPremiumEntitlement();
           return;
         }
       }
@@ -92,53 +96,56 @@ class PremiumNotifier extends StateNotifier<PremiumState> {
           tier: tier,
           features: PremiumFeatureIds.all,
           expiresAt: expiresAt,
-          purchaseId: purchaseId,
+          purchaseId: stored.purchaseId,
         ),
       );
 
-      // Defer theme update to avoid modifying another provider during initialization
-      Future.microtask(() {
-        _ref.read(themeProvider.notifier).unlockPremiumThemes();
-      });
+      _ref.read(themeProvider.notifier).unlockPremiumThemes();
     } catch (_) {
-      // SharedPreferences may not be initialized yet - ignore
+      // Secure storage may be unavailable - ignore and stay free until backend refresh.
     }
   }
 
-  /// Persist premium status to SharedPreferences
+  /// One-time migration: move any entitlement stored in plaintext SharedPreferences into
+  /// secure storage, then remove the plaintext copy so it no longer lingers unencrypted.
+  Future<void> _migrateLegacyPlaintextEntitlement() async {
+    try {
+      final prefs = _ref.read(sharedPreferencesProvider);
+      final legacyTier = prefs.getString(_legacyPremiumTierKey);
+      if (legacyTier == null) return;
+
+      final existing = await SecureTokenStorage.getPremiumEntitlement();
+      if (existing.tier == null) {
+        await SecureTokenStorage.storePremiumEntitlement(
+          tier: legacyTier,
+          expiresAtIso: prefs.getString(_legacyPremiumExpiresAtKey),
+          purchaseId: prefs.getString(_legacyPremiumPurchaseIdKey),
+        );
+      }
+      await prefs.remove(_legacyPremiumTierKey);
+      await prefs.remove(_legacyPremiumExpiresAtKey);
+      await prefs.remove(_legacyPremiumPurchaseIdKey);
+    } catch (_) {
+      // best effort
+    }
+  }
+
+  /// Persist premium status to secure storage (fire-and-forget).
   void _persistPremiumStatus({
     required SubscriptionTier tier,
     DateTime? expiresAt,
     String? purchaseId,
   }) {
-    try {
-      final prefs = _ref.read(sharedPreferencesProvider);
-      prefs.setString(_premiumTierKey, tier.name);
-      if (expiresAt != null) {
-        prefs.setString(_premiumExpiresAtKey, expiresAt.toIso8601String());
-      } else {
-        prefs.remove(_premiumExpiresAtKey);
-      }
-      if (purchaseId != null) {
-        prefs.setString(_premiumPurchaseIdKey, purchaseId);
-      } else {
-        prefs.remove(_premiumPurchaseIdKey);
-      }
-    } catch (_) {
-      // Ignore persistence errors
-    }
+    unawaited(SecureTokenStorage.storePremiumEntitlement(
+      tier: tier.name,
+      expiresAtIso: expiresAt?.toIso8601String(),
+      purchaseId: purchaseId,
+    ));
   }
 
-  /// Clear persisted premium status
+  /// Clear persisted premium status from secure storage (fire-and-forget).
   void _clearPersistedPremiumStatus() {
-    try {
-      final prefs = _ref.read(sharedPreferencesProvider);
-      prefs.remove(_premiumTierKey);
-      prefs.remove(_premiumExpiresAtKey);
-      prefs.remove(_premiumPurchaseIdKey);
-    } catch (_) {
-      // Ignore persistence errors
-    }
+    unawaited(SecureTokenStorage.clearPremiumEntitlement());
   }
 
   /// Update subscription status from backend or IAP

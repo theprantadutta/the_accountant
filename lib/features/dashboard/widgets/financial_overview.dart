@@ -24,10 +24,10 @@ class FinancialOverview extends ConsumerWidget {
     // Calculate financial metrics
     final totalIncome = transactionState.transactions
         .where((t) => t.type == 'income')
-        .fold(0.0, (sum, t) => sum + t.amount);
+        .fold(0.0, (sum, t) => sum + t.amount / 100.0);
     final totalExpenses = transactionState.transactions
         .where((t) => t.type == 'expense')
-        .fold(0.0, (sum, t) => sum + t.amount);
+        .fold(0.0, (sum, t) => sum + t.amount / 100.0);
     final netBalance = totalIncome - totalExpenses;
 
     // Get recent transactions
@@ -188,7 +188,7 @@ class FinancialOverview extends ConsumerWidget {
                           ),
                           trailing: Text(
                             '${transaction.type == 'income' ? '+' : '-'}'
-                            '${AppNumberFormatter.currency(currencySymbol, ref.watch(numberFormatSettingProvider)).format(transaction.amount)}',
+                            '${AppNumberFormatter.currency(currencySymbol, ref.watch(numberFormatSettingProvider)).format(transaction.amount / 100.0)}',
                             style: TextStyle(
                               color: transaction.type == 'income'
                                   ? Colors.green

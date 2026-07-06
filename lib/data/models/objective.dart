@@ -17,8 +17,8 @@ class Objectives extends Table {
   TextColumn get iconName => text().withDefault(const Constant('flag'))();
   TextColumn get color => text().withDefault(const Constant('#6366F1'))();
 
-  // Target amount
-  RealColumn get targetAmount => real()();
+  // Target amount (integer minor units / cents)
+  IntColumn get targetAmount => integer()();
 
   // Type: goal (saving) or loan (paying off)
   TextColumn get type => text().withDefault(const Constant('goal'))();

@@ -194,7 +194,7 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
             ),
             AppSpacing.gapSm,
             Text(
-              currencyFormat.format(netBalance.abs()),
+              currencyFormat.format(netBalance.abs() / 100.0),
               style: AppTypography.displaySmall.copyWith(
                 color: isPositive ? AppColors.success : AppColors.error,
                 fontWeight: FontWeight.bold,
@@ -245,8 +245,8 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
                 Expanded(
                   child: _buildStatColumn(
                     'Credit (Lent)',
-                    currencyFormat.format(state.totalCredit),
-                    currencyFormat.format(state.unpaidCredit),
+                    currencyFormat.format(state.totalCredit / 100.0),
+                    currencyFormat.format(state.unpaidCredit / 100.0),
                     AppColors.success,
                     Icons.arrow_upward,
                   ),
@@ -255,8 +255,8 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
                 Expanded(
                   child: _buildStatColumn(
                     'Debt (Borrowed)',
-                    currencyFormat.format(state.totalDebt),
-                    currencyFormat.format(state.unpaidDebt),
+                    currencyFormat.format(state.totalDebt / 100.0),
+                    currencyFormat.format(state.unpaidDebt / 100.0),
                     AppColors.error,
                     Icons.arrow_downward,
                   ),
@@ -542,7 +542,7 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      currencyFormat.format(transaction.amount),
+                      currencyFormat.format(transaction.amount / 100.0),
                       style: AppTypography.titleMedium.copyWith(
                         color: isPaid
                             ? AppColors.textMuted
@@ -587,7 +587,7 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Paid: ${currencyFormat.format(paidAmount)} / ${currencyFormat.format(totalAmount)}',
+                          'Paid: ${currencyFormat.format(paidAmount / 100.0)} / ${currencyFormat.format(totalAmount / 100.0)}',
                           style: AppTypography.labelSmall.copyWith(
                             color: AppColors.textMuted,
                             fontSize: 9,
@@ -707,7 +707,7 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
               ),
               const SizedBox(height: 4),
               Text(
-                'Remaining: $symbol${AppNumberFormatter.get(ref.watch(numberFormatSettingProvider)).format(remaining)}',
+                'Remaining: $symbol${AppNumberFormatter.get(ref.watch(numberFormatSettingProvider)).format(remaining / 100.0)}',
                 style: TextStyle(color: AppColors.textMuted, fontSize: 12),
               ),
               const SizedBox(height: 16),
@@ -761,7 +761,7 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
                   );
                   return;
                 }
-                if (amount > remaining) {
+                if (amount > remaining / 100.0) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: const Text('Amount exceeds remaining balance'),
@@ -799,7 +799,10 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
   ) async {
     await ref
         .read(creditDebtProvider.notifier)
-        .recordPayment(transactionId: transaction.id, paymentAmount: amount);
+        .recordPayment(
+          transactionId: transaction.id,
+          paymentAmount: (amount * 100).round(), // dollars -> integer cents
+        );
     if (mounted) {
       final walletCurrency = ref.read(
         walletCurrencyProvider(transaction.walletId),

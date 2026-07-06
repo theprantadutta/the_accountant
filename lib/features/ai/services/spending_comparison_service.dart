@@ -33,18 +33,18 @@ class SpendingComparisonService {
       // Calculate totals and category breakdown for period 1
       for (final transaction in period1Transactions) {
         if (transaction.type == 'income') {
-          period1Income += transaction.amount;
+          period1Income += transaction.amount / 100.0;
         } else {
-          period1Expenses += transaction.amount;
+          period1Expenses += transaction.amount / 100.0;
 
           // Add to category breakdown
           if (period1CategoryBreakdown.containsKey(transaction.categoryId)) {
             period1CategoryBreakdown[transaction.categoryId] =
                 period1CategoryBreakdown[transaction.categoryId]! +
-                transaction.amount;
+                transaction.amount / 100.0;
           } else {
             period1CategoryBreakdown[transaction.categoryId] =
-                transaction.amount;
+                transaction.amount / 100.0;
           }
         }
       }
@@ -52,18 +52,18 @@ class SpendingComparisonService {
       // Calculate totals and category breakdown for period 2
       for (final transaction in period2Transactions) {
         if (transaction.type == 'income') {
-          period2Income += transaction.amount;
+          period2Income += transaction.amount / 100.0;
         } else {
-          period2Expenses += transaction.amount;
+          period2Expenses += transaction.amount / 100.0;
 
           // Add to category breakdown
           if (period2CategoryBreakdown.containsKey(transaction.categoryId)) {
             period2CategoryBreakdown[transaction.categoryId] =
                 period2CategoryBreakdown[transaction.categoryId]! +
-                transaction.amount;
+                transaction.amount / 100.0;
           } else {
             period2CategoryBreakdown[transaction.categoryId] =
-                transaction.amount;
+                transaction.amount / 100.0;
           }
         }
       }

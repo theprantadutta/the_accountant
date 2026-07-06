@@ -833,7 +833,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                 category: transaction.category,
                 categoryColor: category.colorCode,
                 categoryIcon: category.iconName,
-                amount: transaction.amount,
+                amount: transaction.amount / 100.0, // cents -> major-unit dollars
                 transactionType: transaction.type,
                 walletId: transaction.walletId,
                 notes: transaction.notes,

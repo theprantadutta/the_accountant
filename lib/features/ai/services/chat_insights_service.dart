@@ -134,7 +134,7 @@ class ChatInsightsService {
     // Calculate total spending
     double totalSpending = 0.0;
     for (final transaction in recentExpenses) {
-      totalSpending += transaction.amount;
+      totalSpending += transaction.amount / 100.0;
     }
 
     // Calculate average daily spending
@@ -155,7 +155,7 @@ class ChatInsightsService {
 
     double previousTotalSpending = 0.0;
     for (final transaction in previousExpenses) {
-      previousTotalSpending += transaction.amount;
+      previousTotalSpending += transaction.amount / 100.0;
     }
 
     final double previousAverageDailySpending = previousTotalSpending / 30;
@@ -188,7 +188,7 @@ class ChatInsightsService {
                 transaction.date.isAfter(budget.startDate) &&
                 transaction.date.isBefore(budget.endDate),
           )
-          .fold<double>(0.0, (sum, transaction) => sum + transaction.amount);
+          .fold<double>(0.0, (sum, transaction) => sum + transaction.amount / 100.0);
 
       final percentage = budget.limit > 0
           ? (spent / budget.limit) * 100.0
@@ -225,9 +225,9 @@ class ChatInsightsService {
 
     for (final transaction in recentTransactions) {
       if (transaction.type == 'income') {
-        totalIncome += transaction.amount;
+        totalIncome += transaction.amount / 100.0;
       } else {
-        totalExpenses += transaction.amount;
+        totalExpenses += transaction.amount / 100.0;
       }
     }
 
@@ -254,9 +254,9 @@ class ChatInsightsService {
       if (transaction.type == 'expense') {
         if (categorySpending.containsKey(transaction.categoryId)) {
           categorySpending[transaction.categoryId] =
-              categorySpending[transaction.categoryId]! + transaction.amount;
+              categorySpending[transaction.categoryId]! + transaction.amount / 100.0;
         } else {
-          categorySpending[transaction.categoryId] = transaction.amount;
+          categorySpending[transaction.categoryId] = transaction.amount / 100.0;
         }
       }
     }
@@ -325,9 +325,9 @@ class ChatInsightsService {
 
     for (final transaction in recentExpenses) {
       if (transaction.type == 'income') {
-        totalIncome += transaction.amount;
+        totalIncome += transaction.amount / 100.0;
       } else {
-        totalExpenses += transaction.amount;
+        totalExpenses += transaction.amount / 100.0;
       }
     }
 

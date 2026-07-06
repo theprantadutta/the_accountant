@@ -190,10 +190,10 @@ class CurrencyNotifier extends StateNotifier<CurrencyState> {
     return CurrencyInfo.getSymbol(code.toUpperCase());
   }
 
-  /// Format amount with currency symbol
-  String formatAmount(double amount, String currency) {
+  /// Format amount (integer minor units / cents) with currency symbol
+  String formatAmount(int amountCents, String currency) {
     final symbol = getCurrencySymbol(currency);
-    final formatted = amount.toStringAsFixed(2);
+    final formatted = (amountCents / 100.0).toStringAsFixed(2);
     return '$symbol$formatted';
   }
 }

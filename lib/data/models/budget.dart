@@ -10,8 +10,8 @@ class Budgets extends Table {
 
   // Budget details
   TextColumn get name => text()();
-  RealColumn get amount =>
-      real()(); // Renamed from 'limit' for clarity (limit is reserved in SQL)
+  IntColumn get amount =>
+      integer()(); // integer minor units / cents. Renamed from 'limit' for clarity (limit is reserved in SQL)
   TextColumn get period => text().withDefault(
     const Constant('monthly'),
   )(); // weekly, monthly, yearly, custom

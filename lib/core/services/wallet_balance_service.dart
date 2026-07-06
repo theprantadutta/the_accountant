@@ -10,16 +10,22 @@ class WalletBalanceService {
   WalletBalanceService(this._db);
 
   /// Calculate the balance for a specific wallet from its transactions.
-  /// Income transactions add to balance, expense transactions subtract.
-  Future<double> calculateWalletBalance(String walletId) async {
+  /// Starts from the wallet's opening balance, then income transactions add and
+  /// expense transactions subtract. All values are integer minor units (cents).
+  Future<int> calculateWalletBalance(String walletId) async {
+    final wallet = await _db.findWalletById(walletId);
     final transactions = await _db.getTransactionsByWallet(walletId);
 
-    double balance = 0.0;
+    int balance = wallet?.openingBalance ?? 0;
     for (final transaction in transactions) {
-      // Skip unpaid upcoming transactions (haven't happened yet)
-      // Credit/debt and all other types always count
-      if (!transaction.isPaid &&
-          transaction.specialType == TransactionSpecialType.upcoming) {
+      // Count a transaction toward the balance only if it is paid, or it is a credit/debt
+      // entry (which always affects the balance regardless of paid status). This mirrors the
+      // schemaVersion-11 migration backfill EXACTLY — `is_paid OR special_type IN (credit,
+      // debt)` — so a recompute can never diverge from the migrated opening/stored balance.
+      final countsTowardBalance = transaction.isPaid ||
+          transaction.specialType == TransactionSpecialType.credit ||
+          transaction.specialType == TransactionSpecialType.debt;
+      if (!countsTowardBalance) {
         continue;
       }
 
@@ -44,7 +50,7 @@ class WalletBalanceService {
   /// More efficient than full recalculation for single transaction changes.
   Future<void> updateBalanceAfterTransaction({
     required String walletId,
-    required double amount,
+    required int amount,
     required bool isIncome,
     bool isDelete = false,
   }) async {
@@ -53,8 +59,8 @@ class WalletBalanceService {
       throw Exception('Wallet not found: $walletId');
     }
 
-    double currentBalance = wallet.balance;
-    double change = amount.abs();
+    int currentBalance = wallet.balance;
+    int change = amount.abs();
 
     if (isDelete) {
       // Reverse the transaction effect
@@ -87,9 +93,9 @@ class WalletBalanceService {
 
   /// Get all wallets with their calculated balances.
   /// Returns a map of walletId to balance.
-  Future<Map<String, double>> getAllWalletBalances() async {
+  Future<Map<String, int>> getAllWalletBalances() async {
     final wallets = await _db.getAllWallets();
-    final Map<String, double> balances = {};
+    final Map<String, int> balances = {};
 
     for (final wallet in wallets) {
       balances[wallet.id] = wallet.balance;
@@ -105,9 +111,9 @@ class WalletBalanceService {
     if (wallet == null) return false;
 
     final calculatedBalance = await calculateWalletBalance(walletId);
-    const tolerance = 0.01; // Allow small floating point differences
 
-    return (wallet.balance - calculatedBalance).abs() < tolerance;
+    // Exact integer equality — money is stored in integer minor units (cents).
+    return wallet.balance == calculatedBalance;
   }
 
   /// Fix any balance discrepancies by recalculating from transactions.

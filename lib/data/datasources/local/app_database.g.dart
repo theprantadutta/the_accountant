@@ -1225,13 +1225,25 @@ class $WalletsTable extends Wallets with TableInfo<$WalletsTable, Wallet> {
     'balance',
   );
   @override
-  late final GeneratedColumn<double> balance = GeneratedColumn<double>(
+  late final GeneratedColumn<int> balance = GeneratedColumn<int>(
     'balance',
     aliasedName,
     false,
-    type: DriftSqlType.double,
+    type: DriftSqlType.int,
     requiredDuringInsert: false,
-    defaultValue: const Constant(0.0),
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _openingBalanceMeta = const VerificationMeta(
+    'openingBalance',
+  );
+  @override
+  late final GeneratedColumn<int> openingBalance = GeneratedColumn<int>(
+    'opening_balance',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
   );
   static const VerificationMeta _isDefaultMeta = const VerificationMeta(
     'isDefault',
@@ -1277,11 +1289,11 @@ class $WalletsTable extends Wallets with TableInfo<$WalletsTable, Wallet> {
     'creditLimit',
   );
   @override
-  late final GeneratedColumn<double> creditLimit = GeneratedColumn<double>(
+  late final GeneratedColumn<int> creditLimit = GeneratedColumn<int>(
     'credit_limit',
     aliasedName,
     true,
-    type: DriftSqlType.double,
+    type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
   static const VerificationMeta _billingCycleDayMeta = const VerificationMeta(
@@ -1373,6 +1385,7 @@ class $WalletsTable extends Wallets with TableInfo<$WalletsTable, Wallet> {
     color,
     currency,
     balance,
+    openingBalance,
     isDefault,
     useDecimals,
     walletType,
@@ -1432,6 +1445,15 @@ class $WalletsTable extends Wallets with TableInfo<$WalletsTable, Wallet> {
       context.handle(
         _balanceMeta,
         balance.isAcceptableOrUnknown(data['balance']!, _balanceMeta),
+      );
+    }
+    if (data.containsKey('opening_balance')) {
+      context.handle(
+        _openingBalanceMeta,
+        openingBalance.isAcceptableOrUnknown(
+          data['opening_balance']!,
+          _openingBalanceMeta,
+        ),
       );
     }
     if (data.containsKey('is_default')) {
@@ -1533,8 +1555,12 @@ class $WalletsTable extends Wallets with TableInfo<$WalletsTable, Wallet> {
         data['${effectivePrefix}currency'],
       )!,
       balance: attachedDatabase.typeMapping.read(
-        DriftSqlType.double,
+        DriftSqlType.int,
         data['${effectivePrefix}balance'],
+      )!,
+      openingBalance: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}opening_balance'],
       )!,
       isDefault: attachedDatabase.typeMapping.read(
         DriftSqlType.bool,
@@ -1551,7 +1577,7 @@ class $WalletsTable extends Wallets with TableInfo<$WalletsTable, Wallet> {
         )!,
       ),
       creditLimit: attachedDatabase.typeMapping.read(
-        DriftSqlType.double,
+        DriftSqlType.int,
         data['${effectivePrefix}credit_limit'],
       ),
       billingCycleDay: attachedDatabase.typeMapping.read(
@@ -1600,11 +1626,12 @@ class Wallet extends DataClass implements Insertable<Wallet> {
   final String iconName;
   final String color;
   final String currency;
-  final double balance;
+  final int balance;
+  final int openingBalance;
   final bool isDefault;
   final bool useDecimals;
   final WalletType walletType;
-  final double? creditLimit;
+  final int? creditLimit;
   final int? billingCycleDay;
   final int orderIndex;
   final String? serverId;
@@ -1619,6 +1646,7 @@ class Wallet extends DataClass implements Insertable<Wallet> {
     required this.color,
     required this.currency,
     required this.balance,
+    required this.openingBalance,
     required this.isDefault,
     required this.useDecimals,
     required this.walletType,
@@ -1639,7 +1667,8 @@ class Wallet extends DataClass implements Insertable<Wallet> {
     map['icon_name'] = Variable<String>(iconName);
     map['color'] = Variable<String>(color);
     map['currency'] = Variable<String>(currency);
-    map['balance'] = Variable<double>(balance);
+    map['balance'] = Variable<int>(balance);
+    map['opening_balance'] = Variable<int>(openingBalance);
     map['is_default'] = Variable<bool>(isDefault);
     map['use_decimals'] = Variable<bool>(useDecimals);
     {
@@ -1648,7 +1677,7 @@ class Wallet extends DataClass implements Insertable<Wallet> {
       );
     }
     if (!nullToAbsent || creditLimit != null) {
-      map['credit_limit'] = Variable<double>(creditLimit);
+      map['credit_limit'] = Variable<int>(creditLimit);
     }
     if (!nullToAbsent || billingCycleDay != null) {
       map['billing_cycle_day'] = Variable<int>(billingCycleDay);
@@ -1674,6 +1703,7 @@ class Wallet extends DataClass implements Insertable<Wallet> {
       color: Value(color),
       currency: Value(currency),
       balance: Value(balance),
+      openingBalance: Value(openingBalance),
       isDefault: Value(isDefault),
       useDecimals: Value(useDecimals),
       walletType: Value(walletType),
@@ -1707,13 +1737,14 @@ class Wallet extends DataClass implements Insertable<Wallet> {
       iconName: serializer.fromJson<String>(json['iconName']),
       color: serializer.fromJson<String>(json['color']),
       currency: serializer.fromJson<String>(json['currency']),
-      balance: serializer.fromJson<double>(json['balance']),
+      balance: serializer.fromJson<int>(json['balance']),
+      openingBalance: serializer.fromJson<int>(json['openingBalance']),
       isDefault: serializer.fromJson<bool>(json['isDefault']),
       useDecimals: serializer.fromJson<bool>(json['useDecimals']),
       walletType: $WalletsTable.$converterwalletType.fromJson(
         serializer.fromJson<int>(json['walletType']),
       ),
-      creditLimit: serializer.fromJson<double?>(json['creditLimit']),
+      creditLimit: serializer.fromJson<int?>(json['creditLimit']),
       billingCycleDay: serializer.fromJson<int?>(json['billingCycleDay']),
       orderIndex: serializer.fromJson<int>(json['orderIndex']),
       serverId: serializer.fromJson<String?>(json['serverId']),
@@ -1732,13 +1763,14 @@ class Wallet extends DataClass implements Insertable<Wallet> {
       'iconName': serializer.toJson<String>(iconName),
       'color': serializer.toJson<String>(color),
       'currency': serializer.toJson<String>(currency),
-      'balance': serializer.toJson<double>(balance),
+      'balance': serializer.toJson<int>(balance),
+      'openingBalance': serializer.toJson<int>(openingBalance),
       'isDefault': serializer.toJson<bool>(isDefault),
       'useDecimals': serializer.toJson<bool>(useDecimals),
       'walletType': serializer.toJson<int>(
         $WalletsTable.$converterwalletType.toJson(walletType),
       ),
-      'creditLimit': serializer.toJson<double?>(creditLimit),
+      'creditLimit': serializer.toJson<int?>(creditLimit),
       'billingCycleDay': serializer.toJson<int?>(billingCycleDay),
       'orderIndex': serializer.toJson<int>(orderIndex),
       'serverId': serializer.toJson<String?>(serverId),
@@ -1755,11 +1787,12 @@ class Wallet extends DataClass implements Insertable<Wallet> {
     String? iconName,
     String? color,
     String? currency,
-    double? balance,
+    int? balance,
+    int? openingBalance,
     bool? isDefault,
     bool? useDecimals,
     WalletType? walletType,
-    Value<double?> creditLimit = const Value.absent(),
+    Value<int?> creditLimit = const Value.absent(),
     Value<int?> billingCycleDay = const Value.absent(),
     int? orderIndex,
     Value<String?> serverId = const Value.absent(),
@@ -1774,6 +1807,7 @@ class Wallet extends DataClass implements Insertable<Wallet> {
     color: color ?? this.color,
     currency: currency ?? this.currency,
     balance: balance ?? this.balance,
+    openingBalance: openingBalance ?? this.openingBalance,
     isDefault: isDefault ?? this.isDefault,
     useDecimals: useDecimals ?? this.useDecimals,
     walletType: walletType ?? this.walletType,
@@ -1796,6 +1830,9 @@ class Wallet extends DataClass implements Insertable<Wallet> {
       color: data.color.present ? data.color.value : this.color,
       currency: data.currency.present ? data.currency.value : this.currency,
       balance: data.balance.present ? data.balance.value : this.balance,
+      openingBalance: data.openingBalance.present
+          ? data.openingBalance.value
+          : this.openingBalance,
       isDefault: data.isDefault.present ? data.isDefault.value : this.isDefault,
       useDecimals: data.useDecimals.present
           ? data.useDecimals.value
@@ -1831,6 +1868,7 @@ class Wallet extends DataClass implements Insertable<Wallet> {
           ..write('color: $color, ')
           ..write('currency: $currency, ')
           ..write('balance: $balance, ')
+          ..write('openingBalance: $openingBalance, ')
           ..write('isDefault: $isDefault, ')
           ..write('useDecimals: $useDecimals, ')
           ..write('walletType: $walletType, ')
@@ -1854,6 +1892,7 @@ class Wallet extends DataClass implements Insertable<Wallet> {
     color,
     currency,
     balance,
+    openingBalance,
     isDefault,
     useDecimals,
     walletType,
@@ -1876,6 +1915,7 @@ class Wallet extends DataClass implements Insertable<Wallet> {
           other.color == this.color &&
           other.currency == this.currency &&
           other.balance == this.balance &&
+          other.openingBalance == this.openingBalance &&
           other.isDefault == this.isDefault &&
           other.useDecimals == this.useDecimals &&
           other.walletType == this.walletType &&
@@ -1895,11 +1935,12 @@ class WalletsCompanion extends UpdateCompanion<Wallet> {
   final Value<String> iconName;
   final Value<String> color;
   final Value<String> currency;
-  final Value<double> balance;
+  final Value<int> balance;
+  final Value<int> openingBalance;
   final Value<bool> isDefault;
   final Value<bool> useDecimals;
   final Value<WalletType> walletType;
-  final Value<double?> creditLimit;
+  final Value<int?> creditLimit;
   final Value<int?> billingCycleDay;
   final Value<int> orderIndex;
   final Value<String?> serverId;
@@ -1915,6 +1956,7 @@ class WalletsCompanion extends UpdateCompanion<Wallet> {
     this.color = const Value.absent(),
     this.currency = const Value.absent(),
     this.balance = const Value.absent(),
+    this.openingBalance = const Value.absent(),
     this.isDefault = const Value.absent(),
     this.useDecimals = const Value.absent(),
     this.walletType = const Value.absent(),
@@ -1935,6 +1977,7 @@ class WalletsCompanion extends UpdateCompanion<Wallet> {
     this.color = const Value.absent(),
     this.currency = const Value.absent(),
     this.balance = const Value.absent(),
+    this.openingBalance = const Value.absent(),
     this.isDefault = const Value.absent(),
     this.useDecimals = const Value.absent(),
     this.walletType = const Value.absent(),
@@ -1955,11 +1998,12 @@ class WalletsCompanion extends UpdateCompanion<Wallet> {
     Expression<String>? iconName,
     Expression<String>? color,
     Expression<String>? currency,
-    Expression<double>? balance,
+    Expression<int>? balance,
+    Expression<int>? openingBalance,
     Expression<bool>? isDefault,
     Expression<bool>? useDecimals,
     Expression<int>? walletType,
-    Expression<double>? creditLimit,
+    Expression<int>? creditLimit,
     Expression<int>? billingCycleDay,
     Expression<int>? orderIndex,
     Expression<String>? serverId,
@@ -1976,6 +2020,7 @@ class WalletsCompanion extends UpdateCompanion<Wallet> {
       if (color != null) 'color': color,
       if (currency != null) 'currency': currency,
       if (balance != null) 'balance': balance,
+      if (openingBalance != null) 'opening_balance': openingBalance,
       if (isDefault != null) 'is_default': isDefault,
       if (useDecimals != null) 'use_decimals': useDecimals,
       if (walletType != null) 'wallet_type': walletType,
@@ -1997,11 +2042,12 @@ class WalletsCompanion extends UpdateCompanion<Wallet> {
     Value<String>? iconName,
     Value<String>? color,
     Value<String>? currency,
-    Value<double>? balance,
+    Value<int>? balance,
+    Value<int>? openingBalance,
     Value<bool>? isDefault,
     Value<bool>? useDecimals,
     Value<WalletType>? walletType,
-    Value<double?>? creditLimit,
+    Value<int?>? creditLimit,
     Value<int?>? billingCycleDay,
     Value<int>? orderIndex,
     Value<String?>? serverId,
@@ -2018,6 +2064,7 @@ class WalletsCompanion extends UpdateCompanion<Wallet> {
       color: color ?? this.color,
       currency: currency ?? this.currency,
       balance: balance ?? this.balance,
+      openingBalance: openingBalance ?? this.openingBalance,
       isDefault: isDefault ?? this.isDefault,
       useDecimals: useDecimals ?? this.useDecimals,
       walletType: walletType ?? this.walletType,
@@ -2052,7 +2099,10 @@ class WalletsCompanion extends UpdateCompanion<Wallet> {
       map['currency'] = Variable<String>(currency.value);
     }
     if (balance.present) {
-      map['balance'] = Variable<double>(balance.value);
+      map['balance'] = Variable<int>(balance.value);
+    }
+    if (openingBalance.present) {
+      map['opening_balance'] = Variable<int>(openingBalance.value);
     }
     if (isDefault.present) {
       map['is_default'] = Variable<bool>(isDefault.value);
@@ -2066,7 +2116,7 @@ class WalletsCompanion extends UpdateCompanion<Wallet> {
       );
     }
     if (creditLimit.present) {
-      map['credit_limit'] = Variable<double>(creditLimit.value);
+      map['credit_limit'] = Variable<int>(creditLimit.value);
     }
     if (billingCycleDay.present) {
       map['billing_cycle_day'] = Variable<int>(billingCycleDay.value);
@@ -2104,6 +2154,7 @@ class WalletsCompanion extends UpdateCompanion<Wallet> {
           ..write('color: $color, ')
           ..write('currency: $currency, ')
           ..write('balance: $balance, ')
+          ..write('openingBalance: $openingBalance, ')
           ..write('isDefault: $isDefault, ')
           ..write('useDecimals: $useDecimals, ')
           ..write('walletType: $walletType, ')
@@ -3571,11 +3622,11 @@ class $TransactionsTable extends Transactions
   );
   static const VerificationMeta _amountMeta = const VerificationMeta('amount');
   @override
-  late final GeneratedColumn<double> amount = GeneratedColumn<double>(
+  late final GeneratedColumn<int> amount = GeneratedColumn<int>(
     'amount',
     aliasedName,
     false,
-    type: DriftSqlType.double,
+    type: DriftSqlType.int,
     requiredDuringInsert: true,
   );
   static const VerificationMeta _titleMeta = const VerificationMeta('title');
@@ -3824,13 +3875,13 @@ class $TransactionsTable extends Transactions
     'paidAmount',
   );
   @override
-  late final GeneratedColumn<double> paidAmount = GeneratedColumn<double>(
+  late final GeneratedColumn<int> paidAmount = GeneratedColumn<int>(
     'paid_amount',
     aliasedName,
     false,
-    type: DriftSqlType.double,
+    type: DriftSqlType.int,
     requiredDuringInsert: false,
-    defaultValue: const Constant(0.0),
+    defaultValue: const Constant(0),
   );
   static const VerificationMeta _skipPaidMeta = const VerificationMeta(
     'skipPaid',
@@ -4166,7 +4217,7 @@ class $TransactionsTable extends Transactions
         data['${effectivePrefix}id'],
       )!,
       amount: attachedDatabase.typeMapping.read(
-        DriftSqlType.double,
+        DriftSqlType.int,
         data['${effectivePrefix}amount'],
       )!,
       title: attachedDatabase.typeMapping.read(
@@ -4252,7 +4303,7 @@ class $TransactionsTable extends Transactions
         data['${effectivePrefix}original_due_date'],
       ),
       paidAmount: attachedDatabase.typeMapping.read(
-        DriftSqlType.double,
+        DriftSqlType.int,
         data['${effectivePrefix}paid_amount'],
       )!,
       skipPaid: attachedDatabase.typeMapping.read(
@@ -4297,7 +4348,7 @@ class $TransactionsTable extends Transactions
 
 class Transaction extends DataClass implements Insertable<Transaction> {
   final String id;
-  final double amount;
+  final int amount;
   final String title;
   final String? notes;
   final DateTime date;
@@ -4318,7 +4369,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
   final TransactionSpecialType? specialType;
   final bool isPaid;
   final DateTime? originalDueDate;
-  final double paidAmount;
+  final int paidAmount;
   final bool skipPaid;
   final String? serverId;
   final int syncStatus;
@@ -4360,7 +4411,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
-    map['amount'] = Variable<double>(amount);
+    map['amount'] = Variable<int>(amount);
     map['title'] = Variable<String>(title);
     if (!nullToAbsent || notes != null) {
       map['notes'] = Variable<String>(notes);
@@ -4407,7 +4458,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     if (!nullToAbsent || originalDueDate != null) {
       map['original_due_date'] = Variable<DateTime>(originalDueDate);
     }
-    map['paid_amount'] = Variable<double>(paidAmount);
+    map['paid_amount'] = Variable<int>(paidAmount);
     map['skip_paid'] = Variable<bool>(skipPaid);
     if (!nullToAbsent || serverId != null) {
       map['server_id'] = Variable<String>(serverId);
@@ -4490,7 +4541,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return Transaction(
       id: serializer.fromJson<String>(json['id']),
-      amount: serializer.fromJson<double>(json['amount']),
+      amount: serializer.fromJson<int>(json['amount']),
       title: serializer.fromJson<String>(json['title']),
       notes: serializer.fromJson<String?>(json['notes']),
       date: serializer.fromJson<DateTime>(json['date']),
@@ -4519,7 +4570,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       ),
       isPaid: serializer.fromJson<bool>(json['isPaid']),
       originalDueDate: serializer.fromJson<DateTime?>(json['originalDueDate']),
-      paidAmount: serializer.fromJson<double>(json['paidAmount']),
+      paidAmount: serializer.fromJson<int>(json['paidAmount']),
       skipPaid: serializer.fromJson<bool>(json['skipPaid']),
       serverId: serializer.fromJson<String?>(json['serverId']),
       syncStatus: serializer.fromJson<int>(json['syncStatus']),
@@ -4533,7 +4584,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
-      'amount': serializer.toJson<double>(amount),
+      'amount': serializer.toJson<int>(amount),
       'title': serializer.toJson<String>(title),
       'notes': serializer.toJson<String?>(notes),
       'date': serializer.toJson<DateTime>(date),
@@ -4556,7 +4607,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       ),
       'isPaid': serializer.toJson<bool>(isPaid),
       'originalDueDate': serializer.toJson<DateTime?>(originalDueDate),
-      'paidAmount': serializer.toJson<double>(paidAmount),
+      'paidAmount': serializer.toJson<int>(paidAmount),
       'skipPaid': serializer.toJson<bool>(skipPaid),
       'serverId': serializer.toJson<String?>(serverId),
       'syncStatus': serializer.toJson<int>(syncStatus),
@@ -4568,7 +4619,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
 
   Transaction copyWith({
     String? id,
-    double? amount,
+    int? amount,
     String? title,
     Value<String?> notes = const Value.absent(),
     DateTime? date,
@@ -4589,7 +4640,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     Value<TransactionSpecialType?> specialType = const Value.absent(),
     bool? isPaid,
     Value<DateTime?> originalDueDate = const Value.absent(),
-    double? paidAmount,
+    int? paidAmount,
     bool? skipPaid,
     Value<String?> serverId = const Value.absent(),
     int? syncStatus,
@@ -4808,7 +4859,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
 
 class TransactionsCompanion extends UpdateCompanion<Transaction> {
   final Value<String> id;
-  final Value<double> amount;
+  final Value<int> amount;
   final Value<String> title;
   final Value<String?> notes;
   final Value<DateTime> date;
@@ -4829,7 +4880,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
   final Value<TransactionSpecialType?> specialType;
   final Value<bool> isPaid;
   final Value<DateTime?> originalDueDate;
-  final Value<double> paidAmount;
+  final Value<int> paidAmount;
   final Value<bool> skipPaid;
   final Value<String?> serverId;
   final Value<int> syncStatus;
@@ -4871,7 +4922,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
   });
   TransactionsCompanion.insert({
     required String id,
-    required double amount,
+    required int amount,
     this.title = const Value.absent(),
     this.notes = const Value.absent(),
     required DateTime date,
@@ -4906,7 +4957,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
        walletId = Value(walletId);
   static Insertable<Transaction> custom({
     Expression<String>? id,
-    Expression<double>? amount,
+    Expression<int>? amount,
     Expression<String>? title,
     Expression<String>? notes,
     Expression<DateTime>? date,
@@ -4927,7 +4978,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     Expression<int>? specialType,
     Expression<bool>? isPaid,
     Expression<DateTime>? originalDueDate,
-    Expression<double>? paidAmount,
+    Expression<int>? paidAmount,
     Expression<bool>? skipPaid,
     Expression<String>? serverId,
     Expression<int>? syncStatus,
@@ -4973,7 +5024,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
 
   TransactionsCompanion copyWith({
     Value<String>? id,
-    Value<double>? amount,
+    Value<int>? amount,
     Value<String>? title,
     Value<String?>? notes,
     Value<DateTime>? date,
@@ -4994,7 +5045,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     Value<TransactionSpecialType?>? specialType,
     Value<bool>? isPaid,
     Value<DateTime?>? originalDueDate,
-    Value<double>? paidAmount,
+    Value<int>? paidAmount,
     Value<bool>? skipPaid,
     Value<String?>? serverId,
     Value<int>? syncStatus,
@@ -5044,7 +5095,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
       map['id'] = Variable<String>(id.value);
     }
     if (amount.present) {
-      map['amount'] = Variable<double>(amount.value);
+      map['amount'] = Variable<int>(amount.value);
     }
     if (title.present) {
       map['title'] = Variable<String>(title.value);
@@ -5111,7 +5162,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
       map['original_due_date'] = Variable<DateTime>(originalDueDate.value);
     }
     if (paidAmount.present) {
-      map['paid_amount'] = Variable<double>(paidAmount.value);
+      map['paid_amount'] = Variable<int>(paidAmount.value);
     }
     if (skipPaid.present) {
       map['skip_paid'] = Variable<bool>(skipPaid.value);
@@ -5201,11 +5252,11 @@ class $BudgetsTable extends Budgets with TableInfo<$BudgetsTable, Budget> {
   );
   static const VerificationMeta _amountMeta = const VerificationMeta('amount');
   @override
-  late final GeneratedColumn<double> amount = GeneratedColumn<double>(
+  late final GeneratedColumn<int> amount = GeneratedColumn<int>(
     'amount',
     aliasedName,
     false,
-    type: DriftSqlType.double,
+    type: DriftSqlType.int,
     requiredDuringInsert: true,
   );
   static const VerificationMeta _periodMeta = const VerificationMeta('period');
@@ -5554,7 +5605,7 @@ class $BudgetsTable extends Budgets with TableInfo<$BudgetsTable, Budget> {
         data['${effectivePrefix}name'],
       )!,
       amount: attachedDatabase.typeMapping.read(
-        DriftSqlType.double,
+        DriftSqlType.int,
         data['${effectivePrefix}amount'],
       )!,
       period: attachedDatabase.typeMapping.read(
@@ -5629,7 +5680,7 @@ class $BudgetsTable extends Budgets with TableInfo<$BudgetsTable, Budget> {
 class Budget extends DataClass implements Insertable<Budget> {
   final String id;
   final String name;
-  final double amount;
+  final int amount;
   final String period;
   final DateTime startDate;
   final DateTime? endDate;
@@ -5670,7 +5721,7 @@ class Budget extends DataClass implements Insertable<Budget> {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
     map['name'] = Variable<String>(name);
-    map['amount'] = Variable<double>(amount);
+    map['amount'] = Variable<int>(amount);
     map['period'] = Variable<String>(period);
     map['start_date'] = Variable<DateTime>(startDate);
     if (!nullToAbsent || endDate != null) {
@@ -5740,7 +5791,7 @@ class Budget extends DataClass implements Insertable<Budget> {
     return Budget(
       id: serializer.fromJson<String>(json['id']),
       name: serializer.fromJson<String>(json['name']),
-      amount: serializer.fromJson<double>(json['amount']),
+      amount: serializer.fromJson<int>(json['amount']),
       period: serializer.fromJson<String>(json['period']),
       startDate: serializer.fromJson<DateTime>(json['startDate']),
       endDate: serializer.fromJson<DateTime?>(json['endDate']),
@@ -5764,7 +5815,7 @@ class Budget extends DataClass implements Insertable<Budget> {
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
       'name': serializer.toJson<String>(name),
-      'amount': serializer.toJson<double>(amount),
+      'amount': serializer.toJson<int>(amount),
       'period': serializer.toJson<String>(period),
       'startDate': serializer.toJson<DateTime>(startDate),
       'endDate': serializer.toJson<DateTime?>(endDate),
@@ -5786,7 +5837,7 @@ class Budget extends DataClass implements Insertable<Budget> {
   Budget copyWith({
     String? id,
     String? name,
-    double? amount,
+    int? amount,
     String? period,
     DateTime? startDate,
     Value<DateTime?> endDate = const Value.absent(),
@@ -5926,7 +5977,7 @@ class Budget extends DataClass implements Insertable<Budget> {
 class BudgetsCompanion extends UpdateCompanion<Budget> {
   final Value<String> id;
   final Value<String> name;
-  final Value<double> amount;
+  final Value<int> amount;
   final Value<String> period;
   final Value<DateTime> startDate;
   final Value<DateTime?> endDate;
@@ -5967,7 +6018,7 @@ class BudgetsCompanion extends UpdateCompanion<Budget> {
   BudgetsCompanion.insert({
     required String id,
     required String name,
-    required double amount,
+    required int amount,
     this.period = const Value.absent(),
     required DateTime startDate,
     this.endDate = const Value.absent(),
@@ -5991,7 +6042,7 @@ class BudgetsCompanion extends UpdateCompanion<Budget> {
   static Insertable<Budget> custom({
     Expression<String>? id,
     Expression<String>? name,
-    Expression<double>? amount,
+    Expression<int>? amount,
     Expression<String>? period,
     Expression<DateTime>? startDate,
     Expression<DateTime>? endDate,
@@ -6035,7 +6086,7 @@ class BudgetsCompanion extends UpdateCompanion<Budget> {
   BudgetsCompanion copyWith({
     Value<String>? id,
     Value<String>? name,
-    Value<double>? amount,
+    Value<int>? amount,
     Value<String>? period,
     Value<DateTime>? startDate,
     Value<DateTime?>? endDate,
@@ -6086,7 +6137,7 @@ class BudgetsCompanion extends UpdateCompanion<Budget> {
       map['name'] = Variable<String>(name.value);
     }
     if (amount.present) {
-      map['amount'] = Variable<double>(amount.value);
+      map['amount'] = Variable<int>(amount.value);
     }
     if (period.present) {
       map['period'] = Variable<String>(period.value);
@@ -7399,11 +7450,11 @@ class $ObjectivesTable extends Objectives
     'targetAmount',
   );
   @override
-  late final GeneratedColumn<double> targetAmount = GeneratedColumn<double>(
+  late final GeneratedColumn<int> targetAmount = GeneratedColumn<int>(
     'target_amount',
     aliasedName,
     false,
-    type: DriftSqlType.double,
+    type: DriftSqlType.int,
     requiredDuringInsert: true,
   );
   static const VerificationMeta _typeMeta = const VerificationMeta('type');
@@ -7701,7 +7752,7 @@ class $ObjectivesTable extends Objectives
         data['${effectivePrefix}color'],
       )!,
       targetAmount: attachedDatabase.typeMapping.read(
-        DriftSqlType.double,
+        DriftSqlType.int,
         data['${effectivePrefix}target_amount'],
       )!,
       type: attachedDatabase.typeMapping.read(
@@ -7762,7 +7813,7 @@ class Objective extends DataClass implements Insertable<Objective> {
   final String name;
   final String iconName;
   final String color;
-  final double targetAmount;
+  final int targetAmount;
   final String type;
   final String? walletId;
   final DateTime startDate;
@@ -7799,7 +7850,7 @@ class Objective extends DataClass implements Insertable<Objective> {
     map['name'] = Variable<String>(name);
     map['icon_name'] = Variable<String>(iconName);
     map['color'] = Variable<String>(color);
-    map['target_amount'] = Variable<double>(targetAmount);
+    map['target_amount'] = Variable<int>(targetAmount);
     map['type'] = Variable<String>(type);
     if (!nullToAbsent || walletId != null) {
       map['wallet_id'] = Variable<String>(walletId);
@@ -7861,7 +7912,7 @@ class Objective extends DataClass implements Insertable<Objective> {
       name: serializer.fromJson<String>(json['name']),
       iconName: serializer.fromJson<String>(json['iconName']),
       color: serializer.fromJson<String>(json['color']),
-      targetAmount: serializer.fromJson<double>(json['targetAmount']),
+      targetAmount: serializer.fromJson<int>(json['targetAmount']),
       type: serializer.fromJson<String>(json['type']),
       walletId: serializer.fromJson<String?>(json['walletId']),
       startDate: serializer.fromJson<DateTime>(json['startDate']),
@@ -7883,7 +7934,7 @@ class Objective extends DataClass implements Insertable<Objective> {
       'name': serializer.toJson<String>(name),
       'iconName': serializer.toJson<String>(iconName),
       'color': serializer.toJson<String>(color),
-      'targetAmount': serializer.toJson<double>(targetAmount),
+      'targetAmount': serializer.toJson<int>(targetAmount),
       'type': serializer.toJson<String>(type),
       'walletId': serializer.toJson<String?>(walletId),
       'startDate': serializer.toJson<DateTime>(startDate),
@@ -7903,7 +7954,7 @@ class Objective extends DataClass implements Insertable<Objective> {
     String? name,
     String? iconName,
     String? color,
-    double? targetAmount,
+    int? targetAmount,
     String? type,
     Value<String?> walletId = const Value.absent(),
     DateTime? startDate,
@@ -8029,7 +8080,7 @@ class ObjectivesCompanion extends UpdateCompanion<Objective> {
   final Value<String> name;
   final Value<String> iconName;
   final Value<String> color;
-  final Value<double> targetAmount;
+  final Value<int> targetAmount;
   final Value<String> type;
   final Value<String?> walletId;
   final Value<DateTime> startDate;
@@ -8066,7 +8117,7 @@ class ObjectivesCompanion extends UpdateCompanion<Objective> {
     required String name,
     this.iconName = const Value.absent(),
     this.color = const Value.absent(),
-    required double targetAmount,
+    required int targetAmount,
     this.type = const Value.absent(),
     this.walletId = const Value.absent(),
     required DateTime startDate,
@@ -8088,7 +8139,7 @@ class ObjectivesCompanion extends UpdateCompanion<Objective> {
     Expression<String>? name,
     Expression<String>? iconName,
     Expression<String>? color,
-    Expression<double>? targetAmount,
+    Expression<int>? targetAmount,
     Expression<String>? type,
     Expression<String>? walletId,
     Expression<DateTime>? startDate,
@@ -8128,7 +8179,7 @@ class ObjectivesCompanion extends UpdateCompanion<Objective> {
     Value<String>? name,
     Value<String>? iconName,
     Value<String>? color,
-    Value<double>? targetAmount,
+    Value<int>? targetAmount,
     Value<String>? type,
     Value<String?>? walletId,
     Value<DateTime>? startDate,
@@ -8179,7 +8230,7 @@ class ObjectivesCompanion extends UpdateCompanion<Objective> {
       map['color'] = Variable<String>(color.value);
     }
     if (targetAmount.present) {
-      map['target_amount'] = Variable<double>(targetAmount.value);
+      map['target_amount'] = Variable<int>(targetAmount.value);
     }
     if (type.present) {
       map['type'] = Variable<String>(type.value);
@@ -11027,11 +11078,12 @@ typedef $$WalletsTableCreateCompanionBuilder =
       Value<String> iconName,
       Value<String> color,
       Value<String> currency,
-      Value<double> balance,
+      Value<int> balance,
+      Value<int> openingBalance,
       Value<bool> isDefault,
       Value<bool> useDecimals,
       Value<WalletType> walletType,
-      Value<double?> creditLimit,
+      Value<int?> creditLimit,
       Value<int?> billingCycleDay,
       Value<int> orderIndex,
       Value<String?> serverId,
@@ -11048,11 +11100,12 @@ typedef $$WalletsTableUpdateCompanionBuilder =
       Value<String> iconName,
       Value<String> color,
       Value<String> currency,
-      Value<double> balance,
+      Value<int> balance,
+      Value<int> openingBalance,
       Value<bool> isDefault,
       Value<bool> useDecimals,
       Value<WalletType> walletType,
-      Value<double?> creditLimit,
+      Value<int?> creditLimit,
       Value<int?> billingCycleDay,
       Value<int> orderIndex,
       Value<String?> serverId,
@@ -11138,8 +11191,13 @@ class $$WalletsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<double> get balance => $composableBuilder(
+  ColumnFilters<int> get balance => $composableBuilder(
     column: $table.balance,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get openingBalance => $composableBuilder(
+    column: $table.openingBalance,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -11159,7 +11217,7 @@ class $$WalletsTableFilterComposer
         builder: (column) => ColumnWithTypeConverterFilters(column),
       );
 
-  ColumnFilters<double> get creditLimit => $composableBuilder(
+  ColumnFilters<int> get creditLimit => $composableBuilder(
     column: $table.creditLimit,
     builder: (column) => ColumnFilters(column),
   );
@@ -11284,8 +11342,13 @@ class $$WalletsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<double> get balance => $composableBuilder(
+  ColumnOrderings<int> get balance => $composableBuilder(
     column: $table.balance,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get openingBalance => $composableBuilder(
+    column: $table.openingBalance,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -11304,7 +11367,7 @@ class $$WalletsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<double> get creditLimit => $composableBuilder(
+  ColumnOrderings<int> get creditLimit => $composableBuilder(
     column: $table.creditLimit,
     builder: (column) => ColumnOrderings(column),
   );
@@ -11369,8 +11432,13 @@ class $$WalletsTableAnnotationComposer
   GeneratedColumn<String> get currency =>
       $composableBuilder(column: $table.currency, builder: (column) => column);
 
-  GeneratedColumn<double> get balance =>
+  GeneratedColumn<int> get balance =>
       $composableBuilder(column: $table.balance, builder: (column) => column);
+
+  GeneratedColumn<int> get openingBalance => $composableBuilder(
+    column: $table.openingBalance,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<bool> get isDefault =>
       $composableBuilder(column: $table.isDefault, builder: (column) => column);
@@ -11386,7 +11454,7 @@ class $$WalletsTableAnnotationComposer
         builder: (column) => column,
       );
 
-  GeneratedColumn<double> get creditLimit => $composableBuilder(
+  GeneratedColumn<int> get creditLimit => $composableBuilder(
     column: $table.creditLimit,
     builder: (column) => column,
   );
@@ -11502,11 +11570,12 @@ class $$WalletsTableTableManager
                 Value<String> iconName = const Value.absent(),
                 Value<String> color = const Value.absent(),
                 Value<String> currency = const Value.absent(),
-                Value<double> balance = const Value.absent(),
+                Value<int> balance = const Value.absent(),
+                Value<int> openingBalance = const Value.absent(),
                 Value<bool> isDefault = const Value.absent(),
                 Value<bool> useDecimals = const Value.absent(),
                 Value<WalletType> walletType = const Value.absent(),
-                Value<double?> creditLimit = const Value.absent(),
+                Value<int?> creditLimit = const Value.absent(),
                 Value<int?> billingCycleDay = const Value.absent(),
                 Value<int> orderIndex = const Value.absent(),
                 Value<String?> serverId = const Value.absent(),
@@ -11522,6 +11591,7 @@ class $$WalletsTableTableManager
                 color: color,
                 currency: currency,
                 balance: balance,
+                openingBalance: openingBalance,
                 isDefault: isDefault,
                 useDecimals: useDecimals,
                 walletType: walletType,
@@ -11542,11 +11612,12 @@ class $$WalletsTableTableManager
                 Value<String> iconName = const Value.absent(),
                 Value<String> color = const Value.absent(),
                 Value<String> currency = const Value.absent(),
-                Value<double> balance = const Value.absent(),
+                Value<int> balance = const Value.absent(),
+                Value<int> openingBalance = const Value.absent(),
                 Value<bool> isDefault = const Value.absent(),
                 Value<bool> useDecimals = const Value.absent(),
                 Value<WalletType> walletType = const Value.absent(),
-                Value<double?> creditLimit = const Value.absent(),
+                Value<int?> creditLimit = const Value.absent(),
                 Value<int?> billingCycleDay = const Value.absent(),
                 Value<int> orderIndex = const Value.absent(),
                 Value<String?> serverId = const Value.absent(),
@@ -11562,6 +11633,7 @@ class $$WalletsTableTableManager
                 color: color,
                 currency: currency,
                 balance: balance,
+                openingBalance: openingBalance,
                 isDefault: isDefault,
                 useDecimals: useDecimals,
                 walletType: walletType,
@@ -12568,7 +12640,7 @@ typedef $$RecurringConfigsTableProcessedTableManager =
 typedef $$TransactionsTableCreateCompanionBuilder =
     TransactionsCompanion Function({
       required String id,
-      required double amount,
+      required int amount,
       Value<String> title,
       Value<String?> notes,
       required DateTime date,
@@ -12589,7 +12661,7 @@ typedef $$TransactionsTableCreateCompanionBuilder =
       Value<TransactionSpecialType?> specialType,
       Value<bool> isPaid,
       Value<DateTime?> originalDueDate,
-      Value<double> paidAmount,
+      Value<int> paidAmount,
       Value<bool> skipPaid,
       Value<String?> serverId,
       Value<int> syncStatus,
@@ -12601,7 +12673,7 @@ typedef $$TransactionsTableCreateCompanionBuilder =
 typedef $$TransactionsTableUpdateCompanionBuilder =
     TransactionsCompanion Function({
       Value<String> id,
-      Value<double> amount,
+      Value<int> amount,
       Value<String> title,
       Value<String?> notes,
       Value<DateTime> date,
@@ -12622,7 +12694,7 @@ typedef $$TransactionsTableUpdateCompanionBuilder =
       Value<TransactionSpecialType?> specialType,
       Value<bool> isPaid,
       Value<DateTime?> originalDueDate,
-      Value<double> paidAmount,
+      Value<int> paidAmount,
       Value<bool> skipPaid,
       Value<String?> serverId,
       Value<int> syncStatus,
@@ -12761,7 +12833,7 @@ class $$TransactionsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<double> get amount => $composableBuilder(
+  ColumnFilters<int> get amount => $composableBuilder(
     column: $table.amount,
     builder: (column) => ColumnFilters(column),
   );
@@ -12851,7 +12923,7 @@ class $$TransactionsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<double> get paidAmount => $composableBuilder(
+  ColumnFilters<int> get paidAmount => $composableBuilder(
     column: $table.paidAmount,
     builder: (column) => ColumnFilters(column),
   );
@@ -13019,7 +13091,7 @@ class $$TransactionsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<double> get amount => $composableBuilder(
+  ColumnOrderings<int> get amount => $composableBuilder(
     column: $table.amount,
     builder: (column) => ColumnOrderings(column),
   );
@@ -13104,7 +13176,7 @@ class $$TransactionsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<double> get paidAmount => $composableBuilder(
+  ColumnOrderings<int> get paidAmount => $composableBuilder(
     column: $table.paidAmount,
     builder: (column) => ColumnOrderings(column),
   );
@@ -13244,7 +13316,7 @@ class $$TransactionsTableAnnotationComposer
   GeneratedColumn<String> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
 
-  GeneratedColumn<double> get amount =>
+  GeneratedColumn<int> get amount =>
       $composableBuilder(column: $table.amount, builder: (column) => column);
 
   GeneratedColumn<String> get title =>
@@ -13314,7 +13386,7 @@ class $$TransactionsTableAnnotationComposer
     builder: (column) => column,
   );
 
-  GeneratedColumn<double> get paidAmount => $composableBuilder(
+  GeneratedColumn<int> get paidAmount => $composableBuilder(
     column: $table.paidAmount,
     builder: (column) => column,
   );
@@ -13493,7 +13565,7 @@ class $$TransactionsTableTableManager
           updateCompanionCallback:
               ({
                 Value<String> id = const Value.absent(),
-                Value<double> amount = const Value.absent(),
+                Value<int> amount = const Value.absent(),
                 Value<String> title = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
                 Value<DateTime> date = const Value.absent(),
@@ -13515,7 +13587,7 @@ class $$TransactionsTableTableManager
                     const Value.absent(),
                 Value<bool> isPaid = const Value.absent(),
                 Value<DateTime?> originalDueDate = const Value.absent(),
-                Value<double> paidAmount = const Value.absent(),
+                Value<int> paidAmount = const Value.absent(),
                 Value<bool> skipPaid = const Value.absent(),
                 Value<String?> serverId = const Value.absent(),
                 Value<int> syncStatus = const Value.absent(),
@@ -13558,7 +13630,7 @@ class $$TransactionsTableTableManager
           createCompanionCallback:
               ({
                 required String id,
-                required double amount,
+                required int amount,
                 Value<String> title = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
                 required DateTime date,
@@ -13580,7 +13652,7 @@ class $$TransactionsTableTableManager
                     const Value.absent(),
                 Value<bool> isPaid = const Value.absent(),
                 Value<DateTime?> originalDueDate = const Value.absent(),
-                Value<double> paidAmount = const Value.absent(),
+                Value<int> paidAmount = const Value.absent(),
                 Value<bool> skipPaid = const Value.absent(),
                 Value<String?> serverId = const Value.absent(),
                 Value<int> syncStatus = const Value.absent(),
@@ -13775,7 +13847,7 @@ typedef $$BudgetsTableCreateCompanionBuilder =
     BudgetsCompanion Function({
       required String id,
       required String name,
-      required double amount,
+      required int amount,
       Value<String> period,
       required DateTime startDate,
       Value<DateTime?> endDate,
@@ -13797,7 +13869,7 @@ typedef $$BudgetsTableUpdateCompanionBuilder =
     BudgetsCompanion Function({
       Value<String> id,
       Value<String> name,
-      Value<double> amount,
+      Value<int> amount,
       Value<String> period,
       Value<DateTime> startDate,
       Value<DateTime?> endDate,
@@ -13835,7 +13907,7 @@ class $$BudgetsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<double> get amount => $composableBuilder(
+  ColumnFilters<int> get amount => $composableBuilder(
     column: $table.amount,
     builder: (column) => ColumnFilters(column),
   );
@@ -13935,7 +14007,7 @@ class $$BudgetsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<double> get amount => $composableBuilder(
+  ColumnOrderings<int> get amount => $composableBuilder(
     column: $table.amount,
     builder: (column) => ColumnOrderings(column),
   );
@@ -14031,7 +14103,7 @@ class $$BudgetsTableAnnotationComposer
   GeneratedColumn<String> get name =>
       $composableBuilder(column: $table.name, builder: (column) => column);
 
-  GeneratedColumn<double> get amount =>
+  GeneratedColumn<int> get amount =>
       $composableBuilder(column: $table.amount, builder: (column) => column);
 
   GeneratedColumn<String> get period =>
@@ -14118,7 +14190,7 @@ class $$BudgetsTableTableManager
               ({
                 Value<String> id = const Value.absent(),
                 Value<String> name = const Value.absent(),
-                Value<double> amount = const Value.absent(),
+                Value<int> amount = const Value.absent(),
                 Value<String> period = const Value.absent(),
                 Value<DateTime> startDate = const Value.absent(),
                 Value<DateTime?> endDate = const Value.absent(),
@@ -14160,7 +14232,7 @@ class $$BudgetsTableTableManager
               ({
                 required String id,
                 required String name,
-                required double amount,
+                required int amount,
                 Value<String> period = const Value.absent(),
                 required DateTime startDate,
                 Value<DateTime?> endDate = const Value.absent(),
@@ -14784,7 +14856,7 @@ typedef $$ObjectivesTableCreateCompanionBuilder =
       required String name,
       Value<String> iconName,
       Value<String> color,
-      required double targetAmount,
+      required int targetAmount,
       Value<String> type,
       Value<String?> walletId,
       required DateTime startDate,
@@ -14804,7 +14876,7 @@ typedef $$ObjectivesTableUpdateCompanionBuilder =
       Value<String> name,
       Value<String> iconName,
       Value<String> color,
-      Value<double> targetAmount,
+      Value<int> targetAmount,
       Value<String> type,
       Value<String?> walletId,
       Value<DateTime> startDate,
@@ -14898,7 +14970,7 @@ class $$ObjectivesTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<double> get targetAmount => $composableBuilder(
+  ColumnFilters<int> get targetAmount => $composableBuilder(
     column: $table.targetAmount,
     builder: (column) => ColumnFilters(column),
   );
@@ -15032,7 +15104,7 @@ class $$ObjectivesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<double> get targetAmount => $composableBuilder(
+  ColumnOrderings<int> get targetAmount => $composableBuilder(
     column: $table.targetAmount,
     builder: (column) => ColumnOrderings(column),
   );
@@ -15132,7 +15204,7 @@ class $$ObjectivesTableAnnotationComposer
   GeneratedColumn<String> get color =>
       $composableBuilder(column: $table.color, builder: (column) => column);
 
-  GeneratedColumn<double> get targetAmount => $composableBuilder(
+  GeneratedColumn<int> get targetAmount => $composableBuilder(
     column: $table.targetAmount,
     builder: (column) => column,
   );
@@ -15256,7 +15328,7 @@ class $$ObjectivesTableTableManager
                 Value<String> name = const Value.absent(),
                 Value<String> iconName = const Value.absent(),
                 Value<String> color = const Value.absent(),
-                Value<double> targetAmount = const Value.absent(),
+                Value<int> targetAmount = const Value.absent(),
                 Value<String> type = const Value.absent(),
                 Value<String?> walletId = const Value.absent(),
                 Value<DateTime> startDate = const Value.absent(),
@@ -15294,7 +15366,7 @@ class $$ObjectivesTableTableManager
                 required String name,
                 Value<String> iconName = const Value.absent(),
                 Value<String> color = const Value.absent(),
-                required double targetAmount,
+                required int targetAmount,
                 Value<String> type = const Value.absent(),
                 Value<String?> walletId = const Value.absent(),
                 required DateTime startDate,

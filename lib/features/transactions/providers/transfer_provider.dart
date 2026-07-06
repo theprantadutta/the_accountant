@@ -70,7 +70,7 @@ class TransferNotifier extends StateNotifier<TransferState> {
   Future<bool> createTransfer({
     required String sourceWalletId,
     required String destinationWalletId,
-    required double amount,
+    required int amount, // integer minor units / cents
     required DateTime date,
     String? notes,
     String? title,
@@ -120,7 +120,7 @@ class TransferNotifier extends StateNotifier<TransferState> {
   /// Update an existing transfer
   Future<bool> updateTransfer({
     required String transactionId,
-    double? amount,
+    int? amount, // integer minor units / cents
     DateTime? date,
     String? notes,
     String? title,

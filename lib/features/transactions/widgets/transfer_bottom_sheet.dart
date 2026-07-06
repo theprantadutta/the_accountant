@@ -100,7 +100,7 @@ class _TransferBottomSheetState extends ConsumerState<TransferBottomSheet> {
           .createTransfer(
             sourceWalletId: _sourceWalletId!,
             destinationWalletId: _destinationWalletId!,
-            amount: _amount,
+            amount: (_amount * 100).round(), // dollars -> integer cents
             date: _date,
             notes: _notes.isEmpty ? null : _notes,
             title: _title.isEmpty ? null : _title,
@@ -800,7 +800,7 @@ class _WalletPickerSheet extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    '\$${wallet.useDecimals ? wallet.balance.toStringAsFixed(2) : wallet.balance.round().toString()}',
+                    '\$${wallet.useDecimals ? (wallet.balance / 100.0).toStringAsFixed(2) : (wallet.balance / 100).round().toString()}',
                     style: TextStyle(
                       fontSize: 12,
                       color: theme.colorScheme.onSurfaceVariant,

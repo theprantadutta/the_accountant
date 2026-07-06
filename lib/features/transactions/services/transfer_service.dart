@@ -21,7 +21,7 @@ class TransferService {
   Future<(String, String)> createTransfer({
     required String sourceWalletId,
     required String destinationWalletId,
-    required double amount,
+    required int amount, // integer minor units / cents
     required DateTime date,
     String? notes,
     String? title,
@@ -98,7 +98,7 @@ class TransferService {
   /// Updates both paired transactions atomically.
   Future<void> updateTransfer({
     required String transactionId,
-    double? amount,
+    int? amount, // integer minor units / cents
     DateTime? date,
     String? notes,
     String? title,
