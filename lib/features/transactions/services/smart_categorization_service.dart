@@ -11,8 +11,7 @@ class SmartCategorizationService {
   final Logger _logger = Logger();
   final Uuid _uuid = const Uuid();
 
-  SmartCategorizationService({required AppDatabase database})
-    : _database = database;
+  SmartCategorizationService({required this._database});
 
   /// Suggest a category based on the transaction title
   /// Returns null if no suggestion is found

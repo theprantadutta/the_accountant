@@ -10,7 +10,7 @@ class ObjectivesService {
   final Logger _logger = Logger();
   final Uuid _uuid = const Uuid();
 
-  ObjectivesService({required AppDatabase database}) : _database = database;
+  ObjectivesService({required this._database});
 
   /// Create a new objective (goal or loan)
   Future<String> createObjective({

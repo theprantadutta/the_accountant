@@ -306,7 +306,7 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
   Widget _buildAIHeader() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Container(
+      child: DecoratedBox(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
@@ -469,6 +469,7 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
             margin: const EdgeInsets.only(right: 12),
             child: GestureDetector(
               onTap: () => _sendMessage(action['message'] as String),
+              // ignore: avoid_unnecessary_containers - width + decoration are both needed
               child: Container(
                 width: 88,
                 decoration: BoxDecoration(
@@ -576,7 +577,7 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
   Widget _buildTypingIndicator() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-      child: Container(
+      child: DecoratedBox(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
           boxShadow: [

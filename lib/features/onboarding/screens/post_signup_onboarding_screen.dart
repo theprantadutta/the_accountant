@@ -488,7 +488,7 @@ class _PostSignupOnboardingScreenState
             Text('Billing Cycle Day (optional)', style: AppTypography.labelMedium),
             AppSpacing.gapSm,
             DropdownButtonFormField<int>(
-              value: _billingCycleDay,
+              initialValue: _billingCycleDay,
               decoration: InputDecoration(
                 hintText: 'Select billing day',
                 filled: true,

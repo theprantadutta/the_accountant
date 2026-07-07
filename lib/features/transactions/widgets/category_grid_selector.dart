@@ -383,7 +383,7 @@ class CategoryGridSelectorCompact extends ConsumerWidget {
         scrollDirection: Axis.horizontal,
         padding: EdgeInsets.symmetric(horizontal: AppSpacing.sm),
         itemCount: categories.length,
-        separatorBuilder: (_, __) => SizedBox(width: AppSpacing.sm),
+        separatorBuilder: (_, _) => SizedBox(width: AppSpacing.sm),
         itemBuilder: (context, index) {
           final category = categories[index];
           final isSelected = category.id == selectedCategoryId;

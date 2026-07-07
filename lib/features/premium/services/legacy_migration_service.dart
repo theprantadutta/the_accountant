@@ -28,12 +28,10 @@ class LegacyMigrationService {
   final Logger _logger = Logger();
 
   LegacyMigrationService({
-    required Ref ref,
-    required SharedPreferences prefs,
-    ApiService? apiService,
-  }) : _ref = ref,
-       _prefs = prefs,
-       _apiService = apiService;
+    required this._ref,
+    required this._prefs,
+    this._apiService,
+  });
 
   /// Check if migration has already been completed
   bool get isMigrationComplete =>

@@ -77,8 +77,8 @@ class TransferNotifier extends StateNotifier<TransferState> {
   }) async {
     state = state.copyWith(isLoading: true, errorMessage: null);
     try {
-      // Create the paired transactions
-      final (expenseId, incomeId) = await _transferService.createTransfer(
+      // Create the paired transactions (IDs not needed; balances update by wallet)
+      await _transferService.createTransfer(
         sourceWalletId: sourceWalletId,
         destinationWalletId: destinationWalletId,
         amount: amount,
@@ -162,9 +162,6 @@ class TransferNotifier extends StateNotifier<TransferState> {
   Future<bool> deleteTransfer(String transactionId) async {
     state = state.copyWith(isLoading: true, errorMessage: null);
     try {
-      // Get the transfer details before deleting for balance update
-      final paired = await _transferService.getPairedTransaction(transactionId);
-
       await _transferService.deleteTransfer(transactionId);
 
       // Recalculate balances for affected wallets

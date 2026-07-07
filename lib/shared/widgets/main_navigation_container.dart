@@ -123,6 +123,7 @@ class _MainNavigationContainerState
   }
 
   // Legacy method for backward compatibility - kept for reference
+  // ignore: unused_element
   void _showAddTransactionModalLegacy() {
     HapticFeedback.mediumImpact();
 

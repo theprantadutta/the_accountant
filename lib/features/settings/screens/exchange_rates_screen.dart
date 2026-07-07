@@ -277,7 +277,7 @@ class _ExchangeRatesScreenState extends ConsumerState<ExchangeRatesScreen> {
               await ref
                   .read(currencyProvider.notifier)
                   .clearCustomRate(_baseCurrency, currencyCode);
-              if (mounted) Navigator.pop(context);
+              if (context.mounted) Navigator.pop(context);
             },
             child: const Text('Use API Rate'),
           ),
@@ -288,7 +288,7 @@ class _ExchangeRatesScreenState extends ConsumerState<ExchangeRatesScreen> {
                 await ref
                     .read(currencyProvider.notifier)
                     .setCustomRate(_baseCurrency, currencyCode, newRate);
-                if (mounted) Navigator.pop(context);
+                if (context.mounted) Navigator.pop(context);
               }
             },
             child: const Text('Save'),

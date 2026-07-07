@@ -38,7 +38,7 @@ class IAPService {
   bool _isAvailable = false;
   bool get isAvailable => _isAvailable;
 
-  IAPService({required ApiService apiService}) : _apiService = apiService;
+  IAPService({required this._apiService});
 
   /// Initialize the IAP service
   Future<void> initialize() async {

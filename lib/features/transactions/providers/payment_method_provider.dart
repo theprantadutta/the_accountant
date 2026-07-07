@@ -79,10 +79,12 @@ class PaymentMethodNotifier extends StateNotifier<PaymentMethodState> {
 
       state = state.copyWith(paymentMethods: paymentMethods, isLoading: false);
     } catch (e) {
-      if (!silent) state = state.copyWith(
+      if (!silent) {
+        state = state.copyWith(
         isLoading: false,
         errorMessage: 'Failed to load payment methods',
       );
+      }
     }
   }
 

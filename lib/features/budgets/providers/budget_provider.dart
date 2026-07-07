@@ -90,10 +90,12 @@ class BudgetNotifier extends StateNotifier<BudgetState> {
 
       state = state.copyWith(budgets: budgets, isLoading: false);
     } catch (e) {
-      if (!silent) state = state.copyWith(
+      if (!silent) {
+        state = state.copyWith(
         isLoading: false,
         errorMessage: 'Failed to load budgets',
       );
+      }
     }
   }
 

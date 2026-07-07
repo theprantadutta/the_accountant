@@ -154,7 +154,7 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
           categoryId: t.categoryId ?? '',
           walletId: t.walletId,
           date: t.date,
-          title: t.title ?? '',
+          title: t.title,
           notes: t.notes ?? '',
           paymentMethod: t.paymentMethodId ?? '',
           isRecurring: false, // Deprecated - use RecurringConfigs
@@ -165,10 +165,12 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
       state = state.copyWith(transactions: transactions, isLoading: false);
     } catch (e) {
       if (mounted) {
-        if (!silent) state = state.copyWith(
+        if (!silent) {
+          state = state.copyWith(
           isLoading: false,
           errorMessage: 'Failed to load transactions: $e',
         );
+        }
       }
     }
   }

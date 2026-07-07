@@ -34,7 +34,6 @@ class _PrefsKeys {
       '${prefix}subscription_expiry_alerts_enabled';
   static const String promotionalNotificationsEnabled =
       '${prefix}promotional_notifications_enabled';
-  static const String lastSyncedAt = '${prefix}last_synced_at';
   static const String allPrefsJson = '${prefix}all_prefs_json';
 }
 

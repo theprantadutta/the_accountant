@@ -186,8 +186,7 @@ class _TransactionBottomSheetState
   /// Open the transfer bottom sheet
   Future<void> _openTransferSheet() async {
     Navigator.pop(context); // Close this bottom sheet first
-    final result = await showTransferBottomSheet(context);
-    // result will be true if transfer was created
+    await showTransferBottomSheet(context);
   }
 
   void _previousStep() {
@@ -436,7 +435,7 @@ class _TransactionBottomSheetState
         shape: BoxShape.circle,
         color: isActive ? color : theme.colorScheme.surfaceContainerHighest,
         border: Border.all(
-          color: isActive ? color : theme.colorScheme.outline.withOpacity(0.3),
+          color: isActive ? color : theme.colorScheme.outline.withValues(alpha: 0.3),
           width: 2,
         ),
       ),
@@ -1102,7 +1101,7 @@ class _TransactionBottomSheetState
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: categoryColor.withOpacity(0.2),
+              color: categoryColor.withValues(alpha: 0.2),
               shape: BoxShape.circle,
             ),
             child: Icon(Icons.category, color: categoryColor),
@@ -1329,7 +1328,7 @@ class _TransactionBottomSheetState
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
         border: Border(
-          top: BorderSide(color: theme.colorScheme.outline.withOpacity(0.1)),
+          top: BorderSide(color: theme.colorScheme.outline.withValues(alpha: 0.1)),
         ),
       ),
       child: SafeArea(

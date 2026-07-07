@@ -377,7 +377,7 @@ class _CreateFirstWalletScreenState
                   ),
                   const SizedBox(height: 8),
                   DropdownButtonFormField<int>(
-                    value: _billingCycleDay,
+                    initialValue: _billingCycleDay,
                     decoration: InputDecoration(
                       hintText: 'Select billing day',
                       filled: true,

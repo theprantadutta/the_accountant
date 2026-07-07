@@ -120,12 +120,11 @@ class _LoanChip extends StatelessWidget {
 
   const _LoanChip({
     required this.label,
-    this.subtitle,
     required this.icon,
     required this.isSelected,
     required this.color,
     required this.onTap,
-  });
+  }) : subtitle = null;
 
   @override
   Widget build(BuildContext context) {

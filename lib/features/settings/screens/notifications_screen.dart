@@ -314,19 +314,19 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
       builder: (context) => AlertDialog(
         backgroundColor: AppColors.primarySurface,
         title: const Text('Remind Me Before Due Date'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: BackgroundTaskConstants.offsetOptions.map((minutes) {
-            return ListTile(
-              title: Text(BackgroundTaskConstants.offsetLabel(minutes)),
-              leading: Radio<int>(
-                value: minutes,
-                groupValue: prefsState.reminderOffsetMinutes,
-                onChanged: (value) => Navigator.pop(context, value),
-              ),
-              onTap: () => Navigator.pop(context, minutes),
-            );
-          }).toList(),
+        content: RadioGroup<int>(
+          groupValue: prefsState.reminderOffsetMinutes,
+          onChanged: (value) => Navigator.pop(context, value),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: BackgroundTaskConstants.offsetOptions.map((minutes) {
+              return ListTile(
+                title: Text(BackgroundTaskConstants.offsetLabel(minutes)),
+                leading: Radio<int>(value: minutes),
+                onTap: () => Navigator.pop(context, minutes),
+              );
+            }).toList(),
+          ),
         ),
       ),
     );

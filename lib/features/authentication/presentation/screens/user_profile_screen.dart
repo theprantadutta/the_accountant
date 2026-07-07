@@ -302,8 +302,8 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
     return Row(
       children: stats.map((stat) {
         return Expanded(
-          child: Container(
-            margin: const EdgeInsets.only(right: 8),
+          child: Padding(
+            padding: const EdgeInsets.only(right: 8),
             child: AppTheme.glassmorphicContainer(
               child: Container(
                 padding: const EdgeInsets.all(16),
@@ -760,14 +760,14 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
                                             .signOut();
 
                                         // Close dialog
-                                        if (mounted) {
+                                        if (dialogContext.mounted) {
                                           Navigator.of(dialogContext).pop();
                                         }
                                       } catch (e) {
                                         // Close dialog and show error
-                                        if (mounted) {
+                                        if (dialogContext.mounted) {
                                           Navigator.of(dialogContext).pop();
-                                          if (mounted) {
+                                          if (context.mounted) {
                                             ScaffoldMessenger.of(
                                               context,
                                             ).showSnackBar(

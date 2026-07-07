@@ -569,7 +569,7 @@ class ApiService {
   }) async {
     try {
       await _dio.post('/auth/change-password', data: {
-        if (currentPassword != null) 'currentPassword': currentPassword,
+        'currentPassword': ?currentPassword,
         'newPassword': newPassword,
       });
     } on DioException catch (e) {

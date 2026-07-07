@@ -109,10 +109,12 @@ class CategoryNotifier extends StateNotifier<CategoryState> {
 
       state = state.copyWith(categories: categories, isLoading: false);
     } catch (e) {
-      if (!silent) state = state.copyWith(
+      if (!silent) {
+        state = state.copyWith(
         isLoading: false,
         errorMessage: 'Failed to load categories',
       );
+      }
     }
   }
 

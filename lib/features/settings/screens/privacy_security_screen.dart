@@ -87,7 +87,7 @@ class _PrivacySecurityScreenState extends ConsumerState<PrivacySecurityScreen> {
                     final isAvailable =
                         await BiometricService().isAvailable();
                     if (!isAvailable) {
-                      if (mounted) {
+                      if (context.mounted) {
                         showErrorSnackBar(
                           context,
                           'Biometric authentication not available on this device',
@@ -129,7 +129,7 @@ class _PrivacySecurityScreenState extends ConsumerState<PrivacySecurityScreen> {
                     hasPassword: hasPassword,
                     authService: _authService,
                   );
-                  if (result == true && mounted) {
+                  if (result == true && context.mounted) {
                     showSuccessSnackBar(
                       context,
                       hasPassword

@@ -13,7 +13,7 @@ class RecurringService {
   final Logger _logger = Logger();
   final Uuid _uuid = const Uuid();
 
-  RecurringService({required AppDatabase database}) : _database = database;
+  RecurringService({required this._database});
 
   /// Guards against concurrent processing within the same isolate (e.g. the periodic
   /// foreground trigger firing while a resume-triggered run is still in flight). Static so

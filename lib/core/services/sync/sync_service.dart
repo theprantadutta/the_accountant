@@ -42,12 +42,10 @@ class SyncService {
   bool _syncInProgress = false;
 
   SyncService({
-    required ApiService apiService,
-    required AppDatabase database,
-    Ref? ref,
-  }) : _apiService = apiService,
-       _database = database,
-       _ref = ref;
+    required this._apiService,
+    required this._database,
+    this._ref,
+  });
 
   /// Check if device is online
   Future<bool> isOnline() async {
