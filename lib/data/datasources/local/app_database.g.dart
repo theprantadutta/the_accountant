@@ -10531,10 +10531,7 @@ final class $$CategoriesTableReferences
   static MultiTypedResultKey<$TransactionsTable, List<Transaction>>
   _transactionsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.transactions,
-    aliasName: $_aliasNameGenerator(
-      db.categories.id,
-      db.transactions.categoryId,
-    ),
+    aliasName: 'categories__id__transactions__category_id',
   );
 
   $$TransactionsTableProcessedTableManager get transactionsRefs {
@@ -10552,10 +10549,7 @@ final class $$CategoriesTableReferences
   static MultiTypedResultKey<$AssociatedTitlesTable, List<AssociatedTitle>>
   _associatedTitlesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.associatedTitles,
-    aliasName: $_aliasNameGenerator(
-      db.categories.id,
-      db.associatedTitles.categoryId,
-    ),
+    aliasName: 'categories__id__associated_titles__category_id',
   );
 
   $$AssociatedTitlesTableProcessedTableManager get associatedTitlesRefs {
@@ -11123,7 +11117,7 @@ final class $$WalletsTableReferences
   static MultiTypedResultKey<$TransactionsTable, List<Transaction>>
   _transactionsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.transactions,
-    aliasName: $_aliasNameGenerator(db.wallets.id, db.transactions.walletId),
+    aliasName: 'wallets__id__transactions__wallet_id',
   );
 
   $$TransactionsTableProcessedTableManager get transactionsRefs {
@@ -11141,7 +11135,7 @@ final class $$WalletsTableReferences
   static MultiTypedResultKey<$ObjectivesTable, List<Objective>>
   _objectivesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.objectives,
-    aliasName: $_aliasNameGenerator(db.wallets.id, db.objectives.walletId),
+    aliasName: 'wallets__id__objectives__wallet_id',
   );
 
   $$ObjectivesTableProcessedTableManager get objectivesRefs {
@@ -11774,10 +11768,7 @@ final class $$PaymentMethodsTableReferences
   static MultiTypedResultKey<$TransactionsTable, List<Transaction>>
   _transactionsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.transactions,
-    aliasName: $_aliasNameGenerator(
-      db.paymentMethods.id,
-      db.transactions.paymentMethodId,
-    ),
+    aliasName: 'payment_methods__id__transactions__payment_method_id',
   );
 
   $$TransactionsTableProcessedTableManager get transactionsRefs {
@@ -12226,10 +12217,7 @@ final class $$RecurringConfigsTableReferences
   static MultiTypedResultKey<$TransactionsTable, List<Transaction>>
   _transactionsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.transactions,
-    aliasName: $_aliasNameGenerator(
-      db.recurringConfigs.id,
-      db.transactions.recurringConfigId,
-    ),
+    aliasName: 'recurring_configs__id__transactions__recurring_config_id',
   );
 
   $$TransactionsTableProcessedTableManager get transactionsRefs {
@@ -12709,9 +12697,7 @@ final class $$TransactionsTableReferences
   $$TransactionsTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
   static $CategoriesTable _categoryIdTable(_$AppDatabase db) =>
-      db.categories.createAlias(
-        $_aliasNameGenerator(db.transactions.categoryId, db.categories.id),
-      );
+      db.categories.createAlias('transactions__category_id__categories__id');
 
   $$CategoriesTableProcessedTableManager? get categoryId {
     final $_column = $_itemColumn<String>('category_id');
@@ -12728,9 +12714,7 @@ final class $$TransactionsTableReferences
   }
 
   static $WalletsTable _walletIdTable(_$AppDatabase db) =>
-      db.wallets.createAlias(
-        $_aliasNameGenerator(db.transactions.walletId, db.wallets.id),
-      );
+      db.wallets.createAlias('transactions__wallet_id__wallets__id');
 
   $$WalletsTableProcessedTableManager get walletId {
     final $_column = $_itemColumn<String>('wallet_id')!;
@@ -12746,13 +12730,9 @@ final class $$TransactionsTableReferences
     );
   }
 
-  static $PaymentMethodsTable _paymentMethodIdTable(_$AppDatabase db) =>
-      db.paymentMethods.createAlias(
-        $_aliasNameGenerator(
-          db.transactions.paymentMethodId,
-          db.paymentMethods.id,
-        ),
-      );
+  static $PaymentMethodsTable _paymentMethodIdTable(_$AppDatabase db) => db
+      .paymentMethods
+      .createAlias('transactions__payment_method_id__payment_methods__id');
 
   $$PaymentMethodsTableProcessedTableManager? get paymentMethodId {
     final $_column = $_itemColumn<String>('payment_method_id');
@@ -12768,13 +12748,9 @@ final class $$TransactionsTableReferences
     );
   }
 
-  static $RecurringConfigsTable _recurringConfigIdTable(_$AppDatabase db) =>
-      db.recurringConfigs.createAlias(
-        $_aliasNameGenerator(
-          db.transactions.recurringConfigId,
-          db.recurringConfigs.id,
-        ),
-      );
+  static $RecurringConfigsTable _recurringConfigIdTable(_$AppDatabase db) => db
+      .recurringConfigs
+      .createAlias('transactions__recurring_config_id__recurring_configs__id');
 
   $$RecurringConfigsTableProcessedTableManager? get recurringConfigId {
     final $_column = $_itemColumn<String>('recurring_config_id');
@@ -12797,10 +12773,7 @@ final class $$TransactionsTableReferences
   _objectiveTransactionsRefsTable(_$AppDatabase db) =>
       MultiTypedResultKey.fromTable(
         db.objectiveTransactions,
-        aliasName: $_aliasNameGenerator(
-          db.transactions.id,
-          db.objectiveTransactions.transactionId,
-        ),
+        aliasName: 'transactions__id__objective_transactions__transaction_id',
       );
 
   $$ObjectiveTransactionsTableProcessedTableManager
@@ -14895,8 +14868,8 @@ final class $$ObjectivesTableReferences
     extends BaseReferences<_$AppDatabase, $ObjectivesTable, Objective> {
   $$ObjectivesTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
-  static $WalletsTable _walletIdTable(_$AppDatabase db) => db.wallets
-      .createAlias($_aliasNameGenerator(db.objectives.walletId, db.wallets.id));
+  static $WalletsTable _walletIdTable(_$AppDatabase db) =>
+      db.wallets.createAlias('objectives__wallet_id__wallets__id');
 
   $$WalletsTableProcessedTableManager? get walletId {
     final $_column = $_itemColumn<String>('wallet_id');
@@ -14919,10 +14892,7 @@ final class $$ObjectivesTableReferences
   _objectiveTransactionsRefsTable(_$AppDatabase db) =>
       MultiTypedResultKey.fromTable(
         db.objectiveTransactions,
-        aliasName: $_aliasNameGenerator(
-          db.objectives.id,
-          db.objectiveTransactions.objectiveId,
-        ),
+        aliasName: 'objectives__id__objective_transactions__objective_id',
       );
 
   $$ObjectiveTransactionsTableProcessedTableManager
@@ -15521,13 +15491,8 @@ final class $$ObjectiveTransactionsTableReferences
     super.$_typedResult,
   );
 
-  static $ObjectivesTable _objectiveIdTable(_$AppDatabase db) =>
-      db.objectives.createAlias(
-        $_aliasNameGenerator(
-          db.objectiveTransactions.objectiveId,
-          db.objectives.id,
-        ),
-      );
+  static $ObjectivesTable _objectiveIdTable(_$AppDatabase db) => db.objectives
+      .createAlias('objective_transactions__objective_id__objectives__id');
 
   $$ObjectivesTableProcessedTableManager get objectiveId {
     final $_column = $_itemColumn<String>('objective_id')!;
@@ -15543,13 +15508,9 @@ final class $$ObjectiveTransactionsTableReferences
     );
   }
 
-  static $TransactionsTable _transactionIdTable(_$AppDatabase db) =>
-      db.transactions.createAlias(
-        $_aliasNameGenerator(
-          db.objectiveTransactions.transactionId,
-          db.transactions.id,
-        ),
-      );
+  static $TransactionsTable _transactionIdTable(_$AppDatabase db) => db
+      .transactions
+      .createAlias('objective_transactions__transaction_id__transactions__id');
 
   $$TransactionsTableProcessedTableManager get transactionId {
     final $_column = $_itemColumn<String>('transaction_id')!;
@@ -15944,10 +15905,8 @@ final class $$AssociatedTitlesTableReferences
     super.$_typedResult,
   );
 
-  static $CategoriesTable _categoryIdTable(_$AppDatabase db) =>
-      db.categories.createAlias(
-        $_aliasNameGenerator(db.associatedTitles.categoryId, db.categories.id),
-      );
+  static $CategoriesTable _categoryIdTable(_$AppDatabase db) => db.categories
+      .createAlias('associated_titles__category_id__categories__id');
 
   $$CategoriesTableProcessedTableManager get categoryId {
     final $_column = $_itemColumn<String>('category_id')!;

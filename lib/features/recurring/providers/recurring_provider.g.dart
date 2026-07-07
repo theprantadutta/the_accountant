@@ -194,7 +194,7 @@ abstract class _$RecurringNotifier
   FutureOr<List<RecurringConfigWithTransaction>> build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref =
         this.ref
             as $Ref<
@@ -212,7 +212,7 @@ abstract class _$RecurringNotifier
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }
 
