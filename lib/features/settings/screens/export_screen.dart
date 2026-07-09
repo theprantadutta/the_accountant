@@ -11,28 +11,10 @@ import 'package:the_accountant/core/utils/date_formatter.dart';
 import 'package:the_accountant/core/services/currency_service.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
-import 'package:the_accountant/data/models/premium_features.dart';
-import 'package:the_accountant/features/premium/widgets/premium_gate.dart';
+import 'package:the_accountant/features/premium/providers/premium_provider.dart';
 import 'package:the_accountant/features/settings/providers/settings_provider.dart';
 import 'package:the_accountant/features/settings/services/pdf_export_service.dart';
 import 'package:the_accountant/core/providers/currency_provider.dart';
-
-/// Gated export screen that requires premium subscription
-class ExportScreenGated extends ConsumerWidget {
-  const ExportScreenGated({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return PremiumGate(
-      featureId: PremiumFeatureIds.dataExport,
-      featureName: 'Export Data',
-      featureDescription:
-          'Export your financial data to CSV or PDF for analysis in other apps or as a backup.',
-      featureIcon: Icons.download_outlined,
-      child: const ExportScreen(),
-    );
-  }
-}
 
 class ExportScreen extends ConsumerStatefulWidget {
   const ExportScreen({super.key});
@@ -61,6 +43,8 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isPremium = ref.watch(premiumProvider).isPremium;
+
     return Scaffold(
       backgroundColor: Colors.transparent,
       appBar: AppBar(
@@ -97,8 +81,9 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
             _buildFormatTile(
               icon: Icons.picture_as_pdf_outlined,
               title: 'PDF Report',
-              subtitle: 'Formatted summary with charts',
+              subtitle: 'Formatted summary with breakdowns',
               value: 'pdf',
+              locked: !isPremium,
             ),
           ]),
           SizedBox(height: AppSpacing.lg),
@@ -288,8 +273,9 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
     required String title,
     required String subtitle,
     required String value,
+    bool locked = false,
   }) {
-    final isSelected = _selectedFormat == value;
+    final isSelected = _selectedFormat == value && !locked;
 
     return ListTile(
       leading: Container(
@@ -306,46 +292,119 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
           size: 22,
         ),
       ),
-      title: Text(
-        title,
-        style: TextStyle(
-          color: AppColors.textPrimary,
-          fontWeight: FontWeight.w500,
-        ),
+      title: Row(
+        children: [
+          Text(
+            title,
+            style: TextStyle(
+              color: AppColors.textPrimary,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          if (locked) ...[const SizedBox(width: 8), _premiumBadge()],
+        ],
       ),
       subtitle: Text(
         subtitle,
         style: TextStyle(color: AppColors.textMuted, fontSize: 13),
       ),
-      trailing: Container(
-        width: 24,
-        height: 24,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          border: Border.all(
-            color: isSelected ? AppColors.primaryAccent : AppColors.textMuted,
-            width: 2,
-          ),
-        ),
-        child: isSelected
-            ? Center(
-                child: Container(
-                  width: 12,
-                  height: 12,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: AppColors.primaryAccent,
-                  ),
+      trailing: locked
+          ? const Icon(Icons.lock_outline, color: Colors.amber, size: 20)
+          : Container(
+              width: 24,
+              height: 24,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: isSelected
+                      ? AppColors.primaryAccent
+                      : AppColors.textMuted,
+                  width: 2,
                 ),
-              )
-            : null,
-      ),
+              ),
+              child: isSelected
+                  ? Center(
+                      child: Container(
+                        width: 12,
+                        height: 12,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: AppColors.primaryAccent,
+                        ),
+                      ),
+                    )
+                  : null,
+            ),
       onTap: () {
         HapticFeedback.selectionClick();
-        setState(() {
-          _selectedFormat = value;
-        });
+        if (locked) {
+          _showPdfUpgradePrompt();
+        } else {
+          setState(() {
+            _selectedFormat = value;
+          });
+        }
       },
+    );
+  }
+
+  Widget _premiumBadge() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: Colors.amber.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: Colors.amber.withValues(alpha: 0.4)),
+      ),
+      child: const Text(
+        'PREMIUM',
+        style: TextStyle(
+          color: Colors.amber,
+          fontSize: 10,
+          fontWeight: FontWeight.bold,
+          letterSpacing: 0.5,
+        ),
+      ),
+    );
+  }
+
+  void _showPdfUpgradePrompt() {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: AppColors.primarySurface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: [
+            const Icon(Icons.picture_as_pdf_outlined, color: Colors.amber),
+            const SizedBox(width: 8),
+            Text('PDF Reports', style: TextStyle(color: AppColors.textPrimary)),
+          ],
+        ),
+        content: Text(
+          'CSV export is free — your data is always yours. The formatted PDF '
+          'report, with summaries and category & wallet breakdowns, is a Premium '
+          'feature.',
+          style: TextStyle(color: AppColors.textSecondary),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Not now'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(dialogContext);
+              Navigator.pushNamed(context, '/premium');
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.amber,
+              foregroundColor: Colors.black,
+            ),
+            child: const Text('Go Premium'),
+          ),
+        ],
+      ),
     );
   }
 
@@ -475,6 +534,12 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
   }
 
   Future<void> _exportData() async {
+    // PDF reports are Premium-only; CSV is free for everyone.
+    if (_selectedFormat == 'pdf' && !ref.read(premiumProvider).isPremium) {
+      _showPdfUpgradePrompt();
+      return;
+    }
+
     setState(() => _isExporting = true);
 
     try {

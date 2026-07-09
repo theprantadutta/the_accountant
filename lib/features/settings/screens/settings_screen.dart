@@ -388,12 +388,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         SettingsNavigationTile(
           icon: Icons.download_outlined,
           title: 'Export Data',
-          subtitle: 'Export to CSV or PDF',
+          subtitle: 'CSV is free · PDF report is Premium',
           onTap: () => Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => const ExportScreenGated()),
+            MaterialPageRoute(builder: (_) => const ExportScreen()),
           ),
-          trailing: premiumState.isPremium ? null : const PremiumBadge(),
         ),
       );
     }

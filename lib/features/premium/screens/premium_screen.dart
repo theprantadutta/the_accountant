@@ -436,8 +436,8 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
         ),
         _buildFeatureRow(
           Icons.download,
-          'Data Export',
-          'Export to CSV & PDF',
+          'PDF Reports',
+          'Polished financial reports (CSV export is free)',
           isPremium,
         ),
         _buildFeatureRow(
