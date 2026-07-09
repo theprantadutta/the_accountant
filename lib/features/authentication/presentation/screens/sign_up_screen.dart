@@ -6,6 +6,8 @@ import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/core/themes/app_typography.dart';
 import 'package:the_accountant/core/themes/app_animations.dart';
 import 'package:the_accountant/features/authentication/presentation/screens/sign_in_screen.dart';
+import 'package:the_accountant/features/authentication/presentation/widgets/auth_background.dart';
+import 'package:the_accountant/features/authentication/presentation/widgets/auth_brand_header.dart';
 import 'package:the_accountant/features/authentication/providers/auth_provider.dart';
 import 'package:the_accountant/shared/widgets/glass_card.dart';
 import 'package:the_accountant/shared/widgets/neo_button.dart';
@@ -129,6 +131,28 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
     }
   }
 
+  /// Entrance transition helper — staggered fade + slide up.
+  Widget _entrance({
+    required double start,
+    required double end,
+    required Widget child,
+  }) {
+    final curved = CurvedAnimation(
+      parent: _animationController,
+      curve: Interval(start, end, curve: Curves.easeOut),
+    );
+    return FadeTransition(
+      opacity: curved,
+      child: SlideTransition(
+        position: Tween<Offset>(
+          begin: const Offset(0, 0.25),
+          end: Offset.zero,
+        ).animate(curved),
+        child: child,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
@@ -139,8 +163,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
       }
     });
 
-    return Container(
-      decoration: BoxDecoration(gradient: AppColors.backgroundGradient),
+    return AuthBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
         resizeToAvoidBottomInset: true,
@@ -174,27 +197,37 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Floating App Icon with glow
-                      _buildAppLogo(),
-
-                      AppSpacing.gapXl,
-
-                      // Welcome Text
-                      _buildWelcomeText(),
+                      _entrance(
+                        start: 0.0,
+                        end: 0.5,
+                        child: AuthBrandHeader(
+                          icon: Icons.person_add_alt_1_rounded,
+                          title: 'Create Account',
+                          subtitle: 'Join us to start your financial journey',
+                          gradient: AppColors.accentGradient,
+                          glowColor: AppColors.neonPurple,
+                          floatingAnimation: _floatingAnimation,
+                        ),
+                      ),
 
                       AppSpacing.gapXxl,
 
-                      // Sign Up Form Card
-                      _buildSignUpForm(authState),
+                      _entrance(
+                        start: 0.2,
+                        end: 0.7,
+                        child: _buildSignUpForm(authState),
+                      ),
 
                       AppSpacing.gapXl,
 
-                      // Sign In Link
-                      _buildSignInLink(),
+                      _entrance(
+                        start: 0.6,
+                        end: 1.0,
+                        child: _buildSignInLink(),
+                      ),
 
                       AppSpacing.gapLg,
 
-                      // Error Message
                       if (authState.error != null)
                         _buildErrorMessage(authState.error!),
                     ],
@@ -208,207 +241,125 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
     );
   }
 
-  Widget _buildAppLogo() {
-    return AnimatedBuilder(
-      animation: _floatingAnimation,
-      builder: (context, child) {
-        return Transform.translate(
-          offset: Offset(0, _floatingAnimation.value),
-          child: Center(
-            child: Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                gradient: AppColors.accentGradient,
-                borderRadius: AppSpacing.borderRadiusXl,
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.neonCyan.withValues(alpha: 0.4),
-                    blurRadius: 30,
-                    spreadRadius: 5,
-                  ),
-                ],
-              ),
-              child: Icon(
-                Icons.person_add_rounded,
-                size: 40,
-                color: AppColors.textPrimary,
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildWelcomeText() {
-    return SlideTransition(
-      position: Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero)
-          .animate(
-            CurvedAnimation(
-              parent: _animationController,
-              curve: const Interval(0.1, 0.5, curve: Curves.easeOut),
-            ),
-          ),
-      child: FadeTransition(
-        opacity: CurvedAnimation(
-          parent: _animationController,
-          curve: const Interval(0.1, 0.5, curve: Curves.easeOut),
-        ),
-        child: Column(
-          children: [
-            Text(
-              'Create Account',
-              style: AppTypography.displaySmall,
-              textAlign: TextAlign.center,
-            ),
-            AppSpacing.gapSm,
-            Text(
-              'Join us to start your financial journey',
-              style: AppTypography.bodyMedium.copyWith(
-                color: AppColors.textSecondary,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildSignUpForm(AuthState authState) {
-    return SlideTransition(
-      position: Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero)
-          .animate(
-            CurvedAnimation(
-              parent: _animationController,
-              curve: const Interval(0.2, 0.7, curve: Curves.easeOut),
-            ),
+    return GlassCard(
+      padding: AppSpacing.paddingXl,
+      enableBlur: true,
+      blurAmount: 14,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Name Field
+          NeoTextField(
+            controller: _nameController,
+            label: 'Full Name',
+            hint: 'Enter your name',
+            prefixIcon: Icons.person_outline,
+            keyboardType: TextInputType.name,
+            textInputAction: TextInputAction.next,
+            textCapitalization: TextCapitalization.words,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter your full name';
+              }
+              if (value.length < 2) {
+                return 'Name must be at least 2 characters';
+              }
+              return null;
+            },
           ),
-      child: FadeTransition(
-        opacity: CurvedAnimation(
-          parent: _animationController,
-          curve: const Interval(0.2, 0.7, curve: Curves.easeOut),
-        ),
-        child: GlassCard(
-          padding: AppSpacing.paddingXl,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Name Field
-              NeoTextField(
-                controller: _nameController,
-                label: 'Full Name',
-                hint: 'Enter your name',
-                prefixIcon: Icons.person_outline,
-                keyboardType: TextInputType.name,
-                textInputAction: TextInputAction.next,
-                textCapitalization: TextCapitalization.words,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your full name';
-                  }
-                  if (value.length < 2) {
-                    return 'Name must be at least 2 characters';
-                  }
-                  return null;
-                },
-              ),
 
-              AppSpacing.gapMd,
+          AppSpacing.gapMd,
 
-              // Email Field
-              NeoTextField(
-                controller: _emailController,
-                label: 'Email Address',
-                hint: 'Enter your email',
-                prefixIcon: Icons.email_outlined,
-                keyboardType: TextInputType.emailAddress,
-                textInputAction: TextInputAction.next,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your email';
-                  }
-                  if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                    return 'Please enter a valid email';
-                  }
-                  return null;
-                },
-              ),
-
-              AppSpacing.gapMd,
-
-              // Password Field
-              NeoTextField(
-                controller: _passwordController,
-                label: 'Password',
-                hint: 'Create a password',
-                prefixIcon: Icons.lock_outline,
-                obscureText: true,
-                textInputAction: TextInputAction.next,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your password';
-                  }
-                  if (value.length < 6) {
-                    return 'Password must be at least 6 characters';
-                  }
-                  if (!RegExp(
-                    r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)',
-                  ).hasMatch(value)) {
-                    return 'Must contain uppercase, lowercase, and number';
-                  }
-                  return null;
-                },
-              ),
-
-              // Password Strength Indicator
-              if (_passwordController.text.isNotEmpty) ...[
-                AppSpacing.gapSm,
-                _buildPasswordStrengthIndicator(),
-              ],
-
-              AppSpacing.gapMd,
-
-              // Confirm Password Field
-              NeoTextField(
-                controller: _confirmPasswordController,
-                label: 'Confirm Password',
-                hint: 'Re-enter your password',
-                prefixIcon: Icons.lock_outline,
-                obscureText: true,
-                textInputAction: TextInputAction.done,
-                onSubmitted: (_) => _signUp(),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please confirm your password';
-                  }
-                  if (value != _passwordController.text) {
-                    return 'Passwords do not match';
-                  }
-                  return null;
-                },
-              ),
-
-              AppSpacing.gapLg,
-
-              // Terms and Conditions
-              _buildTermsCheckbox(),
-
-              AppSpacing.gapXl,
-
-              // Sign Up Button
-              NeoButton(
-                label: 'Create Account',
-                onPressed: authState.isLoading ? null : _signUp,
-                isLoading: authState.isLoading,
-                isExpanded: true,
-                size: NeoButtonSize.large,
-                gradient: AppColors.accentGradient,
-              ),
-            ],
+          // Email Field
+          NeoTextField(
+            controller: _emailController,
+            label: 'Email Address',
+            hint: 'Enter your email',
+            prefixIcon: Icons.email_outlined,
+            keyboardType: TextInputType.emailAddress,
+            textInputAction: TextInputAction.next,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter your email';
+              }
+              if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                return 'Please enter a valid email';
+              }
+              return null;
+            },
           ),
-        ),
+
+          AppSpacing.gapMd,
+
+          // Password Field
+          NeoTextField(
+            controller: _passwordController,
+            label: 'Password',
+            hint: 'Create a password',
+            prefixIcon: Icons.lock_outline,
+            obscureText: true,
+            textInputAction: TextInputAction.next,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter your password';
+              }
+              if (value.length < 6) {
+                return 'Password must be at least 6 characters';
+              }
+              if (!RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)').hasMatch(value)) {
+                return 'Must contain uppercase, lowercase, and number';
+              }
+              return null;
+            },
+          ),
+
+          // Password Strength Indicator
+          if (_passwordController.text.isNotEmpty) ...[
+            AppSpacing.gapSm,
+            _buildPasswordStrengthIndicator(),
+          ],
+
+          AppSpacing.gapMd,
+
+          // Confirm Password Field
+          NeoTextField(
+            controller: _confirmPasswordController,
+            label: 'Confirm Password',
+            hint: 'Re-enter your password',
+            prefixIcon: Icons.lock_outline,
+            obscureText: true,
+            textInputAction: TextInputAction.done,
+            onSubmitted: (_) => _signUp(),
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please confirm your password';
+              }
+              if (value != _passwordController.text) {
+                return 'Passwords do not match';
+              }
+              return null;
+            },
+          ),
+
+          AppSpacing.gapLg,
+
+          // Terms and Conditions
+          _buildTermsCheckbox(),
+
+          AppSpacing.gapXl,
+
+          // Sign Up Button
+          NeoButton(
+            label: 'Create Account',
+            onPressed: authState.isLoading ? null : _signUp,
+            isLoading: authState.isLoading,
+            isExpanded: true,
+            size: NeoButtonSize.large,
+            gradient: AppColors.accentGradient,
+            trailingIcon: Icons.arrow_forward_rounded,
+          ),
+        ],
       ),
     );
   }
@@ -507,55 +458,49 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
   }
 
   Widget _buildSignInLink() {
-    return FadeTransition(
-      opacity: CurvedAnimation(
-        parent: _animationController,
-        curve: const Interval(0.6, 1.0, curve: Curves.easeOut),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            'Already have an account? ',
-            style: AppTypography.bodyMedium.copyWith(
-              color: AppColors.textSecondary,
-            ),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          'Already have an account? ',
+          style: AppTypography.bodyMedium.copyWith(
+            color: AppColors.textSecondary,
           ),
-          GestureDetector(
-            onTap: () {
-              HapticFeedback.lightImpact();
-              Navigator.pushReplacement(
-                context,
-                PageRouteBuilder(
-                  pageBuilder: (context, animation, _) => const SignInScreen(),
-                  transitionsBuilder: (context, animation, _, child) {
-                    return SlideTransition(
-                      position:
-                          Tween<Offset>(
-                            begin: const Offset(-1.0, 0.0),
-                            end: Offset.zero,
-                          ).animate(
-                            CurvedAnimation(
-                              parent: animation,
-                              curve: AppAnimations.easeOut,
-                            ),
+        ),
+        GestureDetector(
+          onTap: () {
+            HapticFeedback.lightImpact();
+            Navigator.pushReplacement(
+              context,
+              PageRouteBuilder(
+                pageBuilder: (context, animation, _) => const SignInScreen(),
+                transitionsBuilder: (context, animation, _, child) {
+                  return SlideTransition(
+                    position:
+                        Tween<Offset>(
+                          begin: const Offset(-1.0, 0.0),
+                          end: Offset.zero,
+                        ).animate(
+                          CurvedAnimation(
+                            parent: animation,
+                            curve: AppAnimations.easeOut,
                           ),
-                      child: FadeTransition(opacity: animation, child: child),
-                    );
-                  },
-                  transitionDuration: AppAnimations.normal,
-                ),
-              );
-            },
-            child: Text(
-              'Sign In',
-              style: AppTypography.labelLarge.copyWith(
-                color: AppColors.primaryAccent,
+                        ),
+                    child: FadeTransition(opacity: animation, child: child),
+                  );
+                },
+                transitionDuration: AppAnimations.normal,
               ),
+            );
+          },
+          child: Text(
+            'Sign In',
+            style: AppTypography.labelLarge.copyWith(
+              color: AppColors.primaryAccent,
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 

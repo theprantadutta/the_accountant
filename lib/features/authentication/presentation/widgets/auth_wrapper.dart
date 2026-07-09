@@ -6,7 +6,10 @@ import 'package:the_accountant/features/authentication/presentation/screens/acco
 import 'package:the_accountant/features/onboarding/providers/onboarding_provider.dart';
 import 'package:the_accountant/features/onboarding/screens/post_signup_onboarding_screen.dart';
 import 'package:the_accountant/shared/widgets/main_navigation_container.dart';
-import 'package:the_accountant/core/themes/app_theme.dart';
+import 'package:the_accountant/core/themes/app_colors.dart';
+import 'package:the_accountant/core/themes/app_spacing.dart';
+import 'package:the_accountant/core/themes/app_typography.dart';
+import 'package:the_accountant/features/authentication/presentation/widgets/auth_background.dart';
 import 'package:the_accountant/core/services/subscription_expiry_checker.dart';
 import 'package:the_accountant/features/budgets/providers/budget_notification_provider.dart';
 import 'package:the_accountant/core/services/secure_token_storage.dart';
@@ -211,9 +214,7 @@ class _AuthWrapperState extends ConsumerState<AuthWrapper>
 
       // Show lock screen if biometric lock triggered
       if (_isLocked) {
-        return LockScreen(
-          onUnlocked: () => setState(() => _isLocked = false),
-        );
+        return LockScreen(onUnlocked: () => setState(() => _isLocked = false));
       }
 
       // Show main app
@@ -261,153 +262,86 @@ class AuthLoadingScreen extends StatefulWidget {
 }
 
 class _AuthLoadingScreenState extends State<AuthLoadingScreen>
-    with TickerProviderStateMixin {
-  late AnimationController _pulseController;
-  late AnimationController _rotationController;
-  late Animation<double> _pulseAnimation;
-  late Animation<double> _rotationAnimation;
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _pulseController = AnimationController(
+    duration: const Duration(milliseconds: 1600),
+    vsync: this,
+  )..repeat(reverse: true);
 
-  @override
-  void initState() {
-    super.initState();
-
-    _pulseController = AnimationController(
-      duration: const Duration(milliseconds: 1500),
-      vsync: this,
-    );
-
-    _rotationController = AnimationController(
-      duration: const Duration(milliseconds: 2000),
-      vsync: this,
-    );
-
-    _pulseAnimation = Tween<double>(begin: 0.8, end: 1.2).animate(
-      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
-    );
-
-    _rotationAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _rotationController, curve: Curves.linear),
-    );
-
-    _pulseController.repeat(reverse: true);
-    _rotationController.repeat();
-  }
+  late final Animation<double> _pulseAnimation = Tween<double>(
+    begin: 0.94,
+    end: 1.06,
+  ).animate(CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut));
 
   @override
   void dispose() {
     _pulseController.dispose();
-    _rotationController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(gradient: AppTheme.backgroundGradient),
+    return AuthBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Animated App Logo
-              AnimatedBuilder(
-                animation: Listenable.merge([
-                  _pulseAnimation,
-                  _rotationAnimation,
-                ]),
-                builder: (context, child) {
-                  return Transform.scale(
-                    scale: _pulseAnimation.value,
-                    child: Transform.rotate(
-                      angle: _rotationAnimation.value * 2 * 3.14159,
-                      child: AppTheme.gradientContainer(
-                        gradient: AppTheme.primaryGradient,
-                        width: 120,
-                        height: 120,
-                        borderRadius: BorderRadius.circular(40),
-                        child: const Icon(
-                          Icons.account_balance_wallet,
-                          size: 60,
-                          color: Colors.white,
-                        ),
+              // Pulsing, glowing app logo
+              ScaleTransition(
+                scale: _pulseAnimation,
+                child: Container(
+                  width: 96,
+                  height: 96,
+                  decoration: BoxDecoration(
+                    gradient: AppColors.primaryGradient,
+                    borderRadius: BorderRadius.circular(28),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.primaryGlow.withValues(alpha: 0.5),
+                        blurRadius: 36,
+                        spreadRadius: 4,
                       ),
-                    ),
-                  );
-                },
-              ),
-
-              const SizedBox(height: 40),
-
-              // App Name
-              const Text(
-                'The Accountant',
-                style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                  letterSpacing: 1.2,
-                ),
-              ),
-
-              const SizedBox(height: 16),
-
-              // Loading Text
-              Text(
-                'Initializing your financial journey...',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.white.withValues(alpha: 0.8),
-                  fontWeight: FontWeight.w300,
-                ),
-                textAlign: TextAlign.center,
-              ),
-
-              const SizedBox(height: 60),
-
-              // Loading Indicator
-              AppTheme.glassmorphicContainer(
-                width: 200,
-                height: 6,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(3),
-                  child: LinearProgressIndicator(
-                    backgroundColor: Colors.white.withValues(alpha: 0.1),
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      Colors.white.withValues(alpha: 0.8),
-                    ),
+                    ],
+                  ),
+                  child: Icon(
+                    Icons.account_balance_wallet_rounded,
+                    size: 48,
+                    color: AppColors.textPrimary,
                   ),
                 ),
               ),
 
-              const SizedBox(height: 20),
+              AppSpacing.gapXxl,
 
-              // Loading dots animation
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(3, (index) {
-                  return AnimatedBuilder(
-                    animation: _pulseController,
-                    builder: (context, child) {
-                      final delay = index * 0.3;
-                      final animationValue =
-                          (_pulseController.value + delay) % 1.0;
-                      final opacity = (animationValue < 0.5)
-                          ? animationValue * 2
-                          : (1.0 - animationValue) * 2;
+              Text('The Accountant', style: AppTypography.displaySmall),
 
-                      return Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 4),
-                        width: 8,
-                        height: 8,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: opacity),
-                          shape: BoxShape.circle,
-                        ),
-                      );
-                    },
-                  );
-                }),
+              AppSpacing.gapSm,
+
+              Text(
+                'Initializing your financial journey...',
+                style: AppTypography.bodyMedium.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+                textAlign: TextAlign.center,
+              ),
+
+              AppSpacing.gapXxxl,
+
+              // Loading Indicator
+              SizedBox(
+                width: 180,
+                child: ClipRRect(
+                  borderRadius: AppSpacing.borderRadiusFull,
+                  child: LinearProgressIndicator(
+                    minHeight: 4,
+                    backgroundColor: AppColors.glassWhite,
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      AppColors.primaryAccent,
+                    ),
+                  ),
+                ),
               ),
             ],
           ),
