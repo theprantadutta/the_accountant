@@ -32,9 +32,10 @@ class DailyReminderScheduler {
 
   bool _isInitialized = false;
 
-  /// Request exact alarm permission on Android 12+
-  /// Returns true if permission is granted, false otherwise
-  Future<bool> _requestExactAlarmPermission() async {
+  /// Explicitly request exact-alarm permission on Android 12+ (this opens the
+  /// system settings screen). Only call from a deliberate, user-initiated flow
+  /// after priming — never during a background sync. Returns true if granted.
+  Future<bool> requestExactAlarmPermission() async {
     if (!Platform.isAndroid) return true;
 
     final androidPlugin = _notificationsPlugin
@@ -57,6 +58,31 @@ class DailyReminderScheduler {
         return granted;
       }
       return true;
+    }
+    return true;
+  }
+
+  /// Explicitly request notification permission (Android 13+ POST_NOTIFICATIONS
+  /// and iOS). Call from a user-initiated flow after priming. Returns true if
+  /// granted (or not required on this OS version).
+  Future<bool> requestNotificationPermission() async {
+    if (Platform.isAndroid) {
+      final android = _notificationsPlugin
+          .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin
+          >();
+      return await android?.requestNotificationsPermission() ?? true;
+    } else if (Platform.isIOS) {
+      final ios = _notificationsPlugin
+          .resolvePlatformSpecificImplementation<
+            IOSFlutterLocalNotificationsPlugin
+          >();
+      return await ios?.requestPermissions(
+            alert: true,
+            badge: true,
+            sound: true,
+          ) ??
+          true;
     }
     return true;
   }
@@ -122,15 +148,15 @@ class DailyReminderScheduler {
       await initialize();
     }
 
-    // Request exact alarm permission on Android 12+
-    final hasPermission = await _requestExactAlarmPermission();
-    if (!hasPermission) {
+    // Only schedule when exact-alarm permission is already granted. Requesting
+    // it is a deliberate, user-initiated action (requestExactAlarmPermission),
+    // so a background sync / screen open never pops the system settings.
+    final canSchedule = await hasExactAlarmPermission();
+    if (!canSchedule) {
       debugPrint(
-        'DailyReminderScheduler: Cannot schedule - exact alarm permission denied',
+        'DailyReminderScheduler: exact alarm permission missing — skipping schedule',
       );
-      throw Exception(
-        'Exact alarm permission is required to schedule daily reminders',
-      );
+      return;
     }
 
     // Cancel any existing reminder first

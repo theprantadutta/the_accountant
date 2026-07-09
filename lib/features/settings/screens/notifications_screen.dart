@@ -9,6 +9,7 @@ import 'package:the_accountant/core/constants/background_task_constants.dart';
 import 'package:the_accountant/features/settings/providers/notification_preferences_provider.dart';
 import 'package:the_accountant/features/settings/widgets/settings_tile.dart';
 import 'package:the_accountant/shared/widgets/shimmer_loading.dart';
+import 'package:the_accountant/shared/widgets/permission_priming_sheet.dart';
 
 class NotificationsScreen extends ConsumerStatefulWidget {
   const NotificationsScreen({super.key});
@@ -112,11 +113,9 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                       title: 'Daily Reminders',
                       subtitle: 'Get reminded to track your expenses',
                       value: prefsState.dailyReminderEnabled,
-                      onChanged: (value) async {
+                      onChanged: (value) {
                         HapticFeedback.lightImpact();
-                        await ref
-                            .read(notificationPreferencesProvider.notifier)
-                            .setDailyReminderEnabled(value);
+                        _setDailyReminders(value);
                       },
                     ),
                     if (prefsState.dailyReminderEnabled)
@@ -249,6 +248,47 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
               ],
             ),
     );
+  }
+
+  /// Enable/disable daily reminders. When turning on, first show an in-app
+  /// priming sheet explaining why, and only then request the OS permissions —
+  /// so the system dialogs never appear unprompted.
+  Future<void> _setDailyReminders(bool value) async {
+    final notifier = ref.read(notificationPreferencesProvider.notifier);
+
+    if (value) {
+      final proceed = await showPermissionPrimingSheet(
+        context,
+        icon: Icons.notifications_active_outlined,
+        title: 'Turn on daily reminders?',
+        message:
+            'The Accountant will send a gentle daily nudge to log your '
+            'expenses. To deliver it on time we need permission to show '
+            'notifications and schedule alarms.',
+        points: const [
+          PrimingPoint(
+            Icons.notifications_outlined,
+            'Show reminder notifications',
+          ),
+          PrimingPoint(
+            Icons.alarm_outlined,
+            'Deliver them at your chosen time',
+          ),
+          PrimingPoint(Icons.lock_outline, 'You can turn this off anytime'),
+        ],
+        allowLabel: 'Allow',
+      );
+      if (!proceed) return; // Declined — leave the toggle off.
+
+      // The user opted in, so now request the actual OS permissions.
+      final scheduler = DailyReminderScheduler();
+      await scheduler.requestNotificationPermission();
+      await scheduler.requestExactAlarmPermission();
+
+      if (!mounted) return;
+    }
+
+    await notifier.setDailyReminderEnabled(value);
   }
 
   Future<void> _showReminderTimePicker(BuildContext context) async {
