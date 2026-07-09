@@ -1,12 +1,17 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:the_accountant/core/themes/app_colors.dart';
+import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/features/ai/providers/ocr_provider.dart';
 import 'package:the_accountant/features/premium/widgets/premium_gate.dart';
 import 'package:the_accountant/data/models/premium_features.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:the_accountant/features/transactions/screens/add_transaction_screen.dart';
 import 'package:the_accountant/features/transactions/widgets/transaction_type_header.dart';
+import 'package:the_accountant/shared/widgets/neo_button.dart';
+import 'package:the_accountant/shared/widgets/neo_text_field.dart';
 
 /// Result returned from the scanner when opened in [returnResult] mode.
 typedef ReceiptScanResult = ({double amount, String title});
@@ -45,64 +50,54 @@ class ReceiptScannerScreen extends ConsumerStatefulWidget {
 class _ReceiptScannerScreenState extends ConsumerState<ReceiptScannerScreen> {
   File? _selectedImage;
   final ImagePicker _picker = ImagePicker();
+  final _merchantController = TextEditingController();
+  final _amountController = TextEditingController();
 
-  Future<void> _pickImage() async {
+  @override
+  void dispose() {
+    _merchantController.dispose();
+    _amountController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _capture(ImageSource source) async {
     try {
-      final XFile? pickedFile = await _picker.pickImage(
-        source: ImageSource.camera,
+      final picked = await _picker.pickImage(source: source);
+      if (picked == null) return;
+      setState(() => _selectedImage = File(picked.path));
+      await ref.read(ocrProvider.notifier).extractReceiptData(_selectedImage!);
+    } catch (_) {
+      if (!mounted) return;
+      _snack(
+        source == ImageSource.camera
+            ? "Couldn't open the camera."
+            : "Couldn't open the gallery.",
       );
-
-      if (pickedFile != null) {
-        setState(() {
-          _selectedImage = File(pickedFile.path);
-        });
-
-        // Process the image
-        if (_selectedImage != null) {
-          await ref
-              .read(ocrProvider.notifier)
-              .extractReceiptData(_selectedImage!);
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error picking image: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
     }
   }
 
-  Future<void> _selectImageFromGallery() async {
-    try {
-      final XFile? pickedFile = await _picker.pickImage(
-        source: ImageSource.gallery,
+  void _snack(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: AppColors.error,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  void _save() {
+    final amount = double.tryParse(_amountController.text.trim()) ?? 0;
+    final title = _merchantController.text.trim();
+    if (widget.returnResult) {
+      Navigator.pop(context, (amount: amount, title: title));
+    } else {
+      showAddTransactionScreen(
+        context,
+        initialType: TransactionTypeSelection.expense,
+        prefillAmount: amount,
+        prefillTitle: title,
       );
-
-      if (pickedFile != null) {
-        setState(() {
-          _selectedImage = File(pickedFile.path);
-        });
-
-        // Process the image
-        if (_selectedImage != null) {
-          await ref
-              .read(ocrProvider.notifier)
-              .extractReceiptData(_selectedImage!);
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error selecting image: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
     }
   }
 
@@ -110,251 +105,259 @@ class _ReceiptScannerScreenState extends ConsumerState<ReceiptScannerScreen> {
   Widget build(BuildContext context) {
     final ocrState = ref.watch(ocrProvider);
 
+    // Prefill the editable review fields once a fresh scan lands.
+    ref.listen<OcrState>(ocrProvider, (previous, next) {
+      final data = next.receiptData;
+      if (data != null && !identical(data, previous?.receiptData)) {
+        _merchantController.text = data.merchant;
+        _amountController.text = data.total > 0
+            ? data.total.toStringAsFixed(2)
+            : '';
+      }
+    });
+
+    final hasResult = ocrState.receiptData != null && !ocrState.isProcessing;
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Receipt Scanner')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Image selection section
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  children: [
-                    const Text(
-                      'Scan Receipt',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        ElevatedButton.icon(
-                          onPressed: _pickImage,
-                          icon: const Icon(Icons.camera_alt),
-                          label: const Text('Take Photo'),
-                        ),
-                        ElevatedButton.icon(
-                          onPressed: _selectImageFromGallery,
-                          icon: const Icon(Icons.photo_library),
-                          label: const Text('Select Image'),
-                        ),
-                      ],
-                    ),
-                  ],
+      backgroundColor: Colors.transparent,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: const Text('Scan Receipt'),
+      ),
+      body: ListView(
+        padding: EdgeInsets.fromLTRB(
+          AppSpacing.md,
+          AppSpacing.sm,
+          AppSpacing.md,
+          AppSpacing.xxl,
+        ),
+        children: [
+          _buildCaptureCard(processing: ocrState.isProcessing),
+          if (_selectedImage != null) ...[
+            SizedBox(height: AppSpacing.md),
+            _buildPreview(),
+          ],
+          if (ocrState.isProcessing) ...[
+            SizedBox(height: AppSpacing.md),
+            _buildProcessing(),
+          ],
+          if (ocrState.errorMessage != null && !ocrState.isProcessing) ...[
+            SizedBox(height: AppSpacing.md),
+            _buildError(ocrState.errorMessage!),
+          ],
+          if (hasResult) ...[SizedBox(height: AppSpacing.md), _buildReview()],
+        ],
+      ),
+    );
+  }
+
+  Widget _glassCard({required Widget child}) {
+    return Container(
+      padding: EdgeInsets.all(AppSpacing.lg),
+      decoration: BoxDecoration(
+        color: AppColors.primarySurface.withValues(alpha: 0.45),
+        borderRadius: AppSpacing.borderRadiusLg,
+        border: Border.all(color: AppColors.glassBorder),
+      ),
+      child: child,
+    );
+  }
+
+  Widget _buildCaptureCard({required bool processing}) {
+    return _glassCard(
+      child: Column(
+        children: [
+          Container(
+            width: 56,
+            height: 56,
+            decoration: BoxDecoration(
+              gradient: AppColors.primaryGradient,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.primaryAccent.withValues(alpha: 0.35),
+                  blurRadius: 16,
+                  offset: const Offset(0, 6),
                 ),
+              ],
+            ),
+            child: const Icon(
+              Icons.document_scanner_outlined,
+              color: Colors.white,
+              size: 28,
+            ),
+          ),
+          SizedBox(height: AppSpacing.md),
+          Text(
+            _selectedImage == null ? 'Scan a receipt' : 'Scan another',
+            style: TextStyle(
+              color: AppColors.textPrimary,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          SizedBox(height: AppSpacing.xs),
+          Text(
+            "Snap a photo or pick one — we'll read the merchant and total.",
+            textAlign: TextAlign.center,
+            style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
+          ),
+          SizedBox(height: AppSpacing.lg),
+          Row(
+            children: [
+              Expanded(
+                child: NeoButton(
+                  label: 'Camera',
+                  leadingIcon: Icons.camera_alt_outlined,
+                  isExpanded: true,
+                  onPressed: processing
+                      ? null
+                      : () => _capture(ImageSource.camera),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: NeoButton(
+                  label: 'Gallery',
+                  leadingIcon: Icons.photo_library_outlined,
+                  style: NeoButtonStyle.secondary,
+                  isExpanded: true,
+                  onPressed: processing
+                      ? null
+                      : () => _capture(ImageSource.gallery),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPreview() {
+    return ClipRRect(
+      borderRadius: AppSpacing.borderRadiusLg,
+      child: Stack(
+        children: [
+          Image.file(
+            _selectedImage!,
+            height: 220,
+            width: double.infinity,
+            fit: BoxFit.cover,
+          ),
+          Positioned.fill(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                border: Border.all(color: AppColors.glassBorder),
+                borderRadius: AppSpacing.borderRadiusLg,
               ),
             ),
-            const SizedBox(height: 16),
+          ),
+        ],
+      ),
+    );
+  }
 
-            // Selected image preview
-            if (_selectedImage != null)
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Selected Image',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: Image.file(
-                          _selectedImage!,
-                          height: 200,
-                          width: double.infinity,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ],
-                  ),
+  Widget _buildProcessing() {
+    return _glassCard(
+      child: Row(
+        children: [
+          SizedBox(
+            width: 22,
+            height: 22,
+            child: CircularProgressIndicator(
+              strokeWidth: 2.5,
+              color: AppColors.primaryAccent,
+            ),
+          ),
+          SizedBox(width: AppSpacing.md),
+          Text(
+            'Reading your receipt…',
+            style: TextStyle(color: AppColors.textPrimary, fontSize: 15),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildError(String message) {
+    return Container(
+      padding: EdgeInsets.all(AppSpacing.md),
+      decoration: BoxDecoration(
+        color: AppColors.error.withValues(alpha: 0.1),
+        borderRadius: AppSpacing.borderRadiusLg,
+        border: Border.all(color: AppColors.error.withValues(alpha: 0.35)),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.error_outline, color: AppColors.error, size: 20),
+          SizedBox(width: AppSpacing.sm),
+          Expanded(
+            child: Text(
+              message,
+              style: TextStyle(color: AppColors.error, fontSize: 13),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildReview() {
+    return _glassCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.check_circle_outline,
+                color: AppColors.success,
+                size: 20,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'Review & save',
+                style: TextStyle(
+                  color: AppColors.textPrimary,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-
-            const SizedBox(height: 16),
-
-            // Processing indicator
-            if (ocrState.isProcessing)
-              const Center(
-                child: Column(
-                  children: [
-                    CircularProgressIndicator(),
-                    SizedBox(height: 8),
-                    Text('Processing receipt...'),
-                  ],
-                ),
-              ),
-
-            // Error message
-            if (ocrState.errorMessage != null)
-              Card(
-                color: Colors.red.withValues(alpha: 0.1),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Text(
-                    ocrState.errorMessage!,
-                    style: const TextStyle(color: Colors.red),
-                  ),
-                ),
-              ),
-
-            const SizedBox(height: 16),
-
-            // Extracted receipt data
-            if (ocrState.receiptData != null)
-              Expanded(
-                child: Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: SingleChildScrollView(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Extracted Receipt Data',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          Text('Merchant: ${ocrState.receiptData!.merchant}'),
-                          if (ocrState.receiptData!.date != null)
-                            Text('Date: ${ocrState.receiptData!.date}'),
-                          Text(
-                            'Total: \$${ocrState.receiptData!.total.toStringAsFixed(2)}',
-                          ),
-
-                          // Barcode information
-                          if (ocrState.receiptData!.barcodeInfo != null) ...[
-                            const SizedBox(height: 16),
-                            const Text(
-                              'Barcode Information:',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Text(ocrState.receiptData!.barcodeInfo!),
-                          ],
-
-                          // Image labels
-                          if (ocrState.receiptData!.imageLabels != null &&
-                              ocrState
-                                  .receiptData!
-                                  .imageLabels!
-                                  .isNotEmpty) ...[
-                            const SizedBox(height: 16),
-                            const Text(
-                              'Image Labels:',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Wrap(
-                              spacing: 8,
-                              runSpacing: 4,
-                              children: ocrState.receiptData!.imageLabels!.map((
-                                label,
-                              ) {
-                                return Chip(
-                                  label: Text(label),
-                                  backgroundColor: Colors.blue[100],
-                                );
-                              }).toList(),
-                            ),
-                          ],
-
-                          const SizedBox(height: 16),
-                          const Text(
-                            'Items:',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          ListView.builder(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: ocrState.receiptData!.items.length,
-                            itemBuilder: (context, index) {
-                              final item = ocrState.receiptData!.items[index];
-                              return ListTile(
-                                title: Text(item.name),
-                                trailing: Text(
-                                  '\$${item.price.toStringAsFixed(2)}',
-                                ),
-                              );
-                            },
-                          ),
-                          const SizedBox(height: 16),
-                          ElevatedButton(
-                            onPressed: () {
-                              final receiptData = ocrState.receiptData!;
-                              if (widget.returnResult) {
-                                // Hand the parsed data back to the add screen.
-                                Navigator.pop(context, (
-                                  amount: receiptData.total,
-                                  title: receiptData.merchant,
-                                ));
-                              } else {
-                                showAddTransactionScreen(
-                                  context,
-                                  initialType: TransactionTypeSelection.expense,
-                                  prefillAmount: receiptData.total,
-                                  prefillTitle: receiptData.merchant,
-                                );
-                              }
-                            },
-                            child: const Text('Save as Transaction'),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-
-            // Raw extracted text
-            if (ocrState.extractedText != null && ocrState.receiptData == null)
-              Expanded(
-                child: Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: SingleChildScrollView(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Extracted Text',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(ocrState.extractedText!),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-          ],
-        ),
+            ],
+          ),
+          SizedBox(height: AppSpacing.xs),
+          Text(
+            'We read this from your receipt — check it and edit anything before saving.',
+            style: TextStyle(color: AppColors.textMuted, fontSize: 12.5),
+          ),
+          SizedBox(height: AppSpacing.lg),
+          NeoTextField(
+            controller: _merchantController,
+            label: 'Merchant / title',
+            prefixIcon: Icons.storefront_outlined,
+            textCapitalization: TextCapitalization.words,
+          ),
+          SizedBox(height: AppSpacing.md),
+          NeoTextField(
+            controller: _amountController,
+            label: 'Amount',
+            hint: '0.00',
+            prefixIcon: Icons.attach_money,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            inputFormatters: [
+              FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
+            ],
+          ),
+          SizedBox(height: AppSpacing.lg),
+          NeoButton(
+            label: 'Save as transaction',
+            leadingIcon: Icons.check_rounded,
+            isExpanded: true,
+            onPressed: _save,
+          ),
+        ],
       ),
     );
   }
