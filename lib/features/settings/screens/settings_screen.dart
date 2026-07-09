@@ -114,7 +114,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   Row(
                     children: [
                       Text(
-                        'Upgrade for cloud backup',
+                        'Upgrade for cloud sync',
                         style: TextStyle(
                           color: AppColors.warning,
                           fontSize: 13,

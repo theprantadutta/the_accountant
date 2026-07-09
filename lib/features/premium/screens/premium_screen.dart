@@ -395,19 +395,13 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
         _buildFeatureRow(
           Icons.sync,
           'Cloud Sync',
-          'Sync across all your devices',
-          isPremium,
-        ),
-        _buildFeatureRow(
-          Icons.backup,
-          'Google Drive Backup',
-          'Encrypted cloud backups',
+          'Securely sync & back up across your devices',
           isPremium,
         ),
         _buildFeatureRow(
           Icons.smart_toy,
           'AI Assistant',
-          'Gemini-powered financial advice',
+          'Personalized, AI-powered financial advice',
           isPremium,
         ),
         _buildFeatureRow(
