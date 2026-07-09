@@ -8,6 +8,7 @@ import 'package:the_accountant/core/themes/app_typography.dart';
 import 'package:the_accountant/core/themes/app_animations.dart';
 import 'package:the_accountant/core/utils/icon_registry.dart';
 import 'package:the_accountant/features/ai/screens/receipt_scanner_screen.dart';
+import 'package:the_accountant/features/premium/providers/premium_provider.dart';
 import 'package:the_accountant/shared/widgets/neo_button.dart';
 import 'package:the_accountant/shared/widgets/neo_text_field.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart'
@@ -162,8 +163,15 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
   }
 
   /// Open the premium receipt scanner and prefill this form from the result.
+  /// Free users get a focused upgrade prompt instead.
   Future<void> _scanReceipt() async {
     HapticFeedback.lightImpact();
+
+    if (!ref.read(premiumProvider).isPremium) {
+      _showScanUpgradeDialog();
+      return;
+    }
+
     final result = await Navigator.of(context).push<ReceiptScanResult>(
       MaterialPageRoute(
         builder: (_) => const ReceiptScannerScreenGated(returnResult: true),
@@ -177,6 +185,117 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
         }
       });
     }
+  }
+
+  void _showScanUpgradeDialog() {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 32),
+        child: Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: AppColors.primaryDark,
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: AppColors.glassBorder),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 64,
+                height: 64,
+                decoration: BoxDecoration(
+                  gradient: AppColors.primaryGradient,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.primaryAccent.withValues(alpha: 0.4),
+                      blurRadius: 18,
+                      offset: const Offset(0, 6),
+                    ),
+                  ],
+                ),
+                child: const Icon(
+                  Icons.document_scanner_outlined,
+                  color: Colors.white,
+                  size: 30,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Scan receipts',
+                style: TextStyle(
+                  color: AppColors.textPrimary,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                "Snap a photo and we'll auto-fill the amount and merchant. "
+                "It's a Premium feature.",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: AppColors.textSecondary,
+                  fontSize: 14,
+                  height: 1.4,
+                ),
+              ),
+              const SizedBox(height: 20),
+              _scanUpgradeBullet(Icons.bolt, 'Auto-fills amount & merchant'),
+              const SizedBox(height: 10),
+              _scanUpgradeBullet(
+                Icons.timer_outlined,
+                'Log an expense in seconds',
+              ),
+              const SizedBox(height: 24),
+              NeoButton(
+                label: 'Go Premium',
+                leadingIcon: Icons.workspace_premium,
+                isExpanded: true,
+                onPressed: () {
+                  Navigator.pop(dialogContext);
+                  Navigator.pushNamed(context, '/premium');
+                },
+              ),
+              const SizedBox(height: 4),
+              TextButton(
+                onPressed: () => Navigator.pop(dialogContext),
+                child: Text(
+                  'Not now',
+                  style: TextStyle(color: AppColors.textMuted),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _scanUpgradeBullet(IconData icon, String text) {
+    return Row(
+      children: [
+        Container(
+          width: 32,
+          height: 32,
+          decoration: BoxDecoration(
+            color: AppColors.primaryAccent.withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(9),
+          ),
+          child: Icon(icon, color: AppColors.primaryAccent, size: 17),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            text,
+            style: TextStyle(color: AppColors.textSecondary, fontSize: 13.5),
+          ),
+        ),
+      ],
+    );
   }
 
   void _initFromExisting() {
@@ -667,10 +786,51 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
           title: Text(_isEditing ? 'Edit Transaction' : 'New Transaction'),
           actions: [
             if (!_isEditing)
-              IconButton(
-                tooltip: 'Scan receipt',
-                icon: const Icon(Icons.document_scanner_outlined),
-                onPressed: _scanReceipt,
+              Padding(
+                padding: const EdgeInsets.only(right: 12),
+                child: Center(
+                  child: GestureDetector(
+                    onTap: _scanReceipt,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        gradient: AppColors.primaryGradient,
+                        borderRadius: BorderRadius.circular(14),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.primaryAccent.withValues(
+                              alpha: 0.4,
+                            ),
+                            blurRadius: 12,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.document_scanner_outlined,
+                            color: Colors.white,
+                            size: 18,
+                          ),
+                          SizedBox(width: 6),
+                          Text(
+                            'Scan',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
               ),
             if (_isEditing)
               IconButton(
