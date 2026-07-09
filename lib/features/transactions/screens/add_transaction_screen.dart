@@ -647,99 +647,68 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
     );
   }
 
-  /// Segmented income/expense/transfer control with a sliding gradient pill.
+  /// Income / Expense / Transfer as three equal chips — same chip language as the
+  /// rest of the screen (the selected one is tinted in its own colour, the others
+  /// are plain glass), so it reads clearly as a three-way switch.
   Widget _buildTypeSelector(bool canTransfer) {
     final types = (canTransfer && !_isEditing)
         ? TransactionTypeSelection.values
         : [TransactionTypeSelection.expense, TransactionTypeSelection.income];
-    final selectedIndex = types
-        .indexOf(_transactionType)
-        .clamp(0, types.length - 1);
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final segmentWidth = constraints.maxWidth / types.length;
-        return SizedBox(
-          height: 46,
-          child: Stack(
-            children: [
-              // Track
-              Positioned.fill(
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: Colors.black.withValues(alpha: 0.22),
-                    borderRadius: AppSpacing.borderRadiusFull,
-                    border: Border.all(color: AppColors.glassBorder),
-                  ),
-                ),
-              ),
-              // Sliding selected pill
-              AnimatedPositioned(
-                duration: AppAnimations.normal,
-                curve: AppAnimations.easeOut,
-                left: selectedIndex * segmentWidth,
-                top: 0,
-                bottom: 0,
-                width: segmentWidth,
-                child: Padding(
-                  padding: const EdgeInsets.all(4),
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: AppColors.primaryElevated,
-                      borderRadius: AppSpacing.borderRadiusFull,
-                      border: Border.all(color: AppColors.glassBorder),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.25),
-                          blurRadius: 6,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              // Tappable segments
-              Row(
-                children: types.map((type) {
-                  final isSelected = type == _transactionType;
-                  return Expanded(
-                    child: GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: () => _onTypeChanged(type),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            type.icon,
-                            size: 16,
-                            color: isSelected
-                                ? _accentColor
-                                : AppColors.textMuted,
-                          ),
-                          const SizedBox(width: 6),
-                          Text(
-                            type.label,
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: isSelected
-                                  ? FontWeight.w700
-                                  : FontWeight.w500,
-                              color: isSelected
-                                  ? _accentColor
-                                  : AppColors.textSecondary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                }).toList(),
-              ),
-            ],
+    return Row(
+      children: [
+        for (var i = 0; i < types.length; i++) ...[
+          if (i > 0) const SizedBox(width: 8),
+          Expanded(child: _typeChip(types[i])),
+        ],
+      ],
+    );
+  }
+
+  Widget _typeChip(TransactionTypeSelection type) {
+    final isSelected = type == _transactionType;
+    final color = type.color;
+
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => _onTypeChanged(type),
+      child: AnimatedContainer(
+        duration: AppAnimations.fast,
+        curve: AppAnimations.easeOut,
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? color.withValues(alpha: 0.15)
+              : AppColors.glassWhite,
+          borderRadius: AppSpacing.borderRadiusFull,
+          border: Border.all(
+            color: isSelected ? color : AppColors.glassBorder,
+            width: isSelected ? 1.5 : 1,
           ),
-        );
-      },
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              type.icon,
+              size: 16,
+              color: isSelected ? color : AppColors.textMuted,
+            ),
+            const SizedBox(width: 6),
+            Flexible(
+              child: Text(
+                type.label,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                  color: isSelected ? color : AppColors.textSecondary,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
