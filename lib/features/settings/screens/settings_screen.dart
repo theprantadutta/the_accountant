@@ -54,6 +54,90 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     );
   }
 
+  /// Notice shown to free users: their data lives only on this device (cloud sync
+  /// is a premium feature), so a reinstall or new phone can lose it. Taps through
+  /// to the premium screen.
+  Widget _buildDeviceOnlyDataNotice(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.selectionClick();
+        Navigator.pushNamed(context, '/premium');
+      },
+      child: Container(
+        padding: EdgeInsets.all(AppSpacing.md),
+        decoration: BoxDecoration(
+          color: AppColors.warning.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.warning.withValues(alpha: 0.3)),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: AppColors.warning.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(
+                Icons.cloud_off_rounded,
+                color: AppColors.warning,
+                size: 22,
+              ),
+            ),
+            SizedBox(width: AppSpacing.md),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Your data is on this device only',
+                    style: TextStyle(
+                      color: AppColors.textPrimary,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    "Free accounts aren't backed up to the cloud, so reinstalling "
+                    "or switching phones can lose your data. Upgrade for automatic "
+                    "cloud sync — or export a backup regularly.",
+                    style: TextStyle(
+                      color: AppColors.textSecondary,
+                      fontSize: 13,
+                      height: 1.4,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Text(
+                        'Upgrade for cloud backup',
+                        style: TextStyle(
+                          color: AppColors.warning,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Icon(
+                        Icons.arrow_forward_rounded,
+                        color: AppColors.warning,
+                        size: 14,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
@@ -121,6 +205,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   if (_searchQuery.isEmpty) ...[
                     _buildProfileCard(context, authState),
                     SizedBox(height: AppSpacing.sm),
+                    // Warn free users their data is device-only (no cloud backup).
+                    if (!premiumState.isPremium) ...[
+                      _buildDeviceOnlyDataNotice(context),
+                      SizedBox(height: AppSpacing.sm),
+                    ],
                   ],
                   // Show filtered sections
                   ...sections,
@@ -339,9 +428,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           subtitle: 'Questions, complaints, or feedback',
           onTap: () => Navigator.push(
             context,
-            MaterialPageRoute(
-              builder: (_) => const ContactSupportScreen(),
-            ),
+            MaterialPageRoute(builder: (_) => const ContactSupportScreen()),
           ),
         ),
       );
@@ -365,7 +452,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       );
     }
     if (_matchesSearch('Replay App Tour') ||
-        _matchesKeywords(['walkthrough', 'tour', 'tutorial', 'guide', 'replay'])) {
+        _matchesKeywords([
+          'walkthrough',
+          'tour',
+          'tutorial',
+          'guide',
+          'replay',
+        ])) {
       helpTiles.add(
         SettingsActionTile(
           icon: Icons.play_circle_outline,
