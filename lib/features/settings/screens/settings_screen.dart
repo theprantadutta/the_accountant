@@ -546,15 +546,20 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         margin: EdgeInsets.only(top: AppSpacing.md),
         padding: EdgeInsets.all(AppSpacing.lg),
         decoration: BoxDecoration(
-          gradient: AppColors.primaryGradient,
+          // Subtle accent-tinted glass rather than a solid saturated fill, so
+          // it sits calmly with the rest of the dark cards.
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              AppColors.primaryAccent.withValues(alpha: 0.14),
+              AppColors.neonPurple.withValues(alpha: 0.05),
+            ],
+          ),
           borderRadius: AppSpacing.borderRadiusXl,
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.primaryGlow.withValues(alpha: 0.3),
-              blurRadius: 16,
-              offset: const Offset(0, 4),
-            ),
-          ],
+          border: Border.all(
+            color: AppColors.primaryAccent.withValues(alpha: 0.22),
+          ),
         ),
         child: Row(
           children: [
@@ -564,11 +569,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               height: 60,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.white.withValues(alpha: 0.2),
+                gradient: AppColors.primaryGradient,
                 border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.3),
+                  color: Colors.white.withValues(alpha: 0.15),
                   width: 2,
                 ),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.primaryAccent.withValues(alpha: 0.3),
+                    blurRadius: 14,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
               child:
                   authState.photoUrl != null && authState.photoUrl!.isNotEmpty
@@ -577,6 +589,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       child: Image.network(
                         authState.photoUrl!,
                         fit: BoxFit.cover,
+                        width: 60,
+                        height: 60,
                         errorBuilder: (_, _, _) => const Icon(
                           Icons.person,
                           color: Colors.white,
@@ -595,8 +609,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 children: [
                   Text(
                     authState.displayName ?? 'User',
-                    style: const TextStyle(
-                      color: Colors.white,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: AppColors.textPrimary,
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
@@ -604,8 +620,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   SizedBox(height: AppSpacing.xs),
                   Text(
                     authState.userEmail ?? '',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.8),
+                      color: AppColors.textSecondary,
                       fontSize: 14,
                     ),
                   ),
@@ -613,14 +631,20 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               ),
             ),
 
+            SizedBox(width: AppSpacing.sm),
             // Edit indicator
             Container(
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(9),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(8),
+                color: AppColors.glassWhite,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: AppColors.glassBorder),
               ),
-              child: const Icon(Icons.edit, color: Colors.white, size: 18),
+              child: Icon(
+                Icons.edit_outlined,
+                color: AppColors.primaryAccent,
+                size: 18,
+              ),
             ),
           ],
         ),

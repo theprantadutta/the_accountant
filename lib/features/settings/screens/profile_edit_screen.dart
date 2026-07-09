@@ -8,6 +8,9 @@ import 'package:the_accountant/core/utils/date_formatter.dart';
 import 'package:the_accountant/features/authentication/providers/auth_provider.dart';
 import 'package:the_accountant/features/settings/providers/settings_provider.dart';
 import 'package:the_accountant/features/settings/widgets/confirmation_dialog.dart';
+import 'package:the_accountant/shared/widgets/glass_card.dart';
+import 'package:the_accountant/shared/widgets/neo_button.dart';
+import 'package:the_accountant/shared/widgets/neo_text_field.dart';
 
 class ProfileEditScreen extends ConsumerStatefulWidget {
   const ProfileEditScreen({super.key});
@@ -18,6 +21,7 @@ class ProfileEditScreen extends ConsumerStatefulWidget {
 
 class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
   late TextEditingController _nameController;
+  late TextEditingController _emailController;
   bool _isLoading = false;
   bool _hasChanges = false;
 
@@ -25,17 +29,22 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
   void initState() {
     super.initState();
     _nameController = TextEditingController();
+    _emailController = TextEditingController();
   }
 
   @override
   void dispose() {
     _nameController.dispose();
+    _emailController.dispose();
     super.dispose();
   }
 
   void _initializeControllers(AuthState authState) {
     if (_nameController.text.isEmpty && authState.displayName != null) {
       _nameController.text = authState.displayName!;
+    }
+    if (_emailController.text.isEmpty && authState.userEmail != null) {
+      _emailController.text = authState.userEmail!;
     }
   }
 
@@ -66,125 +75,198 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
     }
   }
 
+  void _handleBack() {
+    if (_hasChanges) {
+      _showUnsavedChangesDialog();
+    } else {
+      Navigator.pop(context);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
     _initializeControllers(authState);
 
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      appBar: AppBar(
+    return PopScope(
+      canPop: !_hasChanges,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) _showUnsavedChangesDialog();
+      },
+      child: Scaffold(
         backgroundColor: Colors.transparent,
-        elevation: 0,
-        title: const Text('Edit Profile'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            if (_hasChanges) {
-              _showUnsavedChangesDialog();
-            } else {
-              Navigator.pop(context);
-            }
-          },
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          title: const Text('Edit Profile'),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: _handleBack,
+          ),
         ),
-        actions: [
-          if (_hasChanges)
-            TextButton(
-              onPressed: _isLoading ? null : _saveProfile,
-              child: _isLoading
-                  ? SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: AppColors.primaryAccent,
-                      ),
-                    )
-                  : Text(
-                      'Save',
-                      style: TextStyle(
-                        color: AppColors.primaryAccent,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-            ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(AppSpacing.lg),
-        child: Column(
+        body: Column(
           children: [
-            // Profile Avatar
-            _buildProfileAvatar(authState),
-            SizedBox(height: AppSpacing.xxl),
-
-            // Profile Form
-            _buildProfileForm(authState),
-            SizedBox(height: AppSpacing.xxl),
-
-            // Account Info
-            _buildAccountInfo(authState),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.fromLTRB(
+                  AppSpacing.lg,
+                  AppSpacing.sm,
+                  AppSpacing.lg,
+                  AppSpacing.lg,
+                ),
+                child: Column(
+                  children: [
+                    _buildProfileAvatar(authState),
+                    SizedBox(height: AppSpacing.xl),
+                    _buildProfileForm(authState),
+                    SizedBox(height: AppSpacing.lg),
+                    _buildAccountInfo(authState),
+                  ],
+                ),
+              ),
+            ),
+            _buildSaveBar(),
           ],
         ),
       ),
     );
   }
 
+  Widget _buildSaveBar() {
+    return SafeArea(
+      top: false,
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(
+          AppSpacing.lg,
+          AppSpacing.sm,
+          AppSpacing.lg,
+          AppSpacing.sm,
+        ),
+        child: NeoButton(
+          label: _hasChanges ? 'Save changes' : 'Saved',
+          leadingIcon: _hasChanges ? Icons.check_rounded : Icons.check_circle,
+          isExpanded: true,
+          isLoading: _isLoading,
+          onPressed: _hasChanges && !_isLoading ? _saveProfile : null,
+        ),
+      ),
+    );
+  }
+
   Widget _buildProfileAvatar(AuthState authState) {
-    return Center(
-      child: Stack(
-        children: [
-          Container(
-            width: 120,
-            height: 120,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: AppColors.primaryGradient,
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.primaryGlow.withValues(alpha: 0.3),
-                  blurRadius: 20,
-                  offset: const Offset(0, 8),
-                ),
-              ],
-            ),
-            child: authState.photoUrl != null && authState.photoUrl!.isNotEmpty
-                ? ClipRRect(
-                    borderRadius: BorderRadius.circular(60),
-                    child: Image.network(
-                      authState.photoUrl!,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => const Icon(
-                        Icons.person,
-                        size: 60,
-                        color: Colors.white,
-                      ),
-                    ),
-                  )
-                : const Icon(Icons.person, size: 60, color: Colors.white),
-          ),
-          Positioned(
-            bottom: 0,
-            right: 0,
-            child: GestureDetector(
-              onTap: () {
-                HapticFeedback.lightImpact();
-                showInfoSnackBar(context, 'Photo upload coming soon');
-              },
+    final hasPhoto =
+        authState.photoUrl != null && authState.photoUrl!.isNotEmpty;
+
+    return Column(
+      children: [
+        Stack(
+          children: [
+            // Gradient ring around a dark inset so any avatar photo pops.
+            Container(
+              width: 108,
+              height: 108,
+              padding: const EdgeInsets.all(3),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: AppColors.primaryGradient,
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.primaryAccent.withValues(alpha: 0.35),
+                    blurRadius: 24,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+              ),
               child: Container(
-                width: 36,
-                height: 36,
                 decoration: BoxDecoration(
-                  color: AppColors.primaryAccent,
                   shape: BoxShape.circle,
-                  border: Border.all(color: AppColors.primaryDark, width: 3),
+                  color: AppColors.primaryDark,
                 ),
-                child: const Icon(
-                  Icons.camera_alt,
-                  color: Colors.white,
-                  size: 18,
+                child: ClipOval(
+                  child: hasPhoto
+                      ? Image.network(
+                          authState.photoUrl!,
+                          fit: BoxFit.cover,
+                          width: 102,
+                          height: 102,
+                          errorBuilder: (_, _, _) => const Center(
+                            child: Icon(
+                              Icons.person,
+                              size: 52,
+                              color: Colors.white,
+                            ),
+                          ),
+                        )
+                      : const Center(
+                          child: Icon(
+                            Icons.person,
+                            size: 52,
+                            color: Colors.white,
+                          ),
+                        ),
                 ),
               ),
+            ),
+            Positioned(
+              bottom: 0,
+              right: 0,
+              child: GestureDetector(
+                onTap: () {
+                  HapticFeedback.lightImpact();
+                  showInfoSnackBar(context, 'Photo upload coming soon');
+                },
+                child: Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryAccent,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: AppColors.primaryDark, width: 3),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.primaryAccent.withValues(alpha: 0.5),
+                        blurRadius: 10,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: const Icon(
+                    Icons.camera_alt,
+                    color: Colors.white,
+                    size: 17,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+        if (authState.isPremium) ...[
+          SizedBox(height: AppSpacing.md),
+          _buildPremiumChip(authState),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildPremiumChip(AuthState authState) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.amber.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.amber.withValues(alpha: 0.35)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.workspace_premium, color: Colors.amber, size: 16),
+          const SizedBox(width: 6),
+          Text(
+            _formatSubscriptionTier(authState.subscriptionTier),
+            style: const TextStyle(
+              color: Colors.amber,
+              fontSize: 12.5,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ],
@@ -193,126 +275,56 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
   }
 
   Widget _buildProfileForm(AuthState authState) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.primarySurface,
-        borderRadius: AppSpacing.borderRadiusLg,
-        border: Border.all(color: AppColors.glassBorder),
-      ),
+    return GlassCard(
       padding: EdgeInsets.all(AppSpacing.lg),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Personal Information',
-            style: TextStyle(
-              color: AppColors.textPrimary,
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          _sectionHeader(Icons.person_outline, 'Personal Information'),
           SizedBox(height: AppSpacing.lg),
-
-          // Display Name
-          _buildTextField(
+          NeoTextField(
             controller: _nameController,
-            label: 'Display Name',
-            icon: Icons.person_outline,
+            label: 'Display name',
+            prefixIcon: Icons.badge_outlined,
+            textCapitalization: TextCapitalization.words,
+            textInputAction: TextInputAction.done,
             onChanged: (value) {
-              setState(() => _hasChanges = value != authState.displayName);
+              final changed = value.trim() != (authState.displayName ?? '');
+              if (changed != _hasChanges) {
+                setState(() => _hasChanges = changed);
+              }
             },
           ),
           SizedBox(height: AppSpacing.md),
-
-          // Email (read-only)
-          _buildReadOnlyField(
-            value: authState.userEmail ?? 'Not set',
-            label: 'Email Address',
-            icon: Icons.email_outlined,
+          NeoTextField(
+            controller: _emailController,
+            label: 'Email address',
+            prefixIcon: Icons.email_outlined,
+            enabled: false,
+            suffixIcon: Icon(
+              Icons.verified,
+              color: AppColors.success,
+              size: 20,
+            ),
+          ),
+          SizedBox(height: AppSpacing.sm),
+          Text(
+            'Your email is used to sign in and can’t be changed here.',
+            style: TextStyle(color: AppColors.textMuted, fontSize: 12),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String label,
-    required IconData icon,
-    required ValueChanged<String> onChanged,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.glassWhite,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.glassBorder),
-      ),
-      child: TextField(
-        controller: controller,
-        style: TextStyle(color: AppColors.textPrimary),
-        onChanged: onChanged,
-        decoration: InputDecoration(
-          labelText: label,
-          labelStyle: TextStyle(color: AppColors.textMuted),
-          prefixIcon: Icon(icon, color: AppColors.textMuted),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.all(16),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildReadOnlyField({
-    required String value,
-    required String label,
-    required IconData icon,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.glassWhite.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.glassBorder),
-      ),
-      child: Material(
-        type: MaterialType.transparency,
-        borderRadius: BorderRadius.circular(12),
-        clipBehavior: Clip.antiAlias,
-        child: ListTile(
-          leading: Icon(icon, color: AppColors.textMuted),
-          title: Text(
-            label,
-            style: TextStyle(color: AppColors.textMuted, fontSize: 12),
-          ),
-          subtitle: Text(
-            value,
-            style: TextStyle(color: AppColors.textSecondary, fontSize: 16),
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _buildAccountInfo(AuthState authState) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.primarySurface,
-        borderRadius: AppSpacing.borderRadiusLg,
-        border: Border.all(color: AppColors.glassBorder),
-      ),
+    return GlassCard(
       padding: EdgeInsets.all(AppSpacing.lg),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Account Information',
-            style: TextStyle(
-              color: AppColors.textPrimary,
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          _sectionHeader(Icons.badge_outlined, 'Account Information'),
           SizedBox(height: AppSpacing.lg),
-
           _buildInfoRow(
             'Member Since',
             authState.createdAt != null
@@ -323,8 +335,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
                 : 'Unknown',
             Icons.calendar_today_outlined,
           ),
-          SizedBox(height: AppSpacing.md),
-
+          _divider(),
           _buildInfoRow(
             'Subscription',
             authState.isPremium
@@ -333,18 +344,46 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
             Icons.workspace_premium_outlined,
             valueColor: authState.isPremium ? Colors.amber : null,
           ),
-          SizedBox(height: AppSpacing.md),
-
+          _divider(),
           _buildInfoRow(
             'User ID',
             authState.userId ?? 'Unknown',
             Icons.fingerprint,
             isSecondary: true,
+            onCopy: authState.userId != null
+                ? () {
+                    Clipboard.setData(ClipboardData(text: authState.userId!));
+                    HapticFeedback.lightImpact();
+                    showInfoSnackBar(context, 'User ID copied');
+                  }
+                : null,
           ),
         ],
       ),
     );
   }
+
+  Widget _sectionHeader(IconData icon, String title) {
+    return Row(
+      children: [
+        Icon(icon, color: AppColors.primaryAccent, size: 18),
+        const SizedBox(width: 8),
+        Text(
+          title,
+          style: TextStyle(
+            color: AppColors.textPrimary,
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _divider() => Padding(
+    padding: EdgeInsets.symmetric(vertical: AppSpacing.md),
+    child: Divider(color: AppColors.divider, height: 1),
+  );
 
   Widget _buildInfoRow(
     String label,
@@ -352,6 +391,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
     IconData icon, {
     Color? valueColor,
     bool isSecondary = false,
+    VoidCallback? onCopy,
   }) {
     return Row(
       children: [
@@ -373,6 +413,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
                 label,
                 style: TextStyle(color: AppColors.textMuted, fontSize: 12),
               ),
+              const SizedBox(height: 2),
               Text(
                 value,
                 style: TextStyle(
@@ -384,11 +425,22 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
                   fontSize: isSecondary ? 12 : 14,
                   fontWeight: isSecondary ? FontWeight.normal : FontWeight.w500,
                 ),
+                maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
             ],
           ),
         ),
+        if (onCopy != null)
+          IconButton(
+            visualDensity: VisualDensity.compact,
+            icon: Icon(
+              Icons.copy_rounded,
+              color: AppColors.textMuted,
+              size: 18,
+            ),
+            onPressed: onCopy,
+          ),
       ],
     );
   }
