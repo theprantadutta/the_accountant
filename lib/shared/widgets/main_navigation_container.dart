@@ -149,6 +149,14 @@ class _MainNavigationContainerState
           ticks++ < 400) {
         await Future.delayed(const Duration(milliseconds: 50));
       }
+
+      // Load freshly-pulled wallets into state BEFORE lifting the restore gate.
+      // The sync's own provider refresh is fire-and-forget, so without awaiting
+      // a reload here `hasWallets` can still be false for a frame and the
+      // create-first-wallet screen flashes between restore and the dashboard.
+      if (mounted) {
+        await ref.read(walletProvider.notifier).loadWallets(silent: true);
+      }
     }
 
     if (!mounted) return;
