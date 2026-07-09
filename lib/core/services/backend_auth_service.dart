@@ -276,6 +276,32 @@ class BackendAuthService extends ChangeNotifier {
     }
   }
 
+  /// Request a password-reset code be emailed to [email].
+  Future<void> forgotPassword(String email) async {
+    try {
+      await _apiService.forgotPassword(email.trim());
+    } catch (e) {
+      throw Exception('$e');
+    }
+  }
+
+  /// Complete a password reset with the emailed [code] and a [newPassword].
+  Future<void> resetPassword({
+    required String email,
+    required String code,
+    required String newPassword,
+  }) async {
+    try {
+      await _apiService.resetPassword(
+        email: email.trim(),
+        code: code.trim(),
+        newPassword: newPassword,
+      );
+    } catch (e) {
+      throw Exception('$e');
+    }
+  }
+
   /// Apply user info map to local state and notify listeners
   void _applyUserInfo(Map<String, dynamic> userInfo) {
     _userId = userInfo['id'];

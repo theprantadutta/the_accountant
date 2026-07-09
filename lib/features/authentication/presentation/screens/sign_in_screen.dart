@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:the_accountant/features/authentication/presentation/screens/forgot_password_screen.dart';
 import 'package:the_accountant/features/authentication/presentation/screens/sign_up_screen.dart';
 import 'package:the_accountant/features/authentication/presentation/widgets/auth_background.dart';
 import 'package:the_accountant/features/authentication/presentation/widgets/auth_brand_header.dart';
@@ -238,7 +239,17 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
             alignment: Alignment.centerRight,
             child: TextButton(
               onPressed: () {
-                // Handle forgot password
+                HapticFeedback.lightImpact();
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ForgotPasswordScreen(
+                      initialEmail: _emailController.text.trim().isEmpty
+                          ? null
+                          : _emailController.text.trim(),
+                    ),
+                  ),
+                );
               },
               style: TextButton.styleFrom(
                 padding: EdgeInsets.zero,

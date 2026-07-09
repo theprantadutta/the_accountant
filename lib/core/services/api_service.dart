@@ -68,7 +68,9 @@ class ApiService {
               options.path.contains('/auth/refresh') ||
               options.path.contains('/auth/login') ||
               options.path.contains('/auth/register') ||
-              options.path.contains('/auth/firebase');
+              options.path.contains('/auth/firebase') ||
+              options.path.contains('/auth/forgot-password') ||
+              options.path.contains('/auth/reset-password');
 
           // Check if token is expiring soon and refresh it (unless we're already refreshing)
           if (!isAuthEndpoint && !_isRefreshing) {
@@ -448,10 +450,7 @@ class ApiService {
       final response = await _dio.get(
         '/auth/me',
         options: timeout != null
-            ? Options(
-                sendTimeout: timeout,
-                receiveTimeout: timeout,
-              )
+            ? Options(sendTimeout: timeout, receiveTimeout: timeout)
             : null,
       );
       return response.data;
@@ -568,10 +567,36 @@ class ApiService {
     required String newPassword,
   }) async {
     try {
-      await _dio.post('/auth/change-password', data: {
-        'currentPassword': ?currentPassword,
-        'newPassword': newPassword,
-      });
+      await _dio.post(
+        '/auth/change-password',
+        data: {'currentPassword': ?currentPassword, 'newPassword': newPassword},
+      );
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Request a password-reset code to be emailed to the user.
+  /// Always succeeds server-side (no account enumeration).
+  Future<void> forgotPassword(String email) async {
+    try {
+      await _dio.post('/auth/forgot-password', data: {'email': email});
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Reset the password using the code emailed by [forgotPassword].
+  Future<void> resetPassword({
+    required String email,
+    required String code,
+    required String newPassword,
+  }) async {
+    try {
+      await _dio.post(
+        '/auth/reset-password',
+        data: {'email': email, 'code': code, 'new_password': newPassword},
+      );
     } on DioException catch (e) {
       throw _handleError(e);
     }
