@@ -29,6 +29,10 @@ class MyApp extends ConsumerStatefulWidget {
 }
 
 class _MyAppState extends ConsumerState<MyApp> {
+  // Stable key so the single ambient background keeps the same State (and its
+  // running animation) across MyApp rebuilds — it never re-initialises.
+  final GlobalKey _backgroundKey = GlobalKey();
+
   @override
   void initState() {
     super.initState();
@@ -96,8 +100,10 @@ class _MyAppState extends ConsumerState<MyApp> {
       navigatorObservers: [AnalyticsService().observer],
       // One ambient gradient background painted behind every screen. Scaffolds
       // are transparent (see AppTheme) so this shows through app-wide.
-      builder: (context, child) =>
-          AppBackground(child: child ?? const SizedBox.shrink()),
+      builder: (context, child) => AppBackground(
+        key: _backgroundKey,
+        child: child ?? const SizedBox.shrink(),
+      ),
       home: const AuthWrapper(),
       routes: {
         '/post-signup-onboarding': (context) =>
