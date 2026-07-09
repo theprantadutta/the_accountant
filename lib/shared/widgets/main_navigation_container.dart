@@ -7,6 +7,7 @@ import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/core/themes/app_typography.dart';
 import 'package:the_accountant/shared/widgets/custom_bottom_nav_bar.dart';
 import 'package:the_accountant/shared/widgets/glass_card.dart';
+import 'package:the_accountant/shared/widgets/sync_status_banner.dart';
 import 'package:the_accountant/shared/widgets/neo_button.dart';
 import 'package:the_accountant/features/dashboard/widgets/responsive_financial_overview.dart';
 import 'package:the_accountant/features/transactions/screens/transaction_list_screen.dart';
@@ -478,14 +479,28 @@ class _MainNavigationContainerState
         backgroundColor: Colors.transparent,
         appBar: _buildCustomAppBar(),
         extendBody: false,
-        body: IndexedStack(
-          index: _currentIndex,
-          children: _screens.asMap().entries.map((entry) {
-            if (entry.key == 0) {
-              return KeyedSubtree(key: _balanceKey, child: entry.value);
-            }
-            return entry.value;
-          }).toList(),
+        body: Stack(
+          children: [
+            IndexedStack(
+              index: _currentIndex,
+              children: _screens.asMap().entries.map((entry) {
+                if (entry.key == 0) {
+                  return KeyedSubtree(key: _balanceKey, child: entry.value);
+                }
+                return entry.value;
+              }).toList(),
+            ),
+            // Non-blocking background-sync indicator, floating at the top.
+            Positioned(
+              top: AppSpacing.sm,
+              left: 0,
+              right: 0,
+              child: const Align(
+                alignment: Alignment.topCenter,
+                child: SyncStatusBanner(),
+              ),
+            ),
+          ],
         ),
         floatingActionButton: _isFabVisible
             ? NeoFAB(
