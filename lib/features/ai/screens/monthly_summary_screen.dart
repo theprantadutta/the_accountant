@@ -19,9 +19,9 @@ class MonthlySummaryScreenGated extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return PremiumGate(
       featureId: PremiumFeatureIds.aiInsights,
-      featureName: 'AI Insights',
+      featureName: 'Spending Insights',
       featureDescription:
-          'Get AI-powered monthly financial summaries with spending analysis, trends, and personalized recommendations.',
+          'Get monthly financial summaries with spending analysis, trends, and personalized recommendations.',
       featureIcon: Icons.insights,
       child: MonthlySummaryScreen(month: month),
     );
@@ -168,7 +168,7 @@ class _MonthlySummaryScreenState extends ConsumerState<MonthlySummaryScreen> {
                 ),
                 const SizedBox(height: 16),
 
-                // AI Insights
+                // Spending Insights
                 if (monthlySummaryState.aiInsights != null) ...[
                   Card(
                     color: Colors.blue.withValues(alpha: 0.1),
@@ -178,7 +178,7 @@ class _MonthlySummaryScreenState extends ConsumerState<MonthlySummaryScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Text(
-                            'AI Insights',
+                            'Spending Insights',
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,

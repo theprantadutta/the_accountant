@@ -412,8 +412,8 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
         ),
         _buildFeatureRow(
           Icons.insights,
-          'AI Insights',
-          'Smart spending analysis',
+          'Spending Insights',
+          'Monthly summaries, trends & analysis',
           isPremium,
         ),
         _buildFeatureRow(

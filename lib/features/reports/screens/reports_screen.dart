@@ -15,6 +15,7 @@ import 'package:the_accountant/features/reports/providers/reports_provider.dart'
 import 'package:the_accountant/features/settings/providers/settings_provider.dart';
 import 'package:the_accountant/core/utils/number_formatter.dart';
 import 'package:the_accountant/features/premium/providers/premium_provider.dart';
+import 'package:the_accountant/features/ai/screens/monthly_summary_screen.dart';
 import 'package:the_accountant/shared/widgets/shimmer_loading.dart';
 
 class ReportsScreen extends ConsumerStatefulWidget {
@@ -113,6 +114,10 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
             children: [
               const SizedBox(height: 20),
 
+              // Spending Insights entry (monthly summary + analysis)
+              _buildSpendingInsightsEntry(),
+              const SizedBox(height: 24),
+
               // Time Frame Selector
               AnimationUtils.slideTransition(
                 animation: _slideAnimation,
@@ -179,6 +184,76 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
               // const SizedBox(height: 100), // Bottom padding for nav bar
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSpendingInsightsEntry() {
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.lightImpact();
+        final now = DateTime.now();
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) =>
+                MonthlySummaryScreenGated(month: DateTime(now.year, now.month)),
+          ),
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              AppColors.primaryAccent.withValues(alpha: 0.18),
+              AppColors.neonPurple.withValues(alpha: 0.06),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: AppColors.primaryAccent.withValues(alpha: 0.25),
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: AppColors.primaryAccent.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(Icons.insights, color: AppColors.primaryAccent),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Spending Insights',
+                    style: TextStyle(
+                      color: AppColors.textPrimary,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    "This month's summary, trends & tips",
+                    style: TextStyle(
+                      color: AppColors.textSecondary,
+                      fontSize: 12.5,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.chevron_right, color: AppColors.textMuted),
+          ],
         ),
       ),
     );
