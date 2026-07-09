@@ -347,7 +347,8 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
         ),
         content: const Text(
           'Monthly and yearly reports are available with Premium.\n\n'
-          'Upgrade to unlock detailed financial insights, trends, and export capabilities.',
+          'Upgrade to unlock the month & year timeframes, longer-term spending '
+          'trends, and detailed Spending Insights.',
           style: TextStyle(color: Colors.white70),
         ),
         actions: [
