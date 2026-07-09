@@ -456,14 +456,24 @@ class _MainNavigationContainerState
     final hasWallets = ref.watch(hasWalletsProvider);
     final isLoadingWallets = ref.watch(walletsLoadingProvider);
 
-    // Show a dashboard skeleton (not a spinner) while wallets are being fetched, so
-    // the load reads as the dashboard filling in rather than a bare loader.
+    // While wallets are being fetched, render the skeleton inside the SAME
+    // dashboard chrome (app bar + bottom nav) as the loaded state. Because the
+    // top-level structure matches, the nav persists across the transition and
+    // the body simply fills in — so it reads as one continuous "dashboard
+    // loading" instead of a separate blank skeleton screen first.
     if (isLoadingWallets) {
       return Container(
         decoration: const BoxDecoration(),
-        child: const Scaffold(
+        child: Scaffold(
           backgroundColor: Colors.transparent,
-          body: SafeArea(child: ShimmerDashboard()),
+          appBar: _buildCustomAppBar(),
+          body: const SafeArea(child: ShimmerDashboard()),
+          bottomNavigationBar: CustomBottomNavBar(
+            currentIndex: _currentIndex,
+            onTap: _onNavigationTapped,
+            items: NavItems.defaultItems,
+            itemKeys: const [null, null, null, null, null],
+          ),
         ),
       );
     }
