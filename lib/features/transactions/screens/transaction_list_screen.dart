@@ -277,6 +277,20 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
         .getDatabaseTransactionById(transaction.id);
 
     if (dbTransaction != null && mounted) {
+      // Transfers are a paired two-leg record; the regular editor would edit only
+      // one leg via updateTransaction and desync the pair (and balances). Guard
+      // until a dedicated transfer editor exists.
+      if (dbTransaction.transactionType == 'transfer') {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text(
+              "Transfers can't be edited yet — delete and recreate it instead.",
+            ),
+            backgroundColor: AppColors.warning,
+          ),
+        );
+        return;
+      }
       showAddTransactionScreen(context, existingTransaction: dbTransaction);
     }
   }
@@ -833,7 +847,8 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                 category: transaction.category,
                 categoryColor: category.colorCode,
                 categoryIcon: category.iconName,
-                amount: transaction.amount / 100.0, // cents -> major-unit dollars
+                amount:
+                    transaction.amount / 100.0, // cents -> major-unit dollars
                 transactionType: transaction.type,
                 walletId: transaction.walletId,
                 notes: transaction.notes,

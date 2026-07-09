@@ -158,7 +158,9 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
 
   void _initFromExisting() {
     final t = widget.existingTransaction!;
-    _transactionType = t.type == 'income'
+    // Use isIncome (the authoritative field). `type` is a deprecated column that
+    // is always 'regular', so keying off it wrongly forced every edit to Expense.
+    _transactionType = t.isIncome
         ? TransactionTypeSelection.income
         : TransactionTypeSelection.expense;
     _titleController.text = t.title;
