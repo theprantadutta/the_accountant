@@ -584,11 +584,11 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
           ),
           child: Stack(
             children: [
-              Positioned(top: -90, right: -70, child: _glowOrb(c, 300, 0.22)),
+              Positioned(top: -110, right: -90, child: _glowOrb(c, 260, 0.08)),
               Positioned(
-                bottom: -120,
-                left: -90,
-                child: _glowOrb(c, 340, 0.15),
+                bottom: -140,
+                left: -100,
+                child: _glowOrb(c, 300, 0.05),
               ),
               child,
             ],
@@ -630,17 +630,17 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            _accentColor.withValues(alpha: 0.16),
-            _accentColor.withValues(alpha: 0.03),
+            _accentColor.withValues(alpha: 0.08),
+            _accentColor.withValues(alpha: 0.015),
           ],
         ),
         borderRadius: AppSpacing.borderRadiusXl,
-        border: Border.all(color: _accentColor.withValues(alpha: 0.3)),
+        border: Border.all(color: _accentColor.withValues(alpha: 0.16)),
         boxShadow: [
           BoxShadow(
-            color: _accentColor.withValues(alpha: 0.22),
-            blurRadius: 30,
-            spreadRadius: -6,
+            color: _accentColor.withValues(alpha: 0.09),
+            blurRadius: 24,
+            spreadRadius: -8,
             offset: const Offset(0, 12),
           ),
         ],
@@ -680,7 +680,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
               Positioned.fill(
                 child: DecoratedBox(
                   decoration: BoxDecoration(
-                    color: AppColors.primaryDark.withValues(alpha: 0.35),
+                    color: Colors.black.withValues(alpha: 0.22),
                     borderRadius: AppSpacing.borderRadiusFull,
                     border: Border.all(color: AppColors.glassBorder),
                   ),
@@ -698,15 +698,9 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                   padding: const EdgeInsets.all(4),
                   child: DecoratedBox(
                     decoration: BoxDecoration(
-                      gradient: _typeGradient,
+                      color: _accentColor.withValues(alpha: 0.2),
                       borderRadius: AppSpacing.borderRadiusFull,
-                      boxShadow: [
-                        BoxShadow(
-                          color: _accentColor.withValues(alpha: 0.4),
-                          blurRadius: 12,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
+                      border: Border.all(color: _accentColor, width: 1.5),
                     ),
                   ),
                 ),
@@ -726,7 +720,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                             type.icon,
                             size: 16,
                             color: isSelected
-                                ? Colors.white
+                                ? _accentColor
                                 : AppColors.textMuted,
                           ),
                           const SizedBox(width: 6),
@@ -738,7 +732,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                                   ? FontWeight.w700
                                   : FontWeight.w500,
                               color: isSelected
-                                  ? Colors.white
+                                  ? _accentColor
                                   : AppColors.textSecondary,
                             ),
                           ),
