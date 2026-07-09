@@ -568,33 +568,28 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
     }
   }
 
-  /// Wraps the screen in the base gradient plus two soft accent-coloured glow
-  /// orbs that smoothly re-tint whenever the transaction type changes — the whole
-  /// screen quietly breathes the transaction's colour (income/expense/transfer).
+  /// The base app gradient with a couple of faint, neutral (indigo/purple) glow
+  /// orbs — the same calm ambience as the rest of the app. The transaction's
+  /// colour is carried by the amount, the active toggle label and the save
+  /// button, not by bathing the whole screen.
   Widget _buildAmbient({required Widget child}) {
-    return TweenAnimationBuilder<Color?>(
-      tween: ColorTween(end: _accentColor),
-      duration: AppAnimations.slow,
-      curve: AppAnimations.easeOut,
-      builder: (context, glow, _) {
-        final c = glow ?? _accentColor;
-        return DecoratedBox(
-          decoration: const BoxDecoration(
-            gradient: AppColors.backgroundGradient,
+    return DecoratedBox(
+      decoration: const BoxDecoration(gradient: AppColors.backgroundGradient),
+      child: Stack(
+        children: [
+          Positioned(
+            top: -120,
+            right: -100,
+            child: _glowOrb(AppColors.primaryGlow, 260, 0.06),
           ),
-          child: Stack(
-            children: [
-              Positioned(top: -110, right: -90, child: _glowOrb(c, 260, 0.08)),
-              Positioned(
-                bottom: -140,
-                left: -100,
-                child: _glowOrb(c, 300, 0.05),
-              ),
-              child,
-            ],
+          Positioned(
+            bottom: -150,
+            left: -110,
+            child: _glowOrb(AppColors.neonPurple, 300, 0.05),
           ),
-        );
-      },
+          child,
+        ],
+      ),
     );
   }
 
@@ -626,22 +621,14 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            _accentColor.withValues(alpha: 0.08),
-            _accentColor.withValues(alpha: 0.015),
-          ],
-        ),
+        gradient: AppColors.glassGradient,
         borderRadius: AppSpacing.borderRadiusXl,
-        border: Border.all(color: _accentColor.withValues(alpha: 0.16)),
+        border: Border.all(color: AppColors.glassBorder),
         boxShadow: [
           BoxShadow(
-            color: _accentColor.withValues(alpha: 0.09),
+            color: AppColors.glassShadow,
             blurRadius: 24,
-            spreadRadius: -8,
-            offset: const Offset(0, 12),
+            offset: const Offset(0, 10),
           ),
         ],
       ),
@@ -698,9 +685,16 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                   padding: const EdgeInsets.all(4),
                   child: DecoratedBox(
                     decoration: BoxDecoration(
-                      color: _accentColor.withValues(alpha: 0.2),
+                      color: AppColors.primaryElevated,
                       borderRadius: AppSpacing.borderRadiusFull,
-                      border: Border.all(color: _accentColor, width: 1.5),
+                      border: Border.all(color: AppColors.glassBorder),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.25),
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
                     ),
                   ),
                 ),
