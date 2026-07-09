@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/core/themes/app_animations.dart';
+import 'package:the_accountant/features/premium/providers/premium_provider.dart';
 import 'package:the_accountant/features/transactions/providers/title_suggestions_provider.dart';
 
 /// Title input section for transaction creation.
@@ -107,6 +108,10 @@ class _TitleInputSectionState extends ConsumerState<TitleInputSection> {
 
   Future<void> _checkCategorySuggestion(String title) async {
     if (widget.onCategorySuggested == null) return;
+
+    // Auto-categorization ("Smart Categorization") is a Premium feature. Free
+    // users still get title autocomplete, just not the category suggestion.
+    if (!ref.read(premiumProvider).isPremium) return;
 
     final suggestion = await ref
         .read(titleSuggestionsProvider.notifier)

@@ -1,6 +1,10 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
+import 'package:the_accountant/data/models/premium_features.dart';
+import 'package:the_accountant/features/premium/exceptions/premium_limit_exception.dart';
+import 'package:the_accountant/features/premium/providers/premium_provider.dart';
 import 'package:drift/drift.dart' show Value;
 import 'package:uuid/uuid.dart';
 
@@ -52,8 +56,9 @@ class PaymentMethodState {
 
 class PaymentMethodNotifier extends StateNotifier<PaymentMethodState> {
   final AppDatabase _db;
+  final Ref _ref;
 
-  PaymentMethodNotifier(this._db)
+  PaymentMethodNotifier(this._db, this._ref)
     : super(PaymentMethodState(paymentMethods: [], isLoading: false)) {
     loadPaymentMethods();
   }
@@ -95,6 +100,21 @@ class PaymentMethodNotifier extends StateNotifier<PaymentMethodState> {
     String? institution,
     bool isDefault = false,
   }) async {
+    // Enforce the free-tier limit; Premium removes it (part of "Unlimited
+    // Everything"). Thrown before any state change so callers can surface the
+    // upgrade dialog.
+    final premiumState = _ref.read(premiumProvider);
+    if (!premiumState.isPremium) {
+      final currentCount = state.paymentMethods.length;
+      if (currentCount >= FreeTierLimits.maxPaymentMethods) {
+        throw PremiumLimitException(
+          entityType: 'payment_method',
+          currentCount: currentCount,
+          limit: FreeTierLimits.maxPaymentMethods,
+        );
+      }
+    }
+
     state = state.copyWith(isLoading: true);
 
     try {
@@ -191,5 +211,5 @@ class PaymentMethodNotifier extends StateNotifier<PaymentMethodState> {
 final paymentMethodProvider =
     StateNotifierProvider<PaymentMethodNotifier, PaymentMethodState>((ref) {
       final db = ref.watch(databaseProvider);
-      return PaymentMethodNotifier(db);
+      return PaymentMethodNotifier(db, ref);
     });
