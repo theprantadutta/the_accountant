@@ -203,10 +203,7 @@ class AppDatabase extends _$AppDatabase {
         categories,
         categories.id.equalsExp(transactions.categoryId),
       ),
-      leftOuterJoin(
-        wallets,
-        wallets.id.equalsExp(transactions.walletId),
-      ),
+      leftOuterJoin(wallets, wallets.id.equalsExp(transactions.walletId)),
     ]);
 
     query.where(transactions.deletedAt.isNull());
@@ -434,6 +431,17 @@ class AppDatabase extends _$AppDatabase {
   Future<int> deletePaymentMethod(String id) =>
       (delete(paymentMethods)..where((p) => p.id.equals(id))).go();
 
+  /// Soft delete a payment method (sets deletedAt and marks for sync)
+  Future<void> softDeletePaymentMethod(String id) async {
+    await (update(paymentMethods)..where((p) => p.id.equals(id))).write(
+      PaymentMethodsCompanion(
+        deletedAt: Value(DateTime.now()),
+        syncStatus: const Value(SyncStatus.pendingDelete),
+        updatedAt: Value(DateTime.now()),
+      ),
+    );
+  }
+
   Future<List<PaymentMethod>> getDefaultPaymentMethods() =>
       (select(paymentMethods)
             ..where((p) => p.isDefault.equals(true))
@@ -456,6 +464,17 @@ class AppDatabase extends _$AppDatabase {
 
   Future<int> deleteBudget(String id) =>
       (delete(budgets)..where((b) => b.id.equals(id))).go();
+
+  /// Soft delete a budget (sets deletedAt and marks for sync)
+  Future<void> softDeleteBudget(String id) async {
+    await (update(budgets)..where((b) => b.id.equals(id))).write(
+      BudgetsCompanion(
+        deletedAt: Value(DateTime.now()),
+        syncStatus: const Value(SyncStatus.pendingDelete),
+        updatedAt: Value(DateTime.now()),
+      ),
+    );
+  }
 
   Future<List<Budget>> getActiveBudgets() =>
       (select(budgets)
@@ -492,6 +511,17 @@ class AppDatabase extends _$AppDatabase {
 
   Future<int> deleteCategory(String id) =>
       (delete(categories)..where((c) => c.id.equals(id))).go();
+
+  /// Soft delete a category (sets deletedAt and marks for sync)
+  Future<void> softDeleteCategory(String id) async {
+    await (update(categories)..where((c) => c.id.equals(id))).write(
+      CategoriesCompanion(
+        deletedAt: Value(DateTime.now()),
+        syncStatus: const Value(SyncStatus.pendingDelete),
+        updatedAt: Value(DateTime.now()),
+      ),
+    );
+  }
 
   /// @deprecated - Use getIncomeCategories or getExpenseCategories instead
   Future<List<Category>> getCategoriesByType(String type) =>
@@ -613,9 +643,9 @@ class AppDatabase extends _$AppDatabase {
   /// for sync. Called when a wallet is deleted so its transactions don't become orphans
   /// that keep skewing dashboard/report totals.
   Future<void> softDeleteTransactionsForWallet(String walletId) async {
-    await (update(transactions)
-          ..where((t) => t.walletId.equals(walletId) & t.deletedAt.isNull()))
-        .write(
+    await (update(
+      transactions,
+    )..where((t) => t.walletId.equals(walletId) & t.deletedAt.isNull())).write(
       TransactionsCompanion(
         deletedAt: Value(DateTime.now()),
         syncStatus: const Value(SyncStatus.pendingDelete),
@@ -1042,30 +1072,34 @@ class AppDatabase extends _$AppDatabase {
 
   /// Get the persisted last-sync timestamp (stored as a '_global' row in SyncStates)
   Future<DateTime?> getLastSyncTimestamp() async {
-    final row = await (select(syncStates)
-          ..where((s) => s.syncTableName.equals('_global')))
-        .getSingleOrNull();
+    final row = await (select(
+      syncStates,
+    )..where((s) => s.syncTableName.equals('_global'))).getSingleOrNull();
     return row?.lastSyncAt;
   }
 
   /// Upsert the global last-sync timestamp
   Future<void> setLastSyncTimestamp(DateTime timestamp) async {
-    final existing = await (select(syncStates)
-          ..where((s) => s.syncTableName.equals('_global')))
-        .getSingleOrNull();
+    final existing = await (select(
+      syncStates,
+    )..where((s) => s.syncTableName.equals('_global'))).getSingleOrNull();
 
     if (existing != null) {
-      await (update(syncStates)
-            ..where((s) => s.syncTableName.equals('_global')))
-          .write(SyncStatesCompanion(
-        lastSyncAt: Value(timestamp),
-        updatedAt: Value(DateTime.now()),
-      ));
+      await (update(
+        syncStates,
+      )..where((s) => s.syncTableName.equals('_global'))).write(
+        SyncStatesCompanion(
+          lastSyncAt: Value(timestamp),
+          updatedAt: Value(DateTime.now()),
+        ),
+      );
     } else {
-      await into(syncStates).insert(SyncStatesCompanion(
-        syncTableName: const Value('_global'),
-        lastSyncAt: Value(timestamp),
-      ));
+      await into(syncStates).insert(
+        SyncStatesCompanion(
+          syncTableName: const Value('_global'),
+          lastSyncAt: Value(timestamp),
+        ),
+      );
     }
   }
 

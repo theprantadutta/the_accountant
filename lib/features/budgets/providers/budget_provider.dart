@@ -79,7 +79,9 @@ class BudgetNotifier extends StateNotifier<BudgetState> {
               categoryId: b.categoryId ?? '',
               // Legacy view model keeps `limit` as major-unit dollars. The money column
               // `amount` is now integer cents, so convert it when falling back.
-              limit: b.limit ?? (b.amount / 100.0), // Use amount (cents) if limit is null
+              limit:
+                  b.limit ??
+                  (b.amount / 100.0), // Use amount (cents) if limit is null
               period: b.period,
               startDate: b.startDate,
               endDate: b.endDate!, // Safe because we filtered above
@@ -92,9 +94,9 @@ class BudgetNotifier extends StateNotifier<BudgetState> {
     } catch (e) {
       if (!silent) {
         state = state.copyWith(
-        isLoading: false,
-        errorMessage: 'Failed to load budgets',
-      );
+          isLoading: false,
+          errorMessage: 'Failed to load budgets',
+        );
       }
     }
   }
@@ -199,7 +201,7 @@ class BudgetNotifier extends StateNotifier<BudgetState> {
     state = state.copyWith(isLoading: true);
 
     try {
-      await _db.deleteBudget(id);
+      await _db.softDeleteBudget(id);
       AnalyticsService().logBudgetDelete();
 
       // Reload budgets to reflect the deletion

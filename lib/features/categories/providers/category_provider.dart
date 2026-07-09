@@ -111,9 +111,9 @@ class CategoryNotifier extends StateNotifier<CategoryState> {
     } catch (e) {
       if (!silent) {
         state = state.copyWith(
-        isLoading: false,
-        errorMessage: 'Failed to load categories',
-      );
+          isLoading: false,
+          errorMessage: 'Failed to load categories',
+        );
       }
     }
   }
@@ -241,7 +241,7 @@ class CategoryNotifier extends StateNotifier<CategoryState> {
         throw Exception('Cannot delete default categories');
       }
 
-      await _db.deleteCategory(id);
+      await _db.softDeleteCategory(id);
 
       // Reload categories to reflect the deletion
       await loadCategories();

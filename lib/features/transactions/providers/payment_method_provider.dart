@@ -81,9 +81,9 @@ class PaymentMethodNotifier extends StateNotifier<PaymentMethodState> {
     } catch (e) {
       if (!silent) {
         state = state.copyWith(
-        isLoading: false,
-        errorMessage: 'Failed to load payment methods',
-      );
+          isLoading: false,
+          errorMessage: 'Failed to load payment methods',
+        );
       }
     }
   }
@@ -167,7 +167,7 @@ class PaymentMethodNotifier extends StateNotifier<PaymentMethodState> {
     state = state.copyWith(isLoading: true);
 
     try {
-      await _db.deletePaymentMethod(id);
+      await _db.softDeletePaymentMethod(id);
 
       // Reload payment methods to reflect the deletion
       await loadPaymentMethods();

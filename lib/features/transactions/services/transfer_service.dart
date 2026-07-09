@@ -176,13 +176,14 @@ class TransferService {
       throw Exception('Transaction not found: $transactionId');
     }
 
-    // Delete paired transaction if it exists
+    // Soft-delete paired transaction if it exists (so the delete syncs and
+    // doesn't resurrect on a full pull/reinstall).
     if (transaction.pairedTransactionId != null) {
-      await _db.deleteTransaction(transaction.pairedTransactionId!);
+      await _db.softDeleteTransaction(transaction.pairedTransactionId!);
     }
 
-    // Delete the main transaction
-    await _db.deleteTransaction(transactionId);
+    // Soft-delete the main transaction
+    await _db.softDeleteTransaction(transactionId);
   }
 
   /// Get all transfer transactions
