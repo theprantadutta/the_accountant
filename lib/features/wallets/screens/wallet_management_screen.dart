@@ -1200,98 +1200,103 @@ class _WalletCardState extends ConsumerState<_WalletCard>
             borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
             border: Border.all(color: AppColors.glassBorder),
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Handle
-              Container(
-                width: 40,
-                height: 4,
-                margin: const EdgeInsets.only(bottom: 20),
-                decoration: BoxDecoration(
-                  color: AppColors.divider,
-                  borderRadius: BorderRadius.circular(2),
+          // Transparent Material in front of the coloured sheet background so the
+          // option ListTiles' ink splashes are visible.
+          child: Material(
+            type: MaterialType.transparency,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Handle
+                Container(
+                  width: 40,
+                  height: 4,
+                  margin: const EdgeInsets.only(bottom: 20),
+                  decoration: BoxDecoration(
+                    color: AppColors.divider,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
                 ),
-              ),
 
-              // Wallet info header
-              Row(
-                children: [
-                  Container(
-                    width: 44,
-                    height: 44,
-                    decoration: BoxDecoration(
-                      color: WalletColors.parseColor(
-                        widget.wallet.color,
-                      ).withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(12),
+                // Wallet info header
+                Row(
+                  children: [
+                    Container(
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        color: WalletColors.parseColor(
+                          widget.wallet.color,
+                        ).withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(
+                        WalletIcons.getIcon(widget.wallet.iconName),
+                        color: WalletColors.parseColor(widget.wallet.color),
+                        size: 22,
+                      ),
                     ),
-                    child: Icon(
-                      WalletIcons.getIcon(widget.wallet.iconName),
-                      color: WalletColors.parseColor(widget.wallet.color),
-                      size: 22,
-                    ),
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          widget.wallet.name,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.textPrimary,
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            widget.wallet.name,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.textPrimary,
+                            ),
                           ),
-                        ),
-                        Text(
-                          widget.wallet.currency,
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: AppColors.textSecondary,
+                          Text(
+                            widget.wallet.currency,
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: AppColors.textSecondary,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                ],
-              ),
+                  ],
+                ),
 
-              const SizedBox(height: 20),
-              const Divider(color: AppColors.divider),
-              const SizedBox(height: 10),
+                const SizedBox(height: 20),
+                const Divider(color: AppColors.divider),
+                const SizedBox(height: 10),
 
-              // Options
-              _OptionTile(
-                icon: Icons.edit_outlined,
-                label: 'Edit Account',
-                onTap: () {
-                  Navigator.pop(context);
-                  widget.onEdit();
-                },
-              ),
-              if (widget.wallet.isDefault != true)
+                // Options
                 _OptionTile(
-                  icon: Icons.star_outline,
-                  label: 'Set as Default',
+                  icon: Icons.edit_outlined,
+                  label: 'Edit Account',
                   onTap: () {
                     Navigator.pop(context);
-                    widget.onSetDefault();
+                    widget.onEdit();
                   },
                 ),
-              _OptionTile(
-                icon: Icons.delete_outline,
-                label: 'Delete Account',
-                isDestructive: true,
-                onTap: () {
-                  Navigator.pop(context);
-                  widget.onDelete();
-                },
-              ),
+                if (widget.wallet.isDefault != true)
+                  _OptionTile(
+                    icon: Icons.star_outline,
+                    label: 'Set as Default',
+                    onTap: () {
+                      Navigator.pop(context);
+                      widget.onSetDefault();
+                    },
+                  ),
+                _OptionTile(
+                  icon: Icons.delete_outline,
+                  label: 'Delete Account',
+                  isDestructive: true,
+                  onTap: () {
+                    Navigator.pop(context);
+                    widget.onDelete();
+                  },
+                ),
 
-              SizedBox(height: MediaQuery.of(context).padding.bottom + 10),
-            ],
+                SizedBox(height: MediaQuery.of(context).padding.bottom + 10),
+              ],
+            ),
           ),
         ),
       ),
