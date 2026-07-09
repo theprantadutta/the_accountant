@@ -94,129 +94,160 @@ class OcrService {
     }
   }
 
-  /// Process an image file and extract structured receipt data with enhanced processing
+  /// Process an image and extract structured receipt data (merchant + total).
   Future<ReceiptData?> extractReceiptData(File imageFile) async {
     try {
-      // First get the raw text
       final text = await processImage(imageFile);
-
-      if (text == null) {
-        return null;
-      }
-
-      // Scan for barcodes
-      final barcodes = await scanBarcodes(imageFile);
-
-      // Label the image
-      final labels = await labelImage(imageFile);
-
-      // Parse the text to extract receipt data
-      return _parseReceiptText(text, barcodes, labels);
+      if (text == null || text.trim().isEmpty) return null;
+      return _parseReceiptText(text);
     } catch (e) {
       debugPrint('Error extracting receipt data: $e');
       return null;
     }
   }
 
-  /// Parse receipt text to extract structured data with enhanced processing
-  ReceiptData _parseReceiptText(
-    String text,
-    List<Barcode>? barcodes,
-    List<ImageLabel>? labels,
-  ) {
-    // This is a simplified parser - in a real implementation, you would use
-    // more sophisticated NLP techniques to extract receipt data
-
-    final lines = text.split('\n');
-    double total = 0.0;
-    final items = <ReceiptItem>[];
-    String? date;
-    String? merchant;
-
-    // Look for total amount (common patterns)
-    final totalRegex = RegExp(
-      r'(?:total|amount due|balance)\s*:?\s*\$?(\d+\.?\d*)',
-      caseSensitive: false,
-    );
-    final totalMatch = totalRegex.firstMatch(text);
-    if (totalMatch != null) {
-      total = double.tryParse(totalMatch.group(1) ?? '0') ?? 0.0;
-    }
-
-    // Look for date (common patterns)
-    final dateRegex = RegExp(
-      r'(\d{1,2}/\d{1,2}/\d{2,4}|\d{1,2}-\d{1,2}-\d{2,4})',
-    );
-    final dateMatch = dateRegex.firstMatch(text);
-    if (dateMatch != null) {
-      date = dateMatch.group(1);
-    }
-
-    // Look for merchant name (usually at the beginning)
-    if (lines.isNotEmpty) {
-      merchant = lines[0].trim();
-    }
-
-    // Look for line items (items with prices)
-    final itemRegex = RegExp(r'(.+?)\s*\$?(\d+\.?\d*)$');
-    for (final line in lines) {
-      final itemMatch = itemRegex.firstMatch(line.trim());
-      if (itemMatch != null) {
-        final itemName = itemMatch.group(1)?.trim() ?? '';
-        final itemPrice = double.tryParse(itemMatch.group(2) ?? '0') ?? 0.0;
-
-        // Filter out lines that are likely not items (too short, or contain total/etc.)
-        if (itemName.length > 3 &&
-            !itemName.toLowerCase().contains('total') &&
-            !itemName.toLowerCase().contains('subtotal') &&
-            !itemName.toLowerCase().contains('tax')) {
-          items.add(ReceiptItem(name: itemName, price: itemPrice));
-        }
-      }
-    }
-
-    // Enhance merchant detection using image labels
-    if ((merchant == 'Unknown' || merchant == null) &&
-        labels != null &&
-        labels.isNotEmpty) {
-      // Look for common merchant-related labels
-      final merchantLabels = labels
-          .where(
-            (label) =>
-                label.label.toLowerCase().contains('store') ||
-                label.label.toLowerCase().contains('shop') ||
-                label.label.toLowerCase().contains('market') ||
-                label.label.toLowerCase().contains('restaurant'),
-          )
-          .toList();
-
-      if (merchantLabels.isNotEmpty) {
-        merchant = merchantLabels.first.label;
-      }
-    }
-
-    // Add barcode information if available
-    String? barcodeInfo;
-    if (barcodes != null && barcodes.isNotEmpty) {
-      // Extract barcode data
-      final barcodeData = barcodes
-          .map((b) => '${b.rawValue} (${b.format.name})')
-          .join(', ');
-      barcodeInfo = barcodeData;
-    }
+  /// Heuristic receipt parser. On-device ML Kit gives good raw text; the value
+  /// is in picking the right merchant and total out of it:
+  ///  - Total: the amount on a line labelled TOTAL / AMOUNT DUE / BALANCE DUE,
+  ///    excluding SUBTOTAL / TAX / CHANGE / TENDER, and only counting amounts
+  ///    that have cents (.dd) so transaction ids and quantities are ignored.
+  ///  - Merchant: the first top line that reads like a name (letters, not an
+  ///    address / phone / all-digits line).
+  ReceiptData _parseReceiptText(String text) {
+    final lines = text
+        .split('\n')
+        .map((l) => l.trim())
+        .where((l) => l.isNotEmpty)
+        .toList();
 
     return ReceiptData(
-      merchant: merchant ?? 'Unknown',
-      date: date,
-      total: total,
-      items: items,
-      barcodeInfo: barcodeInfo, // Add barcode information
-      imageLabels: labels
-          ?.map(
-            (l) => '${l.label} (${(l.confidence * 100).toStringAsFixed(1)}%)',
-          )
-          .toList(), // Add image labels
+      merchant: _extractMerchant(lines),
+      date: _extractDate(text),
+      total: _extractTotal(lines),
+      items: const [],
     );
+  }
+
+  // Only amounts with cents (e.g. 12.34 or 1,234.56) — this alone filters out
+  // transaction ids, quantities, phone numbers and barcodes.
+  static final RegExp _amountRegex = RegExp(
+    r'(\d{1,3}(?:,\d{3})+|\d+)\.(\d{2})(?!\d)',
+  );
+
+  /// The last cents-bearing amount on a line (amounts are usually right-aligned).
+  double? _lastAmountIn(String line) {
+    double? value;
+    for (final m in _amountRegex.allMatches(line)) {
+      final whole = (m.group(1) ?? '').replaceAll(',', '');
+      value = double.tryParse('$whole.${m.group(2)}');
+    }
+    return value;
+  }
+
+  double _extractTotal(List<String> lines) {
+    // Higher index = stronger signal it's the final total.
+    const totalKeywords = [
+      'total',
+      'balance due',
+      'amount due',
+      'total due',
+      'grand total',
+    ];
+    const excludeKeywords = [
+      'subtotal',
+      'sub total',
+      'tax',
+      'vat',
+      'gst',
+      'change',
+      'tender',
+      'cash',
+      'card',
+      'credit',
+      'debit',
+      'tip',
+      'gratuity',
+      'discount',
+      'savings',
+      'points',
+      'balance forward',
+      'previous',
+    ];
+
+    double? best;
+    var bestRank = -1;
+
+    for (var i = 0; i < lines.length; i++) {
+      final lower = lines[i].toLowerCase();
+      if (excludeKeywords.any(lower.contains)) continue;
+
+      var rank = -1;
+      for (var k = 0; k < totalKeywords.length; k++) {
+        if (lower.contains(totalKeywords[k]) && k > rank) rank = k;
+      }
+      if (rank < 0) continue;
+
+      // The amount may be on the keyword line, or (columnar receipts) the next.
+      final amount =
+          _lastAmountIn(lines[i]) ??
+          (i + 1 < lines.length ? _lastAmountIn(lines[i + 1]) : null);
+      if (amount == null) continue;
+
+      if (rank > bestRank || (rank == bestRank && amount > (best ?? 0))) {
+        best = amount;
+        bestRank = rank;
+      }
+    }
+    if (best != null) return best;
+
+    // Fallback: the largest cents-bearing amount on the receipt.
+    var max = 0.0;
+    for (final line in lines) {
+      final a = _lastAmountIn(line);
+      if (a != null && a > max && a < 1000000) max = a;
+    }
+    return max;
+  }
+
+  String _extractMerchant(List<String> lines) {
+    for (final line in lines.take(6)) {
+      if (line.length < 3) continue;
+      final lower = line.toLowerCase();
+      if (lower.contains('receipt') ||
+          lower.contains('www') ||
+          lower.contains('.com') ||
+          lower.contains('tel') ||
+          lower.contains('phone') ||
+          lower.contains('order') ||
+          lower.contains('invoice')) {
+        continue;
+      }
+      // Skip lines that are mostly digits/symbols (addresses, ids, phone nos).
+      final letters = RegExp(r'[a-zA-Z]').allMatches(line).length;
+      final digits = RegExp(r'\d').allMatches(line).length;
+      if (letters < 3 || digits > letters) continue;
+
+      return _tidyName(line);
+    }
+    return lines.isNotEmpty ? _tidyName(lines.first) : 'Receipt';
+  }
+
+  /// Title-case shouty ALL-CAPS names ("WALMART" -> "Walmart").
+  String _tidyName(String name) {
+    final trimmed = name.trim();
+    if (trimmed != trimmed.toUpperCase()) return trimmed;
+    return trimmed
+        .split(RegExp(r'\s+'))
+        .map(
+          (w) =>
+              w.isEmpty ? w : w[0].toUpperCase() + w.substring(1).toLowerCase(),
+        )
+        .join(' ');
+  }
+
+  String? _extractDate(String text) {
+    final match = RegExp(r'(\d{1,2}[/-]\d{1,2}[/-]\d{2,4})').firstMatch(text);
+    return match?.group(1);
   }
 
   /// Dispose of all recognizers
