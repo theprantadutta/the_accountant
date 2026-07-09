@@ -53,10 +53,17 @@ class CurrencyState {
     return codes;
   }
 
-  /// Search currencies by code or name
-  List<MapEntry<String, String>> searchCurrencies(String query) {
+  /// Search currencies by code or name. Crypto/non-fiat currencies are hidden
+  /// unless [includeCrypto] is true.
+  List<MapEntry<String, String>> searchCurrencies(
+    String query, {
+    bool includeCrypto = false,
+  }) {
+    bool visible(MapEntry<String, String> entry) =>
+        includeCrypto || !CurrencyInfo.isCrypto(entry.key);
+
     if (query.isEmpty) {
-      return availableCurrencies.entries.toList()
+      return availableCurrencies.entries.where(visible).toList()
         ..sort((a, b) => a.key.compareTo(b.key));
     }
 
@@ -64,8 +71,9 @@ class CurrencyState {
     return availableCurrencies.entries
         .where(
           (entry) =>
-              entry.key.toLowerCase().contains(lowerQuery) ||
-              entry.value.toLowerCase().contains(lowerQuery),
+              visible(entry) &&
+              (entry.key.toLowerCase().contains(lowerQuery) ||
+                  entry.value.toLowerCase().contains(lowerQuery)),
         )
         .toList()
       ..sort((a, b) {

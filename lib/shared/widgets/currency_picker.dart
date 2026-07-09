@@ -165,6 +165,12 @@ class _CurrencyPickerSheetState extends ConsumerState<_CurrencyPickerSheet> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
 
+  // Crypto/non-fiat currencies are hidden by default. If the current selection
+  // is itself a crypto currency, start enabled so the user still sees it.
+  late bool _includeCrypto =
+      widget.selectedCurrency != null &&
+      CurrencyInfo.isCrypto(widget.selectedCurrency!);
+
   @override
   void dispose() {
     _searchController.dispose();
@@ -174,7 +180,10 @@ class _CurrencyPickerSheetState extends ConsumerState<_CurrencyPickerSheet> {
   @override
   Widget build(BuildContext context) {
     final currencyState = ref.watch(currencyProvider);
-    final filteredCurrencies = currencyState.searchCurrencies(_searchQuery);
+    final filteredCurrencies = currencyState.searchCurrencies(
+      _searchQuery,
+      includeCrypto: _includeCrypto,
+    );
 
     return Container(
       height: MediaQuery.of(context).size.height * 0.75,
@@ -251,6 +260,48 @@ class _CurrencyPickerSheetState extends ConsumerState<_CurrencyPickerSheet> {
             ),
           ),
           const SizedBox(height: 16),
+          // Include crypto currencies toggle (off by default)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () => setState(() => _includeCrypto = !_includeCrypto),
+              child: Row(
+                children: [
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 150),
+                    width: 22,
+                    height: 22,
+                    decoration: BoxDecoration(
+                      color: _includeCrypto
+                          ? AppColors.primaryAccent
+                          : Colors.transparent,
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(
+                        color: _includeCrypto
+                            ? AppColors.primaryAccent
+                            : AppColors.glassBorder,
+                        width: 1.5,
+                      ),
+                    ),
+                    child: _includeCrypto
+                        ? const Icon(Icons.check, size: 16, color: Colors.white)
+                        : null,
+                  ),
+                  const SizedBox(width: 10),
+                  Text(
+                    'Include crypto currencies',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: AppColors.textSecondary,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
           // Loading state
           if (currencyState.isLoading &&
               currencyState.availableCurrencies.isEmpty)
@@ -291,6 +342,9 @@ class _CurrencyPickerSheetState extends ConsumerState<_CurrencyPickerSheet> {
                 ),
               ),
             )
+          // Empty state (no matches, e.g. searching a crypto with it disabled)
+          else if (filteredCurrencies.isEmpty)
+            Expanded(child: _buildEmptyState())
           // Currency list
           else
             Expanded(
@@ -373,6 +427,36 @@ class _CurrencyPickerSheetState extends ConsumerState<_CurrencyPickerSheet> {
               ),
             ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 40),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.search_off, size: 48, color: AppColors.textMuted),
+            const SizedBox(height: 12),
+            Text(
+              'No currencies found',
+              style: AppTypography.bodyLarge,
+              textAlign: TextAlign.center,
+            ),
+            if (!_includeCrypto) ...[
+              const SizedBox(height: 6),
+              Text(
+                "Enable 'Include crypto currencies' to search crypto tokens.",
+                style: AppTypography.bodySmall.copyWith(
+                  color: AppColors.textMuted,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ],
+        ),
       ),
     );
   }
