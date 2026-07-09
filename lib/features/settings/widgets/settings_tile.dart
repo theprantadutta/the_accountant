@@ -272,7 +272,8 @@ class SettingsSection extends StatelessWidget {
         ),
         Container(
           decoration: BoxDecoration(
-            color: AppColors.primarySurface,
+            // Translucent so the ambient gradient shows through the card.
+            color: AppColors.primarySurface.withValues(alpha: 0.45),
             borderRadius: AppSpacing.borderRadiusLg,
             border: Border.all(color: AppColors.glassBorder),
           ),
