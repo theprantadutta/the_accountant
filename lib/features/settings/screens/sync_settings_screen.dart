@@ -293,7 +293,14 @@ class _SyncSettingsScreenState extends ConsumerState<SyncSettingsScreen> {
         borderRadius: AppSpacing.borderRadiusLg,
         border: Border.all(color: AppColors.glassBorder),
       ),
-      child: Column(children: children),
+      // Transparent Material in front of the coloured card so the tiles' ink
+      // splashes are visible; clip it to the card's rounded corners.
+      child: Material(
+        type: MaterialType.transparency,
+        borderRadius: AppSpacing.borderRadiusLg,
+        clipBehavior: Clip.antiAlias,
+        child: Column(children: children),
+      ),
     );
   }
 
