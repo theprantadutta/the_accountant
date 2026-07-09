@@ -8,6 +8,8 @@ import 'package:the_accountant/core/services/sync/sync_models.dart';
 import 'package:the_accountant/core/services/wallet_balance_service.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/data/models/wallet.dart' show WalletType;
+import 'package:the_accountant/data/models/transaction.dart'
+    show TransactionSpecialType;
 import 'package:the_accountant/features/premium/providers/premium_provider.dart';
 import 'package:drift/drift.dart';
 
@@ -465,7 +467,9 @@ class SyncService {
       ),
       isIncome: Value(data['IsIncome'] ?? false),
       transactionType: Value(_parseTransactionType(data['Type'])),
-      specialType: Value(data['SpecialType'] ?? 0),
+      // specialType is an enum column — convert the incoming int index back to
+      // the enum (passing a raw int would fail Drift's enum write path).
+      specialType: Value(_parseSpecialType(data['SpecialType'])),
       walletId: Value(data['WalletId'] ?? ''),
       categoryId: Value(data['CategoryId']),
       paymentMethodId: Value(data['PaymentMethodId']),
@@ -816,6 +820,14 @@ class SyncService {
     }
   }
 
+  TransactionSpecialType _parseSpecialType(dynamic value) {
+    final index = (value as num?)?.toInt() ?? 0;
+    if (index >= 0 && index < TransactionSpecialType.values.length) {
+      return TransactionSpecialType.values[index];
+    }
+    return TransactionSpecialType.none;
+  }
+
   String _parseTransactionType(dynamic type) {
     if (type is int) {
       switch (type) {
@@ -926,7 +938,9 @@ class SyncService {
     'Date': t.date.toUtc().toIso8601String(),
     'IsIncome': t.isIncome,
     'Type': _transactionTypeToInt(t.transactionType),
-    'SpecialType': t.specialType,
+    // specialType is a Dart enum (EnumIndexConverter) — send its int index so the
+    // JSON body can actually be encoded. Sending the raw enum breaks jsonEncode.
+    'SpecialType': t.specialType?.index ?? 0,
     'IsPaid': t.isPaid,
     'OriginalDueDate': t.originalDueDate?.toUtc().toIso8601String(),
     'SkipPaid': t.skipPaid,
