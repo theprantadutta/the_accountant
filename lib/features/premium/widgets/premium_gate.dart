@@ -58,12 +58,9 @@ class _PremiumUpgradeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.primaryDark,
+      backgroundColor: Colors.transparent,
       extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-      ),
+      appBar: AppBar(backgroundColor: Colors.transparent, elevation: 0),
       body: Stack(
         children: [
           // Background gradient orbs
@@ -106,8 +103,7 @@ class _PremiumUpgradeScreen extends StatelessWidget {
           SafeArea(
             child: LayoutBuilder(
               builder: (context, constraints) {
-                final scale =
-                    (constraints.maxHeight / 600).clamp(0.75, 1.0);
+                final scale = (constraints.maxHeight / 600).clamp(0.75, 1.0);
                 return Padding(
                   padding: EdgeInsets.symmetric(
                     horizontal: 24,
@@ -278,9 +274,7 @@ class _PremiumUpgradeScreen extends StatelessWidget {
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: benefits
-            .map((b) => _buildBenefitItem(b, scale))
-            .toList(),
+        children: benefits.map((b) => _buildBenefitItem(b, scale)).toList(),
       ),
     );
   }
@@ -296,11 +290,7 @@ class _PremiumUpgradeScreen extends StatelessWidget {
             color: benefit.color.withValues(alpha: 0.15),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Icon(
-            benefit.icon,
-            size: 24 * scale,
-            color: benefit.color,
-          ),
+          child: Icon(benefit.icon, size: 24 * scale, color: benefit.color),
         ),
         SizedBox(height: 8 * scale),
         Text(

@@ -1,8 +1,10 @@
 /// Billing configuration constants for The Accountant
 class BillingConfig {
   /// Whether test mode is enabled (uses test product IDs)
-  static const bool isTestMode =
-      bool.fromEnvironment('BILLING_TEST_MODE', defaultValue: false);
+  static const bool isTestMode = bool.fromEnvironment(
+    'BILLING_TEST_MODE',
+    defaultValue: false,
+  );
 
   /// Package name for the app (matches Android applicationId and Google Play
   /// registration — distinct from the Android namespace which uses an underscore).

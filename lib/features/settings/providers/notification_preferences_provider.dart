@@ -28,8 +28,7 @@ class _PrefsKeys {
       '${prefix}recurring_reminders_enabled';
   static const String recurringReminderDaysBefore =
       '${prefix}recurring_reminder_days_before';
-  static const String reminderOffset =
-      '${prefix}reminder_offset_minutes';
+  static const String reminderOffset = '${prefix}reminder_offset_minutes';
   static const String subscriptionExpiryAlertsEnabled =
       '${prefix}subscription_expiry_alerts_enabled';
   static const String promotionalNotificationsEnabled =
@@ -232,7 +231,7 @@ class NotificationPreferencesNotifier
               prefs.getInt(_PrefsKeys.recurringReminderDaysBefore) ?? 1,
           reminderOffsetMinutes:
               prefs.getInt(_PrefsKeys.reminderOffset) ??
-                  BackgroundTaskConstants.defaultOffset,
+              BackgroundTaskConstants.defaultOffset,
           subscriptionExpiryAlertsEnabled:
               prefs.getBool(_PrefsKeys.subscriptionExpiryAlertsEnabled) ?? true,
           promotionalNotificationsEnabled:
@@ -360,7 +359,8 @@ class NotificationPreferencesNotifier
       recurringTransactionRemindersEnabled:
           data['recurring_transaction_reminders_enabled'] ?? false,
       recurringReminderDaysBefore: data['recurring_reminder_days_before'] ?? 1,
-      reminderOffsetMinutes: data['reminder_offset_minutes'] ??
+      reminderOffsetMinutes:
+          data['reminder_offset_minutes'] ??
           BackgroundTaskConstants.defaultOffset,
       subscriptionExpiryAlertsEnabled:
           data['subscription_expiry_alerts_enabled'] ?? true,

@@ -98,10 +98,7 @@ class _DestructiveConfirmationDialogState
           const SizedBox(height: 16),
           Text(
             'Type "${widget.confirmationWord}" to confirm:',
-            style: TextStyle(
-              color: AppColors.textMuted,
-              fontSize: 13,
-            ),
+            style: TextStyle(color: AppColors.textMuted, fontSize: 13),
           ),
           const SizedBox(height: 8),
           TextField(

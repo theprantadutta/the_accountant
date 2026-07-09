@@ -460,7 +460,7 @@ class _MainNavigationContainerState
     // the load reads as the dashboard filling in rather than a bare loader.
     if (isLoadingWallets) {
       return Container(
-        decoration: BoxDecoration(gradient: AppColors.backgroundGradient),
+        decoration: const BoxDecoration(),
         child: const Scaffold(
           backgroundColor: Colors.transparent,
           body: SafeArea(child: ShimmerDashboard()),
@@ -484,7 +484,7 @@ class _MainNavigationContainerState
     }
 
     return Container(
-      decoration: BoxDecoration(gradient: AppColors.backgroundGradient),
+      decoration: const BoxDecoration(),
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: _buildCustomAppBar(),

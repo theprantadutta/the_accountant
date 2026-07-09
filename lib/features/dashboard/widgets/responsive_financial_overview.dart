@@ -701,7 +701,10 @@ class _ResponsiveFinancialOverviewState
               );
               final currencySymbol = CurrencyInfo.getSymbol(walletCurrency);
               final nf = ref.watch(numberFormatSettingProvider);
-              final formatter = AppNumberFormatter.get(nf, useDecimals: useDecimals);
+              final formatter = AppNumberFormatter.get(
+                nf,
+                useDecimals: useDecimals,
+              );
               // transaction.amount is integer cents; display in major-unit dollars.
               final displayAmount = useDecimals
                   ? transaction.amount / 100.0

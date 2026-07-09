@@ -56,7 +56,7 @@ class _LockScreenState extends State<LockScreen> {
     return PopScope(
       canPop: false,
       child: Container(
-        decoration: const BoxDecoration(gradient: AppTheme.backgroundGradient),
+        decoration: const BoxDecoration(),
         child: Scaffold(
           backgroundColor: Colors.transparent,
           body: Center(
@@ -104,10 +104,7 @@ class _LockScreenState extends State<LockScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: 40),
                     child: Text(
                       _errorMessage!,
-                      style: TextStyle(
-                        color: AppColors.error,
-                        fontSize: 14,
-                      ),
+                      style: TextStyle(color: AppColors.error, fontSize: 14),
                       textAlign: TextAlign.center,
                     ),
                   ),

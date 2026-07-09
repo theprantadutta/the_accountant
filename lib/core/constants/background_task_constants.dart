@@ -37,10 +37,8 @@ class BackgroundTaskConstants {
   static const int dueDateNotificationIdBase = 7000;
 
   // === SharedPreferences Keys ===
-  static const String keyReminderOffset =
-      'background_reminder_offset_minutes';
-  static const String keyLastPeriodicRun =
-      'background_last_periodic_run';
+  static const String keyReminderOffset = 'background_reminder_offset_minutes';
+  static const String keyLastPeriodicRun = 'background_last_periodic_run';
   static const String keyRecurringRemindersEnabled =
       'notification_prefs_recurring_reminders_enabled';
 
@@ -84,6 +82,7 @@ class BackgroundTaskConstants {
   static const String inputTransactionId = 'transactionId';
   static const String inputTitle = 'title';
   static const String inputAmount = 'amount';
-  static const String inputType = 'type'; // 'upcoming', 'credit', 'debt', 'subscription', 'repetitive'
+  static const String inputType =
+      'type'; // 'upcoming', 'credit', 'debt', 'subscription', 'repetitive'
   static const String inputDueDate = 'dueDate';
 }

@@ -20,7 +20,7 @@ class RegionalSettingsScreen extends ConsumerWidget {
     final settingsState = ref.watch(settingsProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.primaryDark,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,

@@ -72,8 +72,7 @@ class _EditSubscriptionBottomSheetState
 
     final isRepetitive =
         widget.item.specialType == TransactionSpecialType.repetitive;
-    final calcAccent =
-        isRepetitive ? AppColors.neonBlue : AppColors.neonPurple;
+    final calcAccent = isRepetitive ? AppColors.neonBlue : AppColors.neonPurple;
 
     final amount = await showCalculatorBottomSheet(
       context: context,
@@ -94,7 +93,9 @@ class _EditSubscriptionBottomSheetState
 
     try {
       // Update the base transaction
-      await ref.read(transactionProvider.notifier).updateTransaction(
+      await ref
+          .read(transactionProvider.notifier)
+          .updateTransaction(
             id: widget.item.baseTransaction.id,
             title: _titleController.text.isEmpty ? null : _titleController.text,
             amount: (_amount * 100).round(), // dollars -> integer cents
@@ -138,8 +139,9 @@ class _EditSubscriptionBottomSheetState
     final frequencies = ['daily', 'weekly', 'monthly', 'yearly'];
     final isRepetitive =
         widget.item.specialType == TransactionSpecialType.repetitive;
-    final accentColor =
-        isRepetitive ? AppColors.neonBlue : AppColors.neonPurple;
+    final accentColor = isRepetitive
+        ? AppColors.neonBlue
+        : AppColors.neonPurple;
 
     String frequencyLabel(String freq) {
       switch (freq) {
@@ -335,8 +337,10 @@ class _EditSubscriptionBottomSheetState
                         icon: Icon(Icons.remove_circle_outline, size: 22),
                         color: AppColors.textSecondary,
                         padding: EdgeInsets.zero,
-                        constraints:
-                            const BoxConstraints(minWidth: 32, minHeight: 32),
+                        constraints: const BoxConstraints(
+                          minWidth: 32,
+                          minHeight: 32,
+                        ),
                       ),
                       Container(
                         width: 36,
@@ -357,8 +361,10 @@ class _EditSubscriptionBottomSheetState
                         icon: Icon(Icons.add_circle_outline, size: 22),
                         color: AppColors.textSecondary,
                         padding: EdgeInsets.zero,
-                        constraints:
-                            const BoxConstraints(minWidth: 32, minHeight: 32),
+                        constraints: const BoxConstraints(
+                          minWidth: 32,
+                          minHeight: 32,
+                        ),
                       ),
                       const SizedBox(width: 4),
                       Text(
@@ -377,11 +383,13 @@ class _EditSubscriptionBottomSheetState
                     onTap: () async {
                       final date = await showDatePicker(
                         context: context,
-                        initialDate: _endDate ??
+                        initialDate:
+                            _endDate ??
                             DateTime.now().add(const Duration(days: 365)),
                         firstDate: DateTime.now(),
-                        lastDate:
-                            DateTime.now().add(const Duration(days: 3650)),
+                        lastDate: DateTime.now().add(
+                          const Duration(days: 3650),
+                        ),
                       );
                       if (date != null) {
                         setState(() => _endDate = date);
@@ -399,8 +407,11 @@ class _EditSubscriptionBottomSheetState
                       ),
                       child: Row(
                         children: [
-                          Icon(Icons.event,
-                              size: 18, color: AppColors.textMuted),
+                          Icon(
+                            Icons.event,
+                            size: 18,
+                            color: AppColors.textMuted,
+                          ),
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
@@ -418,8 +429,11 @@ class _EditSubscriptionBottomSheetState
                           if (_endDate != null)
                             GestureDetector(
                               onTap: () => setState(() => _endDate = null),
-                              child: Icon(Icons.clear,
-                                  size: 18, color: AppColors.textMuted),
+                              child: Icon(
+                                Icons.clear,
+                                size: 18,
+                                color: AppColors.textMuted,
+                              ),
                             ),
                         ],
                       ),
@@ -430,8 +444,11 @@ class _EditSubscriptionBottomSheetState
                   // Wallet
                   Row(
                     children: [
-                      Icon(Icons.account_balance_wallet_outlined,
-                          size: 16, color: AppColors.textMuted),
+                      Icon(
+                        Icons.account_balance_wallet_outlined,
+                        size: 16,
+                        color: AppColors.textMuted,
+                      ),
                       const SizedBox(width: 6),
                       Text(
                         'Account',
@@ -489,8 +506,9 @@ class _EditSubscriptionBottomSheetState
                           height: 20,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            valueColor:
-                                AlwaysStoppedAnimation<Color>(Colors.white),
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
                           ),
                         )
                       : const Text(

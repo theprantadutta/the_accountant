@@ -20,10 +20,9 @@ class ReminderSchedulerService {
     final prefs = await SharedPreferences.getInstance();
     final offsetMinutes =
         prefs.getInt(BackgroundTaskConstants.keyReminderOffset) ??
-            BackgroundTaskConstants.defaultOffset;
+        BackgroundTaskConstants.defaultOffset;
 
-    final reminderTime =
-        dueDate.subtract(Duration(minutes: offsetMinutes));
+    final reminderTime = dueDate.subtract(Duration(minutes: offsetMinutes));
     final now = DateTime.now();
 
     Duration initialDelay;
@@ -60,6 +59,5 @@ class ReminderSchedulerService {
     await Workmanager().cancelByUniqueName(_uniqueName(transactionId));
   }
 
-  String _uniqueName(String transactionId) =>
-      'due_reminder_$transactionId';
+  String _uniqueName(String transactionId) => 'due_reminder_$transactionId';
 }

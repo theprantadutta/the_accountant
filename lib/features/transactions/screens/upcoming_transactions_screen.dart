@@ -46,7 +46,7 @@ class _UpcomingTransactionsScreenState
     final state = ref.watch(upcomingProvider);
 
     return Container(
-      decoration: BoxDecoration(gradient: AppColors.backgroundGradient),
+      decoration: const BoxDecoration(),
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(

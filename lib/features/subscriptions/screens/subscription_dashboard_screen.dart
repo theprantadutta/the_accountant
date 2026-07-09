@@ -25,7 +25,7 @@ class SubscriptionDashboardScreen extends ConsumerWidget {
     final state = ref.watch(subscriptionDashboardProvider);
 
     return Container(
-      decoration: BoxDecoration(gradient: AppColors.backgroundGradient),
+      decoration: const BoxDecoration(),
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(

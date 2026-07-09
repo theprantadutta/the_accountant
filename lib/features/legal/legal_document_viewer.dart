@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
-import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/shared/widgets/legal_markdown_style.dart';
 import 'package:the_accountant/shared/widgets/shimmer_loading.dart';
 
@@ -40,7 +39,7 @@ class _LegalDocumentViewerState extends State<LegalDocumentViewer> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.primaryDark,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,

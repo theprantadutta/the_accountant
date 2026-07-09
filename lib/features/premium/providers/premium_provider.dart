@@ -136,11 +136,13 @@ class PremiumNotifier extends StateNotifier<PremiumState> {
     DateTime? expiresAt,
     String? purchaseId,
   }) {
-    unawaited(SecureTokenStorage.storePremiumEntitlement(
-      tier: tier.name,
-      expiresAtIso: expiresAt?.toIso8601String(),
-      purchaseId: purchaseId,
-    ));
+    unawaited(
+      SecureTokenStorage.storePremiumEntitlement(
+        tier: tier.name,
+        expiresAtIso: expiresAt?.toIso8601String(),
+        purchaseId: purchaseId,
+      ),
+    );
   }
 
   /// Clear persisted premium status from secure storage (fire-and-forget).

@@ -40,7 +40,7 @@ class _SyncSettingsScreenState extends ConsumerState<SyncSettingsScreen> {
     final lastResult = ref.read(syncNotifierProvider.notifier).lastResult;
 
     return Scaffold(
-      backgroundColor: AppColors.primaryDark,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -56,9 +56,7 @@ class _SyncSettingsScreenState extends ConsumerState<SyncSettingsScreen> {
           // ACTIONS
           _buildSectionHeader('ACTIONS'),
           SizedBox(height: AppSpacing.sm),
-          _buildSettingsCard([
-            _buildSyncNowTile(isSyncing),
-          ]),
+          _buildSettingsCard([_buildSyncNowTile(isSyncing)]),
           SizedBox(height: AppSpacing.lg),
 
           // INFO
@@ -164,10 +162,7 @@ class _SyncSettingsScreenState extends ConsumerState<SyncSettingsScreen> {
                       SizedBox(height: AppSpacing.xs),
                       Text(
                         lastResult.error!,
-                        style: TextStyle(
-                          color: AppColors.error,
-                          fontSize: 13,
-                        ),
+                        style: TextStyle(color: AppColors.error, fontSize: 13),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -271,8 +266,9 @@ class _SyncSettingsScreenState extends ConsumerState<SyncSettingsScreen> {
           ? null
           : () async {
               HapticFeedback.mediumImpact();
-              final result =
-                  await ref.read(syncNotifierProvider.notifier).syncAll();
+              final result = await ref
+                  .read(syncNotifierProvider.notifier)
+                  .syncAll();
               if (!mounted) return;
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
@@ -281,8 +277,9 @@ class _SyncSettingsScreenState extends ConsumerState<SyncSettingsScreen> {
                         ? 'Sync complete — pushed ${result.pushedCount}, pulled ${result.pulledCount}'
                         : 'Sync failed: ${result.error}',
                   ),
-                  backgroundColor:
-                      result.success ? AppColors.success : AppColors.error,
+                  backgroundColor: result.success
+                      ? AppColors.success
+                      : AppColors.error,
                 ),
               );
             },

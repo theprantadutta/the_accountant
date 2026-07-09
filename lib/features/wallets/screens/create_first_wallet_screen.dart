@@ -85,7 +85,8 @@ class _CreateFirstWalletScreenState
         isDefault: true, // First wallet is always default
         walletType: _walletType,
         creditLimit: _walletType == WalletType.creditCard
-            ? ((double.tryParse(_creditLimitController.text) ?? 0) * 100).round()
+            ? ((double.tryParse(_creditLimitController.text) ?? 0) * 100)
+                  .round()
             : null,
         billingCycleDay: _walletType == WalletType.creditCard
             ? _billingCycleDay
@@ -121,7 +122,7 @@ class _CreateFirstWalletScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.primaryDark,
+      backgroundColor: Colors.transparent,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: AppSpacing.paddingXl,
@@ -422,9 +423,7 @@ class _CreateFirstWalletScreenState
                     const SizedBox(height: 8),
                     IconPicker(
                       selectedIcon: _selectedIcon,
-                      selectedColor: WalletColors.parseColor(
-                        _selectedColor,
-                      ),
+                      selectedColor: WalletColors.parseColor(_selectedColor),
                       onIconSelected: (icon) {
                         setState(() => _selectedIcon = icon);
                       },

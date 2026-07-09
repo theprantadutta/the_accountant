@@ -19,18 +19,16 @@ class ConnectivityService {
 
   /// Start listening to connectivity changes.
   void initialize() {
-    _subscription = _connectivity.onConnectivityChanged.listen(
-      (results) {
-        final online = !results.contains(ConnectivityResult.none);
-        if (online != _isOnline) {
-          debugPrint(
-            '[ConnectivityService] Connectivity changed: ${_isOnline ? "online" : "offline"} -> ${online ? "online" : "offline"}',
-          );
-          _isOnline = online;
-          _controller.add(online);
-        }
-      },
-    );
+    _subscription = _connectivity.onConnectivityChanged.listen((results) {
+      final online = !results.contains(ConnectivityResult.none);
+      if (online != _isOnline) {
+        debugPrint(
+          '[ConnectivityService] Connectivity changed: ${_isOnline ? "online" : "offline"} -> ${online ? "online" : "offline"}',
+        );
+        _isOnline = online;
+        _controller.add(online);
+      }
+    });
 
     // Check initial state
     _connectivity.checkConnectivity().then((results) {

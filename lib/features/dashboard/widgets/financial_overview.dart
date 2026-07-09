@@ -184,7 +184,10 @@ class FinancialOverview extends ConsumerWidget {
                           ),
                           title: Text(transaction.category),
                           subtitle: Text(
-                            AppDateFormatter.formatDate(transaction.date, ref.watch(dateFormatSettingProvider)),
+                            AppDateFormatter.formatDate(
+                              transaction.date,
+                              ref.watch(dateFormatSettingProvider),
+                            ),
                           ),
                           trailing: Text(
                             '${transaction.type == 'income' ? '+' : '-'}'

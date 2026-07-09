@@ -207,8 +207,9 @@ class _TransactionTypeScreenState extends ConsumerState<TransactionTypeScreen> {
 
     // Apply category filter
     if (_filterCategory != null) {
-      filtered =
-          filtered.where((t) => t.categoryId == _filterCategory).toList();
+      filtered = filtered
+          .where((t) => t.categoryId == _filterCategory)
+          .toList();
     }
 
     return filtered;
@@ -472,8 +473,7 @@ class _TransactionTypeScreenState extends ConsumerState<TransactionTypeScreen> {
   Color _parseColor(String colorCode) {
     try {
       if (colorCode.startsWith('#')) {
-        return Color(
-            int.parse(colorCode.substring(1), radix: 16) | 0xFF000000);
+        return Color(int.parse(colorCode.substring(1), radix: 16) | 0xFF000000);
       }
       return Colors.grey;
     } catch (e) {
@@ -484,14 +484,18 @@ class _TransactionTypeScreenState extends ConsumerState<TransactionTypeScreen> {
   Widget _buildSummaryCard(List<Transaction> allTransactions) {
     final month = _availableMonths[_currentPageIndex];
     final monthTransactions = allTransactions
-        .where((t) =>
-            t.type == widget.transactionType &&
-            t.date.year == month.year &&
-            t.date.month == month.month)
+        .where(
+          (t) =>
+              t.type == widget.transactionType &&
+              t.date.year == month.year &&
+              t.date.month == month.month,
+        )
         .toList();
 
-    final total =
-        monthTransactions.fold<double>(0, (sum, t) => sum + t.amount / 100.0);
+    final total = monthTransactions.fold<double>(
+      0,
+      (sum, t) => sum + t.amount / 100.0,
+    );
     final count = monthTransactions.length;
     final average = count > 0 ? total / count : 0.0;
 
@@ -578,9 +582,7 @@ class _TransactionTypeScreenState extends ConsumerState<TransactionTypeScreen> {
         ),
         Text(
           label,
-          style: AppTypography.labelSmall.copyWith(
-            color: AppColors.textMuted,
-          ),
+          style: AppTypography.labelSmall.copyWith(color: AppColors.textMuted),
         ),
       ],
     );
@@ -606,10 +608,10 @@ class _TransactionTypeScreenState extends ConsumerState<TransactionTypeScreen> {
           final chipColor = isSelected
               ? _accentColor
               : isCurrentMonth
-                  ? _accentColor
-                  : isFutureMonth
-                      ? AppColors.success
-                      : AppColors.textSecondary;
+              ? _accentColor
+              : isFutureMonth
+              ? AppColors.success
+              : AppColors.textSecondary;
 
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4),
@@ -639,10 +641,10 @@ class _TransactionTypeScreenState extends ConsumerState<TransactionTypeScreen> {
                     color: isSelected
                         ? _accentColor
                         : isCurrentMonth
-                            ? _accentColor
-                            : isFutureMonth
-                                ? AppColors.success.withValues(alpha: 0.4)
-                                : AppColors.divider,
+                        ? _accentColor
+                        : isFutureMonth
+                        ? AppColors.success.withValues(alpha: 0.4)
+                        : AppColors.divider,
                     width: isSelected || isCurrentMonth ? 2 : 1,
                   ),
                   boxShadow: isSelected
@@ -660,8 +662,9 @@ class _TransactionTypeScreenState extends ConsumerState<TransactionTypeScreen> {
                     DateFormat('MMM yyyy').format(month),
                     style: TextStyle(
                       fontSize: 13,
-                      fontWeight:
-                          isSelected ? FontWeight.bold : FontWeight.w600,
+                      fontWeight: isSelected
+                          ? FontWeight.bold
+                          : FontWeight.w600,
                       color: isSelected ? Colors.white : chipColor,
                     ),
                   ),
@@ -729,7 +732,8 @@ class _TransactionTypeScreenState extends ConsumerState<TransactionTypeScreen> {
     if (isFutureMonth) {
       icon = Icons.event_available_outlined;
       title = 'No planned $typeName';
-      subtitle = 'Add future $typeName for ${DateFormat('MMMM yyyy').format(month)}';
+      subtitle =
+          'Add future $typeName for ${DateFormat('MMMM yyyy').format(month)}';
     } else if (isCurrentMonth) {
       icon = widget.transactionType == 'income'
           ? Icons.trending_up_rounded
@@ -826,8 +830,8 @@ class _TransactionTypeScreenState extends ConsumerState<TransactionTypeScreen> {
               final displayTitle = transaction.title.isNotEmpty
                   ? transaction.title
                   : transaction.notes.isNotEmpty
-                      ? transaction.notes
-                      : transaction.category;
+                  ? transaction.notes
+                  : transaction.category;
 
               return TransactionCard(
                 id: transaction.id,
@@ -835,7 +839,8 @@ class _TransactionTypeScreenState extends ConsumerState<TransactionTypeScreen> {
                 category: transaction.category,
                 categoryColor: category.colorCode,
                 categoryIcon: category.iconName,
-                amount: transaction.amount / 100.0, // cents -> major-unit dollars
+                amount:
+                    transaction.amount / 100.0, // cents -> major-unit dollars
                 transactionType: transaction.type,
                 walletId: transaction.walletId,
                 notes: transaction.notes,
@@ -855,18 +860,13 @@ class _TransactionTypeScreenState extends ConsumerState<TransactionTypeScreen> {
     final transactionState = ref.watch(transactionProvider);
 
     return Container(
-      decoration: const BoxDecoration(
-        gradient: AppColors.backgroundGradient,
-      ),
+      decoration: const BoxDecoration(),
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
-          title: Text(
-            _title,
-            style: AppTypography.titleMedium,
-          ),
+          title: Text(_title, style: AppTypography.titleMedium),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back_ios_new_rounded),
             onPressed: () => Navigator.pop(context),
@@ -885,9 +885,7 @@ class _TransactionTypeScreenState extends ConsumerState<TransactionTypeScreen> {
         ),
         body: RefreshIndicator(
           onRefresh: () async {
-            await ref
-                .read(transactionProvider.notifier)
-                .loadTransactions();
+            await ref.read(transactionProvider.notifier).loadTransactions();
           },
           color: _accentColor,
           backgroundColor: AppColors.primarySurface,
@@ -926,8 +924,7 @@ class _TransactionTypeScreenState extends ConsumerState<TransactionTypeScreen> {
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(30),
                     ),
-                    contentPadding:
-                        const EdgeInsets.symmetric(horizontal: 16),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                   ),
                 ),
               ),

@@ -166,7 +166,7 @@ class _WalletManagementScreenState extends ConsumerState<WalletManagementScreen>
     final wallets = walletState.wallets;
 
     return Scaffold(
-      backgroundColor: AppColors.primaryDark,
+      backgroundColor: Colors.transparent,
       body: CustomScrollView(
         slivers: [
           // Custom App Bar with total balance
@@ -174,7 +174,7 @@ class _WalletManagementScreenState extends ConsumerState<WalletManagementScreen>
             expandedHeight: 200,
             floating: false,
             pinned: true,
-            backgroundColor: AppColors.primaryDark,
+            backgroundColor: Colors.transparent,
             flexibleSpace: FlexibleSpaceBar(
               background: _buildHeader(wallets, walletState),
             ),

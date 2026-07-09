@@ -72,7 +72,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
     _initializeControllers(authState);
 
     return Scaffold(
-      backgroundColor: AppColors.primaryDark,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,

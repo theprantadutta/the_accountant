@@ -44,15 +44,15 @@ class BackgroundTaskService {
       final prefs = await SharedPreferences.getInstance();
       final remindersEnabled =
           prefs.getBool(BackgroundTaskConstants.keyRecurringRemindersEnabled) ??
-              false;
+          false;
       final offsetMinutes =
           prefs.getInt(BackgroundTaskConstants.keyReminderOffset) ??
-              BackgroundTaskConstants.defaultOffset;
+          BackgroundTaskConstants.defaultOffset;
 
       // 5. Process recurring transactions
       final recurringService = RecurringService(database: db);
-      final processedCount =
-          await recurringService.processRecurringTransactions();
+      final processedCount = await recurringService
+          .processRecurringTransactions();
 
       if (processedCount > 0) {
         await notifier.showNotification(
@@ -88,7 +88,8 @@ class BackgroundTaskService {
         final t = dueUpcoming[i];
         final title = t.title.isNotEmpty ? t.title : 'Upcoming Transaction';
         await notifier.showNotificationWithActions(
-          id: BackgroundTaskConstants.upcomingNotificationIdBase +
+          id:
+              BackgroundTaskConstants.upcomingNotificationIdBase +
               (t.id.hashCode % 500),
           title: 'Upcoming: $title',
           body:
@@ -117,12 +118,14 @@ class BackgroundTaskService {
           .toList();
 
       for (final t in overdueLoans) {
-        final isCredit =
-            t.specialType == TransactionSpecialType.credit;
+        final isCredit = t.specialType == TransactionSpecialType.credit;
         final loanType = isCredit ? 'credit' : 'debt';
-        final title = t.title.isNotEmpty ? t.title : (isCredit ? 'Credit' : 'Debt');
+        final title = t.title.isNotEmpty
+            ? t.title
+            : (isCredit ? 'Credit' : 'Debt');
         await notifier.showNotificationWithActions(
-          id: BackgroundTaskConstants.loanNotificationIdBase +
+          id:
+              BackgroundTaskConstants.loanNotificationIdBase +
               (t.id.hashCode % 500),
           title: 'Overdue ${isCredit ? "Credit" : "Debt"}: $title',
           body:
@@ -141,20 +144,23 @@ class BackgroundTaskService {
       // 8. Check active recurring configs with nextOccurrence within window
       final activeConfigs = await db.getActiveRecurringConfigs();
       final dueConfigs = activeConfigs
-          .where((c) =>
-              c.nextOccurrence.isAfter(now) &&
-              c.nextOccurrence.isBefore(windowEnd))
+          .where(
+            (c) =>
+                c.nextOccurrence.isAfter(now) &&
+                c.nextOccurrence.isBefore(windowEnd),
+          )
           .take(5)
           .toList();
 
       for (final config in dueConfigs) {
-        final baseTx =
-            await db.findTransactionById(config.baseTransactionId);
+        final baseTx = await db.findTransactionById(config.baseTransactionId);
         if (baseTx == null) continue;
-        final title =
-            baseTx.title.isNotEmpty ? baseTx.title : 'Recurring Transaction';
+        final title = baseTx.title.isNotEmpty
+            ? baseTx.title
+            : 'Recurring Transaction';
         await notifier.showNotification(
-          id: BackgroundTaskConstants.recurringNotificationIdBase +
+          id:
+              BackgroundTaskConstants.recurringNotificationIdBase +
               100 +
               (config.id.hashCode % 400),
           title: 'Upcoming Recurring: $title',
@@ -184,7 +190,8 @@ class BackgroundTaskService {
 
   /// Called from WorkManager one-off task for a specific transaction reminder.
   static Future<bool> executeDueDateReminder(
-      Map<String, dynamic>? inputData) async {
+    Map<String, dynamic>? inputData,
+  ) async {
     if (inputData == null) return true;
 
     AppDatabase? db;
@@ -196,10 +203,9 @@ class BackgroundTaskService {
       final amount =
           (inputData[BackgroundTaskConstants.inputAmount] as num?)
               ?.toDouble() ??
-              0.0;
+          0.0;
       final type =
-          inputData[BackgroundTaskConstants.inputType] as String? ??
-              'upcoming';
+          inputData[BackgroundTaskConstants.inputType] as String? ?? 'upcoming';
 
       if (transactionId == null) return true;
 
@@ -265,7 +271,8 @@ class BackgroundTaskService {
           : DateTime.now();
 
       await notifier.showNotificationWithActions(
-        id: BackgroundTaskConstants.dueDateNotificationIdBase +
+        id:
+            BackgroundTaskConstants.dueDateNotificationIdBase +
             (transactionId.hashCode % 500),
         title: notifTitle,
         body: '${amount.toStringAsFixed(2)} is due soon. Tap to review.',
@@ -296,7 +303,8 @@ class BackgroundTaskService {
       final count = await recurringService.processRecurringTransactions();
       if (count > 0) {
         debugPrint(
-            'BackgroundTaskService: startup catch-up processed $count recurring transactions');
+          'BackgroundTaskService: startup catch-up processed $count recurring transactions',
+        );
       }
     } catch (e) {
       debugPrint('BackgroundTaskService: startup processing failed: $e');

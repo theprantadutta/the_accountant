@@ -33,7 +33,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
     final prefsState = ref.watch(notificationPreferencesProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.primaryDark,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,

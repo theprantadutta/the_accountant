@@ -12,7 +12,7 @@ class AboutScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.primaryDark,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -275,7 +275,11 @@ class AboutScreen extends StatelessWidget {
               // Header
               Row(
                 children: [
-                  Icon(Icons.info_outline, color: AppColors.primaryAccent, size: 22),
+                  Icon(
+                    Icons.info_outline,
+                    color: AppColors.primaryAccent,
+                    size: 22,
+                  ),
                   SizedBox(width: AppSpacing.sm),
                   Text(
                     'About The Accountant',

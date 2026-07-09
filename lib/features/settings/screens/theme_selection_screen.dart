@@ -54,7 +54,7 @@ class _ThemeSelectionScreenState extends ConsumerState<ThemeSelectionScreen>
     final premiumState = ref.watch(premiumProvider);
 
     return Container(
-      decoration: const BoxDecoration(gradient: AppTheme.backgroundGradient),
+      decoration: const BoxDecoration(),
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(

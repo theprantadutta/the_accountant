@@ -22,8 +22,11 @@ class TheAccountantProducts {
   static String get yearly => premiumYearly;
   static String get lifetime => premiumLifetime;
 
-  static Set<String> get allProductIds =>
-      {premiumMonthly, premiumYearly, premiumLifetime};
+  static Set<String> get allProductIds => {
+    premiumMonthly,
+    premiumYearly,
+    premiumLifetime,
+  };
 
   // Google Play test product IDs
   static const String testPurchased = 'android.test.purchased';

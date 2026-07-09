@@ -51,7 +51,7 @@ class _NotificationInboxScreenState
     final state = ref.watch(notificationHistoryProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.primaryDark,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,

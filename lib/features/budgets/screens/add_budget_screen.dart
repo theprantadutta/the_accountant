@@ -90,7 +90,9 @@ class _AddBudgetScreenState extends ConsumerState<AddBudgetScreen> {
     }
 
     try {
-      await ref.read(budgetProvider.notifier).addBudget(
+      await ref
+          .read(budgetProvider.notifier)
+          .addBudget(
             name: _nameController.text,
             categoryId: _selectedCategoryId,
             limit: limit,
@@ -105,9 +107,9 @@ class _AddBudgetScreenState extends ConsumerState<AddBudgetScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to create budget: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to create budget: $e')));
       }
     }
   }

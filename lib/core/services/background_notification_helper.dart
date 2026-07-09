@@ -15,8 +15,9 @@ class BackgroundNotificationHelper {
   /// Initialize the plugin for background use.
   /// Does NOT request permissions (already granted from foreground).
   Future<void> initialize() async {
-    const androidSettings =
-        AndroidInitializationSettings('@mipmap/ic_launcher');
+    const androidSettings = AndroidInitializationSettings(
+      '@mipmap/ic_launcher',
+    );
     const iosSettings = DarwinInitializationSettings(
       requestAlertPermission: false,
       requestBadgePermission: false,
@@ -28,7 +29,8 @@ class BackgroundNotificationHelper {
     );
     await _plugin.initialize(
       settings: settings,
-      onDidReceiveBackgroundNotificationResponse: onBackgroundNotificationAction,
+      onDidReceiveBackgroundNotificationResponse:
+          onBackgroundNotificationAction,
     );
   }
 

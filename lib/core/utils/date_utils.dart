@@ -9,7 +9,10 @@ class CustomDateUtils {
   }
 
   /// Format a DateTime using the user's date format setting
-  static String formatShortDate(DateTime date, {String dateFormat = 'MM/dd/yyyy'}) {
+  static String formatShortDate(
+    DateTime date, {
+    String dateFormat = 'MM/dd/yyyy',
+  }) {
     return AppDateFormatter.formatDate(date, dateFormat);
   }
 

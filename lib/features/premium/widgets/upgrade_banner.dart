@@ -42,10 +42,7 @@ class UpgradeBanner extends StatefulWidget {
     );
   }
 
-  factory UpgradeBanner.featureLocked({
-    Key? key,
-    required String featureName,
-  }) {
+  factory UpgradeBanner.featureLocked({Key? key, required String featureName}) {
     return UpgradeBanner(
       key: key,
       title: '$featureName is a Premium feature',
@@ -64,10 +61,9 @@ class UpgradeBanner extends StatefulWidget {
     return UpgradeBanner(
       key: key,
       title: 'Payment issue detected',
-      subtitle:
-          daysRemaining <= 0
-              ? 'Your premium access ends today. Update payment to keep access.'
-              : 'Your premium access ends in $daysRemaining day${daysRemaining == 1 ? '' : 's'}.',
+      subtitle: daysRemaining <= 0
+          ? 'Your premium access ends today. Update payment to keep access.'
+          : 'Your premium access ends in $daysRemaining day${daysRemaining == 1 ? '' : 's'}.',
       icon: Icons.warning_amber,
       style: UpgradeBannerStyle.warning,
       ctaLabel: 'Fix Payment',

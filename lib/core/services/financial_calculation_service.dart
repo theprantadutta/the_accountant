@@ -113,10 +113,7 @@ class FinancialCalculationService {
   }
 
   /// Calculate total income for a specific period (no conversion)
-  Future<int> getTotalIncome({
-    DateTime? startDate,
-    DateTime? endDate,
-  }) async {
+  Future<int> getTotalIncome({DateTime? startDate, DateTime? endDate}) async {
     try {
       List<Transaction> transactions;
 
@@ -149,8 +146,9 @@ class FinancialCalculationService {
         transactions = await _db.getAllTransactions();
       }
 
-      final incomeTransactions =
-          transactions.where((t) => t.isIncome && _isRealized(t));
+      final incomeTransactions = transactions.where(
+        (t) => t.isIncome && _isRealized(t),
+      );
       int total = 0;
 
       for (final t in incomeTransactions) {
@@ -169,10 +167,7 @@ class FinancialCalculationService {
   }
 
   /// Calculate total expenses for a specific period (no conversion)
-  Future<int> getTotalExpenses({
-    DateTime? startDate,
-    DateTime? endDate,
-  }) async {
+  Future<int> getTotalExpenses({DateTime? startDate, DateTime? endDate}) async {
     try {
       List<Transaction> transactions;
 
@@ -205,8 +200,9 @@ class FinancialCalculationService {
         transactions = await _db.getAllTransactions();
       }
 
-      final expenseTransactions =
-          transactions.where((t) => !t.isIncome && _isRealized(t));
+      final expenseTransactions = transactions.where(
+        (t) => !t.isIncome && _isRealized(t),
+      );
       int total = 0;
 
       for (final t in expenseTransactions) {
@@ -247,8 +243,7 @@ class FinancialCalculationService {
         startOfMonth,
         endOfMonth,
       );
-      final expenses =
-          transactions.where((t) => !t.isIncome && _isRealized(t));
+      final expenses = transactions.where((t) => !t.isIncome && _isRealized(t));
 
       final Map<String, int> categorySpending = {};
 
@@ -279,8 +274,7 @@ class FinancialCalculationService {
         startOfMonth,
         endOfMonth,
       );
-      final expenses =
-          transactions.where((t) => !t.isIncome && _isRealized(t));
+      final expenses = transactions.where((t) => !t.isIncome && _isRealized(t));
 
       final Map<String, int> categorySpending = {};
 

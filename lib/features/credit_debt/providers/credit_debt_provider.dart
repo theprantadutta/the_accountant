@@ -130,8 +130,12 @@ class CreditDebtNotifier extends StateNotifier<CreditDebtState> {
         final paymentTransaction = TransactionsCompanion(
           id: Value(const Uuid().v4()),
           amount: Value(remaining),
-          title: Value('${isCredit ? "Received" : "Paid"}: ${transaction.title}'),
-          notes: Value('Settlement for ${isCredit ? "credit" : "debt"}: ${transaction.title}'),
+          title: Value(
+            '${isCredit ? "Received" : "Paid"}: ${transaction.title}',
+          ),
+          notes: Value(
+            'Settlement for ${isCredit ? "credit" : "debt"}: ${transaction.title}',
+          ),
           date: Value(now),
           isIncome: Value(isCredit),
           walletId: Value(transaction.walletId),

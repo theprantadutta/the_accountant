@@ -42,9 +42,7 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
   @override
   void initState() {
     super.initState();
-    AnalyticsService().logPaywallShown(
-      featureName: widget.triggerFeatureName,
-    );
+    AnalyticsService().logPaywallShown(featureName: widget.triggerFeatureName);
     // Load products when screen opens
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(iapNotifierProvider.notifier).loadProducts();
@@ -78,7 +76,8 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
         );
       }
 
-      final statusChanged = previous?.lastPurchaseStatus != next.lastPurchaseStatus;
+      final statusChanged =
+          previous?.lastPurchaseStatus != next.lastPurchaseStatus;
       if (!statusChanged) return;
 
       switch (next.lastPurchaseStatus) {
@@ -127,7 +126,7 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
     });
 
     return Scaffold(
-      backgroundColor: AppColors.primaryDark,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -242,9 +241,11 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
   }
 
   Widget _buildHeader(PremiumState premiumState) {
-    final headline = widget.customTitle ??
+    final headline =
+        widget.customTitle ??
         (premiumState.isPremium ? 'Premium Active' : 'Unlock Premium');
-    final tagline = widget.customDescription ??
+    final tagline =
+        widget.customDescription ??
         (premiumState.isPremium
             ? 'Thank you for your support!'
             : 'Get the most out of your financial journey');
@@ -307,8 +308,11 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.lock_outline,
-                    size: 14, color: AppColors.primaryAccent),
+                const Icon(
+                  Icons.lock_outline,
+                  size: 14,
+                  color: AppColors.primaryAccent,
+                ),
                 SizedBox(width: AppSpacing.xs),
                 Text(
                   '${widget.triggerFeatureName} is a Premium feature',

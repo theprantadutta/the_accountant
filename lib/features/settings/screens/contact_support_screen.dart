@@ -12,7 +12,7 @@ class ContactSupportScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.primaryDark,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -140,11 +140,7 @@ class ContactSupportScreen extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsets.only(top: 6),
-          child: Icon(
-            Icons.circle,
-            size: 6,
-            color: AppColors.primaryAccent,
-          ),
+          child: Icon(Icons.circle, size: 6, color: AppColors.primaryAccent),
         ),
         SizedBox(width: AppSpacing.sm),
         Expanded(

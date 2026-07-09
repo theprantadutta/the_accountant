@@ -11,15 +11,9 @@ class BudgetNotificationState {
   final bool isLoading;
   final String? errorMessage;
 
-  BudgetNotificationState({
-    required this.isLoading,
-    this.errorMessage,
-  });
+  BudgetNotificationState({required this.isLoading, this.errorMessage});
 
-  BudgetNotificationState copyWith({
-    bool? isLoading,
-    String? errorMessage,
-  }) {
+  BudgetNotificationState copyWith({bool? isLoading, String? errorMessage}) {
     return BudgetNotificationState(
       isLoading: isLoading ?? this.isLoading,
       errorMessage: errorMessage,

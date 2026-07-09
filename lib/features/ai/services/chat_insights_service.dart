@@ -188,7 +188,10 @@ class ChatInsightsService {
                 transaction.date.isAfter(budget.startDate) &&
                 transaction.date.isBefore(budget.endDate),
           )
-          .fold<double>(0.0, (sum, transaction) => sum + transaction.amount / 100.0);
+          .fold<double>(
+            0.0,
+            (sum, transaction) => sum + transaction.amount / 100.0,
+          );
 
       final percentage = budget.limit > 0
           ? (spent / budget.limit) * 100.0
@@ -254,7 +257,8 @@ class ChatInsightsService {
       if (transaction.type == 'expense') {
         if (categorySpending.containsKey(transaction.categoryId)) {
           categorySpending[transaction.categoryId] =
-              categorySpending[transaction.categoryId]! + transaction.amount / 100.0;
+              categorySpending[transaction.categoryId]! +
+              transaction.amount / 100.0;
         } else {
           categorySpending[transaction.categoryId] = transaction.amount / 100.0;
         }

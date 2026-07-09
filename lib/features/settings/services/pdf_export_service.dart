@@ -89,11 +89,7 @@ class PdfExportService {
           // Transactions
           _buildSectionTitle('Transactions'),
           pw.SizedBox(height: 10),
-          _buildTransactionTable(
-            transactions,
-            currencyFormatter,
-            dateFormat,
-          ),
+          _buildTransactionTable(transactions, currencyFormatter, dateFormat),
         ],
         footer: (context) => _buildFooter(context),
       ),
@@ -103,14 +99,14 @@ class PdfExportService {
     final output = await getTemporaryDirectory();
     String fileName;
     if (dateRange != null) {
-      final startDate = AppDateFormatter.formatDate(dateRange.start, dateFormat)
-          .replaceAll('/', '-')
-          .replaceAll(' ', '_')
-          .replaceAll(',', '');
-      final endDate = AppDateFormatter.formatDate(dateRange.end, dateFormat)
-          .replaceAll('/', '-')
-          .replaceAll(' ', '_')
-          .replaceAll(',', '');
+      final startDate = AppDateFormatter.formatDate(
+        dateRange.start,
+        dateFormat,
+      ).replaceAll('/', '-').replaceAll(' ', '_').replaceAll(',', '');
+      final endDate = AppDateFormatter.formatDate(
+        dateRange.end,
+        dateFormat,
+      ).replaceAll('/', '-').replaceAll(' ', '_').replaceAll(',', '');
       fileName = 'the_accountant_report_${startDate}_to_$endDate.pdf';
     } else {
       final dateStr = DateFormat('yyyyMMdd_HHmmss').format(DateTime.now());
@@ -429,7 +425,9 @@ class PdfExportService {
           final isIncome = txn.isIncome == true;
           return pw.TableRow(
             children: [
-              _buildTableCell(AppDateFormatter.formatDate(txn.date, dateFormat)),
+              _buildTableCell(
+                AppDateFormatter.formatDate(txn.date, dateFormat),
+              ),
               _buildTableCell(txn.title.isEmpty ? 'No title' : txn.title),
               _buildTableCell(item.categoryName),
               pw.Container(

@@ -62,8 +62,8 @@ class SubscriptionItem {
   String get name => baseTransaction.title.isNotEmpty
       ? baseTransaction.title
       : (specialType == TransactionSpecialType.repetitive
-          ? 'Recurring Bill'
-          : 'Subscription');
+            ? 'Recurring Bill'
+            : 'Subscription');
   int get amount => baseTransaction.amount; // integer minor units / cents
   bool get isActive => config.isActive;
   bool get isIncome => baseTransaction.isIncome;
@@ -241,9 +241,7 @@ class SubscriptionDashboardNotifier
       );
       await loadSubscriptions();
     } catch (e) {
-      state = state.copyWith(
-        error: 'Failed to update subscription: $e',
-      );
+      state = state.copyWith(error: 'Failed to update subscription: $e');
     }
   }
 

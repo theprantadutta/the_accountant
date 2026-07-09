@@ -46,8 +46,9 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
 
     try {
       await widget.authService.changePassword(
-        currentPassword:
-            widget.hasPassword ? _currentPasswordController.text : null,
+        currentPassword: widget.hasPassword
+            ? _currentPasswordController.text
+            : null,
         newPassword: _newPasswordController.text,
       );
 
@@ -96,10 +97,7 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
             children: [
               Text(
                 subtitle,
-                style: TextStyle(
-                  color: AppColors.textSecondary,
-                  fontSize: 14,
-                ),
+                style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
               ),
               const SizedBox(height: 20),
 
@@ -197,16 +195,11 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
       actions: [
         TextButton(
           onPressed: _isLoading ? null : () => Navigator.pop(context, false),
-          child: Text(
-            'Cancel',
-            style: TextStyle(color: AppColors.textMuted),
-          ),
+          child: Text('Cancel', style: TextStyle(color: AppColors.textMuted)),
         ),
         TextButton(
           onPressed: _isLoading ? null : _submit,
-          style: TextButton.styleFrom(
-            foregroundColor: AppColors.primaryAccent,
-          ),
+          style: TextButton.styleFrom(foregroundColor: AppColors.primaryAccent),
           child: _isLoading
               ? SizedBox(
                   width: 20,

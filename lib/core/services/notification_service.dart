@@ -64,7 +64,8 @@ class NotificationService {
     await _localNotificationsPlugin.initialize(
       settings: initializationSettings,
       onDidReceiveNotificationResponse: _onNotificationTapped,
-      onDidReceiveBackgroundNotificationResponse: onBackgroundNotificationAction,
+      onDidReceiveBackgroundNotificationResponse:
+          onBackgroundNotificationAction,
     );
 
     // Handle foreground messages

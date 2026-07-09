@@ -13,9 +13,7 @@ class AppNumberFormatter {
             ? NumberFormat('#,##0.00', 'fr_FR')
             : NumberFormat('#,##0', 'fr_FR');
       case 'none_dot':
-        return useDecimals
-            ? NumberFormat('###0.00')
-            : NumberFormat('###0');
+        return useDecimals ? NumberFormat('###0.00') : NumberFormat('###0');
       case 'comma_dot':
       default:
         return useDecimals

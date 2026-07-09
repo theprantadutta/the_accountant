@@ -569,7 +569,8 @@ class NLPService {
       if (transaction.type == 'expense') {
         if (categorySpending.containsKey(transaction.category)) {
           categorySpending[transaction.category] =
-              categorySpending[transaction.category]! + transaction.amount / 100.0;
+              categorySpending[transaction.category]! +
+              transaction.amount / 100.0;
         } else {
           categorySpending[transaction.category] = transaction.amount / 100.0;
         }

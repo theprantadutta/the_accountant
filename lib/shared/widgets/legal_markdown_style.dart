@@ -31,10 +31,7 @@ MarkdownStyleSheet legalMarkdownStyleSheet() {
       fontSize: 14,
       color: Colors.white.withValues(alpha: 0.85),
     ),
-    strong: const TextStyle(
-      fontWeight: FontWeight.w700,
-      color: Colors.white,
-    ),
+    strong: const TextStyle(fontWeight: FontWeight.w700, color: Colors.white),
     em: TextStyle(
       fontStyle: FontStyle.italic,
       color: Colors.white.withValues(alpha: 0.9),
@@ -48,31 +45,17 @@ MarkdownStyleSheet legalMarkdownStyleSheet() {
       fontSize: 13,
       color: Colors.white.withValues(alpha: 0.8),
     ),
-    tableBorder: TableBorder.all(
-      color: AppColors.glassBorder,
-      width: 1,
-    ),
+    tableBorder: TableBorder.all(color: AppColors.glassBorder, width: 1),
     tableHeadAlign: TextAlign.left,
-    tableCellsPadding: const EdgeInsets.symmetric(
-      horizontal: 8,
-      vertical: 6,
-    ),
+    tableCellsPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
     horizontalRuleDecoration: BoxDecoration(
-      border: Border(
-        top: BorderSide(
-          color: AppColors.glassBorder,
-          width: 1,
-        ),
-      ),
+      border: Border(top: BorderSide(color: AppColors.glassBorder, width: 1)),
     ),
     blockquoteDecoration: BoxDecoration(
       color: AppColors.glassWhite,
       borderRadius: BorderRadius.circular(8),
       border: Border(
-        left: BorderSide(
-          color: AppColors.primaryAccent,
-          width: 3,
-        ),
+        left: BorderSide(color: AppColors.primaryAccent, width: 3),
       ),
     ),
     a: TextStyle(

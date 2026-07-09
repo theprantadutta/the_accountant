@@ -45,7 +45,7 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
     final state = ref.watch(creditDebtProvider);
 
     return Container(
-      decoration: BoxDecoration(gradient: AppColors.backgroundGradient),
+      decoration: const BoxDecoration(),
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(

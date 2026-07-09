@@ -207,7 +207,11 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                         height: iconSize,
                         borderRadius: BorderRadius.circular(32),
                         child: Center(
-                          child: Icon(icon, size: iconInnerSize, color: Colors.white),
+                          child: Icon(
+                            icon,
+                            size: iconInnerSize,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     ),
@@ -272,15 +276,16 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                             PageRouteBuilder(
                               pageBuilder: (context, animation, _) =>
                                   const ThemeSelectionScreen(),
-                              transitionsBuilder: (context, animation, _, child) {
-                                return SlideTransition(
-                                  position: Tween<Offset>(
-                                    begin: const Offset(1.0, 0.0),
-                                    end: Offset.zero,
-                                  ).animate(animation),
-                                  child: child,
-                                );
-                              },
+                              transitionsBuilder:
+                                  (context, animation, _, child) {
+                                    return SlideTransition(
+                                      position: Tween<Offset>(
+                                        begin: const Offset(1.0, 0.0),
+                                        end: Offset.zero,
+                                      ).animate(animation),
+                                      child: child,
+                                    );
+                                  },
                             ),
                           );
                         },
@@ -403,7 +408,8 @@ class _OnboardingScreenState extends State<OnboardingScreen>
             Navigator.pushReplacement(
               context,
               PageRouteBuilder(
-                pageBuilder: (context, animation, _) => const LegalAcceptanceScreen(),
+                pageBuilder: (context, animation, _) =>
+                    const LegalAcceptanceScreen(),
                 transitionsBuilder: (context, animation, _, child) {
                   return FadeTransition(opacity: animation, child: child);
                 },

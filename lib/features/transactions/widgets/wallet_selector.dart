@@ -78,7 +78,9 @@ class WalletSelector extends ConsumerWidget {
         decoration: BoxDecoration(
           color: theme.colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.2)),
+          border: Border.all(
+            color: theme.colorScheme.outline.withValues(alpha: 0.2),
+          ),
         ),
         child: Row(
           children: [
@@ -87,7 +89,9 @@ class WalletSelector extends ConsumerWidget {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: _parseColor(selectedWallet?.color).withValues(alpha: 0.2),
+                color: _parseColor(
+                  selectedWallet?.color,
+                ).withValues(alpha: 0.2),
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -294,7 +298,9 @@ class _WalletPickerSheet extends StatelessWidget {
                             vertical: 2,
                           ),
                           decoration: BoxDecoration(
-                            color: theme.colorScheme.primary.withValues(alpha: 0.1),
+                            color: theme.colorScheme.primary.withValues(
+                              alpha: 0.1,
+                            ),
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: Text(

@@ -137,7 +137,8 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar>
                   onTap: () => _handleTap(index),
                 );
 
-                final hasKey = widget.itemKeys != null &&
+                final hasKey =
+                    widget.itemKeys != null &&
                     index < widget.itemKeys!.length &&
                     widget.itemKeys![index] != null;
 

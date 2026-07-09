@@ -40,7 +40,8 @@ class AppTheme {
   static final ThemeData darkTheme = ThemeData(
     useMaterial3: true,
     brightness: Brightness.dark,
-    scaffoldBackgroundColor: AppColors.primaryDark,
+    // Transparent so the app-wide AppBackground gradient shows through.
+    scaffoldBackgroundColor: Colors.transparent,
     colorScheme: ColorScheme.dark(
       primary: AppColors.primaryAccent,
       secondary: AppColors.neonCyan,

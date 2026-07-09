@@ -435,7 +435,9 @@ class _TransactionBottomSheetState
         shape: BoxShape.circle,
         color: isActive ? color : theme.colorScheme.surfaceContainerHighest,
         border: Border.all(
-          color: isActive ? color : theme.colorScheme.outline.withValues(alpha: 0.3),
+          color: isActive
+              ? color
+              : theme.colorScheme.outline.withValues(alpha: 0.3),
           width: 2,
         ),
       ),
@@ -874,7 +876,9 @@ class _TransactionBottomSheetState
           onTap: () async {
             final date = await showDatePicker(
               context: context,
-              initialDate: _subscriptionEndDate ?? DateTime.now().add(const Duration(days: 365)),
+              initialDate:
+                  _subscriptionEndDate ??
+                  DateTime.now().add(const Duration(days: 365)),
               firstDate: DateTime.now(),
               lastDate: DateTime.now().add(const Duration(days: 3650)),
             );
@@ -890,7 +894,11 @@ class _TransactionBottomSheetState
             ),
             child: Row(
               children: [
-                Icon(Icons.event, size: 18, color: theme.colorScheme.onSurfaceVariant),
+                Icon(
+                  Icons.event,
+                  size: 18,
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -908,7 +916,11 @@ class _TransactionBottomSheetState
                 if (_subscriptionEndDate != null)
                   GestureDetector(
                     onTap: () => setState(() => _subscriptionEndDate = null),
-                    child: Icon(Icons.clear, size: 18, color: theme.colorScheme.onSurfaceVariant),
+                    child: Icon(
+                      Icons.clear,
+                      size: 18,
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
                   ),
               ],
             ),
@@ -1328,7 +1340,9 @@ class _TransactionBottomSheetState
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
         border: Border(
-          top: BorderSide(color: theme.colorScheme.outline.withValues(alpha: 0.1)),
+          top: BorderSide(
+            color: theme.colorScheme.outline.withValues(alpha: 0.1),
+          ),
         ),
       ),
       child: SafeArea(

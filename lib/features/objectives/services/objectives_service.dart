@@ -331,7 +331,8 @@ class ObjectiveWithProgress {
   bool get isArchived => objective.isArchived;
   bool get isComplete => progressPercent >= 100;
 
-  int get remainingAmount => targetAmount - currentAmount; // integer minor units / cents
+  int get remainingAmount =>
+      targetAmount - currentAmount; // integer minor units / cents
 
   String get progressText {
     if (isComplete) {

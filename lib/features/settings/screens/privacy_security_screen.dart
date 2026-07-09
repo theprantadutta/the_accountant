@@ -63,7 +63,7 @@ class _PrivacySecurityScreenState extends ConsumerState<PrivacySecurityScreen> {
     final settingsState = ref.watch(settingsProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.primaryDark,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -84,8 +84,7 @@ class _PrivacySecurityScreenState extends ConsumerState<PrivacySecurityScreen> {
                 onChanged: (value) async {
                   if (value) {
                     // Check if biometrics are available
-                    final isAvailable =
-                        await BiometricService().isAvailable();
+                    final isAvailable = await BiometricService().isAvailable();
                     if (!isAvailable) {
                       if (context.mounted) {
                         showErrorSnackBar(
@@ -96,8 +95,8 @@ class _PrivacySecurityScreenState extends ConsumerState<PrivacySecurityScreen> {
                       return;
                     }
                     // Confirm identity before enabling
-                    final authenticated =
-                        await BiometricService().authenticate();
+                    final authenticated = await BiometricService()
+                        .authenticate();
                     if (!authenticated) return;
                   }
                   await ref
@@ -381,9 +380,7 @@ class _PrivacySecurityScreenState extends ConsumerState<PrivacySecurityScreen> {
           await db.clearAllData();
 
           // Clear default wallet from SharedPreferences
-          await ref
-              .read(defaultWalletProvider.notifier)
-              .clearDefaultWallet();
+          await ref.read(defaultWalletProvider.notifier).clearDefaultWallet();
 
           // Refresh all in-memory providers
           await Future.wait([
@@ -408,8 +405,9 @@ class _PrivacySecurityScreenState extends ConsumerState<PrivacySecurityScreen> {
 
       if (mounted) {
         showSuccessSnackBar(context, 'All data cleared successfully');
-        Navigator.of(context)
-            .pushNamedAndRemoveUntil('/dashboard', (route) => false);
+        Navigator.of(
+          context,
+        ).pushNamedAndRemoveUntil('/dashboard', (route) => false);
       }
     } catch (e) {
       if (mounted) {

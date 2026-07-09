@@ -4,7 +4,6 @@ import 'package:the_accountant/core/providers/currency_provider.dart';
 import 'package:the_accountant/core/services/currency_service.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
-import 'package:the_accountant/core/themes/app_theme.dart';
 import 'package:the_accountant/core/themes/app_typography.dart';
 import 'package:the_accountant/shared/widgets/neo_button.dart';
 import 'package:the_accountant/shared/widgets/shimmer_loading.dart';
@@ -34,7 +33,7 @@ class _ExchangeRatesScreenState extends ConsumerState<ExchangeRatesScreen> {
     final currencyState = ref.watch(currencyProvider);
 
     return Container(
-      decoration: const BoxDecoration(gradient: AppTheme.backgroundGradient),
+      decoration: const BoxDecoration(),
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(

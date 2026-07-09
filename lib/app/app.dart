@@ -18,6 +18,7 @@ import 'package:the_accountant/features/settings/screens/privacy_security_screen
 import 'package:the_accountant/features/settings/screens/notifications_screen.dart';
 import 'package:the_accountant/features/settings/screens/regional_settings_screen.dart';
 import 'package:the_accountant/shared/widgets/main_navigation_container.dart';
+import 'package:the_accountant/shared/widgets/app_background.dart';
 import 'package:the_accountant/features/authentication/presentation/widgets/auth_wrapper.dart';
 
 class MyApp extends ConsumerStatefulWidget {
@@ -51,8 +52,12 @@ class _MyAppState extends ConsumerState<MyApp> {
       final AppUpdateInfo updateInfo = await InAppUpdate.checkForUpdate();
 
       debugPrint('Update availability: ${updateInfo.updateAvailability}');
-      debugPrint('Immediate update allowed: ${updateInfo.immediateUpdateAllowed}');
-      debugPrint('Flexible update allowed: ${updateInfo.flexibleUpdateAllowed}');
+      debugPrint(
+        'Immediate update allowed: ${updateInfo.immediateUpdateAllowed}',
+      );
+      debugPrint(
+        'Flexible update allowed: ${updateInfo.flexibleUpdateAllowed}',
+      );
 
       if (updateInfo.updateAvailability != UpdateAvailability.updateAvailable) {
         debugPrint('No update available.');
@@ -89,6 +94,10 @@ class _MyAppState extends ConsumerState<MyApp> {
       darkTheme: currentTheme,
       themeMode: ThemeMode.dark,
       navigatorObservers: [AnalyticsService().observer],
+      // One ambient gradient background painted behind every screen. Scaffolds
+      // are transparent (see AppTheme) so this shows through app-wide.
+      builder: (context, child) =>
+          AppBackground(child: child ?? const SizedBox.shrink()),
       home: const AuthWrapper(),
       routes: {
         '/post-signup-onboarding': (context) =>

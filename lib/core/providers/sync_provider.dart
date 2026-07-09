@@ -52,7 +52,9 @@ class SyncNotifier extends Notifier<SyncOperationState> {
       final wasOffline = previous == false || !_wasOnline;
       _wasOnline = next;
       if (wasOffline && next) {
-        debugPrint('[SyncNotifier] Connectivity restored, triggering auto-sync');
+        debugPrint(
+          '[SyncNotifier] Connectivity restored, triggering auto-sync',
+        );
         triggerAutoSync();
       }
     });
@@ -142,4 +144,3 @@ final isSyncingProvider = Provider<bool>((ref) {
   final state = ref.watch(syncNotifierProvider);
   return state == SyncOperationState.syncing;
 });
-

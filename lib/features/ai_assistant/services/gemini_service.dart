@@ -12,7 +12,8 @@ import 'package:the_accountant/features/transactions/providers/transaction_provi
 class GeminiService {
   final ApiService _apiService;
 
-  GeminiService({ApiService? apiService}) : _apiService = apiService ?? ApiService();
+  GeminiService({ApiService? apiService})
+    : _apiService = apiService ?? ApiService();
 
   /// Send a prompt to the backend AI endpoint and return the generated text.
   Future<String> _generate(String prompt) async {
@@ -43,8 +44,9 @@ class GeminiService {
     final StringBuffer transactionData = StringBuffer();
     transactionData.write('Here is my transaction data for analysis:\n\n');
 
-    final incomeTransactions =
-        transactions.where((t) => t.type == 'income').toList();
+    final incomeTransactions = transactions
+        .where((t) => t.type == 'income')
+        .toList();
     if (incomeTransactions.isNotEmpty) {
       transactionData.write('Income Transactions:\n');
       for (final transaction in incomeTransactions.take(10)) {
@@ -55,8 +57,9 @@ class GeminiService {
       transactionData.write('\n');
     }
 
-    final expenseTransactions =
-        transactions.where((t) => t.type == 'expense').toList();
+    final expenseTransactions = transactions
+        .where((t) => t.type == 'expense')
+        .toList();
     if (expenseTransactions.isNotEmpty) {
       transactionData.write('Expense Transactions:\n');
       for (final transaction in expenseTransactions.take(20)) {
@@ -79,12 +82,15 @@ class GeminiService {
     final double netSavings = totalIncome - totalExpenses;
 
     transactionData.write('Summary:\n');
-    transactionData
-        .write('- Total Income: \$${totalIncome.toStringAsFixed(2)}\n');
-    transactionData
-        .write('- Total Expenses: \$${totalExpenses.toStringAsFixed(2)}\n');
-    transactionData
-        .write('- Net Savings: \$${netSavings.toStringAsFixed(2)}\n\n');
+    transactionData.write(
+      '- Total Income: \$${totalIncome.toStringAsFixed(2)}\n',
+    );
+    transactionData.write(
+      '- Total Expenses: \$${totalExpenses.toStringAsFixed(2)}\n',
+    );
+    transactionData.write(
+      '- Net Savings: \$${netSavings.toStringAsFixed(2)}\n\n',
+    );
 
     final prompt =
         '''
@@ -114,8 +120,9 @@ class GeminiService {
       'Here is my financial information for personalized advice:\n\n',
     );
 
-    final expenseTransactions =
-        transactions.where((t) => t.type == 'expense').toList();
+    final expenseTransactions = transactions
+        .where((t) => t.type == 'expense')
+        .toList();
     if (expenseTransactions.isNotEmpty) {
       transactionData.write('Recent Expense Transactions:\n');
       for (final transaction in expenseTransactions.take(10)) {
@@ -126,8 +133,9 @@ class GeminiService {
       transactionData.write('\n');
     }
 
-    transactionData
-        .write('Monthly Income: \$${monthlyIncome.toStringAsFixed(2)}\n');
+    transactionData.write(
+      'Monthly Income: \$${monthlyIncome.toStringAsFixed(2)}\n',
+    );
     transactionData.write('Financial Goals: ${financialGoals.join(', ')}\n\n');
 
     final prompt =

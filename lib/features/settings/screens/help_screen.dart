@@ -231,7 +231,7 @@ class _HelpScreenState extends State<HelpScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.primaryDark,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -339,11 +339,7 @@ class _HelpScreenState extends State<HelpScreen> {
       child: Column(
         children: List.generate(indices.length * 2 - 1, (i) {
           if (i.isOdd) {
-            return Divider(
-              height: 1,
-              thickness: 1,
-              color: AppColors.divider,
-            );
+            return Divider(height: 1, thickness: 1, color: AppColors.divider);
           }
           final itemIndex = indices[i ~/ 2];
           return _buildFaqItem(itemIndex, _faqItems[itemIndex]);
@@ -431,9 +427,7 @@ class _HelpScreenState extends State<HelpScreen> {
           ElevatedButton.icon(
             onPressed: () => Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (_) => const ContactSupportScreen(),
-              ),
+              MaterialPageRoute(builder: (_) => const ContactSupportScreen()),
             ),
             icon: Icon(Icons.email_outlined),
             label: Text('Contact Support'),
@@ -450,5 +444,4 @@ class _HelpScreenState extends State<HelpScreen> {
       ),
     );
   }
-
 }

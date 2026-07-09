@@ -40,8 +40,7 @@ class WalkthroughService {
         align: ContentAlign.top,
         icon: Icons.receipt_long_rounded,
         title: 'Transaction Activity',
-        description:
-            'Browse, search, and filter all your transactions here.',
+        description: 'Browse, search, and filter all your transactions here.',
       ),
       _WalkthroughStep(
         key: keys['navAI']!,
@@ -56,8 +55,7 @@ class WalkthroughService {
         align: ContentAlign.bottom,
         icon: Icons.notifications_rounded,
         title: 'Stay Informed',
-        description:
-            "Budget alerts and reminders appear here. You're all set!",
+        description: "Budget alerts and reminders appear here. You're all set!",
       ),
     ];
 

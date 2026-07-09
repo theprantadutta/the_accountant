@@ -30,9 +30,11 @@ class MonthlySummaryService {
           // Add to category breakdown
           if (categoryBreakdown.containsKey(transaction.categoryId)) {
             categoryBreakdown[transaction.categoryId] =
-                categoryBreakdown[transaction.categoryId]! + transaction.amount / 100.0;
+                categoryBreakdown[transaction.categoryId]! +
+                transaction.amount / 100.0;
           } else {
-            categoryBreakdown[transaction.categoryId] = transaction.amount / 100.0;
+            categoryBreakdown[transaction.categoryId] =
+                transaction.amount / 100.0;
           }
         }
       }

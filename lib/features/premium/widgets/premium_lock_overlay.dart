@@ -117,10 +117,7 @@ class PremiumLockOverlay extends StatelessWidget {
               Colors.grey,
               BlendMode.saturation,
             ),
-            child: Opacity(
-              opacity: 0.4,
-              child: AbsorbPointer(child: child),
-            ),
+            child: Opacity(opacity: 0.4, child: AbsorbPointer(child: child)),
           ),
           Positioned.fill(
             child: Container(
@@ -148,7 +145,11 @@ class PremiumLockOverlay extends StatelessWidget {
                         ),
                       ],
                     ),
-                    child: const Icon(Icons.lock, color: Colors.white, size: 24),
+                    child: const Icon(
+                      Icons.lock,
+                      color: Colors.white,
+                      size: 24,
+                    ),
                   ),
                   if (message != null) ...[
                     const SizedBox(height: AppSpacing.sm),

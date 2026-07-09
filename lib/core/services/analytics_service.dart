@@ -11,8 +11,9 @@ class AnalyticsService {
 
   final FirebaseAnalytics _analytics = FirebaseAnalytics.instance;
 
-  late final FirebaseAnalyticsObserver observer =
-      FirebaseAnalyticsObserver(analytics: _analytics);
+  late final FirebaseAnalyticsObserver observer = FirebaseAnalyticsObserver(
+    analytics: _analytics,
+  );
 
   Future<void> _logEvent(String name, {Map<String, Object>? parameters}) async {
     if (kDebugMode) return;
@@ -70,33 +71,37 @@ class AnalyticsService {
   //   paywall_dismissed (closed without purchase)
   //   paywall_iap_unavailable / paywall_products_empty (dead-end states)
   Future<void> logPaywallShown({String? source, String? featureName}) =>
-      _logEvent('paywall_shown', parameters: <String, Object>{
-        'source': ?source,
-        'feature_name': ?featureName,
-      });
+      _logEvent(
+        'paywall_shown',
+        parameters: <String, Object>{
+          'source': ?source,
+          'feature_name': ?featureName,
+        },
+      );
 
   Future<void> logPaywallPurchaseStarted({required String productId}) =>
-      _logEvent('paywall_purchase_started',
-          parameters: {'product_id': productId});
+      _logEvent(
+        'paywall_purchase_started',
+        parameters: {'product_id': productId},
+      );
 
   Future<void> logPaywallPurchaseCanceled({required String productId}) =>
-      _logEvent('paywall_purchase_canceled',
-          parameters: {'product_id': productId});
+      _logEvent(
+        'paywall_purchase_canceled',
+        parameters: {'product_id': productId},
+      );
 
   Future<void> logPaywallPurchaseError({
     required String productId,
     required String stage,
     String? error,
-  }) =>
-      _logEvent('paywall_purchase_error', parameters: {
-        'product_id': productId,
-        'stage': stage,
-        'error': ?error,
-      });
+  }) => _logEvent(
+    'paywall_purchase_error',
+    parameters: {'product_id': productId, 'stage': stage, 'error': ?error},
+  );
 
   Future<void> logPaywallDismissed({String? source}) =>
-      _logEvent('paywall_dismissed',
-          parameters: {'source': ?source});
+      _logEvent('paywall_dismissed', parameters: {'source': ?source});
 
   Future<void> logPaywallIapUnavailable() =>
       _logEvent('paywall_iap_unavailable');
@@ -104,8 +109,7 @@ class AnalyticsService {
   Future<void> logPaywallProductsEmpty() => _logEvent('paywall_products_empty');
 
   Future<void> logPremiumPurchase({String? productId}) =>
-      _logEvent('premium_purchase',
-          parameters: {'product_id': ?productId});
+      _logEvent('premium_purchase', parameters: {'product_id': ?productId});
 
   Future<void> logPremiumRestore() => _logEvent('premium_restore');
 
