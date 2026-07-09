@@ -95,37 +95,36 @@ class OcrService {
   }
 
   /// Process an image and extract structured receipt data (merchant + total).
+  ///
+  /// ML Kit gives good raw text; the value is picking the right fields out of it:
+  ///  - Merchant: chosen by *text size* — the store name is almost always the
+  ///    largest text near the top — which is far more reliable than line order.
+  ///  - Total: the amount on a line labelled TOTAL / AMOUNT DUE / BALANCE DUE,
+  ///    excluding SUBTOTAL / TAX / CHANGE / TENDER, counting only amounts with
+  ///    cents (.dd) so transaction ids and quantities are ignored.
   Future<ReceiptData?> extractReceiptData(File imageFile) async {
     try {
-      final text = await processImage(imageFile);
-      if (text == null || text.trim().isEmpty) return null;
-      return _parseReceiptText(text);
+      final inputImage = InputImage.fromFile(imageFile);
+      final recognized = await _textRecognizer.processImage(inputImage);
+      final text = _formatRecognizedText(recognized);
+      if (text.trim().isEmpty) return null;
+
+      final lines = text
+          .split('\n')
+          .map((l) => l.trim())
+          .where((l) => l.isNotEmpty)
+          .toList();
+
+      return ReceiptData(
+        merchant: _extractMerchant(recognized, lines),
+        date: _extractDate(text),
+        total: _extractTotal(lines),
+        items: const [],
+      );
     } catch (e) {
       debugPrint('Error extracting receipt data: $e');
       return null;
     }
-  }
-
-  /// Heuristic receipt parser. On-device ML Kit gives good raw text; the value
-  /// is in picking the right merchant and total out of it:
-  ///  - Total: the amount on a line labelled TOTAL / AMOUNT DUE / BALANCE DUE,
-  ///    excluding SUBTOTAL / TAX / CHANGE / TENDER, and only counting amounts
-  ///    that have cents (.dd) so transaction ids and quantities are ignored.
-  ///  - Merchant: the first top line that reads like a name (letters, not an
-  ///    address / phone / all-digits line).
-  ReceiptData _parseReceiptText(String text) {
-    final lines = text
-        .split('\n')
-        .map((l) => l.trim())
-        .where((l) => l.isNotEmpty)
-        .toList();
-
-    return ReceiptData(
-      merchant: _extractMerchant(lines),
-      date: _extractDate(text),
-      total: _extractTotal(lines),
-      items: const [],
-    );
   }
 
   // Only amounts with cents (e.g. 12.34 or 1,234.56) — this alone filters out
@@ -209,27 +208,81 @@ class OcrService {
     return max;
   }
 
-  String _extractMerchant(List<String> lines) {
-    for (final line in lines.take(6)) {
-      if (line.length < 3) continue;
-      final lower = line.toLowerCase();
-      if (lower.contains('receipt') ||
-          lower.contains('www') ||
-          lower.contains('.com') ||
-          lower.contains('tel') ||
-          lower.contains('phone') ||
-          lower.contains('order') ||
-          lower.contains('invoice')) {
-        continue;
-      }
-      // Skip lines that are mostly digits/symbols (addresses, ids, phone nos).
-      final letters = RegExp(r'[a-zA-Z]').allMatches(line).length;
-      final digits = RegExp(r'\d').allMatches(line).length;
-      if (letters < 3 || digits > letters) continue;
+  // Field labels / boilerplate that are never the store name.
+  static const _merchantSkip = [
+    'receipt',
+    'www',
+    '.com',
+    'tel',
+    'phone',
+    'order',
+    'invoice',
+    'trans',
+    'store',
+    'register',
+    'cashier',
+    'date',
+    'reg no',
+    'reg.',
+    'vat',
+    'item',
+    'qty',
+    'price',
+    'amount',
+    'sales',
+    'associate',
+    'total',
+    'tendered',
+    'change',
+    'customer',
+    'thank you',
+  ];
 
-      return _tidyName(line);
+  bool _looksLikeName(String line) {
+    final t = line.trim();
+    if (t.length < 3) return false;
+    if (t.contains(':')) return false; // "Trans: 76", "Date: …" etc.
+    final lower = t.toLowerCase();
+    if (_merchantSkip.any(lower.contains)) return false;
+    final letters = RegExp(r'[a-zA-Z]').allMatches(t).length;
+    final digits = RegExp(r'\d').allMatches(t).length;
+    return letters >= 3 && digits <= letters;
+  }
+
+  /// Merchant = the largest name-like text near the top of the receipt.
+  String _extractMerchant(RecognizedText recognized, List<String> fallback) {
+    var minTop = double.infinity;
+    var maxBottom = 0.0;
+    final candidates = <({String text, double height, double top})>[];
+
+    for (final block in recognized.blocks) {
+      for (final line in block.lines) {
+        final box = line.boundingBox;
+        if (box.top < minTop) minTop = box.top;
+        if (box.bottom > maxBottom) maxBottom = box.bottom;
+        if (_looksLikeName(line.text)) {
+          candidates.add((
+            text: line.text.trim(),
+            height: box.height,
+            top: box.top,
+          ));
+        }
+      }
     }
-    return lines.isNotEmpty ? _tidyName(lines.first) : 'Receipt';
+
+    if (candidates.isEmpty) {
+      for (final l in fallback.take(6)) {
+        if (_looksLikeName(l)) return _tidyName(l);
+      }
+      return fallback.isNotEmpty ? _tidyName(fallback.first) : 'Receipt';
+    }
+
+    // Prefer candidates in the top ~45% of the text; fall back to all.
+    final cutoff = minTop + (maxBottom - minTop) * 0.45;
+    final top = candidates.where((c) => c.top <= cutoff).toList();
+    final pool = top.isNotEmpty ? top : candidates;
+    pool.sort((a, b) => b.height.compareTo(a.height)); // biggest text wins
+    return _tidyName(pool.first.text);
   }
 
   /// Title-case shouty ALL-CAPS names ("WALMART" -> "Walmart").
