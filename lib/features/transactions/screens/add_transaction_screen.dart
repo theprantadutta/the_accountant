@@ -3,6 +3,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/services/currency_service.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
+import 'package:the_accountant/core/themes/app_spacing.dart';
+import 'package:the_accountant/core/themes/app_typography.dart';
+import 'package:the_accountant/core/themes/app_animations.dart';
+import 'package:the_accountant/core/utils/icon_registry.dart';
+import 'package:the_accountant/shared/widgets/neo_button.dart';
+import 'package:the_accountant/shared/widgets/neo_text_field.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart'
     show Wallet, Transaction;
 import 'package:the_accountant/data/models/transaction.dart'
@@ -13,7 +19,6 @@ import 'package:the_accountant/features/transactions/providers/transaction_provi
     hide Transaction;
 import 'package:the_accountant/features/transactions/providers/transfer_provider.dart';
 import 'package:the_accountant/features/transactions/widgets/calculator_bottom_sheet.dart';
-import 'package:the_accountant/features/transactions/widgets/category_amount_header.dart';
 import 'package:the_accountant/features/transactions/widgets/category_picker_sheet.dart';
 import 'package:the_accountant/features/transactions/widgets/compact_date_time_picker.dart';
 import 'package:the_accountant/features/transactions/widgets/horizontal_chip_selector.dart';
@@ -21,7 +26,6 @@ import 'package:the_accountant/features/transactions/widgets/loan_type_chips.dar
 import 'package:the_accountant/features/transactions/widgets/special_type_selector.dart'
     show TransactionSpecialTypeExtension;
 import 'package:the_accountant/features/transactions/widgets/transaction_type_header.dart';
-import 'package:the_accountant/features/transactions/widgets/transfer_amount_header.dart';
 import 'package:the_accountant/features/recurring/providers/recurring_provider.dart';
 import 'package:the_accountant/features/subscriptions/providers/subscription_dashboard_provider.dart';
 import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
@@ -457,122 +461,438 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
       currencySymbol = CurrencyInfo.getSymbol(currentWallet.currency);
     }
 
-    return Container(
-      decoration: const BoxDecoration(
-        gradient: AppColors.backgroundGradient,
-      ),
+    return _buildAmbient(
       child: Scaffold(
-      backgroundColor: Colors.transparent,
-      appBar: AppBar(
         backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.close),
-          onPressed: () => Navigator.of(context).pop(),
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.close),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+          title: Text(_isEditing ? 'Edit Transaction' : 'New Transaction'),
+          actions: [
+            if (_isEditing)
+              IconButton(
+                icon: Icon(Icons.delete_outline, color: AppColors.error),
+                onPressed: _deleteTransaction,
+              ),
+          ],
         ),
-        title: Text(_isEditing ? 'Edit Transaction' : 'New Transaction'),
-        actions: [
-          if (_isEditing)
-            IconButton(
-              icon: Icon(Icons.delete_outline, color: AppColors.error),
-              onPressed: _deleteTransaction,
-            ),
-        ],
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Transaction type selector
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: TransactionTypeHeader(
-                      selectedType: _transactionType,
-                      onTypeChanged: _onTypeChanged,
-                      showTransfer: canTransfer && !_isEditing,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
+        body: Column(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 4),
 
-                  // Header (Category + Amount OR Transfer Amount)
-                  if (_isTransfer)
-                    TransferAmountHeader(
-                      amount: _amount,
-                      currencySymbol: currencySymbol,
-                      onAmountTap: _showCalculator,
-                    )
-                  else
-                    CategoryAmountHeader(
-                      categoryName: _selectedCategory?.name,
-                      categoryIconName: _selectedCategory?.iconName,
-                      categoryColor: _selectedCategory?.colorCode,
-                      amount: _amount,
-                      currencySymbol: currencySymbol,
-                      isIncome: _isIncome,
-                      onCategoryTap: _showCategoryPicker,
-                      onAmountTap: _showCalculator,
-                    ),
-                  const SizedBox(height: 20),
+                    // Hero: type toggle + amount + category
+                    _buildHero(canTransfer, currencySymbol),
+                    const SizedBox(height: 20),
 
-                  // Date/Time picker
-                  CompactDateTimePicker(
-                    selectedDateTime: _selectedDateTime,
-                    onDateTimeChanged: (dateTime) {
-                      setState(() => _selectedDateTime = dateTime);
-                    },
-                    accentColor: _accentColor,
-                    dateFormat: ref.watch(dateFormatSettingProvider),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Title input
-                  _buildTitleInput(),
-                  const SizedBox(height: 12),
-
-                  // Notes input
-                  _buildNotesInput(),
-                  const SizedBox(height: 20),
-
-                  if (_isTransfer) ...[
-                    // Transfer: From/To wallet selectors
-                    _buildTransferWalletSelectors(wallets),
-                  ] else ...[
-                    // Regular transaction sections
-                    // Special type chips (Default, Upcoming, Subscription)
-                    _buildSpecialTypeChips(),
-                    if (_specialType == TransactionSpecialType.subscription ||
-                        _specialType == TransactionSpecialType.repetitive)
-                      _buildSubscriptionConfigSection(),
-                    const SizedBox(height: 16),
-
-                    // Wallet chips
-                    _buildWalletChips(wallets),
-                    const SizedBox(height: 16),
-
-                    // Loan type chips
-                    LoanTypeChips(
-                      selectedType: _specialType,
-                      onTypeChanged: (type) {
-                        setState(() => _specialType = type);
+                    // Date/Time picker
+                    CompactDateTimePicker(
+                      selectedDateTime: _selectedDateTime,
+                      onDateTimeChanged: (dateTime) {
+                        setState(() => _selectedDateTime = dateTime);
                       },
                       accentColor: _accentColor,
+                      dateFormat: ref.watch(dateFormatSettingProvider),
                     ),
+                    const SizedBox(height: 16),
+
+                    // Title input
+                    _buildTitleInput(),
+                    const SizedBox(height: 12),
+
+                    // Notes input
+                    _buildNotesInput(),
+                    const SizedBox(height: 20),
+
+                    if (_isTransfer) ...[
+                      // Transfer: From/To wallet selectors
+                      _buildTransferWalletSelectors(wallets),
+                    ] else ...[
+                      // Regular transaction sections
+                      // Special type chips (Default, Upcoming, Subscription)
+                      _buildSpecialTypeChips(),
+                      if (_specialType == TransactionSpecialType.subscription ||
+                          _specialType == TransactionSpecialType.repetitive)
+                        _buildSubscriptionConfigSection(),
+                      const SizedBox(height: 16),
+
+                      // Wallet chips
+                      _buildWalletChips(wallets),
+                      const SizedBox(height: 16),
+
+                      // Loan type chips
+                      LoanTypeChips(
+                        selectedType: _specialType,
+                        onTypeChanged: (type) {
+                          setState(() => _specialType = type);
+                        },
+                        accentColor: _accentColor,
+                      ),
+                    ],
+                    const SizedBox(height: 10),
                   ],
-                  const SizedBox(height: 10),
-                ],
+                ),
               ),
             ),
-          ),
 
-          // Save button (sticky at bottom)
-          _buildSaveButton(),
+            // Save button (sticky at bottom)
+            _buildSaveButton(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Gradient for the current transaction type — drives the save button and the
+  /// sliding type-selector pill.
+  Gradient get _typeGradient {
+    switch (_transactionType) {
+      case TransactionTypeSelection.income:
+        return AppColors.successGradient;
+      case TransactionTypeSelection.expense:
+        return AppColors.errorGradient;
+      case TransactionTypeSelection.transfer:
+        return const LinearGradient(
+          colors: [AppColors.neonCyan, AppColors.neonBlue],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        );
+    }
+  }
+
+  /// Wraps the screen in the base gradient plus two soft accent-coloured glow
+  /// orbs that smoothly re-tint whenever the transaction type changes — the whole
+  /// screen quietly breathes the transaction's colour (income/expense/transfer).
+  Widget _buildAmbient({required Widget child}) {
+    return TweenAnimationBuilder<Color?>(
+      tween: ColorTween(end: _accentColor),
+      duration: AppAnimations.slow,
+      curve: AppAnimations.easeOut,
+      builder: (context, glow, _) {
+        final c = glow ?? _accentColor;
+        return DecoratedBox(
+          decoration: const BoxDecoration(
+            gradient: AppColors.backgroundGradient,
+          ),
+          child: Stack(
+            children: [
+              Positioned(top: -90, right: -70, child: _glowOrb(c, 300, 0.22)),
+              Positioned(
+                bottom: -120,
+                left: -90,
+                child: _glowOrb(c, 340, 0.15),
+              ),
+              child,
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _glowOrb(Color color, double size, double alpha) {
+    return IgnorePointer(
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: RadialGradient(
+            colors: [
+              color.withValues(alpha: alpha),
+              color.withValues(alpha: 0.0),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Hero card: the type toggle, the big amount, and (for non-transfers) the
+  /// category selector — all tinted to the current transaction type.
+  Widget _buildHero(bool canTransfer, String currencySymbol) {
+    return AnimatedContainer(
+      duration: AppAnimations.normal,
+      curve: AppAnimations.easeOut,
+      width: double.infinity,
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            _accentColor.withValues(alpha: 0.16),
+            _accentColor.withValues(alpha: 0.03),
+          ],
+        ),
+        borderRadius: AppSpacing.borderRadiusXl,
+        border: Border.all(color: _accentColor.withValues(alpha: 0.3)),
+        boxShadow: [
+          BoxShadow(
+            color: _accentColor.withValues(alpha: 0.22),
+            blurRadius: 30,
+            spreadRadius: -6,
+            offset: const Offset(0, 12),
+          ),
         ],
       ),
-    ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _buildTypeSelector(canTransfer),
+          const SizedBox(height: 24),
+          _buildAmountDisplay(currencySymbol),
+          if (!_isTransfer) ...[
+            const SizedBox(height: 18),
+            Center(child: _buildCategoryChip()),
+          ],
+        ],
+      ),
     );
+  }
+
+  /// Segmented income/expense/transfer control with a sliding gradient pill.
+  Widget _buildTypeSelector(bool canTransfer) {
+    final types = (canTransfer && !_isEditing)
+        ? TransactionTypeSelection.values
+        : [TransactionTypeSelection.expense, TransactionTypeSelection.income];
+    final selectedIndex = types
+        .indexOf(_transactionType)
+        .clamp(0, types.length - 1);
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final segmentWidth = constraints.maxWidth / types.length;
+        return SizedBox(
+          height: 46,
+          child: Stack(
+            children: [
+              // Track
+              Positioned.fill(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryDark.withValues(alpha: 0.35),
+                    borderRadius: AppSpacing.borderRadiusFull,
+                    border: Border.all(color: AppColors.glassBorder),
+                  ),
+                ),
+              ),
+              // Sliding selected pill
+              AnimatedPositioned(
+                duration: AppAnimations.normal,
+                curve: AppAnimations.easeOut,
+                left: selectedIndex * segmentWidth,
+                top: 0,
+                bottom: 0,
+                width: segmentWidth,
+                child: Padding(
+                  padding: const EdgeInsets.all(4),
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: _typeGradient,
+                      borderRadius: AppSpacing.borderRadiusFull,
+                      boxShadow: [
+                        BoxShadow(
+                          color: _accentColor.withValues(alpha: 0.4),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              // Tappable segments
+              Row(
+                children: types.map((type) {
+                  final isSelected = type == _transactionType;
+                  return Expanded(
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => _onTypeChanged(type),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            type.icon,
+                            size: 16,
+                            color: isSelected
+                                ? Colors.white
+                                : AppColors.textMuted,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            type.label,
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: isSelected
+                                  ? FontWeight.w700
+                                  : FontWeight.w500,
+                              color: isSelected
+                                  ? Colors.white
+                                  : AppColors.textSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  /// Big, tappable monospace amount — the screen's hero input.
+  Widget _buildAmountDisplay(String currencySymbol) {
+    final hasAmount = _amount > 0;
+    final sign = _isTransfer ? '' : (_isIncome ? '+' : '−');
+    final color = hasAmount ? _accentColor : AppColors.textMuted;
+
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () {
+        HapticFeedback.selectionClick();
+        _showCalculator();
+      },
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  '$sign$currencySymbol',
+                  style: AppTypography.monoMedium.copyWith(
+                    fontSize: 26,
+                    fontWeight: FontWeight.w600,
+                    color: color,
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  _formatAmount(_amount),
+                  style: AppTypography.monoLarge.copyWith(
+                    fontSize: 48,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: -1,
+                    color: color,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            hasAmount ? 'Tap to edit amount' : 'Tap to enter amount',
+            style: AppTypography.labelSmall.copyWith(
+              color: AppColors.textMuted,
+              letterSpacing: 0.5,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Inline category selector pill inside the hero (non-transfer only).
+  Widget _buildCategoryChip() {
+    final hasCategory = _selectedCategory != null;
+    final categoryColor = hasCategory && _selectedCategory!.colorCode.isNotEmpty
+        ? _parseHexColor(_selectedCategory!.colorCode)
+        : _accentColor;
+
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.selectionClick();
+        _showCategoryPicker();
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          color: AppColors.glassWhite,
+          borderRadius: AppSpacing.borderRadiusFull,
+          border: Border.all(
+            color: hasCategory
+                ? categoryColor.withValues(alpha: 0.45)
+                : AppColors.glassBorder,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 28,
+              height: 28,
+              decoration: BoxDecoration(
+                color: categoryColor.withValues(alpha: 0.18),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(
+                hasCategory && _selectedCategory!.iconName != null
+                    ? IconRegistry.getIcon(_selectedCategory!.iconName!)
+                    : Icons.category_outlined,
+                size: 16,
+                color: categoryColor,
+              ),
+            ),
+            const SizedBox(width: 10),
+            Text(
+              hasCategory ? _selectedCategory!.name : 'Select category',
+              style: AppTypography.titleSmall.copyWith(
+                color: hasCategory
+                    ? AppColors.textPrimary
+                    : AppColors.textSecondary,
+              ),
+            ),
+            const SizedBox(width: 4),
+            Icon(Icons.expand_more, size: 18, color: AppColors.textMuted),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Format an amount with thousand separators, hiding a trailing `.00`.
+  String _formatAmount(double amount) {
+    if (amount == 0) return '0';
+    final parts = amount.toStringAsFixed(2).split('.');
+    final intPart = parts[0];
+    final decPart = parts[1];
+    final buffer = StringBuffer();
+    for (int i = 0; i < intPart.length; i++) {
+      if (i > 0 && (intPart.length - i) % 3 == 0) buffer.write(',');
+      buffer.write(intPart[i]);
+    }
+    if (decPart != '00') {
+      buffer.write('.');
+      buffer.write(decPart);
+    }
+    return buffer.toString();
+  }
+
+  Color _parseHexColor(String code) {
+    try {
+      if (code.startsWith('#')) {
+        return Color(int.parse(code.substring(1), radix: 16) | 0xFF000000);
+      }
+    } catch (_) {}
+    return _accentColor;
   }
 
   Widget _buildSpecialTypeChips() {
@@ -639,9 +959,13 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
 
   Widget _buildSubscriptionConfigSection() {
     final isRepetitive = _specialType == TransactionSpecialType.repetitive;
-    final sectionColor = isRepetitive ? AppColors.neonBlue : AppColors.neonPurple;
+    final sectionColor = isRepetitive
+        ? AppColors.neonBlue
+        : AppColors.neonPurple;
     final sectionIcon = isRepetitive ? Icons.repeat : Icons.autorenew;
-    final sectionTitle = isRepetitive ? 'Repeat Settings' : 'Subscription Settings';
+    final sectionTitle = isRepetitive
+        ? 'Repeat Settings'
+        : 'Subscription Settings';
     final frequencies = ['daily', 'weekly', 'monthly', 'yearly'];
 
     String frequencyLabel(String freq) {
@@ -712,10 +1036,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
             children: [
               Text(
                 'Every',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: AppColors.textSecondary,
-                ),
+                style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
               ),
               const SizedBox(width: 8),
               IconButton(
@@ -751,10 +1072,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
               const SizedBox(width: 4),
               Text(
                 periodUnit(_subscriptionFrequency),
-                style: TextStyle(
-                  fontSize: 14,
-                  color: AppColors.textSecondary,
-                ),
+                style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
               ),
             ],
           ),
@@ -764,7 +1082,9 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
             onTap: () async {
               final date = await showDatePicker(
                 context: context,
-                initialDate: _subscriptionEndDate ?? DateTime.now().add(const Duration(days: 365)),
+                initialDate:
+                    _subscriptionEndDate ??
+                    DateTime.now().add(const Duration(days: 365)),
                 firstDate: DateTime.now(),
                 lastDate: DateTime.now().add(const Duration(days: 3650)),
               );
@@ -799,7 +1119,11 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                   if (_subscriptionEndDate != null)
                     GestureDetector(
                       onTap: () => setState(() => _subscriptionEndDate = null),
-                      child: Icon(Icons.clear, size: 18, color: AppColors.textMuted),
+                      child: Icon(
+                        Icons.clear,
+                        size: 18,
+                        color: AppColors.textMuted,
+                      ),
                     ),
                 ],
               ),
@@ -937,10 +1261,12 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
   Widget _buildTitleInput() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: TextField(
+      child: NeoTextField(
         controller: _titleController,
         focusNode: _titleFocusNode,
-        style: TextStyle(fontSize: 16, color: AppColors.textPrimary),
+        label: 'Title',
+        hint: _isTransfer ? 'e.g. Move to savings' : 'What was it for?',
+        prefixIcon: Icons.edit_outlined,
         textInputAction: TextInputAction.done,
         onSubmitted: (_) {
           // After title is submitted, open category picker (then amount)
@@ -951,30 +1277,6 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
             _showCalculator();
           }
         },
-        decoration: InputDecoration(
-          hintText: 'Title',
-          hintStyle: TextStyle(color: AppColors.textMuted),
-          prefixIcon: Icon(Icons.edit_outlined, color: AppColors.textMuted, size: 20),
-          prefixIconConstraints: const BoxConstraints(minWidth: 48, minHeight: 0),
-          filled: true,
-          fillColor: AppColors.primarySurface.withValues(alpha: 0.5),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14),
-            borderSide: BorderSide(color: AppColors.glassBorder),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14),
-            borderSide: BorderSide(color: AppColors.glassBorder),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14),
-            borderSide: BorderSide(color: _accentColor, width: 2),
-          ),
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 18,
-            vertical: 16,
-          ),
-        ),
       ),
     );
   }
@@ -982,38 +1284,14 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
   Widget _buildNotesInput() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: TextField(
+      child: NeoTextField(
         controller: _notesController,
-        style: TextStyle(fontSize: 16, color: AppColors.textPrimary),
+        label: 'Notes',
+        hint: 'Add a note (optional)',
+        prefixIcon: Icons.notes_outlined,
         maxLines: 3,
         minLines: 1,
-        decoration: InputDecoration(
-          hintText: 'Notes (optional)',
-          hintStyle: TextStyle(color: AppColors.textMuted),
-          prefixIcon: Padding(
-            padding: const EdgeInsets.only(bottom: 0),
-            child: Icon(Icons.notes_outlined, color: AppColors.textMuted, size: 20),
-          ),
-          prefixIconConstraints: const BoxConstraints(minWidth: 48, minHeight: 0),
-          filled: true,
-          fillColor: AppColors.primarySurface.withValues(alpha: 0.5),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14),
-            borderSide: BorderSide(color: AppColors.glassBorder),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14),
-            borderSide: BorderSide(color: AppColors.glassBorder),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14),
-            borderSide: BorderSide(color: _accentColor, width: 2),
-          ),
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 18,
-            vertical: 16,
-          ),
-        ),
+        textCapitalization: TextCapitalization.sentences,
       ),
     );
   }
@@ -1027,36 +1305,16 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
       ),
       child: SafeArea(
         top: false,
-        child: SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: _canSave && !_isSaving ? _saveTransaction : null,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: _accentColor,
-              foregroundColor: Colors.white,
-              disabledBackgroundColor: AppColors.divider,
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            child: _isSaving
-                ? SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                    ),
-                  )
-                : Text(
-                    _isEditing ? 'Update' : 'Save',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-          ),
+        child: NeoButton(
+          label: _isEditing ? 'Update' : (_isTransfer ? 'Transfer' : 'Save'),
+          onPressed: _canSave && !_isSaving ? _saveTransaction : null,
+          isLoading: _isSaving,
+          isExpanded: true,
+          size: NeoButtonSize.large,
+          gradient: _typeGradient,
+          trailingIcon: _isTransfer
+              ? Icons.swap_horiz_rounded
+              : Icons.check_rounded,
         ),
       ),
     );
