@@ -25,6 +25,8 @@ import 'package:the_accountant/features/walkthrough/walkthrough_service.dart';
 import 'package:the_accountant/core/providers/sync_provider.dart';
 import 'package:the_accountant/core/services/sync/sync_models.dart';
 import 'package:the_accountant/features/premium/providers/premium_provider.dart';
+import 'package:the_accountant/features/authentication/presentation/widgets/auth_background.dart';
+import 'package:the_accountant/features/authentication/presentation/widgets/auth_brand_header.dart';
 
 class MainNavigationContainer extends ConsumerStatefulWidget {
   const MainNavigationContainer({super.key});
@@ -156,26 +158,36 @@ class _MainNavigationContainerState
   }
 
   Widget _buildRestoringScreen() {
-    return Container(
-      decoration: BoxDecoration(gradient: AppColors.backgroundGradient),
+    return AuthBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              CircularProgressIndicator(color: AppColors.primaryAccent),
-              AppSpacing.gapXl,
-              Text('Restoring your data', style: AppTypography.titleMedium),
-              AppSpacing.gapSm,
-              Text(
-                'Syncing your account from the cloud…',
-                style: AppTypography.bodySmall.copyWith(
-                  color: AppColors.textSecondary,
+        body: SafeArea(
+          child: Padding(
+            padding: AppSpacing.paddingScreen,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const AuthBrandHeader(
+                  icon: Icons.cloud_download_rounded,
+                  title: 'Welcome back',
+                  subtitle: 'Restoring your data from the cloud…',
                 ),
-                textAlign: TextAlign.center,
-              ),
-            ],
+                AppSpacing.gapXxxl,
+                SizedBox(
+                  width: 200,
+                  child: ClipRRect(
+                    borderRadius: AppSpacing.borderRadiusFull,
+                    child: LinearProgressIndicator(
+                      minHeight: 4,
+                      backgroundColor: AppColors.glassWhite,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        AppColors.primaryAccent,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
