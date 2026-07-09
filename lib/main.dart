@@ -8,6 +8,7 @@ import 'package:workmanager/workmanager.dart';
 import 'package:the_accountant/app/app.dart';
 import 'package:the_accountant/core/utils/env_service.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:the_accountant/firebase_options.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
 import 'package:the_accountant/core/services/category_initialization_service.dart';
 import 'package:the_accountant/core/providers/default_wallet_provider.dart';
@@ -34,13 +35,23 @@ void main() async {
   // Minimum required before runApp()
   WidgetsFlutterBinding.ensureInitialized();
   await EnvService.init();
-  await Firebase.initializeApp(); // Required: GoogleSignInService accesses FirebaseAuth.instance at provider creation
-  await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(!kDebugMode);
-  FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
-  PlatformDispatcher.instance.onError = (error, stack) {
-    FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
-    return true;
-  };
+  // Explicit options make init work identically on every platform (Android,
+  // iOS, web, Windows) instead of relying on native config files being present.
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  ); // Required: GoogleSignInService accesses FirebaseAuth.instance at provider creation
+
+  // Crashlytics runs in release/profile only. In debug we leave Flutter's
+  // default error handlers in place so crashes surface in the console instead
+  // of being routed to Firebase.
+  if (!kDebugMode) {
+    await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
+    FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+    PlatformDispatcher.instance.onError = (error, stack) {
+      FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+      return true;
+    };
+  }
   final prefs = await SharedPreferences.getInstance();
   final db = constructDb();
 
