@@ -268,13 +268,50 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
             '${_relativeTime(conv.lastMessageAt)} · ${conv.messageCount} messages',
             style: TextStyle(color: AppColors.textMuted, fontSize: 12),
           ),
-          trailing: IconButton(
-            icon: Icon(
-              Icons.delete_outline,
-              color: AppColors.textMuted,
-              size: 20,
+          trailing: PopupMenuButton<String>(
+            icon: Icon(Icons.more_vert, color: AppColors.textMuted, size: 20),
+            color: AppColors.primarySurface,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+              side: BorderSide(color: AppColors.glassBorder),
             ),
-            onPressed: () => _confirmDeleteConversation(sheetContext, conv),
+            onSelected: (value) {
+              if (value == 'rename') {
+                _promptRenameConversation(sheetContext, conv);
+              } else if (value == 'delete') {
+                _confirmDeleteConversation(sheetContext, conv);
+              }
+            },
+            itemBuilder: (_) => [
+              PopupMenuItem(
+                value: 'rename',
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.edit_outlined,
+                      size: 18,
+                      color: AppColors.textSecondary,
+                    ),
+                    const SizedBox(width: 10),
+                    const Text('Rename'),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: 'delete',
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.delete_outline,
+                      size: 18,
+                      color: AppColors.error,
+                    ),
+                    const SizedBox(width: 10),
+                    Text('Delete', style: TextStyle(color: AppColors.error)),
+                  ],
+                ),
+              ),
+            ],
           ),
           onTap: () {
             Navigator.pop(sheetContext);
@@ -283,6 +320,43 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
         ),
       ),
     );
+  }
+
+  Future<void> _promptRenameConversation(
+    BuildContext sheetContext,
+    Conversation conv,
+  ) async {
+    final controller = TextEditingController(text: conv.title);
+    final newTitle = await showDialog<String>(
+      context: sheetContext,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Rename chat'),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          maxLength: 100,
+          textCapitalization: TextCapitalization.sentences,
+          decoration: const InputDecoration(hintText: 'Chat name'),
+          onSubmitted: (v) => Navigator.pop(dialogContext, v),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, controller.text),
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+    controller.dispose();
+
+    final trimmed = newTitle?.trim() ?? '';
+    if (trimmed.isNotEmpty && trimmed != conv.title) {
+      ref.read(aiChatProvider.notifier).renameConversation(conv.id, trimmed);
+    }
   }
 
   Future<void> _confirmDeleteConversation(
@@ -571,15 +645,19 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
             ),
           ),
           const SizedBox(width: 10),
-          const Text(
-            'AI Financial Assistant',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
+          const Expanded(
+            child: Text(
+              'AI Financial Assistant',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
-          const Spacer(),
+          const SizedBox(width: 8),
           _roundIconButton(
             icon: Icons.forum_outlined,
             onTap: () => _showConversationsSheet(context),

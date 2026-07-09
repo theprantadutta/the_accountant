@@ -79,6 +79,22 @@ class AiChatService {
     }
   }
 
+  /// Set a custom title for a conversation on the server.
+  Future<void> renameConversation(String conversationId, String title) async {
+    try {
+      await _apiService.put(
+        '/ai-chat/conversations/$conversationId/title',
+        data: {'title': title},
+      );
+      _logger.i('Renamed conversation $conversationId');
+    } on DioException catch (e) {
+      _logger.e('Failed to rename conversation: ${e.message}');
+      // Non-fatal for the UI; the optimistic title holds until the next reload.
+    } catch (e) {
+      _logger.w('Failed to rename conversation on server: $e');
+    }
+  }
+
   /// Delete a conversation (all of its messages) on the server.
   Future<void> deleteConversation(String conversationId) async {
     try {
@@ -118,10 +134,7 @@ class AiChatService {
 
       final response = await _apiService.post(
         '/ai-chat/message',
-        data: {
-          'message': message,
-          'conversation_id': ?conversationId,
-        },
+        data: {'message': message, 'conversation_id': ?conversationId},
       );
 
       _logger.i('AI chat response received');

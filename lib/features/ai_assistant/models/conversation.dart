@@ -12,6 +12,20 @@ class Conversation {
     required this.messageCount,
   });
 
+  Conversation copyWith({
+    String? id,
+    String? title,
+    DateTime? lastMessageAt,
+    int? messageCount,
+  }) {
+    return Conversation(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      lastMessageAt: lastMessageAt ?? this.lastMessageAt,
+      messageCount: messageCount ?? this.messageCount,
+    );
+  }
+
   factory Conversation.fromJson(Map<String, dynamic> json) {
     return Conversation(
       id: (json['id']) as String,

@@ -158,6 +158,19 @@ class AiChatNotifier extends StateNotifier<AiChatState> {
     }
   }
 
+  /// Rename a conversation. Applies optimistically then persists.
+  Future<void> renameConversation(String conversationId, String title) async {
+    final trimmed = title.trim();
+    if (trimmed.isEmpty) return;
+
+    final updated = state.conversations
+        .map((c) => c.id == conversationId ? c.copyWith(title: trimmed) : c)
+        .toList();
+    state = state.copyWith(conversations: updated);
+
+    await _aiChatService.renameConversation(conversationId, trimmed);
+  }
+
   /// Delete a conversation. If it was the open one, fall back to the next most
   /// recent conversation or a fresh chat.
   Future<void> deleteConversation(String conversationId) async {
