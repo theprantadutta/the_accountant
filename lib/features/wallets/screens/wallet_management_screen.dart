@@ -228,7 +228,31 @@ class _WalletManagementScreenState extends ConsumerState<WalletManagementScreen>
           else if (wallets.isEmpty)
             SliverFillRemaining(child: _buildEmptyState())
           else
-            ..._buildGroupedWalletSlivers(wallets, walletState),
+            SliverReorderableList(
+              itemCount: wallets.length,
+              onReorderItem: (oldIndex, newIndex) {
+                // onReorderItem's newIndex is already adjusted for the removal.
+                final ids = wallets.map((w) => w.id).toList();
+                final moved = ids.removeAt(oldIndex);
+                ids.insert(newIndex, moved);
+                HapticFeedback.mediumImpact();
+                ref.read(walletProvider.notifier).reorderWallets(ids);
+              },
+              itemBuilder: (context, index) {
+                final wallet = wallets[index];
+                return Padding(
+                  key: ValueKey(wallet.id),
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: _WalletCard(
+                    wallet: wallet,
+                    index: index,
+                    onEdit: () => _showEditWalletSheet(wallet),
+                    onDelete: () => _showDeleteConfirmationDialog(wallet),
+                    onSetDefault: () => _setAsDefault(wallet),
+                  ),
+                );
+              },
+            ),
           SliverToBoxAdapter(child: SizedBox(height: 100)),
         ],
       ),
@@ -247,115 +271,6 @@ class _WalletManagementScreenState extends ConsumerState<WalletManagementScreen>
             )
           : null,
     );
-  }
-
-  List<Widget> _buildGroupedWalletSlivers(
-    List<Wallet> wallets,
-    WalletState walletState,
-  ) {
-    // Group wallets by type
-    final grouped = <WalletType, List<Wallet>>{};
-    for (final wallet in wallets) {
-      grouped.putIfAbsent(wallet.walletType, () => []).add(wallet);
-    }
-
-    // Define display order
-    const typeOrder = [
-      WalletType.cash,
-      WalletType.bankAccount,
-      WalletType.creditCard,
-      WalletType.subscription,
-    ];
-
-    final slivers = <Widget>[];
-    var globalIndex = 0;
-
-    for (final type in typeOrder) {
-      final group = grouped[type];
-      if (group == null || group.isEmpty) continue;
-
-      // Section header
-      slivers.add(
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-            child: Row(
-              children: [
-                Icon(
-                  _walletTypeIcon(type),
-                  size: 16,
-                  color: AppColors.textSecondary,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  _walletTypeSectionLabel(type),
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.textSecondary,
-                    letterSpacing: 0.5,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Divider(color: AppColors.divider, thickness: 1),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-
-      // Wallet cards in this group
-      slivers.add(
-        SliverPadding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          sliver: SliverList(
-            delegate: SliverChildBuilderDelegate((context, index) {
-              final wallet = group[index];
-              final cardIndex = globalIndex + index;
-              return _WalletCard(
-                wallet: wallet,
-                index: cardIndex,
-                onEdit: () => _showEditWalletSheet(wallet),
-                onDelete: () => _showDeleteConfirmationDialog(wallet),
-                onSetDefault: () => _setAsDefault(wallet),
-              );
-            }, childCount: group.length),
-          ),
-        ),
-      );
-
-      globalIndex += group.length;
-    }
-
-    return slivers;
-  }
-
-  static IconData _walletTypeIcon(WalletType type) {
-    switch (type) {
-      case WalletType.cash:
-        return Icons.wallet;
-      case WalletType.bankAccount:
-        return Icons.account_balance;
-      case WalletType.creditCard:
-        return Icons.credit_card;
-      case WalletType.subscription:
-        return Icons.subscriptions;
-    }
-  }
-
-  static String _walletTypeSectionLabel(WalletType type) {
-    switch (type) {
-      case WalletType.cash:
-        return 'CASH';
-      case WalletType.bankAccount:
-        return 'BANK ACCOUNTS';
-      case WalletType.creditCard:
-        return 'CREDIT CARDS';
-      case WalletType.subscription:
-        return 'SUBSCRIPTIONS';
-    }
   }
 
   Widget _buildHeader(List<Wallet> wallets, WalletState walletState) {
@@ -981,33 +896,42 @@ class _WalletCardState extends ConsumerState<_WalletCard>
                                         ),
                                       ),
                                     ),
-                                    if (wallet.walletType !=
-                                        WalletType.cash) ...[
-                                      const SizedBox(width: 6),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 8,
-                                          vertical: 3,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: AppColors.glassWhite,
-                                          borderRadius: BorderRadius.circular(
-                                            6,
-                                          ),
-                                        ),
-                                        child: Text(
-                                          _walletTypeLabel(wallet.walletType),
-                                          style: TextStyle(
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.w500,
-                                            color: AppColors.textMuted,
-                                          ),
+                                    const SizedBox(width: 6),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 3,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: AppColors.glassWhite,
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
+                                      child: Text(
+                                        _walletTypeLabel(wallet.walletType),
+                                        style: TextStyle(
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w500,
+                                          color: AppColors.textMuted,
                                         ),
                                       ),
-                                    ],
+                                    ),
                                   ],
                                 ),
                               ],
+                            ),
+                          ),
+
+                          // Drag handle — reorder accounts
+                          ReorderableDragStartListener(
+                            index: widget.index,
+                            child: Container(
+                              padding: const EdgeInsets.all(6),
+                              margin: const EdgeInsets.only(right: 2),
+                              child: Icon(
+                                Icons.drag_handle_rounded,
+                                color: AppColors.textMuted,
+                                size: 20,
+                              ),
                             ),
                           ),
 

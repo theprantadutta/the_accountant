@@ -614,12 +614,36 @@ class AppDatabase extends _$AppDatabase {
   // Wallet DAO methods
   // ============================================================
   Future<List<Wallet>> getAllWallets() =>
-      (select(wallets)..where((w) => w.deletedAt.isNull())).get();
+      (select(wallets)
+            ..where((w) => w.deletedAt.isNull())
+            ..orderBy([
+              (w) => OrderingTerm.asc(w.orderIndex),
+              (w) => OrderingTerm.asc(w.createdAt),
+            ]))
+          .get();
 
   Future<Wallet?> findWalletById(String id) =>
       (select(wallets)..where((w) => w.id.equals(id))).getSingleOrNull();
 
   Future<int> addWallet(WalletsCompanion entry) => into(wallets).insert(entry);
+
+  /// Persist a manual wallet ordering: each wallet's orderIndex becomes its
+  /// position in [orderedIds]. Marks the rows pending so the order syncs.
+  Future<void> updateWalletOrder(List<String> orderedIds) async {
+    await batch((b) {
+      for (var i = 0; i < orderedIds.length; i++) {
+        b.update(
+          wallets,
+          WalletsCompanion(
+            orderIndex: Value(i),
+            syncStatus: const Value(SyncStatus.pendingUpdate),
+            updatedAt: Value(DateTime.now()),
+          ),
+          where: (w) => w.id.equals(orderedIds[i]),
+        );
+      }
+    });
+  }
 
   Future<bool> updateWallet(WalletsCompanion entry) =>
       update(wallets).replace(entry);

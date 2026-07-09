@@ -16,7 +16,8 @@ class WalletState {
   final List<Wallet> wallets;
   final bool isLoading;
   final String? error;
-  final Map<String, int> walletBalances; // wallet balances in integer minor units (cents)
+  final Map<String, int>
+  walletBalances; // wallet balances in integer minor units (cents)
 
   WalletState({
     required this.wallets,
@@ -68,7 +69,29 @@ class WalletNotifier extends StateNotifier<WalletState> {
         walletBalances: walletBalances,
       );
     } catch (e) {
-      if (!silent) state = state.copyWith(isLoading: false, error: e.toString());
+      if (!silent) {
+        state = state.copyWith(isLoading: false, error: e.toString());
+      }
+    }
+  }
+
+  /// Reorder wallets to match [orderedIds]. Applies optimistically for an instant
+  /// UI response, then persists the new orderIndex to the DB (marked for sync).
+  Future<void> reorderWallets(List<String> orderedIds) async {
+    final byId = {for (final w in state.wallets) w.id: w};
+    final reordered = [
+      for (final id in orderedIds)
+        if (byId[id] != null) byId[id]!,
+    ];
+    // Safety: append any wallet not present in orderedIds so none are dropped.
+    for (final w in state.wallets) {
+      if (!orderedIds.contains(w.id)) reordered.add(w);
+    }
+    state = state.copyWith(wallets: reordered);
+    try {
+      await _database.updateWalletOrder(reordered.map((w) => w.id).toList());
+    } catch (_) {
+      // Non-critical to the UI; the optimistic order holds until the next reload.
     }
   }
 
@@ -150,6 +173,8 @@ class WalletNotifier extends StateNotifier<WalletState> {
         walletType: Value(walletType),
         creditLimit: Value(creditLimit),
         billingCycleDay: Value(billingCycleDay),
+        // Append new accounts to the end of the user's manual order.
+        orderIndex: Value(state.wallets.length),
         syncStatus: const Value(1), // pendingCreate
         createdAt: Value(now),
         updatedAt: Value(now),
