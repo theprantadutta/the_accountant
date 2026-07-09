@@ -7,6 +7,7 @@ import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/core/themes/app_typography.dart';
 import 'package:the_accountant/core/themes/app_animations.dart';
 import 'package:the_accountant/core/utils/icon_registry.dart';
+import 'package:the_accountant/features/ai/screens/receipt_scanner_screen.dart';
 import 'package:the_accountant/shared/widgets/neo_button.dart';
 import 'package:the_accountant/shared/widgets/neo_text_field.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart'
@@ -155,6 +156,24 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (_titleController.text.isEmpty) {
           _titleFocusNode.requestFocus();
+        }
+      });
+    }
+  }
+
+  /// Open the premium receipt scanner and prefill this form from the result.
+  Future<void> _scanReceipt() async {
+    HapticFeedback.lightImpact();
+    final result = await Navigator.of(context).push<ReceiptScanResult>(
+      MaterialPageRoute(
+        builder: (_) => const ReceiptScannerScreenGated(returnResult: true),
+      ),
+    );
+    if (result != null && mounted) {
+      setState(() {
+        _amount = result.amount;
+        if (result.title.trim().isNotEmpty) {
+          _titleController.text = result.title.trim();
         }
       });
     }
@@ -647,6 +666,12 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
           ),
           title: Text(_isEditing ? 'Edit Transaction' : 'New Transaction'),
           actions: [
+            if (!_isEditing)
+              IconButton(
+                tooltip: 'Scan receipt',
+                icon: const Icon(Icons.document_scanner_outlined),
+                onPressed: _scanReceipt,
+              ),
             if (_isEditing)
               IconButton(
                 icon: Icon(Icons.delete_outline, color: AppColors.error),

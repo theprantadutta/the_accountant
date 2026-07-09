@@ -5,13 +5,19 @@ import 'package:the_accountant/features/ai/providers/ocr_provider.dart';
 import 'package:the_accountant/features/premium/widgets/premium_gate.dart';
 import 'package:the_accountant/data/models/premium_features.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:the_accountant/features/transactions/screens/add_transaction_screen.dart';
 import 'package:the_accountant/features/transactions/widgets/transaction_type_header.dart';
 
+/// Result returned from the scanner when opened in [returnResult] mode.
+typedef ReceiptScanResult = ({double amount, String title});
+
 /// Gated receipt scanner that requires premium subscription
 class ReceiptScannerScreenGated extends ConsumerWidget {
-  const ReceiptScannerScreenGated({super.key});
+  /// When true, the scanner returns the parsed data to the caller (via
+  /// Navigator.pop) instead of opening a new add-transaction screen.
+  final bool returnResult;
+
+  const ReceiptScannerScreenGated({super.key, this.returnResult = false});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -21,13 +27,15 @@ class ReceiptScannerScreenGated extends ConsumerWidget {
       featureDescription:
           'Scan receipts and automatically extract transaction data using AI-powered OCR technology.',
       featureIcon: Icons.receipt_long,
-      child: const ReceiptScannerScreen(),
+      child: ReceiptScannerScreen(returnResult: returnResult),
     );
   }
 }
 
 class ReceiptScannerScreen extends ConsumerStatefulWidget {
-  const ReceiptScannerScreen({super.key});
+  final bool returnResult;
+
+  const ReceiptScannerScreen({super.key, this.returnResult = false});
 
   @override
   ConsumerState<ReceiptScannerScreen> createState() =>
@@ -37,17 +45,6 @@ class ReceiptScannerScreen extends ConsumerStatefulWidget {
 class _ReceiptScannerScreenState extends ConsumerState<ReceiptScannerScreen> {
   File? _selectedImage;
   final ImagePicker _picker = ImagePicker();
-
-  @override
-  void initState() {
-    super.initState();
-    _requestPermissions();
-  }
-
-  Future<void> _requestPermissions() async {
-    await Permission.camera.request();
-    await Permission.storage.request();
-  }
 
   Future<void> _pickImage() async {
     try {
@@ -307,12 +304,20 @@ class _ReceiptScannerScreenState extends ConsumerState<ReceiptScannerScreen> {
                           ElevatedButton(
                             onPressed: () {
                               final receiptData = ocrState.receiptData!;
-                              showAddTransactionScreen(
-                                context,
-                                initialType: TransactionTypeSelection.expense,
-                                prefillAmount: receiptData.total,
-                                prefillTitle: receiptData.merchant,
-                              );
+                              if (widget.returnResult) {
+                                // Hand the parsed data back to the add screen.
+                                Navigator.pop(context, (
+                                  amount: receiptData.total,
+                                  title: receiptData.merchant,
+                                ));
+                              } else {
+                                showAddTransactionScreen(
+                                  context,
+                                  initialType: TransactionTypeSelection.expense,
+                                  prefillAmount: receiptData.total,
+                                  prefillTitle: receiptData.merchant,
+                                );
+                              }
                             },
                             child: const Text('Save as Transaction'),
                           ),
