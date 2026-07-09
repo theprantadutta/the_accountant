@@ -22,7 +22,8 @@ class WalletBalanceService {
       // entry (which always affects the balance regardless of paid status). This mirrors the
       // schemaVersion-11 migration backfill EXACTLY — `is_paid OR special_type IN (credit,
       // debt)` — so a recompute can never diverge from the migrated opening/stored balance.
-      final countsTowardBalance = transaction.isPaid ||
+      final countsTowardBalance =
+          transaction.isPaid ||
           transaction.specialType == TransactionSpecialType.credit ||
           transaction.specialType == TransactionSpecialType.debt;
       if (!countsTowardBalance) {
@@ -88,6 +89,21 @@ class WalletBalanceService {
 
     for (final wallet in wallets) {
       await updateWalletBalance(wallet.id);
+    }
+  }
+
+  /// Recompute every wallet's balance from its transactions and persist it
+  /// WITHOUT marking the wallets for sync. Call this after a pull so the
+  /// displayed balance is derived locally and correct across devices, regardless
+  /// of the last-write-wins `balance` scalar pulled from the server (which can be
+  /// stale when two devices edit the same wallet). Because it doesn't set a
+  /// pending flag, it never re-pushes and can't cause a balance ping-pong.
+  Future<void> recalculateAllWalletBalancesLocal() async {
+    final wallets = await _db.getAllWallets();
+
+    for (final wallet in wallets) {
+      final calculatedBalance = await calculateWalletBalance(wallet.id);
+      await _db.setWalletBalanceLocal(wallet.id, calculatedBalance);
     }
   }
 

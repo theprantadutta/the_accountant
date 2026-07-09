@@ -5,6 +5,7 @@ import 'package:logger/logger.dart';
 
 import 'package:the_accountant/core/services/api_service.dart';
 import 'package:the_accountant/core/services/sync/sync_models.dart';
+import 'package:the_accountant/core/services/wallet_balance_service.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/data/models/wallet.dart' show WalletType;
 import 'package:the_accountant/features/premium/providers/premium_provider.dart';
@@ -41,11 +42,7 @@ class SyncService {
   // Synchronous re-entrancy guard for syncAll (set before any await).
   bool _syncInProgress = false;
 
-  SyncService({
-    required this._apiService,
-    required this._database,
-    this._ref,
-  });
+  SyncService({required this._apiService, required this._database, this._ref});
 
   /// Check if device is online
   Future<bool> isOnline() async {
@@ -120,10 +117,13 @@ class SyncService {
         // (conflict / newer server version) are LEFT pending so the pull below can bring
         // the authoritative server copy and overwrite them — instead of silently marking a
         // rejected local edit as "synced" and losing it.
-        final conflictKeys =
-            conflicts.map((c) => '${c.tableName}:${c.entityId}').toSet();
+        final conflictKeys = conflicts
+            .map((c) => '${c.tableName}:${c.entityId}')
+            .toSet();
         final appliedChanges = push.pushed
-            .where((c) => !conflictKeys.contains('${c.tableName}:${c.entityId}'))
+            .where(
+              (c) => !conflictKeys.contains('${c.tableName}:${c.entityId}'),
+            )
             .toList();
         await _markChangesSynced(appliedChanges);
       }
@@ -142,8 +142,11 @@ class SyncService {
             try {
               await _applyPulledChange(tableName, change);
             } catch (e, s) {
-              _logger.w('Skipping bad $tableName record ${change.entityId}: $e',
-                  error: e, stackTrace: s);
+              _logger.w(
+                'Skipping bad $tableName record ${change.entityId}: $e',
+                error: e,
+                stackTrace: s,
+              );
             }
           }
         }
@@ -152,6 +155,16 @@ class SyncService {
         // if absent), so client clock skew can't skip server-side changes on the next pull.
         _lastSyncAt = pullResult.serverTime ?? DateTime.now();
         await _saveLastSyncTimestamp(_lastSyncAt!);
+      }
+
+      // Recompute wallet balances locally from the freshly-pulled transactions.
+      // Balance is a last-write-wins scalar on the server and can be stale across
+      // devices, so we never trust the pulled value — we derive it and persist it
+      // WITHOUT a pending flag (no re-push, no ping-pong).
+      if (totalPulled > 0) {
+        await WalletBalanceService(
+          _database,
+        ).recalculateAllWalletBalancesLocal();
       }
 
       final duration = DateTime.now().difference(startTime);
@@ -192,7 +205,7 @@ class SyncService {
   /// Returns the server response together with the exact set of changes pushed, so the
   /// caller can mark only the accepted records as synced (see [_markChangesSynced]).
   Future<({SyncPushResponse? response, List<SyncChange> pushed})>
-      _pushAllChanges() async {
+  _pushAllChanges() async {
     final allChanges = <SyncChange>[];
 
     // Collect pending changes in dependency order:
@@ -772,9 +785,11 @@ class SyncService {
     return data.map((key, value) {
       final pascalKey = key
           .split('_')
-          .map((part) => part.isEmpty
-              ? ''
-              : '${part[0].toUpperCase()}${part.substring(1)}')
+          .map(
+            (part) => part.isEmpty
+                ? ''
+                : '${part[0].toUpperCase()}${part.substring(1)}',
+          )
           .join();
       return MapEntry(pascalKey, value);
     });
@@ -1041,44 +1056,53 @@ class SyncService {
   Future<void> _setRecordSynced(String table, String id) async {
     switch (table) {
       case 'transactions':
-        await (_database.update(_database.transactions)
-              ..where((t) => t.id.equals(id)))
-            .write(const TransactionsCompanion(
-                syncStatus: Value(SyncStatus.synced)));
+        await (_database.update(
+          _database.transactions,
+        )..where((t) => t.id.equals(id))).write(
+          const TransactionsCompanion(syncStatus: Value(SyncStatus.synced)),
+        );
         break;
       case 'wallets':
-        await (_database.update(_database.wallets)..where((w) => w.id.equals(id)))
-            .write(
-                const WalletsCompanion(syncStatus: Value(SyncStatus.synced)));
+        await (_database.update(
+          _database.wallets,
+        )..where((w) => w.id.equals(id))).write(
+          const WalletsCompanion(syncStatus: Value(SyncStatus.synced)),
+        );
         break;
       case 'categories':
-        await (_database.update(_database.categories)
-              ..where((c) => c.id.equals(id)))
-            .write(
-                const CategoriesCompanion(syncStatus: Value(SyncStatus.synced)));
+        await (_database.update(
+          _database.categories,
+        )..where((c) => c.id.equals(id))).write(
+          const CategoriesCompanion(syncStatus: Value(SyncStatus.synced)),
+        );
         break;
       case 'budgets':
-        await (_database.update(_database.budgets)..where((b) => b.id.equals(id)))
-            .write(
-                const BudgetsCompanion(syncStatus: Value(SyncStatus.synced)));
+        await (_database.update(
+          _database.budgets,
+        )..where((b) => b.id.equals(id))).write(
+          const BudgetsCompanion(syncStatus: Value(SyncStatus.synced)),
+        );
         break;
       case 'objectives':
-        await (_database.update(_database.objectives)
-              ..where((o) => o.id.equals(id)))
-            .write(
-                const ObjectivesCompanion(syncStatus: Value(SyncStatus.synced)));
+        await (_database.update(
+          _database.objectives,
+        )..where((o) => o.id.equals(id))).write(
+          const ObjectivesCompanion(syncStatus: Value(SyncStatus.synced)),
+        );
         break;
       case 'payment_methods':
-        await (_database.update(_database.paymentMethods)
-              ..where((p) => p.id.equals(id)))
-            .write(const PaymentMethodsCompanion(
-                syncStatus: Value(SyncStatus.synced)));
+        await (_database.update(
+          _database.paymentMethods,
+        )..where((p) => p.id.equals(id))).write(
+          const PaymentMethodsCompanion(syncStatus: Value(SyncStatus.synced)),
+        );
         break;
       case 'recurring_configs':
-        await (_database.update(_database.recurringConfigs)
-              ..where((r) => r.id.equals(id)))
-            .write(const RecurringConfigsCompanion(
-                syncStatus: Value(SyncStatus.synced)));
+        await (_database.update(
+          _database.recurringConfigs,
+        )..where((r) => r.id.equals(id))).write(
+          const RecurringConfigsCompanion(syncStatus: Value(SyncStatus.synced)),
+        );
         break;
     }
   }
@@ -1086,32 +1110,34 @@ class SyncService {
   Future<void> _hardDeleteLocal(String table, String id) async {
     switch (table) {
       case 'transactions':
-        await (_database.delete(_database.transactions)
-              ..where((t) => t.id.equals(id)))
-            .go();
+        await (_database.delete(
+          _database.transactions,
+        )..where((t) => t.id.equals(id))).go();
         break;
       case 'wallets':
-        await (_database.delete(_database.wallets)..where((w) => w.id.equals(id)))
-            .go();
+        await (_database.delete(
+          _database.wallets,
+        )..where((w) => w.id.equals(id))).go();
         break;
       case 'categories':
-        await (_database.delete(_database.categories)
-              ..where((c) => c.id.equals(id)))
-            .go();
+        await (_database.delete(
+          _database.categories,
+        )..where((c) => c.id.equals(id))).go();
         break;
       case 'budgets':
-        await (_database.delete(_database.budgets)..where((b) => b.id.equals(id)))
-            .go();
+        await (_database.delete(
+          _database.budgets,
+        )..where((b) => b.id.equals(id))).go();
         break;
       case 'objectives':
-        await (_database.delete(_database.objectives)
-              ..where((o) => o.id.equals(id)))
-            .go();
+        await (_database.delete(
+          _database.objectives,
+        )..where((o) => o.id.equals(id))).go();
         break;
       case 'payment_methods':
-        await (_database.delete(_database.paymentMethods)
-              ..where((p) => p.id.equals(id)))
-            .go();
+        await (_database.delete(
+          _database.paymentMethods,
+        )..where((p) => p.id.equals(id))).go();
         break;
       case 'recurring_configs':
         // Recurring configs have no soft-delete column; the server keeps the row inactive,

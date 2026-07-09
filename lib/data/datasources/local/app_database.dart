@@ -672,6 +672,19 @@ class AppDatabase extends _$AppDatabase {
     );
   }
 
+  /// Persist a locally-derived wallet balance WITHOUT marking it for sync.
+  ///
+  /// Balance is client-authoritative: each device recomputes it from its opening
+  /// balance + transactions. After a pull we recompute locally and store the
+  /// result with this method so the derived value is never re-pushed — that would
+  /// cause a cross-device last-write-wins balance ping-pong. `syncStatus` and
+  /// `updatedAt` are intentionally left untouched.
+  Future<void> setWalletBalanceLocal(String walletId, int newBalance) async {
+    await (update(wallets)..where((w) => w.id.equals(walletId))).write(
+      WalletsCompanion(balance: Value(newBalance)),
+    );
+  }
+
   // ============================================================
   // User Profile DAO methods
   // ============================================================
