@@ -6,6 +6,7 @@ import 'package:the_accountant/core/services/currency_service.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/core/themes/app_typography.dart';
+import 'package:the_accountant/shared/widgets/shimmer_loading.dart';
 
 /// A widget for selecting a currency from a searchable list
 class CurrencyPicker extends ConsumerStatefulWidget {
@@ -253,7 +254,22 @@ class _CurrencyPickerSheetState extends ConsumerState<_CurrencyPickerSheet> {
           // Loading state
           if (currencyState.isLoading &&
               currencyState.availableCurrencies.isEmpty)
-            const Expanded(child: Center(child: CircularProgressIndicator()))
+            const Expanded(
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: 8),
+                child: Column(
+                  children: [
+                    ShimmerCard(height: 56),
+                    SizedBox(height: 12),
+                    ShimmerCard(height: 56),
+                    SizedBox(height: 12),
+                    ShimmerCard(height: 56),
+                    SizedBox(height: 12),
+                    ShimmerCard(height: 56),
+                  ],
+                ),
+              ),
+            )
           // Error state
           else if (currencyState.error != null &&
               currencyState.availableCurrencies.isEmpty)

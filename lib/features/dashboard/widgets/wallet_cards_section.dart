@@ -16,6 +16,7 @@ import 'package:the_accountant/features/wallets/screens/wallet_management_screen
 import 'package:the_accountant/features/wallets/widgets/add_wallet_form.dart';
 import 'package:the_accountant/shared/widgets/color_picker.dart';
 import 'package:the_accountant/shared/widgets/icon_picker.dart';
+import 'package:the_accountant/shared/widgets/shimmer_loading.dart';
 
 /// Horizontal scrollable wallet cards section for dashboard
 class WalletCardsSection extends ConsumerWidget {
@@ -27,14 +28,9 @@ class WalletCardsSection extends ConsumerWidget {
     final wallets = walletState.wallets;
 
     if (walletState.isLoading) {
-      return SizedBox(
-        height: 180,
-        child: Center(
-          child: CircularProgressIndicator(
-            color: AppColors.primaryAccent,
-            strokeWidth: 2,
-          ),
-        ),
+      return const Padding(
+        padding: EdgeInsets.symmetric(horizontal: 16),
+        child: ShimmerWalletList(),
       );
     }
 

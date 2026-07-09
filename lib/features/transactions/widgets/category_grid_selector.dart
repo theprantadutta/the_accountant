@@ -8,6 +8,7 @@ import 'package:the_accountant/core/themes/app_typography.dart';
 import 'package:the_accountant/core/utils/icon_registry.dart';
 import 'package:the_accountant/features/categories/providers/category_provider.dart';
 import 'package:the_accountant/features/categories/widgets/quick_add_category_form.dart';
+import 'package:the_accountant/shared/widgets/shimmer_loading.dart';
 
 /// A grid-based category selector widget.
 /// Displays categories as colored icons in a clean grid layout.
@@ -136,7 +137,20 @@ class _CategoryGridSelectorState extends ConsumerState<CategoryGridSelector>
         // Category Grid
         Expanded(
           child: categoryState.isLoading
-              ? const Center(child: CircularProgressIndicator())
+              ? const Padding(
+                  padding: EdgeInsets.all(16),
+                  child: Column(
+                    children: [
+                      ShimmerCard(height: 56),
+                      SizedBox(height: 12),
+                      ShimmerCard(height: 56),
+                      SizedBox(height: 12),
+                      ShimmerCard(height: 56),
+                      SizedBox(height: 12),
+                      ShimmerCard(height: 56),
+                    ],
+                  ),
+                )
               : _buildCategoryGrid(categoryState),
         ),
       ],

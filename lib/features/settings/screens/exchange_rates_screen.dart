@@ -7,6 +7,7 @@ import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/core/themes/app_theme.dart';
 import 'package:the_accountant/core/themes/app_typography.dart';
 import 'package:the_accountant/shared/widgets/neo_button.dart';
+import 'package:the_accountant/shared/widgets/shimmer_loading.dart';
 
 /// Screen for managing exchange rates
 class ExchangeRatesScreen extends ConsumerStatefulWidget {
@@ -143,7 +144,22 @@ class _ExchangeRatesScreenState extends ConsumerState<ExchangeRatesScreen> {
 
   Widget _buildRatesList(CurrencyState currencyState) {
     if (currencyState.isLoading && currencyState.apiRates.isEmpty) {
-      return const Center(child: CircularProgressIndicator());
+      return const Padding(
+        padding: EdgeInsets.all(16),
+        child: Column(
+          children: [
+            ShimmerCard(height: 64),
+            SizedBox(height: 12),
+            ShimmerCard(height: 64),
+            SizedBox(height: 12),
+            ShimmerCard(height: 64),
+            SizedBox(height: 12),
+            ShimmerCard(height: 64),
+            SizedBox(height: 12),
+            ShimmerCard(height: 64),
+          ],
+        ),
+      );
     }
 
     if (currencyState.error != null && currencyState.apiRates.isEmpty) {

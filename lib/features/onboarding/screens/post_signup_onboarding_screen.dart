@@ -10,6 +10,7 @@ import 'package:the_accountant/data/models/wallet.dart' show WalletType;
 import 'package:the_accountant/features/onboarding/providers/onboarding_provider.dart';
 import 'package:the_accountant/shared/widgets/color_picker.dart';
 import 'package:the_accountant/shared/widgets/currency_picker.dart';
+import 'package:the_accountant/shared/widgets/shimmer_loading.dart';
 import 'package:the_accountant/shared/widgets/icon_picker.dart';
 import 'package:the_accountant/shared/widgets/neo_button.dart';
 
@@ -285,7 +286,15 @@ class _PostSignupOnboardingScreenState
           if (currencyState.isLoading &&
               currencyState.availableCurrencies.isEmpty) ...[
             AppSpacing.gapMd,
-            const Center(child: CircularProgressIndicator()),
+            const Column(
+              children: [
+                ShimmerCard(height: 48),
+                SizedBox(height: 8),
+                ShimmerCard(height: 48),
+                SizedBox(height: 8),
+                ShimmerCard(height: 48),
+              ],
+            ),
             AppSpacing.gapSm,
             Center(
               child: Text(
@@ -396,9 +405,7 @@ class _PostSignupOnboardingScreenState
                     selectedColor: AppColors.primaryAccent,
                     backgroundColor: AppColors.glassWhite,
                     labelStyle: TextStyle(
-                      color: isSelected
-                          ? Colors.white
-                          : AppColors.textPrimary,
+                      color: isSelected ? Colors.white : AppColors.textPrimary,
                       fontSize: 13,
                       fontWeight: isSelected
                           ? FontWeight.w600
@@ -421,9 +428,7 @@ class _PostSignupOnboardingScreenState
           const SizedBox(height: 6),
           Text(
             'Account type cannot be changed later',
-            style: AppTypography.bodySmall.copyWith(
-              color: AppColors.textMuted,
-            ),
+            style: AppTypography.bodySmall.copyWith(color: AppColors.textMuted),
           ),
           AppSpacing.gapMd,
 
@@ -472,7 +477,9 @@ class _PostSignupOnboardingScreenState
             TextFormField(
               controller: _creditLimitController,
               style: AppTypography.bodyLarge,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
               decoration: InputDecoration(
                 hintText: 'Enter credit limit',
                 prefixText: '${_getCurrencySymbol()} ',
@@ -485,7 +492,10 @@ class _PostSignupOnboardingScreenState
               ),
             ),
             AppSpacing.gapMd,
-            Text('Billing Cycle Day (optional)', style: AppTypography.labelMedium),
+            Text(
+              'Billing Cycle Day (optional)',
+              style: AppTypography.labelMedium,
+            ),
             AppSpacing.gapSm,
             DropdownButtonFormField<int>(
               initialValue: _billingCycleDay,
@@ -502,14 +512,11 @@ class _PostSignupOnboardingScreenState
               style: AppTypography.bodyLarge,
               items: List.generate(31, (i) => i + 1)
                   .map(
-                    (day) => DropdownMenuItem(
-                      value: day,
-                      child: Text('Day $day'),
-                    ),
+                    (day) =>
+                        DropdownMenuItem(value: day, child: Text('Day $day')),
                   )
                   .toList(),
-              onChanged: (value) =>
-                  setState(() => _billingCycleDay = value),
+              onChanged: (value) => setState(() => _billingCycleDay = value),
             ),
             AppSpacing.gapMd,
           ],

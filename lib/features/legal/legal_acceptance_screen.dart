@@ -7,6 +7,7 @@ import 'package:the_accountant/core/themes/app_theme.dart';
 import 'package:the_accountant/core/utils/animation_utils.dart';
 import 'package:the_accountant/features/authentication/presentation/screens/sign_in_screen.dart';
 import 'package:the_accountant/shared/widgets/legal_markdown_style.dart';
+import 'package:the_accountant/shared/widgets/shimmer_loading.dart';
 
 class LegalAcceptanceScreen extends StatefulWidget {
   final VoidCallback? onAccepted;
@@ -151,8 +152,7 @@ class _LegalAcceptanceScreenState extends State<LegalAcceptanceScreen>
                     ),
                     dividerColor: Colors.transparent,
                     labelColor: Colors.white,
-                    unselectedLabelColor:
-                        Colors.white.withValues(alpha: 0.6),
+                    unselectedLabelColor: Colors.white.withValues(alpha: 0.6),
                     labelStyle: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -195,9 +195,23 @@ class _LegalAcceptanceScreenState extends State<LegalAcceptanceScreen>
                     child: ClipRRect(
                       borderRadius: AppSpacing.borderRadiusXl,
                       child: _isLoading
-                          ? const Center(
-                              child: CircularProgressIndicator(
-                                color: AppColors.primaryAccent,
+                          ? const Padding(
+                              padding: EdgeInsets.all(16),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  ShimmerCard(height: 28, width: 200),
+                                  SizedBox(height: 16),
+                                  ShimmerCard(height: 14),
+                                  SizedBox(height: 8),
+                                  ShimmerCard(height: 14),
+                                  SizedBox(height: 8),
+                                  ShimmerCard(height: 14),
+                                  SizedBox(height: 24),
+                                  ShimmerCard(height: 14),
+                                  SizedBox(height: 8),
+                                  ShimmerCard(height: 14),
+                                ],
                               ),
                             )
                           : TabBarView(
@@ -267,8 +281,9 @@ class _LegalAcceptanceScreenState extends State<LegalAcceptanceScreen>
                                     'I have read and agree to the Privacy Policy and Terms & Conditions',
                                     style: TextStyle(
                                       fontSize: 13,
-                                      color:
-                                          Colors.white.withValues(alpha: 0.9),
+                                      color: Colors.white.withValues(
+                                        alpha: 0.9,
+                                      ),
                                       height: 1.4,
                                     ),
                                   ),
@@ -281,9 +296,7 @@ class _LegalAcceptanceScreenState extends State<LegalAcceptanceScreen>
                       const SizedBox(height: 16),
                       // Continue button
                       AppTheme.gradientContainer(
-                        gradient: _accepted
-                            ? AppTheme.primaryGradient
-                            : null,
+                        gradient: _accepted ? AppTheme.primaryGradient : null,
                         width: double.infinity,
                         height: 56,
                         boxShadow: _accepted

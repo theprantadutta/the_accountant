@@ -12,6 +12,7 @@ import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/data/models/transaction.dart'
     show TransactionSpecialType;
 import 'package:the_accountant/features/credit_debt/providers/credit_debt_provider.dart';
+import 'package:the_accountant/shared/widgets/shimmer_loading.dart';
 import 'package:the_accountant/features/settings/providers/settings_provider.dart';
 import 'package:the_accountant/shared/widgets/glass_card.dart';
 
@@ -120,7 +121,17 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
           ),
         ),
         body: state.isLoading
-            ? const Center(child: CircularProgressIndicator())
+            ? const SingleChildScrollView(
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.all(16),
+                      child: ShimmerCard(height: 120),
+                    ),
+                    ShimmerTransactionList(),
+                  ],
+                ),
+              )
             : Column(
                 children: [
                   // Summary card
@@ -163,7 +174,10 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
   Widget _buildSummaryCard(CreditDebtState state) {
     final displayCurrency = ref.watch(defaultCurrencyProvider);
     final currencySymbol = CurrencyInfo.getSymbol(displayCurrency);
-    final currencyFormat = AppNumberFormatter.currency(currencySymbol, ref.watch(numberFormatSettingProvider));
+    final currencyFormat = AppNumberFormatter.currency(
+      currencySymbol,
+      ref.watch(numberFormatSettingProvider),
+    );
     final netBalance = state.netBalance;
     final isPositive = netBalance >= 0;
     final overdueCount = state.overdueCount;

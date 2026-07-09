@@ -8,6 +8,7 @@ import 'package:the_accountant/core/services/daily_reminder_scheduler.dart';
 import 'package:the_accountant/core/constants/background_task_constants.dart';
 import 'package:the_accountant/features/settings/providers/notification_preferences_provider.dart';
 import 'package:the_accountant/features/settings/widgets/settings_tile.dart';
+import 'package:the_accountant/shared/widgets/shimmer_loading.dart';
 
 class NotificationsScreen extends ConsumerStatefulWidget {
   const NotificationsScreen({super.key});
@@ -39,7 +40,20 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
         title: const Text('Notifications'),
       ),
       body: prefsState.isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Padding(
+              padding: EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  ShimmerCard(height: 80),
+                  SizedBox(height: 12),
+                  ShimmerCard(height: 64),
+                  SizedBox(height: 12),
+                  ShimmerCard(height: 64),
+                  SizedBox(height: 12),
+                  ShimmerCard(height: 64),
+                ],
+              ),
+            )
           : ListView(
               padding: EdgeInsets.symmetric(horizontal: AppSpacing.md),
               children: [
@@ -190,7 +204,8 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                         icon: Icons.calendar_today,
                         title: 'Remind Me Before Due Date',
                         subtitle: BackgroundTaskConstants.offsetLabel(
-                            prefsState.reminderOffsetMinutes),
+                          prefsState.reminderOffsetMinutes,
+                        ),
                         onTap: () => _showReminderOffsetDialog(context),
                       ),
                   ],

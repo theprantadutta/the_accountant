@@ -12,6 +12,7 @@ import 'package:the_accountant/data/models/transaction.dart'
     show TransactionSpecialType;
 import 'package:the_accountant/features/settings/providers/settings_provider.dart';
 import 'package:the_accountant/features/subscriptions/providers/subscription_dashboard_provider.dart';
+import 'package:the_accountant/shared/widgets/shimmer_loading.dart';
 import 'package:the_accountant/features/subscriptions/widgets/edit_subscription_bottom_sheet.dart';
 import 'package:the_accountant/features/transactions/screens/add_transaction_screen.dart';
 import 'package:the_accountant/shared/widgets/glass_card.dart';
@@ -38,9 +39,7 @@ class SubscriptionDashboardScreen extends ConsumerWidget {
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () async {
-            final result = await showAddTransactionScreen(
-              context,
-            );
+            final result = await showAddTransactionScreen(context);
             if (result == true) {
               ref.read(subscriptionDashboardProvider.notifier).refresh();
             }
@@ -49,7 +48,20 @@ class SubscriptionDashboardScreen extends ConsumerWidget {
           child: const Icon(Icons.add, color: Colors.white),
         ),
         body: state.isLoading
-            ? const Center(child: CircularProgressIndicator())
+            ? const SingleChildScrollView(
+                padding: EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    ShimmerCard(height: 100),
+                    SizedBox(height: 12),
+                    ShimmerCard(height: 100),
+                    SizedBox(height: 12),
+                    ShimmerCard(height: 100),
+                    SizedBox(height: 12),
+                    ShimmerCard(height: 100),
+                  ],
+                ),
+              )
             : RefreshIndicator(
                 onRefresh: () =>
                     ref.read(subscriptionDashboardProvider.notifier).refresh(),
@@ -140,7 +152,10 @@ class SubscriptionDashboardScreen extends ConsumerWidget {
   }
 
   Widget _buildSummaryCard(SubscriptionDashboardState state, WidgetRef ref) {
-    final monthlyFormat = AppNumberFormatter.currency('\$', ref.watch(numberFormatSettingProvider));
+    final monthlyFormat = AppNumberFormatter.currency(
+      '\$',
+      ref.watch(numberFormatSettingProvider),
+    );
 
     return GlassCard(
       padding: AppSpacing.paddingLg,
@@ -151,11 +166,7 @@ class SubscriptionDashboardScreen extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                Icons.autorenew,
-                color: AppColors.primaryAccent,
-                size: 24,
-              ),
+              Icon(Icons.autorenew, color: AppColors.primaryAccent, size: 24),
               const SizedBox(width: 8),
               Text(
                 'Recurring Cost',
@@ -237,12 +248,11 @@ class _SubscriptionCard extends ConsumerWidget {
     final walletCurrency = ref.watch(walletCurrencyProvider(item.walletId));
     final symbol = CurrencyInfo.getSymbol(walletCurrency);
     final isPaused = !item.isActive;
-    final isRepetitive =
-        item.specialType == TransactionSpecialType.repetitive;
-    final accentColor =
-        isRepetitive ? AppColors.neonBlue : AppColors.primaryAccent;
-    final cardIcon =
-        isRepetitive ? Icons.repeat : Icons.subscriptions_rounded;
+    final isRepetitive = item.specialType == TransactionSpecialType.repetitive;
+    final accentColor = isRepetitive
+        ? AppColors.neonBlue
+        : AppColors.primaryAccent;
+    final cardIcon = isRepetitive ? Icons.repeat : Icons.subscriptions_rounded;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
@@ -251,8 +261,8 @@ class _SubscriptionCard extends ConsumerWidget {
         variant: isPaused
             ? GlassCardVariant.standard
             : (isRepetitive
-                ? GlassCardVariant.standard
-                : GlassCardVariant.purple),
+                  ? GlassCardVariant.standard
+                  : GlassCardVariant.purple),
         onTap: () async {
           final result = await showEditSubscriptionBottomSheet(
             context,
@@ -271,9 +281,8 @@ class _SubscriptionCard extends ConsumerWidget {
                   width: 44,
                   height: 44,
                   decoration: BoxDecoration(
-                    color:
-                        (isPaused ? AppColors.textMuted : accentColor)
-                            .withValues(alpha: 0.2),
+                    color: (isPaused ? AppColors.textMuted : accentColor)
+                        .withValues(alpha: 0.2),
                     borderRadius: AppSpacing.borderRadiusMd,
                   ),
                   child: Icon(

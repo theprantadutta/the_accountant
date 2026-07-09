@@ -7,6 +7,7 @@ import 'package:the_accountant/core/themes/app_typography.dart';
 import 'package:the_accountant/features/notifications/models/notification_item.dart';
 import 'package:the_accountant/features/notifications/providers/notification_history_provider.dart';
 import 'package:the_accountant/features/notifications/widgets/notification_tile.dart';
+import 'package:the_accountant/shared/widgets/shimmer_loading.dart';
 
 class NotificationInboxScreen extends ConsumerStatefulWidget {
   const NotificationInboxScreen({super.key});
@@ -88,7 +89,20 @@ class _NotificationInboxScreenState
 
   Widget _buildBody(NotificationHistoryState state) {
     if (state.isLoading && state.notifications.isEmpty) {
-      return const Center(child: CircularProgressIndicator());
+      return ListView(
+        padding: const EdgeInsets.all(16),
+        children: const [
+          ShimmerCard(height: 72),
+          SizedBox(height: 12),
+          ShimmerCard(height: 72),
+          SizedBox(height: 12),
+          ShimmerCard(height: 72),
+          SizedBox(height: 12),
+          ShimmerCard(height: 72),
+          SizedBox(height: 12),
+          ShimmerCard(height: 72),
+        ],
+      );
     }
 
     if (state.errorMessage != null && state.notifications.isEmpty) {

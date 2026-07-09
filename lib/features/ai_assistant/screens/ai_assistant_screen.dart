@@ -8,6 +8,7 @@ import 'package:the_accountant/data/models/premium_features.dart';
 import 'package:the_accountant/features/ai_assistant/models/chat_message.dart';
 import 'package:the_accountant/features/ai_assistant/providers/ai_chat_provider.dart';
 import 'package:the_accountant/features/premium/widgets/premium_gate.dart';
+import 'package:the_accountant/shared/widgets/shimmer_loading.dart';
 
 class AIAssistantScreen extends ConsumerStatefulWidget {
   const AIAssistantScreen({super.key});
@@ -230,22 +231,15 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
           width: 1,
         ),
       ),
-      child: Center(
+      child: const Padding(
+        padding: EdgeInsets.all(16),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF667eea)),
-              strokeWidth: 2,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Loading conversation...',
-              style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.7),
-                fontSize: 14,
-              ),
-            ),
+            ShimmerCard(height: 60),
+            SizedBox(height: 12),
+            ShimmerCard(height: 40),
+            SizedBox(height: 12),
+            ShimmerCard(height: 60),
           ],
         ),
       ),

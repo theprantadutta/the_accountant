@@ -10,6 +10,7 @@ import 'package:the_accountant/core/utils/date_formatter.dart';
 import 'package:the_accountant/core/utils/number_formatter.dart';
 import 'package:the_accountant/features/settings/providers/settings_provider.dart';
 import 'package:the_accountant/features/settings/widgets/settings_tile.dart';
+import 'package:the_accountant/shared/widgets/shimmer_loading.dart';
 
 class RegionalSettingsScreen extends ConsumerWidget {
   const RegionalSettingsScreen({super.key});
@@ -167,9 +168,7 @@ class RegionalSettingsScreen extends ConsumerWidget {
       barrierColor: Colors.black.withValues(alpha: 0.3),
       builder: (context) => BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-        child: _CurrencyPickerSheet(
-          selectedCurrency: currentCurrency,
-        ),
+        child: _CurrencyPickerSheet(selectedCurrency: currentCurrency),
       ),
     );
 
@@ -303,9 +302,7 @@ class _PickerSheet extends StatelessWidget {
 }
 
 class _CurrencyPickerSheet extends ConsumerStatefulWidget {
-  const _CurrencyPickerSheet({
-    required this.selectedCurrency,
-  });
+  const _CurrencyPickerSheet({required this.selectedCurrency});
 
   final String selectedCurrency;
 
@@ -407,7 +404,22 @@ class _CurrencyPickerSheetState extends ConsumerState<_CurrencyPickerSheet> {
           // Loading state
           if (currencyState.isLoading &&
               currencyState.availableCurrencies.isEmpty)
-            const Expanded(child: Center(child: CircularProgressIndicator()))
+            const Expanded(
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: 8),
+                child: Column(
+                  children: [
+                    ShimmerCard(height: 56),
+                    SizedBox(height: 12),
+                    ShimmerCard(height: 56),
+                    SizedBox(height: 12),
+                    ShimmerCard(height: 56),
+                    SizedBox(height: 12),
+                    ShimmerCard(height: 56),
+                  ],
+                ),
+              ),
+            )
           // Error state
           else if (currencyState.error != null &&
               currencyState.availableCurrencies.isEmpty)
@@ -445,8 +457,9 @@ class _CurrencyPickerSheetState extends ConsumerState<_CurrencyPickerSheet> {
                   final isSelected =
                       widget.selectedCurrency.toUpperCase() == code;
                   final symbol = CurrencyInfo.getSymbol(code);
-                  final displaySymbol =
-                      symbol.length > 3 ? code.substring(0, 3) : symbol;
+                  final displaySymbol = symbol.length > 3
+                      ? code.substring(0, 3)
+                      : symbol;
 
                   return GestureDetector(
                     onTap: () {
@@ -475,8 +488,9 @@ class _CurrencyPickerSheetState extends ConsumerState<_CurrencyPickerSheet> {
                             height: 40,
                             decoration: BoxDecoration(
                               color: isSelected
-                                  ? AppColors.primaryAccent
-                                      .withValues(alpha: 0.15)
+                                  ? AppColors.primaryAccent.withValues(
+                                      alpha: 0.15,
+                                    )
                                   : Colors.white.withValues(alpha: 0.05),
                               borderRadius: BorderRadius.circular(12),
                             ),

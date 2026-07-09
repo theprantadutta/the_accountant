@@ -4,6 +4,7 @@ import 'package:the_accountant/features/budgets/providers/budget_provider.dart';
 import 'package:the_accountant/features/budgets/screens/add_budget_screen.dart';
 import 'package:the_accountant/shared/widgets/budget_progress.dart';
 import 'package:the_accountant/core/providers/currency_provider.dart';
+import 'package:the_accountant/shared/widgets/shimmer_loading.dart';
 
 class BudgetListScreen extends ConsumerWidget {
   const BudgetListScreen({super.key});
@@ -31,7 +32,18 @@ class BudgetListScreen extends ConsumerWidget {
         ],
       ),
       body: budgetState.isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Padding(
+              padding: EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  ShimmerBudgetItem(),
+                  ShimmerBudgetItem(),
+                  ShimmerBudgetItem(),
+                  ShimmerBudgetItem(),
+                  ShimmerBudgetItem(),
+                ],
+              ),
+            )
           : budgetState.budgets.isEmpty
           ? const Center(
               child: Column(

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/shared/widgets/legal_markdown_style.dart';
+import 'package:the_accountant/shared/widgets/shimmer_loading.dart';
 
 class LegalDocumentViewer extends StatefulWidget {
   final String title;
@@ -46,9 +47,23 @@ class _LegalDocumentViewerState extends State<LegalDocumentViewer> {
         title: Text(widget.title),
       ),
       body: _isLoading
-          ? const Center(
-              child: CircularProgressIndicator(
-                color: AppColors.primaryAccent,
+          ? const Padding(
+              padding: EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ShimmerCard(height: 28, width: 200),
+                  SizedBox(height: 16),
+                  ShimmerCard(height: 14),
+                  SizedBox(height: 8),
+                  ShimmerCard(height: 14),
+                  SizedBox(height: 8),
+                  ShimmerCard(height: 14),
+                  SizedBox(height: 24),
+                  ShimmerCard(height: 14),
+                  SizedBox(height: 8),
+                  ShimmerCard(height: 14),
+                ],
               ),
             )
           : Markdown(

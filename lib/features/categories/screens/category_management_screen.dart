@@ -8,6 +8,7 @@ import 'package:the_accountant/features/categories/widgets/add_category_form.dar
     show Category;
 import 'package:the_accountant/features/categories/widgets/category_list_item.dart'
     as category_list_item;
+import 'package:the_accountant/shared/widgets/shimmer_loading.dart';
 
 class CategoryManagementScreen extends ConsumerWidget {
   const CategoryManagementScreen({super.key});
@@ -29,7 +30,22 @@ class CategoryManagementScreen extends ConsumerWidget {
         ],
       ),
       body: categoryState.isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Padding(
+              padding: EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  ShimmerCard(height: 64),
+                  SizedBox(height: 12),
+                  ShimmerCard(height: 64),
+                  SizedBox(height: 12),
+                  ShimmerCard(height: 64),
+                  SizedBox(height: 12),
+                  ShimmerCard(height: 64),
+                  SizedBox(height: 12),
+                  ShimmerCard(height: 64),
+                ],
+              ),
+            )
           : Column(
               children: [
                 // Expense categories section

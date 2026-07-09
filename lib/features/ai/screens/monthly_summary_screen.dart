@@ -6,6 +6,7 @@ import 'package:the_accountant/features/transactions/providers/transaction_provi
 import 'package:the_accountant/features/premium/widgets/premium_gate.dart';
 import 'package:the_accountant/data/models/premium_features.dart';
 import 'package:the_accountant/shared/widgets/summary_card.dart';
+import 'package:the_accountant/shared/widgets/shimmer_loading.dart';
 import 'package:the_accountant/core/utils/date_utils.dart';
 
 /// Gated monthly summary that requires premium subscription
@@ -73,15 +74,11 @@ class _MonthlySummaryScreenState extends ConsumerState<MonthlySummaryScreen> {
             children: [
               // Processing indicator
               if (monthlySummaryState.isLoading) ...[
-                const Center(
-                  child: Column(
-                    children: [
-                      CircularProgressIndicator(),
-                      SizedBox(height: 16),
-                      Text('Generating monthly summary...'),
-                    ],
-                  ),
-                ),
+                const ShimmerCard(height: 120),
+                const SizedBox(height: 16),
+                const ShimmerCard(height: 180),
+                const SizedBox(height: 16),
+                const ShimmerCard(height: 180),
               ],
 
               // Error message

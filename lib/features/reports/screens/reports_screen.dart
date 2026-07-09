@@ -15,6 +15,7 @@ import 'package:the_accountant/features/reports/providers/reports_provider.dart'
 import 'package:the_accountant/features/settings/providers/settings_provider.dart';
 import 'package:the_accountant/core/utils/number_formatter.dart';
 import 'package:the_accountant/features/premium/providers/premium_provider.dart';
+import 'package:the_accountant/shared/widgets/shimmer_loading.dart';
 
 class ReportsScreen extends ConsumerStatefulWidget {
   const ReportsScreen({super.key});
@@ -79,7 +80,26 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
         reportsState.isLoading) {
       return const Scaffold(
         backgroundColor: Colors.transparent,
-        body: Center(child: CircularProgressIndicator()),
+        body: SafeArea(
+          child: SingleChildScrollView(
+            padding: EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(height: 20),
+                ShimmerCard(height: 48),
+                SizedBox(height: 20),
+                ShimmerCard(height: 48),
+                SizedBox(height: 20),
+                ShimmerCard(height: 240),
+                SizedBox(height: 20),
+                ShimmerCard(height: 120),
+                SizedBox(height: 16),
+                ShimmerCard(height: 120),
+              ],
+            ),
+          ),
+        ),
       );
     }
 

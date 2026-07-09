@@ -12,6 +12,7 @@ import 'package:the_accountant/data/models/wallet.dart' show WalletType;
 import 'package:the_accountant/features/settings/providers/settings_provider.dart';
 import 'package:the_accountant/features/premium/exceptions/premium_limit_exception.dart';
 import 'package:the_accountant/features/premium/widgets/upgrade_limit_dialog.dart';
+import 'package:the_accountant/shared/widgets/shimmer_loading.dart';
 import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
 import 'package:the_accountant/features/wallets/widgets/add_wallet_form.dart';
 import 'package:the_accountant/shared/widgets/color_picker.dart';
@@ -137,7 +138,9 @@ class _WalletManagementScreenState extends ConsumerState<WalletManagementScreen>
           content: const Text('Wallet created successfully'),
           backgroundColor: AppColors.success,
           behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
         ),
       );
     } on PremiumLimitException catch (e) {
@@ -146,9 +149,9 @@ class _WalletManagementScreenState extends ConsumerState<WalletManagementScreen>
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to create wallet: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to create wallet: $e')));
       }
     }
   }
@@ -206,10 +209,19 @@ class _WalletManagementScreenState extends ConsumerState<WalletManagementScreen>
 
           // Wallet list grouped by type
           if (walletState.isLoading)
-            const SliverFillRemaining(
-              child: Center(
-                child: CircularProgressIndicator(
-                  color: AppColors.primaryAccent,
+            const SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    ShimmerCard(height: 80),
+                    SizedBox(height: 12),
+                    ShimmerCard(height: 80),
+                    SizedBox(height: 12),
+                    ShimmerCard(height: 80),
+                    SizedBox(height: 12),
+                    ShimmerCard(height: 80),
+                  ],
                 ),
               ),
             )
@@ -419,7 +431,9 @@ class _WalletManagementScreenState extends ConsumerState<WalletManagementScreen>
                           fit: BoxFit.scaleDown,
                           alignment: Alignment.centerLeft,
                           child: Text(
-                            AppNumberFormatter.get(ref.watch(numberFormatSettingProvider)).format(totalBalance * _headerAnimation.value),
+                            AppNumberFormatter.get(
+                              ref.watch(numberFormatSettingProvider),
+                            ).format(totalBalance * _headerAnimation.value),
                             style: const TextStyle(
                               fontSize: 32,
                               fontWeight: FontWeight.bold,
@@ -1043,7 +1057,14 @@ class _WalletCardState extends ConsumerState<_WalletCard>
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              AppNumberFormatter.get(ref.watch(numberFormatSettingProvider), useDecimals: wallet.useDecimals).format(wallet.useDecimals ? outstanding : outstanding.round()),
+                              AppNumberFormatter.get(
+                                ref.watch(numberFormatSettingProvider),
+                                useDecimals: wallet.useDecimals,
+                              ).format(
+                                wallet.useDecimals
+                                    ? outstanding
+                                    : outstanding.round(),
+                              ),
                               style: TextStyle(
                                 fontSize: 28,
                                 fontWeight: FontWeight.bold,
@@ -1169,7 +1190,14 @@ class _WalletCardState extends ConsumerState<_WalletCard>
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              AppNumberFormatter.get(ref.watch(numberFormatSettingProvider), useDecimals: wallet.useDecimals).format(wallet.useDecimals ? balance.abs() : balance.abs().round()),
+                              AppNumberFormatter.get(
+                                ref.watch(numberFormatSettingProvider),
+                                useDecimals: wallet.useDecimals,
+                              ).format(
+                                wallet.useDecimals
+                                    ? balance.abs()
+                                    : balance.abs().round(),
+                              ),
                               style: TextStyle(
                                 fontSize: 28,
                                 fontWeight: FontWeight.bold,

@@ -11,6 +11,7 @@ import 'package:the_accountant/core/utils/number_formatter.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/features/settings/providers/settings_provider.dart';
 import 'package:the_accountant/features/transactions/providers/upcoming_provider.dart';
+import 'package:the_accountant/shared/widgets/shimmer_loading.dart';
 import 'package:the_accountant/features/categories/providers/category_provider.dart'
     as cat_provider;
 import 'package:the_accountant/shared/widgets/glass_card.dart';
@@ -86,7 +87,7 @@ class _UpcomingTransactionsScreenState
           ),
         ),
         body: state.isLoading
-            ? const Center(child: CircularProgressIndicator())
+            ? const SingleChildScrollView(child: ShimmerTransactionList())
             : TabBarView(
                 controller: _tabController,
                 children: [

@@ -7,6 +7,7 @@ import 'package:the_accountant/core/utils/icon_registry.dart';
 import 'package:the_accountant/features/categories/providers/category_provider.dart';
 import 'package:the_accountant/features/categories/widgets/add_category_form.dart'
     as add_category_form;
+import 'package:the_accountant/shared/widgets/shimmer_loading.dart';
 
 /// Shows a category picker in a bottom sheet.
 /// Returns the selected category when user makes a selection.
@@ -167,9 +168,18 @@ class _CategoryPickerSheetState extends ConsumerState<_CategoryPickerSheet> {
             // Category grid
             Expanded(
               child: categoryState.isLoading
-                  ? Center(
-                      child: CircularProgressIndicator(
-                        color: _isIncome ? AppColors.success : AppColors.error,
+                  ? const Padding(
+                      padding: EdgeInsets.fromLTRB(20, 0, 20, 20),
+                      child: Column(
+                        children: [
+                          ShimmerCard(height: 56),
+                          SizedBox(height: 12),
+                          ShimmerCard(height: 56),
+                          SizedBox(height: 12),
+                          ShimmerCard(height: 56),
+                          SizedBox(height: 12),
+                          ShimmerCard(height: 56),
+                        ],
                       ),
                     )
                   : GridView.builder(
