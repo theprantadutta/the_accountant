@@ -32,6 +32,10 @@ class _WalletManagementScreenState extends ConsumerState<WalletManagementScreen>
   final _nameController = TextEditingController();
   final _balanceController = TextEditingController();
 
+  // Accounts that have already played their entrance animation, so reordering
+  // (which rebuilds/recreates cards) doesn't replay the slide-up + fade.
+  final Set<String> _animatedWalletIds = {};
+
   late AnimationController _headerController;
   late Animation<double> _headerAnimation;
 
@@ -246,6 +250,7 @@ class _WalletManagementScreenState extends ConsumerState<WalletManagementScreen>
                   child: _WalletCard(
                     wallet: wallet,
                     index: index,
+                    animatedIds: _animatedWalletIds,
                     onEdit: () => _showEditWalletSheet(wallet),
                     onDelete: () => _showDeleteConfirmationDialog(wallet),
                     onSetDefault: () => _setAsDefault(wallet),
@@ -660,6 +665,10 @@ class _WalletManagementScreenState extends ConsumerState<WalletManagementScreen>
 class _WalletCard extends ConsumerStatefulWidget {
   final Wallet wallet;
   final int index;
+
+  /// Ids that have already animated in; shared/owned by the parent screen so the
+  /// entrance animation plays once and never replays on reorder.
+  final Set<String> animatedIds;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
   final VoidCallback onSetDefault;
@@ -667,6 +676,7 @@ class _WalletCard extends ConsumerStatefulWidget {
   const _WalletCard({
     required this.wallet,
     required this.index,
+    required this.animatedIds,
     required this.onEdit,
     required this.onDelete,
     required this.onSetDefault,
@@ -697,7 +707,13 @@ class _WalletCardState extends ConsumerState<_WalletCard>
       begin: 0,
       end: 1,
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
-    _controller.forward();
+    // Set.add returns true only the first time this account is seen — animate it
+    // in then; on any later rebuild (e.g. after a reorder) skip straight to shown.
+    if (widget.animatedIds.add(widget.wallet.id)) {
+      _controller.forward();
+    } else {
+      _controller.value = 1.0;
+    }
   }
 
   @override
