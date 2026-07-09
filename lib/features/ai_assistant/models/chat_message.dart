@@ -132,12 +132,16 @@ class ChatMessage {
 
 /// Response from the AI chat API
 class SendMessageResponse {
+  /// The conversation the message was added to (server creates one when the
+  /// client sends without an id, so the client can adopt it going forward).
+  final String conversationId;
   final ChatMessage userMessage;
   final ChatMessage aiMessage;
   final bool isAiFallback;
   final String? aiErrorType;
 
   const SendMessageResponse({
+    required this.conversationId,
     required this.userMessage,
     required this.aiMessage,
     required this.isAiFallback,
@@ -146,6 +150,8 @@ class SendMessageResponse {
 
   factory SendMessageResponse.fromJson(Map<String, dynamic> json) {
     return SendMessageResponse(
+      conversationId:
+          (json['conversation_id'] ?? json['conversationId'] ?? '') as String,
       userMessage: ChatMessage.fromJson(
         (json['user_message'] ?? json['userMessage']) as Map<String, dynamic>,
       ),

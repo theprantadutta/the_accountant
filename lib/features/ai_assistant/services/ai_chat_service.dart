@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:logger/logger.dart';
 import 'package:the_accountant/core/services/api_service.dart';
 import 'package:the_accountant/features/ai_assistant/models/chat_message.dart';
+import 'package:the_accountant/features/ai_assistant/models/conversation.dart';
 
 /// Service for AI chat communication with the backend
 class AiChatService {
@@ -11,10 +12,41 @@ class AiChatService {
   AiChatService({ApiService? apiService})
     : _apiService = apiService ?? ApiService();
 
-  /// Load chat history from the server
-  Future<List<ChatMessage>> loadHistory({int? limit}) async {
+  /// Load the list of conversations (chat threads) for the current user.
+  Future<List<Conversation>> getConversations() async {
     try {
-      _logger.i('Loading chat history from server');
+      _logger.i('Loading conversations from server');
+
+      final response = await _apiService.get('/ai-chat/conversations');
+
+      final data = response.data as Map<String, dynamic>;
+      final list = data['conversations'] as List<dynamic>? ?? [];
+
+      final conversations = list
+          .map((c) => Conversation.fromJson(c as Map<String, dynamic>))
+          .toList();
+
+      _logger.i('Loaded ${conversations.length} conversations');
+      return conversations;
+    } on DioException catch (e) {
+      _logger.e('Failed to load conversations: ${e.message}');
+      _throwPremiumOrGeneric(e);
+    } catch (e) {
+      _logger.e('Unexpected error loading conversations: $e');
+      throw AiChatException(
+        'Failed to load conversations.',
+        errorType: 'unknown_error',
+      );
+    }
+  }
+
+  /// Load the messages of a single conversation.
+  Future<List<ChatMessage>> getConversationMessages(
+    String conversationId, {
+    int? limit,
+  }) async {
+    try {
+      _logger.i('Loading messages for conversation $conversationId');
 
       final queryParams = <String, dynamic>{};
       if (limit != null) {
@@ -22,7 +54,7 @@ class AiChatService {
       }
 
       final response = await _apiService.get(
-        '/ai-chat/history',
+        '/ai-chat/conversations/$conversationId/messages',
         queryParameters: queryParams.isNotEmpty ? queryParams : null,
       );
 
@@ -33,25 +65,13 @@ class AiChatService {
           .map((m) => ChatMessage.fromJson(m as Map<String, dynamic>))
           .toList();
 
-      _logger.i('Loaded ${messages.length} messages from history');
+      _logger.i('Loaded ${messages.length} messages');
       return messages;
     } on DioException catch (e) {
-      _logger.e('Failed to load chat history: ${e.message}');
-
-      // Check for premium required error
-      if (e.response?.statusCode == 403) {
-        final data = e.response?.data;
-        if (data is Map && data['code'] == 'PREMIUM_REQUIRED') {
-          throw AiChatException(
-            'Premium subscription required for AI Assistant',
-            errorType: 'premium_required',
-          );
-        }
-      }
-
-      throw AiChatException(_getErrorMessage(e), errorType: _getErrorType(e));
+      _logger.e('Failed to load conversation messages: ${e.message}');
+      _throwPremiumOrGeneric(e);
     } catch (e) {
-      _logger.e('Unexpected error loading chat history: $e');
+      _logger.e('Unexpected error loading conversation messages: $e');
       throw AiChatException(
         'Failed to load chat history.',
         errorType: 'unknown_error',
@@ -59,15 +79,49 @@ class AiChatService {
     }
   }
 
-  /// Send a message to the AI assistant
-  /// Returns the AI response along with the echoed user message
-  Future<SendMessageResponse> sendMessage(String message) async {
+  /// Delete a conversation (all of its messages) on the server.
+  Future<void> deleteConversation(String conversationId) async {
+    try {
+      await _apiService.delete('/ai-chat/conversations/$conversationId');
+      _logger.i('Deleted conversation $conversationId');
+    } on DioException catch (e) {
+      _logger.e('Failed to delete conversation: ${e.message}');
+      // Non-fatal for the UI; the optimistic removal holds.
+    } catch (e) {
+      _logger.w('Failed to delete conversation on server: $e');
+    }
+  }
+
+  /// Maps a 403 PREMIUM_REQUIRED into a typed exception, otherwise a generic one.
+  Never _throwPremiumOrGeneric(DioException e) {
+    if (e.response?.statusCode == 403) {
+      final data = e.response?.data;
+      if (data is Map && data['code'] == 'PREMIUM_REQUIRED') {
+        throw AiChatException(
+          'Premium subscription required for AI Assistant',
+          errorType: 'premium_required',
+        );
+      }
+    }
+    throw AiChatException(_getErrorMessage(e), errorType: _getErrorType(e));
+  }
+
+  /// Send a message to the AI assistant.
+  /// Pass [conversationId] to continue a thread, or null to start a new one.
+  /// Returns the AI response, the echoed user message and the conversation id.
+  Future<SendMessageResponse> sendMessage(
+    String message, {
+    String? conversationId,
+  }) async {
     try {
       _logger.i('Sending message to AI chat API');
 
       final response = await _apiService.post(
         '/ai-chat/message',
-        data: {'message': message},
+        data: {
+          'message': message,
+          'conversation_id': ?conversationId,
+        },
       );
 
       _logger.i('AI chat response received');
@@ -96,19 +150,6 @@ class AiChatService {
         'An unexpected error occurred. Please try again.',
         errorType: 'unknown_error',
       );
-    }
-  }
-
-  /// Clear chat history on server
-  Future<void> clearHistory() async {
-    try {
-      await _apiService.post('/ai-chat/clear');
-      _logger.i('Chat history cleared');
-    } on DioException catch (e) {
-      _logger.e('Failed to clear chat history: ${e.message}');
-      // Don't throw - clear can fail silently
-    } catch (e) {
-      _logger.w('Failed to clear chat history on server: $e');
     }
   }
 

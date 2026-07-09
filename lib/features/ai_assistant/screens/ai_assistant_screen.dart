@@ -1,11 +1,14 @@
+import 'dart:ui' show ImageFilter;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_theme.dart';
 import 'package:the_accountant/core/utils/animation_utils.dart';
 import 'package:the_accountant/data/models/premium_features.dart';
 import 'package:the_accountant/features/ai_assistant/models/chat_message.dart';
+import 'package:the_accountant/features/ai_assistant/models/conversation.dart';
 import 'package:the_accountant/features/ai_assistant/providers/ai_chat_provider.dart';
 import 'package:the_accountant/features/premium/widgets/premium_gate.dart';
 import 'package:the_accountant/shared/widgets/shimmer_loading.dart';
@@ -66,9 +69,246 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
     }
   }
 
-  void _clearChat() {
-    ref.read(aiChatProvider.notifier).clearMessages();
+  void _newChat() {
+    ref.read(aiChatProvider.notifier).newChat();
     HapticFeedback.lightImpact();
+  }
+
+  /// Relative time label for a conversation's last activity.
+  String _relativeTime(DateTime dt) {
+    final diff = DateTime.now().difference(dt);
+    if (diff.inMinutes < 1) return 'Just now';
+    if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
+    if (diff.inHours < 24) return '${diff.inHours}h ago';
+    if (diff.inDays < 7) return '${diff.inDays}d ago';
+    return DateFormat('MMM d').format(dt);
+  }
+
+  /// Bottom sheet listing all conversations; tap to open, trash to delete.
+  void _showConversationsSheet(BuildContext context) {
+    HapticFeedback.lightImpact();
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      barrierColor: Colors.black.withValues(alpha: 0.4),
+      builder: (sheetContext) => BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+        child: Container(
+          height: MediaQuery.of(sheetContext).size.height * 0.72,
+          decoration: BoxDecoration(
+            color: AppColors.primaryDark,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+            border: Border.all(color: AppColors.glassBorder),
+          ),
+          child: Column(
+            children: [
+              Container(
+                margin: const EdgeInsets.only(top: 12),
+                width: 36,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Row(
+                  children: [
+                    Text(
+                      'Chats',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    const Spacer(),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.pop(sheetContext);
+                        _newChat();
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          gradient: AppTheme.primaryGradient,
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.add, color: Colors.white, size: 18),
+                            SizedBox(width: 6),
+                            Text(
+                              'New chat',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+              Expanded(
+                child: Consumer(
+                  builder: (context, ref, _) {
+                    final chat = ref.watch(aiChatProvider);
+                    final conversations = chat.conversations;
+                    if (conversations.isEmpty) {
+                      return Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.forum_outlined,
+                              size: 44,
+                              color: AppColors.textMuted,
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              'No conversations yet',
+                              style: TextStyle(
+                                color: AppColors.textSecondary,
+                                fontSize: 15,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Start chatting and your threads show up here.',
+                              style: TextStyle(
+                                color: AppColors.textMuted,
+                                fontSize: 13,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+                    return ListView.builder(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
+                      itemCount: conversations.length,
+                      itemBuilder: (c, i) => _buildConversationTile(
+                        sheetContext,
+                        conversations[i],
+                        conversations[i].id == chat.currentConversationId,
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildConversationTile(
+    BuildContext sheetContext,
+    Conversation conv,
+    bool isCurrent,
+  ) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      decoration: BoxDecoration(
+        color: isCurrent
+            ? AppColors.primaryAccent.withValues(alpha: 0.12)
+            : Colors.white.withValues(alpha: 0.03),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: isCurrent
+              ? AppColors.primaryAccent.withValues(alpha: 0.5)
+              : Colors.white.withValues(alpha: 0.06),
+        ),
+      ),
+      // Transparent Material so the ListTile ink is visible over the colour.
+      child: Material(
+        type: MaterialType.transparency,
+        child: ListTile(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+          leading: Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              gradient: AppTheme.primaryGradient,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(
+              Icons.chat_bubble_outline,
+              color: Colors.white,
+              size: 18,
+            ),
+          ),
+          title: Text(
+            conv.title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: AppColors.textPrimary,
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          subtitle: Text(
+            '${_relativeTime(conv.lastMessageAt)} · ${conv.messageCount} messages',
+            style: TextStyle(color: AppColors.textMuted, fontSize: 12),
+          ),
+          trailing: IconButton(
+            icon: Icon(
+              Icons.delete_outline,
+              color: AppColors.textMuted,
+              size: 20,
+            ),
+            onPressed: () => _confirmDeleteConversation(sheetContext, conv),
+          ),
+          onTap: () {
+            Navigator.pop(sheetContext);
+            ref.read(aiChatProvider.notifier).selectConversation(conv.id);
+          },
+        ),
+      ),
+    );
+  }
+
+  Future<void> _confirmDeleteConversation(
+    BuildContext sheetContext,
+    Conversation conv,
+  ) async {
+    final confirmed = await showDialog<bool>(
+      context: sheetContext,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Delete chat?'),
+        content: Text('"${conv.title}" will be permanently deleted.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: Text('Delete', style: TextStyle(color: AppColors.error)),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true) {
+      ref.read(aiChatProvider.notifier).deleteConversation(conv.id);
+    }
   }
 
   void _scrollToBottom() {
@@ -112,9 +352,9 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
     // Add listener for text field focus to scroll to bottom
     _textController.addListener(_onTextChanged);
 
-    // Load chat history when screen opens
+    // Load conversations + open the most recent when the screen opens.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(aiChatProvider.notifier).loadHistory();
+      ref.read(aiChatProvider.notifier).init();
     });
   }
 
@@ -340,8 +580,13 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
             ),
           ),
           const Spacer(),
+          _roundIconButton(
+            icon: Icons.forum_outlined,
+            onTap: () => _showConversationsSheet(context),
+          ),
+          const SizedBox(width: 8),
           GestureDetector(
-            onTap: _clearChat,
+            onTap: _newChat,
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
               decoration: BoxDecoration(
@@ -371,6 +616,26 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  /// Small round glass icon button used in the AI header rows.
+  Widget _roundIconButton({
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 38,
+        height: 38,
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.06),
+          borderRadius: BorderRadius.circular(19),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
+        ),
+        child: Icon(icon, color: Colors.white.withValues(alpha: 0.9), size: 18),
       ),
     );
   }
@@ -464,7 +729,7 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
                   ),
                 ),
                 GestureDetector(
-                  onTap: _clearChat,
+                  onTap: () => _showConversationsSheet(context),
                   child: Container(
                     width: 38,
                     height: 38,
@@ -491,7 +756,7 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
                       ],
                     ),
                     child: const Icon(
-                      Icons.refresh,
+                      Icons.forum_outlined,
                       color: Colors.white,
                       size: 18,
                     ),
