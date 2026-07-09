@@ -7,6 +7,7 @@ import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/core/themes/app_typography.dart';
 import 'package:the_accountant/shared/widgets/custom_bottom_nav_bar.dart';
 import 'package:the_accountant/shared/widgets/glass_card.dart';
+import 'package:the_accountant/shared/widgets/shimmer_loading.dart';
 import 'package:the_accountant/shared/widgets/sync_status_banner.dart';
 import 'package:the_accountant/shared/widgets/neo_button.dart';
 import 'package:the_accountant/features/dashboard/widgets/responsive_financial_overview.dart';
@@ -455,13 +456,14 @@ class _MainNavigationContainerState
     final hasWallets = ref.watch(hasWalletsProvider);
     final isLoadingWallets = ref.watch(walletsLoadingProvider);
 
-    // Show loading while wallets are being fetched
+    // Show a dashboard skeleton (not a spinner) while wallets are being fetched, so
+    // the load reads as the dashboard filling in rather than a bare loader.
     if (isLoadingWallets) {
       return Container(
         decoration: BoxDecoration(gradient: AppColors.backgroundGradient),
         child: const Scaffold(
           backgroundColor: Colors.transparent,
-          body: Center(child: CircularProgressIndicator()),
+          body: SafeArea(child: ShimmerDashboard()),
         ),
       );
     }
