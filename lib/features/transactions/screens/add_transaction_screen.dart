@@ -29,6 +29,9 @@ import 'package:the_accountant/features/transactions/widgets/transaction_type_he
 import 'package:the_accountant/features/recurring/providers/recurring_provider.dart';
 import 'package:the_accountant/features/subscriptions/providers/subscription_dashboard_provider.dart';
 import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
+import 'package:the_accountant/features/budgets/providers/budget_provider.dart';
+import 'package:the_accountant/features/objectives/providers/objectives_provider.dart';
+import 'package:the_accountant/features/transactions/providers/payment_method_provider.dart';
 
 /// Helper function to show the add transaction screen
 Future<bool?> showAddTransactionScreen(
@@ -103,6 +106,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
   TransactionSpecialType _specialType = TransactionSpecialType.none;
   String? _selectedBudgetId;
   String? _selectedObjectiveId;
+  String? _selectedPaymentMethodId;
 
   // Subscription config
   String _subscriptionFrequency = 'monthly';
@@ -170,9 +174,27 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
     _amount = t.amount / 100.0;
     _selectedWalletId = t.walletId;
     _selectedDateTime = t.date;
-    // Load category details
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    // Restore the special type and assignment links so edit shows the real state.
+    _specialType = t.specialType ?? TransactionSpecialType.none;
+    _selectedBudgetId = t.budgetId;
+    _selectedObjectiveId = t.objectiveId;
+    _selectedPaymentMethodId = t.paymentMethodId;
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       _loadCategoryDetails();
+      // For subscription/repetitive, restore the recurring schedule from its config.
+      if (_specialType == TransactionSpecialType.subscription ||
+          _specialType == TransactionSpecialType.repetitive) {
+        final config = await ref
+            .read(recurringServiceProvider)
+            .getRecurringConfigByBaseTransactionId(t.id);
+        if (config != null && mounted) {
+          setState(() {
+            _subscriptionFrequency = config.reoccurrence;
+            _subscriptionPeriodLength = config.periodLength;
+            _subscriptionEndDate = config.endDate;
+          });
+        }
+      }
     });
   }
 
@@ -317,12 +339,23 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                   : _notesController.text,
             );
       } else if (_isEditing) {
+        final isPaid = !_specialType.startsUnpaid;
+        // Loan types override isIncome for correct balance direction (same as add).
+        final bool effectiveIsIncome;
+        if (_specialType == TransactionSpecialType.credit) {
+          effectiveIsIncome = false;
+        } else if (_specialType == TransactionSpecialType.debt) {
+          effectiveIsIncome = true;
+        } else {
+          effectiveIsIncome = _isIncome;
+        }
+
         await ref
             .read(transactionProvider.notifier)
             .updateTransaction(
               id: widget.existingTransaction!.id,
               amount: (_amount * 100).round(), // dollars -> integer cents
-              isIncome: _isIncome,
+              isIncome: effectiveIsIncome,
               title: _titleController.text.isEmpty
                   ? null
                   : _titleController.text,
@@ -332,7 +365,18 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
               notes: _notesController.text.isEmpty
                   ? null
                   : _notesController.text,
+              specialType: _specialType,
+              isPaid: isPaid,
+              originalDueDate: _specialType.requiresDueDate
+                  ? _selectedDateTime
+                  : null,
+              budgetId: _selectedBudgetId,
+              objectiveId: _selectedObjectiveId,
+              paymentMethodId: _selectedPaymentMethodId,
             );
+
+        // Create/update/remove the recurring config to match the new special type.
+        await _reconcileRecurringConfig(widget.existingTransaction!.id);
       } else {
         final isPaid = !_specialType.startsUnpaid;
 
@@ -369,6 +413,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                   : null,
               budgetId: _selectedBudgetId,
               objectiveId: _selectedObjectiveId,
+              paymentMethodId: _selectedPaymentMethodId,
             );
 
         // Create RecurringConfig for subscriptions and repetitive transactions
@@ -404,6 +449,133 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
         setState(() => _isSaving = false);
       }
     }
+  }
+
+  /// Reconcile the transaction's recurring config after an edit so it matches the
+  /// current special type: create when it became subscription/repetitive, update
+  /// the schedule when it stays one, and remove it when it no longer is.
+  Future<void> _reconcileRecurringConfig(String transactionId) async {
+    final recurringService = ref.read(recurringServiceProvider);
+    final existingConfig = await recurringService
+        .getRecurringConfigByBaseTransactionId(transactionId);
+    final isRecurringType =
+        _specialType == TransactionSpecialType.subscription ||
+        _specialType == TransactionSpecialType.repetitive;
+
+    if (isRecurringType) {
+      if (existingConfig != null) {
+        await recurringService.updateRecurringConfig(
+          configId: existingConfig.id,
+          reoccurrence: _subscriptionFrequency,
+          periodLength: _subscriptionPeriodLength,
+          endDate: _subscriptionEndDate,
+        );
+      } else {
+        await recurringService.createRecurringConfig(
+          baseTransactionId: transactionId,
+          reoccurrence: _subscriptionFrequency,
+          periodLength: _subscriptionPeriodLength,
+          startDate: _selectedDateTime,
+          endDate: _subscriptionEndDate,
+        );
+      }
+    } else if (existingConfig != null) {
+      // No longer recurring — drop the config (also clears isRecurring on the base).
+      await recurringService.deleteRecurringConfig(existingConfig.id);
+    }
+    ref.read(subscriptionDashboardProvider.notifier).refresh();
+  }
+
+  IconData _paymentMethodIcon(String type) {
+    switch (type) {
+      case 'card':
+        return Icons.credit_card;
+      case 'bank':
+        return Icons.account_balance;
+      case 'cash':
+        return Icons.payments;
+      case 'digital_wallet':
+        return Icons.account_balance_wallet;
+      default:
+        return Icons.payment;
+    }
+  }
+
+  /// A "pick one or None" chip row. Returns nothing when the user has no items.
+  Widget _optionalLinkSelector({
+    required String label,
+    required IconData labelIcon,
+    required List<String> ids,
+    required String Function(String id) nameOf,
+    required String? selectedId,
+    required ValueChanged<String?> onSelected,
+    IconData? Function(String id)? iconOf,
+  }) {
+    if (ids.isEmpty) return const SizedBox.shrink();
+    final items = <String?>[null, ...ids];
+    return Padding(
+      padding: const EdgeInsets.only(top: 16),
+      child: LabeledChipSection<String?>(
+        label: label,
+        labelIcon: labelIcon,
+        items: items,
+        selectedItem: selectedId,
+        labelBuilder: (id) => id == null ? 'None' : nameOf(id),
+        iconBuilder: iconOf == null
+            ? null
+            : (id) => id == null ? Icons.block : iconOf(id),
+        colorBuilder: (id) => id == null ? AppColors.textMuted : _accentColor,
+        onSelected: onSelected,
+      ),
+    );
+  }
+
+  Widget _buildPaymentMethodSelector() {
+    final methods = ref.watch(paymentMethodProvider).paymentMethods;
+    return _optionalLinkSelector(
+      label: 'Payment Method',
+      labelIcon: Icons.credit_card_outlined,
+      ids: methods.map((m) => m.id).toList(),
+      nameOf: (id) => methods
+          .firstWhere((m) => m.id == id, orElse: () => methods.first)
+          .name,
+      iconOf: (id) => _paymentMethodIcon(
+        methods.firstWhere((m) => m.id == id, orElse: () => methods.first).type,
+      ),
+      selectedId: _selectedPaymentMethodId,
+      onSelected: (id) => setState(() => _selectedPaymentMethodId = id),
+    );
+  }
+
+  Widget _buildBudgetSelector() {
+    final budgets = ref.watch(budgetProvider).budgets;
+    return _optionalLinkSelector(
+      label: 'Budget',
+      labelIcon: Icons.pie_chart_outline,
+      ids: budgets.map((b) => b.id).toList(),
+      nameOf: (id) => budgets
+          .firstWhere((b) => b.id == id, orElse: () => budgets.first)
+          .name,
+      selectedId: _selectedBudgetId,
+      onSelected: (id) => setState(() => _selectedBudgetId = id),
+    );
+  }
+
+  Widget _buildObjectiveSelector() {
+    final objectives = ref.watch(activeObjectivesProvider).asData?.value ?? [];
+    return _optionalLinkSelector(
+      label: 'Objective',
+      labelIcon: Icons.flag_outlined,
+      ids: objectives.map((o) => o.objective.id).toList(),
+      nameOf: (id) => objectives
+          .firstWhere(
+            (o) => o.objective.id == id,
+            orElse: () => objectives.first,
+          )
+          .name,
+      selectedId: _selectedObjectiveId,
+      onSelected: (id) => setState(() => _selectedObjectiveId = id),
+    );
   }
 
   Future<void> _deleteTransaction() async {
@@ -538,6 +710,11 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                         },
                         accentColor: _accentColor,
                       ),
+
+                      // Optional links (hidden when the user has none)
+                      _buildPaymentMethodSelector(),
+                      _buildBudgetSelector(),
+                      _buildObjectiveSelector(),
                     ],
                     const SizedBox(height: 10),
                   ],

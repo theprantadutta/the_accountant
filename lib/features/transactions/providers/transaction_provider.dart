@@ -23,6 +23,10 @@ import 'package:the_accountant/features/dashboard/providers/financial_data_provi
 import 'package:the_accountant/features/reports/providers/reports_provider.dart';
 import 'package:uuid/uuid.dart';
 
+/// Sentinel for tri-state optional args in [TransactionNotifier.updateTransaction]:
+/// pass a value to SET, pass null to CLEAR, or omit to KEEP the existing value.
+const Object _unchanged = Object();
+
 /// ViewModel class for displaying transactions in UI
 /// Uses isIncome boolean instead of deprecated type string
 class TransactionViewModel {
@@ -167,9 +171,9 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
       if (mounted) {
         if (!silent) {
           state = state.copyWith(
-          isLoading: false,
-          errorMessage: 'Failed to load transactions: $e',
-        );
+            isLoading: false,
+            errorMessage: 'Failed to load transactions: $e',
+          );
         }
       }
     }
@@ -343,7 +347,8 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
           await ReminderSchedulerService().scheduleReminder(
             transactionId: id,
             title: title ?? '',
-            amount: amount / 100.0, // reminder service works in major-unit dollars
+            amount:
+                amount / 100.0, // reminder service works in major-unit dollars
             type: reminderType,
             dueDate: originalDueDate ?? dateTime,
           );
@@ -359,7 +364,9 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
         if (notifPrefs.largeTransactionAlertsEnabled &&
             amount / 100.0 >= notifPrefs.largeTransactionThreshold) {
           await NotificationService().showLargeTransactionNotification(
-            amount / 100.0, title ?? '', isIncome,
+            amount / 100.0,
+            title ?? '',
+            isIncome,
           );
         }
       } catch (_) {
@@ -389,8 +396,14 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
     String? walletId,
     DateTime? date,
     String? notes,
-    String? paymentMethodId,
+    Object? paymentMethodId =
+        _unchanged, // set (String) / clear (null) / keep (omit)
     String? paymentMethod, // @deprecated - use paymentMethodId
+    TransactionSpecialType? specialType, // null = keep existing
+    bool? isPaid, // null = keep existing
+    DateTime? originalDueDate, // null = keep existing
+    Object? budgetId = _unchanged, // set / clear / keep
+    Object? objectiveId = _unchanged, // set / clear / keep
     bool? isRecurring, // @deprecated
     String? recurrencePattern, // @deprecated
   }) async {
@@ -410,8 +423,32 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
         transactionIsIncome = type == 'income';
       }
 
-      // Preserve ALL fields from existing transaction to prevent data loss
-      // when using replace() which requires all columns
+      // Resolve the editable special/assignment fields. The sentinel default lets a
+      // caller SET (value), CLEAR (null), or KEEP (omit) each nullable assignment
+      // field; specialType/isPaid/originalDueDate use null to mean "keep".
+      final newSpecialType =
+          specialType ?? existing.specialType ?? TransactionSpecialType.none;
+      // Regular/subscription/repetitive are always paid; only upcoming/credit/debt
+      // can be unpaid (mirrors addTransactionFull).
+      final effectiveIsPaid =
+          newSpecialType == TransactionSpecialType.none ||
+              newSpecialType == TransactionSpecialType.repetitive ||
+              newSpecialType == TransactionSpecialType.subscription
+          ? true
+          : (isPaid ?? existing.isPaid);
+      final newOriginalDueDate = originalDueDate ?? existing.originalDueDate;
+      final resolvedBudgetId = identical(budgetId, _unchanged)
+          ? existing.budgetId
+          : budgetId as String?;
+      final resolvedObjectiveId = identical(objectiveId, _unchanged)
+          ? existing.objectiveId
+          : objectiveId as String?;
+      final resolvedPaymentMethodId = identical(paymentMethodId, _unchanged)
+          ? (paymentMethod ?? existing.paymentMethodId)
+          : paymentMethodId as String?;
+
+      // Preserve remaining fields from the existing transaction (replace() needs all
+      // columns); only the fields above are editable here.
       final updatedTransaction = TransactionsCompanion(
         id: Value(id),
         amount: Value(amount ?? existing.amount),
@@ -421,86 +458,63 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
         walletId: Value(walletId ?? existing.walletId),
         date: Value(date ?? existing.date),
         notes: Value(notes ?? existing.notes),
-        paymentMethodId: Value(
-          paymentMethodId ?? paymentMethod ?? existing.paymentMethodId,
-        ),
-        // Preserve transaction metadata fields
+        paymentMethodId: Value(resolvedPaymentMethodId),
         transactionType: Value(existing.transactionType),
-        specialType: Value(existing.specialType),
-        isPaid: Value(existing.isPaid),
-        originalDueDate: Value(existing.originalDueDate),
+        specialType: Value(newSpecialType),
+        isPaid: Value(effectiveIsPaid),
+        originalDueDate: Value(newOriginalDueDate),
         skipPaid: Value(existing.skipPaid),
-        // Preserve assignment fields
-        budgetId: Value(existing.budgetId),
-        objectiveId: Value(existing.objectiveId),
+        budgetId: Value(resolvedBudgetId),
+        objectiveId: Value(resolvedObjectiveId),
         recurringConfigId: Value(existing.recurringConfigId),
         pairedTransactionId: Value(existing.pairedTransactionId),
-        // Preserve other metadata
         receiptImageUrl: Value(existing.receiptImageUrl),
         serverId: Value(existing.serverId),
         syncStatus: Value(SyncStatus.pendingUpdate),
         deletedAt: Value(existing.deletedAt),
-        // Timestamps
         createdAt: Value(existing.createdAt),
         updatedAt: Value(DateTime.now()),
       );
 
       await _db.updateTransaction(updatedTransaction);
 
-      // Handle wallet balance updates using incremental approach
-      // This preserves initial balances instead of recalculating from scratch
+      // Recompute the affected wallet balance(s) from scratch. This is idempotent and
+      // stays correct no matter which flags changed (amount, wallet, isIncome, paid
+      // status, or special type) — unlike an incremental reverse/apply, which silently
+      // breaks the moment isPaid/specialType change on edit.
       final oldWalletId = existing.walletId;
       final newWalletId = walletId ?? existing.walletId;
-      final oldAmount = existing.amount;
-      final newAmount = amount ?? existing.amount;
-      final oldIsIncome = existing.isIncome;
-      final newIsIncome = transactionIsIncome ?? existing.isIncome;
-
-      // A transaction affects the wallet balance if it is paid, OR it is a credit/debt entry
-      // (the money already moved). This mirrors calculateWalletBalance and addTransactionFull,
-      // so editing a credit/debt (or any balance-affecting) transaction keeps the stored
-      // balance correct instead of silently skipping the reverse-then-apply. specialType and
-      // isPaid are preserved across the update, so this predicate holds for both old and new.
-      final affectsBalance = existing.isPaid ||
-          existing.specialType == TransactionSpecialType.credit ||
-          existing.specialType == TransactionSpecialType.debt;
-
-      if (affectsBalance) {
-        if (oldWalletId == newWalletId) {
-          // Same wallet - only update if amount or type changed
-          if (oldAmount != newAmount || oldIsIncome != newIsIncome) {
-            // Reverse old effect
-            await _walletBalanceService.updateBalanceAfterTransaction(
-              walletId: oldWalletId,
-              amount: oldAmount,
-              isIncome: !oldIsIncome, // Reverse
-            );
-            // Apply new effect
-            await _walletBalanceService.updateBalanceAfterTransaction(
-              walletId: newWalletId,
-              amount: newAmount,
-              isIncome: newIsIncome,
-            );
-          }
-        } else {
-          // Wallet changed - reverse from old, apply to new
-          // Reverse effect on old wallet
-          await _walletBalanceService.updateBalanceAfterTransaction(
-            walletId: oldWalletId,
-            amount: oldAmount,
-            isIncome: !oldIsIncome, // Reverse the effect
-          );
-          // Apply effect on new wallet
-          await _walletBalanceService.updateBalanceAfterTransaction(
-            walletId: newWalletId,
-            amount: newAmount,
-            isIncome: newIsIncome,
-          );
-        }
+      await _walletBalanceService.updateWalletBalance(oldWalletId);
+      if (newWalletId != oldWalletId) {
+        await _walletBalanceService.updateWalletBalance(newWalletId);
       }
 
       // Refresh wallet provider to reflect new balance
       await _ref.read(walletProvider.notifier).loadWallets();
+
+      // Reschedule (or cancel) the due-date reminder based on the new state. Always
+      // cancel first so a change to a non-reminder type (e.g. -> none) clears it.
+      try {
+        await ReminderSchedulerService().cancelReminder(id);
+        if (newSpecialType == TransactionSpecialType.upcoming ||
+            newSpecialType == TransactionSpecialType.credit ||
+            newSpecialType == TransactionSpecialType.debt) {
+          final reminderType = switch (newSpecialType) {
+            TransactionSpecialType.credit => 'credit',
+            TransactionSpecialType.debt => 'debt',
+            _ => 'upcoming',
+          };
+          await ReminderSchedulerService().scheduleReminder(
+            transactionId: id,
+            title: title ?? existing.title,
+            amount: (amount ?? existing.amount) / 100.0,
+            type: reminderType,
+            dueDate: newOriginalDueDate ?? (date ?? existing.date),
+          );
+        }
+      } catch (_) {
+        // Non-critical — don't fail the update
+      }
 
       // Reload transactions to get the updated one
       await loadTransactions();
@@ -593,16 +607,16 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
   }
 
   int getWalletBalance(String walletId) {
-    return state.transactions.where((t) => t.walletId == walletId).fold<int>(0, (
-      sum,
-      t,
-    ) {
-      if (t.type == 'income') {
-        return sum + t.amount;
-      } else {
-        return sum - t.amount;
-      }
-    });
+    return state.transactions.where((t) => t.walletId == walletId).fold<int>(
+      0,
+      (sum, t) {
+        if (t.type == 'income') {
+          return sum + t.amount;
+        } else {
+          return sum - t.amount;
+        }
+      },
+    );
   }
 
   Map<String, int> getAllWalletBalances() {

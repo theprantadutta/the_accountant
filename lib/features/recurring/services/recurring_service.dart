@@ -25,7 +25,9 @@ class RecurringService {
   /// Creates transaction instances and updates next occurrence dates
   Future<int> processRecurringTransactions() async {
     if (_isProcessing) {
-      _logger.d('Recurring processing already in progress; skipping concurrent run');
+      _logger.d(
+        'Recurring processing already in progress; skipping concurrent run',
+      );
       return 0;
     }
     _isProcessing = true;
@@ -47,7 +49,9 @@ class RecurringService {
     for (final config in dueConfigs) {
       try {
         // Pre-load existing instance dates to avoid O(n²) queries in the loop
-        final existingInstances = await _database.getRecurringInstances(config.id);
+        final existingInstances = await _database.getRecurringInstances(
+          config.id,
+        );
         final existingDates = existingInstances
             .map((t) => DateTime(t.date.year, t.date.month, t.date.day))
             .toSet();
@@ -337,6 +341,20 @@ class RecurringService {
     return await _database.getRecurringInstances(configId);
   }
 
+  /// Find the recurring config whose base transaction is [baseTransactionId].
+  /// Base transactions link via recurring_configs.baseTransactionId (they do NOT
+  /// carry a recurringConfigId), so this is the only way to reach a base
+  /// transaction's config for editing.
+  Future<RecurringConfig?> getRecurringConfigByBaseTransactionId(
+    String baseTransactionId,
+  ) async {
+    final configs = await _database.getAllRecurringConfigs();
+    for (final config in configs) {
+      if (config.baseTransactionId == baseTransactionId) return config;
+    }
+    return null;
+  }
+
   /// Update a recurring configuration
   Future<void> updateRecurringConfig({
     required String configId,
@@ -345,6 +363,22 @@ class RecurringService {
     DateTime? endDate,
     bool? isActive,
   }) async {
+    // If the cadence changed, recompute nextOccurrence from the config's start date
+    // so the processor generates the next instance on the new schedule.
+    var nextOccurrence = const Value<DateTime>.absent();
+    if (reoccurrence != null || periodLength != null) {
+      final config = await _database.findRecurringConfigById(configId);
+      if (config != null) {
+        nextOccurrence = Value(
+          calculateNextOccurrence(
+            config.startDate,
+            reoccurrence ?? config.reoccurrence,
+            periodLength ?? config.periodLength,
+          ),
+        );
+      }
+    }
+
     final updates = RecurringConfigsCompanion(
       reoccurrence: reoccurrence != null
           ? Value(reoccurrence)
@@ -354,6 +388,7 @@ class RecurringService {
           : const Value.absent(),
       endDate: endDate != null ? Value(endDate) : const Value.absent(),
       isActive: isActive != null ? Value(isActive) : const Value.absent(),
+      nextOccurrence: nextOccurrence,
       syncStatus: const Value(SyncStatus.pendingUpdate),
       updatedAt: Value(DateTime.now()),
     );
