@@ -143,6 +143,11 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
     final isLoadingHistory = chatState.isLoadingHistory;
     final messages = chatState.messages;
 
+    // Once the user has actually sent something we treat the chat as "started"
+    // and collapse the welcome hero + suggestions so the conversation gets the
+    // full screen instead of being squeezed into the middle.
+    final hasStartedChat = messages.any((m) => m.isFromUser);
+
     // Get keyboard state
     final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
     final isKeyboardOpen = keyboardHeight > 0;
@@ -160,22 +165,19 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
         child: Column(
           children: [
             // Collapse header spacing when keyboard is open
-            SizedBox(height: isKeyboardOpen ? 8 : 16),
+            SizedBox(height: isKeyboardOpen ? 8 : 12),
 
-            // AI Assistant Header - hide when keyboard is open to save space
-            if (!isKeyboardOpen)
+            // Once chatting: a slim header (title + New chat) so the
+            // conversation gets the whole screen. Hidden with the keyboard up.
+            if (!isKeyboardOpen && hasStartedChat) _buildCompactHeader(),
+
+            // Before the first message: full welcome hero + quick suggestions.
+            if (!isKeyboardOpen && !hasStartedChat) ...[
               AnimationUtils.slideTransition(
                 animation: _slideAnimation,
                 begin: const Offset(0, -1),
                 child: _buildAIHeader(),
               ),
-
-            // Error banner
-            if (chatState.hasError && !isKeyboardOpen)
-              _buildErrorBanner(chatState.errorMessage, chatState.errorType),
-
-            // Quick action buttons - hide when keyboard is open
-            if (!isKeyboardOpen) ...[
               const SizedBox(height: 8),
               AnimationUtils.fadeTransition(
                 animation: AnimationUtils.createStaggeredAnimation(
@@ -186,6 +188,10 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
                 child: _buildQuickActions(),
               ),
             ],
+
+            // Error banner
+            if (chatState.hasError && !isKeyboardOpen)
+              _buildErrorBanner(chatState.errorMessage, chatState.errorType),
 
             SizedBox(height: isKeyboardOpen ? 4 : 8),
             // Chat Messages - takes all available space
@@ -289,6 +295,78 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                 ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Slim header shown during an active conversation: keeps the identity and
+  /// the clear/new-chat action without the tall welcome hero + suggestions.
+  Widget _buildCompactHeader() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 0, 16, 4),
+      child: Row(
+        children: [
+          Container(
+            width: 30,
+            height: 30,
+            decoration: BoxDecoration(
+              gradient: AppTheme.primaryGradient,
+              borderRadius: BorderRadius.circular(15),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF667eea).withValues(alpha: 0.4),
+                  blurRadius: 10,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: const Icon(
+              Icons.auto_awesome,
+              color: Colors.white,
+              size: 16,
+            ),
+          ),
+          const SizedBox(width: 10),
+          const Text(
+            'AI Financial Assistant',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const Spacer(),
+          GestureDetector(
+            onTap: _clearChat,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.06),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.add_comment_outlined,
+                    color: Colors.white.withValues(alpha: 0.9),
+                    size: 15,
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    'New chat',
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.9),
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
