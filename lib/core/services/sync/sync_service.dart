@@ -275,6 +275,7 @@ class SyncService {
           tableName: 'transactions',
           entityId: r.id,
           operation: _getOperationFromStatus(r.syncStatus),
+          sourceUpdatedAt: r.updatedAt,
           data: _transactionToMap(r),
         ),
       );
@@ -294,6 +295,7 @@ class SyncService {
           tableName: 'wallets',
           entityId: r.id,
           operation: _getOperationFromStatus(r.syncStatus),
+          sourceUpdatedAt: r.updatedAt,
           data: _walletToMap(r),
         ),
       );
@@ -313,6 +315,7 @@ class SyncService {
           tableName: 'categories',
           entityId: r.id,
           operation: _getOperationFromStatus(r.syncStatus),
+          sourceUpdatedAt: r.updatedAt,
           data: _categoryToMap(r),
         ),
       );
@@ -332,6 +335,7 @@ class SyncService {
           tableName: 'budgets',
           entityId: r.id,
           operation: _getOperationFromStatus(r.syncStatus),
+          sourceUpdatedAt: r.updatedAt,
           data: _budgetToMap(r),
         ),
       );
@@ -351,6 +355,7 @@ class SyncService {
           tableName: 'objectives',
           entityId: r.id,
           operation: _getOperationFromStatus(r.syncStatus),
+          sourceUpdatedAt: r.updatedAt,
           data: _objectiveToMap(r),
         ),
       );
@@ -370,6 +375,7 @@ class SyncService {
           tableName: 'payment_methods',
           entityId: r.id,
           operation: _getOperationFromStatus(r.syncStatus),
+          sourceUpdatedAt: r.updatedAt,
           data: _paymentMethodToMap(r),
         ),
       );
@@ -389,6 +395,7 @@ class SyncService {
           tableName: 'recurring_configs',
           entityId: r.id,
           operation: _getOperationFromStatus(r.syncStatus),
+          sourceUpdatedAt: r.updatedAt,
           data: _recurringConfigToMap(r),
         ),
       );
@@ -1048,96 +1055,145 @@ class SyncService {
       if (c.operation == 'delete') {
         await _hardDeleteLocal(c.tableName, c.entityId);
       } else {
-        await _setRecordSynced(c.tableName, c.entityId);
+        // Compare-and-set: only clear the pending flag if the row hasn't been
+        // edited since it was collected for push. If the user edited it while the
+        // push was in flight, `updatedAt` changed, the guard misses, and the row
+        // stays pending to be re-pushed next sync — so the in-flight edit isn't
+        // silently lost. When no source timestamp is available we fall back to an
+        // unconditional clear (prior behaviour) to avoid ever getting stuck.
+        await _setRecordSynced(
+          c.tableName,
+          c.entityId,
+          expected: c.sourceUpdatedAt,
+        );
       }
     }
   }
 
-  Future<void> _setRecordSynced(String table, String id) async {
+  Future<void> _setRecordSynced(
+    String table,
+    String id, {
+    DateTime? expected,
+  }) async {
     switch (table) {
       case 'transactions':
-        await (_database.update(
-          _database.transactions,
-        )..where((t) => t.id.equals(id))).write(
-          const TransactionsCompanion(syncStatus: Value(SyncStatus.synced)),
-        );
+        await (_database.update(_database.transactions)..where(
+              (t) => expected == null
+                  ? t.id.equals(id)
+                  : t.id.equals(id) & t.updatedAt.equals(expected),
+            ))
+            .write(
+              const TransactionsCompanion(syncStatus: Value(SyncStatus.synced)),
+            );
         break;
       case 'wallets':
-        await (_database.update(
-          _database.wallets,
-        )..where((w) => w.id.equals(id))).write(
-          const WalletsCompanion(syncStatus: Value(SyncStatus.synced)),
-        );
+        await (_database.update(_database.wallets)..where(
+              (w) => expected == null
+                  ? w.id.equals(id)
+                  : w.id.equals(id) & w.updatedAt.equals(expected),
+            ))
+            .write(
+              const WalletsCompanion(syncStatus: Value(SyncStatus.synced)),
+            );
         break;
       case 'categories':
-        await (_database.update(
-          _database.categories,
-        )..where((c) => c.id.equals(id))).write(
-          const CategoriesCompanion(syncStatus: Value(SyncStatus.synced)),
-        );
+        await (_database.update(_database.categories)..where(
+              (c) => expected == null
+                  ? c.id.equals(id)
+                  : c.id.equals(id) & c.updatedAt.equals(expected),
+            ))
+            .write(
+              const CategoriesCompanion(syncStatus: Value(SyncStatus.synced)),
+            );
         break;
       case 'budgets':
-        await (_database.update(
-          _database.budgets,
-        )..where((b) => b.id.equals(id))).write(
-          const BudgetsCompanion(syncStatus: Value(SyncStatus.synced)),
-        );
+        await (_database.update(_database.budgets)..where(
+              (b) => expected == null
+                  ? b.id.equals(id)
+                  : b.id.equals(id) & b.updatedAt.equals(expected),
+            ))
+            .write(
+              const BudgetsCompanion(syncStatus: Value(SyncStatus.synced)),
+            );
         break;
       case 'objectives':
-        await (_database.update(
-          _database.objectives,
-        )..where((o) => o.id.equals(id))).write(
-          const ObjectivesCompanion(syncStatus: Value(SyncStatus.synced)),
-        );
+        await (_database.update(_database.objectives)..where(
+              (o) => expected == null
+                  ? o.id.equals(id)
+                  : o.id.equals(id) & o.updatedAt.equals(expected),
+            ))
+            .write(
+              const ObjectivesCompanion(syncStatus: Value(SyncStatus.synced)),
+            );
         break;
       case 'payment_methods':
-        await (_database.update(
-          _database.paymentMethods,
-        )..where((p) => p.id.equals(id))).write(
-          const PaymentMethodsCompanion(syncStatus: Value(SyncStatus.synced)),
-        );
+        await (_database.update(_database.paymentMethods)..where(
+              (p) => expected == null
+                  ? p.id.equals(id)
+                  : p.id.equals(id) & p.updatedAt.equals(expected),
+            ))
+            .write(
+              const PaymentMethodsCompanion(
+                syncStatus: Value(SyncStatus.synced),
+              ),
+            );
         break;
       case 'recurring_configs':
-        await (_database.update(
-          _database.recurringConfigs,
-        )..where((r) => r.id.equals(id))).write(
-          const RecurringConfigsCompanion(syncStatus: Value(SyncStatus.synced)),
-        );
+        await (_database.update(_database.recurringConfigs)..where(
+              (r) => expected == null
+                  ? r.id.equals(id)
+                  : r.id.equals(id) & r.updatedAt.equals(expected),
+            ))
+            .write(
+              const RecurringConfigsCompanion(
+                syncStatus: Value(SyncStatus.synced),
+              ),
+            );
         break;
     }
   }
 
   Future<void> _hardDeleteLocal(String table, String id) async {
+    // Only remove the local tombstone if the row is still pending-delete. If the
+    // user resurrected/edited it while the delete push was in flight, its status
+    // changed and we leave it alone to re-sync (so the resurrect isn't lost).
+    const pendingDelete = SyncStatus.pendingDelete;
     switch (table) {
       case 'transactions':
-        await (_database.delete(
-          _database.transactions,
-        )..where((t) => t.id.equals(id))).go();
+        await (_database.delete(_database.transactions)..where(
+              (t) => t.id.equals(id) & t.syncStatus.equals(pendingDelete),
+            ))
+            .go();
         break;
       case 'wallets':
-        await (_database.delete(
-          _database.wallets,
-        )..where((w) => w.id.equals(id))).go();
+        await (_database.delete(_database.wallets)..where(
+              (w) => w.id.equals(id) & w.syncStatus.equals(pendingDelete),
+            ))
+            .go();
         break;
       case 'categories':
-        await (_database.delete(
-          _database.categories,
-        )..where((c) => c.id.equals(id))).go();
+        await (_database.delete(_database.categories)..where(
+              (c) => c.id.equals(id) & c.syncStatus.equals(pendingDelete),
+            ))
+            .go();
         break;
       case 'budgets':
-        await (_database.delete(
-          _database.budgets,
-        )..where((b) => b.id.equals(id))).go();
+        await (_database.delete(_database.budgets)..where(
+              (b) => b.id.equals(id) & b.syncStatus.equals(pendingDelete),
+            ))
+            .go();
         break;
       case 'objectives':
-        await (_database.delete(
-          _database.objectives,
-        )..where((o) => o.id.equals(id))).go();
+        await (_database.delete(_database.objectives)..where(
+              (o) => o.id.equals(id) & o.syncStatus.equals(pendingDelete),
+            ))
+            .go();
         break;
       case 'payment_methods':
-        await (_database.delete(
-          _database.paymentMethods,
-        )..where((p) => p.id.equals(id))).go();
+        await (_database.delete(_database.paymentMethods)..where(
+              (p) => p.id.equals(id) & p.syncStatus.equals(pendingDelete),
+            ))
+            .go();
         break;
       case 'recurring_configs':
         // Recurring configs have no soft-delete column; the server keeps the row inactive,

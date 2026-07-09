@@ -8,11 +8,18 @@ class SyncChange {
   final String operation; // 'create', 'update', 'delete'
   final Map<String, dynamic>? data;
 
+  /// Transient, client-only: the row's `updatedAt` at the moment this change was
+  /// collected for push. Used for compare-and-set when marking the record synced,
+  /// so an edit made while the push was in flight isn't silently cleared. NOT sent
+  /// to the server (excluded from [toJson]).
+  final DateTime? sourceUpdatedAt;
+
   SyncChange({
     required this.tableName,
     required this.entityId,
     required this.operation,
     this.data,
+    this.sourceUpdatedAt,
   });
 
   Map<String, dynamic> toJson() => {
@@ -23,7 +30,8 @@ class SyncChange {
   };
 
   factory SyncChange.fromJson(Map<String, dynamic> json) => SyncChange(
-    tableName: json['table_name'] ?? json['tableName'] ?? json['TableName'] ?? '',
+    tableName:
+        json['table_name'] ?? json['tableName'] ?? json['TableName'] ?? '',
     entityId: json['entity_id'] ?? json['entityId'] ?? json['EntityId'] ?? '',
     operation: json['operation'] ?? json['Operation'] ?? '',
     data: json['data'] ?? json['Data'],
@@ -51,8 +59,13 @@ class SyncPushResponse {
   factory SyncPushResponse.fromJson(Map<String, dynamic> json) {
     final conflictsList = json['conflicts'] ?? json['Conflicts'];
     return SyncPushResponse(
-      appliedCount: json['applied_count'] ?? json['appliedCount'] ?? json['AppliedCount'] ?? 0,
-      conflicts: (conflictsList as List?)
+      appliedCount:
+          json['applied_count'] ??
+          json['appliedCount'] ??
+          json['AppliedCount'] ??
+          0,
+      conflicts:
+          (conflictsList as List?)
               ?.map((c) => SyncConflict.fromJson(c as Map<String, dynamic>))
               .toList() ??
           <SyncConflict>[],
@@ -124,7 +137,8 @@ class SyncConflict {
   });
 
   factory SyncConflict.fromJson(Map<String, dynamic> json) => SyncConflict(
-    tableName: json['table_name'] ?? json['tableName'] ?? json['TableName'] ?? '',
+    tableName:
+        json['table_name'] ?? json['tableName'] ?? json['TableName'] ?? '',
     entityId: json['entity_id'] ?? json['entityId'] ?? json['EntityId'] ?? '',
     reason: json['reason'] ?? json['Reason'] ?? '',
   );
@@ -151,17 +165,29 @@ class SyncLogDto {
   });
 
   factory SyncLogDto.fromJson(Map<String, dynamic> json) {
-    final lastSyncAtRaw = json['last_sync_at'] ?? json['lastSyncAt'] ?? json['LastSyncAt'];
-    final createdAtRaw = json['created_at'] ?? json['createdAt'] ?? json['CreatedAt'];
-    final updatedAtRaw = json['updated_at'] ?? json['updatedAt'] ?? json['UpdatedAt'];
+    final lastSyncAtRaw =
+        json['last_sync_at'] ?? json['lastSyncAt'] ?? json['LastSyncAt'];
+    final createdAtRaw =
+        json['created_at'] ?? json['createdAt'] ?? json['CreatedAt'];
+    final updatedAtRaw =
+        json['updated_at'] ?? json['updatedAt'] ?? json['UpdatedAt'];
     return SyncLogDto(
       id: json['id'] ?? json['Id'] ?? '',
       userId: json['user_id'] ?? json['userId'] ?? json['UserId'] ?? '',
-      tableName: json['table_name'] ?? json['tableName'] ?? json['TableName'] ?? '',
+      tableName:
+          json['table_name'] ?? json['tableName'] ?? json['TableName'] ?? '',
       lastSyncAt: lastSyncAtRaw != null ? DateTime.parse(lastSyncAtRaw) : null,
-      lastServerVersion: json['last_server_version'] ?? json['lastServerVersion'] ?? json['LastServerVersion'] ?? 0,
-      createdAt: createdAtRaw != null ? DateTime.parse(createdAtRaw) : DateTime.now(),
-      updatedAt: updatedAtRaw != null ? DateTime.parse(updatedAtRaw) : DateTime.now(),
+      lastServerVersion:
+          json['last_server_version'] ??
+          json['lastServerVersion'] ??
+          json['LastServerVersion'] ??
+          0,
+      createdAt: createdAtRaw != null
+          ? DateTime.parse(createdAtRaw)
+          : DateTime.now(),
+      updatedAt: updatedAtRaw != null
+          ? DateTime.parse(updatedAtRaw)
+          : DateTime.now(),
     );
   }
 }
