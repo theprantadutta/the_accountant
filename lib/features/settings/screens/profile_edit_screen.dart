@@ -273,15 +273,20 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppColors.glassBorder),
       ),
-      child: ListTile(
-        leading: Icon(icon, color: AppColors.textMuted),
-        title: Text(
-          label,
-          style: TextStyle(color: AppColors.textMuted, fontSize: 12),
-        ),
-        subtitle: Text(
-          value,
-          style: TextStyle(color: AppColors.textSecondary, fontSize: 16),
+      child: Material(
+        type: MaterialType.transparency,
+        borderRadius: BorderRadius.circular(12),
+        clipBehavior: Clip.antiAlias,
+        child: ListTile(
+          leading: Icon(icon, color: AppColors.textMuted),
+          title: Text(
+            label,
+            style: TextStyle(color: AppColors.textMuted, fontSize: 12),
+          ),
+          subtitle: Text(
+            value,
+            style: TextStyle(color: AppColors.textSecondary, fontSize: 16),
+          ),
         ),
       ),
     );
@@ -311,7 +316,10 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
           _buildInfoRow(
             'Member Since',
             authState.createdAt != null
-                ? AppDateFormatter.formatDate(authState.createdAt!, ref.watch(dateFormatSettingProvider))
+                ? AppDateFormatter.formatDate(
+                    authState.createdAt!,
+                    ref.watch(dateFormatSettingProvider),
+                  )
                 : 'Unknown',
             Icons.calendar_today_outlined,
           ),

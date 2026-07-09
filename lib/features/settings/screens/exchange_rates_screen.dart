@@ -325,64 +325,69 @@ class _ExchangeRateTile extends StatelessWidget {
         borderRadius: AppSpacing.borderRadiusMd,
         border: Border.all(color: AppColors.glassBorder),
       ),
-      child: ListTile(
-        contentPadding: AppSpacing.paddingMd,
-        leading: Container(
-          width: 48,
-          height: 48,
-          decoration: BoxDecoration(
-            color: AppColors.primaryAccent.withValues(alpha: 0.2),
-            borderRadius: AppSpacing.borderRadiusSm,
-          ),
-          alignment: Alignment.center,
-          padding: const EdgeInsets.all(4),
-          child: FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Text(
-              symbol.length > 3 ? currencyCode.substring(0, 3) : symbol,
-              style: AppTypography.titleMedium.copyWith(
-                color: AppColors.primaryAccent,
-                fontSize: symbol.length > 2 ? 14 : 18,
+      child: Material(
+        type: MaterialType.transparency,
+        borderRadius: AppSpacing.borderRadiusMd,
+        clipBehavior: Clip.antiAlias,
+        child: ListTile(
+          contentPadding: AppSpacing.paddingMd,
+          leading: Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: AppColors.primaryAccent.withValues(alpha: 0.2),
+              borderRadius: AppSpacing.borderRadiusSm,
+            ),
+            alignment: Alignment.center,
+            padding: const EdgeInsets.all(4),
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                symbol.length > 3 ? currencyCode.substring(0, 3) : symbol,
+                style: AppTypography.titleMedium.copyWith(
+                  color: AppColors.primaryAccent,
+                  fontSize: symbol.length > 2 ? 14 : 18,
+                ),
               ),
             ),
           ),
-        ),
-        title: Text(currencyCode, style: AppTypography.titleMedium),
-        subtitle: Text(
-          currencyName,
-          style: AppTypography.bodySmall.copyWith(
-            color: AppColors.textSecondary,
-          ),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  rate.toStringAsFixed(rate < 1 ? 6 : 4),
-                  style: AppTypography.titleMedium,
-                ),
-                Text(
-                  '1 $baseCurrency = $currencyCode',
-                  style: AppTypography.labelSmall.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-              ],
-            ),
-            AppSpacing.gapHSm,
-            IconButton(
-              icon: const Icon(Icons.edit_outlined),
+          title: Text(currencyCode, style: AppTypography.titleMedium),
+          subtitle: Text(
+            currencyName,
+            style: AppTypography.bodySmall.copyWith(
               color: AppColors.textSecondary,
-              onPressed: onEditRate,
-              tooltip: 'Set custom rate',
             ),
-          ],
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    rate.toStringAsFixed(rate < 1 ? 6 : 4),
+                    style: AppTypography.titleMedium,
+                  ),
+                  Text(
+                    '1 $baseCurrency = $currencyCode',
+                    style: AppTypography.labelSmall.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+              AppSpacing.gapHSm,
+              IconButton(
+                icon: const Icon(Icons.edit_outlined),
+                color: AppColors.textSecondary,
+                onPressed: onEditRate,
+                tooltip: 'Set custom rate',
+              ),
+            ],
+          ),
         ),
       ),
     );

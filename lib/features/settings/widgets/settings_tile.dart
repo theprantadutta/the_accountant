@@ -276,7 +276,15 @@ class SettingsSection extends StatelessWidget {
             borderRadius: AppSpacing.borderRadiusLg,
             border: Border.all(color: AppColors.glassBorder),
           ),
-          child: Column(children: _buildTilesWithDividers()),
+          // Transparent Material in front of the decorated background so the
+          // ListTiles' ink splashes are visible (and clipped to the rounded
+          // corners) instead of being hidden by the Container's color.
+          child: Material(
+            type: MaterialType.transparency,
+            borderRadius: AppSpacing.borderRadiusLg,
+            clipBehavior: Clip.antiAlias,
+            child: Column(children: _buildTilesWithDividers()),
+          ),
         ),
       ],
     );
