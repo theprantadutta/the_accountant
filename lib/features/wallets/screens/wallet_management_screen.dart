@@ -729,443 +729,453 @@ class _WalletCardState extends ConsumerState<_WalletCard>
           child: Opacity(opacity: _fadeAnimation.value, child: child),
         );
       },
-      child: GestureDetector(
-        onTap: widget.onEdit,
-        onLongPress: () => _showOptionsMenu(context),
-        child: Container(
-          margin: const EdgeInsets.only(bottom: 16),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                walletColor.withValues(alpha: 0.25),
-                walletColor.withValues(alpha: 0.05),
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: walletColor.withValues(alpha: 0.3),
-              width: 1,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: walletColor.withValues(alpha: 0.15),
-                blurRadius: 20,
-                offset: const Offset(0, 8),
+      // Long-press anywhere on the card to drag-reorder; the ≡ handle drags
+      // immediately. Tap opens edit; the ⋮ button opens the options menu.
+      child: ReorderableDelayedDragStartListener(
+        index: widget.index,
+        child: GestureDetector(
+          onTap: widget.onEdit,
+          child: Container(
+            margin: const EdgeInsets.only(bottom: 16),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  walletColor.withValues(alpha: 0.25),
+                  walletColor.withValues(alpha: 0.05),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
-            ],
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(20),
-            child: Stack(
-              children: [
-                // Background pattern
-                Positioned(
-                  right: -40,
-                  bottom: -40,
-                  child: Icon(
-                    WalletIcons.getIcon(wallet.iconName),
-                    size: 150,
-                    color: walletColor.withValues(alpha: 0.08),
-                  ),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: walletColor.withValues(alpha: 0.3),
+                width: 1,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: walletColor.withValues(alpha: 0.15),
+                  blurRadius: 20,
+                  offset: const Offset(0, 8),
                 ),
+              ],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: Stack(
+                children: [
+                  // Background pattern
+                  Positioned(
+                    right: -40,
+                    bottom: -40,
+                    child: Icon(
+                      WalletIcons.getIcon(wallet.iconName),
+                      size: 150,
+                      color: walletColor.withValues(alpha: 0.08),
+                    ),
+                  ),
 
-                // Shimmer effect on top
-                Positioned(
-                  top: -50,
-                  left: -50,
-                  child: Container(
-                    width: 150,
-                    height: 150,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: RadialGradient(
-                        colors: [
-                          walletColor.withValues(alpha: 0.15),
-                          Colors.transparent,
-                        ],
+                  // Shimmer effect on top
+                  Positioned(
+                    top: -50,
+                    left: -50,
+                    child: Container(
+                      width: 150,
+                      height: 150,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: RadialGradient(
+                          colors: [
+                            walletColor.withValues(alpha: 0.15),
+                            Colors.transparent,
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
 
-                // Content
-                Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Top row: Icon + Name + Actions
-                      Row(
-                        children: [
-                          // Icon
-                          Container(
-                            width: 48,
-                            height: 48,
-                            decoration: BoxDecoration(
-                              color: walletColor.withValues(alpha: 0.2),
-                              borderRadius: BorderRadius.circular(14),
+                  // Content
+                  Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Top row: Icon + Name + Actions
+                        Row(
+                          children: [
+                            // Icon
+                            Container(
+                              width: 48,
+                              height: 48,
+                              decoration: BoxDecoration(
+                                color: walletColor.withValues(alpha: 0.2),
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                              child: Icon(
+                                WalletIcons.getIcon(wallet.iconName),
+                                color: walletColor,
+                                size: 24,
+                              ),
                             ),
-                            child: Icon(
-                              WalletIcons.getIcon(wallet.iconName),
-                              color: walletColor,
-                              size: 24,
-                            ),
-                          ),
-                          const SizedBox(width: 14),
+                            const SizedBox(width: 14),
 
-                          // Name and currency
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Flexible(
-                                      child: Text(
-                                        wallet.name,
-                                        style: const TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold,
-                                          color: AppColors.textPrimary,
+                            // Name and currency
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Flexible(
+                                        child: Text(
+                                          wallet.name,
+                                          style: const TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                            color: AppColors.textPrimary,
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
                                         ),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
                                       ),
-                                    ),
-                                    if (wallet.isDefault == true) ...[
-                                      const SizedBox(width: 8),
+                                      if (wallet.isDefault == true) ...[
+                                        const SizedBox(width: 8),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                            vertical: 3,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: AppColors.warning.withValues(
+                                              alpha: 0.2,
+                                            ),
+                                            borderRadius: BorderRadius.circular(
+                                              6,
+                                            ),
+                                          ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Icon(
+                                                Icons.star_rounded,
+                                                size: 12,
+                                                color: AppColors.warning,
+                                              ),
+                                              const SizedBox(width: 4),
+                                              Text(
+                                                'Default',
+                                                style: TextStyle(
+                                                  fontSize: 10,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: AppColors.warning,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ],
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Row(
+                                    children: [
                                       Container(
                                         padding: const EdgeInsets.symmetric(
                                           horizontal: 8,
                                           vertical: 3,
                                         ),
                                         decoration: BoxDecoration(
-                                          color: AppColors.warning.withValues(
-                                            alpha: 0.2,
+                                          color: walletColor.withValues(
+                                            alpha: 0.15,
                                           ),
                                           borderRadius: BorderRadius.circular(
                                             6,
                                           ),
                                         ),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Icon(
-                                              Icons.star_rounded,
-                                              size: 12,
-                                              color: AppColors.warning,
-                                            ),
-                                            const SizedBox(width: 4),
-                                            Text(
-                                              'Default',
-                                              style: TextStyle(
-                                                fontSize: 10,
-                                                fontWeight: FontWeight.w600,
-                                                color: AppColors.warning,
-                                              ),
-                                            ),
-                                          ],
+                                        child: Text(
+                                          wallet.currency,
+                                          style: TextStyle(
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.w600,
+                                            color: walletColor,
+                                            letterSpacing: 0.5,
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 6),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 3,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.glassWhite,
+                                          borderRadius: BorderRadius.circular(
+                                            6,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          _walletTypeLabel(wallet.walletType),
+                                          style: TextStyle(
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.w500,
+                                            color: AppColors.textMuted,
+                                          ),
                                         ),
                                       ),
                                     ],
-                                  ],
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                            // Drag handle — reorder accounts
+                            ReorderableDragStartListener(
+                              index: widget.index,
+                              child: Container(
+                                padding: const EdgeInsets.all(6),
+                                margin: const EdgeInsets.only(right: 2),
+                                child: Icon(
+                                  Icons.drag_handle_rounded,
+                                  color: AppColors.textMuted,
+                                  size: 20,
                                 ),
-                                const SizedBox(height: 4),
-                                Row(
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 8,
-                                        vertical: 3,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: walletColor.withValues(
-                                          alpha: 0.15,
-                                        ),
-                                        borderRadius: BorderRadius.circular(6),
-                                      ),
-                                      child: Text(
-                                        wallet.currency,
-                                        style: TextStyle(
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.w600,
-                                          color: walletColor,
-                                          letterSpacing: 0.5,
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 6),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 8,
-                                        vertical: 3,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: AppColors.glassWhite,
-                                        borderRadius: BorderRadius.circular(6),
-                                      ),
-                                      child: Text(
-                                        _walletTypeLabel(wallet.walletType),
-                                        style: TextStyle(
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.w500,
-                                          color: AppColors.textMuted,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
+                              ),
+                            ),
+
+                            // Options button
+                            IconButton(
+                              onPressed: () => _showOptionsMenu(context),
+                              icon: Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: AppColors.glassWhite,
+                                  borderRadius: BorderRadius.circular(10),
                                 ),
-                              ],
+                                child: Icon(
+                                  Icons.more_vert,
+                                  color: AppColors.textSecondary,
+                                  size: 18,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 20),
+
+                        // Credit card specific layout
+                        if (isCreditCard && creditLimit > 0) ...[
+                          // Outstanding
+                          Text(
+                            'Outstanding',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: AppColors.textMuted,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
-
-                          // Drag handle — reorder accounts
-                          ReorderableDragStartListener(
-                            index: widget.index,
-                            child: Container(
-                              padding: const EdgeInsets.all(6),
-                              margin: const EdgeInsets.only(right: 2),
-                              child: Icon(
-                                Icons.drag_handle_rounded,
-                                color: AppColors.textMuted,
-                                size: 20,
+                          const SizedBox(height: 4),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(
+                                CurrencyInfo.getSymbol(wallet.currency),
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w300,
+                                  color: AppColors.textPrimary,
+                                ),
                               ),
+                              const SizedBox(width: 4),
+                              Text(
+                                AppNumberFormatter.get(
+                                  ref.watch(numberFormatSettingProvider),
+                                  useDecimals: wallet.useDecimals,
+                                ).format(
+                                  wallet.useDecimals
+                                      ? outstanding
+                                      : outstanding.round(),
+                                ),
+                                style: TextStyle(
+                                  fontSize: 28,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.textPrimary,
+                                  letterSpacing: -0.5,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          // Usage progress bar
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(4),
+                            child: LinearProgressIndicator(
+                              value: usageRatio,
+                              backgroundColor: walletColor.withValues(
+                                alpha: 0.15,
+                              ),
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                usageRatio > 0.8
+                                    ? AppColors.error
+                                    : walletColor,
+                              ),
+                              minHeight: 6,
                             ),
                           ),
-
-                          // Options button
-                          IconButton(
-                            onPressed: () => _showOptionsMenu(context),
-                            icon: Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: AppColors.glassWhite,
-                                borderRadius: BorderRadius.circular(10),
+                          const SizedBox(height: 8),
+                          // Available credit + limit
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Available',
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      color: AppColors.textMuted,
+                                    ),
+                                  ),
+                                  Text(
+                                    '${CurrencyInfo.getSymbol(wallet.currency)}${AppNumberFormatter.get(ref.watch(numberFormatSettingProvider), useDecimals: wallet.useDecimals).format(wallet.useDecimals ? available : available.round())}',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                      color: available >= 0
+                                          ? AppColors.success
+                                          : AppColors.error,
+                                    ),
+                                  ),
+                                ],
                               ),
-                              child: Icon(
-                                Icons.more_vert,
-                                color: AppColors.textSecondary,
-                                size: 18,
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Text(
+                                    'Limit',
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      color: AppColors.textMuted,
+                                    ),
+                                  ),
+                                  Text(
+                                    '${CurrencyInfo.getSymbol(wallet.currency)}${AppNumberFormatter.get(ref.watch(numberFormatSettingProvider), useDecimals: wallet.useDecimals).format(wallet.useDecimals ? creditLimit : creditLimit.round())}',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                      color: AppColors.textSecondary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                          // Positive balance = overpayment / credit balance
+                          if (balance > 0)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 8),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 3,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppColors.success.withValues(
+                                    alpha: 0.15,
+                                  ),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Text(
+                                  'CREDIT BALANCE',
+                                  style: TextStyle(
+                                    fontSize: 9,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.success,
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
                               ),
                             ),
+                        ] else ...[
+                          // Standard balance display for non-credit-card wallets
+                          Text(
+                            'Balance',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: AppColors.textMuted,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(
+                                CurrencyInfo.getSymbol(wallet.currency),
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w300,
+                                  color: balance >= 0
+                                      ? AppColors.textPrimary
+                                      : AppColors.error,
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                AppNumberFormatter.get(
+                                  ref.watch(numberFormatSettingProvider),
+                                  useDecimals: wallet.useDecimals,
+                                ).format(
+                                  wallet.useDecimals
+                                      ? balance.abs()
+                                      : balance.abs().round(),
+                                ),
+                                style: TextStyle(
+                                  fontSize: 28,
+                                  fontWeight: FontWeight.bold,
+                                  color: balance >= 0
+                                      ? AppColors.textPrimary
+                                      : AppColors.error,
+                                  letterSpacing: -0.5,
+                                ),
+                              ),
+                              if (balance < 0)
+                                Padding(
+                                  padding: const EdgeInsets.only(
+                                    left: 8,
+                                    bottom: 4,
+                                  ),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 6,
+                                      vertical: 2,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.error.withValues(
+                                        alpha: 0.15,
+                                      ),
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    child: Text(
+                                      'OVERDRAWN',
+                                      style: TextStyle(
+                                        fontSize: 9,
+                                        fontWeight: FontWeight.bold,
+                                        color: AppColors.error,
+                                        letterSpacing: 0.5,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                            ],
                           ),
                         ],
-                      ),
-
-                      const SizedBox(height: 20),
-
-                      // Credit card specific layout
-                      if (isCreditCard && creditLimit > 0) ...[
-                        // Outstanding
-                        Text(
-                          'Outstanding',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: AppColors.textMuted,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Text(
-                              CurrencyInfo.getSymbol(wallet.currency),
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w300,
-                                color: AppColors.textPrimary,
-                              ),
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              AppNumberFormatter.get(
-                                ref.watch(numberFormatSettingProvider),
-                                useDecimals: wallet.useDecimals,
-                              ).format(
-                                wallet.useDecimals
-                                    ? outstanding
-                                    : outstanding.round(),
-                              ),
-                              style: TextStyle(
-                                fontSize: 28,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.textPrimary,
-                                letterSpacing: -0.5,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        // Usage progress bar
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(4),
-                          child: LinearProgressIndicator(
-                            value: usageRatio,
-                            backgroundColor: walletColor.withValues(
-                              alpha: 0.15,
-                            ),
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              usageRatio > 0.8 ? AppColors.error : walletColor,
-                            ),
-                            minHeight: 6,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        // Available credit + limit
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Available',
-                                  style: TextStyle(
-                                    fontSize: 10,
-                                    color: AppColors.textMuted,
-                                  ),
-                                ),
-                                Text(
-                                  '${CurrencyInfo.getSymbol(wallet.currency)}${AppNumberFormatter.get(ref.watch(numberFormatSettingProvider), useDecimals: wallet.useDecimals).format(wallet.useDecimals ? available : available.round())}',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                    color: available >= 0
-                                        ? AppColors.success
-                                        : AppColors.error,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Text(
-                                  'Limit',
-                                  style: TextStyle(
-                                    fontSize: 10,
-                                    color: AppColors.textMuted,
-                                  ),
-                                ),
-                                Text(
-                                  '${CurrencyInfo.getSymbol(wallet.currency)}${AppNumberFormatter.get(ref.watch(numberFormatSettingProvider), useDecimals: wallet.useDecimals).format(wallet.useDecimals ? creditLimit : creditLimit.round())}',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                    color: AppColors.textSecondary,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                        // Positive balance = overpayment / credit balance
-                        if (balance > 0)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 8),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 3,
-                              ),
-                              decoration: BoxDecoration(
-                                color: AppColors.success.withValues(
-                                  alpha: 0.15,
-                                ),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: Text(
-                                'CREDIT BALANCE',
-                                style: TextStyle(
-                                  fontSize: 9,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColors.success,
-                                  letterSpacing: 0.5,
-                                ),
-                              ),
-                            ),
-                          ),
-                      ] else ...[
-                        // Standard balance display for non-credit-card wallets
-                        Text(
-                          'Balance',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: AppColors.textMuted,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Text(
-                              CurrencyInfo.getSymbol(wallet.currency),
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w300,
-                                color: balance >= 0
-                                    ? AppColors.textPrimary
-                                    : AppColors.error,
-                              ),
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              AppNumberFormatter.get(
-                                ref.watch(numberFormatSettingProvider),
-                                useDecimals: wallet.useDecimals,
-                              ).format(
-                                wallet.useDecimals
-                                    ? balance.abs()
-                                    : balance.abs().round(),
-                              ),
-                              style: TextStyle(
-                                fontSize: 28,
-                                fontWeight: FontWeight.bold,
-                                color: balance >= 0
-                                    ? AppColors.textPrimary
-                                    : AppColors.error,
-                                letterSpacing: -0.5,
-                              ),
-                            ),
-                            if (balance < 0)
-                              Padding(
-                                padding: const EdgeInsets.only(
-                                  left: 8,
-                                  bottom: 4,
-                                ),
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 6,
-                                    vertical: 2,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.error.withValues(
-                                      alpha: 0.15,
-                                    ),
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                  child: Text(
-                                    'OVERDRAWN',
-                                    style: TextStyle(
-                                      fontSize: 9,
-                                      fontWeight: FontWeight.bold,
-                                      color: AppColors.error,
-                                      letterSpacing: 0.5,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
                       ],
-                    ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
