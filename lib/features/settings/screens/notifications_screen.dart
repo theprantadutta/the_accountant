@@ -465,104 +465,110 @@ class _NotificationDebugSectionState extends State<_NotificationDebugSection> {
             color: AppColors.primarySurface.withValues(alpha: 0.5),
             borderRadius: AppSpacing.borderRadiusLg,
           ),
-          child: Column(
-            children: [
-              // Permission Status
-              ListTile(
-                leading: Icon(
-                  _hasExactAlarmPermission
-                      ? Icons.check_circle
-                      : Icons.error_outline,
-                  color: _hasExactAlarmPermission
-                      ? AppColors.success
-                      : AppColors.error,
-                ),
-                title: const Text(
-                  'Exact Alarm Permission',
-                  style: TextStyle(color: AppColors.textPrimary),
-                ),
-                subtitle: Text(
-                  _isLoading
-                      ? 'Checking...'
-                      : _hasExactAlarmPermission
-                      ? 'Granted'
-                      : 'Not granted - notifications may not work',
-                  style: TextStyle(
+          // Transparent Material so the tiles' ink is visible over the colour.
+          child: Material(
+            type: MaterialType.transparency,
+            borderRadius: AppSpacing.borderRadiusLg,
+            clipBehavior: Clip.antiAlias,
+            child: Column(
+              children: [
+                // Permission Status
+                ListTile(
+                  leading: Icon(
+                    _hasExactAlarmPermission
+                        ? Icons.check_circle
+                        : Icons.error_outline,
                     color: _hasExactAlarmPermission
-                        ? AppColors.textSecondary
+                        ? AppColors.success
                         : AppColors.error,
                   ),
-                ),
-              ),
-              const Divider(height: 1, indent: 16, endIndent: 16),
-              // Device Timezone
-              ListTile(
-                leading: const Icon(Icons.public, color: AppColors.info),
-                title: const Text(
-                  'Device Timezone',
-                  style: TextStyle(color: AppColors.textPrimary),
-                ),
-                subtitle: Text(
-                  _isLoading ? 'Checking...' : _deviceTimezone,
-                  style: const TextStyle(color: AppColors.textSecondary),
-                ),
-              ),
-              const Divider(height: 1, indent: 16, endIndent: 16),
-              // Pending Notifications
-              ListTile(
-                leading: Icon(
-                  _hasPendingReminder ? Icons.alarm_on : Icons.alarm_off,
-                  color: _hasPendingReminder
-                      ? AppColors.success
-                      : AppColors.warning,
-                ),
-                title: const Text(
-                  'Scheduled Notifications',
-                  style: TextStyle(color: AppColors.textPrimary),
-                ),
-                subtitle: Text(
-                  _isLoading
-                      ? 'Checking...'
-                      : '$_pendingCount pending (daily: ${_hasPendingReminder ? "Yes" : "No"}, tz: $_scheduledTimezone)',
-                  style: const TextStyle(color: AppColors.textSecondary),
-                ),
-                trailing: IconButton(
-                  icon: const Icon(
-                    Icons.refresh,
-                    color: AppColors.textSecondary,
+                  title: const Text(
+                    'Exact Alarm Permission',
+                    style: TextStyle(color: AppColors.textPrimary),
                   ),
-                  onPressed: _checkStatus,
-                ),
-              ),
-              const Divider(height: 1, indent: 16, endIndent: 16),
-              // Test Notification Button
-              ListTile(
-                leading: const Icon(
-                  Icons.notifications_active,
-                  color: AppColors.info,
-                ),
-                title: const Text(
-                  'Send Test Notification',
-                  style: TextStyle(color: AppColors.textPrimary),
-                ),
-                subtitle: const Text(
-                  'Tap to verify notifications work',
-                  style: TextStyle(color: AppColors.textSecondary),
-                ),
-                trailing: ElevatedButton(
-                  onPressed: _sendTestNotification,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.info,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
+                  subtitle: Text(
+                    _isLoading
+                        ? 'Checking...'
+                        : _hasExactAlarmPermission
+                        ? 'Granted'
+                        : 'Not granted - notifications may not work',
+                    style: TextStyle(
+                      color: _hasExactAlarmPermission
+                          ? AppColors.textSecondary
+                          : AppColors.error,
                     ),
                   ),
-                  child: const Text('Test'),
                 ),
-              ),
-            ],
+                const Divider(height: 1, indent: 16, endIndent: 16),
+                // Device Timezone
+                ListTile(
+                  leading: const Icon(Icons.public, color: AppColors.info),
+                  title: const Text(
+                    'Device Timezone',
+                    style: TextStyle(color: AppColors.textPrimary),
+                  ),
+                  subtitle: Text(
+                    _isLoading ? 'Checking...' : _deviceTimezone,
+                    style: const TextStyle(color: AppColors.textSecondary),
+                  ),
+                ),
+                const Divider(height: 1, indent: 16, endIndent: 16),
+                // Pending Notifications
+                ListTile(
+                  leading: Icon(
+                    _hasPendingReminder ? Icons.alarm_on : Icons.alarm_off,
+                    color: _hasPendingReminder
+                        ? AppColors.success
+                        : AppColors.warning,
+                  ),
+                  title: const Text(
+                    'Scheduled Notifications',
+                    style: TextStyle(color: AppColors.textPrimary),
+                  ),
+                  subtitle: Text(
+                    _isLoading
+                        ? 'Checking...'
+                        : '$_pendingCount pending (daily: ${_hasPendingReminder ? "Yes" : "No"}, tz: $_scheduledTimezone)',
+                    style: const TextStyle(color: AppColors.textSecondary),
+                  ),
+                  trailing: IconButton(
+                    icon: const Icon(
+                      Icons.refresh,
+                      color: AppColors.textSecondary,
+                    ),
+                    onPressed: _checkStatus,
+                  ),
+                ),
+                const Divider(height: 1, indent: 16, endIndent: 16),
+                // Test Notification Button
+                ListTile(
+                  leading: const Icon(
+                    Icons.notifications_active,
+                    color: AppColors.info,
+                  ),
+                  title: const Text(
+                    'Send Test Notification',
+                    style: TextStyle(color: AppColors.textPrimary),
+                  ),
+                  subtitle: const Text(
+                    'Tap to verify notifications work',
+                    style: TextStyle(color: AppColors.textSecondary),
+                  ),
+                  trailing: ElevatedButton(
+                    onPressed: _sendTestNotification,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.info,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                    ),
+                    child: const Text('Test'),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ],

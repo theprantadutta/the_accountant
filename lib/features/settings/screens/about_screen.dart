@@ -164,7 +164,13 @@ class AboutScreen extends StatelessWidget {
         borderRadius: AppSpacing.borderRadiusLg,
         border: Border.all(color: AppColors.glassBorder),
       ),
-      child: Column(children: children),
+      // Transparent Material so any tile ink is visible over the coloured card.
+      child: Material(
+        type: MaterialType.transparency,
+        borderRadius: AppSpacing.borderRadiusLg,
+        clipBehavior: Clip.antiAlias,
+        child: Column(children: children),
+      ),
     );
   }
 

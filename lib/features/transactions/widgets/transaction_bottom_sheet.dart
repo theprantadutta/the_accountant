@@ -730,25 +730,29 @@ class _TransactionBottomSheetState
         if (_specialType != TransactionSpecialType.none &&
             _specialType != TransactionSpecialType.repetitive) ...[
           const SizedBox(height: 12),
-          SwitchListTile(
-            value: _isPaid,
-            onChanged: (value) => setState(() => _isPaid = value),
-            title: Text(
-              'Mark as Paid',
-              style: TextStyle(
-                fontSize: 14,
-                color: theme.colorScheme.onSurface,
+          // Transparent Material so the switch's ink is visible over the sheet.
+          Material(
+            type: MaterialType.transparency,
+            child: SwitchListTile(
+              value: _isPaid,
+              onChanged: (value) => setState(() => _isPaid = value),
+              title: Text(
+                'Mark as Paid',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: theme.colorScheme.onSurface,
+                ),
               ),
-            ),
-            subtitle: Text(
-              _isPaid ? 'Transaction is completed' : 'Transaction is pending',
-              style: TextStyle(
-                fontSize: 12,
-                color: theme.colorScheme.onSurfaceVariant,
+              subtitle: Text(
+                _isPaid ? 'Transaction is completed' : 'Transaction is pending',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
               ),
+              contentPadding: EdgeInsets.zero,
+              dense: true,
             ),
-            contentPadding: EdgeInsets.zero,
-            dense: true,
           ),
         ],
       ],

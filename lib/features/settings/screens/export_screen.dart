@@ -188,7 +188,13 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
         borderRadius: AppSpacing.borderRadiusLg,
         border: Border.all(color: AppColors.glassBorder),
       ),
-      child: Column(children: children),
+      // Transparent Material so the tiles' ink is visible over the coloured card.
+      child: Material(
+        type: MaterialType.transparency,
+        borderRadius: AppSpacing.borderRadiusLg,
+        clipBehavior: Clip.antiAlias,
+        child: Column(children: children),
+      ),
     );
   }
 
