@@ -528,6 +528,7 @@ class SyncService {
       walletType: Value(_parseWalletType(data['WalletType'])),
       creditLimit: Value((data['CreditLimit'] as num?)?.toInt()),
       billingCycleDay: Value(data['BillingCycleDay'] as int?),
+      orderIndex: Value((data['OrderIndex'] as num?)?.toInt() ?? 0),
       syncStatus: const Value(SyncStatus.synced),
       updatedAt: Value(DateTime.now()),
     );
@@ -949,6 +950,7 @@ class SyncService {
     'WalletType': w.walletType.index,
     'CreditLimit': w.creditLimit,
     'BillingCycleDay': w.billingCycleDay,
+    'OrderIndex': w.orderIndex,
     'UpdatedAt': w.updatedAt.toUtc().toIso8601String(),
   };
 
