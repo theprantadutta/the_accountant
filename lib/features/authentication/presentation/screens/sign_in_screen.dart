@@ -153,7 +153,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
                         ),
                       ),
 
-                      AppSpacing.gapXxxl,
+                      AppSpacing.gapXl,
 
                       _entrance(
                         start: 0.3,
@@ -161,11 +161,11 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
                         child: _buildLoginForm(authState),
                       ),
 
-                      AppSpacing.gapXxl,
+                      AppSpacing.gapLg,
 
                       _entrance(start: 0.5, end: 0.8, child: _buildDivider()),
 
-                      AppSpacing.gapXl,
+                      AppSpacing.gapMd,
 
                       _entrance(
                         start: 0.6,
@@ -174,7 +174,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
                       ),
 
                       if (_showAppleSignIn) ...[
-                        AppSpacing.gapLg,
+                        AppSpacing.gapMd,
                         _entrance(
                           start: 0.6,
                           end: 0.9,
@@ -182,7 +182,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
                         ),
                       ],
 
-                      AppSpacing.gapXxl,
+                      AppSpacing.gapLg,
 
                       _entrance(
                         start: 0.7,
@@ -190,7 +190,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
                         child: _buildSignUpLink(),
                       ),
 
-                      AppSpacing.gapLg,
+                      AppSpacing.gapMd,
 
                       if (authState.error != null)
                         _buildErrorMessage(authState.error!),
@@ -207,7 +207,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
 
   Widget _buildLoginForm(AuthState authState) {
     return GlassCard(
-      padding: AppSpacing.paddingXl,
+      padding: AppSpacing.paddingLg,
       enableBlur: true,
       blurAmount: 14,
       child: Column(
@@ -232,7 +232,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
             },
           ),
 
-          AppSpacing.gapLg,
+          AppSpacing.gapMd,
 
           // Password Field
           NeoTextField(
@@ -326,7 +326,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
       onTap: authState.isLoading ? null : _signInWithGoogle,
       padding: EdgeInsets.symmetric(
         horizontal: AppSpacing.lg,
-        vertical: AppSpacing.lg,
+        vertical: AppSpacing.md,
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -351,7 +351,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
       onTap: authState.isLoading ? null : _signInWithApple,
       padding: EdgeInsets.symmetric(
         horizontal: AppSpacing.lg,
-        vertical: AppSpacing.lg,
+        vertical: AppSpacing.md,
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,

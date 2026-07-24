@@ -249,7 +249,10 @@ class _NeoTextFieldState extends State<NeoTextField>
                         onPressed: _toggleObscureText,
                       )
                     : widget.suffixIcon,
-                contentPadding: AppSpacing.paddingInput,
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.lg,
+                  vertical: AppSpacing.md,
+                ),
                 border: InputBorder.none,
                 enabledBorder: InputBorder.none,
                 focusedBorder: InputBorder.none,
