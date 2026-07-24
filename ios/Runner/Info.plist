@@ -43,6 +43,25 @@
 	</array>
 	<key>NSFaceIDUsageDescription</key>
 	<string>We use Face ID to secure your financial data</string>
+	<key>NSCameraUsageDescription</key>
+	<string>The Accountant uses the camera to scan receipts and capture your profile photo.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>The Accountant needs access to your photo library to attach receipts and set your profile photo.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>The Accountant saves exported reports and receipts to your photo library.</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.421951694801-1aroqgl061ihhgvatru7mhm6u7cfv5h0</string>
+			</array>
+		</dict>
+	</array>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
