@@ -5,6 +5,7 @@ import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:the_accountant/core/services/analytics_service.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
+import 'package:the_accountant/core/utils/responsive.dart';
 import 'package:the_accountant/data/models/premium_features.dart';
 import 'package:the_accountant/features/premium/providers/iap_provider.dart';
 import 'package:the_accountant/features/premium/providers/premium_provider.dart';
@@ -137,10 +138,15 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
         ),
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: EdgeInsets.all(AppSpacing.lg),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+        // Cap the width so the paywall reads as a centered column on tablet/iPad
+        // instead of stretching the tier cards edge-to-edge (this is a pushed
+        // route, so it isn't covered by the shell's own width handling).
+        child: AdaptiveWidth(
+          maxWidth: 520,
+          child: SingleChildScrollView(
+            padding: EdgeInsets.all(AppSpacing.lg),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // Header
               _buildHeader(premiumState),
@@ -234,6 +240,7 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
                 textAlign: TextAlign.center,
               ),
             ],
+          ),
           ),
         ),
       ),
