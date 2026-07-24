@@ -66,17 +66,19 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
     }
   }
 
+  /// Fires the OS permission dialog. Call this only after the user has opted in
+  /// via an in-app priming prompt — never on launch.
   Future<void> requestPermissions() async {
     state = state.copyWith(isLoading: true);
 
     try {
-      await _notificationService.initialize();
+      final granted = await _notificationService.requestPermission();
 
       // Get FCM token
       final token = await _notificationService.getToken();
 
       state = state.copyWith(
-        areNotificationsEnabled: true,
+        areNotificationsEnabled: granted,
         fcmToken: token,
         isLoading: false,
       );

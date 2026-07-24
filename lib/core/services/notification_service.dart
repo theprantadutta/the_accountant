@@ -35,24 +35,21 @@ class NotificationService {
   }
 
   Future<void> initialize() async {
-    // Request permission for notifications
-    final settings = await _firebaseMessaging.requestPermission(
-      alert: true,
-      badge: true,
-      sound: true,
-    );
+    // IMPORTANT: Do NOT request notification permission here. Requesting on
+    // launch fires the iOS system dialog with no context (an App Store
+    // anti-pattern). Permission is requested explicitly via [requestPermission]
+    // only after the user opts in through the in-app priming prompt.
 
-    _logger.i('FCM permission status: ${settings.authorizationStatus}');
-
-    // Initialize local notifications
+    // Initialize local notifications. requestXxxPermission are all false so
+    // plugin setup never triggers the system permission dialog either.
     const AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings('@mipmap/ic_launcher');
 
     const DarwinInitializationSettings initializationSettingsIOS =
         DarwinInitializationSettings(
-          requestAlertPermission: true,
-          requestBadgePermission: true,
-          requestSoundPermission: true,
+          requestAlertPermission: false,
+          requestBadgePermission: false,
+          requestSoundPermission: false,
         );
 
     final InitializationSettings initializationSettings =
@@ -88,6 +85,35 @@ class NotificationService {
 
     // Initialize daily reminder scheduler (timezone + restore scheduled reminders)
     await _dailyReminderScheduler.initialize();
+  }
+
+  /// Explicitly request notification permission — this is what fires the OS
+  /// system dialog. Call it ONLY after the user has opted in via the in-app
+  /// priming prompt. Returns true if notifications are authorized.
+  Future<bool> requestPermission() async {
+    final settings = await _firebaseMessaging.requestPermission(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+    _logger.i('FCM permission status: ${settings.authorizationStatus}');
+
+    final granted =
+        settings.authorizationStatus == AuthorizationStatus.authorized ||
+        settings.authorizationStatus == AuthorizationStatus.provisional;
+
+    // Now that we're authorized, make sure the FCM token is registered.
+    if (granted) {
+      await _registerFcmToken();
+    }
+    return granted;
+  }
+
+  /// Current notification authorization status. Does NOT prompt.
+  Future<bool> hasPermission() async {
+    final settings = await _firebaseMessaging.getNotificationSettings();
+    return settings.authorizationStatus == AuthorizationStatus.authorized ||
+        settings.authorizationStatus == AuthorizationStatus.provisional;
   }
 
   /// Register FCM token with the backend (called when user is authenticated).

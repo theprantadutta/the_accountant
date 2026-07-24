@@ -23,6 +23,9 @@ import 'package:the_accountant/features/wallets/screens/create_first_wallet_scre
 import 'package:the_accountant/features/notifications/providers/notification_history_provider.dart';
 import 'package:the_accountant/features/notifications/screens/notification_inbox_screen.dart';
 import 'package:the_accountant/core/providers/walkthrough_provider.dart';
+import 'package:the_accountant/core/providers/default_wallet_provider.dart';
+import 'package:the_accountant/core/services/notification_service.dart';
+import 'package:the_accountant/features/notifications/widgets/notification_permission_primer.dart';
 import 'package:the_accountant/features/walkthrough/walkthrough_service.dart';
 import 'package:the_accountant/core/providers/sync_provider.dart';
 import 'package:the_accountant/core/services/sync/sync_models.dart';
@@ -100,7 +103,36 @@ class _MainNavigationContainerState
           }
         });
       }
+
+      // Ask about notifications with an in-app priming prompt (never the bare
+      // iOS dialog on launch).
+      _maybeShowNotificationPrimer();
     });
+  }
+
+  /// Shows the notification priming prompt on the home screen — once, and only
+  /// after the first-run walkthrough is done so the two don't overlap. Tapping
+  /// "Enable" there is what triggers the real OS permission dialog.
+  Future<void> _maybeShowNotificationPrimer() async {
+    const primerShownKey = 'notification_primer_shown';
+    final prefs = ref.read(sharedPreferencesProvider);
+    if (prefs.getBool(primerShownKey) ?? false) return;
+
+    // Don't compete with the first-run walkthrough; the primer shows next visit.
+    if (!ref.read(walkthroughProvider).hasSeenWalkthrough) return;
+
+    // Already authorized (e.g. a returning user) → nothing to ask.
+    if (await NotificationService().hasPermission()) {
+      await prefs.setBool(primerShownKey, true);
+      return;
+    }
+
+    // Let the dashboard settle before prompting.
+    await Future.delayed(const Duration(milliseconds: 900));
+    if (!mounted) return;
+
+    await showNotificationPermissionPrimer(context);
+    await prefs.setBool(primerShownKey, true);
   }
 
   /// When the local database is empty, attempt a one-time "restore" sync so a
