@@ -43,6 +43,10 @@ post_install do |installer|
     target.build_configurations.each do |config|
       # Ensure every pod is built for at least iOS 15.5 (required by google_mlkit_* pods).
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.5'
+      # Google ML Kit's binary frameworks ship no arm64 simulator slice, so exclude
+      # arm64 for the simulator SDK (builds x86_64 under Rosetta). Device / release
+      # builds are unaffected. Required to run on the simulator on Apple Silicon.
+      config.build_settings['EXCLUDED_ARCHS[sdk=iphonesimulator*]'] = 'arm64'
     end
   end
 end
