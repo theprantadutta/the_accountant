@@ -14,6 +14,7 @@ import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/core/providers/currency_provider.dart';
 import 'package:the_accountant/core/services/currency_service.dart';
 import 'package:the_accountant/core/utils/number_formatter.dart';
+import 'package:the_accountant/core/utils/responsive.dart';
 import 'package:the_accountant/features/settings/providers/settings_provider.dart';
 import 'package:the_accountant/shared/widgets/glass_card.dart';
 import 'package:the_accountant/shared/widgets/stat_card.dart';
@@ -124,61 +125,98 @@ class _ResponsiveFinancialOverviewState
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
             padding: AppSpacing.paddingScreen,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                AppSpacing.gapLg,
-
-                // Greeting Section
-                _buildAnimatedSection(0.0, 0.3, _buildGreetingSection()),
-
-                AppSpacing.gapXxl,
-
-                // Wallet Cards Section (horizontal scrollable accounts)
-                _buildAnimatedSection(0.1, 0.4, const WalletCardsSection()),
-
-                AppSpacing.gapXl,
-
-                // Quick Stats Row
-                _buildAnimatedSection(
-                  0.2,
-                  0.5,
-                  _buildQuickStats(
+            child: isTablet(context)
+                ? _buildTabletBody(
                     financialData.monthlyIncome,
                     financialData.monthlyExpenses,
+                    financialData.recentTransactions,
+                  )
+                : _buildPhoneBody(
+                    financialData.monthlyIncome,
+                    financialData.monthlyExpenses,
+                    financialData.recentTransactions,
                   ),
-                ),
-
-                AppSpacing.gapXl,
-
-                // Quick Links
-                _buildAnimatedSection(0.3, 0.6, _buildQuickLinks()),
-
-                AppSpacing.gapXl,
-
-                // Spending Chart
-                _buildAnimatedSection(0.4, 0.7, _buildSpendingChart()),
-
-                AppSpacing.gapXl,
-
-                // Recent Transactions
-                _buildAnimatedSection(
-                  0.5,
-                  0.8,
-                  _buildRecentTransactions(financialData.recentTransactions),
-                ),
-
-                AppSpacing.gapXl,
-
-                // Budget Progress
-                _buildAnimatedSection(0.6, 0.9, _buildBudgetProgress()),
-
-                SizedBox(height: AppSpacing.lg), // Bottom padding
-              ],
-            ),
           ),
         ),
       ),
+    );
+  }
+
+  /// Phone: a single scrolling column of sections.
+  Widget _buildPhoneBody(
+    double income,
+    double expenses,
+    List<Transaction> recent,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        AppSpacing.gapLg,
+        _buildAnimatedSection(0.0, 0.3, _buildGreetingSection()),
+        AppSpacing.gapXxl,
+        _buildAnimatedSection(0.1, 0.4, const WalletCardsSection()),
+        AppSpacing.gapXl,
+        _buildAnimatedSection(0.2, 0.5, _buildQuickStats(income, expenses)),
+        AppSpacing.gapXl,
+        _buildAnimatedSection(0.3, 0.6, _buildQuickLinks()),
+        AppSpacing.gapXl,
+        _buildAnimatedSection(0.4, 0.7, _buildSpendingChart()),
+        AppSpacing.gapXl,
+        _buildAnimatedSection(0.5, 0.8, _buildRecentTransactions(recent)),
+        AppSpacing.gapXl,
+        _buildAnimatedSection(0.6, 0.9, _buildBudgetProgress()),
+        SizedBox(height: AppSpacing.lg),
+      ],
+    );
+  }
+
+  /// Tablet: header full-width, then a two-column area so the wide screen reads
+  /// as a purposeful dashboard rather than a stretched phone column.
+  Widget _buildTabletBody(
+    double income,
+    double expenses,
+    List<Transaction> recent,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        AppSpacing.gapLg,
+        _buildAnimatedSection(0.0, 0.3, _buildGreetingSection()),
+        AppSpacing.gapXl,
+        _buildAnimatedSection(0.1, 0.4, const WalletCardsSection()),
+        AppSpacing.gapXl,
+        _buildAnimatedSection(0.2, 0.5, _buildQuickStats(income, expenses)),
+        AppSpacing.gapXl,
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Column(
+                children: [
+                  _buildAnimatedSection(0.4, 0.7, _buildSpendingChart()),
+                  AppSpacing.gapXl,
+                  _buildAnimatedSection(
+                    0.5,
+                    0.8,
+                    _buildRecentTransactions(recent),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(width: AppSpacing.lg),
+            Expanded(
+              child: Column(
+                children: [
+                  _buildAnimatedSection(0.3, 0.6, _buildQuickLinks()),
+                  AppSpacing.gapXl,
+                  _buildAnimatedSection(0.6, 0.9, _buildBudgetProgress()),
+                ],
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: AppSpacing.lg),
+      ],
     );
   }
 

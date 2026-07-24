@@ -25,6 +25,7 @@ import 'package:the_accountant/features/notifications/screens/notification_inbox
 import 'package:the_accountant/core/providers/walkthrough_provider.dart';
 import 'package:the_accountant/core/providers/default_wallet_provider.dart';
 import 'package:the_accountant/core/services/notification_service.dart';
+import 'package:the_accountant/core/utils/responsive.dart';
 import 'package:the_accountant/features/notifications/widgets/notification_permission_primer.dart';
 import 'package:the_accountant/features/walkthrough/walkthrough_service.dart';
 import 'package:the_accountant/core/providers/sync_provider.dart';
@@ -525,56 +526,115 @@ class _MainNavigationContainerState
       );
     }
 
-    return Container(
-      decoration: const BoxDecoration(),
-      child: Scaffold(
+    final body = Stack(
+      children: [
+        IndexedStack(
+          index: _currentIndex,
+          children: _screens.asMap().entries.map((entry) {
+            if (entry.key == 0) {
+              return KeyedSubtree(key: _balanceKey, child: entry.value);
+            }
+            return entry.value;
+          }).toList(),
+        ),
+        // Non-blocking background-sync indicator, floating at the top.
+        Positioned(
+          top: AppSpacing.sm,
+          left: 0,
+          right: 0,
+          child: const Align(
+            alignment: Alignment.topCenter,
+            child: SyncStatusBanner(),
+          ),
+        ),
+      ],
+    );
+
+    final fab = _isFabVisible
+        ? NeoFAB(
+            key: _fabKey,
+            icon: Icons.add,
+            onPressed: _showAddTransactionModal,
+          )
+        : null;
+
+    // Tablet / large screens: a side navigation rail instead of a bottom bar,
+    // with the content held to a readable max width in the remaining space.
+    if (isTablet(context)) {
+      return Scaffold(
         backgroundColor: Colors.transparent,
         appBar: _buildCustomAppBar(),
-        extendBody: false,
-        body: Stack(
-          children: [
-            IndexedStack(
-              index: _currentIndex,
-              children: _screens.asMap().entries.map((entry) {
-                if (entry.key == 0) {
-                  return KeyedSubtree(key: _balanceKey, child: entry.value);
-                }
-                return entry.value;
-              }).toList(),
-            ),
-            // Non-blocking background-sync indicator, floating at the top.
-            Positioned(
-              top: AppSpacing.sm,
-              left: 0,
-              right: 0,
-              child: const Align(
-                alignment: Alignment.topCenter,
-                child: SyncStatusBanner(),
+        body: SafeArea(
+          child: Row(
+            children: [
+              _buildNavRail(),
+              VerticalDivider(width: 1, color: AppColors.glassBorder),
+              Expanded(
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 1000),
+                    child: body,
+                  ),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-        floatingActionButton: _isFabVisible
-            ? NeoFAB(
-                key: _fabKey,
-                icon: Icons.add,
-                onPressed: _showAddTransactionModal,
-              )
-            : null,
+        floatingActionButton: fab,
         floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-        bottomNavigationBar: CustomBottomNavBar(
-          currentIndex: _currentIndex,
-          onTap: _onNavigationTapped,
-          items: NavItems.defaultItems,
-          itemKeys: [
-            _navHomeKey,
-            _navActivityKey,
-            _navAIKey,
-            null, // Reports
-            null, // Settings
-          ],
-        ),
+      );
+    }
+
+    // Phone: bottom navigation bar.
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      appBar: _buildCustomAppBar(),
+      extendBody: false,
+      body: body,
+      floatingActionButton: fab,
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      bottomNavigationBar: CustomBottomNavBar(
+        currentIndex: _currentIndex,
+        onTap: _onNavigationTapped,
+        items: NavItems.defaultItems,
+        itemKeys: [
+          _navHomeKey,
+          _navActivityKey,
+          _navAIKey,
+          null, // Reports
+          null, // Settings
+        ],
       ),
+    );
+  }
+
+  /// Left navigation rail used on tablet / large screens in place of the
+  /// bottom bar.
+  Widget _buildNavRail() {
+    return NavigationRail(
+      backgroundColor: Colors.transparent,
+      selectedIndex: _currentIndex,
+      onDestinationSelected: _onNavigationTapped,
+      labelType: NavigationRailLabelType.all,
+      groupAlignment: -0.75,
+      indicatorColor: AppColors.primaryAccent.withValues(alpha: 0.18),
+      selectedIconTheme: IconThemeData(color: AppColors.primaryAccent),
+      unselectedIconTheme: IconThemeData(color: AppColors.textMuted),
+      selectedLabelTextStyle: AppTypography.labelSmall.copyWith(
+        color: AppColors.primaryAccent,
+        fontWeight: FontWeight.w600,
+      ),
+      unselectedLabelTextStyle: AppTypography.labelSmall.copyWith(
+        color: AppColors.textMuted,
+      ),
+      destinations: [
+        for (final item in NavItems.defaultItems)
+          NavigationRailDestination(
+            icon: Icon(item.icon),
+            selectedIcon: Icon(item.activeIcon),
+            label: Text(item.label),
+          ),
+      ],
     );
   }
 
