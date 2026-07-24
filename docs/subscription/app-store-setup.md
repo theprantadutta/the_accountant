@@ -5,7 +5,7 @@ Step-by-step setup for The Accountant's in-app products in App Store Connect.
 ## Prerequisites
 
 - [ ] Apple Developer Program membership ($99/year)
-- [ ] App Store Connect app record created with bundle ID **`com.pranta.theAccountant`**
+- [ ] App Store Connect app record created with bundle ID **`com.pranta.theaccountant`**
   (note the camelCase — this differs from the Android package name by design)
 - [ ] Paid apps agreement signed under **Agreements, Tax, and Banking** → **Paid Apps**
 - [ ] Banking information + tax forms completed
@@ -117,7 +117,7 @@ Set these values in `appsettings.json` (or better, environment variables):
     "KeyId": "<Key ID>",
     "IssuerId": "<Issuer ID>",
     "PrivateKey": "<contents of the .p8 file, including BEGIN/END lines>",
-    "BundleId": "com.pranta.theAccountant",
+    "BundleId": "com.pranta.theaccountant",
     "Environment": "Production"
   }
 }

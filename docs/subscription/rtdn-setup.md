@@ -147,7 +147,7 @@ chain) and to **query** transaction status we need the API key from `app-store-s
     "KeyId": "<from App Store Connect Keys tab>",
     "IssuerId": "<from the Issuer ID at top of Keys tab>",
     "PrivateKey": "<contents of the .p8 file>",
-    "BundleId": "com.pranta.theAccountant",
+    "BundleId": "com.pranta.theaccountant",
     "Environment": "Production",
     "SharedSecret": "<for v1 /verifyReceipt, from app's App Information>"
   }

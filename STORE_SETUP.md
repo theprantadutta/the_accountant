@@ -18,7 +18,7 @@ Product IDs are unified across both platforms (Google Play limits product IDs to
 
 ### Package/Bundle IDs
 - **Android Package Name:** `com.pranta.theaccountant`
-- **iOS Bundle ID:** `com.pranta.theAccountant`
+- **iOS Bundle ID:** `com.pranta.theaccountant`
 
 ### Premium Features (Unlocked at any tier)
 - Cloud Sync
@@ -260,7 +260,7 @@ GOOGLE_PLAY_PUBSUB_VERIFICATION_TOKEN=<your-32-char-hex-token>
 APPLE_KEY_ID=<your-app-store-connect-key-id>
 APPLE_ISSUER_ID=<your-issuer-id>
 APPLE_PRIVATE_KEY=<contents-of-p8-file-as-single-line>
-APPLE_BUNDLE_ID=com.pranta.theAccountant
+APPLE_BUNDLE_ID=com.pranta.theaccountant
 APPLE_ENVIRONMENT=Production
 
 # Subscription
@@ -282,7 +282,7 @@ These can also be configured in `appsettings.json`:
     "KeyId": "<key-id>",
     "IssuerId": "<issuer-id>",
     "PrivateKey": "<p8-contents>",
-    "BundleId": "com.pranta.theAccountant",
+    "BundleId": "com.pranta.theaccountant",
     "Environment": "Production"
   },
   "Subscription": {

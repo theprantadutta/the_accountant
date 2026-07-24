@@ -5,7 +5,7 @@
 /// to 40 characters — keep new IDs within that budget.
 class TheAccountantProducts {
   static const String packageName = 'com.pranta.theaccountant';
-  static const String iosBundleId = 'com.pranta.theAccountant';
+  static const String iosBundleId = 'com.pranta.theaccountant';
 
   // Canonical product IDs (same on Play Store and App Store)
   static const String premiumMonthly = 'accountant_premium_monthly';
