@@ -12,6 +12,7 @@ class WalkthroughTooltip extends StatelessWidget {
   final int totalSteps;
   final bool isLastStep;
   final VoidCallback? onSkip;
+  final VoidCallback? onNext;
 
   const WalkthroughTooltip({
     super.key,
@@ -22,6 +23,7 @@ class WalkthroughTooltip extends StatelessWidget {
     required this.totalSteps,
     this.isLastStep = false,
     this.onSkip,
+    this.onNext,
   });
 
   @override
@@ -72,7 +74,7 @@ class WalkthroughTooltip extends StatelessWidget {
               ),
             ),
             AppSpacing.gapLg,
-            // Step dots + Skip
+            // Step dots + Skip/Next controls
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -94,17 +96,51 @@ class WalkthroughTooltip extends StatelessWidget {
                     );
                   }),
                 ),
-                // Skip text (not on last step)
-                if (!isLastStep)
-                  GestureDetector(
-                    onTap: onSkip,
-                    child: Text(
-                      'Skip',
-                      style: AppTypography.labelMedium.copyWith(
-                        color: AppColors.textMuted,
+                // Skip + Next
+                Row(
+                  children: [
+                    if (!isLastStep)
+                      GestureDetector(
+                        onTap: onSkip,
+                        behavior: HitTestBehavior.opaque,
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: AppSpacing.sm,
+                            vertical: AppSpacing.xs,
+                          ),
+                          child: Text(
+                            'Skip',
+                            style: AppTypography.labelMedium.copyWith(
+                              color: AppColors.textMuted,
+                            ),
+                          ),
+                        ),
+                      ),
+                    AppSpacing.gapHSm,
+                    // Next / Got it! button
+                    GestureDetector(
+                      onTap: onNext,
+                      behavior: HitTestBehavior.opaque,
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: AppSpacing.lg,
+                          vertical: AppSpacing.sm,
+                        ),
+                        decoration: BoxDecoration(
+                          gradient: AppColors.primaryGradient,
+                          borderRadius: AppSpacing.borderRadiusFull,
+                        ),
+                        child: Text(
+                          isLastStep ? 'Got it!' : 'Next',
+                          style: AppTypography.labelMedium.copyWith(
+                            color: AppColors.textPrimary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
+                  ],
+                ),
               ],
             ),
           ],

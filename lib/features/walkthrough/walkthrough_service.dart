@@ -83,6 +83,7 @@ class WalkthroughService {
                 totalSteps: steps.length,
                 isLastStep: isLast,
                 onSkip: () => tutorialCoachMark.skip(),
+                onNext: () => controller.next(),
               );
             },
           ),
