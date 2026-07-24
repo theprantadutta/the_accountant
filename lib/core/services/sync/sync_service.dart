@@ -73,6 +73,103 @@ class SyncService {
     }
   }
 
+  /// Hard-mirror restore: replace ALL local data with the cloud copy (Premium).
+  ///
+  /// Fetches the full server dataset FIRST (into memory); only once that
+  /// succeeds does it wipe local and apply the server data — so a mid-restore
+  /// network failure can never leave the app empty. This intentionally discards
+  /// any local-only changes that haven't been pushed to the cloud.
+  Future<SyncResult> restoreFromCloud() async {
+    if (_syncInProgress) {
+      return SyncResult.failure('Sync already in progress');
+    }
+    _syncInProgress = true;
+    try {
+      return await _runRestore();
+    } finally {
+      _syncInProgress = false;
+    }
+  }
+
+  Future<SyncResult> _runRestore() async {
+    // Premium gate — cloud sync/restore is a premium feature.
+    if (_ref != null) {
+      final premiumState = _ref.read(premiumProvider);
+      if (!premiumState.isPremium) {
+        _setState(SyncOperationState.error);
+        return SyncResult.failure('Cloud sync requires Premium subscription');
+      }
+    }
+
+    _setState(SyncOperationState.syncing);
+
+    if (!await isOnline()) {
+      _setState(SyncOperationState.offline);
+      return SyncResult.failure('No internet connection');
+    }
+    if (!await _apiService.hasToken()) {
+      _setState(SyncOperationState.error);
+      return SyncResult.failure('Not authenticated');
+    }
+
+    try {
+      // Force a FULL pull (server omits `since` and returns everything) by
+      // clearing the cursor.
+      _lastSyncAt = null;
+      _lastSyncLoaded = true;
+
+      // Fetch everything from the server FIRST, before touching local data.
+      final pull = await _pullAllChanges();
+      if (pull == null) {
+        _setState(SyncOperationState.error);
+        return SyncResult.failure(
+          'Could not fetch your cloud data. Local data is unchanged.',
+        );
+      }
+
+      // Server data is in hand — now it's safe to wipe local and replace it.
+      await _database.clearAllData();
+
+      var totalPulled = 0;
+      for (final entry in pull.changes.entries) {
+        for (final change in entry.value) {
+          try {
+            await _applyPulledChange(entry.key, change);
+            totalPulled++;
+          } catch (e, s) {
+            _logger.w(
+              'Skipping bad ${entry.key} record ${change.entityId}: $e',
+              error: e,
+              stackTrace: s,
+            );
+          }
+        }
+      }
+
+      // Recompute wallet balances from the freshly-restored transactions.
+      await WalletBalanceService(_database).recalculateAllWalletBalancesLocal();
+
+      // Advance the cursor so subsequent normal syncs are deltas again.
+      _lastSyncAt = pull.serverTime ?? DateTime.now();
+      await _saveLastSyncTimestamp(_lastSyncAt!);
+
+      _setState(SyncOperationState.success);
+      _logger.i('Restore from cloud complete: restored=$totalPulled records');
+      _lastResult = SyncResult.success(
+        pushedCount: 0,
+        pulledCount: totalPulled,
+        conflictCount: 0,
+        duration: Duration.zero,
+      );
+      return _lastResult!;
+    } catch (e, stack) {
+      _logger.e('Restore from cloud error: $e', error: e, stackTrace: stack);
+      _setState(SyncOperationState.error);
+      _lastResult = SyncResult.failure(e.toString());
+      return _lastResult!;
+    }
+  }
+
   Future<SyncResult> _runSync() async {
     // Check premium status - sync is a premium feature
     if (_ref != null) {

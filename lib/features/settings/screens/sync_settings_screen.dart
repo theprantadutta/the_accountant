@@ -7,6 +7,7 @@ import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/data/models/premium_features.dart';
 import 'package:the_accountant/features/premium/widgets/premium_gate.dart';
+import 'package:the_accountant/features/settings/widgets/confirmation_dialog.dart';
 
 /// Gated sync settings screen that requires premium subscription
 class SyncSettingsScreenGated extends ConsumerWidget {
@@ -56,7 +57,16 @@ class _SyncSettingsScreenState extends ConsumerState<SyncSettingsScreen> {
           // ACTIONS
           _buildSectionHeader('ACTIONS'),
           SizedBox(height: AppSpacing.sm),
-          _buildSettingsCard([_buildSyncNowTile(isSyncing)]),
+          _buildSettingsCard([
+            _buildSyncNowTile(isSyncing),
+            Divider(
+              height: 1,
+              color: AppColors.divider,
+              indent: AppSpacing.lg,
+              endIndent: AppSpacing.lg,
+            ),
+            _buildRestoreTile(isSyncing),
+          ]),
           SizedBox(height: AppSpacing.lg),
 
           // INFO
@@ -283,6 +293,66 @@ class _SyncSettingsScreenState extends ConsumerState<SyncSettingsScreen> {
                 ),
               );
             },
+    );
+  }
+
+  Widget _buildRestoreTile(bool isSyncing) {
+    return ListTile(
+      leading: Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          color: AppColors.warning.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Icon(
+          Icons.cloud_download_outlined,
+          color: AppColors.warning,
+          size: 22,
+        ),
+      ),
+      title: Text(
+        'Restore from Cloud',
+        style: TextStyle(
+          color: isSyncing ? AppColors.textMuted : AppColors.textPrimary,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+      subtitle: Text(
+        "Replace this device's data with your cloud data",
+        style: TextStyle(color: AppColors.textMuted, fontSize: 13),
+      ),
+      onTap: isSyncing ? null : _confirmAndRestore,
+    );
+  }
+
+  Future<void> _confirmAndRestore() async {
+    HapticFeedback.mediumImpact();
+    final confirmed = await showConfirmationDialog(
+      context: context,
+      title: 'Restore from Cloud?',
+      message:
+          'This erases ALL data on this device and replaces it with your cloud '
+          'data. Any changes on this device that have not synced yet will be '
+          'lost. This cannot be undone.',
+      confirmText: 'Erase & Restore',
+      isDangerous: true,
+    );
+    if (confirmed != true || !mounted) return;
+
+    final result = await ref
+        .read(syncNotifierProvider.notifier)
+        .restoreFromCloud();
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          result.success
+              ? 'Restored ${result.pulledCount} items from the cloud'
+              : 'Restore failed: ${result.error}',
+        ),
+        backgroundColor: result.success ? AppColors.success : AppColors.error,
+      ),
     );
   }
 

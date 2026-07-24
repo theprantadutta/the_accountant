@@ -80,6 +80,19 @@ class SyncNotifier extends Notifier<SyncOperationState> {
     return result;
   }
 
+  /// Hard-mirror restore: replace this device's data with the cloud copy.
+  Future<SyncResult> restoreFromCloud() async {
+    final syncService = ref.read(syncServiceProvider);
+    final result = await syncService.restoreFromCloud();
+
+    // Always refresh — local data was fully replaced.
+    if (result.success) {
+      _refreshDataProviders();
+    }
+
+    return result;
+  }
+
   /// Silently reload all data providers after sync changes the database.
   /// Uses silent mode so no loading indicators flash in the UI.
   void _refreshDataProviders() {
