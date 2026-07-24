@@ -288,7 +288,10 @@ class IAPService {
       );
     } catch (e) {
       _logger.e('Error checking subscription status: $e');
-      return SubscriptionStatus(isPremium: false);
+      // Unconfirmed: the request failed, so this is a fallback, not a real
+      // "you're free" answer. `confirmed: false` tells the sync bridge to keep
+      // whatever premium state is already cached instead of downgrading.
+      return SubscriptionStatus(isPremium: false, confirmed: false);
     }
   }
 
@@ -326,6 +329,11 @@ class SubscriptionStatus {
   final DateTime? gracePeriodEndsAt;
   final bool isInGracePeriod;
 
+  /// True when this status reflects a real answer from the backend. False when
+  /// the request failed and the values are just a safe fallback — callers must
+  /// NOT downgrade a cached-premium user off an unconfirmed result.
+  final bool confirmed;
+
   SubscriptionStatus({
     required this.isPremium,
     this.tier,
@@ -333,6 +341,7 @@ class SubscriptionStatus {
     this.daysRemaining,
     this.gracePeriodEndsAt,
     this.isInGracePeriod = false,
+    this.confirmed = true,
   });
 
   bool get isLifetime =>

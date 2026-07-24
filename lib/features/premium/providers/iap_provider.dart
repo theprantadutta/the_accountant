@@ -31,6 +31,11 @@ class IAPState {
   final DateTime? gracePeriodEndsAt;
   final bool isInGracePeriod;
 
+  /// True once `isPremium`/`currentTier` reflect a real backend answer (not the
+  /// default startup values and not a failed-request fallback). The sync bridge
+  /// only reconciles the persisted premium cache when this is true.
+  final bool backendConfirmed;
+
   const IAPState({
     this.isLoading = false,
     this.isPremium = false,
@@ -41,6 +46,7 @@ class IAPState {
     this.lastPurchaseStatus,
     this.gracePeriodEndsAt,
     this.isInGracePeriod = false,
+    this.backendConfirmed = false,
   });
 
   IAPState copyWith({
@@ -53,6 +59,7 @@ class IAPState {
     PurchaseStatus? lastPurchaseStatus,
     DateTime? gracePeriodEndsAt,
     bool? isInGracePeriod,
+    bool? backendConfirmed,
   }) {
     return IAPState(
       isLoading: isLoading ?? this.isLoading,
@@ -64,6 +71,7 @@ class IAPState {
       lastPurchaseStatus: lastPurchaseStatus ?? this.lastPurchaseStatus,
       gracePeriodEndsAt: gracePeriodEndsAt ?? this.gracePeriodEndsAt,
       isInGracePeriod: isInGracePeriod ?? this.isInGracePeriod,
+      backendConfirmed: backendConfirmed ?? this.backendConfirmed,
     );
   }
 }
@@ -93,17 +101,34 @@ class IAPNotifier extends StateNotifier<IAPState> {
       final productDetails = _service?.products ?? [];
       final products = productDetails.map((p) => PremiumProduct(p)).toList();
 
+      // Request failed (or returned an unconfirmed fallback): don't overwrite
+      // the premium fields — leave whatever we had and mark it unconfirmed so
+      // the sync bridge won't downgrade a cached-premium user off a blip.
+      if (status == null || !status.confirmed) {
+        state = state.copyWith(
+          isLoading: false,
+          products: products,
+          backendConfirmed: false,
+        );
+        return;
+      }
+
       state = state.copyWith(
         isLoading: false,
-        isPremium: status?.isPremium ?? false,
-        currentTier: status?.tier,
-        expiresAt: status?.expiresAt,
+        isPremium: status.isPremium,
+        currentTier: status.tier,
+        expiresAt: status.expiresAt,
         products: products,
-        gracePeriodEndsAt: status?.gracePeriodEndsAt,
-        isInGracePeriod: status?.isInGracePeriod ?? false,
+        gracePeriodEndsAt: status.gracePeriodEndsAt,
+        isInGracePeriod: status.isInGracePeriod,
+        backendConfirmed: true,
       );
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+      state = state.copyWith(
+        isLoading: false,
+        error: e.toString(),
+        backendConfirmed: false,
+      );
     }
   }
 

@@ -24,37 +24,41 @@ final premiumIapSyncProvider = Provider<void>((ref) {
     }
   });
 
-  // Only listen to real transitions. `fireImmediately: true` would trigger on
-  // the initial IAPState (isPremium=false, before the backend has been
-  // contacted) and wipe SharedPreferences-cached premium for returning users.
+  // Reconcile the persisted premium cache against the backend's CONFIRMED
+  // answer. We key off `backendConfirmed` (not a witnessed premium->free
+  // transition) so an account that was downgraded/expired/refunded server-side
+  // is corrected on the next cold start too — the old transition-only logic
+  // never fired in that case (IAPState went free->free, no transition) and left
+  // stale premium showing forever.
   ref.listen<IAPState>(iapNotifierProvider, (previous, next) {
-    // Ignore intermediate "loading" states where we have no confirmed answer.
+    // Ignore loading states and anything not backed by a real backend answer
+    // (startup defaults, failed requests). A failed sync must never downgrade a
+    // cached-premium user.
     if (next.isLoading) return;
-    // Ignore the very first real emission — `previous` is null, which means
-    // we've just woken up and have no basis to compare against yet.
-    if (previous == null) return;
-
-    final tierChanged = previous.currentTier != next.currentTier;
-    final expiryChanged = previous.expiresAt != next.expiresAt;
-    final premiumChanged = previous.isPremium != next.isPremium;
-    if (!tierChanged && !expiryChanged && !premiumChanged) return;
+    if (!next.backendConfirmed) return;
 
     final premiumNotifier = ref.read(premiumProvider.notifier);
+    final cached = ref.read(premiumProvider);
 
     if (!next.isPremium) {
-      // Only downgrade if we were previously holding a premium state. Avoids
-      // clearing persisted premium when IAP hasn't actually confirmed loss.
-      if (previous.isPremium) {
+      // Backend confirms free — reconcile the cache down (only if it currently
+      // claims premium, to avoid redundant writes).
+      if (cached.isPremium) {
         premiumNotifier.lockPremiumFeatures();
       }
       return;
     }
 
-    premiumNotifier.updateSubscription(
-      tier: _mapProductIdToTier(next.currentTier),
-      expiresAt: next.expiresAt,
-      purchaseId: next.currentTier,
-    );
+    // Backend confirms premium — sync tier/expiry, but only when something
+    // actually differs so we don't rewrite SharedPreferences on every refresh.
+    final tier = _mapProductIdToTier(next.currentTier);
+    if (!cached.isPremium || cached.tier != tier) {
+      premiumNotifier.updateSubscription(
+        tier: tier,
+        expiresAt: next.expiresAt,
+        purchaseId: next.currentTier,
+      );
+    }
   });
 });
 
