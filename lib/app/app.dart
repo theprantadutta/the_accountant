@@ -4,6 +4,7 @@ import 'package:in_app_update/in_app_update.dart';
 import 'package:the_accountant/core/providers/theme_provider.dart';
 import 'package:the_accountant/core/services/analytics_service.dart';
 import 'package:the_accountant/core/themes/app_theme.dart';
+import 'package:the_accountant/core/utils/responsive.dart';
 import 'package:the_accountant/features/onboarding/screens/post_signup_onboarding_screen.dart';
 import 'package:the_accountant/features/premium/providers/premium_sync_provider.dart';
 import 'package:the_accountant/features/premium/screens/premium_screen.dart';
@@ -99,10 +100,12 @@ class _MyAppState extends ConsumerState<MyApp> {
       themeMode: ThemeMode.dark,
       navigatorObservers: [AnalyticsService().observer],
       // One ambient gradient background painted behind every screen. Scaffolds
-      // are transparent (see AppTheme) so this shows through app-wide.
+      // are transparent (see AppTheme) so this shows through app-wide. On large
+      // screens (iPad/desktop) content is centered within a readable max width
+      // via [AdaptiveWidth] while the gradient stays full-bleed behind it.
       builder: (context, child) => AppBackground(
         key: _backgroundKey,
-        child: child ?? const SizedBox.shrink(),
+        child: AdaptiveWidth(child: child ?? const SizedBox.shrink()),
       ),
       home: const AuthWrapper(),
       routes: {

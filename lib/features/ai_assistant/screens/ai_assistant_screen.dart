@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_theme.dart';
 import 'package:the_accountant/core/utils/animation_utils.dart';
+import 'package:the_accountant/core/utils/responsive.dart';
 import 'package:the_accountant/data/models/premium_features.dart';
 import 'package:the_accountant/features/ai/screens/receipt_scanner_screen.dart';
 import 'package:the_accountant/features/ai_assistant/models/chat_message.dart';
@@ -1266,7 +1267,9 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
               children: [
                 Container(
                   constraints: BoxConstraints(
-                    maxWidth: MediaQuery.of(context).size.width * 0.75,
+                    maxWidth: isTablet(context)
+                        ? 460
+                        : MediaQuery.of(context).size.width * 0.75,
                   ),
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(

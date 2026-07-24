@@ -848,12 +848,12 @@ class _ResponsiveFinancialOverviewState
                             borderRadius: AppSpacing.borderRadiusFull,
                           ),
                         ),
-                        AnimatedContainer(
+                        // Fill sized relative to the track (not the raw screen
+                        // width) so it renders correctly at any width, incl. iPad.
+                        FractionallySizedBox(
+                          widthFactor: percentage.clamp(0.0, 1.0),
+                          child: AnimatedContainer(
                           duration: AppAnimations.slow,
-                          width:
-                              MediaQuery.of(context).size.width *
-                              0.75 *
-                              (percentage.clamp(0.0, 1.0)),
                           height: 8,
                           decoration: BoxDecoration(
                             gradient: isOverBudget
@@ -870,6 +870,7 @@ class _ResponsiveFinancialOverviewState
                                     ],
                                   ),
                             borderRadius: AppSpacing.borderRadiusFull,
+                          ),
                           ),
                         ),
                       ],
