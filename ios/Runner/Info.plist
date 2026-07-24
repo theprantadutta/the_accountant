@@ -72,6 +72,14 @@
 	<string>The Accountant saves exported reports and receipts to your photo library.</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<!-- Permit cleartext HTTP to local-network dev servers (e.g. the
+		     debug API at http://192.168.x.x:8002). ATS stays enforced for all
+		     other (public) hosts, so release/production HTTPS is unaffected. -->
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
+	</dict>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
