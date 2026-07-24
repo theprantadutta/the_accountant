@@ -1,15 +1,15 @@
-# Terms and Conditions
+# Terms of Use
 
-**Last updated: February 23, 2026**
+**Last updated: July 24, 2026**
 
-Please read these Terms and Conditions ("Terms") carefully before using The Accountant mobile application (the "App") operated by Pranta Dutta ("we", "our", or "us").
+Please read these Terms of Use ("Terms") carefully before using The Accountant mobile application (the "App") operated by Pranta Dutta ("we", "our", or "us").
 
 By accessing or using the App, you agree to be bound by these Terms. If you do not agree to these Terms, please do not use the App.
 
 ## 1. Use of the App
 
 ### 1.1 Eligibility
-You must be at least 13 years of age to use the App. By using the App, you represent that you meet this requirement.
+You must be at least 13 years of age (or the minimum age required in your country) to use the App. By using the App, you represent that you meet this requirement.
 
 ### 1.2 Account Registration
 - You must provide accurate and complete information when creating an account
@@ -21,7 +21,7 @@ You must be at least 13 years of age to use the App. By using the App, you repre
 You agree not to:
 - Use the App for any unlawful purpose
 - Attempt to gain unauthorized access to the App's systems or servers
-- Reverse engineer, decompile, or disassemble any part of the App
+- Reverse engineer, decompile, or disassemble any part of the App, except to the extent permitted by law
 - Interfere with or disrupt the App's functionality
 - Use automated systems or bots to access the App
 - Transmit any malicious code, viruses, or harmful data
@@ -32,10 +32,10 @@ You agree not to:
 The App provides tools for personal finance management including transaction tracking, wallet management, budgeting, and financial reporting. These features are provided for personal informational purposes only.
 
 ### 2.2 AI-Powered Insights
-The App may provide AI-generated financial insights and recommendations. These are for informational purposes only and should not be considered professional financial advice. Always consult a qualified financial advisor for important financial decisions.
+The App may provide AI-generated financial insights and recommendations. These are for informational purposes only and do not constitute professional financial advice. Always consult a qualified financial advisor for important financial decisions.
 
 ### 2.3 Receipt Scanning
-The App includes on-device receipt scanning capabilities powered by machine learning. Accuracy of scanned data may vary and you are responsible for verifying extracted information.
+The App includes on-device receipt scanning powered by machine learning. Accuracy of scanned data may vary and you are responsible for verifying extracted information.
 
 ### 2.4 Cloud Sync
 Optional cloud synchronization allows you to back up and sync your data across devices. While we take reasonable measures to ensure data integrity, we are not liable for any data loss during synchronization.
@@ -43,28 +43,33 @@ Optional cloud synchronization allows you to back up and sync your data across d
 ## 3. Subscriptions and Purchases
 
 ### 3.1 Free and Premium Tiers
-The App offers both free and premium subscription tiers. Premium features may include AI insights, advanced analytics, premium themes, and priority support.
+The App offers both free and premium tiers. Premium features may include AI insights, advanced analytics, unlimited records, premium themes, cloud sync, and priority support.
 
 ### 3.2 Payment
-- Premium subscriptions are billed through the Google Play Store or Apple App Store
+- Premium subscriptions and one-time purchases are sold and billed through the app marketplace from which you downloaded the App
 - Prices are displayed in your local currency and may vary by region
-- All payments are processed by the respective app store
+- All payments are processed by that marketplace; we do not receive your payment card details
 
-### 3.3 Cancellation and Refunds
-- You may cancel your subscription at any time through your app store settings
-- Cancellation takes effect at the end of the current billing period
-- Refund requests are handled by the respective app store according to their policies
+### 3.3 Auto-Renewing Subscriptions
+- Subscriptions automatically renew for the same period unless auto-renew is turned off at least 24 hours before the end of the current period
+- Your account is charged for renewal within 24 hours prior to the end of the current period
+- You can manage or turn off auto-renewal in your marketplace account settings after purchase
+- A one-time "lifetime" purchase is not a subscription and does not renew
 
-### 3.4 Price Changes
-We reserve the right to modify subscription prices. You will be notified of any price changes before they take effect.
+### 3.4 Cancellation and Refunds
+- You may cancel a subscription at any time through your marketplace account settings; cancellation takes effect at the end of the current billing period
+- Refunds are handled by the app marketplace in accordance with its policies. Please see our Refund Policy for details
+
+### 3.5 Price Changes
+We reserve the right to modify prices. You will be notified of any price change before it takes effect, and where required you will be asked to consent before a subscription renews at the new price.
 
 ## 4. Intellectual Property
 
 ### 4.1 Our Rights
-The App, including its design, code, graphics, logos, and content, is owned by Pranta Dutta and is protected by copyright and intellectual property laws. All rights not expressly granted are reserved.
+The App, including its design, code, graphics, logos, and content, is owned by Pranta Dutta and protected by copyright and intellectual property laws. All rights not expressly granted are reserved.
 
 ### 4.2 Your Data
-You retain ownership of all financial data you enter into the App. By using cloud sync, you grant us a limited license to store, process, and transmit your data solely for the purpose of providing the App's services.
+You retain ownership of all financial data you enter into the App. By using cloud sync, you grant us a limited license to store, process, and transmit your data solely to provide the App's services.
 
 ## 5. Disclaimers
 
@@ -85,26 +90,30 @@ To the maximum extent permitted by applicable law:
 - Our total liability shall not exceed the amount you paid for the App in the twelve months preceding the claim
 - We are not liable for any data loss, whether stored locally or in the cloud
 
-## 7. Termination
+## 7. App Marketplace Terms
 
-### 7.1 By You
+You acknowledge that this Agreement is between you and Pranta Dutta only, and not with the operator of the app marketplace from which you obtained the App. The marketplace operator is not responsible for the App or its content, maintenance, support, or any claims relating to it. Your use of the App must also comply with the applicable marketplace's terms of service. To the extent permitted by law, the marketplace operator and its subsidiaries are third-party beneficiaries of this Agreement and may enforce it against you.
+
+## 8. Termination
+
+### 8.1 By You
 You may stop using the App and delete your account at any time.
 
-### 7.2 By Us
+### 8.2 By Us
 We reserve the right to suspend or terminate your access to the App if you violate these Terms, with or without notice.
 
-### 7.3 Effect of Termination
+### 8.3 Effect of Termination
 Upon termination, your right to use the App ceases immediately. Locally stored data remains on your device. Cloud-synced data will be deleted in accordance with our Privacy Policy.
 
-## 8. Changes to These Terms
+## 9. Changes to These Terms
 
 We may update these Terms from time to time. We will notify you of significant changes by posting the updated Terms within the App. Your continued use of the App after changes are posted constitutes acceptance of the revised Terms.
 
-## 9. Governing Law
+## 10. Governing Law
 
-These Terms shall be governed by and construed in accordance with applicable laws, without regard to conflict of law principles.
+These Terms are governed by and construed in accordance with applicable laws, without regard to conflict of law principles.
 
-## 10. Contact Us
+## 11. Contact Us
 
 If you have any questions about these Terms, please contact us:
 
