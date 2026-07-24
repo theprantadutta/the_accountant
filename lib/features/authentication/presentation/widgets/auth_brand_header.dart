@@ -63,40 +63,24 @@ class AuthBrandHeader extends StatelessWidget {
   }
 
   Widget _buildLogo() {
+    // A single clean circular avatar — no rings around it. The gradient fills a
+    // perfect circle with the brand icon centred and a soft glow for depth.
     final logo = Container(
-      width: 128,
-      height: 128,
+      width: 112,
+      height: 112,
       alignment: Alignment.center,
       decoration: BoxDecoration(
+        gradient: gradient,
         shape: BoxShape.circle,
-        // Faint outermost ring.
-        border: Border.all(color: glowColor.withValues(alpha: 0.12)),
-      ),
-      child: Container(
-        width: 104,
-        height: 104,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          border: Border.all(color: glowColor.withValues(alpha: 0.22)),
-        ),
-        child: Container(
-          width: 84,
-          height: 84,
-          decoration: BoxDecoration(
-            gradient: gradient,
-            borderRadius: BorderRadius.circular(26),
-            boxShadow: [
-              BoxShadow(
-                color: glowColor.withValues(alpha: 0.5),
-                blurRadius: 32,
-                spreadRadius: 2,
-              ),
-            ],
+        boxShadow: [
+          BoxShadow(
+            color: glowColor.withValues(alpha: 0.5),
+            blurRadius: 34,
+            spreadRadius: 2,
           ),
-          child: Icon(icon, size: 42, color: AppColors.textPrimary),
-        ),
+        ],
       ),
+      child: Icon(icon, size: 54, color: AppColors.textPrimary),
     );
 
     if (floatingAnimation == null) {
