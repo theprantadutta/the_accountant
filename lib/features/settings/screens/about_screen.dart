@@ -72,6 +72,21 @@ class AboutScreen extends StatelessWidget {
                 ),
                 _buildDivider(),
                 _buildLinkTile(
+                  icon: Icons.receipt_long_outlined,
+                  title: 'Refund Policy',
+                  isExternal: false,
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const LegalDocumentViewer(
+                        title: 'Refund Policy',
+                        assetPath: 'assets/legal/refund.md',
+                      ),
+                    ),
+                  ),
+                ),
+                _buildDivider(),
+                _buildLinkTile(
                   icon: Icons.code,
                   title: 'Open Source Licenses',
                   isExternal: false,

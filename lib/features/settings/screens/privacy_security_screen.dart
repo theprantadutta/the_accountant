@@ -179,6 +179,12 @@ class _PrivacySecurityScreenState extends ConsumerState<PrivacySecurityScreen> {
                 subtitle: 'Read our terms of service',
                 onTap: _openTermsOfService,
               ),
+              SettingsNavigationTile(
+                icon: Icons.receipt_long_outlined,
+                title: 'Refund Policy',
+                subtitle: 'How refunds and cancellations work',
+                onTap: _openRefundPolicy,
+              ),
             ],
           ),
 
@@ -439,6 +445,18 @@ class _PrivacySecurityScreenState extends ConsumerState<PrivacySecurityScreen> {
         builder: (context) => const LegalDocumentViewer(
           title: 'Terms of Service',
           assetPath: 'assets/legal/terms.md',
+        ),
+      ),
+    );
+  }
+
+  void _openRefundPolicy() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const LegalDocumentViewer(
+          title: 'Refund Policy',
+          assetPath: 'assets/legal/refund.md',
         ),
       ),
     );
