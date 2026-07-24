@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:the_accountant/core/services/analytics_service.dart';
 import 'package:the_accountant/core/services/api_service.dart';
+import 'package:the_accountant/core/services/apple_sign_in_service.dart';
 import 'package:the_accountant/core/services/backend_auth_service.dart';
 import 'package:the_accountant/core/services/google_sign_in_service.dart';
 import 'package:the_accountant/core/services/secure_token_storage.dart';
@@ -74,6 +75,7 @@ class AuthState {
 class AuthNotifier extends StateNotifier<AuthState> {
   final BackendAuthService _backendAuth = BackendAuthService();
   final GoogleSignInService _googleSignIn = GoogleSignInService();
+  final AppleSignInService _appleSignIn = AppleSignInService();
 
   AuthNotifier() : super(const AuthState(isLoading: true)) {
     _initializeAuth();
@@ -280,6 +282,98 @@ class AuthNotifier extends StateNotifier<AuthState> {
       state = state.copyWith(
         isAuthenticated: false,
         error: 'An error occurred during Google sign in',
+        isLoading: false,
+      );
+    }
+  }
+
+  Future<void> signInWithApple() async {
+    state = state.copyWith(isLoading: true, error: null);
+
+    try {
+      // Step 1: Sign in with Apple + Firebase
+      debugPrint('[AuthProvider] Starting Sign in with Apple...');
+      final userCredential = await _appleSignIn.signInWithApple();
+
+      if (userCredential == null || userCredential.user == null) {
+        // Null means the user cancelled the Apple sheet — not an error.
+        state = state.copyWith(isLoading: false);
+        return;
+      }
+
+      debugPrint(
+        '[AuthProvider] Apple Sign-In successful, getting Firebase ID token...',
+      );
+
+      // Step 2: Get Firebase ID token (provider-agnostic).
+      final firebaseToken = await _googleSignIn.getFirebaseIdToken();
+
+      if (firebaseToken == null) {
+        state = state.copyWith(
+          isLoading: false,
+          error: 'Failed to get Firebase ID token',
+        );
+        return;
+      }
+
+      debugPrint(
+        '[AuthProvider] Got Firebase ID token, authenticating with backend...',
+      );
+
+      // Step 3: Authenticate with backend (verifies the Firebase token
+      // regardless of which provider issued it).
+      try {
+        await _backendAuth.authenticateWithGoogle(firebaseToken);
+
+        // Store basic info
+        await SecureTokenStorage.storeUserId(_backendAuth.userId ?? '');
+        await SecureTokenStorage.storeUserEmail(_backendAuth.userEmail ?? '');
+
+        AnalyticsService().logLogin(method: 'apple');
+
+        state = state.copyWith(
+          isAuthenticated: true,
+          userId: _backendAuth.userId,
+          userEmail: _backendAuth.userEmail,
+          displayName: _backendAuth.userDisplayName,
+          photoUrl: _backendAuth.userPhotoUrl,
+          isLoading: false,
+        );
+      } on AccountLinkingRequiredException {
+        // Sign out of Firebase to prevent auto-login interference
+        await FirebaseAuth.instance.signOut();
+
+        // Set state for account linking
+        state = state.copyWith(
+          requiresLinking: true,
+          pendingFirebaseToken: firebaseToken,
+          isLoading: false,
+          error: null,
+        );
+      }
+    } on FirebaseAuthException catch (e) {
+      String errorMessage = 'An error occurred during Apple sign in';
+      if (e.code == 'account-exists-with-different-credential') {
+        errorMessage =
+            'An account already exists with the same email address but different sign-in credentials.';
+      } else if (e.code == 'invalid-credential') {
+        errorMessage =
+            'The supplied auth credential is malformed or has expired.';
+      } else if (e.code == 'operation-not-allowed') {
+        errorMessage = 'Apple sign-in is disabled.';
+      } else if (e.code == 'user-disabled') {
+        errorMessage = 'The user account has been disabled.';
+      }
+
+      state = state.copyWith(
+        isAuthenticated: false,
+        error: errorMessage,
+        isLoading: false,
+      );
+    } catch (e) {
+      state = state.copyWith(
+        isAuthenticated: false,
+        error: 'An error occurred during Apple sign in',
         isLoading: false,
       );
     }

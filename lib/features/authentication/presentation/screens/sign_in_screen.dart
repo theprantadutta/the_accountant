@@ -1,3 +1,6 @@
+import 'dart:io' show Platform;
+
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -80,6 +83,16 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
     ref.read(authProvider.notifier).signInWithGoogle();
   }
 
+  void _signInWithApple() {
+    HapticFeedback.mediumImpact();
+    ref.read(authProvider.notifier).signInWithApple();
+  }
+
+  /// Sign in with Apple is required on Apple platforms (Guideline 4.8) and is
+  /// only available there.
+  bool get _showAppleSignIn =>
+      !kIsWeb && (Platform.isIOS || Platform.isMacOS);
+
   /// Entrance transition helper — staggered fade + slide up.
   Widget _entrance({
     required double start,
@@ -159,6 +172,15 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
                         end: 0.9,
                         child: _buildGoogleSignIn(authState),
                       ),
+
+                      if (_showAppleSignIn) ...[
+                        AppSpacing.gapLg,
+                        _entrance(
+                          start: 0.6,
+                          end: 0.9,
+                          child: _buildAppleSignIn(authState),
+                        ),
+                      ],
 
                       AppSpacing.gapXxl,
 
@@ -319,6 +341,24 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
           ),
           AppSpacing.gapHMd,
           Text('Continue with Google', style: AppTypography.titleSmall),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAppleSignIn(AuthState authState) {
+    return GlassCard(
+      onTap: authState.isLoading ? null : _signInWithApple,
+      padding: EdgeInsets.symmetric(
+        horizontal: AppSpacing.lg,
+        vertical: AppSpacing.lg,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.apple, size: 26, color: AppColors.textPrimary),
+          AppSpacing.gapHMd,
+          Text('Continue with Apple', style: AppTypography.titleSmall),
         ],
       ),
     );
