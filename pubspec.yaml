@@ -44,7 +44,6 @@ dependencies:
   http: ^1.2.2
   dio: ^5.4.0
   google_sign_in: ^7.1.1
-  sign_in_with_apple: ^8.1.0
   logger: ^2.0.2
   # Environment
   flutter_dotenv: ^6.0.0
