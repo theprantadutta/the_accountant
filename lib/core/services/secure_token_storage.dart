@@ -8,8 +8,13 @@ class SecureTokenStorage {
     wOptions: WindowsOptions(),
   );
 
-  // Keys for storing different types of tokens
-  static const _accessTokenKey = 'access_token';
+  // Keys for storing different types of tokens.
+  //
+  // 'auth_token' rather than 'access_token': ApiService has always written the
+  // access token under that name, while this class read and cleared a key nothing
+  // ever wrote. clearAllTokens therefore left the real token behind, and
+  // getAccessToken always returned null. One key, one owner.
+  static const _accessTokenKey = 'auth_token';
   static const _refreshTokenKey = 'refresh_token';
   static const _tokenExpiryKey =
       'token_expiry'; // Unix timestamp in milliseconds
@@ -65,6 +70,11 @@ class SecureTokenStorage {
   // Retrieve access token
   static Future<String?> getAccessToken() async {
     return await _storage.read(key: _accessTokenKey);
+  }
+
+  // Clear only the access token, leaving the refresh token in place
+  static Future<void> clearAccessToken() async {
+    await _storage.delete(key: _accessTokenKey);
   }
 
   // Store refresh token

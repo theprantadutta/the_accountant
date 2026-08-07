@@ -1,10 +1,21 @@
+import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'api_service.dart';
 import 'secure_token_storage.dart';
 
-/// Backend authentication service with state management
+/// Backend authentication service with state management.
+///
+/// A singleton. It was previously constructed in five places, each holding its own
+/// independent auth state while ApiService (which *is* a singleton) could only ever
+/// call back into whichever instance registered onUnauthorized last — so state
+/// changes made through one instance were invisible to the rest of the app.
 class BackendAuthService extends ChangeNotifier {
+  static final BackendAuthService _instance = BackendAuthService._internal();
+  factory BackendAuthService() => _instance;
+  BackendAuthService._internal();
+
   final ApiService _apiService = ApiService();
 
   bool _isInitializing = true;
@@ -44,6 +55,7 @@ class BackendAuthService extends ChangeNotifier {
       if (hasToken) {
         // First, load cached user info for instant auth restoration
         final cachedInfo = await _apiService.getCachedUserInfo();
+
         if (cachedInfo != null) {
           debugPrint(
             '[BackendAuthService] Restoring auth from cached user info',
@@ -56,10 +68,21 @@ class BackendAuthService extends ChangeNotifier {
           _subscriptionTier = cachedInfo['subscription_tier'] ?? 'free';
           _isAuthenticated = true;
           notifyListeners();
-        }
 
-        // Try to refresh from server in background (don't block or fail auth)
-        _refreshUserInfoInBackground();
+          // Reconcile with the server without blocking startup.
+          unawaited(_refreshUserInfoInBackground());
+        } else {
+          // A token but no cached profile — cache cleared, or a reinstall that
+          // restored the keychain. Trust the token and resolve the profile before
+          // finishing init, otherwise initialization completes as "signed out" and
+          // the sign-in screen flashes before the app jumps back in. If the token
+          // really is dead, the 401 handler forces a logout from here.
+          debugPrint(
+            '[BackendAuthService] Token present without cached profile - verifying',
+          );
+          _isAuthenticated = true;
+          await _refreshUserInfoInBackground();
+        }
       }
     } catch (e) {
       debugPrint('Auth initialization error: $e');
@@ -126,44 +149,61 @@ class BackendAuthService extends ChangeNotifier {
 
   /// Register new user
   Future<void> register(String email, String password) async {
+    final Map<String, dynamic> response;
     try {
-      final response = await _apiService.register(email, password);
-
-      _userId = response['user_id'];
-      _userEmail = email;
-      _isAuthenticated = true;
-
-      // Fetch full user info
-      await refreshUserInfo();
-
-      notifyListeners();
+      response = await _apiService.register(email, password);
     } catch (e) {
       throw Exception('Registration failed: $e');
     }
+
+    _userId = response['user_id'];
+    _userEmail = email;
+    _isAuthenticated = true;
+
+    // Tokens are stored and the account exists — a failed profile fetch must not
+    // be reported as a failed registration, or the user retries and is told the
+    // email is already taken.
+    await _tryRefreshUserInfo();
+
+    notifyListeners();
   }
 
   /// Login user
   Future<void> login(String email, String password) async {
+    final Map<String, dynamic> response;
     try {
-      final response = await _apiService.login(email, password);
-
-      _userId = response['user_id'];
-      _userEmail = email;
-      _isAuthenticated = true;
-
-      // Fetch full user info
-      await refreshUserInfo();
-
-      notifyListeners();
+      response = await _apiService.login(email, password);
     } catch (e) {
       throw Exception('Login failed: $e');
     }
+
+    _userId = response['user_id'];
+    _userEmail = email;
+    _isAuthenticated = true;
+
+    // Same here: the credentials were accepted, so a flaky /auth/me is a cosmetic
+    // problem, not a login failure.
+    await _tryRefreshUserInfo();
+
+    notifyListeners();
   }
 
-  /// Logout user
-  Future<void> logout() async {
+  /// Best-effort profile fetch for paths where authentication has already
+  /// succeeded and only the profile detail is missing.
+  Future<void> _tryRefreshUserInfo() async {
     try {
-      await _apiService.logout();
+      await refreshUserInfo();
+    } catch (e) {
+      debugPrint(
+        '[BackendAuthService] Profile fetch failed after auth (non-fatal): $e',
+      );
+    }
+  }
+
+  /// Logout user. Revokes only this device's session unless [allDevices] is set.
+  Future<void> logout({bool allDevices = false}) async {
+    try {
+      await _apiService.logout(allDevices: allDevices);
     } catch (e) {
       debugPrint('Logout error: $e');
     } finally {
@@ -195,9 +235,9 @@ class BackendAuthService extends ChangeNotifier {
       _isAuthenticated = true;
       debugPrint('[BackendAuthService] User authenticated, ID: $_userId');
 
-      // Fetch full user info
+      // Fetch full user info (non-fatal: the session is already established)
       debugPrint('[BackendAuthService] Fetching full user info...');
-      await refreshUserInfo();
+      await _tryRefreshUserInfo();
       debugPrint('[BackendAuthService] User info loaded: $_userEmail');
 
       notifyListeners();
@@ -228,8 +268,8 @@ class BackendAuthService extends ChangeNotifier {
       _userId = response['user_id'];
       _isAuthenticated = true;
 
-      // Refresh user info to get full profile
-      await refreshUserInfo();
+      // Refresh user info to get full profile (non-fatal)
+      await _tryRefreshUserInfo();
 
       notifyListeners();
     } catch (e) {
