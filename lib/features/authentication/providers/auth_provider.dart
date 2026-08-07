@@ -8,6 +8,11 @@ import 'package:the_accountant/core/services/backend_auth_service.dart';
 import 'package:the_accountant/core/services/google_sign_in_service.dart';
 import 'package:the_accountant/core/services/secure_token_storage.dart';
 
+/// Sentinel type for [AuthState.copyWith]; see [AuthState._unset].
+class _Unset {
+  const _Unset();
+}
+
 class AuthState {
   final bool isLoading;
   final String? error;
@@ -41,9 +46,16 @@ class AuthState {
     this.pendingFirebaseToken,
   });
 
+  /// Nullable fields that callers need to actively clear ([error],
+  /// [pendingFirebaseToken]) can't use the usual `x ?? this.x` idiom — passing
+  /// null would be indistinguishable from omitting the argument. They take a
+  /// sentinel instead, so omitting keeps the current value and passing null
+  /// clears it. Previously `error` was always overwritten (so any unrelated
+  /// copyWith silently wiped the message) and `pendingFirebaseToken` could never
+  /// be cleared at all, leaving a stale Firebase token in memory after cancel.
   AuthState copyWith({
     bool? isLoading,
-    String? error,
+    Object? error = _unset,
     bool? isAuthenticated,
     String? userId,
     String? userEmail,
@@ -53,11 +65,11 @@ class AuthState {
     String? subscriptionTier,
     DateTime? createdAt,
     bool? requiresLinking,
-    String? pendingFirebaseToken,
+    Object? pendingFirebaseToken = _unset,
   }) {
     return AuthState(
       isLoading: isLoading ?? this.isLoading,
-      error: error,
+      error: identical(error, _unset) ? this.error : error as String?,
       isAuthenticated: isAuthenticated ?? this.isAuthenticated,
       userId: userId ?? this.userId,
       userEmail: userEmail ?? this.userEmail,
@@ -67,9 +79,16 @@ class AuthState {
       subscriptionTier: subscriptionTier ?? this.subscriptionTier,
       createdAt: createdAt ?? this.createdAt,
       requiresLinking: requiresLinking ?? this.requiresLinking,
-      pendingFirebaseToken: pendingFirebaseToken ?? this.pendingFirebaseToken,
+      pendingFirebaseToken: identical(pendingFirebaseToken, _unset)
+          ? this.pendingFirebaseToken
+          : pendingFirebaseToken as String?,
     );
   }
+
+  /// Marker for "argument not supplied", distinct from an explicit null.
+  /// A private type rather than `Object()` so no caller can accidentally pass a
+  /// value Dart canonicalises to the same instance.
+  static const Object _unset = _Unset();
 }
 
 class AuthNotifier extends StateNotifier<AuthState> {

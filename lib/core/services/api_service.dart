@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -42,8 +44,27 @@ class ApiService {
   /// Callback to be invoked when a 401 unauthorized response is received
   UnauthorizedCallback? onUnauthorized;
 
-  /// Flag to prevent multiple simultaneous token refresh attempts
-  bool _isRefreshing = false;
+  /// The in-flight token refresh, if one is running. Concurrent callers await
+  /// this instead of starting their own: two requests rotating the same refresh
+  /// token makes the server treat the second one as a replay attack and kill the
+  /// whole session, which is a self-inflicted logout.
+  Completer<String?>? _refreshCompleter;
+
+  /// Marks a request that has already been retried once after a refresh, so a
+  /// persistent 401 can't bounce between retry and refresh forever.
+  static const String _retriedExtraKey = 'auth_retry_attempted';
+
+  /// Endpoints that must never trigger a token refresh or a refresh-driven
+  /// logout: they either issue tokens or authenticate by other means.
+  static bool _isAuthEndpoint(String path) =>
+      path.contains('/auth/refresh') ||
+      path.contains('/auth/login') ||
+      path.contains('/auth/register') ||
+      path.contains('/auth/firebase') ||
+      path.contains('/auth/google') ||
+      path.contains('/auth/link-google') ||
+      path.contains('/auth/forgot-password') ||
+      path.contains('/auth/reset-password');
 
   static final ApiService _instance = ApiService._internal();
   factory ApiService() => _instance;
@@ -59,27 +80,20 @@ class ApiService {
       },
     );
 
-    // Request interceptor to add JWT token and handle token refresh
+    // Request interceptor to add JWT token and handle token refresh.
+    // Deliberately not a QueuedInterceptorsWrapper: the 401 path retries through
+    // this same Dio instance, which would re-enter the queue while the error
+    // handler still holds it and deadlock. Concurrency is handled instead by
+    // _refreshAccessToken, which is single-flight.
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
-          // Skip token refresh for auth endpoints
-          final isAuthEndpoint =
-              options.path.contains('/auth/refresh') ||
-              options.path.contains('/auth/login') ||
-              options.path.contains('/auth/register') ||
-              options.path.contains('/auth/firebase') ||
-              options.path.contains('/auth/forgot-password') ||
-              options.path.contains('/auth/reset-password');
-
-          // Check if token is expiring soon and refresh it (unless we're already refreshing)
-          if (!isAuthEndpoint && !_isRefreshing) {
-            final isExpiringSoon =
-                await SecureTokenStorage.isTokenExpiringSoon();
-            if (isExpiringSoon) {
-              _logger.i('Token expiring soon, attempting refresh...');
-              await _refreshAccessToken();
-            }
+          // Check if the token is expiring soon and refresh it. Safe to call
+          // concurrently — _refreshAccessToken collapses callers onto one request.
+          if (!_isAuthEndpoint(options.path) &&
+              await SecureTokenStorage.isTokenExpiringSoon()) {
+            _logger.i('Token expiring soon, attempting refresh...');
+            await _refreshAccessToken();
           }
 
           final token = await getToken();
@@ -112,89 +126,41 @@ class ApiService {
           if (error.response?.statusCode == 401) {
             // Don't logout for password verification failures (e.g., during account linking)
             final isPasswordError = errorDetail == 'Incorrect password';
+            final alreadyRetried =
+                error.requestOptions.extra[_retriedExtraKey] == true;
 
-            // Skip retry for auth endpoints to avoid infinite loops
-            final isAuthEndpoint =
-                error.requestOptions.path.contains('/auth/refresh') ||
-                error.requestOptions.path.contains('/auth/login') ||
-                error.requestOptions.path.contains('/auth/register') ||
-                error.requestOptions.path.contains('/auth/firebase');
-
-            if (!isPasswordError && !isAuthEndpoint && !_isRefreshing) {
-              // Try to refresh the token before logging out
-              _logger.w(
-                'Received 401 Unauthorized - attempting token refresh before logout',
-              );
-
-              final refreshToken = await SecureTokenStorage.getRefreshToken();
-              if (refreshToken != null) {
-                _isRefreshing = true;
-                try {
-                  final refreshDio = Dio(
-                    BaseOptions(
-                      baseUrl: baseUrl + apiV1,
-                      headers: {'Content-Type': 'application/json'},
-                    ),
-                  );
-
-                  final refreshResponse = await refreshDio.post(
-                    '/auth/refresh',
-                    data: {'token': refreshToken},
-                  );
-
-                  if (refreshResponse.statusCode == 200) {
-                    // Token refresh successful, retry the original request
-                    final newAccessToken = refreshResponse.data['access_token'];
-                    final newRefreshToken =
-                        refreshResponse.data['refresh_token'];
-                    final expiresIn = refreshResponse.data['expires_in'] as int;
-
-                    await saveToken(newAccessToken);
-                    await SecureTokenStorage.storeRefreshToken(newRefreshToken);
-                    await SecureTokenStorage.storeTokenExpiry(expiresIn);
-
-                    _logger.i(
-                      'Token refresh successful on 401 - retrying original request',
-                    );
-
-                    // Retry the original request with new token
-                    final opts = error.requestOptions;
-                    opts.headers['Authorization'] = 'Bearer $newAccessToken';
-
-                    try {
-                      final retryResponse = await _dio.fetch(opts);
-                      _isRefreshing = false;
-                      return handler.resolve(retryResponse);
-                    } catch (retryError) {
-                      _isRefreshing = false;
-                      _logger.e(
-                        'Retry after token refresh failed: $retryError',
-                      );
-                      // Fall through to logout
-                    }
-                  }
-                } catch (refreshError) {
-                  _logger.e('Token refresh on 401 failed: $refreshError');
-                } finally {
-                  _isRefreshing = false;
-                }
-              }
-
-              // Token refresh failed or not available, logout
-              _logger.w('Token refresh failed - triggering logout');
-              await deleteToken();
-              onUnauthorized?.call();
-            } else if (!isPasswordError && !isAuthEndpoint) {
-              // Already refreshing, just trigger logout
-              _logger.w(
-                'Received 401 while already refreshing - triggering logout',
-              );
-              await deleteToken();
-              onUnauthorized?.call();
-            } else if (isPasswordError) {
+            if (isPasswordError) {
               _logger.w(
                 'Received 401 for incorrect password - NOT triggering logout',
               );
+            } else if (!_isAuthEndpoint(error.requestOptions.path) &&
+                !alreadyRetried) {
+              _logger.w(
+                'Received 401 Unauthorized - attempting token refresh',
+              );
+
+              // Collapses onto any refresh already running instead of starting a
+              // second one. Previously this branch logged the user out outright
+              // whenever a refresh was in flight, so any two concurrent requests
+              // hitting an expired token ended the session.
+              final newAccessToken = await _refreshAccessToken();
+
+              if (newAccessToken != null) {
+                final opts = error.requestOptions;
+                opts.headers['Authorization'] = 'Bearer $newAccessToken';
+                opts.extra[_retriedExtraKey] = true;
+
+                try {
+                  _logger.i('Token refreshed - retrying original request');
+                  return handler.resolve(await _dio.fetch(opts));
+                } catch (retryError) {
+                  _logger.e('Retry after token refresh failed: $retryError');
+                }
+              }
+
+              // No logout here on purpose. _refreshAccessToken has already torn
+              // the session down if the refresh token itself was rejected; a null
+              // after a transient failure just means "try again later".
             }
           }
 
@@ -215,71 +181,123 @@ class ApiService {
   // Token Management
   // ============================================================================
 
-  /// Refresh the access token using the refresh token
-  Future<void> _refreshAccessToken() async {
-    if (_isRefreshing) return;
-
-    final refreshToken = await SecureTokenStorage.getRefreshToken();
-    if (refreshToken == null) {
-      _logger.w('No refresh token available - cannot refresh');
-      return;
+  /// Refresh the access token, collapsing concurrent callers onto a single
+  /// request. Returns the new access token, or null if it could not be
+  /// refreshed — null does *not* imply the session ended, see [_performRefresh].
+  Future<String?> _refreshAccessToken() {
+    final inFlight = _refreshCompleter;
+    if (inFlight != null) {
+      _logger.d('Refresh already in flight - awaiting it');
+      return inFlight.future;
     }
 
-    _isRefreshing = true;
+    final completer = Completer<String?>();
+    _refreshCompleter = completer;
+
+    // Clear the slot before completing so anyone woken by this future starts a
+    // fresh attempt rather than latching onto a finished one.
+    unawaited(
+      _performRefresh().then(
+        (token) {
+          _refreshCompleter = null;
+          completer.complete(token);
+        },
+        onError: (Object e, StackTrace s) {
+          _logger.e('Unexpected error during token refresh: $e');
+          _refreshCompleter = null;
+          completer.complete(null);
+        },
+      ),
+    );
+
+    return completer.future;
+  }
+
+  Future<String?> _performRefresh() async {
+    final refreshToken = await SecureTokenStorage.getRefreshToken();
+    if (refreshToken == null) {
+      _logger.w('No refresh token available - session cannot be restored');
+      await _handleSessionRejected();
+      return null;
+    }
+
+    _logger.i('Refreshing access token...');
+
+    // Separate Dio instance so the refresh call doesn't re-enter the interceptor
+    final refreshDio = Dio(
+      BaseOptions(
+        baseUrl: baseUrl + apiV1,
+        connectTimeout: const Duration(seconds: 30),
+        receiveTimeout: const Duration(seconds: 30),
+        headers: {'Content-Type': 'application/json'},
+      ),
+    );
+
     try {
-      _logger.i('Refreshing access token...');
-
-      // Use a separate Dio instance for refresh to avoid interceptor loops
-      final refreshDio = Dio(
-        BaseOptions(
-          baseUrl: baseUrl + apiV1,
-          headers: {'Content-Type': 'application/json'},
-        ),
-      );
-
       final response = await refreshDio.post(
         '/auth/refresh',
         data: {'token': refreshToken},
       );
 
-      if (response.statusCode == 200) {
-        final newAccessToken = response.data['access_token'];
-        final newRefreshToken = response.data['refresh_token'];
-        final expiresIn = response.data['expires_in'] as int;
+      final newAccessToken = response.data['access_token'] as String;
+      await saveToken(newAccessToken);
+      await SecureTokenStorage.storeRefreshToken(
+        response.data['refresh_token'] as String,
+      );
+      await SecureTokenStorage.storeTokenExpiry(
+        response.data['expires_in'] as int,
+      );
 
-        await saveToken(newAccessToken);
-        await SecureTokenStorage.storeRefreshToken(newRefreshToken);
-        await SecureTokenStorage.storeTokenExpiry(expiresIn);
-
-        _logger.i('Token refresh successful');
-      } else {
-        _logger.e('Token refresh failed with status: ${response.statusCode}');
-        await _handleRefreshFailure();
-      }
+      _logger.i('Token refresh successful');
+      return newAccessToken;
     } on DioException catch (e) {
-      _logger.e('Token refresh failed: ${e.message}');
-      await _handleRefreshFailure();
-    } finally {
-      _isRefreshing = false;
+      final status = e.response?.statusCode;
+
+      if (status == 401 || status == 403) {
+        // Another flow may have rotated the token while this request was in
+        // flight. If what's stored now differs from what we sent, that rotation
+        // succeeded and the session is fine — use it instead of tearing down.
+        final current = await SecureTokenStorage.getRefreshToken();
+        if (current != null && current != refreshToken) {
+          _logger.i(
+            'Refresh rejected but token has since rotated - using current token',
+          );
+          return await getToken();
+        }
+
+        _logger.w('Refresh token rejected by server ($status) - session over');
+        await _handleSessionRejected();
+        return null;
+      }
+
+      // Offline, timeout, 5xx: transient. Keep the session — losing it because
+      // one request died in a tunnel is worse than retrying on the next call.
+      _logger.w(
+        'Token refresh failed transiently (${e.type}) - keeping session: ${e.message}',
+      );
+      return null;
     }
   }
 
-  /// Handle token refresh failure - clear tokens and trigger logout
-  Future<void> _handleRefreshFailure() async {
-    _logger.w('Token refresh failed - clearing tokens and triggering logout');
+  /// The server rejected our refresh token outright: clear everything and
+  /// hand off to the auth layer to show the sign-in screen.
+  Future<void> _handleSessionRejected() async {
+    _logger.w('Session rejected - clearing tokens and triggering logout');
     await deleteToken();
     await SecureTokenStorage.clearAllTokens();
     onUnauthorized?.call();
   }
 
+  // Access-token storage is delegated to SecureTokenStorage so there is exactly
+  // one place that knows the key.
   Future<void> saveToken(String token) async {
     _logger.i('saveToken called, token length: ${token.length}');
-    await _storage.write(key: 'auth_token', value: token);
+    await SecureTokenStorage.storeAccessToken(token);
     _logger.i('saveToken completed');
   }
 
   Future<String?> getToken() async {
-    final token = await _storage.read(key: 'auth_token');
+    final token = await SecureTokenStorage.getAccessToken();
     _logger.d(
       'getToken called, result: ${token != null ? "exists (${token.length} chars)" : "null"}',
     );
@@ -288,7 +306,7 @@ class ApiService {
 
   Future<void> deleteToken() async {
     _logger.w('deleteToken called');
-    await _storage.delete(key: 'auth_token');
+    await SecureTokenStorage.clearAccessToken();
     await clearCachedUserInfo();
   }
 
@@ -459,13 +477,22 @@ class ApiService {
     }
   }
 
-  /// Logout
-  Future<void> logout() async {
+  /// Logout.
+  ///
+  /// Sends this device's refresh token so the server revokes only this session.
+  /// Pass [allDevices] to sign out everywhere.
+  Future<void> logout({bool allDevices = false}) async {
     try {
-      await _dio.post('/auth/logout');
+      final refreshToken = await SecureTokenStorage.getRefreshToken();
+      await _dio.post(
+        '/auth/logout',
+        data: {'refresh_token': ?refreshToken, 'all_devices': allDevices},
+      );
     } catch (e) {
       _logger.e('Logout error: $e');
     } finally {
+      // Local teardown happens regardless: if the server call failed the user
+      // still expects to be signed out on this device.
       await deleteToken();
       await SecureTokenStorage.clearAllTokens();
     }
@@ -569,7 +596,15 @@ class ApiService {
     try {
       await _dio.post(
         '/auth/change-password',
-        data: {'currentPassword': ?currentPassword, 'newPassword': newPassword},
+        // snake_case: the API serialises with JsonNamingPolicy.SnakeCaseLower, so
+        // camelCase keys bind as null and every call fails validation.
+        data: {
+          'current_password': ?currentPassword,
+          'new_password': newPassword,
+          // Changing the password revokes every other session; identify this one
+          // so the user isn't signed out of the device they're holding.
+          'keep_session_refresh_token': ?await SecureTokenStorage.getRefreshToken(),
+        },
       );
     } on DioException catch (e) {
       throw _handleError(e);
