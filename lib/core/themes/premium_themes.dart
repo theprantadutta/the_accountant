@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/core/themes/app_page_transitions.dart';
 
 class PremiumThemes {
   // Sapphire Theme
   static final sapphireTheme = ThemeData(
     useMaterial3: true,
+    pageTransitionsTheme: appPageTransitionsTheme,
     brightness: Brightness.dark,
     colorScheme: ColorScheme.fromSeed(
       seedColor: const Color(0xFF2196F3),
@@ -29,6 +31,7 @@ class PremiumThemes {
   // Emerald Theme
   static final emeraldTheme = ThemeData(
     useMaterial3: true,
+    pageTransitionsTheme: appPageTransitionsTheme,
     brightness: Brightness.dark,
     colorScheme: ColorScheme.fromSeed(
       seedColor: const Color(0xFF4CAF50),
@@ -54,6 +57,7 @@ class PremiumThemes {
   // Ruby Theme
   static final rubyTheme = ThemeData(
     useMaterial3: true,
+    pageTransitionsTheme: appPageTransitionsTheme,
     brightness: Brightness.dark,
     colorScheme: ColorScheme.fromSeed(
       seedColor: const Color(0xFFF44336),
@@ -79,6 +83,7 @@ class PremiumThemes {
   // Amethyst Theme
   static final amethystTheme = ThemeData(
     useMaterial3: true,
+    pageTransitionsTheme: appPageTransitionsTheme,
     brightness: Brightness.dark,
     colorScheme: ColorScheme.fromSeed(
       seedColor: const Color(0xFF9C27B0),
@@ -104,6 +109,7 @@ class PremiumThemes {
   // Midnight Theme
   static final midnightTheme = ThemeData(
     useMaterial3: true,
+    pageTransitionsTheme: appPageTransitionsTheme,
     brightness: Brightness.dark,
     colorScheme: ColorScheme.fromSeed(
       seedColor: const Color(0xFF607D8B),

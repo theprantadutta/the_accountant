@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/core/themes/app_page_transitions.dart';
 import 'package:flutter/services.dart';
 import 'package:the_accountant/features/legal/legal_acceptance_screen.dart';
 import 'package:the_accountant/features/settings/screens/theme_selection_screen.dart';
@@ -273,19 +274,9 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                         onTap: () {
                           Navigator.push(
                             context,
-                            PageRouteBuilder(
-                              pageBuilder: (context, animation, _) =>
+                            FadeThroughPageRoute<void>(
+                              builder: (context) =>
                                   const ThemeSelectionScreen(),
-                              transitionsBuilder:
-                                  (context, animation, _, child) {
-                                    return SlideTransition(
-                                      position: Tween<Offset>(
-                                        begin: const Offset(1.0, 0.0),
-                                        end: Offset.zero,
-                                      ).animate(animation),
-                                      child: child,
-                                    );
-                                  },
                             ),
                           );
                         },
@@ -363,12 +354,8 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                 } else {
                   Navigator.pushReplacement(
                     context,
-                    PageRouteBuilder(
-                      pageBuilder: (context, animation, _) =>
-                          const LegalAcceptanceScreen(),
-                      transitionsBuilder: (context, animation, _, child) {
-                        return FadeTransition(opacity: animation, child: child);
-                      },
+                    FadeThroughPageRoute<void>(
+                      builder: (context) => const LegalAcceptanceScreen(),
                     ),
                   );
                 }
@@ -407,12 +394,8 @@ class _OnboardingScreenState extends State<OnboardingScreen>
           } else {
             Navigator.pushReplacement(
               context,
-              PageRouteBuilder(
-                pageBuilder: (context, animation, _) =>
-                    const LegalAcceptanceScreen(),
-                transitionsBuilder: (context, animation, _, child) {
-                  return FadeTransition(opacity: animation, child: child);
-                },
+              FadeThroughPageRoute<void>(
+                builder: (context) => const LegalAcceptanceScreen(),
               ),
             );
           }

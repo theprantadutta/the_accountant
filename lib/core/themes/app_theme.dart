@@ -1,8 +1,8 @@
 import 'dart:ui';
-import 'package:flutter/cupertino.dart' show CupertinoPageTransitionsBuilder;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
+import 'package:the_accountant/core/themes/app_page_transitions.dart';
 import 'package:the_accountant/core/themes/app_typography.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/core/themes/premium_themes.dart';
@@ -55,17 +55,7 @@ class AppTheme {
       onError: AppColors.textPrimary,
     ),
     textTheme: AppTypography.textTheme,
-    // Scaffolds are transparent over one shared AppBackground. The default M3
-    // zoom transition snapshots each route onto an opaque surface, which briefly
-    // hides that shared gradient during push/pop. These builders animate the
-    // live (transparent) route instead, so the background stays put.
-    pageTransitionsTheme: const PageTransitionsTheme(
-      builders: {
-        TargetPlatform.android: FadeUpwardsPageTransitionsBuilder(),
-        TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
-        TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
-      },
-    ),
+    pageTransitionsTheme: appPageTransitionsTheme,
     appBarTheme: const AppBarTheme(
       backgroundColor: Colors.transparent,
       elevation: 0,

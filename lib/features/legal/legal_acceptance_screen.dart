@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/core/themes/app_page_transitions.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
@@ -75,11 +76,8 @@ class _LegalAcceptanceScreenState extends State<LegalAcceptanceScreen>
     } else {
       Navigator.pushReplacement(
         context,
-        PageRouteBuilder(
-          pageBuilder: (context, animation, _) => const SignInScreen(),
-          transitionsBuilder: (context, animation, _, child) {
-            return FadeTransition(opacity: animation, child: child);
-          },
+        FadeThroughPageRoute<void>(
+          builder: (context) => const SignInScreen(),
         ),
       );
     }

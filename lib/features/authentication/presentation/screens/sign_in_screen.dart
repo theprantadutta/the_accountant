@@ -13,6 +13,7 @@ import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/core/themes/app_typography.dart';
 import 'package:the_accountant/core/themes/app_animations.dart';
+import 'package:the_accountant/core/themes/app_page_transitions.dart';
 import 'package:the_accountant/shared/widgets/glass_card.dart';
 import 'package:the_accountant/shared/widgets/google_logo.dart';
 import 'package:the_accountant/shared/widgets/neo_button.dart';
@@ -379,24 +380,8 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
             HapticFeedback.lightImpact();
             Navigator.push(
               context,
-              PageRouteBuilder(
-                pageBuilder: (context, animation, _) => const SignUpScreen(),
-                transitionsBuilder: (context, animation, _, child) {
-                  return SlideTransition(
-                    position:
-                        Tween<Offset>(
-                          begin: const Offset(1.0, 0.0),
-                          end: Offset.zero,
-                        ).animate(
-                          CurvedAnimation(
-                            parent: animation,
-                            curve: AppAnimations.easeOut,
-                          ),
-                        ),
-                    child: FadeTransition(opacity: animation, child: child),
-                  );
-                },
-                transitionDuration: AppAnimations.normal,
+              FadeThroughPageRoute<void>(
+                builder: (context) => const SignUpScreen(),
               ),
             );
           },

@@ -5,6 +5,7 @@ import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/core/themes/app_typography.dart';
 import 'package:the_accountant/core/themes/app_animations.dart';
+import 'package:the_accountant/core/themes/app_page_transitions.dart';
 import 'package:the_accountant/features/authentication/presentation/screens/sign_in_screen.dart';
 import 'package:the_accountant/features/authentication/presentation/widgets/auth_background.dart';
 import 'package:the_accountant/features/authentication/presentation/widgets/auth_brand_header.dart';
@@ -472,24 +473,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
             HapticFeedback.lightImpact();
             Navigator.pushReplacement(
               context,
-              PageRouteBuilder(
-                pageBuilder: (context, animation, _) => const SignInScreen(),
-                transitionsBuilder: (context, animation, _, child) {
-                  return SlideTransition(
-                    position:
-                        Tween<Offset>(
-                          begin: const Offset(-1.0, 0.0),
-                          end: Offset.zero,
-                        ).animate(
-                          CurvedAnimation(
-                            parent: animation,
-                            curve: AppAnimations.easeOut,
-                          ),
-                        ),
-                    child: FadeTransition(opacity: animation, child: child),
-                  );
-                },
-                transitionDuration: AppAnimations.normal,
+              FadeThroughPageRoute<void>(
+                builder: (context) => const SignInScreen(),
               ),
             );
           },
