@@ -91,6 +91,33 @@ class AuthState {
   static const Object _unset = _Unset();
 }
 
+/// Turns a failed backend call into something the user can act on.
+///
+/// Every failure used to collapse into "an error occurred", so a total backend
+/// outage was indistinguishable from a mistyped password. That is exactly what
+/// App Store review hit: the API was answering 500 to every request and the
+/// screen said the same words a typo produces, which gave no clue where to
+/// look. [fallback] covers failures that never reached the API at all.
+String _describeAuthFailure(Object error, String fallback) {
+  if (error is! ApiException) return fallback;
+
+  if (error.isNetworkError) return error.message;
+
+  if (error.isRateLimited) {
+    return 'Too many attempts. Please wait a minute and try again.';
+  }
+
+  if (error.isServerError) {
+    return 'We could not reach our servers. This is on our side — '
+        'please try again in a few minutes.';
+  }
+
+  // 4xx: the server explained itself ("Incorrect email or password",
+  // "Email already registered"), so pass that through rather than
+  // string-matching it back into a hardcoded message.
+  return error.message;
+}
+
 class AuthNotifier extends StateNotifier<AuthState> {
   final BackendAuthService _backendAuth = BackendAuthService();
   final GoogleSignInService _googleSignIn = GoogleSignInService();
@@ -159,14 +186,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
         isLoading: false,
       );
     } catch (e) {
-      String errorMessage = 'An error occurred during sign in';
-      if (e.toString().contains('Incorrect email or password')) {
-        errorMessage = 'Incorrect email or password.';
-      }
-
       state = state.copyWith(
         isAuthenticated: false,
-        error: errorMessage,
+        error: _describeAuthFailure(e, 'An error occurred during sign in'),
         isLoading: false,
       );
     }
@@ -199,15 +221,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
         isLoading: false,
       );
     } catch (e) {
-      String errorMessage = 'An error occurred during sign up';
-      if (e.toString().contains('Email already registered')) {
-        errorMessage =
-            'The email address is already in use by another account.';
-      }
-
       state = state.copyWith(
         isAuthenticated: false,
-        error: errorMessage,
+        error: _describeAuthFailure(e, 'An error occurred during sign up'),
         isLoading: false,
       );
     }
@@ -300,7 +316,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
     } catch (e) {
       state = state.copyWith(
         isAuthenticated: false,
-        error: 'An error occurred during Google sign in',
+        error: _describeAuthFailure(
+          e,
+          'An error occurred during Google sign in',
+        ),
         isLoading: false,
       );
     }
@@ -392,7 +411,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
     } catch (e) {
       state = state.copyWith(
         isAuthenticated: false,
-        error: 'An error occurred during Apple sign in',
+        error: _describeAuthFailure(
+          e,
+          'An error occurred during Apple sign in',
+        ),
         isLoading: false,
       );
     }

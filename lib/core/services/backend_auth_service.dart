@@ -152,6 +152,10 @@ class BackendAuthService extends ChangeNotifier {
     final Map<String, dynamic> response;
     try {
       response = await _apiService.register(email, password);
+    } on ApiException {
+      // Propagate unchanged: wrapping it would discard the status code the UI
+      // needs to tell a taken email from an outage.
+      rethrow;
     } catch (e) {
       throw Exception('Registration failed: $e');
     }
@@ -173,6 +177,10 @@ class BackendAuthService extends ChangeNotifier {
     final Map<String, dynamic> response;
     try {
       response = await _apiService.login(email, password);
+    } on ApiException {
+      // Propagate unchanged: wrapping it would discard the status code the UI
+      // needs to tell a rejected password from an outage.
+      rethrow;
     } catch (e) {
       throw Exception('Login failed: $e');
     }
@@ -244,6 +252,14 @@ class BackendAuthService extends ChangeNotifier {
     } on AccountLinkingRequiredException {
       // Re-throw account linking exceptions so they can be handled by the UI
       debugPrint('[BackendAuthService] Account linking required');
+      rethrow;
+    } on ApiException catch (e) {
+      // Propagate unchanged so the UI can distinguish a backend outage from a
+      // rejected token. Both used to surface as "an error occurred".
+      debugPrint(
+        '[BackendAuthService] Backend rejected the Firebase token: '
+        '${e.statusCode} ${e.message}',
+      );
       rethrow;
     } catch (e, stackTrace) {
       debugPrint('[BackendAuthService] Google authentication failed: $e');

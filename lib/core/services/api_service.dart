@@ -18,6 +18,35 @@ class AccountLinkingRequiredException implements Exception {
   String toString() => message;
 }
 
+/// A failed API call, carrying the HTTP status alongside the message.
+///
+/// Callers used to receive only the message string, which made a rejected
+/// password indistinguishable from a 500 or a 429 — every one of them fell
+/// through to the same "an error occurred" text, so a total backend outage
+/// looked exactly like a typo. [statusCode] is null when the request never got
+/// a response at all (timeout, no connectivity, DNS).
+///
+/// [toString] deliberately returns the bare message so existing callers that
+/// only read `e.toString()` keep behaving as before.
+class ApiException implements Exception {
+  const ApiException(this.message, {this.statusCode});
+
+  final String message;
+  final int? statusCode;
+
+  /// The request never reached the server, or no response came back.
+  bool get isNetworkError => statusCode == null;
+
+  /// The server was reached and failed. Retrying later may well work.
+  bool get isServerError => statusCode != null && statusCode! >= 500;
+
+  /// Throttled by the auth rate limiter.
+  bool get isRateLimited => statusCode == 429;
+
+  @override
+  String toString() => message;
+}
+
 /// Callback for handling unauthorized (401) responses globally
 typedef UnauthorizedCallback = void Function();
 
@@ -722,24 +751,29 @@ class ApiService {
   // Error Handling
   // ============================================================================
 
-  String _handleError(DioException error) {
-    if (error.response != null) {
-      final data = error.response!.data;
-      if (data is Map && data.containsKey('detail')) {
-        return data['detail'].toString();
-      }
-      return 'Error: ${error.response!.statusMessage}';
+  ApiException _handleError(DioException error) {
+    final response = error.response;
+    if (response != null) {
+      final data = response.data;
+      final detail = data is Map && data['detail'] != null
+          ? data['detail'].toString()
+          : 'Request failed (HTTP ${response.statusCode}).';
+      return ApiException(detail, statusCode: response.statusCode);
     }
 
     if (error.type == DioExceptionType.connectionTimeout ||
         error.type == DioExceptionType.receiveTimeout) {
-      return 'Connection timeout. Please check your internet connection.';
+      return const ApiException(
+        'Connection timeout. Please check your internet connection.',
+      );
     }
 
     if (error.type == DioExceptionType.connectionError) {
-      return 'Cannot connect to server. Please check your internet connection.';
+      return const ApiException(
+        'Cannot connect to server. Please check your internet connection.',
+      );
     }
 
-    return 'An unexpected error occurred: ${error.message}';
+    return ApiException('An unexpected error occurred: ${error.message}');
   }
 }

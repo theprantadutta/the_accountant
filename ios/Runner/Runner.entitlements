@@ -2,8 +2,14 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<!-- All three build configurations (Debug, Profile, Release) sign with the
+	     same manual "The Accountant" distribution profile, so there is one
+	     entitlements file and it has to match that profile. "development"
+	     pointed App Store builds at the APNs sandbox, where the production
+	     device tokens FCM issues do not resolve and every push is silently
+	     dropped. -->
 	<key>aps-environment</key>
-	<string>development</string>
+	<string>production</string>
 	<key>com.apple.developer.applesignin</key>
 	<array>
 		<string>Default</string>
