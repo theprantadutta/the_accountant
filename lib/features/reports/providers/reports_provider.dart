@@ -2,6 +2,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
+import 'package:the_accountant/core/domain/transaction_policy.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
 import 'package:the_accountant/features/budgets/providers/budget_provider.dart';
@@ -191,17 +192,15 @@ class ReportsNotifier extends StateNotifier<ReportsState> {
         endDate,
       );
 
-      // Calculate totals
-      double totalSpending = 0;
-      double totalIncome = 0;
+      // Calculate totals. Eligibility comes from the shared TransactionPolicy,
+      // so the reports tab agrees with the dashboard, the stored wallet
+      // balances, and budget progress. Transfers and unrealized upcoming rows
+      // are excluded by that policy — previously reports summed every row and
+      // so double-counted each internal wallet-to-wallet movement.
       // t.amount is integer cents; reports work in major-unit dollars (double).
-      for (final t in transactions) {
-        if (!t.isIncome) {
-          totalSpending += t.amount / 100.0;
-        } else if (t.isIncome) {
-          totalIncome += t.amount / 100.0;
-        }
-      }
+      final totalSpending =
+          TransactionPolicy.totalExpense(transactions) / 100.0;
+      final totalIncome = TransactionPolicy.totalIncome(transactions) / 100.0;
 
       // Calculate category spending
       final categorySpending = await _calculateCategorySpending(
@@ -240,15 +239,12 @@ class ReportsNotifier extends StateNotifier<ReportsState> {
     List<Transaction> transactions,
     double totalSpending,
   ) async {
-    final expenses = transactions.where((t) => !t.isIncome);
-    final Map<String, double> categoryTotals = {};
-
-    // Sum by category
-    for (final t in expenses) {
-      final categoryId = t.categoryId ?? 'uncategorized';
-      categoryTotals[categoryId] =
-          (categoryTotals[categoryId] ?? 0) + t.amount / 100.0;
-    }
+    final Map<String, double> categoryTotals = {
+      for (final entry in TransactionPolicy.spendingByCategory(
+        transactions,
+      ).entries)
+        entry.key: entry.value / 100.0,
+    };
 
     // Get category details and convert to CategorySpendingData
     final categories = _ref.read(cat_provider.categoryProvider).categories;
@@ -259,7 +255,9 @@ class ReportsNotifier extends StateNotifier<ReportsState> {
         (c) => c.id == entry.key,
         orElse: () => cat_provider.Category(
           id: entry.key,
-          name: entry.key == 'uncategorized' ? 'Uncategorized' : 'Unknown',
+          name: entry.key == TransactionPolicy.uncategorizedKey
+              ? 'Uncategorized'
+              : 'Unknown',
           colorCode: '#999999',
           type: 'expense',
           isDefault: false,
@@ -316,7 +314,9 @@ class ReportsNotifier extends StateNotifier<ReportsState> {
     DateTime endDate,
     int timeframe,
   ) {
-    final expenses = transactions.where((t) => !t.isIncome).toList();
+    final expenses = transactions
+        .where(TransactionPolicy.countsAsExpense)
+        .toList();
     final List<DailySpendingData> result = [];
 
     if (timeframe == 0) {
@@ -412,14 +412,22 @@ class ReportsNotifier extends StateNotifier<ReportsState> {
       );
 
       // Calculate spent amount
-      final spent = transactions
-          .where(
-            (t) =>
-                !t.isIncome &&
-                (budget.categoryId.isEmpty ||
-                    t.categoryId == budget.categoryId),
-          )
-          .fold(0.0, (sum, t) => sum + t.amount / 100.0);
+      final spent =
+          transactions
+              .where(
+                // The budget's DIRECTION matters as much as its category: an
+                // income budget tracks earnings, not spending. Omitting it made
+                // every income budget evaluate as an expense budget, so the
+                // reports tab disagreed with the dashboard and the financial
+                // calculation service about the same budget.
+                (t) => TransactionPolicy.countsTowardBudget(
+                  t,
+                  budgetIsIncome: budget.isIncome,
+                  budgetCategoryId: budget.categoryId,
+                ),
+              )
+              .fold<int>(0, (sum, t) => sum + t.amount.abs()) /
+          100.0;
 
       final percentage = budget.limit > 0 ? (spent / budget.limit) : 0.0;
 

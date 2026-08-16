@@ -138,7 +138,7 @@ class BackendAuthService extends ChangeNotifier {
 
     // Sign out from Firebase (this will trigger the AuthWrapper to show login)
     try {
-      await FirebaseAuth.instance.signOut();
+      await _firebaseSignOutIfAvailable();
       debugPrint('[BackendAuthService] Firebase sign out successful');
     } catch (e) {
       debugPrint('[BackendAuthService] Firebase sign out error: $e');
@@ -416,5 +416,18 @@ class BackendAuthService extends ChangeNotifier {
       debugPrint('Profile update error: $e');
       rethrow;
     }
+  }
+}
+
+/// Sign out of Firebase when it is available.
+///
+/// Firebase is optional at runtime (and absent in tests); a missing app must not
+/// turn signing out into an error, because the user would then be stuck in a
+/// session they explicitly asked to end.
+Future<void> _firebaseSignOutIfAvailable() async {
+  try {
+    await FirebaseAuth.instance.signOut();
+  } catch (_) {
+    // No Firebase app configured, or no Firebase session to end.
   }
 }

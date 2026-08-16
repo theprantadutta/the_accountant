@@ -1,3 +1,4 @@
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
@@ -5,6 +6,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 import 'package:the_accountant/core/constants/background_task_constants.dart';
 import 'package:the_accountant/core/services/reminder_scheduler_service.dart';
+import 'package:the_accountant/core/services/local_store_manager.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
 
 /// Top-level background handler for notification action buttons.
@@ -82,7 +84,9 @@ Future<void> _handleSnooze({
 
 /// Mark the transaction as skipped and cancel its reminder.
 Future<void> _handleSkip(String transactionId) async {
-  final db = constructDb();
+  // Same per-account store the app is using — see BackgroundTaskService.
+  final prefs = await SharedPreferences.getInstance();
+  final db = constructDbForFile(LocalStoreManager(prefs).activeStoreFile);
   try {
     await db.customStatement(
       'UPDATE transactions SET skip_paid = 1, updated_at = ? WHERE id = ?',

@@ -1,24 +1,57 @@
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 
+/// Analytics wrapper that degrades to a no-op when Firebase is unavailable.
+///
+/// `FirebaseAnalytics.instance` throws `[core/no-app]` when no Firebase app has
+/// been initialized. Touching it in a field initializer meant merely
+/// constructing this singleton blew up — which is why the widget test suite
+/// could not even start the app. Every Firebase touchpoint is now resolved
+/// lazily behind a guard, so the app (and the tests) run happily without
+/// Firebase and analytics simply stops reporting.
 class AnalyticsService {
   static final AnalyticsService _instance = AnalyticsService._internal();
   factory AnalyticsService() => _instance;
 
-  AnalyticsService._internal() {
-    _analytics.setAnalyticsCollectionEnabled(!kDebugMode);
+  AnalyticsService._internal();
+
+  /// Set by tests (and any host without Firebase) to skip analytics entirely.
+  static bool disabled = false;
+
+  FirebaseAnalytics? _cachedAnalytics;
+  bool _analyticsResolved = false;
+
+  /// The Firebase analytics client, or null when Firebase is not initialized.
+  FirebaseAnalytics? get _analytics {
+    if (disabled) return null;
+    if (_analyticsResolved) return _cachedAnalytics;
+    _analyticsResolved = true;
+    try {
+      final analytics = FirebaseAnalytics.instance;
+      analytics.setAnalyticsCollectionEnabled(!kDebugMode);
+      _cachedAnalytics = analytics;
+    } catch (_) {
+      // No Firebase app configured (tests, or a failed init). Stay silent.
+      _cachedAnalytics = null;
+    }
+    return _cachedAnalytics;
   }
 
-  final FirebaseAnalytics _analytics = FirebaseAnalytics.instance;
-
-  late final FirebaseAnalyticsObserver observer = FirebaseAnalyticsObserver(
-    analytics: _analytics,
-  );
+  /// Navigator observer for screen tracking.
+  ///
+  /// Falls back to a plain [NavigatorObserver] when Firebase is unavailable, so
+  /// `MaterialApp(navigatorObservers: [...])` is always safe to build.
+  late final NavigatorObserver observer = () {
+    final analytics = _analytics;
+    if (analytics == null) return NavigatorObserver();
+    return FirebaseAnalyticsObserver(analytics: analytics);
+  }();
 
   Future<void> _logEvent(String name, {Map<String, Object>? parameters}) async {
     if (kDebugMode) return;
     try {
-      await _analytics.logEvent(name: name, parameters: parameters);
+      await _analytics?.logEvent(name: name, parameters: parameters);
     } catch (_) {}
   }
 
@@ -26,14 +59,14 @@ class AnalyticsService {
   Future<void> logLogin({required String method}) async {
     if (kDebugMode) return;
     try {
-      await _analytics.logLogin(loginMethod: method);
+      await _analytics?.logLogin(loginMethod: method);
     } catch (_) {}
   }
 
   Future<void> logSignUp({required String method}) async {
     if (kDebugMode) return;
     try {
-      await _analytics.logSignUp(signUpMethod: method);
+      await _analytics?.logSignUp(signUpMethod: method);
     } catch (_) {}
   }
 
@@ -43,7 +76,7 @@ class AnalyticsService {
   Future<void> logScreenView({required String screenName}) async {
     if (kDebugMode) return;
     try {
-      await _analytics.logScreenView(screenName: screenName);
+      await _analytics?.logScreenView(screenName: screenName);
     } catch (_) {}
   }
 

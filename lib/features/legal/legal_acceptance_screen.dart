@@ -76,9 +76,7 @@ class _LegalAcceptanceScreenState extends State<LegalAcceptanceScreen>
     } else {
       Navigator.pushReplacement(
         context,
-        FadeThroughPageRoute<void>(
-          builder: (context) => const SignInScreen(),
-        ),
+        FadeThroughPageRoute<void>(builder: (context) => const SignInScreen()),
       );
     }
   }

@@ -53,9 +53,11 @@ void main() {
       await tester.tap(find.text('go'));
 
       var sawBothFullyHidden = false;
-      for (var elapsed = Duration.zero;
-          elapsed < const Duration(milliseconds: 400);
-          elapsed += const Duration(milliseconds: 10)) {
+      for (
+        var elapsed = Duration.zero;
+        elapsed < const Duration(milliseconds: 400);
+        elapsed += const Duration(milliseconds: 10)
+      ) {
         await tester.pump(const Duration(milliseconds: 10));
 
         final outgoing = _opacityOf(tester, _first);
@@ -86,16 +88,19 @@ void main() {
     final navigator = tester.state<NavigatorState>(find.byType(Navigator));
     navigator.pop();
 
-    for (var elapsed = Duration.zero;
-        elapsed < const Duration(milliseconds: 400);
-        elapsed += const Duration(milliseconds: 10)) {
+    for (
+      var elapsed = Duration.zero;
+      elapsed < const Duration(milliseconds: 400);
+      elapsed += const Duration(milliseconds: 10)
+    ) {
       await tester.pump(const Duration(milliseconds: 10));
       final popping = _opacityOf(tester, _second);
       final revealed = _opacityOf(tester, _first);
       expect(
         popping > 0.01 && revealed > 0.01,
         isFalse,
-        reason: 'both routes visible at $elapsed while popping '
+        reason:
+            'both routes visible at $elapsed while popping '
             '(popping=$popping, revealed=$revealed)',
       );
     }

@@ -129,13 +129,14 @@ class UpcomingNotifier extends StateNotifier<UpcomingState> {
     }
   }
 
-  /// Skip a transaction (set skipPaid = true)
+  /// Skip a transaction (set skipPaid = true).
+  ///
+  /// Routed through the sync-aware repository method so the skip is flagged
+  /// pending and propagates; the previous raw SQL update left `syncStatus`
+  /// untouched, so another device kept showing the dismissed reminder.
   Future<void> skipTransaction(String transactionId) async {
     try {
-      await _db.customStatement(
-        'UPDATE transactions SET skip_paid = 1, updated_at = ? WHERE id = ?',
-        [DateTime.now().toIso8601String(), transactionId],
-      );
+      await _db.skipTransaction(transactionId);
       await loadData();
     } catch (e) {
       state = state.copyWith(

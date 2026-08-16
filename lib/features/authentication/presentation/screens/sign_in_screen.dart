@@ -91,8 +91,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
 
   /// Sign in with Apple is required on Apple platforms (Guideline 4.8) and is
   /// only available there.
-  bool get _showAppleSignIn =>
-      !kIsWeb && (Platform.isIOS || Platform.isMacOS);
+  bool get _showAppleSignIn => !kIsWeb && (Platform.isIOS || Platform.isMacOS);
 
   /// Entrance transition helper — staggered fade + slide up.
   Widget _entrance({

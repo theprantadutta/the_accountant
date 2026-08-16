@@ -3,7 +3,8 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:the_accountant/core/services/secure_token_storage.dart';
 
 class AuthService {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  /// Resolved lazily so the service can be constructed without Firebase.
+  late final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn.instance;
 
   User? get currentUser => _auth.currentUser;

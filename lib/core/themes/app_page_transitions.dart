@@ -108,14 +108,18 @@ class FadeThroughTransition extends StatelessWidget {
 
   static final Animatable<double> _enterScaleTween =
       Tween<double>(begin: _enterScaleFrom, end: 1.0).chain(
-        CurveTween(curve: const Interval(_switchPoint, 1.0, curve: Curves.easeOutCubic)),
+        CurveTween(
+          curve: const Interval(_switchPoint, 1.0, curve: Curves.easeOutCubic),
+        ),
       );
 
   // Inverted so the covered route is at full opacity when secondaryAnimation is
   // 0 and gone by the time it reaches _switchPoint.
   static final Animatable<double> _exitOpacityTween =
       Tween<double>(begin: 1.0, end: 0.0).chain(
-        CurveTween(curve: const Interval(0.0, _switchPoint, curve: Curves.easeIn)),
+        CurveTween(
+          curve: const Interval(0.0, _switchPoint, curve: Curves.easeIn),
+        ),
       );
 
   final Animation<double> _enterOpacity;

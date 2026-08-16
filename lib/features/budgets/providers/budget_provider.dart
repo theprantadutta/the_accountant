@@ -19,6 +19,13 @@ class Budget {
   final DateTime endDate;
   final DateTime createdAt;
 
+  /// Whether this budget tracks earnings rather than spending.
+  ///
+  /// Carried on the view model because every consumer needs it to ask the shared
+  /// policy the right question; without it the reports tab silently treated
+  /// income budgets as expense budgets.
+  final bool isIncome;
+
   Budget({
     required this.id,
     required this.name,
@@ -28,6 +35,7 @@ class Budget {
     required this.startDate,
     required this.endDate,
     required this.createdAt,
+    this.isIncome = false,
   });
 }
 
@@ -86,6 +94,7 @@ class BudgetNotifier extends StateNotifier<BudgetState> {
               startDate: b.startDate,
               endDate: b.endDate!, // Safe because we filtered above
               createdAt: b.createdAt,
+              isIncome: b.isIncome,
             ),
           )
           .toList();

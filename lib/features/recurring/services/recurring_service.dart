@@ -2,6 +2,7 @@ import 'package:logger/logger.dart';
 import 'package:uuid/uuid.dart';
 import 'package:drift/drift.dart';
 
+import 'package:the_accountant/core/domain/transaction_policy.dart';
 import 'package:the_accountant/core/services/wallet_balance_service.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 
@@ -38,6 +39,25 @@ class RecurringService {
     }
   }
 
+  /// Deterministic idempotency key for one occurrence.
+  ///
+  /// Derived purely from the config id and the *scheduled* UTC instant, so two
+  /// devices that independently process the same due date produce byte-identical
+  /// keys. A unique index on the column then collapses them locally and the
+  /// backend's matching constraint rejects the duplicate on push, which is what
+  /// makes offline generation on several devices safe.
+  static String occurrenceKeyFor(
+    String recurringConfigId,
+    DateTime scheduledOccurrence,
+  ) {
+    final utc = scheduledOccurrence.toUtc();
+    final day =
+        '${utc.year.toString().padLeft(4, '0')}-'
+        '${utc.month.toString().padLeft(2, '0')}-'
+        '${utc.day.toString().padLeft(2, '0')}';
+    return '$recurringConfigId@$day';
+  }
+
   Future<int> _processRecurringTransactions() async {
     final now = DateTime.now();
     int processedCount = 0;
@@ -48,12 +68,12 @@ class RecurringService {
 
     for (final config in dueConfigs) {
       try {
-        // Pre-load existing instance dates to avoid O(n²) queries in the loop
+        // Pre-load existing occurrence keys to avoid O(n²) queries in the loop.
         final existingInstances = await _database.getRecurringInstances(
           config.id,
         );
-        final existingDates = existingInstances
-            .map((t) => DateTime(t.date.year, t.date.month, t.date.day))
+        final existingKeys = existingInstances
+            .map((t) => t.occurrenceKey ?? occurrenceKeyFor(config.id, t.date))
             .toSet();
 
         // Keep creating instances until we're caught up
@@ -61,7 +81,6 @@ class RecurringService {
 
         while (nextOccurrence.isBefore(now) ||
             nextOccurrence.isAtSameMomentAs(now)) {
-          // Get the base transaction
           final baseTransaction = await _database.findTransactionById(
             config.baseTransactionId,
           );
@@ -70,37 +89,42 @@ class RecurringService {
             break;
           }
 
-          // Create a new transaction instance
-          await _createTransactionInstance(
-            baseTransaction,
-            config,
-            nextOccurrence,
-            existingDates,
-          );
-          processedCount++;
-
-          // Calculate next occurrence
-          nextOccurrence = calculateNextOccurrence(
-            nextOccurrence,
+          final scheduled = nextOccurrence;
+          final following = calculateNextOccurrence(
+            scheduled,
             config.reoccurrence,
             config.periodLength,
           );
+          final endsHere =
+              config.endDate != null && following.isAfter(config.endDate!);
 
-          // Check if we've passed the end date
-          if (config.endDate != null &&
-              nextOccurrence.isAfter(config.endDate!)) {
-            // Deactivate the recurring config
+          // Generating the instance, applying its balance effect, and advancing
+          // the config cursor happen in ONE database transaction. Previously
+          // these were three separate writes: an interruption between them
+          // could leave a generated row whose balance was never applied, and
+          // the day-level dedup would then refuse to ever repair it.
+          final created = await _database.transaction(() async {
+            final inserted = await _createTransactionInstance(
+              baseTransaction,
+              config,
+              scheduled,
+              existingKeys,
+            );
             await _database.updateNextOccurrence(
               config.id,
-              nextOccurrence,
-              false,
+              following,
+              !endsHere,
             );
+            return inserted;
+          });
+
+          if (created) processedCount++;
+          nextOccurrence = following;
+
+          if (endsHere) {
             _logger.i('Recurring config ${config.id} ended');
             break;
           }
-
-          // Update the config with new next occurrence
-          await _database.updateNextOccurrence(config.id, nextOccurrence, true);
         }
       } catch (e, stack) {
         _logger.e(
@@ -116,26 +140,25 @@ class RecurringService {
   }
 
   /// Create a transaction instance from a recurring config.
-  /// Skips creation if a matching instance already exists (deduplication).
-  /// [existingDates] is a pre-loaded set of day-level dates for this config,
-  /// updated in-place as new instances are created to avoid re-querying.
-  Future<void> _createTransactionInstance(
+  ///
+  /// Returns whether a row was actually inserted; an occurrence that already
+  /// exists (generated earlier, or pulled from another device) is skipped.
+  /// [existingKeys] is a pre-loaded set of occurrence keys for this config,
+  /// updated in place as new instances are created to avoid re-querying.
+  Future<bool> _createTransactionInstance(
     Transaction baseTransaction,
     RecurringConfig config,
     DateTime date,
-    Set<DateTime> existingDates,
+    Set<String> existingKeys,
   ) async {
-    // Deduplication: check against the pre-loaded set of existing dates
-    final dateOnly = DateTime(date.year, date.month, date.day);
-    final alreadyExists = existingDates.contains(dateOnly);
-    if (alreadyExists) {
-      _logger.d(
-        'Skipping duplicate recurring instance for config ${config.id} on $dateOnly',
-      );
-      return;
+    final occurrenceKey = occurrenceKeyFor(config.id, date);
+    if (existingKeys.contains(occurrenceKey)) {
+      _logger.d('Skipping duplicate recurring instance $occurrenceKey');
+      return false;
     }
 
     final newId = _uuid.v4();
+    final now = DateTime.now();
 
     final companion = TransactionsCompanion(
       id: Value(newId),
@@ -145,34 +168,42 @@ class RecurringService {
       date: Value(date),
       isIncome: Value(baseTransaction.isIncome),
       type: Value(baseTransaction.isIncome ? 'income' : 'expense'),
-      transactionType: const Value('recurring_instance'),
+      transactionType: Value(TransactionPolicy.recurringInstanceType),
       categoryId: Value(baseTransaction.categoryId),
       walletId: Value(baseTransaction.walletId),
       paymentMethodId: Value(baseTransaction.paymentMethodId),
       recurringConfigId: Value(config.id),
+      occurrenceKey: Value(occurrenceKey),
       specialType: Value(baseTransaction.specialType),
       isPaid: const Value(true),
       budgetId: Value(baseTransaction.budgetId),
       objectiveId: Value(baseTransaction.objectiveId),
       syncStatus: const Value(SyncStatus.pendingCreate),
-      createdAt: Value(DateTime.now()),
-      updatedAt: Value(DateTime.now()),
+      createdAt: Value(now),
+      updatedAt: Value(now),
     );
 
-    await _database.addTransaction(companion);
+    // insertOrIgnore + the unique index on occurrenceKey make this idempotent
+    // even if two isolates race past the in-memory check.
+    final rows = await _database
+        .into(_database.transactions)
+        .insert(companion, mode: InsertMode.insertOrIgnore);
+    if (rows == 0) {
+      _logger.d('Occurrence $occurrenceKey already present; nothing inserted');
+      existingKeys.add(occurrenceKey);
+      return false;
+    }
 
-    // Track the new date to prevent duplicates within the same processing run
-    existingDates.add(dateOnly);
+    existingKeys.add(occurrenceKey);
 
-    // Update wallet balance via service (consistent with all other paths)
-    final balanceService = WalletBalanceService(_database);
-    await balanceService.updateBalanceAfterTransaction(
-      walletId: baseTransaction.walletId,
-      amount: baseTransaction.amount,
-      isIncome: baseTransaction.isIncome,
-    );
+    // Recompute the wallet from its transactions rather than nudging a delta,
+    // so the balance is correct even if a previous run was interrupted.
+    await WalletBalanceService(
+      _database,
+    ).updateWalletBalance(baseTransaction.walletId);
 
     _logger.d('Created recurring transaction instance: $newId');
+    return true;
   }
 
   /// Calculate the next occurrence date based on recurrence pattern
@@ -355,12 +386,22 @@ class RecurringService {
     return null;
   }
 
-  /// Update a recurring configuration
+  /// Sentinel meaning "leave the end date exactly as it is".
+  ///
+  /// A plain nullable parameter cannot distinguish "don't touch it" from "clear
+  /// it", so clearing an end date silently did nothing. Callers now pass a date
+  /// to set one, `null` to clear it, and omit the argument to keep it.
+  static const Object keepEndDate = Object();
+
+  /// Update a recurring configuration.
+  ///
+  /// [endDate] is tri-state: omit to keep, pass a [DateTime] to set, pass null
+  /// to clear (i.e. "repeat forever").
   Future<void> updateRecurringConfig({
     required String configId,
     String? reoccurrence,
     int? periodLength,
-    DateTime? endDate,
+    Object? endDate = keepEndDate,
     bool? isActive,
   }) async {
     // If the cadence changed, recompute nextOccurrence from the config's start date
@@ -386,7 +427,9 @@ class RecurringService {
       periodLength: periodLength != null
           ? Value(periodLength)
           : const Value.absent(),
-      endDate: endDate != null ? Value(endDate) : const Value.absent(),
+      endDate: identical(endDate, keepEndDate)
+          ? const Value.absent()
+          : Value(endDate as DateTime?),
       isActive: isActive != null ? Value(isActive) : const Value.absent(),
       nextOccurrence: nextOccurrence,
       syncStatus: const Value(SyncStatus.pendingUpdate),
@@ -400,19 +443,48 @@ class RecurringService {
     _logger.i('Updated recurring config: $configId');
   }
 
-  /// Delete a recurring configuration
+  /// Cancel a recurring configuration.
+  ///
+  /// This is a SYNCABLE cancellation, not a local hard delete. The row stays in
+  /// the database, deactivated and flagged `pendingDelete`, so the next push
+  /// tells the server about it (the backend represents deletion as
+  /// `IsActive = false`). A hard delete produced no pending operation at all, so
+  /// cancelling a subscription on one device left it running everywhere else and
+  /// it could reappear on the next pull.
+  ///
+  /// The tombstone is retained until the server acknowledges it; the sync layer
+  /// then clears the pending flag (see `SyncService._hardDeleteLocal`).
   Future<void> deleteRecurringConfig(String configId) async {
-    // First unmark the base transaction
-    final config = await _database.findRecurringConfigById(configId);
-    if (config != null) {
+    await _database.transaction(() async {
+      final config = await _database.findRecurringConfigById(configId);
+      if (config == null) return;
+
       await (_database.update(_database.transactions)
             ..where((t) => t.id.equals(config.baseTransactionId)))
           .write(const TransactionsCompanion(isRecurring: Value(false)));
-    }
 
-    // Delete the config
+      await (_database.update(
+        _database.recurringConfigs,
+      )..where((r) => r.id.equals(configId))).write(
+        RecurringConfigsCompanion(
+          isActive: const Value(false),
+          syncStatus: const Value(SyncStatus.pendingDelete),
+          updatedAt: Value(DateTime.now()),
+        ),
+      );
+    });
+    _logger.i('Cancelled recurring config (tombstoned for sync): $configId');
+  }
+
+  /// Permanently remove a cancelled config's row.
+  ///
+  /// Only safe once the cancellation has been acknowledged by the server —
+  /// otherwise the tombstone is lost and other devices keep generating.
+  Future<void> purgeAcknowledgedCancellation(String configId) async {
+    final config = await _database.findRecurringConfigById(configId);
+    if (config == null) return;
+    if (config.syncStatus != SyncStatus.synced || config.isActive) return;
     await _database.deleteRecurringConfig(configId);
-    _logger.i('Deleted recurring config: $configId');
   }
 
   /// Get recurring frequency display text

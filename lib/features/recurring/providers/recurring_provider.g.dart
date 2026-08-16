@@ -185,7 +185,7 @@ final class RecurringNotifierProvider
   RecurringNotifier create() => RecurringNotifier();
 }
 
-String _$recurringNotifierHash() => r'cc679b75aadb403e8b344b420de65eed737e913d';
+String _$recurringNotifierHash() => r'974927c21463b6243cd4d8552aa6bd46d0f90540';
 
 /// Notifier for managing recurring transactions
 

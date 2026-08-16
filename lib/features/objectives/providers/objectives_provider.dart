@@ -102,12 +102,18 @@ class ObjectivesNotifier extends _$ObjectivesNotifier {
     return id;
   }
 
-  /// Update an objective
+  /// Update an objective.
+  ///
+  /// [endDate] is tri-state and mirrors [ObjectivesService.updateObjective]:
+  /// omit to keep the current deadline, pass a [DateTime] to set one, pass null
+  /// to clear it (an open-ended goal). A plain nullable parameter would make
+  /// "not supplied" and "remove the deadline" indistinguishable — which is how
+  /// clearing an end date came to silently do nothing.
   Future<void> updateObjective({
     required String objectiveId,
     String? name,
     double? targetAmount,
-    DateTime? endDate,
+    Object? endDate = ObjectivesService.keepEndDate,
     String? iconName,
     String? color,
     bool? isPinned,

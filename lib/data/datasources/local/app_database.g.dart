@@ -474,6 +474,17 @@ class $CategoriesTable extends Categories
     ),
     defaultValue: const Constant(false),
   );
+  static const VerificationMeta _defaultKeyMeta = const VerificationMeta(
+    'defaultKey',
+  );
+  @override
+  late final GeneratedColumn<String> defaultKey = GeneratedColumn<String>(
+    'default_key',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _serverIdMeta = const VerificationMeta(
     'serverId',
   );
@@ -543,6 +554,7 @@ class $CategoriesTable extends Categories
     orderIndex,
     type,
     isDefault,
+    defaultKey,
     serverId,
     syncStatus,
     createdAt,
@@ -617,6 +629,12 @@ class $CategoriesTable extends Categories
       context.handle(
         _isDefaultMeta,
         isDefault.isAcceptableOrUnknown(data['is_default']!, _isDefaultMeta),
+      );
+    }
+    if (data.containsKey('default_key')) {
+      context.handle(
+        _defaultKeyMeta,
+        defaultKey.isAcceptableOrUnknown(data['default_key']!, _defaultKeyMeta),
       );
     }
     if (data.containsKey('server_id')) {
@@ -694,6 +712,10 @@ class $CategoriesTable extends Categories
         DriftSqlType.bool,
         data['${effectivePrefix}is_default'],
       )!,
+      defaultKey: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}default_key'],
+      ),
       serverId: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}server_id'],
@@ -733,6 +755,17 @@ class Category extends DataClass implements Insertable<Category> {
   final int orderIndex;
   final String? type;
   final bool isDefault;
+
+  /// Stable slug identifying WHICH built-in category this is, or null for a
+  /// user-created one.
+  ///
+  /// Category ids are random per install (they must be — the backend's category
+  /// primary key is global, so a shared id collides across users). This is the
+  /// cross-device identity instead: it is how a second device recognises a
+  /// built-in it already has rather than uploading a duplicate set of defaults,
+  /// and how duplicates that already exist can be merged *provably* safely.
+  /// See `DefaultCategoryCatalog`.
+  final String? defaultKey;
   final String? serverId;
   final int syncStatus;
   final DateTime createdAt;
@@ -748,6 +781,7 @@ class Category extends DataClass implements Insertable<Category> {
     required this.orderIndex,
     this.type,
     required this.isDefault,
+    this.defaultKey,
     this.serverId,
     required this.syncStatus,
     required this.createdAt,
@@ -770,6 +804,9 @@ class Category extends DataClass implements Insertable<Category> {
       map['type'] = Variable<String>(type);
     }
     map['is_default'] = Variable<bool>(isDefault);
+    if (!nullToAbsent || defaultKey != null) {
+      map['default_key'] = Variable<String>(defaultKey);
+    }
     if (!nullToAbsent || serverId != null) {
       map['server_id'] = Variable<String>(serverId);
     }
@@ -795,6 +832,9 @@ class Category extends DataClass implements Insertable<Category> {
       orderIndex: Value(orderIndex),
       type: type == null && nullToAbsent ? const Value.absent() : Value(type),
       isDefault: Value(isDefault),
+      defaultKey: defaultKey == null && nullToAbsent
+          ? const Value.absent()
+          : Value(defaultKey),
       serverId: serverId == null && nullToAbsent
           ? const Value.absent()
           : Value(serverId),
@@ -822,6 +862,7 @@ class Category extends DataClass implements Insertable<Category> {
       orderIndex: serializer.fromJson<int>(json['orderIndex']),
       type: serializer.fromJson<String?>(json['type']),
       isDefault: serializer.fromJson<bool>(json['isDefault']),
+      defaultKey: serializer.fromJson<String?>(json['defaultKey']),
       serverId: serializer.fromJson<String?>(json['serverId']),
       syncStatus: serializer.fromJson<int>(json['syncStatus']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
@@ -842,6 +883,7 @@ class Category extends DataClass implements Insertable<Category> {
       'orderIndex': serializer.toJson<int>(orderIndex),
       'type': serializer.toJson<String?>(type),
       'isDefault': serializer.toJson<bool>(isDefault),
+      'defaultKey': serializer.toJson<String?>(defaultKey),
       'serverId': serializer.toJson<String?>(serverId),
       'syncStatus': serializer.toJson<int>(syncStatus),
       'createdAt': serializer.toJson<DateTime>(createdAt),
@@ -860,6 +902,7 @@ class Category extends DataClass implements Insertable<Category> {
     int? orderIndex,
     Value<String?> type = const Value.absent(),
     bool? isDefault,
+    Value<String?> defaultKey = const Value.absent(),
     Value<String?> serverId = const Value.absent(),
     int? syncStatus,
     DateTime? createdAt,
@@ -877,6 +920,7 @@ class Category extends DataClass implements Insertable<Category> {
     orderIndex: orderIndex ?? this.orderIndex,
     type: type.present ? type.value : this.type,
     isDefault: isDefault ?? this.isDefault,
+    defaultKey: defaultKey.present ? defaultKey.value : this.defaultKey,
     serverId: serverId.present ? serverId.value : this.serverId,
     syncStatus: syncStatus ?? this.syncStatus,
     createdAt: createdAt ?? this.createdAt,
@@ -898,6 +942,9 @@ class Category extends DataClass implements Insertable<Category> {
           : this.orderIndex,
       type: data.type.present ? data.type.value : this.type,
       isDefault: data.isDefault.present ? data.isDefault.value : this.isDefault,
+      defaultKey: data.defaultKey.present
+          ? data.defaultKey.value
+          : this.defaultKey,
       serverId: data.serverId.present ? data.serverId.value : this.serverId,
       syncStatus: data.syncStatus.present
           ? data.syncStatus.value
@@ -920,6 +967,7 @@ class Category extends DataClass implements Insertable<Category> {
           ..write('orderIndex: $orderIndex, ')
           ..write('type: $type, ')
           ..write('isDefault: $isDefault, ')
+          ..write('defaultKey: $defaultKey, ')
           ..write('serverId: $serverId, ')
           ..write('syncStatus: $syncStatus, ')
           ..write('createdAt: $createdAt, ')
@@ -940,6 +988,7 @@ class Category extends DataClass implements Insertable<Category> {
     orderIndex,
     type,
     isDefault,
+    defaultKey,
     serverId,
     syncStatus,
     createdAt,
@@ -959,6 +1008,7 @@ class Category extends DataClass implements Insertable<Category> {
           other.orderIndex == this.orderIndex &&
           other.type == this.type &&
           other.isDefault == this.isDefault &&
+          other.defaultKey == this.defaultKey &&
           other.serverId == this.serverId &&
           other.syncStatus == this.syncStatus &&
           other.createdAt == this.createdAt &&
@@ -976,6 +1026,7 @@ class CategoriesCompanion extends UpdateCompanion<Category> {
   final Value<int> orderIndex;
   final Value<String?> type;
   final Value<bool> isDefault;
+  final Value<String?> defaultKey;
   final Value<String?> serverId;
   final Value<int> syncStatus;
   final Value<DateTime> createdAt;
@@ -992,6 +1043,7 @@ class CategoriesCompanion extends UpdateCompanion<Category> {
     this.orderIndex = const Value.absent(),
     this.type = const Value.absent(),
     this.isDefault = const Value.absent(),
+    this.defaultKey = const Value.absent(),
     this.serverId = const Value.absent(),
     this.syncStatus = const Value.absent(),
     this.createdAt = const Value.absent(),
@@ -1009,6 +1061,7 @@ class CategoriesCompanion extends UpdateCompanion<Category> {
     this.orderIndex = const Value.absent(),
     this.type = const Value.absent(),
     this.isDefault = const Value.absent(),
+    this.defaultKey = const Value.absent(),
     this.serverId = const Value.absent(),
     this.syncStatus = const Value.absent(),
     this.createdAt = const Value.absent(),
@@ -1027,6 +1080,7 @@ class CategoriesCompanion extends UpdateCompanion<Category> {
     Expression<int>? orderIndex,
     Expression<String>? type,
     Expression<bool>? isDefault,
+    Expression<String>? defaultKey,
     Expression<String>? serverId,
     Expression<int>? syncStatus,
     Expression<DateTime>? createdAt,
@@ -1044,6 +1098,7 @@ class CategoriesCompanion extends UpdateCompanion<Category> {
       if (orderIndex != null) 'order_index': orderIndex,
       if (type != null) 'type': type,
       if (isDefault != null) 'is_default': isDefault,
+      if (defaultKey != null) 'default_key': defaultKey,
       if (serverId != null) 'server_id': serverId,
       if (syncStatus != null) 'sync_status': syncStatus,
       if (createdAt != null) 'created_at': createdAt,
@@ -1063,6 +1118,7 @@ class CategoriesCompanion extends UpdateCompanion<Category> {
     Value<int>? orderIndex,
     Value<String?>? type,
     Value<bool>? isDefault,
+    Value<String?>? defaultKey,
     Value<String?>? serverId,
     Value<int>? syncStatus,
     Value<DateTime>? createdAt,
@@ -1080,6 +1136,7 @@ class CategoriesCompanion extends UpdateCompanion<Category> {
       orderIndex: orderIndex ?? this.orderIndex,
       type: type ?? this.type,
       isDefault: isDefault ?? this.isDefault,
+      defaultKey: defaultKey ?? this.defaultKey,
       serverId: serverId ?? this.serverId,
       syncStatus: syncStatus ?? this.syncStatus,
       createdAt: createdAt ?? this.createdAt,
@@ -1119,6 +1176,9 @@ class CategoriesCompanion extends UpdateCompanion<Category> {
     if (isDefault.present) {
       map['is_default'] = Variable<bool>(isDefault.value);
     }
+    if (defaultKey.present) {
+      map['default_key'] = Variable<String>(defaultKey.value);
+    }
     if (serverId.present) {
       map['server_id'] = Variable<String>(serverId.value);
     }
@@ -1152,6 +1212,7 @@ class CategoriesCompanion extends UpdateCompanion<Category> {
           ..write('orderIndex: $orderIndex, ')
           ..write('type: $type, ')
           ..write('isDefault: $isDefault, ')
+          ..write('defaultKey: $defaultKey, ')
           ..write('serverId: $serverId, ')
           ..write('syncStatus: $syncStatus, ')
           ..write('createdAt: $createdAt, ')
@@ -3773,6 +3834,17 @@ class $TransactionsTable extends Transactions
           'REFERENCES recurring_configs (id)',
         ),
       );
+  static const VerificationMeta _occurrenceKeyMeta = const VerificationMeta(
+    'occurrenceKey',
+  );
+  @override
+  late final GeneratedColumn<String> occurrenceKey = GeneratedColumn<String>(
+    'occurrence_key',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _budgetIdMeta = const VerificationMeta(
     'budgetId',
   );
@@ -3972,6 +4044,7 @@ class $TransactionsTable extends Transactions
     paymentMethod,
     pairedTransactionId,
     recurringConfigId,
+    occurrenceKey,
     budgetId,
     objectiveId,
     isRecurring,
@@ -4101,6 +4174,15 @@ class $TransactionsTable extends Transactions
         recurringConfigId.isAcceptableOrUnknown(
           data['recurring_config_id']!,
           _recurringConfigIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('occurrence_key')) {
+      context.handle(
+        _occurrenceKeyMeta,
+        occurrenceKey.isAcceptableOrUnknown(
+          data['occurrence_key']!,
+          _occurrenceKeyMeta,
         ),
       );
     }
@@ -4268,6 +4350,10 @@ class $TransactionsTable extends Transactions
         DriftSqlType.string,
         data['${effectivePrefix}recurring_config_id'],
       ),
+      occurrenceKey: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}occurrence_key'],
+      ),
       budgetId: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}budget_id'],
@@ -4361,6 +4447,16 @@ class Transaction extends DataClass implements Insertable<Transaction> {
   final String? paymentMethod;
   final String? pairedTransactionId;
   final String? recurringConfigId;
+
+  /// Deterministic idempotency key for a generated recurrence occurrence:
+  /// `<recurringConfigId>@<scheduledOccurrenceUtcIso>`.
+  ///
+  /// Two offline devices that both process the same due date derive the SAME
+  /// key, so the unique index below collapses them into one row locally and the
+  /// backend's matching unique constraint rejects the duplicate on push.
+  /// Null for every non-generated transaction (SQLite treats NULLs as distinct
+  /// in a unique index, so ordinary rows are unaffected).
+  final String? occurrenceKey;
   final String? budgetId;
   final String? objectiveId;
   final bool isRecurring;
@@ -4391,6 +4487,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     this.paymentMethod,
     this.pairedTransactionId,
     this.recurringConfigId,
+    this.occurrenceKey,
     this.budgetId,
     this.objectiveId,
     required this.isRecurring,
@@ -4435,6 +4532,9 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     }
     if (!nullToAbsent || recurringConfigId != null) {
       map['recurring_config_id'] = Variable<String>(recurringConfigId);
+    }
+    if (!nullToAbsent || occurrenceKey != null) {
+      map['occurrence_key'] = Variable<String>(occurrenceKey);
     }
     if (!nullToAbsent || budgetId != null) {
       map['budget_id'] = Variable<String>(budgetId);
@@ -4500,6 +4600,9 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       recurringConfigId: recurringConfigId == null && nullToAbsent
           ? const Value.absent()
           : Value(recurringConfigId),
+      occurrenceKey: occurrenceKey == null && nullToAbsent
+          ? const Value.absent()
+          : Value(occurrenceKey),
       budgetId: budgetId == null && nullToAbsent
           ? const Value.absent()
           : Value(budgetId),
@@ -4558,6 +4661,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       recurringConfigId: serializer.fromJson<String?>(
         json['recurringConfigId'],
       ),
+      occurrenceKey: serializer.fromJson<String?>(json['occurrenceKey']),
       budgetId: serializer.fromJson<String?>(json['budgetId']),
       objectiveId: serializer.fromJson<String?>(json['objectiveId']),
       isRecurring: serializer.fromJson<bool>(json['isRecurring']),
@@ -4597,6 +4701,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       'paymentMethod': serializer.toJson<String?>(paymentMethod),
       'pairedTransactionId': serializer.toJson<String?>(pairedTransactionId),
       'recurringConfigId': serializer.toJson<String?>(recurringConfigId),
+      'occurrenceKey': serializer.toJson<String?>(occurrenceKey),
       'budgetId': serializer.toJson<String?>(budgetId),
       'objectiveId': serializer.toJson<String?>(objectiveId),
       'isRecurring': serializer.toJson<bool>(isRecurring),
@@ -4632,6 +4737,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     Value<String?> paymentMethod = const Value.absent(),
     Value<String?> pairedTransactionId = const Value.absent(),
     Value<String?> recurringConfigId = const Value.absent(),
+    Value<String?> occurrenceKey = const Value.absent(),
     Value<String?> budgetId = const Value.absent(),
     Value<String?> objectiveId = const Value.absent(),
     bool? isRecurring,
@@ -4670,6 +4776,9 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     recurringConfigId: recurringConfigId.present
         ? recurringConfigId.value
         : this.recurringConfigId,
+    occurrenceKey: occurrenceKey.present
+        ? occurrenceKey.value
+        : this.occurrenceKey,
     budgetId: budgetId.present ? budgetId.value : this.budgetId,
     objectiveId: objectiveId.present ? objectiveId.value : this.objectiveId,
     isRecurring: isRecurring ?? this.isRecurring,
@@ -4720,6 +4829,9 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       recurringConfigId: data.recurringConfigId.present
           ? data.recurringConfigId.value
           : this.recurringConfigId,
+      occurrenceKey: data.occurrenceKey.present
+          ? data.occurrenceKey.value
+          : this.occurrenceKey,
       budgetId: data.budgetId.present ? data.budgetId.value : this.budgetId,
       objectiveId: data.objectiveId.present
           ? data.objectiveId.value
@@ -4771,6 +4883,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
           ..write('paymentMethod: $paymentMethod, ')
           ..write('pairedTransactionId: $pairedTransactionId, ')
           ..write('recurringConfigId: $recurringConfigId, ')
+          ..write('occurrenceKey: $occurrenceKey, ')
           ..write('budgetId: $budgetId, ')
           ..write('objectiveId: $objectiveId, ')
           ..write('isRecurring: $isRecurring, ')
@@ -4806,6 +4919,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     paymentMethod,
     pairedTransactionId,
     recurringConfigId,
+    occurrenceKey,
     budgetId,
     objectiveId,
     isRecurring,
@@ -4840,6 +4954,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
           other.paymentMethod == this.paymentMethod &&
           other.pairedTransactionId == this.pairedTransactionId &&
           other.recurringConfigId == this.recurringConfigId &&
+          other.occurrenceKey == this.occurrenceKey &&
           other.budgetId == this.budgetId &&
           other.objectiveId == this.objectiveId &&
           other.isRecurring == this.isRecurring &&
@@ -4872,6 +4987,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
   final Value<String?> paymentMethod;
   final Value<String?> pairedTransactionId;
   final Value<String?> recurringConfigId;
+  final Value<String?> occurrenceKey;
   final Value<String?> budgetId;
   final Value<String?> objectiveId;
   final Value<bool> isRecurring;
@@ -4903,6 +5019,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     this.paymentMethod = const Value.absent(),
     this.pairedTransactionId = const Value.absent(),
     this.recurringConfigId = const Value.absent(),
+    this.occurrenceKey = const Value.absent(),
     this.budgetId = const Value.absent(),
     this.objectiveId = const Value.absent(),
     this.isRecurring = const Value.absent(),
@@ -4935,6 +5052,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     this.paymentMethod = const Value.absent(),
     this.pairedTransactionId = const Value.absent(),
     this.recurringConfigId = const Value.absent(),
+    this.occurrenceKey = const Value.absent(),
     this.budgetId = const Value.absent(),
     this.objectiveId = const Value.absent(),
     this.isRecurring = const Value.absent(),
@@ -4970,6 +5088,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     Expression<String>? paymentMethod,
     Expression<String>? pairedTransactionId,
     Expression<String>? recurringConfigId,
+    Expression<String>? occurrenceKey,
     Expression<String>? budgetId,
     Expression<String>? objectiveId,
     Expression<bool>? isRecurring,
@@ -5003,6 +5122,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
       if (pairedTransactionId != null)
         'paired_transaction_id': pairedTransactionId,
       if (recurringConfigId != null) 'recurring_config_id': recurringConfigId,
+      if (occurrenceKey != null) 'occurrence_key': occurrenceKey,
       if (budgetId != null) 'budget_id': budgetId,
       if (objectiveId != null) 'objective_id': objectiveId,
       if (isRecurring != null) 'is_recurring': isRecurring,
@@ -5037,6 +5157,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     Value<String?>? paymentMethod,
     Value<String?>? pairedTransactionId,
     Value<String?>? recurringConfigId,
+    Value<String?>? occurrenceKey,
     Value<String?>? budgetId,
     Value<String?>? objectiveId,
     Value<bool>? isRecurring,
@@ -5069,6 +5190,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
       paymentMethod: paymentMethod ?? this.paymentMethod,
       pairedTransactionId: pairedTransactionId ?? this.pairedTransactionId,
       recurringConfigId: recurringConfigId ?? this.recurringConfigId,
+      occurrenceKey: occurrenceKey ?? this.occurrenceKey,
       budgetId: budgetId ?? this.budgetId,
       objectiveId: objectiveId ?? this.objectiveId,
       isRecurring: isRecurring ?? this.isRecurring,
@@ -5134,6 +5256,9 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     }
     if (recurringConfigId.present) {
       map['recurring_config_id'] = Variable<String>(recurringConfigId.value);
+    }
+    if (occurrenceKey.present) {
+      map['occurrence_key'] = Variable<String>(occurrenceKey.value);
     }
     if (budgetId.present) {
       map['budget_id'] = Variable<String>(budgetId.value);
@@ -5205,6 +5330,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
           ..write('paymentMethod: $paymentMethod, ')
           ..write('pairedTransactionId: $pairedTransactionId, ')
           ..write('recurringConfigId: $recurringConfigId, ')
+          ..write('occurrenceKey: $occurrenceKey, ')
           ..write('budgetId: $budgetId, ')
           ..write('objectiveId: $objectiveId, ')
           ..write('isRecurring: $isRecurring, ')
@@ -10250,6 +10376,1015 @@ class ExchangeRatesCompanion extends UpdateCompanion<ExchangeRate> {
   }
 }
 
+class $LocalStoreMetasTable extends LocalStoreMetas
+    with TableInfo<$LocalStoreMetasTable, LocalStoreMeta> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $LocalStoreMetasTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(1),
+  );
+  static const VerificationMeta _ownerUserIdMeta = const VerificationMeta(
+    'ownerUserId',
+  );
+  @override
+  late final GeneratedColumn<String> ownerUserId = GeneratedColumn<String>(
+    'owner_user_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _ownerEmailMeta = const VerificationMeta(
+    'ownerEmail',
+  );
+  @override
+  late final GeneratedColumn<String> ownerEmail = GeneratedColumn<String>(
+    'owner_email',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _claimedAtMeta = const VerificationMeta(
+    'claimedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> claimedAt = GeneratedColumn<DateTime>(
+    'claimed_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    ownerUserId,
+    ownerEmail,
+    claimedAt,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'local_store_metas';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<LocalStoreMeta> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('owner_user_id')) {
+      context.handle(
+        _ownerUserIdMeta,
+        ownerUserId.isAcceptableOrUnknown(
+          data['owner_user_id']!,
+          _ownerUserIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('owner_email')) {
+      context.handle(
+        _ownerEmailMeta,
+        ownerEmail.isAcceptableOrUnknown(data['owner_email']!, _ownerEmailMeta),
+      );
+    }
+    if (data.containsKey('claimed_at')) {
+      context.handle(
+        _claimedAtMeta,
+        claimedAt.isAcceptableOrUnknown(data['claimed_at']!, _claimedAtMeta),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  LocalStoreMeta map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return LocalStoreMeta(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      ownerUserId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}owner_user_id'],
+      ),
+      ownerEmail: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}owner_email'],
+      ),
+      claimedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}claimed_at'],
+      ),
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $LocalStoreMetasTable createAlias(String alias) {
+    return $LocalStoreMetasTable(attachedDatabase, alias);
+  }
+}
+
+class LocalStoreMeta extends DataClass implements Insertable<LocalStoreMeta> {
+  /// Always 1 — this table holds exactly one row.
+  final int id;
+
+  /// Backend user id that owns the data in this database file.
+  final String? ownerUserId;
+
+  /// Email of the owner, purely for diagnostics and confirmation dialogs.
+  final String? ownerEmail;
+
+  /// When the store was bound to [ownerUserId].
+  final DateTime? claimedAt;
+  final DateTime updatedAt;
+  const LocalStoreMeta({
+    required this.id,
+    this.ownerUserId,
+    this.ownerEmail,
+    this.claimedAt,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    if (!nullToAbsent || ownerUserId != null) {
+      map['owner_user_id'] = Variable<String>(ownerUserId);
+    }
+    if (!nullToAbsent || ownerEmail != null) {
+      map['owner_email'] = Variable<String>(ownerEmail);
+    }
+    if (!nullToAbsent || claimedAt != null) {
+      map['claimed_at'] = Variable<DateTime>(claimedAt);
+    }
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  LocalStoreMetasCompanion toCompanion(bool nullToAbsent) {
+    return LocalStoreMetasCompanion(
+      id: Value(id),
+      ownerUserId: ownerUserId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(ownerUserId),
+      ownerEmail: ownerEmail == null && nullToAbsent
+          ? const Value.absent()
+          : Value(ownerEmail),
+      claimedAt: claimedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(claimedAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory LocalStoreMeta.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return LocalStoreMeta(
+      id: serializer.fromJson<int>(json['id']),
+      ownerUserId: serializer.fromJson<String?>(json['ownerUserId']),
+      ownerEmail: serializer.fromJson<String?>(json['ownerEmail']),
+      claimedAt: serializer.fromJson<DateTime?>(json['claimedAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'ownerUserId': serializer.toJson<String?>(ownerUserId),
+      'ownerEmail': serializer.toJson<String?>(ownerEmail),
+      'claimedAt': serializer.toJson<DateTime?>(claimedAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  LocalStoreMeta copyWith({
+    int? id,
+    Value<String?> ownerUserId = const Value.absent(),
+    Value<String?> ownerEmail = const Value.absent(),
+    Value<DateTime?> claimedAt = const Value.absent(),
+    DateTime? updatedAt,
+  }) => LocalStoreMeta(
+    id: id ?? this.id,
+    ownerUserId: ownerUserId.present ? ownerUserId.value : this.ownerUserId,
+    ownerEmail: ownerEmail.present ? ownerEmail.value : this.ownerEmail,
+    claimedAt: claimedAt.present ? claimedAt.value : this.claimedAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  LocalStoreMeta copyWithCompanion(LocalStoreMetasCompanion data) {
+    return LocalStoreMeta(
+      id: data.id.present ? data.id.value : this.id,
+      ownerUserId: data.ownerUserId.present
+          ? data.ownerUserId.value
+          : this.ownerUserId,
+      ownerEmail: data.ownerEmail.present
+          ? data.ownerEmail.value
+          : this.ownerEmail,
+      claimedAt: data.claimedAt.present ? data.claimedAt.value : this.claimedAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocalStoreMeta(')
+          ..write('id: $id, ')
+          ..write('ownerUserId: $ownerUserId, ')
+          ..write('ownerEmail: $ownerEmail, ')
+          ..write('claimedAt: $claimedAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, ownerUserId, ownerEmail, claimedAt, updatedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is LocalStoreMeta &&
+          other.id == this.id &&
+          other.ownerUserId == this.ownerUserId &&
+          other.ownerEmail == this.ownerEmail &&
+          other.claimedAt == this.claimedAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class LocalStoreMetasCompanion extends UpdateCompanion<LocalStoreMeta> {
+  final Value<int> id;
+  final Value<String?> ownerUserId;
+  final Value<String?> ownerEmail;
+  final Value<DateTime?> claimedAt;
+  final Value<DateTime> updatedAt;
+  const LocalStoreMetasCompanion({
+    this.id = const Value.absent(),
+    this.ownerUserId = const Value.absent(),
+    this.ownerEmail = const Value.absent(),
+    this.claimedAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  });
+  LocalStoreMetasCompanion.insert({
+    this.id = const Value.absent(),
+    this.ownerUserId = const Value.absent(),
+    this.ownerEmail = const Value.absent(),
+    this.claimedAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  });
+  static Insertable<LocalStoreMeta> custom({
+    Expression<int>? id,
+    Expression<String>? ownerUserId,
+    Expression<String>? ownerEmail,
+    Expression<DateTime>? claimedAt,
+    Expression<DateTime>? updatedAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (ownerUserId != null) 'owner_user_id': ownerUserId,
+      if (ownerEmail != null) 'owner_email': ownerEmail,
+      if (claimedAt != null) 'claimed_at': claimedAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+    });
+  }
+
+  LocalStoreMetasCompanion copyWith({
+    Value<int>? id,
+    Value<String?>? ownerUserId,
+    Value<String?>? ownerEmail,
+    Value<DateTime?>? claimedAt,
+    Value<DateTime>? updatedAt,
+  }) {
+    return LocalStoreMetasCompanion(
+      id: id ?? this.id,
+      ownerUserId: ownerUserId ?? this.ownerUserId,
+      ownerEmail: ownerEmail ?? this.ownerEmail,
+      claimedAt: claimedAt ?? this.claimedAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (ownerUserId.present) {
+      map['owner_user_id'] = Variable<String>(ownerUserId.value);
+    }
+    if (ownerEmail.present) {
+      map['owner_email'] = Variable<String>(ownerEmail.value);
+    }
+    if (claimedAt.present) {
+      map['claimed_at'] = Variable<DateTime>(claimedAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocalStoreMetasCompanion(')
+          ..write('id: $id, ')
+          ..write('ownerUserId: $ownerUserId, ')
+          ..write('ownerEmail: $ownerEmail, ')
+          ..write('claimedAt: $claimedAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $CategoryReconciliationsTable extends CategoryReconciliations
+    with TableInfo<$CategoryReconciliationsTable, CategoryReconciliation> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CategoryReconciliationsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _defaultKeyMeta = const VerificationMeta(
+    'defaultKey',
+  );
+  @override
+  late final GeneratedColumn<String> defaultKey = GeneratedColumn<String>(
+    'default_key',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _provisionalCategoryIdMeta =
+      const VerificationMeta('provisionalCategoryId');
+  @override
+  late final GeneratedColumn<String> provisionalCategoryId =
+      GeneratedColumn<String>(
+        'provisional_category_id',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _catalogNameMeta = const VerificationMeta(
+    'catalogName',
+  );
+  @override
+  late final GeneratedColumn<String> catalogName = GeneratedColumn<String>(
+    'catalog_name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _catalogIsIncomeMeta = const VerificationMeta(
+    'catalogIsIncome',
+  );
+  @override
+  late final GeneratedColumn<bool> catalogIsIncome = GeneratedColumn<bool>(
+    'catalog_is_income',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("catalog_is_income" IN (0, 1))',
+    ),
+  );
+  static const VerificationMeta _candidatesJsonMeta = const VerificationMeta(
+    'candidatesJson',
+  );
+  @override
+  late final GeneratedColumn<String> candidatesJson = GeneratedColumn<String>(
+    'candidates_json',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _resolutionKindMeta = const VerificationMeta(
+    'resolutionKind',
+  );
+  @override
+  late final GeneratedColumn<String> resolutionKind = GeneratedColumn<String>(
+    'resolution_kind',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _resolutionCandidateIdMeta =
+      const VerificationMeta('resolutionCandidateId');
+  @override
+  late final GeneratedColumn<String> resolutionCandidateId =
+      GeneratedColumn<String>(
+        'resolution_candidate_id',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _detectedAtMeta = const VerificationMeta(
+    'detectedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> detectedAt = GeneratedColumn<DateTime>(
+    'detected_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _resolvedAtMeta = const VerificationMeta(
+    'resolvedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> resolvedAt = GeneratedColumn<DateTime>(
+    'resolved_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    defaultKey,
+    provisionalCategoryId,
+    catalogName,
+    catalogIsIncome,
+    candidatesJson,
+    resolutionKind,
+    resolutionCandidateId,
+    detectedAt,
+    resolvedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'category_reconciliations';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<CategoryReconciliation> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('default_key')) {
+      context.handle(
+        _defaultKeyMeta,
+        defaultKey.isAcceptableOrUnknown(data['default_key']!, _defaultKeyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_defaultKeyMeta);
+    }
+    if (data.containsKey('provisional_category_id')) {
+      context.handle(
+        _provisionalCategoryIdMeta,
+        provisionalCategoryId.isAcceptableOrUnknown(
+          data['provisional_category_id']!,
+          _provisionalCategoryIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_provisionalCategoryIdMeta);
+    }
+    if (data.containsKey('catalog_name')) {
+      context.handle(
+        _catalogNameMeta,
+        catalogName.isAcceptableOrUnknown(
+          data['catalog_name']!,
+          _catalogNameMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_catalogNameMeta);
+    }
+    if (data.containsKey('catalog_is_income')) {
+      context.handle(
+        _catalogIsIncomeMeta,
+        catalogIsIncome.isAcceptableOrUnknown(
+          data['catalog_is_income']!,
+          _catalogIsIncomeMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_catalogIsIncomeMeta);
+    }
+    if (data.containsKey('candidates_json')) {
+      context.handle(
+        _candidatesJsonMeta,
+        candidatesJson.isAcceptableOrUnknown(
+          data['candidates_json']!,
+          _candidatesJsonMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_candidatesJsonMeta);
+    }
+    if (data.containsKey('resolution_kind')) {
+      context.handle(
+        _resolutionKindMeta,
+        resolutionKind.isAcceptableOrUnknown(
+          data['resolution_kind']!,
+          _resolutionKindMeta,
+        ),
+      );
+    }
+    if (data.containsKey('resolution_candidate_id')) {
+      context.handle(
+        _resolutionCandidateIdMeta,
+        resolutionCandidateId.isAcceptableOrUnknown(
+          data['resolution_candidate_id']!,
+          _resolutionCandidateIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('detected_at')) {
+      context.handle(
+        _detectedAtMeta,
+        detectedAt.isAcceptableOrUnknown(data['detected_at']!, _detectedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_detectedAtMeta);
+    }
+    if (data.containsKey('resolved_at')) {
+      context.handle(
+        _resolvedAtMeta,
+        resolvedAt.isAcceptableOrUnknown(data['resolved_at']!, _resolvedAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {defaultKey};
+  @override
+  CategoryReconciliation map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CategoryReconciliation(
+      defaultKey: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}default_key'],
+      )!,
+      provisionalCategoryId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}provisional_category_id'],
+      )!,
+      catalogName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}catalog_name'],
+      )!,
+      catalogIsIncome: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}catalog_is_income'],
+      )!,
+      candidatesJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}candidates_json'],
+      )!,
+      resolutionKind: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}resolution_kind'],
+      ),
+      resolutionCandidateId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}resolution_candidate_id'],
+      ),
+      detectedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}detected_at'],
+      )!,
+      resolvedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}resolved_at'],
+      ),
+    );
+  }
+
+  @override
+  $CategoryReconciliationsTable createAlias(String alias) {
+    return $CategoryReconciliationsTable(attachedDatabase, alias);
+  }
+}
+
+class CategoryReconciliation extends DataClass
+    implements Insertable<CategoryReconciliation> {
+  /// The built-in this question is about. One open question per built-in.
+  final String defaultKey;
+
+  /// The local category seeded for that built-in, still unpushed.
+  final String provisionalCategoryId;
+
+  /// The built-in's catalogue name and direction, as the server described them.
+  final String catalogName;
+  final bool catalogIsIncome;
+
+  /// The candidates the server offered, as a JSON array. Stored verbatim so the
+  /// question can still be shown offline, long after the push that raised it.
+  final String candidatesJson;
+
+  /// The user's answer, or null while the question is still open.
+  ///
+  /// One of the `kind` values in `CategoryReconciliationKinds`.
+  final String? resolutionKind;
+
+  /// Which candidate the user chose, for an adopt answer.
+  final String? resolutionCandidateId;
+  final DateTime detectedAt;
+  final DateTime? resolvedAt;
+  const CategoryReconciliation({
+    required this.defaultKey,
+    required this.provisionalCategoryId,
+    required this.catalogName,
+    required this.catalogIsIncome,
+    required this.candidatesJson,
+    this.resolutionKind,
+    this.resolutionCandidateId,
+    required this.detectedAt,
+    this.resolvedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['default_key'] = Variable<String>(defaultKey);
+    map['provisional_category_id'] = Variable<String>(provisionalCategoryId);
+    map['catalog_name'] = Variable<String>(catalogName);
+    map['catalog_is_income'] = Variable<bool>(catalogIsIncome);
+    map['candidates_json'] = Variable<String>(candidatesJson);
+    if (!nullToAbsent || resolutionKind != null) {
+      map['resolution_kind'] = Variable<String>(resolutionKind);
+    }
+    if (!nullToAbsent || resolutionCandidateId != null) {
+      map['resolution_candidate_id'] = Variable<String>(resolutionCandidateId);
+    }
+    map['detected_at'] = Variable<DateTime>(detectedAt);
+    if (!nullToAbsent || resolvedAt != null) {
+      map['resolved_at'] = Variable<DateTime>(resolvedAt);
+    }
+    return map;
+  }
+
+  CategoryReconciliationsCompanion toCompanion(bool nullToAbsent) {
+    return CategoryReconciliationsCompanion(
+      defaultKey: Value(defaultKey),
+      provisionalCategoryId: Value(provisionalCategoryId),
+      catalogName: Value(catalogName),
+      catalogIsIncome: Value(catalogIsIncome),
+      candidatesJson: Value(candidatesJson),
+      resolutionKind: resolutionKind == null && nullToAbsent
+          ? const Value.absent()
+          : Value(resolutionKind),
+      resolutionCandidateId: resolutionCandidateId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(resolutionCandidateId),
+      detectedAt: Value(detectedAt),
+      resolvedAt: resolvedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(resolvedAt),
+    );
+  }
+
+  factory CategoryReconciliation.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CategoryReconciliation(
+      defaultKey: serializer.fromJson<String>(json['defaultKey']),
+      provisionalCategoryId: serializer.fromJson<String>(
+        json['provisionalCategoryId'],
+      ),
+      catalogName: serializer.fromJson<String>(json['catalogName']),
+      catalogIsIncome: serializer.fromJson<bool>(json['catalogIsIncome']),
+      candidatesJson: serializer.fromJson<String>(json['candidatesJson']),
+      resolutionKind: serializer.fromJson<String?>(json['resolutionKind']),
+      resolutionCandidateId: serializer.fromJson<String?>(
+        json['resolutionCandidateId'],
+      ),
+      detectedAt: serializer.fromJson<DateTime>(json['detectedAt']),
+      resolvedAt: serializer.fromJson<DateTime?>(json['resolvedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'defaultKey': serializer.toJson<String>(defaultKey),
+      'provisionalCategoryId': serializer.toJson<String>(provisionalCategoryId),
+      'catalogName': serializer.toJson<String>(catalogName),
+      'catalogIsIncome': serializer.toJson<bool>(catalogIsIncome),
+      'candidatesJson': serializer.toJson<String>(candidatesJson),
+      'resolutionKind': serializer.toJson<String?>(resolutionKind),
+      'resolutionCandidateId': serializer.toJson<String?>(
+        resolutionCandidateId,
+      ),
+      'detectedAt': serializer.toJson<DateTime>(detectedAt),
+      'resolvedAt': serializer.toJson<DateTime?>(resolvedAt),
+    };
+  }
+
+  CategoryReconciliation copyWith({
+    String? defaultKey,
+    String? provisionalCategoryId,
+    String? catalogName,
+    bool? catalogIsIncome,
+    String? candidatesJson,
+    Value<String?> resolutionKind = const Value.absent(),
+    Value<String?> resolutionCandidateId = const Value.absent(),
+    DateTime? detectedAt,
+    Value<DateTime?> resolvedAt = const Value.absent(),
+  }) => CategoryReconciliation(
+    defaultKey: defaultKey ?? this.defaultKey,
+    provisionalCategoryId: provisionalCategoryId ?? this.provisionalCategoryId,
+    catalogName: catalogName ?? this.catalogName,
+    catalogIsIncome: catalogIsIncome ?? this.catalogIsIncome,
+    candidatesJson: candidatesJson ?? this.candidatesJson,
+    resolutionKind: resolutionKind.present
+        ? resolutionKind.value
+        : this.resolutionKind,
+    resolutionCandidateId: resolutionCandidateId.present
+        ? resolutionCandidateId.value
+        : this.resolutionCandidateId,
+    detectedAt: detectedAt ?? this.detectedAt,
+    resolvedAt: resolvedAt.present ? resolvedAt.value : this.resolvedAt,
+  );
+  CategoryReconciliation copyWithCompanion(
+    CategoryReconciliationsCompanion data,
+  ) {
+    return CategoryReconciliation(
+      defaultKey: data.defaultKey.present
+          ? data.defaultKey.value
+          : this.defaultKey,
+      provisionalCategoryId: data.provisionalCategoryId.present
+          ? data.provisionalCategoryId.value
+          : this.provisionalCategoryId,
+      catalogName: data.catalogName.present
+          ? data.catalogName.value
+          : this.catalogName,
+      catalogIsIncome: data.catalogIsIncome.present
+          ? data.catalogIsIncome.value
+          : this.catalogIsIncome,
+      candidatesJson: data.candidatesJson.present
+          ? data.candidatesJson.value
+          : this.candidatesJson,
+      resolutionKind: data.resolutionKind.present
+          ? data.resolutionKind.value
+          : this.resolutionKind,
+      resolutionCandidateId: data.resolutionCandidateId.present
+          ? data.resolutionCandidateId.value
+          : this.resolutionCandidateId,
+      detectedAt: data.detectedAt.present
+          ? data.detectedAt.value
+          : this.detectedAt,
+      resolvedAt: data.resolvedAt.present
+          ? data.resolvedAt.value
+          : this.resolvedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CategoryReconciliation(')
+          ..write('defaultKey: $defaultKey, ')
+          ..write('provisionalCategoryId: $provisionalCategoryId, ')
+          ..write('catalogName: $catalogName, ')
+          ..write('catalogIsIncome: $catalogIsIncome, ')
+          ..write('candidatesJson: $candidatesJson, ')
+          ..write('resolutionKind: $resolutionKind, ')
+          ..write('resolutionCandidateId: $resolutionCandidateId, ')
+          ..write('detectedAt: $detectedAt, ')
+          ..write('resolvedAt: $resolvedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    defaultKey,
+    provisionalCategoryId,
+    catalogName,
+    catalogIsIncome,
+    candidatesJson,
+    resolutionKind,
+    resolutionCandidateId,
+    detectedAt,
+    resolvedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CategoryReconciliation &&
+          other.defaultKey == this.defaultKey &&
+          other.provisionalCategoryId == this.provisionalCategoryId &&
+          other.catalogName == this.catalogName &&
+          other.catalogIsIncome == this.catalogIsIncome &&
+          other.candidatesJson == this.candidatesJson &&
+          other.resolutionKind == this.resolutionKind &&
+          other.resolutionCandidateId == this.resolutionCandidateId &&
+          other.detectedAt == this.detectedAt &&
+          other.resolvedAt == this.resolvedAt);
+}
+
+class CategoryReconciliationsCompanion
+    extends UpdateCompanion<CategoryReconciliation> {
+  final Value<String> defaultKey;
+  final Value<String> provisionalCategoryId;
+  final Value<String> catalogName;
+  final Value<bool> catalogIsIncome;
+  final Value<String> candidatesJson;
+  final Value<String?> resolutionKind;
+  final Value<String?> resolutionCandidateId;
+  final Value<DateTime> detectedAt;
+  final Value<DateTime?> resolvedAt;
+  final Value<int> rowid;
+  const CategoryReconciliationsCompanion({
+    this.defaultKey = const Value.absent(),
+    this.provisionalCategoryId = const Value.absent(),
+    this.catalogName = const Value.absent(),
+    this.catalogIsIncome = const Value.absent(),
+    this.candidatesJson = const Value.absent(),
+    this.resolutionKind = const Value.absent(),
+    this.resolutionCandidateId = const Value.absent(),
+    this.detectedAt = const Value.absent(),
+    this.resolvedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CategoryReconciliationsCompanion.insert({
+    required String defaultKey,
+    required String provisionalCategoryId,
+    required String catalogName,
+    required bool catalogIsIncome,
+    required String candidatesJson,
+    this.resolutionKind = const Value.absent(),
+    this.resolutionCandidateId = const Value.absent(),
+    required DateTime detectedAt,
+    this.resolvedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : defaultKey = Value(defaultKey),
+       provisionalCategoryId = Value(provisionalCategoryId),
+       catalogName = Value(catalogName),
+       catalogIsIncome = Value(catalogIsIncome),
+       candidatesJson = Value(candidatesJson),
+       detectedAt = Value(detectedAt);
+  static Insertable<CategoryReconciliation> custom({
+    Expression<String>? defaultKey,
+    Expression<String>? provisionalCategoryId,
+    Expression<String>? catalogName,
+    Expression<bool>? catalogIsIncome,
+    Expression<String>? candidatesJson,
+    Expression<String>? resolutionKind,
+    Expression<String>? resolutionCandidateId,
+    Expression<DateTime>? detectedAt,
+    Expression<DateTime>? resolvedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (defaultKey != null) 'default_key': defaultKey,
+      if (provisionalCategoryId != null)
+        'provisional_category_id': provisionalCategoryId,
+      if (catalogName != null) 'catalog_name': catalogName,
+      if (catalogIsIncome != null) 'catalog_is_income': catalogIsIncome,
+      if (candidatesJson != null) 'candidates_json': candidatesJson,
+      if (resolutionKind != null) 'resolution_kind': resolutionKind,
+      if (resolutionCandidateId != null)
+        'resolution_candidate_id': resolutionCandidateId,
+      if (detectedAt != null) 'detected_at': detectedAt,
+      if (resolvedAt != null) 'resolved_at': resolvedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CategoryReconciliationsCompanion copyWith({
+    Value<String>? defaultKey,
+    Value<String>? provisionalCategoryId,
+    Value<String>? catalogName,
+    Value<bool>? catalogIsIncome,
+    Value<String>? candidatesJson,
+    Value<String?>? resolutionKind,
+    Value<String?>? resolutionCandidateId,
+    Value<DateTime>? detectedAt,
+    Value<DateTime?>? resolvedAt,
+    Value<int>? rowid,
+  }) {
+    return CategoryReconciliationsCompanion(
+      defaultKey: defaultKey ?? this.defaultKey,
+      provisionalCategoryId:
+          provisionalCategoryId ?? this.provisionalCategoryId,
+      catalogName: catalogName ?? this.catalogName,
+      catalogIsIncome: catalogIsIncome ?? this.catalogIsIncome,
+      candidatesJson: candidatesJson ?? this.candidatesJson,
+      resolutionKind: resolutionKind ?? this.resolutionKind,
+      resolutionCandidateId:
+          resolutionCandidateId ?? this.resolutionCandidateId,
+      detectedAt: detectedAt ?? this.detectedAt,
+      resolvedAt: resolvedAt ?? this.resolvedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (defaultKey.present) {
+      map['default_key'] = Variable<String>(defaultKey.value);
+    }
+    if (provisionalCategoryId.present) {
+      map['provisional_category_id'] = Variable<String>(
+        provisionalCategoryId.value,
+      );
+    }
+    if (catalogName.present) {
+      map['catalog_name'] = Variable<String>(catalogName.value);
+    }
+    if (catalogIsIncome.present) {
+      map['catalog_is_income'] = Variable<bool>(catalogIsIncome.value);
+    }
+    if (candidatesJson.present) {
+      map['candidates_json'] = Variable<String>(candidatesJson.value);
+    }
+    if (resolutionKind.present) {
+      map['resolution_kind'] = Variable<String>(resolutionKind.value);
+    }
+    if (resolutionCandidateId.present) {
+      map['resolution_candidate_id'] = Variable<String>(
+        resolutionCandidateId.value,
+      );
+    }
+    if (detectedAt.present) {
+      map['detected_at'] = Variable<DateTime>(detectedAt.value);
+    }
+    if (resolvedAt.present) {
+      map['resolved_at'] = Variable<DateTime>(resolvedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CategoryReconciliationsCompanion(')
+          ..write('defaultKey: $defaultKey, ')
+          ..write('provisionalCategoryId: $provisionalCategoryId, ')
+          ..write('catalogName: $catalogName, ')
+          ..write('catalogIsIncome: $catalogIsIncome, ')
+          ..write('candidatesJson: $candidatesJson, ')
+          ..write('resolutionKind: $resolutionKind, ')
+          ..write('resolutionCandidateId: $resolutionCandidateId, ')
+          ..write('detectedAt: $detectedAt, ')
+          ..write('resolvedAt: $resolvedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -10272,6 +11407,23 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   );
   late final $SyncStatesTable syncStates = $SyncStatesTable(this);
   late final $ExchangeRatesTable exchangeRates = $ExchangeRatesTable(this);
+  late final $LocalStoreMetasTable localStoreMetas = $LocalStoreMetasTable(
+    this,
+  );
+  late final $CategoryReconciliationsTable categoryReconciliations =
+      $CategoryReconciliationsTable(this);
+  late final Index idxCategoriesDefaultKey = Index(
+    'idx_categories_default_key',
+    'CREATE UNIQUE INDEX idx_categories_default_key ON categories (default_key)',
+  );
+  late final Index idxTransactionsOccurrenceKey = Index(
+    'idx_transactions_occurrence_key',
+    'CREATE UNIQUE INDEX idx_transactions_occurrence_key ON transactions (occurrence_key)',
+  );
+  late final Index idxTransactionsPaired = Index(
+    'idx_transactions_paired',
+    'CREATE INDEX idx_transactions_paired ON transactions (paired_transaction_id)',
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -10291,6 +11443,11 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     associatedTitles,
     syncStates,
     exchangeRates,
+    localStoreMetas,
+    categoryReconciliations,
+    idxCategoriesDefaultKey,
+    idxTransactionsOccurrenceKey,
+    idxTransactionsPaired,
   ];
 }
 
@@ -10498,6 +11655,7 @@ typedef $$CategoriesTableCreateCompanionBuilder =
       Value<int> orderIndex,
       Value<String?> type,
       Value<bool> isDefault,
+      Value<String?> defaultKey,
       Value<String?> serverId,
       Value<int> syncStatus,
       Value<DateTime> createdAt,
@@ -10516,6 +11674,7 @@ typedef $$CategoriesTableUpdateCompanionBuilder =
       Value<int> orderIndex,
       Value<String?> type,
       Value<bool> isDefault,
+      Value<String?> defaultKey,
       Value<String?> serverId,
       Value<int> syncStatus,
       Value<DateTime> createdAt,
@@ -10618,6 +11777,11 @@ class $$CategoriesTableFilterComposer
 
   ColumnFilters<bool> get isDefault => $composableBuilder(
     column: $table.isDefault,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get defaultKey => $composableBuilder(
+    column: $table.defaultKey,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -10751,6 +11915,11 @@ class $$CategoriesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get defaultKey => $composableBuilder(
+    column: $table.defaultKey,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get serverId => $composableBuilder(
     column: $table.serverId,
     builder: (column) => ColumnOrderings(column),
@@ -10816,6 +11985,11 @@ class $$CategoriesTableAnnotationComposer
 
   GeneratedColumn<bool> get isDefault =>
       $composableBuilder(column: $table.isDefault, builder: (column) => column);
+
+  GeneratedColumn<String> get defaultKey => $composableBuilder(
+    column: $table.defaultKey,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<String> get serverId =>
       $composableBuilder(column: $table.serverId, builder: (column) => column);
@@ -10925,6 +12099,7 @@ class $$CategoriesTableTableManager
                 Value<int> orderIndex = const Value.absent(),
                 Value<String?> type = const Value.absent(),
                 Value<bool> isDefault = const Value.absent(),
+                Value<String?> defaultKey = const Value.absent(),
                 Value<String?> serverId = const Value.absent(),
                 Value<int> syncStatus = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
@@ -10941,6 +12116,7 @@ class $$CategoriesTableTableManager
                 orderIndex: orderIndex,
                 type: type,
                 isDefault: isDefault,
+                defaultKey: defaultKey,
                 serverId: serverId,
                 syncStatus: syncStatus,
                 createdAt: createdAt,
@@ -10959,6 +12135,7 @@ class $$CategoriesTableTableManager
                 Value<int> orderIndex = const Value.absent(),
                 Value<String?> type = const Value.absent(),
                 Value<bool> isDefault = const Value.absent(),
+                Value<String?> defaultKey = const Value.absent(),
                 Value<String?> serverId = const Value.absent(),
                 Value<int> syncStatus = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
@@ -10975,6 +12152,7 @@ class $$CategoriesTableTableManager
                 orderIndex: orderIndex,
                 type: type,
                 isDefault: isDefault,
+                defaultKey: defaultKey,
                 serverId: serverId,
                 syncStatus: syncStatus,
                 createdAt: createdAt,
@@ -12641,6 +13819,7 @@ typedef $$TransactionsTableCreateCompanionBuilder =
       Value<String?> paymentMethod,
       Value<String?> pairedTransactionId,
       Value<String?> recurringConfigId,
+      Value<String?> occurrenceKey,
       Value<String?> budgetId,
       Value<String?> objectiveId,
       Value<bool> isRecurring,
@@ -12674,6 +13853,7 @@ typedef $$TransactionsTableUpdateCompanionBuilder =
       Value<String?> paymentMethod,
       Value<String?> pairedTransactionId,
       Value<String?> recurringConfigId,
+      Value<String?> occurrenceKey,
       Value<String?> budgetId,
       Value<String?> objectiveId,
       Value<bool> isRecurring,
@@ -12848,6 +14028,11 @@ class $$TransactionsTableFilterComposer
 
   ColumnFilters<String> get pairedTransactionId => $composableBuilder(
     column: $table.pairedTransactionId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get occurrenceKey => $composableBuilder(
+    column: $table.occurrenceKey,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -13109,6 +14294,11 @@ class $$TransactionsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get occurrenceKey => $composableBuilder(
+    column: $table.occurrenceKey,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get budgetId => $composableBuilder(
     column: $table.budgetId,
     builder: (column) => ColumnOrderings(column),
@@ -13319,6 +14509,11 @@ class $$TransactionsTableAnnotationComposer
 
   GeneratedColumn<String> get pairedTransactionId => $composableBuilder(
     column: $table.pairedTransactionId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get occurrenceKey => $composableBuilder(
+    column: $table.occurrenceKey,
     builder: (column) => column,
   );
 
@@ -13551,6 +14746,7 @@ class $$TransactionsTableTableManager
                 Value<String?> paymentMethod = const Value.absent(),
                 Value<String?> pairedTransactionId = const Value.absent(),
                 Value<String?> recurringConfigId = const Value.absent(),
+                Value<String?> occurrenceKey = const Value.absent(),
                 Value<String?> budgetId = const Value.absent(),
                 Value<String?> objectiveId = const Value.absent(),
                 Value<bool> isRecurring = const Value.absent(),
@@ -13583,6 +14779,7 @@ class $$TransactionsTableTableManager
                 paymentMethod: paymentMethod,
                 pairedTransactionId: pairedTransactionId,
                 recurringConfigId: recurringConfigId,
+                occurrenceKey: occurrenceKey,
                 budgetId: budgetId,
                 objectiveId: objectiveId,
                 isRecurring: isRecurring,
@@ -13616,6 +14813,7 @@ class $$TransactionsTableTableManager
                 Value<String?> paymentMethod = const Value.absent(),
                 Value<String?> pairedTransactionId = const Value.absent(),
                 Value<String?> recurringConfigId = const Value.absent(),
+                Value<String?> occurrenceKey = const Value.absent(),
                 Value<String?> budgetId = const Value.absent(),
                 Value<String?> objectiveId = const Value.absent(),
                 Value<bool> isRecurring = const Value.absent(),
@@ -13648,6 +14846,7 @@ class $$TransactionsTableTableManager
                 paymentMethod: paymentMethod,
                 pairedTransactionId: pairedTransactionId,
                 recurringConfigId: recurringConfigId,
+                occurrenceKey: occurrenceKey,
                 budgetId: budgetId,
                 objectiveId: objectiveId,
                 isRecurring: isRecurring,
@@ -16802,6 +18001,523 @@ typedef $$ExchangeRatesTableProcessedTableManager =
       ExchangeRate,
       PrefetchHooks Function()
     >;
+typedef $$LocalStoreMetasTableCreateCompanionBuilder =
+    LocalStoreMetasCompanion Function({
+      Value<int> id,
+      Value<String?> ownerUserId,
+      Value<String?> ownerEmail,
+      Value<DateTime?> claimedAt,
+      Value<DateTime> updatedAt,
+    });
+typedef $$LocalStoreMetasTableUpdateCompanionBuilder =
+    LocalStoreMetasCompanion Function({
+      Value<int> id,
+      Value<String?> ownerUserId,
+      Value<String?> ownerEmail,
+      Value<DateTime?> claimedAt,
+      Value<DateTime> updatedAt,
+    });
+
+class $$LocalStoreMetasTableFilterComposer
+    extends Composer<_$AppDatabase, $LocalStoreMetasTable> {
+  $$LocalStoreMetasTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get ownerUserId => $composableBuilder(
+    column: $table.ownerUserId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get ownerEmail => $composableBuilder(
+    column: $table.ownerEmail,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get claimedAt => $composableBuilder(
+    column: $table.claimedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$LocalStoreMetasTableOrderingComposer
+    extends Composer<_$AppDatabase, $LocalStoreMetasTable> {
+  $$LocalStoreMetasTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get ownerUserId => $composableBuilder(
+    column: $table.ownerUserId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get ownerEmail => $composableBuilder(
+    column: $table.ownerEmail,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get claimedAt => $composableBuilder(
+    column: $table.claimedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$LocalStoreMetasTableAnnotationComposer
+    extends Composer<_$AppDatabase, $LocalStoreMetasTable> {
+  $$LocalStoreMetasTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get ownerUserId => $composableBuilder(
+    column: $table.ownerUserId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get ownerEmail => $composableBuilder(
+    column: $table.ownerEmail,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get claimedAt =>
+      $composableBuilder(column: $table.claimedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$LocalStoreMetasTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $LocalStoreMetasTable,
+          LocalStoreMeta,
+          $$LocalStoreMetasTableFilterComposer,
+          $$LocalStoreMetasTableOrderingComposer,
+          $$LocalStoreMetasTableAnnotationComposer,
+          $$LocalStoreMetasTableCreateCompanionBuilder,
+          $$LocalStoreMetasTableUpdateCompanionBuilder,
+          (
+            LocalStoreMeta,
+            BaseReferences<
+              _$AppDatabase,
+              $LocalStoreMetasTable,
+              LocalStoreMeta
+            >,
+          ),
+          LocalStoreMeta,
+          PrefetchHooks Function()
+        > {
+  $$LocalStoreMetasTableTableManager(
+    _$AppDatabase db,
+    $LocalStoreMetasTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$LocalStoreMetasTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$LocalStoreMetasTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$LocalStoreMetasTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String?> ownerUserId = const Value.absent(),
+                Value<String?> ownerEmail = const Value.absent(),
+                Value<DateTime?> claimedAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+              }) => LocalStoreMetasCompanion(
+                id: id,
+                ownerUserId: ownerUserId,
+                ownerEmail: ownerEmail,
+                claimedAt: claimedAt,
+                updatedAt: updatedAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String?> ownerUserId = const Value.absent(),
+                Value<String?> ownerEmail = const Value.absent(),
+                Value<DateTime?> claimedAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+              }) => LocalStoreMetasCompanion.insert(
+                id: id,
+                ownerUserId: ownerUserId,
+                ownerEmail: ownerEmail,
+                claimedAt: claimedAt,
+                updatedAt: updatedAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$LocalStoreMetasTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $LocalStoreMetasTable,
+      LocalStoreMeta,
+      $$LocalStoreMetasTableFilterComposer,
+      $$LocalStoreMetasTableOrderingComposer,
+      $$LocalStoreMetasTableAnnotationComposer,
+      $$LocalStoreMetasTableCreateCompanionBuilder,
+      $$LocalStoreMetasTableUpdateCompanionBuilder,
+      (
+        LocalStoreMeta,
+        BaseReferences<_$AppDatabase, $LocalStoreMetasTable, LocalStoreMeta>,
+      ),
+      LocalStoreMeta,
+      PrefetchHooks Function()
+    >;
+typedef $$CategoryReconciliationsTableCreateCompanionBuilder =
+    CategoryReconciliationsCompanion Function({
+      required String defaultKey,
+      required String provisionalCategoryId,
+      required String catalogName,
+      required bool catalogIsIncome,
+      required String candidatesJson,
+      Value<String?> resolutionKind,
+      Value<String?> resolutionCandidateId,
+      required DateTime detectedAt,
+      Value<DateTime?> resolvedAt,
+      Value<int> rowid,
+    });
+typedef $$CategoryReconciliationsTableUpdateCompanionBuilder =
+    CategoryReconciliationsCompanion Function({
+      Value<String> defaultKey,
+      Value<String> provisionalCategoryId,
+      Value<String> catalogName,
+      Value<bool> catalogIsIncome,
+      Value<String> candidatesJson,
+      Value<String?> resolutionKind,
+      Value<String?> resolutionCandidateId,
+      Value<DateTime> detectedAt,
+      Value<DateTime?> resolvedAt,
+      Value<int> rowid,
+    });
+
+class $$CategoryReconciliationsTableFilterComposer
+    extends Composer<_$AppDatabase, $CategoryReconciliationsTable> {
+  $$CategoryReconciliationsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get defaultKey => $composableBuilder(
+    column: $table.defaultKey,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get provisionalCategoryId => $composableBuilder(
+    column: $table.provisionalCategoryId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get catalogName => $composableBuilder(
+    column: $table.catalogName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get catalogIsIncome => $composableBuilder(
+    column: $table.catalogIsIncome,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get candidatesJson => $composableBuilder(
+    column: $table.candidatesJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get resolutionKind => $composableBuilder(
+    column: $table.resolutionKind,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get resolutionCandidateId => $composableBuilder(
+    column: $table.resolutionCandidateId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get detectedAt => $composableBuilder(
+    column: $table.detectedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get resolvedAt => $composableBuilder(
+    column: $table.resolvedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$CategoryReconciliationsTableOrderingComposer
+    extends Composer<_$AppDatabase, $CategoryReconciliationsTable> {
+  $$CategoryReconciliationsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get defaultKey => $composableBuilder(
+    column: $table.defaultKey,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get provisionalCategoryId => $composableBuilder(
+    column: $table.provisionalCategoryId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get catalogName => $composableBuilder(
+    column: $table.catalogName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get catalogIsIncome => $composableBuilder(
+    column: $table.catalogIsIncome,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get candidatesJson => $composableBuilder(
+    column: $table.candidatesJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get resolutionKind => $composableBuilder(
+    column: $table.resolutionKind,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get resolutionCandidateId => $composableBuilder(
+    column: $table.resolutionCandidateId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get detectedAt => $composableBuilder(
+    column: $table.detectedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get resolvedAt => $composableBuilder(
+    column: $table.resolvedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$CategoryReconciliationsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $CategoryReconciliationsTable> {
+  $$CategoryReconciliationsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get defaultKey => $composableBuilder(
+    column: $table.defaultKey,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get provisionalCategoryId => $composableBuilder(
+    column: $table.provisionalCategoryId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get catalogName => $composableBuilder(
+    column: $table.catalogName,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get catalogIsIncome => $composableBuilder(
+    column: $table.catalogIsIncome,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get candidatesJson => $composableBuilder(
+    column: $table.candidatesJson,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get resolutionKind => $composableBuilder(
+    column: $table.resolutionKind,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get resolutionCandidateId => $composableBuilder(
+    column: $table.resolutionCandidateId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get detectedAt => $composableBuilder(
+    column: $table.detectedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get resolvedAt => $composableBuilder(
+    column: $table.resolvedAt,
+    builder: (column) => column,
+  );
+}
+
+class $$CategoryReconciliationsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $CategoryReconciliationsTable,
+          CategoryReconciliation,
+          $$CategoryReconciliationsTableFilterComposer,
+          $$CategoryReconciliationsTableOrderingComposer,
+          $$CategoryReconciliationsTableAnnotationComposer,
+          $$CategoryReconciliationsTableCreateCompanionBuilder,
+          $$CategoryReconciliationsTableUpdateCompanionBuilder,
+          (
+            CategoryReconciliation,
+            BaseReferences<
+              _$AppDatabase,
+              $CategoryReconciliationsTable,
+              CategoryReconciliation
+            >,
+          ),
+          CategoryReconciliation,
+          PrefetchHooks Function()
+        > {
+  $$CategoryReconciliationsTableTableManager(
+    _$AppDatabase db,
+    $CategoryReconciliationsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CategoryReconciliationsTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$CategoryReconciliationsTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$CategoryReconciliationsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> defaultKey = const Value.absent(),
+                Value<String> provisionalCategoryId = const Value.absent(),
+                Value<String> catalogName = const Value.absent(),
+                Value<bool> catalogIsIncome = const Value.absent(),
+                Value<String> candidatesJson = const Value.absent(),
+                Value<String?> resolutionKind = const Value.absent(),
+                Value<String?> resolutionCandidateId = const Value.absent(),
+                Value<DateTime> detectedAt = const Value.absent(),
+                Value<DateTime?> resolvedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => CategoryReconciliationsCompanion(
+                defaultKey: defaultKey,
+                provisionalCategoryId: provisionalCategoryId,
+                catalogName: catalogName,
+                catalogIsIncome: catalogIsIncome,
+                candidatesJson: candidatesJson,
+                resolutionKind: resolutionKind,
+                resolutionCandidateId: resolutionCandidateId,
+                detectedAt: detectedAt,
+                resolvedAt: resolvedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String defaultKey,
+                required String provisionalCategoryId,
+                required String catalogName,
+                required bool catalogIsIncome,
+                required String candidatesJson,
+                Value<String?> resolutionKind = const Value.absent(),
+                Value<String?> resolutionCandidateId = const Value.absent(),
+                required DateTime detectedAt,
+                Value<DateTime?> resolvedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => CategoryReconciliationsCompanion.insert(
+                defaultKey: defaultKey,
+                provisionalCategoryId: provisionalCategoryId,
+                catalogName: catalogName,
+                catalogIsIncome: catalogIsIncome,
+                candidatesJson: candidatesJson,
+                resolutionKind: resolutionKind,
+                resolutionCandidateId: resolutionCandidateId,
+                detectedAt: detectedAt,
+                resolvedAt: resolvedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$CategoryReconciliationsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $CategoryReconciliationsTable,
+      CategoryReconciliation,
+      $$CategoryReconciliationsTableFilterComposer,
+      $$CategoryReconciliationsTableOrderingComposer,
+      $$CategoryReconciliationsTableAnnotationComposer,
+      $$CategoryReconciliationsTableCreateCompanionBuilder,
+      $$CategoryReconciliationsTableUpdateCompanionBuilder,
+      (
+        CategoryReconciliation,
+        BaseReferences<
+          _$AppDatabase,
+          $CategoryReconciliationsTable,
+          CategoryReconciliation
+        >,
+      ),
+      CategoryReconciliation,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -16834,4 +18550,11 @@ class $AppDatabaseManager {
       $$SyncStatesTableTableManager(_db, _db.syncStates);
   $$ExchangeRatesTableTableManager get exchangeRates =>
       $$ExchangeRatesTableTableManager(_db, _db.exchangeRates);
+  $$LocalStoreMetasTableTableManager get localStoreMetas =>
+      $$LocalStoreMetasTableTableManager(_db, _db.localStoreMetas);
+  $$CategoryReconciliationsTableTableManager get categoryReconciliations =>
+      $$CategoryReconciliationsTableTableManager(
+        _db,
+        _db.categoryReconciliations,
+      );
 }

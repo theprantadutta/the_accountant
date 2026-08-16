@@ -16,7 +16,28 @@ class AppleSignInService {
   factory AppleSignInService() => _instance;
   AppleSignInService._internal();
 
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  /// Resolved lazily so constructing this service never requires Firebase —
+  /// see the note in [GoogleSignInService].
+  FirebaseAuth? _cachedAuth;
+  bool _authResolved = false;
+
+  FirebaseAuth get _auth {
+    if (!_authResolved) {
+      _authResolved = true;
+      try {
+        _cachedAuth = FirebaseAuth.instance;
+      } catch (_) {
+        _cachedAuth = null;
+      }
+    }
+    final auth = _cachedAuth;
+    if (auth == null) {
+      throw StateError(
+        'Firebase is not initialized; Apple sign-in is unavailable.',
+      );
+    }
+    return auth;
+  }
 
   /// Sign in with Apple and authenticate with Firebase.
   ///

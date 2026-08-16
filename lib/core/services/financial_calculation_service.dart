@@ -1,7 +1,6 @@
+import 'package:the_accountant/core/domain/transaction_policy.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/core/services/currency_service.dart';
-import 'package:the_accountant/data/models/transaction.dart'
-    show TransactionSpecialType;
 
 class BudgetProgressItem {
   final String budgetId;
@@ -32,12 +31,11 @@ class FinancialCalculationService {
 
   FinancialCalculationService(this._db, [this._currencyService]);
 
-  /// Whether a transaction contributes to realized totals/balances.
-  /// Unpaid "upcoming" transactions haven't happened yet, so they are excluded — this
-  /// matches WalletBalanceService.calculateWalletBalance so dashboard/report figures agree
-  /// with the stored wallet balances.
-  static bool _isRealized(Transaction t) =>
-      !(!t.isPaid && t.specialType == TransactionSpecialType.upcoming);
+  // Eligibility is delegated entirely to TransactionPolicy so these figures,
+  // the stored wallet balances, the reports tab, and budget progress can never
+  // drift apart. In particular transfers are excluded here: an internal
+  // wallet-to-wallet movement used to be counted once as income AND once as
+  // expense, inflating both gross totals and every category/budget figure.
 
   /// Get wallet currency by ID (returns 'USD' if not found)
   Future<String> _getWalletCurrency(String? walletId) async {
@@ -124,7 +122,7 @@ class FinancialCalculationService {
       }
 
       return transactions
-          .where((t) => t.isIncome && _isRealized(t))
+          .where(TransactionPolicy.countsAsIncome)
           .fold<int>(0, (sum, t) => sum + t.amount);
     } catch (e) {
       return 0;
@@ -147,7 +145,7 @@ class FinancialCalculationService {
       }
 
       final incomeTransactions = transactions.where(
-        (t) => t.isIncome && _isRealized(t),
+        TransactionPolicy.countsAsIncome,
       );
       int total = 0;
 
@@ -178,7 +176,7 @@ class FinancialCalculationService {
       }
 
       return transactions
-          .where((t) => !t.isIncome && _isRealized(t))
+          .where(TransactionPolicy.countsAsExpense)
           .fold<int>(0, (sum, t) => sum + t.amount);
     } catch (e) {
       return 0;
@@ -201,7 +199,7 @@ class FinancialCalculationService {
       }
 
       final expenseTransactions = transactions.where(
-        (t) => !t.isIncome && _isRealized(t),
+        TransactionPolicy.countsAsExpense,
       );
       int total = 0;
 
@@ -243,7 +241,7 @@ class FinancialCalculationService {
         startOfMonth,
         endOfMonth,
       );
-      final expenses = transactions.where((t) => !t.isIncome && _isRealized(t));
+      final expenses = transactions.where(TransactionPolicy.countsAsExpense);
 
       final Map<String, int> categorySpending = {};
 
@@ -274,7 +272,7 @@ class FinancialCalculationService {
         startOfMonth,
         endOfMonth,
       );
-      final expenses = transactions.where((t) => !t.isIncome && _isRealized(t));
+      final expenses = transactions.where(TransactionPolicy.countsAsExpense);
 
       final Map<String, int> categorySpending = {};
 
@@ -318,10 +316,11 @@ class FinancialCalculationService {
         final categoryId = budget.categoryId;
         final categoryExpenses = transactions
             .where(
-              (t) =>
-                  !t.isIncome &&
-                  _isRealized(t) &&
-                  (categoryId == null || t.categoryId == categoryId),
+              (t) => TransactionPolicy.countsTowardBudget(
+                t,
+                budgetIsIncome: budget.isIncome,
+                budgetCategoryId: categoryId,
+              ),
             )
             .fold<int>(0, (sum, t) => sum + t.amount);
 
@@ -355,10 +354,11 @@ class FinancialCalculationService {
         final categoryId = budget.categoryId;
         final spent = transactions
             .where(
-              (t) =>
-                  !t.isIncome &&
-                  _isRealized(t) &&
-                  (categoryId == null || t.categoryId == categoryId),
+              (t) => TransactionPolicy.countsTowardBudget(
+                t,
+                budgetIsIncome: budget.isIncome,
+                budgetCategoryId: categoryId,
+              ),
             )
             .fold<int>(0, (sum, t) => sum + t.amount);
 

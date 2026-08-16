@@ -1,239 +1,46 @@
+import 'package:the_accountant/core/domain/default_categories.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
-import 'package:uuid/uuid.dart';
-import 'package:drift/drift.dart';
 
+/// Provisions the built-in categories for a store.
+///
+/// Seeding is **per slug and idempotent**: only built-ins the store does not
+/// already have are inserted. The old behaviour ("if there are no categories at
+/// all, insert the whole set with fresh random ids") is what made a second
+/// device upload a complete duplicate set of defaults — it seeded before it had
+/// ever seen the account's cloud data, pushed, and only then pulled the
+/// originals.
 class CategoryInitializationService {
   final AppDatabase _db;
 
   CategoryInitializationService(this._db);
 
-  Future<void> initializeDefaultCategories() async {
+  /// Ensure every built-in category exists, including the system ones.
+  ///
+  /// Returns the slugs actually created.
+  Future<List<String>> initializeDefaultCategories() async {
     try {
-      // Check if categories already exist
-      final existingCategories = await _db.getAllCategories();
-
-      // If no categories exist, insert the default ones
-      if (existingCategories.isEmpty) {
-        // Comprehensive default categories for better user experience
-        // Using isIncome boolean instead of deprecated type string
-        final defaultCategories = [
-          // Expense Categories (isIncome: false)
-          {
-            'name': 'Food & Dining',
-            'colorCode': '#FF6B6B',
-            'iconName': 'restaurant',
-            'isIncome': false,
-            'orderIndex': 0,
-          },
-          {
-            'name': 'Transportation',
-            'colorCode': '#4ECDC4',
-            'iconName': 'directions_car',
-            'isIncome': false,
-            'orderIndex': 1,
-          },
-          {
-            'name': 'Shopping',
-            'colorCode': '#45B7D1',
-            'iconName': 'shopping_bag',
-            'isIncome': false,
-            'orderIndex': 2,
-          },
-          {
-            'name': 'Entertainment',
-            'colorCode': '#96CEB4',
-            'iconName': 'movie',
-            'isIncome': false,
-            'orderIndex': 3,
-          },
-          {
-            'name': 'Bills & Utilities',
-            'colorCode': '#FFA07A',
-            'iconName': 'receipt',
-            'isIncome': false,
-            'orderIndex': 4,
-          },
-          {
-            'name': 'Healthcare',
-            'colorCode': '#F7DC6F',
-            'iconName': 'local_hospital',
-            'isIncome': false,
-            'orderIndex': 5,
-          },
-          {
-            'name': 'Education',
-            'colorCode': '#58D68D',
-            'iconName': 'school',
-            'isIncome': false,
-            'orderIndex': 6,
-          },
-          {
-            'name': 'Travel',
-            'colorCode': '#85C1E9',
-            'iconName': 'flight',
-            'isIncome': false,
-            'orderIndex': 7,
-          },
-          {
-            'name': 'Groceries',
-            'colorCode': '#82E0AA',
-            'iconName': 'local_grocery_store',
-            'isIncome': false,
-            'orderIndex': 8,
-          },
-          {
-            'name': 'Rent',
-            'colorCode': '#F8C471',
-            'iconName': 'home',
-            'isIncome': false,
-            'orderIndex': 9,
-          },
-          {
-            'name': 'Insurance',
-            'colorCode': '#BB8FCE',
-            'iconName': 'security',
-            'isIncome': false,
-            'orderIndex': 10,
-          },
-          {
-            'name': 'Personal Care',
-            'colorCode': '#F1948A',
-            'iconName': 'spa',
-            'isIncome': false,
-            'orderIndex': 11,
-          },
-          {
-            'name': 'Subscriptions',
-            'colorCode': '#7FB3D3',
-            'iconName': 'subscriptions',
-            'isIncome': false,
-            'orderIndex': 12,
-          },
-          {
-            'name': 'Gifts & Donations',
-            'colorCode': '#D7BDE2',
-            'iconName': 'card_giftcard',
-            'isIncome': false,
-            'orderIndex': 13,
-          },
-          {
-            'name': 'Loan',
-            'colorCode': '#E57373',
-            'iconName': 'account_balance',
-            'isIncome': false,
-            'orderIndex': 14,
-          },
-          {
-            'name': 'Loan Payment',
-            'colorCode': '#EF9A9A',
-            'iconName': 'payments',
-            'isIncome': false,
-            'orderIndex': 15,
-          },
-          {
-            'name': 'Other Expenses',
-            'colorCode': '#AED6F1',
-            'iconName': 'more_horiz',
-            'isIncome': false,
-            'orderIndex': 16,
-          },
-          // Income Categories (isIncome: true)
-          {
-            'name': 'Salary',
-            'colorCode': '#FFEAA7',
-            'iconName': 'work',
-            'isIncome': true,
-            'orderIndex': 0,
-          },
-          {
-            'name': 'Freelance',
-            'colorCode': '#DDA0DD',
-            'iconName': 'laptop',
-            'isIncome': true,
-            'orderIndex': 1,
-          },
-          {
-            'name': 'Business',
-            'colorCode': '#98D8C8',
-            'iconName': 'business',
-            'isIncome': true,
-            'orderIndex': 2,
-          },
-          {
-            'name': 'Investment',
-            'colorCode': '#A9DFBF',
-            'iconName': 'trending_up',
-            'isIncome': true,
-            'orderIndex': 3,
-          },
-          {
-            'name': 'Rental Income',
-            'colorCode': '#F9E79F',
-            'iconName': 'apartment',
-            'isIncome': true,
-            'orderIndex': 4,
-          },
-          {
-            'name': 'Bonus',
-            'colorCode': '#D5A6BD',
-            'iconName': 'star',
-            'isIncome': true,
-            'orderIndex': 5,
-          },
-          {
-            'name': 'Gift Received',
-            'colorCode': '#AED6F1',
-            'iconName': 'redeem',
-            'isIncome': true,
-            'orderIndex': 6,
-          },
-          {
-            'name': 'Refund',
-            'colorCode': '#A3E4D7',
-            'iconName': 'replay',
-            'isIncome': true,
-            'orderIndex': 7,
-          },
-          {
-            'name': 'Loan',
-            'colorCode': '#81C784',
-            'iconName': 'account_balance',
-            'isIncome': true,
-            'orderIndex': 8,
-          },
-          {
-            'name': 'Loan Received',
-            'colorCode': '#A5D6A7',
-            'iconName': 'payments',
-            'isIncome': true,
-            'orderIndex': 9,
-          },
-          {
-            'name': 'Other Income',
-            'colorCode': '#D2B4DE',
-            'iconName': 'add_circle',
-            'isIncome': true,
-            'orderIndex': 10,
-          },
-        ];
-
-        for (final categoryData in defaultCategories) {
-          final category = CategoriesCompanion(
-            id: Value(const Uuid().v4()),
-            name: Value(categoryData['name'] as String),
-            color: Value(categoryData['colorCode'] as String),
-            iconName: Value(categoryData['iconName'] as String),
-            isDefault: const Value(true),
-            isIncome: Value(categoryData['isIncome'] as bool),
-            orderIndex: Value(categoryData['orderIndex'] as int),
-          );
-
-          await _db.addCategory(category);
-        }
-      }
-    } catch (e) {
-      // Handle error silently or log it
-      // Using a proper logger would be better in production
+      return await _db.ensureDefaultCategories(DefaultCategoryCatalog.all);
+    } catch (_) {
+      // Seeding must never take the app down; a missing default is recoverable
+      // on the next launch or the next sync.
+      return const [];
     }
   }
+
+  /// Ensure only the internal system categories exist.
+  Future<void> initializeSystemCategories() =>
+      _db.ensureSystemCategoriesExist();
+
+  /// Whether this store still needs its built-in categories.
+  Future<bool> needsDefaults() async {
+    final present = await _db.liveDefaultKeys();
+    return present.length < DefaultCategoryCatalog.all.length;
+  }
+
+  /// Collapse duplicate built-ins down to one row per slug.
+  ///
+  /// Run after a pull: a device that seeded its own defaults before it saw the
+  /// cloud will hold both its copy and the account's canonical copy, and the two
+  /// are provably the same built-in because they share a slug.
+  Future<int> mergeDuplicates() => _db.mergeDuplicateDefaultCategories();
 }

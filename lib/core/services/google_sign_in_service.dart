@@ -11,12 +11,45 @@ class GoogleSignInService {
   static final GoogleSignInService _instance = GoogleSignInService._internal();
   factory GoogleSignInService() => _instance;
 
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  /// Firebase auth, resolved lazily.
+  ///
+  /// Reading `FirebaseAuth.instance` in a field initializer made merely
+  /// *constructing* this singleton throw `[core/no-app]` wherever Firebase is
+  /// not configured — which is what stopped the widget test suite from ever
+  /// reaching an assertion. Resolving on demand keeps the production behaviour
+  /// identical while letting the app be built without Firebase.
+  FirebaseAuth? _cachedAuth;
+  bool _authResolved = false;
+
+  FirebaseAuth? get _authOrNull {
+    if (_authResolved) return _cachedAuth;
+    _authResolved = true;
+    try {
+      _cachedAuth = FirebaseAuth.instance;
+    } catch (_) {
+      _cachedAuth = null;
+    }
+    return _cachedAuth;
+  }
+
+  /// Firebase auth, for the sign-in flows that genuinely require it.
+  FirebaseAuth get _auth {
+    final auth = _authOrNull;
+    if (auth == null) {
+      throw StateError(
+        'Firebase is not initialized; Google sign-in is unavailable.',
+      );
+    }
+    return auth;
+  }
+
   final GoogleSignIn _googleSignIn = GoogleSignIn.instance;
 
   GoogleSignInService._internal() {
     // Initialize Google Sign-In with client ID from environment
-    final webClientId = dotenv.env['GOOGLE_WEB_CLIENT_ID'];
+    final webClientId = dotenv.isInitialized
+        ? dotenv.env['GOOGLE_WEB_CLIENT_ID']
+        : null;
 
     if (webClientId != null &&
         webClientId.isNotEmpty &&
@@ -29,13 +62,14 @@ class GoogleSignInService {
   }
 
   /// Get current Firebase user
-  User? get currentUser => _auth.currentUser;
+  User? get currentUser => _authOrNull?.currentUser;
 
   /// Check if user is signed in to Firebase
   bool get isSignedIn => currentUser != null;
 
-  /// Stream of Firebase auth state changes
-  Stream<User?> get authStateChanges => _auth.authStateChanges();
+  /// Stream of Firebase auth state changes. Empty when Firebase is absent.
+  Stream<User?> get authStateChanges =>
+      _authOrNull?.authStateChanges() ?? const Stream<User?>.empty();
 
   /// Sign in with Google and authenticate with Firebase
   ///

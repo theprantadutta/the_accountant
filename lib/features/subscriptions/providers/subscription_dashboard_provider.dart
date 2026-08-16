@@ -225,12 +225,17 @@ class SubscriptionDashboardNotifier
     }
   }
 
-  /// Update subscription recurring config properties
+  /// Update subscription recurring config properties.
+  ///
+  /// [endDate] is tri-state, matching [RecurringService.updateRecurringConfig]:
+  /// omit to keep the current end date, pass a [DateTime] to set one, pass null
+  /// to clear it (repeat forever). A plain nullable parameter here would silently
+  /// wipe the end date on every unrelated edit.
   Future<void> updateSubscriptionConfig({
     required String configId,
     String? reoccurrence,
     int? periodLength,
-    DateTime? endDate,
+    Object? endDate = RecurringService.keepEndDate,
   }) async {
     try {
       await _recurringService.updateRecurringConfig(

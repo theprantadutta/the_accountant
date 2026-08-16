@@ -277,20 +277,10 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
         .getDatabaseTransactionById(transaction.id);
 
     if (dbTransaction != null && mounted) {
-      // Transfers are a paired two-leg record; the regular editor would edit only
-      // one leg via updateTransaction and desync the pair (and balances). Guard
-      // until a dedicated transfer editor exists.
-      if (dbTransaction.transactionType == 'transfer') {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text(
-              "Transfers can't be edited yet — delete and recreate it instead.",
-            ),
-            backgroundColor: AppColors.warning,
-          ),
-        );
-        return;
-      }
+      // Transfers open in the editor's transfer mode and save through the
+      // paired update, so both legs change together. No guard is needed here
+      // any more: the generic single-row edit path itself now delegates to the
+      // paired operation for transfer rows.
       showAddTransactionScreen(context, existingTransaction: dbTransaction);
     }
   }

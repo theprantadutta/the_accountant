@@ -891,24 +891,24 @@ class _ResponsiveFinancialOverviewState
                         FractionallySizedBox(
                           widthFactor: percentage.clamp(0.0, 1.0),
                           child: AnimatedContainer(
-                          duration: AppAnimations.slow,
-                          height: 8,
-                          decoration: BoxDecoration(
-                            gradient: isOverBudget
-                                ? LinearGradient(
-                                    colors: [
-                                      AppColors.error,
-                                      AppColors.error.withValues(alpha: 0.7),
-                                    ],
-                                  )
-                                : LinearGradient(
-                                    colors: [
-                                      barColor,
-                                      barColor.withValues(alpha: 0.7),
-                                    ],
-                                  ),
-                            borderRadius: AppSpacing.borderRadiusFull,
-                          ),
+                            duration: AppAnimations.slow,
+                            height: 8,
+                            decoration: BoxDecoration(
+                              gradient: isOverBudget
+                                  ? LinearGradient(
+                                      colors: [
+                                        AppColors.error,
+                                        AppColors.error.withValues(alpha: 0.7),
+                                      ],
+                                    )
+                                  : LinearGradient(
+                                      colors: [
+                                        barColor,
+                                        barColor.withValues(alpha: 0.7),
+                                      ],
+                                    ),
+                              borderRadius: AppSpacing.borderRadiusFull,
+                            ),
                           ),
                         ),
                       ],
