@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart' show Value;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
+import 'package:the_accountant/core/domain/transaction_policy.dart';
 import 'package:the_accountant/core/services/analytics_service.dart';
 import 'package:the_accountant/core/services/wallet_balance_service.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
@@ -39,28 +40,35 @@ class CreditDebtState {
     );
   }
 
-  /// Get total credit (money lent out - they owe you) — integer minor units / cents
+  /// Lifetime credit recorded (money lent out, settled or not) — minor units.
+  /// This is a HISTORICAL figure; it is deliberately not the user's exposure.
   int get totalCredit =>
       creditTransactions.fold<int>(0, (sum, t) => sum + t.amount);
 
-  /// Outstanding credit still owed to you (remaining = amount − paidAmount) — cents.
-  /// Settlement is tracked by paidAmount, NOT the overloaded isPaid flag (a fresh loan is
-  /// isPaid=true yet still fully outstanding; a partial payment must not flip it to "settled").
-  int get unpaidCredit => creditTransactions
-      .where((t) => t.paidAmount < t.amount)
-      .fold<int>(0, (sum, t) => sum + (t.amount - t.paidAmount));
+  /// Outstanding credit still owed to you — minor units.
+  ///
+  /// Settlement comes from [TransactionPolicy.isSettled] (`paidAmount >=
+  /// amount`), never from the overloaded `isPaid` flag: a fresh loan has
+  /// `isPaid == true` (the cash moved) while still being fully outstanding.
+  int get unpaidCredit =>
+      TransactionPolicy.totalOutstanding(creditTransactions);
 
-  /// Get total debt (money borrowed - you owe them) — integer minor units / cents
+  /// Lifetime debt recorded (money borrowed, settled or not) — minor units.
   int get totalDebt =>
       debtTransactions.fold<int>(0, (sum, t) => sum + t.amount);
 
-  /// Outstanding debt you still owe (remaining = amount − paidAmount) — cents.
-  int get unpaidDebt => debtTransactions
-      .where((t) => t.paidAmount < t.amount)
-      .fold<int>(0, (sum, t) => sum + (t.amount - t.paidAmount));
+  /// Outstanding debt you still owe — minor units.
+  int get unpaidDebt => TransactionPolicy.totalOutstanding(debtTransactions);
 
-  /// Net balance (positive = others owe you more, negative = you owe more) — cents
-  int get netBalance => totalCredit - totalDebt;
+  /// Net OPEN exposure: positive = others owe you more than you owe.
+  ///
+  /// Derived from outstanding amounts only. Using lifetime totals here meant the
+  /// screen kept claiming someone owed money after every loan had been settled.
+  int get netBalance => unpaidCredit - unpaidDebt;
+
+  /// Lifetime net position, kept for screens that want the historical figure.
+  /// Must always be labelled distinctly from [netBalance].
+  int get lifetimeNetBalance => totalCredit - totalDebt;
 
   /// Get all transactions sorted by date
   List<Transaction> get allTransactions {
@@ -69,15 +77,17 @@ class CreditDebtState {
     return all;
   }
 
-  /// Not-yet-fully-settled transactions (by remaining paidAmount, not the isPaid flag).
+  /// Not-yet-fully-settled transactions.
   List<Transaction> get unpaidTransactions =>
-      allTransactions.where((t) => t.paidAmount < t.amount).toList();
+      allTransactions.where(TransactionPolicy.isOutstanding).toList();
+
+  /// Fully settled transactions.
+  List<Transaction> get settledTransactions =>
+      allTransactions.where(TransactionPolicy.isSettled).toList();
 
   /// Get overdue unpaid transactions (past original due date)
-  List<Transaction> get overdueTransactions => unpaidTransactions.where((t) {
-    final dueDate = t.originalDueDate ?? t.date;
-    return dueDate.isBefore(DateTime.now());
-  }).toList();
+  List<Transaction> get overdueTransactions =>
+      allTransactions.where((t) => TransactionPolicy.isOverdue(t)).toList();
 
   /// Count of overdue transactions
   int get overdueCount => overdueTransactions.length;
@@ -115,60 +125,50 @@ class CreditDebtNotifier extends StateNotifier<CreditDebtState> {
     }
   }
 
-  /// Mark a credit/debt as fully settled
+  /// Mark a credit/debt as fully settled.
+  ///
+  /// Records a repayment transaction for whatever is still outstanding and
+  /// brings `paidAmount` up to the full principal. `isPaid` is deliberately left
+  /// alone: for a loan it means "the principal already moved", which was true
+  /// from the moment the loan was created and stays true afterwards. Settlement
+  /// is derived from amounts by [TransactionPolicy.isSettled].
   Future<void> markAsSettled(String transactionId) async {
     try {
-      final transaction = await _db.findTransactionById(transactionId);
-      if (transaction == null) return;
+      await _db.transaction(() async {
+        final transaction = await _db.findTransactionById(transactionId);
+        if (transaction == null) return;
 
-      final isCredit = transaction.specialType == TransactionSpecialType.credit;
-      final remaining = transaction.amount - transaction.paidAmount;
+        final isCredit = TransactionPolicy.isCredit(transaction);
+        final remaining = TransactionPolicy.outstandingAmount(transaction);
 
-      // If there's remaining unpaid amount, create a payment transaction
-      if (remaining > 0) {
-        final now = DateTime.now();
-        final paymentTransaction = TransactionsCompanion(
-          id: Value(const Uuid().v4()),
-          amount: Value(remaining),
-          title: Value(
-            '${isCredit ? "Received" : "Paid"}: ${transaction.title}',
+        if (remaining > 0) {
+          await _recordRepaymentRow(
+            parent: transaction,
+            amount: remaining,
+            isIncome: isCredit,
+            label: '${isCredit ? "Received" : "Paid"}: ${transaction.title}',
+            note:
+                'Settlement for ${isCredit ? "credit" : "debt"}: ${transaction.title}',
+          );
+        }
+
+        await (_db.update(
+          _db.transactions,
+        )..where((t) => t.id.equals(transactionId))).write(
+          TransactionsCompanion(
+            paidAmount: Value(transaction.amount),
+            originalDueDate: Value(
+              transaction.originalDueDate ?? transaction.date,
+            ),
+            syncStatus: const Value(SyncStatus.pendingUpdate),
+            updatedAt: Value(DateTime.now()),
           ),
-          notes: Value(
-            'Settlement for ${isCredit ? "credit" : "debt"}: ${transaction.title}',
-          ),
-          date: Value(now),
-          isIncome: Value(isCredit),
-          walletId: Value(transaction.walletId),
-          categoryId: Value(transaction.categoryId),
-          syncStatus: const Value(SyncStatus.pendingCreate),
-          createdAt: Value(now),
-          updatedAt: Value(now),
         );
-        await _db.addTransaction(paymentTransaction);
 
-        // Update wallet balance
-        await _balanceService.updateBalanceAfterTransaction(
-          walletId: transaction.walletId,
-          amount: remaining,
-          isIncome: isCredit,
-        );
-        await _ref.read(walletProvider.notifier).loadWallets();
-      }
+        await _balanceService.updateWalletBalance(transaction.walletId);
+      });
 
-      // Mark original as settled
-      await (_db.update(
-        _db.transactions,
-      )..where((t) => t.id.equals(transactionId))).write(
-        TransactionsCompanion(
-          isPaid: const Value(true),
-          paidAmount: Value(transaction.amount),
-          originalDueDate: Value(
-            transaction.originalDueDate ?? transaction.date,
-          ),
-          syncStatus: const Value(SyncStatus.pendingUpdate),
-          updatedAt: Value(DateTime.now()),
-        ),
-      );
+      await _ref.read(walletProvider.notifier).loadWallets();
 
       // Cancel any scheduled reminder
       try {
@@ -185,64 +185,66 @@ class CreditDebtNotifier extends StateNotifier<CreditDebtState> {
   }
 
   /// Record a partial payment on a credit/debt transaction.
-  /// Creates a new regular transaction for the payment and updates paidAmount.
+  ///
+  /// The repayment is a real transaction (so it appears in history and moves the
+  /// wallet), and the parent's `paidAmount` advances. Nothing here writes
+  /// `isPaid` — that flag records the original cash movement, and overloading it
+  /// with settlement is what made a partially-repaid loan look either untouched
+  /// or fully settled depending on which screen you looked at.
   Future<void> recordPayment({
     required String transactionId,
     required int paymentAmount, // integer minor units / cents
   }) async {
+    if (paymentAmount <= 0) {
+      state = state.copyWith(error: 'Payment amount must be positive');
+      return;
+    }
     try {
-      final transaction = await _db.findTransactionById(transactionId);
-      if (transaction == null) return;
+      var fullyPaid = false;
+      await _db.transaction(() async {
+        final transaction = await _db.findTransactionById(transactionId);
+        if (transaction == null) return;
 
-      final isCredit = transaction.specialType == TransactionSpecialType.credit;
-      final newPaidAmount = transaction.paidAmount + paymentAmount;
-      final isFullyPaid = newPaidAmount >= transaction.amount;
+        final isCredit = TransactionPolicy.isCredit(transaction);
+        // Never let a repayment push paidAmount past the principal: an
+        // overpayment would make outstanding negative and silently offset other
+        // loans in the exposure total.
+        final outstanding = TransactionPolicy.outstandingAmount(transaction);
+        final applied = paymentAmount > outstanding
+            ? outstanding
+            : paymentAmount;
+        if (applied <= 0) return;
 
-      // Create a separate regular transaction for the payment
-      final now = DateTime.now();
-      final paymentTransaction = TransactionsCompanion(
-        id: Value(const Uuid().v4()),
-        amount: Value(paymentAmount),
-        title: Value('${isCredit ? "Received" : "Paid"}: ${transaction.title}'),
-        notes: Value(
-          'Partial payment for ${isCredit ? "credit" : "debt"}: ${transaction.title}',
-        ),
-        date: Value(now),
-        // Credit repayment = income (you receive money back)
-        // Debt repayment = expense (you pay money out)
-        isIncome: Value(isCredit),
-        walletId: Value(transaction.walletId),
-        categoryId: Value(transaction.categoryId),
-        syncStatus: const Value(SyncStatus.pendingCreate),
-        createdAt: Value(now),
-        updatedAt: Value(now),
-      );
-      await _db.addTransaction(paymentTransaction);
+        final newPaidAmount = transaction.paidAmount + applied;
+        fullyPaid = newPaidAmount >= transaction.amount;
 
-      // Update wallet balance for the payment
-      // Credit repayment = income (getting money back)
-      // Debt repayment = expense (paying money out)
-      await _balanceService.updateBalanceAfterTransaction(
-        walletId: transaction.walletId,
-        amount: paymentAmount,
-        isIncome: isCredit,
-      );
+        await _recordRepaymentRow(
+          parent: transaction,
+          amount: applied,
+          // Credit repayment = income (money comes back in).
+          // Debt repayment = expense (money goes out).
+          isIncome: isCredit,
+          label: '${isCredit ? "Received" : "Paid"}: ${transaction.title}',
+          note:
+              'Partial payment for ${isCredit ? "credit" : "debt"}: ${transaction.title}',
+        );
+
+        await (_db.update(
+          _db.transactions,
+        )..where((t) => t.id.equals(transactionId))).write(
+          TransactionsCompanion(
+            paidAmount: Value(newPaidAmount),
+            syncStatus: const Value(SyncStatus.pendingUpdate),
+            updatedAt: Value(DateTime.now()),
+          ),
+        );
+
+        await _balanceService.updateWalletBalance(transaction.walletId);
+      });
+
       await _ref.read(walletProvider.notifier).loadWallets();
 
-      // Update the original loan transaction's paidAmount
-      await (_db.update(
-        _db.transactions,
-      )..where((t) => t.id.equals(transactionId))).write(
-        TransactionsCompanion(
-          paidAmount: Value(newPaidAmount),
-          isPaid: Value(isFullyPaid),
-          syncStatus: const Value(SyncStatus.pendingUpdate),
-          updatedAt: Value(now),
-        ),
-      );
-
-      // Cancel reminder if fully paid
-      if (isFullyPaid) {
+      if (fullyPaid) {
         try {
           await ReminderSchedulerService().cancelReminder(transactionId);
         } catch (_) {}
@@ -257,35 +259,79 @@ class CreditDebtNotifier extends StateNotifier<CreditDebtState> {
     }
   }
 
-  /// Mark as pending again
+  /// Insert the repayment transaction that accompanies a settlement action.
+  ///
+  /// It carries the parent's category, payment method, and objective so reports
+  /// and goal progress follow the repayment, and it is an ordinary realized
+  /// transaction (`specialType: none`, `isPaid: true`) so it is never mistaken
+  /// for another loan.
+  Future<void> _recordRepaymentRow({
+    required Transaction parent,
+    required int amount,
+    required bool isIncome,
+    required String label,
+    required String note,
+  }) async {
+    final now = DateTime.now();
+    await _db.addTransaction(
+      TransactionsCompanion(
+        id: Value(const Uuid().v4()),
+        amount: Value(amount),
+        title: Value(label),
+        notes: Value(note),
+        date: Value(now),
+        isIncome: Value(isIncome),
+        walletId: Value(parent.walletId),
+        categoryId: Value(parent.categoryId),
+        paymentMethodId: Value(parent.paymentMethodId),
+        objectiveId: Value(parent.objectiveId),
+        specialType: const Value(TransactionSpecialType.none),
+        isPaid: const Value(true),
+        syncStatus: const Value(SyncStatus.pendingCreate),
+        createdAt: Value(now),
+        updatedAt: Value(now),
+      ),
+    );
+  }
+
+  /// Reset a loan back to fully outstanding.
+  ///
+  /// History is preserved: instead of deleting the repayment rows, a single
+  /// compensating transaction cancels their cash effect, then `paidAmount` is
+  /// zeroed. The wallet is recomputed from its surviving transactions, so the
+  /// balance always matches the ledger.
   Future<void> markAsPending(String transactionId) async {
     try {
-      final transaction = await _db.findTransactionById(transactionId);
-      if (transaction == null) return;
+      await _db.transaction(() async {
+        final transaction = await _db.findTransactionById(transactionId);
+        if (transaction == null) return;
 
-      // Reverse the balance effect of any payments made before resetting
-      if (transaction.paidAmount > 0) {
-        final isCredit =
-            transaction.specialType == TransactionSpecialType.credit;
-        await _balanceService.updateBalanceAfterTransaction(
-          walletId: transaction.walletId,
-          amount: transaction.paidAmount,
-          isIncome: !isCredit, // Reverse the payment direction
+        if (transaction.paidAmount > 0) {
+          final isCredit = TransactionPolicy.isCredit(transaction);
+          await _recordRepaymentRow(
+            parent: transaction,
+            amount: transaction.paidAmount,
+            // Opposite direction to the repayments being undone.
+            isIncome: !isCredit,
+            label: 'Reversed: ${transaction.title}',
+            note: 'Reversal of repayments for: ${transaction.title}',
+          );
+        }
+
+        await (_db.update(
+          _db.transactions,
+        )..where((t) => t.id.equals(transactionId))).write(
+          TransactionsCompanion(
+            paidAmount: const Value(0),
+            syncStatus: const Value(SyncStatus.pendingUpdate),
+            updatedAt: Value(DateTime.now()),
+          ),
         );
-        await _ref.read(walletProvider.notifier).loadWallets();
-      }
 
-      await _db.markTransactionAsUnpaid(transactionId);
-      // Also reset paidAmount
-      await (_db.update(
-        _db.transactions,
-      )..where((t) => t.id.equals(transactionId))).write(
-        TransactionsCompanion(
-          paidAmount: const Value(0),
-          syncStatus: const Value(SyncStatus.pendingUpdate),
-          updatedAt: Value(DateTime.now()),
-        ),
-      );
+        await _balanceService.updateWalletBalance(transaction.walletId);
+      });
+
+      await _ref.read(walletProvider.notifier).loadWallets();
       await loadData();
     } catch (e) {
       state = state.copyWith(
@@ -294,18 +340,13 @@ class CreditDebtNotifier extends StateNotifier<CreditDebtState> {
     }
   }
 
-  /// Check if a transaction is overdue
-  bool isOverdue(Transaction transaction) {
-    // Settled = fully paid off by amount, regardless of the isPaid flag.
-    if (transaction.paidAmount >= transaction.amount) return false;
-    final dueDate = transaction.originalDueDate ?? transaction.date;
-    return dueDate.isBefore(DateTime.now());
-  }
+  /// Check if a transaction is overdue (shared policy: unsettled and past due).
+  bool isOverdue(Transaction transaction) =>
+      TransactionPolicy.isOverdue(transaction);
 
   /// Check if transaction is credit type
-  bool isCredit(Transaction transaction) {
-    return transaction.specialType == TransactionSpecialType.credit;
-  }
+  bool isCredit(Transaction transaction) =>
+      TransactionPolicy.isCredit(transaction);
 
   /// Refresh data
   Future<void> refresh() async {

@@ -1,6 +1,5 @@
+import 'package:the_accountant/core/domain/transaction_policy.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
-import 'package:the_accountant/data/models/transaction.dart'
-    show TransactionSpecialType;
 
 /// Service for managing wallet balance calculations and updates.
 /// Ensures wallet balances stay in sync with transactions.
@@ -18,27 +17,23 @@ class WalletBalanceService {
 
     int balance = wallet?.openingBalance ?? 0;
     for (final transaction in transactions) {
-      // Count a transaction toward the balance only if it is paid, or it is a credit/debt
-      // entry (which always affects the balance regardless of paid status). This mirrors the
-      // schemaVersion-11 migration backfill EXACTLY — `is_paid OR special_type IN (credit,
-      // debt)` — so a recompute can never diverge from the migrated opening/stored balance.
-      final countsTowardBalance =
-          transaction.isPaid ||
-          transaction.specialType == TransactionSpecialType.credit ||
-          transaction.specialType == TransactionSpecialType.debt;
-      if (!countsTowardBalance) {
-        continue;
-      }
-
-      if (transaction.isIncome) {
-        balance += transaction.amount.abs();
-      } else {
-        balance -= transaction.amount.abs();
-      }
+      // Eligibility comes from the single shared policy
+      // (`isPaid OR credit/debt`), which is also what the schemaVersion-11
+      // migration backfill used and what creation/deletion reverse. Because
+      // every caller shares this predicate, a recompute can never diverge from
+      // the incremental updates or from the reported figures.
+      balance += TransactionPolicy.walletBalanceEffect(transaction);
     }
 
     return balance;
   }
+
+  /// The signed balance effect [transaction] currently has on its wallet, in
+  /// minor units. Callers that need to reverse a mutation (delete/undo) use
+  /// this so they reverse exactly what creation applied — including credit/debt
+  /// rows that are realized while still unpaid.
+  static int balanceEffectOf(Transaction transaction) =>
+      TransactionPolicy.walletBalanceEffect(transaction);
 
   /// Update the stored balance for a wallet based on its transactions.
   /// Call this after any transaction operation (add, update, delete).

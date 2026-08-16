@@ -5,8 +5,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'package:the_accountant/core/domain/transaction_policy.dart';
 import 'package:the_accountant/core/services/analytics_service.dart';
 import 'package:the_accountant/core/services/wallet_balance_service.dart';
+import 'package:the_accountant/features/transactions/services/transfer_service.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart' as db;
 import 'package:the_accountant/data/datasources/local/app_database.dart'
     show AppDatabase, TransactionsCompanion, SyncStatus;
@@ -234,6 +236,13 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
 
       await _db.addTransaction(newTransaction);
 
+      // Keep the wallet balance in step with the insert. This path used to skip
+      // the balance entirely — unlike [addTransactionFull] — so anything routed
+      // through it left the wallet under- or over-stated until the next full
+      // recalculation.
+      await _walletBalanceService.updateWalletBalance(walletId);
+      await _ref.read(walletProvider.notifier).loadWallets();
+
       // Reload transactions to get the new one
       await loadTransactions();
 
@@ -415,6 +424,21 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
         throw Exception('Transaction not found');
       }
 
+      // Transfers must go through the paired update so both legs stay
+      // reciprocal, equal, and opposite. Editing one row here would desync the
+      // pair; delegate instead of silently corrupting it.
+      if (TransactionPolicy.isTransfer(existing)) {
+        await updateTransfer(
+          id: id,
+          amount: amount,
+          title: title,
+          walletId: walletId,
+          date: date,
+          notes: notes,
+        );
+        return;
+      }
+
       // Determine isIncome: prefer explicit isIncome, then type, then existing
       bool? transactionIsIncome;
       if (isIncome != null) {
@@ -532,6 +556,63 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
     }
   }
 
+  /// Update a transfer through the paired operation.
+  ///
+  /// [walletId] refers to the wallet of the leg identified by [id]; it is mapped
+  /// onto the source or destination side depending on which leg that is, so a
+  /// caller holding a single row (a list item, the editor) never has to know
+  /// about the pair's internal structure. [sourceWalletId] /
+  /// [destinationWalletId] let a transfer-aware caller set both sides directly.
+  Future<void> updateTransfer({
+    required String id,
+    int? amount,
+    String? title,
+    String? walletId,
+    DateTime? date,
+    String? notes,
+    String? sourceWalletId,
+    String? destinationWalletId,
+  }) async {
+    state = state.copyWith(isLoading: true);
+    try {
+      final existing = await _db.findTransactionById(id);
+      if (existing == null) {
+        throw Exception('Transaction not found');
+      }
+      if (!TransactionPolicy.isTransfer(existing)) {
+        throw Exception('Transaction $id is not a transfer');
+      }
+
+      // `walletId` describes THIS leg: an incoming leg is the destination, an
+      // outgoing leg is the source.
+      final resolvedSource =
+          sourceWalletId ?? (existing.isIncome ? null : walletId);
+      final resolvedDestination =
+          destinationWalletId ?? (existing.isIncome ? walletId : null);
+
+      await TransferService(_db).updateTransfer(
+        transactionId: id,
+        amount: amount,
+        date: date,
+        notes: notes,
+        title: title,
+        sourceWalletId: resolvedSource,
+        destinationWalletId: resolvedDestination,
+      );
+
+      await _ref.read(walletProvider.notifier).loadWallets();
+      await loadTransactions();
+      AnalyticsService().logTransactionUpdate();
+      _ref.read(financialDataProvider.notifier).refreshData();
+      _ref.read(reportsProvider.notifier).loadReportsData();
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: 'Failed to update transfer: $e',
+      );
+    }
+  }
+
   Future<void> deleteTransaction(String id) async {
     state = state.copyWith(isLoading: true);
 
@@ -541,25 +622,38 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
         await ReminderSchedulerService().cancelReminder(id);
       } catch (_) {}
 
-      // First get the transaction to reverse its effect on wallet
       final transaction = await _db.findTransactionById(id);
-      if (transaction != null && transaction.isPaid) {
-        // Reverse the wallet balance effect
-        // If it was income, subtract from wallet; if expense, add back to wallet
-        await _walletBalanceService.updateBalanceAfterTransaction(
-          walletId: transaction.walletId,
-          amount: transaction.amount,
-          isIncome: !transaction.isIncome, // Reverse the effect
-        );
 
-        // Refresh wallet provider to reflect new balance (await to ensure state is updated)
+      // A transfer is one domain object stored as two rows. Deleting a single
+      // row here would leave an orphan leg and a wrong balance on the partner's
+      // wallet, so every generic delete route delegates to the paired
+      // operation, which tombstones both legs and recomputes both wallets in
+      // one database transaction.
+      if (transaction != null && TransactionPolicy.isTransfer(transaction)) {
+        await TransferService(_db).deleteTransfer(id);
         await _ref.read(walletProvider.notifier).loadWallets();
+        AnalyticsService().logTransactionDelete();
+        await loadTransactions();
+        _ref.read(financialDataProvider.notifier).refreshData();
+        _ref.read(reportsProvider.notifier).loadReportsData();
+        return;
       }
 
       // Soft-delete (sets deletedAt + pendingDelete) so the deletion is pushed to the
       // server on the next sync. A hard delete would never propagate and the row could
       // resurrect on a full pull.
       await _db.softDeleteTransaction(id);
+
+      // Recompute the wallet from its surviving transactions rather than
+      // reversing a hand-rolled delta. The old code only reversed when
+      // `isPaid` was true, which silently skipped credit/debt rows that are
+      // realized while unpaid — deleting one of those left the wallet balance
+      // permanently wrong. Recomputation uses the same TransactionPolicy
+      // predicate that creation used, so create and delete can never disagree.
+      if (transaction != null) {
+        await _walletBalanceService.updateWalletBalance(transaction.walletId);
+        await _ref.read(walletProvider.notifier).loadWallets();
+      }
 
       AnalyticsService().logTransactionDelete();
 

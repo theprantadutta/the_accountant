@@ -8,6 +8,7 @@ import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/core/themes/app_typography.dart';
 import 'package:the_accountant/core/utils/date_formatter.dart';
 import 'package:the_accountant/core/utils/number_formatter.dart';
+import 'package:the_accountant/core/domain/transaction_policy.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/data/models/transaction.dart'
     show TransactionSpecialType;
@@ -149,7 +150,7 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
                         _buildTransactionList(
                           _showOnlyUnpaid
                               ? state.creditTransactions
-                                    .where((t) => !t.isPaid)
+                                    .where(TransactionPolicy.isOutstanding)
                                     .toList()
                               : state.creditTransactions,
                           isCredit: true,
@@ -157,7 +158,7 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
                         _buildTransactionList(
                           _showOnlyUnpaid
                               ? state.debtTransactions
-                                    .where((t) => !t.isPaid)
+                                    .where(TransactionPolicy.isOutstanding)
                                     .toList()
                               : state.debtTransactions,
                           isCredit: false,
@@ -199,7 +200,10 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  'Net Balance',
+                  // Explicitly "outstanding": this figure is derived from
+                  // unpaid credit minus unpaid debt, so it goes to zero once
+                  // everything is settled instead of quoting lifetime totals.
+                  'Net Outstanding',
                   style: AppTypography.titleMedium.copyWith(
                     color: AppColors.textSecondary,
                   ),
@@ -215,7 +219,9 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
               ),
             ),
             Text(
-              isPositive ? 'Others owe you' : 'You owe others',
+              netBalance == 0
+                  ? 'All settled'
+                  : (isPositive ? 'Others owe you' : 'You owe others'),
               style: AppTypography.bodySmall.copyWith(
                 color: AppColors.textMuted,
               ),
@@ -258,7 +264,7 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
               children: [
                 Expanded(
                   child: _buildStatColumn(
-                    'Credit (Lent)',
+                    'Credit (Lent, all time)',
                     currencyFormat.format(state.totalCredit / 100.0),
                     currencyFormat.format(state.unpaidCredit / 100.0),
                     AppColors.success,
@@ -268,7 +274,7 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
                 Container(width: 1, height: 60, color: AppColors.glassBorder),
                 Expanded(
                   child: _buildStatColumn(
-                    'Debt (Borrowed)',
+                    'Debt (Borrowed, all time)',
                     currencyFormat.format(state.totalDebt / 100.0),
                     currencyFormat.format(state.unpaidDebt / 100.0),
                     AppColors.error,
@@ -314,7 +320,7 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
           ),
         ),
         Text(
-          'Pending: $unpaid',
+          'Outstanding: $unpaid',
           style: AppTypography.labelSmall.copyWith(color: AppColors.textMuted),
         ),
       ],
@@ -336,7 +342,9 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
       final aOverdue = notifier.isOverdue(a);
       final bOverdue = notifier.isOverdue(b);
       if (aOverdue != bOverdue) return aOverdue ? -1 : 1;
-      if (a.isPaid != b.isPaid) return a.isPaid ? 1 : -1;
+      final aSettled = TransactionPolicy.isSettled(a);
+      final bSettled = TransactionPolicy.isSettled(b);
+      if (aSettled != bSettled) return aSettled ? 1 : -1;
       return b.date.compareTo(a.date);
     });
 
@@ -407,16 +415,17 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
       CurrencyInfo.getSymbol(walletCurrency),
       ref.watch(numberFormatSettingProvider),
     );
-    final isPaid = transaction.isPaid;
-    final isOverdue = ref
-        .read(creditDebtProvider.notifier)
-        .isOverdue(transaction);
+    // "Settled" means the loan has been repaid in full (paidAmount >= amount),
+    // NOT that the original cash movement happened. `transaction.isPaid` is
+    // true the moment a loan is recorded, so keying the UI off it labelled every
+    // brand-new lend/borrow as settled and hid the repayment controls.
+    final isSettled = TransactionPolicy.isSettled(transaction);
+    final isOverdue = TransactionPolicy.isOverdue(transaction);
     final paidAmount = transaction.paidAmount;
     final totalAmount = transaction.amount;
-    final paymentProgress = totalAmount > 0
-        ? (paidAmount / totalAmount).clamp(0.0, 1.0)
-        : 0.0;
-    final hasPartialPayment = paidAmount > 0 && !isPaid;
+    final outstanding = TransactionPolicy.outstandingAmount(transaction);
+    final paymentProgress = TransactionPolicy.settlementProgress(transaction);
+    final hasPartialPayment = TransactionPolicy.hasPartialPayment(transaction);
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
@@ -458,10 +467,10 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
                                         ? 'Money Lent'
                                         : 'Money Borrowed'),
                               style: AppTypography.titleSmall.copyWith(
-                                decoration: isPaid
+                                decoration: isSettled
                                     ? TextDecoration.lineThrough
                                     : null,
-                                color: isPaid
+                                color: isSettled
                                     ? AppColors.textMuted
                                     : AppColors.textPrimary,
                               ),
@@ -469,7 +478,7 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          if (isPaid)
+                          if (isSettled)
                             Container(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 8,
@@ -555,18 +564,27 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
+                    // Show what is still OWED, not the original principal —
+                    // after a partial repayment the outstanding figure is the
+                    // number the user actually needs.
                     Text(
-                      currencyFormat.format(transaction.amount / 100.0),
+                      currencyFormat.format(
+                        (isSettled ? totalAmount : outstanding) / 100.0,
+                      ),
                       style: AppTypography.titleMedium.copyWith(
-                        color: isPaid
+                        color: isSettled
                             ? AppColors.textMuted
                             : (isCredit ? AppColors.success : AppColors.error),
                         fontWeight: FontWeight.bold,
-                        decoration: isPaid ? TextDecoration.lineThrough : null,
+                        decoration: isSettled
+                            ? TextDecoration.lineThrough
+                            : null,
                       ),
                     ),
                     Text(
-                      isCredit ? 'They owe you' : 'You owe',
+                      isSettled
+                          ? 'Settled'
+                          : (isCredit ? 'They owe you' : 'You owe'),
                       style: AppTypography.labelSmall.copyWith(
                         color: AppColors.textMuted,
                       ),
@@ -576,7 +594,7 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
               ],
             ),
             // Payment progress bar
-            if (!isPaid || hasPartialPayment) ...[
+            if (!isSettled || hasPartialPayment) ...[
               AppSpacing.gapMd,
               Row(
                 children: [
@@ -613,7 +631,7 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
                 ],
               ),
             ],
-            if (!isPaid) ...[
+            if (!isSettled) ...[
               AppSpacing.gapMd,
               // Action buttons row
               Row(
@@ -672,7 +690,7 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
 
   void _showRecordPaymentDialog(Transaction transaction, bool isCredit) {
     final paymentController = TextEditingController();
-    final remaining = transaction.amount - transaction.paidAmount;
+    final remaining = TransactionPolicy.outstandingAmount(transaction);
     final walletCurrency = ref.read(
       walletCurrencyProvider(transaction.walletId),
     );

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:the_accountant/core/domain/transaction_policy.dart';
 import 'package:the_accountant/core/services/currency_service.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
@@ -300,11 +301,16 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
 
   void _initFromExisting() {
     final t = widget.existingTransaction!;
+    // A transfer is a paired two-leg record: editing it must edit BOTH legs, so
+    // the form opens in transfer mode and saves through the paired operation.
+    final isTransferRow = TransactionPolicy.isTransfer(t);
     // Use isIncome (the authoritative field). `type` is a deprecated column that
     // is always 'regular', so keying off it wrongly forced every edit to Expense.
-    _transactionType = t.isIncome
-        ? TransactionTypeSelection.income
-        : TransactionTypeSelection.expense;
+    _transactionType = isTransferRow
+        ? TransactionTypeSelection.transfer
+        : (t.isIncome
+              ? TransactionTypeSelection.income
+              : TransactionTypeSelection.expense);
     _titleController.text = t.title;
     _notesController.text = t.notes ?? '';
     _selectedCategoryId = t.categoryId;
@@ -318,6 +324,24 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
     _selectedObjectiveId = t.objectiveId;
     _selectedPaymentMethodId = t.paymentMethodId;
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (isTransferRow) {
+        // Resolve both sides of the pair so the wallet pickers show the real
+        // source and destination regardless of which leg was tapped.
+        final paired = await ref
+            .read(transferServiceProvider)
+            .getPairedTransaction(t.id);
+        if (!mounted) return;
+        setState(() {
+          if (t.isIncome) {
+            _toWalletId = t.walletId;
+            _fromWalletId = paired?.walletId;
+          } else {
+            _fromWalletId = t.walletId;
+            _toWalletId = paired?.walletId;
+          }
+        });
+        return;
+      }
       _loadCategoryDetails();
       // For subscription/repetitive, restore the recurring schedule from its config.
       if (_specialType == TransactionSpecialType.subscription ||
@@ -461,7 +485,26 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
     HapticFeedback.mediumImpact();
 
     try {
-      if (_isTransfer) {
+      if (_isTransfer && _isEditing) {
+        // Paired update: both legs change together inside one database
+        // transaction, preserving reciprocal ids, equal amounts, and opposite
+        // directions.
+        await ref
+            .read(transactionProvider.notifier)
+            .updateTransfer(
+              id: widget.existingTransaction!.id,
+              amount: (_amount * 100).round(), // dollars -> integer cents
+              date: _selectedDateTime,
+              title: _titleController.text.isEmpty
+                  ? 'Transfer'
+                  : _titleController.text,
+              notes: _notesController.text.isEmpty
+                  ? null
+                  : _notesController.text,
+              sourceWalletId: _fromWalletId,
+              destinationWalletId: _toWalletId,
+            );
+      } else if (_isTransfer) {
         await ref
             .read(transferProvider.notifier)
             .createTransfer(
