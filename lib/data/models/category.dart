@@ -2,6 +2,11 @@ import 'package:drift/drift.dart';
 
 /// Categories table for organizing transactions
 /// Supports subcategories via mainCategoryId self-reference
+@TableIndex(
+  name: 'idx_categories_default_key',
+  columns: {#defaultKey},
+  unique: true,
+)
 class Categories extends Table {
   // Primary key - UUID string
   TextColumn get id => text().customConstraint('UNIQUE NOT NULL')();
@@ -27,6 +32,17 @@ class Categories extends Table {
 
   // Whether this is a default category (created by system)
   BoolColumn get isDefault => boolean().withDefault(const Constant(false))();
+
+  /// Stable slug identifying WHICH built-in category this is, or null for a
+  /// user-created one.
+  ///
+  /// Category ids are random per install (they must be — the backend's category
+  /// primary key is global, so a shared id collides across users). This is the
+  /// cross-device identity instead: it is how a second device recognises a
+  /// built-in it already has rather than uploading a duplicate set of defaults,
+  /// and how duplicates that already exist can be merged *provably* safely.
+  /// See `DefaultCategoryCatalog`.
+  TextColumn get defaultKey => text().nullable()();
 
   // Sync fields
   TextColumn get serverId => text().nullable()();
