@@ -284,7 +284,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         );
       } on AccountLinkingRequiredException {
         // Sign out of Firebase to prevent auto-login interference
-        await FirebaseAuth.instance.signOut();
+        await _firebaseSignOutIfAvailable();
 
         // Set state for account linking
         state = state.copyWith(
@@ -379,7 +379,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         );
       } on AccountLinkingRequiredException {
         // Sign out of Firebase to prevent auto-login interference
-        await FirebaseAuth.instance.signOut();
+        await _firebaseSignOutIfAvailable();
 
         // Set state for account linking
         state = state.copyWith(
@@ -494,3 +494,16 @@ class AuthNotifier extends StateNotifier<AuthState> {
 final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
   return AuthNotifier();
 });
+
+/// Sign out of Firebase when it is available.
+///
+/// Firebase is optional at runtime (and absent in tests); a missing app must not
+/// turn signing out into an error, because the user would then be stuck in a
+/// session they explicitly asked to end.
+Future<void> _firebaseSignOutIfAvailable() async {
+  try {
+    await FirebaseAuth.instance.signOut();
+  } catch (_) {
+    // No Firebase app configured, or no Firebase session to end.
+  }
+}
