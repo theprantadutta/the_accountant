@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
-import 'package:the_accountant/core/services/wallet_balance_service.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
 import 'package:the_accountant/features/transactions/services/transfer_service.dart';
@@ -44,10 +43,9 @@ class TransferState {
 /// Notifier for managing transfer operations
 class TransferNotifier extends StateNotifier<TransferState> {
   final TransferService _transferService;
-  final WalletBalanceService _balanceService;
   final Ref _ref;
 
-  TransferNotifier(this._transferService, this._balanceService, this._ref)
+  TransferNotifier(this._transferService, this._ref)
     : super(const TransferState()) {
     loadTransfers();
   }
@@ -77,7 +75,10 @@ class TransferNotifier extends StateNotifier<TransferState> {
   }) async {
     state = state.copyWith(isLoading: true, errorMessage: null);
     try {
-      // Create the paired transactions (IDs not needed; balances update by wallet)
+      // Create the paired transactions. Both rows AND both wallet balances are
+      // written inside a single database transaction by the service, so there
+      // is no window where one leg exists without the other and no separate
+      // balance update here that could double-count.
       await _transferService.createTransfer(
         sourceWalletId: sourceWalletId,
         destinationWalletId: destinationWalletId,
@@ -85,20 +86,6 @@ class TransferNotifier extends StateNotifier<TransferState> {
         date: date,
         notes: notes,
         title: title,
-      );
-
-      // Update source wallet balance (decrease)
-      await _balanceService.updateBalanceAfterTransaction(
-        walletId: sourceWalletId,
-        amount: amount,
-        isIncome: false,
-      );
-
-      // Update destination wallet balance (increase)
-      await _balanceService.updateBalanceAfterTransaction(
-        walletId: destinationWalletId,
-        amount: amount,
-        isIncome: true,
       );
 
       // Refresh wallet provider (await to ensure state is updated)
@@ -139,8 +126,8 @@ class TransferNotifier extends StateNotifier<TransferState> {
         destinationWalletId: destinationWalletId,
       );
 
-      // Recalculate balances for affected wallets
-      await _balanceService.recalculateAllWalletBalances();
+      // Balances for every wallet the edit touched were recomputed inside the
+      // service's database transaction.
 
       // Refresh wallet provider (await to ensure state is updated)
       await _ref.read(walletProvider.notifier).loadWallets();
@@ -164,8 +151,8 @@ class TransferNotifier extends StateNotifier<TransferState> {
     try {
       await _transferService.deleteTransfer(transactionId);
 
-      // Recalculate balances for affected wallets
-      await _balanceService.recalculateAllWalletBalances();
+      // Both legs were tombstoned and both wallets recomputed inside the
+      // service's database transaction.
 
       // Refresh wallet provider (await to ensure state is updated)
       await _ref.read(walletProvider.notifier).loadWallets();
@@ -188,6 +175,10 @@ class TransferNotifier extends StateNotifier<TransferState> {
     return _transferService.isTransfer(transactionId);
   }
 
+  /// Report any transfer pair that violates the paired-object invariants.
+  Future<List<TransferIntegrityIssue>> validateIntegrity() =>
+      _transferService.validateAllTransfers();
+
   /// Clear any error message
   void clearError() {
     state = state.copyWith(errorMessage: null);
@@ -198,8 +189,6 @@ class TransferNotifier extends StateNotifier<TransferState> {
 final transferProvider = StateNotifierProvider<TransferNotifier, TransferState>(
   (ref) {
     final transferService = ref.watch(transferServiceProvider);
-    final db = ref.watch(databaseProvider);
-    final balanceService = WalletBalanceService(db);
-    return TransferNotifier(transferService, balanceService, ref);
+    return TransferNotifier(transferService, ref);
   },
 );
