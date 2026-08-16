@@ -164,9 +164,7 @@ class ApiService {
               );
             } else if (!_isAuthEndpoint(error.requestOptions.path) &&
                 !alreadyRetried) {
-              _logger.w(
-                'Received 401 Unauthorized - attempting token refresh',
-              );
+              _logger.w('Received 401 Unauthorized - attempting token refresh');
 
               // Collapses onto any refresh already running instead of starting a
               // second one. Previously this branch logged the user out outright
@@ -632,7 +630,8 @@ class ApiService {
           'new_password': newPassword,
           // Changing the password revokes every other session; identify this one
           // so the user isn't signed out of the device they're holding.
-          'keep_session_refresh_token': ?await SecureTokenStorage.getRefreshToken(),
+          'keep_session_refresh_token':
+              ?await SecureTokenStorage.getRefreshToken(),
         },
       );
     } on DioException catch (e) {

@@ -147,100 +147,101 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
             padding: EdgeInsets.all(AppSpacing.lg),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Header
-              _buildHeader(premiumState),
-              SizedBox(height: AppSpacing.xl),
+              children: [
+                // Header
+                _buildHeader(premiumState),
+                SizedBox(height: AppSpacing.xl),
 
-              // If premium, show status
-              if (premiumState.isPremium) ...[
-                _buildPremiumStatus(premiumState),
-                SizedBox(height: AppSpacing.lg),
-              ],
+                // If premium, show status
+                if (premiumState.isPremium) ...[
+                  _buildPremiumStatus(premiumState),
+                  SizedBox(height: AppSpacing.lg),
+                ],
 
-              // Features section
-              _buildFeaturesSection(premiumState.isPremium),
-              SizedBox(height: AppSpacing.xl),
+                // Features section
+                _buildFeaturesSection(premiumState.isPremium),
+                SizedBox(height: AppSpacing.xl),
 
-              // IAP availability banner — drives users away from a silent
-              // dead-end when Play Services isn't installed or products
-              // haven't loaded.
-              if (!premiumState.isPremium) ...[
-                _buildIapStatusBanner(iapState),
-                _buildSubscriptionTiers(iapState),
-                SizedBox(height: AppSpacing.lg),
-              ],
+                // IAP availability banner — drives users away from a silent
+                // dead-end when Play Services isn't installed or products
+                // haven't loaded.
+                if (!premiumState.isPremium) ...[
+                  _buildIapStatusBanner(iapState),
+                  _buildSubscriptionTiers(iapState),
+                  SizedBox(height: AppSpacing.lg),
+                ],
 
-              // Error message
-              if (_errorMessage != null)
-                Padding(
-                  padding: EdgeInsets.only(bottom: AppSpacing.md),
-                  child: Container(
-                    padding: EdgeInsets.all(AppSpacing.md),
-                    decoration: BoxDecoration(
-                      color: AppColors.error.withValues(alpha: 0.1),
-                      borderRadius: AppSpacing.borderRadiusMd,
-                      border: Border.all(
-                        color: AppColors.error.withValues(alpha: 0.3),
+                // Error message
+                if (_errorMessage != null)
+                  Padding(
+                    padding: EdgeInsets.only(bottom: AppSpacing.md),
+                    child: Container(
+                      padding: EdgeInsets.all(AppSpacing.md),
+                      decoration: BoxDecoration(
+                        color: AppColors.error.withValues(alpha: 0.1),
+                        borderRadius: AppSpacing.borderRadiusMd,
+                        border: Border.all(
+                          color: AppColors.error.withValues(alpha: 0.3),
+                        ),
                       ),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(Icons.error_outline, color: AppColors.error),
-                        SizedBox(width: AppSpacing.sm),
-                        Expanded(
-                          child: Text(
-                            _errorMessage!,
-                            style: TextStyle(
-                              color: AppColors.error,
-                              fontSize: 14,
+                      child: Row(
+                        children: [
+                          Icon(Icons.error_outline, color: AppColors.error),
+                          SizedBox(width: AppSpacing.sm),
+                          Expanded(
+                            child: Text(
+                              _errorMessage!,
+                              style: TextStyle(
+                                color: AppColors.error,
+                                fontSize: 14,
+                              ),
                             ),
                           ),
-                        ),
-                        IconButton(
-                          icon: Icon(
-                            Icons.close,
-                            color: AppColors.error,
-                            size: 18,
+                          IconButton(
+                            icon: Icon(
+                              Icons.close,
+                              color: AppColors.error,
+                              size: 18,
+                            ),
+                            onPressed: () =>
+                                setState(() => _errorMessage = null),
                           ),
-                          onPressed: () => setState(() => _errorMessage = null),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
+                  ),
+
+                // Restore purchases
+                TextButton.icon(
+                  onPressed: iapState.isLoading ? null : _restorePurchases,
+                  icon: iapState.isLoading
+                      ? SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: AppColors.textSecondary,
+                          ),
+                        )
+                      : const Icon(Icons.restore, size: 18),
+                  label: Text(
+                    iapState.isLoading ? 'Processing...' : 'Restore Purchases',
+                  ),
+                  style: TextButton.styleFrom(
+                    foregroundColor: AppColors.textSecondary,
                   ),
                 ),
 
-              // Restore purchases
-              TextButton.icon(
-                onPressed: iapState.isLoading ? null : _restorePurchases,
-                icon: iapState.isLoading
-                    ? SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: AppColors.textSecondary,
-                        ),
-                      )
-                    : const Icon(Icons.restore, size: 18),
-                label: Text(
-                  iapState.isLoading ? 'Processing...' : 'Restore Purchases',
-                ),
-                style: TextButton.styleFrom(
-                  foregroundColor: AppColors.textSecondary,
-                ),
-              ),
+                SizedBox(height: AppSpacing.md),
 
-              SizedBox(height: AppSpacing.md),
-
-              // Terms
-              Text(
-                'Subscriptions will be charged to your payment method through your App Store or Google Play account. Subscriptions automatically renew unless canceled at least 24 hours before the end of the current period.',
-                style: TextStyle(fontSize: 11, color: AppColors.textMuted),
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
+                // Terms
+                Text(
+                  'Subscriptions will be charged to your payment method through your App Store or Google Play account. Subscriptions automatically renew unless canceled at least 24 hours before the end of the current period.',
+                  style: TextStyle(fontSize: 11, color: AppColors.textMuted),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
           ),
         ),
       ),
