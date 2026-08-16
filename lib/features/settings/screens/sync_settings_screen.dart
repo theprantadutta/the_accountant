@@ -7,6 +7,7 @@ import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/data/models/premium_features.dart';
 import 'package:the_accountant/features/premium/widgets/premium_gate.dart';
+import 'package:the_accountant/features/settings/widgets/category_reconciliation_card.dart';
 import 'package:the_accountant/features/settings/widgets/confirmation_dialog.dart';
 
 /// Gated sync settings screen that requires premium subscription
@@ -53,6 +54,11 @@ class _SyncSettingsScreenState extends ConsumerState<SyncSettingsScreen> {
           // SYNC STATUS
           _buildSyncStatusCard(syncState, lastResult),
           SizedBox(height: AppSpacing.lg),
+
+          // Questions the server raised that only the user can answer. Shown
+          // above the actions, because syncing will not fully complete until
+          // they are dealt with.
+          const CategoryReconciliationCard(),
 
           // ACTIONS
           _buildSectionHeader('ACTIONS'),
@@ -168,12 +174,16 @@ class _SyncSettingsScreenState extends ConsumerState<SyncSettingsScreen> {
                     ],
                     if (lastResult != null &&
                         !lastResult.success &&
-                        lastResult.error != null) ...[
+                        lastResult.userMessage != null) ...[
                       SizedBox(height: AppSpacing.xs),
                       Text(
-                        lastResult.error!,
+                        // userMessage covers BOTH a transport failure and a
+                        // partial sync where specific cloud records could not
+                        // be saved locally, so a data error is never shown as
+                        // an unexplained generic failure.
+                        lastResult.userMessage!,
                         style: TextStyle(color: AppColors.error, fontSize: 13),
-                        maxLines: 2,
+                        maxLines: 4,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ],
@@ -285,11 +295,20 @@ class _SyncSettingsScreenState extends ConsumerState<SyncSettingsScreen> {
                   content: Text(
                     result.success
                         ? 'Sync complete — pushed ${result.pushedCount}, pulled ${result.pulledCount}'
-                        : 'Sync failed: ${result.error}',
+                        : (result.isPartial
+                              ? 'Sync incomplete — ${result.applyFailures.length} '
+                                    'record(s) could not be saved and will be retried. '
+                                    '${result.userMessage}'
+                              : 'Sync failed: ${result.error}'),
                   ),
+                  duration: result.success
+                      ? const Duration(seconds: 4)
+                      : const Duration(seconds: 8),
                   backgroundColor: result.success
                       ? AppColors.success
-                      : AppColors.error,
+                      : (result.isPartial
+                            ? AppColors.warning
+                            : AppColors.error),
                 ),
               );
             },
@@ -349,8 +368,15 @@ class _SyncSettingsScreenState extends ConsumerState<SyncSettingsScreen> {
         content: Text(
           result.success
               ? 'Restored ${result.pulledCount} items from the cloud'
-              : 'Restore failed: ${result.error}',
+              : (result.isPartial
+                    // The restore transaction rolled back, so nothing was lost.
+                    ? 'Restore cancelled — your local data was left unchanged. '
+                          '${result.userMessage}'
+                    : 'Restore failed: ${result.error}'),
         ),
+        duration: result.success
+            ? const Duration(seconds: 4)
+            : const Duration(seconds: 8),
         backgroundColor: result.success ? AppColors.success : AppColors.error,
       ),
     );
