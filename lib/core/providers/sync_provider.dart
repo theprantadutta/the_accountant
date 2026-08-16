@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:the_accountant/core/constants/background_task_constants.dart';
 import 'package:the_accountant/core/providers/connectivity_provider.dart';
 import 'package:the_accountant/core/services/api_service.dart';
 import 'package:the_accountant/core/services/sync/sync_models.dart';
@@ -72,8 +74,11 @@ class SyncNotifier extends Notifier<SyncOperationState> {
     final syncService = ref.read(syncServiceProvider);
     final result = await syncService.syncAll();
 
-    // Refresh all data providers so UI reflects pulled changes
-    if (result.success && (result.pulledCount > 0 || result.pushedCount > 0)) {
+    // Refresh whenever anything actually landed locally. A partial sync reports
+    // success == false (so the user is told about the records that failed), but
+    // the records that DID apply are already in the database and the UI must
+    // show them.
+    if (result.pulledCount > 0 || result.pushedCount > 0) {
       _refreshDataProviders();
     }
 
@@ -107,10 +112,29 @@ class SyncNotifier extends Notifier<SyncOperationState> {
   /// Trigger auto-sync silently (catches errors)
   Future<void> triggerAutoSync() async {
     try {
-      await syncAll();
+      final result = await syncAll();
+      // Background recurrence generation runs in a WorkManager isolate that
+      // cannot sync on its own; it leaves a flag instead. Clear it once a
+      // foreground sync has actually pushed, so the generated occurrences are
+      // guaranteed to reach the cloud rather than waiting for the user to open
+      // the sync screen.
+      if (result.success) {
+        final prefs = await SharedPreferences.getInstance();
+        if (prefs.getBool(BackgroundTaskConstants.keyPendingBackgroundSync) ??
+            false) {
+          await prefs.remove(BackgroundTaskConstants.keyPendingBackgroundSync);
+        }
+      }
     } catch (e) {
       debugPrint('Auto sync failed: $e');
     }
+  }
+
+  /// Whether background processing left local changes that still need pushing.
+  Future<bool> hasPendingBackgroundWork() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(BackgroundTaskConstants.keyPendingBackgroundSync) ??
+        false;
   }
 
   /// Start periodic sync timer (every 15 minutes)
