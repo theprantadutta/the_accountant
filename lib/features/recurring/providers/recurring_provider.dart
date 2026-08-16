@@ -83,12 +83,17 @@ class RecurringNotifier extends _$RecurringNotifier {
     ref.invalidateSelf();
   }
 
-  /// Update a recurring configuration
+  /// Update a recurring configuration.
+  ///
+  /// [endDate] is tri-state, matching [RecurringService.updateRecurringConfig]:
+  /// omit to keep the current end date, pass a [DateTime] to set one, pass null
+  /// to clear it (repeat forever). A plain nullable parameter here would silently
+  /// wipe the end date on every unrelated edit.
   Future<void> updateRecurring({
     required String configId,
     String? reoccurrence,
     int? periodLength,
-    DateTime? endDate,
+    Object? endDate = RecurringService.keepEndDate,
     bool? isActive,
   }) async {
     final service = ref.read(recurringServiceProvider);

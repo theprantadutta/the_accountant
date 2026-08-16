@@ -49,12 +49,21 @@ class ObjectivesService {
     return id;
   }
 
-  /// Update an objective
+  /// Sentinel meaning "leave the end date unchanged".
+  ///
+  /// A plain nullable parameter cannot tell "don't touch it" apart from "clear
+  /// it", which is why removing a goal's deadline used to silently do nothing.
+  static const Object keepEndDate = Object();
+
+  /// Update an objective.
+  ///
+  /// [endDate] is tri-state: omit to keep, pass a [DateTime] to set, pass null
+  /// to clear (an open-ended goal).
   Future<void> updateObjective({
     required String objectiveId,
     String? name,
     int? targetAmount, // integer minor units / cents
-    DateTime? endDate,
+    Object? endDate = keepEndDate,
     String? iconName,
     String? color,
     bool? isPinned,
@@ -65,7 +74,9 @@ class ObjectivesService {
       targetAmount: targetAmount != null
           ? Value(targetAmount)
           : const Value.absent(),
-      endDate: endDate != null ? Value(endDate) : const Value.absent(),
+      endDate: identical(endDate, keepEndDate)
+          ? const Value.absent()
+          : Value(endDate as DateTime?),
       iconName: iconName != null ? Value(iconName) : const Value.absent(),
       color: color != null ? Value(color) : const Value.absent(),
       isPinned: isPinned != null ? Value(isPinned) : const Value.absent(),
@@ -81,55 +92,48 @@ class ObjectivesService {
     _logger.i('Updated objective: $objectiveId');
   }
 
-  /// Delete an objective
+  /// Delete an objective.
+  ///
+  /// Detaching the transactions and tombstoning the objective happen in one
+  /// database transaction, so a deleted goal can never leave transactions
+  /// pointing at a row that no longer exists.
   Future<void> deleteObjective(String objectiveId) async {
-    // First, remove all linked transactions
-    final linkedTransactions = await _database.getObjectiveTransactions(
-      objectiveId,
-    );
-    for (final link in linkedTransactions) {
-      await _database.removeObjectiveTransaction(
-        objectiveId,
-        link.transactionId,
-      );
-    }
+    await _database.transaction(() async {
+      // Clear the assignment on every transaction (sync-aware, so other devices
+      // see the detachment too).
+      await _database.unlinkAllTransactionsFromObjective(objectiveId);
 
-    // Then delete the objective (soft delete)
-    await (_database.update(
-      _database.objectives,
-    )..where((o) => o.id.equals(objectiveId))).write(
-      ObjectivesCompanion(
-        deletedAt: Value(DateTime.now()),
-        syncStatus: const Value(SyncStatus.pendingDelete),
-        updatedAt: Value(DateTime.now()),
-      ),
-    );
+      await (_database.update(
+        _database.objectives,
+      )..where((o) => o.id.equals(objectiveId))).write(
+        ObjectivesCompanion(
+          deletedAt: Value(DateTime.now()),
+          syncStatus: const Value(SyncStatus.pendingDelete),
+          updatedAt: Value(DateTime.now()),
+        ),
+      );
+    });
 
     _logger.i('Deleted objective: $objectiveId');
   }
 
-  /// Link a transaction to an objective
+  /// Assign a transaction to an objective.
+  ///
+  /// Membership is stored on `transactions.objectiveId` — the single,
+  /// synchronized source of truth. The old junction table was local-only, so a
+  /// link made on one device never reached another and progress silently
+  /// disagreed between them.
   Future<void> linkTransaction(String objectiveId, String transactionId) async {
-    final id = _uuid.v4();
-
-    await _database.addObjectiveTransaction(
-      ObjectiveTransactionsCompanion(
-        id: Value(id),
-        objectiveId: Value(objectiveId),
-        transactionId: Value(transactionId),
-        createdAt: Value(DateTime.now()),
-      ),
-    );
-
+    await _database.linkTransactionToObjective(objectiveId, transactionId);
     _logger.d('Linked transaction $transactionId to objective $objectiveId');
   }
 
-  /// Unlink a transaction from an objective
+  /// Remove a transaction's objective assignment.
   Future<void> unlinkTransaction(
     String objectiveId,
     String transactionId,
   ) async {
-    await _database.removeObjectiveTransaction(objectiveId, transactionId);
+    await _database.unlinkTransactionFromObjective(objectiveId, transactionId);
     _logger.d(
       'Unlinked transaction $transactionId from objective $objectiveId',
     );
@@ -213,10 +217,10 @@ class ObjectivesService {
     }
 
     // Calculate projected completion date based on average contribution
-    final linkedTransactions = await _database.getObjectiveTransactions(
+    final transactions = await _database.getTransactionsForObjective(
       objective.id,
     );
-    if (linkedTransactions.isNotEmpty && currentAmount > 0) {
+    if (transactions.isNotEmpty && currentAmount > 0) {
       // Calculate average contribution per day
       final startDate = objective.startDate;
       final daysSinceStart = DateTime.now().difference(startDate).inDays;
@@ -228,17 +232,6 @@ class ObjectivesService {
           final daysToComplete = remainingAmount / averagePerDay;
           projectedCompletion = daysToComplete;
         }
-      }
-    }
-
-    // Get linked transactions
-    final transactions = <Transaction>[];
-    for (final link in linkedTransactions) {
-      final transaction = await _database.findTransactionById(
-        link.transactionId,
-      );
-      if (transaction != null && transaction.deletedAt == null) {
-        transactions.add(transaction);
       }
     }
 
