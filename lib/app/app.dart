@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:in_app_update/in_app_update.dart';
 import 'package:the_accountant/core/providers/theme_provider.dart';
+import 'package:the_accountant/core/providers/account_store_provider.dart';
 import 'package:the_accountant/core/services/analytics_service.dart';
 import 'package:the_accountant/core/themes/app_theme.dart';
 import 'package:the_accountant/features/onboarding/screens/post_signup_onboarding_screen.dart';
@@ -91,6 +92,12 @@ class _MyAppState extends ConsumerState<MyApp> {
 
     // Activate IAP → Premium state bridge (needs to be alive for app lifetime)
     ref.watch(premiumIapSyncProvider);
+
+    // Keeps the open local database bound to the authenticated account. Must be
+    // alive for the app's lifetime: it is what swaps the store (and rebuilds
+    // every data provider) the moment the signed-in identity changes, so one
+    // account can never see or upload another account's local records.
+    ref.watch(accountStoreCoordinatorProvider);
 
     return MaterialApp(
       title: 'The Accountant',

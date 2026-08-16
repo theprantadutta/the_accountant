@@ -4,8 +4,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
+import 'package:the_accountant/core/domain/transaction_policy.dart';
 import 'package:the_accountant/core/constants/background_task_constants.dart';
 import 'package:the_accountant/core/services/background_notification_helper.dart';
+import 'package:the_accountant/core/services/local_store_manager.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/data/models/transaction.dart'
@@ -17,6 +19,17 @@ import 'package:the_accountant/features/recurring/services/recurring_service.dar
 /// database, notification helper, and SharedPreferences instances since
 /// WorkManager callbacks run in an isolated Dart isolate.
 class BackgroundTaskService {
+  /// Open the SAME per-account database the foreground app is using.
+  ///
+  /// WorkManager callbacks run in their own isolate with no Riverpod state, so
+  /// the active store file is read back from SharedPreferences. Using the
+  /// default file here would make background processing write recurrence
+  /// instances and reminders into the wrong account's database.
+  static Future<AppDatabase> _openActiveStore() async {
+    final prefs = await SharedPreferences.getInstance();
+    return constructDbForFile(LocalStoreManager(prefs).activeStoreFile);
+  }
+
   BackgroundTaskService._();
 
   /// Called from WorkManager periodic task and iOS background task.
@@ -34,7 +47,7 @@ class BackgroundTaskService {
       }
 
       // 2. Construct DB
-      db = constructDb();
+      db = await _openActiveStore();
 
       // 3. Init notifications
       final notifier = BackgroundNotificationHelper();
@@ -108,14 +121,13 @@ class BackgroundTaskService {
       // 7. Check overdue credit/debt
       final credits = await db.getCreditTransactions();
       final debts = await db.getDebtTransactions();
-      final overdueLoans = [...credits, ...debts]
-          .where((t) {
-            if (t.isPaid) return false;
-            final dueDate = t.originalDueDate ?? t.date;
-            return dueDate.isBefore(now);
-          })
-          .take(3)
-          .toList();
+      // Overdue means "still owed and past due". Gating on `isPaid` suppressed
+      // every reminder, because a loan is isPaid=true from the moment its cash
+      // moved; settlement is tracked by paidAmount.
+      final overdueLoans = [
+        ...credits,
+        ...debts,
+      ].where((t) => TransactionPolicy.isOverdue(t, now: now)).take(3).toList();
 
       for (final t in overdueLoans) {
         final isCredit = t.specialType == TransactionSpecialType.credit;
@@ -129,7 +141,8 @@ class BackgroundTaskService {
               (t.id.hashCode % 500),
           title: 'Overdue ${isCredit ? "Credit" : "Debt"}: $title',
           body:
-              '${(t.amount / 100).toStringAsFixed(2)} is overdue. Tap to review.',
+              '${(TransactionPolicy.outstandingAmount(t) / 100).toStringAsFixed(2)} '
+              'is still outstanding. Tap to review.',
           channelId: BackgroundTaskConstants.loanChannelId,
           channelName: BackgroundTaskConstants.loanChannelName,
           channelDesc: BackgroundTaskConstants.loanChannelDesc,
@@ -165,14 +178,33 @@ class BackgroundTaskService {
               (config.id.hashCode % 400),
           title: 'Upcoming Recurring: $title',
           body:
-              '${baseTx.amount.toStringAsFixed(2)} due on ${_formatDate(config.nextOccurrence)}.',
+              // Amounts are stored in integer minor units. Formatting the raw
+              // value showed 12345 cents as "12345.00" instead of "123.45".
+              '${(baseTx.amount / 100).toStringAsFixed(2)} due on '
+              '${_formatDate(config.nextOccurrence)}.',
           channelId: BackgroundTaskConstants.recurringChannelId,
           channelName: BackgroundTaskConstants.recurringChannelName,
           channelDesc: BackgroundTaskConstants.recurringChannelDesc,
         );
       }
 
-      // 9. Save last-run timestamp
+      // 9. Flag that background work produced local changes needing upload.
+      //
+      // A WorkManager isolate has no Riverpod container, no premium state, and
+      // on iOS no dependable network window, so it deliberately does NOT try to
+      // sync itself — a half-authenticated push from a background isolate is
+      // worse than a slightly delayed one. Instead it records that there is
+      // something to send; the foreground app drains it on the next resume,
+      // connectivity-restored, or periodic trigger. See IMPLEMENTATION_NOTES.md
+      // for the platform limitations behind this choice.
+      if (processedCount > 0) {
+        await prefs.setBool(
+          BackgroundTaskConstants.keyPendingBackgroundSync,
+          true,
+        );
+      }
+
+      // 10. Save last-run timestamp
       await prefs.setString(
         BackgroundTaskConstants.keyLastPeriodicRun,
         DateTime.now().toIso8601String(),
@@ -210,18 +242,24 @@ class BackgroundTaskService {
       if (transactionId == null) return true;
 
       // Construct DB and verify transaction still exists
-      db = constructDb();
+      db = await _openActiveStore();
       final tx = await db.findTransactionById(transactionId);
       if (tx == null || tx.skipPaid) {
         return true; // Deleted or skipped — nothing to do
       }
-      // For upcoming/credit/debt, isPaid means already settled — skip
-      // For repetitive/subscription, isPaid is always true so don't gate on it
-      final isRecurringType =
-          tx.specialType == TransactionSpecialType.repetitive ||
-          tx.specialType == TransactionSpecialType.subscription;
-      if (!isRecurringType && tx.isPaid) {
-        return true; // Already paid — nothing to do
+      // Credit/debt reminders stop when the loan is SETTLED (repaid in full),
+      // which is a paidAmount question — not when `isPaid` flips, since that is
+      // true from the moment the principal moved. Upcoming items still use
+      // isPaid, which for them genuinely means "already happened".
+      if (TransactionPolicy.isCreditOrDebt(tx)) {
+        if (TransactionPolicy.isSettled(tx)) return true;
+      } else {
+        final isRecurringType =
+            tx.specialType == TransactionSpecialType.repetitive ||
+            tx.specialType == TransactionSpecialType.subscription;
+        if (!isRecurringType && tx.isPaid) {
+          return true; // Already paid — nothing to do
+        }
       }
 
       // Init notifications

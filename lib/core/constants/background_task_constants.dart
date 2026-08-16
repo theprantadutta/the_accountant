@@ -39,6 +39,14 @@ class BackgroundTaskConstants {
   // === SharedPreferences Keys ===
   static const String keyReminderOffset = 'background_reminder_offset_minutes';
   static const String keyLastPeriodicRun = 'background_last_periodic_run';
+
+  /// Set by the WorkManager isolate when background processing created local
+  /// rows (generated recurrence occurrences) that still need uploading.
+  ///
+  /// The isolate cannot reliably sync itself — it has no premium state and, on
+  /// iOS, no guaranteed network window — so it leaves this flag and the
+  /// foreground app drains it at the next opportunity.
+  static const String keyPendingBackgroundSync = 'background_pending_sync';
   static const String keyRecurringRemindersEnabled =
       'notification_prefs_recurring_reminders_enabled';
 

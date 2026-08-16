@@ -9,6 +9,8 @@ import 'package:the_accountant/core/utils/env_service.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:the_accountant/firebase_options.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
+import 'package:the_accountant/core/providers/account_store_provider.dart';
+import 'package:the_accountant/core/services/local_store_manager.dart';
 import 'package:the_accountant/core/services/category_initialization_service.dart';
 import 'package:the_accountant/core/providers/default_wallet_provider.dart';
 import 'package:the_accountant/core/services/notification_service.dart';
@@ -52,12 +54,26 @@ void main() async {
     };
   }
   final prefs = await SharedPreferences.getInstance();
-  final db = constructDb();
+
+  // The local database is scoped to the account that owns it. Resolve which
+  // store file the persisted session should open BEFORE building the app, so
+  // the very first frame already reads the right account's data — and, just as
+  // importantly, never the previous account's.
+  final storeManager = LocalStoreManager(prefs);
+  final db = storeManager.activeDatabase;
 
   runApp(
     ProviderScope(
       overrides: [
-        databaseProvider.overrideWithValue(db),
+        localStoreManagerProvider.overrideWithValue(storeManager),
+        // `databaseProvider` follows the active store file, so switching
+        // accounts rebuilds every provider that reads the database instead of
+        // leaving stale notifiers pointed at the old file.
+        databaseProvider.overrideWith(
+          (ref) => ref
+              .watch(localStoreManagerProvider)
+              .databaseForFile(ref.watch(activeStoreFileProvider)),
+        ),
         sharedPreferencesProvider.overrideWithValue(prefs),
       ],
       child: const MyApp(),
