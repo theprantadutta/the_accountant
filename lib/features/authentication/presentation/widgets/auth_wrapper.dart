@@ -22,6 +22,9 @@ import 'package:the_accountant/features/onboarding/onboarding_screen.dart';
 import 'package:the_accountant/features/legal/legal_acceptance_screen.dart';
 import 'package:the_accountant/features/settings/providers/settings_provider.dart';
 import 'package:the_accountant/features/settings/screens/lock_screen.dart';
+import 'package:the_accountant/core/providers/account_store_provider.dart';
+import 'package:the_accountant/core/providers/startup_flow_provider.dart';
+import 'package:the_accountant/features/startup/screens/startup_recovery_screen.dart';
 
 class AuthWrapper extends ConsumerStatefulWidget {
   const AuthWrapper({super.key});
@@ -34,6 +37,7 @@ class _AuthWrapperState extends ConsumerState<AuthWrapper>
     with WidgetsBindingObserver {
   bool _hasCheckedOnboarding = false;
   bool _hasRunStartupChecks = false;
+  bool _hasStartedFlow = false;
   bool _isLocked = false;
   DateTime? _pausedAt;
 
@@ -185,12 +189,45 @@ class _AuthWrapperState extends ConsumerState<AuthWrapper>
 
     // If user is authenticated
     if (authState.isAuthenticated) {
-      // Check onboarding status once after authentication
-      if (!_hasCheckedOnboarding) {
+      // NOTHING account-scoped may run until the open local store belongs to
+      // this account. `AccountStoreCoordinator` switches files asynchronously
+      // after sign-in, so acting before it settles would read — and write —
+      // whichever store happened to be open, in the worst case the previous
+      // account's.
+      final storeOwner = ref.watch(activeStoreOwnerProvider);
+      if (storeOwner != authState.userId) {
+        return const AuthLoadingScreen();
+      }
+
+      // The startup flow decides whether this account has data to restore. It
+      // is the authority on that question; `onboarding_completed` is not, and
+      // never was — it defaults to false and was never backfilled, so an
+      // account with years of cloud history reports the same value a brand-new
+      // one does.
+      final flow = ref.watch(startupFlowProvider);
+      if (!_hasStartedFlow) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
+          ref.read(startupFlowProvider.notifier).evaluate();
           ref.read(onboardingProvider.notifier).checkOnboardingStatus();
-          setState(() => _hasCheckedOnboarding = true);
+          setState(() {
+            _hasStartedFlow = true;
+            _hasCheckedOnboarding = true;
+          });
         });
+        return const AuthLoadingScreen();
+      }
+
+      // Anything that cannot proceed without the user gets a screen they can
+      // act on — a failed lookup, an unconfirmed subscription, a lapsed one.
+      // None of these is ever silently treated as "new user", and none of them
+      // may render as a loading screen: that is how a returning user ended up
+      // watching a spinner that would never resolve.
+      if (flow.needsUserAttention && !flow.startedOfflineByChoice) {
+        return const StartupRecoveryScreen();
+      }
+
+      // Still working out what this account holds.
+      if (!flow.isSettled && !flow.startedOfflineByChoice) {
         return const AuthLoadingScreen();
       }
 
@@ -199,8 +236,10 @@ class _AuthWrapperState extends ConsumerState<AuthWrapper>
         return const AuthLoadingScreen();
       }
 
-      // Show post-signup onboarding if needed
-      if (onboardingState.needsOnboarding) {
+      // Post-signup onboarding creates a wallet, so it is gated on the account
+      // being confirmed empty — not merely on a flag that says the user has not
+      // seen this screen before.
+      if (onboardingState.needsOnboarding && flow.mayOfferFirstWallet) {
         return const PostSignupOnboardingScreen();
       }
 
@@ -222,11 +261,12 @@ class _AuthWrapperState extends ConsumerState<AuthWrapper>
     }
 
     // Reset checks when user logs out
-    if (_hasCheckedOnboarding || _hasRunStartupChecks) {
+    if (_hasCheckedOnboarding || _hasRunStartupChecks || _hasStartedFlow) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         setState(() {
           _hasCheckedOnboarding = false;
           _hasRunStartupChecks = false;
+          _hasStartedFlow = false;
         });
       });
     }

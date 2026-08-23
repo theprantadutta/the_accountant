@@ -20,6 +20,8 @@ import 'package:the_accountant/features/settings/screens/settings_screen.dart';
 import 'package:the_accountant/features/reports/screens/reports_screen.dart';
 import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
 import 'package:the_accountant/features/wallets/screens/create_first_wallet_screen.dart';
+import 'package:the_accountant/core/providers/startup_flow_provider.dart';
+import 'package:the_accountant/features/startup/screens/startup_recovery_screen.dart';
 import 'package:the_accountant/features/notifications/providers/notification_history_provider.dart';
 import 'package:the_accountant/features/notifications/screens/notification_inbox_screen.dart';
 import 'package:the_accountant/core/providers/walkthrough_provider.dart';
@@ -28,9 +30,6 @@ import 'package:the_accountant/core/services/notification_service.dart';
 import 'package:the_accountant/core/utils/responsive.dart';
 import 'package:the_accountant/features/notifications/widgets/notification_permission_primer.dart';
 import 'package:the_accountant/features/walkthrough/walkthrough_service.dart';
-import 'package:the_accountant/core/providers/sync_provider.dart';
-import 'package:the_accountant/core/services/sync/sync_models.dart';
-import 'package:the_accountant/features/premium/providers/premium_provider.dart';
 import 'package:the_accountant/features/authentication/presentation/widgets/auth_background.dart';
 import 'package:the_accountant/features/authentication/presentation/widgets/auth_brand_header.dart';
 
@@ -50,8 +49,6 @@ class _MainNavigationContainerState
   // Reinstall/restore gate: when the local DB is empty we first try to pull the
   // user's existing data from the server before assuming they're a brand-new
   // user and showing the "create your first wallet" screen.
-  bool _restoring = false;
-  bool _restoreAttempted = false;
 
   // Walkthrough keys
   final GlobalKey _balanceKey = GlobalKey();
@@ -141,63 +138,19 @@ class _MainNavigationContainerState
   /// existing data down from the server before we'd ever show the
   /// create-first-wallet screen. For genuinely new / free / offline users this
   /// resolves quickly and falls through to that screen.
+  /// Defers the "is this account empty?" question to [startupFlowProvider].
+  ///
+  /// This used to be a pair of timing loops: wait ~5s for wallets, then ~3s for
+  /// a premium entitlement, and if neither arrived show "create your first
+  /// wallet". A slow network was therefore indistinguishable from a new account,
+  /// and the fallback was the one screen that must never be shown on a guess —
+  /// it invites the user to start over on top of data that was never restored.
+  ///
+  /// The controller replaces both loops with explicit states and retries when a
+  /// late entitlement or connectivity arrives, so a timeout ends as
+  /// "unavailable" rather than as "empty".
   Future<void> _maybeRestoreData() async {
-    // 1. Wait for the initial local wallet load to settle (~5s cap).
-    var ticks = 0;
-    while (mounted && ref.read(walletsLoadingProvider) && ticks++ < 100) {
-      await Future.delayed(const Duration(milliseconds: 50));
-    }
-    if (!mounted) return;
-
-    // 2. Already have local data → nothing to restore.
-    if (ref.read(hasWalletsProvider)) {
-      setState(() => _restoreAttempted = true);
-      return;
-    }
-
-    // 3. Empty local DB → show a restoring state while we try to pull server data.
-    setState(() => _restoring = true);
-
-    // Cloud sync is premium-only, and on a fresh install premium status arrives
-    // from the backend a beat after login. Give it a short window (~3s) to
-    // resolve so a premium (synced) user isn't mistaken for a brand-new one.
-    ticks = 0;
-    while (mounted && !ref.read(premiumProvider).isPremium && ticks++ < 60) {
-      await Future.delayed(const Duration(milliseconds: 50));
-    }
-
-    if (mounted && ref.read(premiumProvider).isPremium) {
-      // Kick off a restore sync. This is a no-op if one is already running
-      // (e.g. triggered by AuthWrapper); the wait loop below covers that case.
-      try {
-        await ref.read(syncNotifierProvider.notifier).syncAll();
-      } catch (_) {
-        // Ignore — fall through to the create-first-wallet screen.
-      }
-
-      // Wait for any in-flight sync to finish so pulled wallets are applied
-      // before we decide what to render (~20s cap).
-      ticks = 0;
-      while (mounted &&
-          ref.read(syncNotifierProvider) == SyncOperationState.syncing &&
-          ticks++ < 400) {
-        await Future.delayed(const Duration(milliseconds: 50));
-      }
-
-      // Load freshly-pulled wallets into state BEFORE lifting the restore gate.
-      // The sync's own provider refresh is fire-and-forget, so without awaiting
-      // a reload here `hasWallets` can still be false for a frame and the
-      // create-first-wallet screen flashes between restore and the dashboard.
-      if (mounted) {
-        await ref.read(walletProvider.notifier).loadWallets(silent: true);
-      }
-    }
-
-    if (!mounted) return;
-    setState(() {
-      _restoring = false;
-      _restoreAttempted = true;
-    });
+    await ref.read(startupFlowProvider.notifier).evaluate();
   }
 
   Widget _buildRestoringScreen() {
@@ -515,9 +468,20 @@ class _MainNavigationContainerState
     // one-time restore sync to finish — a reinstalled/existing user pulls their
     // data down first and lands on the dashboard, never on create-first-wallet.
     if (!hasWallets) {
-      if (_restoring || !_restoreAttempted) {
+      final flow = ref.watch(startupFlowProvider);
+
+      // Unresolved or blocked state gets the recovery screen, never the
+      // first-wallet one.
+      if (flow.needsUserAttention && !flow.startedOfflineByChoice) {
+        return const StartupRecoveryScreen();
+      }
+
+      // Only a confirmed-empty account — or the user's own warned choice to
+      // start offline — opens the create-first-wallet path.
+      if (!flow.mayOfferFirstWallet) {
         return _buildRestoringScreen();
       }
+
       return CreateFirstWalletScreen(
         onWalletCreated: () {
           // Force refresh wallet provider
