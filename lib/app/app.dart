@@ -40,6 +40,11 @@ class _MyAppState extends ConsumerState<MyApp> {
     // Check for Play Store updates after the first frame is rendered.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkForAppUpdate();
+      // Account-scoped preparation is deliberately NOT started here. This runs
+      // before authentication has resolved, so the active store is whatever was
+      // persisted last — possibly an account whose session is about to be
+      // rejected, or replaced by a different one. `AccountStoreCoordinator`
+      // starts it from the auth state instead, once the owner is known.
     });
   }
 

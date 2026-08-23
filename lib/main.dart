@@ -11,7 +11,6 @@ import 'package:the_accountant/firebase_options.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
 import 'package:the_accountant/core/providers/account_store_provider.dart';
 import 'package:the_accountant/core/services/local_store_manager.dart';
-import 'package:the_accountant/core/services/category_initialization_service.dart';
 import 'package:the_accountant/core/providers/default_wallet_provider.dart';
 import 'package:the_accountant/core/services/notification_service.dart';
 import 'package:the_accountant/core/constants/background_task_constants.dart';
@@ -60,7 +59,6 @@ void main() async {
   // the very first frame already reads the right account's data — and, just as
   // importantly, never the previous account's.
   final storeManager = LocalStoreManager(prefs);
-  final db = storeManager.activeDatabase;
 
   runApp(
     ProviderScope(
@@ -80,14 +78,23 @@ void main() async {
     ),
   );
 
-  // Non-essential init runs after first frame is rendered
-  _initializeServicesInBackground(db);
+  // Non-essential init runs after first frame is rendered.
+  //
+  // Nothing here is account-scoped. A database handle captured at this point
+  // would be the pre-auth one, and `AccountStoreCoordinator` may switch to a
+  // different account's file moments later — so seeding categories or
+  // generating recurrences against it would write into a store the signed-in
+  // user is not even looking at. That work now hangs off store selection
+  // instead; see `AccountStoreCoordinator.prepareActiveStore`.
+  _initializeServicesInBackground();
 }
 
-/// Initialize services that don't need to block the first frame.
-/// Notifications, WorkManager, categories, and recurring transactions
-/// all run here so the app renders faster.
-Future<void> _initializeServicesInBackground(dynamic db) async {
+/// Initialize device-scoped services that don't need to block the first frame.
+///
+/// Device-scoped is the operative word: notifications and WorkManager belong to
+/// the install, not to whoever is signed in, so they are safe to start before
+/// the account store has been resolved.
+Future<void> _initializeServicesInBackground() async {
   try {
     await NotificationService().initialize();
   } catch (e) {
@@ -107,17 +114,4 @@ Future<void> _initializeServicesInBackground(dynamic db) async {
     debugPrint('[main] WorkManager init failed: $e');
   }
 
-  try {
-    final categoryService = CategoryInitializationService(db);
-    await categoryService.initializeDefaultCategories();
-    await db.ensureSystemCategoriesExist();
-  } catch (e) {
-    debugPrint('[main] Category init failed: $e');
-  }
-
-  try {
-    await BackgroundTaskService.runStartupProcessing(db);
-  } catch (e) {
-    debugPrint('[main] Startup processing failed: $e');
-  }
 }
