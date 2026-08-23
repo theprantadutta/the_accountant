@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/legacy.dart';
+import 'package:uuid/uuid.dart';
 import 'package:the_accountant/core/services/api_service.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
@@ -155,7 +156,12 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
 
       // 2. Create default wallet locally
       final now = DateTime.now();
-      final walletId = now.millisecondsSinceEpoch.toString();
+      // A UUID, not a timestamp. `SyncChange.EntityId` is a `Guid` server-side,
+      // so a millisecond string cannot bind at all — and because a push is one
+      // request, that single wallet rejects the entire batch. The user's first
+      // wallet and everything filed against it would stay pending forever, with
+      // nothing on screen to explain why.
+      final walletId = const Uuid().v4();
 
       await _database.addWallet(
         WalletsCompanion.insert(
