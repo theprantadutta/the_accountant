@@ -37,17 +37,22 @@ void main() {
   Future<File> buildLegacyDatabase(
     int version, {
     Future<void> Function(AppDatabase db)? seed,
+    Set<String> keep = const {},
+    String? label,
   }) async {
-    final file = File('${tempDir.path}/legacy_v$version.sqlite');
+    final file = File('${tempDir.path}/legacy_v${label ?? version}.sqlite');
 
     final db = AppDatabase(NativeDatabase(file));
     await db.customSelect('SELECT 1').get(); // force open + createAll
     await seed?.call(db);
 
-    if (version < 14) {
+    if (version < 15 && !keep.contains('local_id_repairs')) {
+      await db.customStatement('DROP TABLE IF EXISTS local_id_repairs');
+    }
+    if (version < 14 && !keep.contains('category_reconciliations')) {
       await db.customStatement('DROP TABLE IF EXISTS category_reconciliations');
     }
-    if (version < 13) {
+    if (version < 13 && !keep.contains('categories.default_key')) {
       await db.customStatement(
         'DROP INDEX IF EXISTS idx_categories_default_key',
       );
@@ -55,10 +60,49 @@ void main() {
         'ALTER TABLE categories DROP COLUMN default_key',
       );
     }
+    if (version < 12) {
+      if (!keep.contains('local_store_metas')) {
+        await db.customStatement('DROP TABLE IF EXISTS local_store_metas');
+      }
+      if (!keep.contains('transactions.occurrence_key')) {
+        await db.customStatement(
+          'DROP INDEX IF EXISTS idx_transactions_occurrence_key',
+        );
+        await db.customStatement(
+          'ALTER TABLE transactions DROP COLUMN occurrence_key',
+        );
+      }
+    }
     await db.customStatement('PRAGMA user_version = $version');
     await db.close();
 
     return file;
+  }
+
+  /// Every artifact the current schema should have once an upgrade finishes.
+  Future<void> expectFullyUpgraded(AppDatabase db) async {
+    final version = (await db
+        .customSelect('PRAGMA user_version')
+        .getSingle()).read<int>('user_version');
+    expect(version, db.schemaVersion);
+
+    Future<bool> hasTable(String name) async =>
+        (await db
+                .customSelect(
+                  "SELECT 1 FROM sqlite_master WHERE type='table' AND name='$name'",
+                )
+                .get())
+            .isNotEmpty;
+    Future<bool> hasColumn(String table, String column) async =>
+        (await db.customSelect('PRAGMA table_info($table)').get()).any(
+          (r) => r.read<String>('name') == column,
+        );
+
+    expect(await hasTable('local_store_metas'), isTrue);
+    expect(await hasTable('category_reconciliations'), isTrue);
+    expect(await hasTable('local_id_repairs'), isTrue);
+    expect(await hasColumn('transactions', 'occurrence_key'), isTrue);
+    expect(await hasColumn('categories', 'default_key'), isTrue);
   }
 
   test('a schema-12 database upgrades cleanly to the current schema', () async {
@@ -383,6 +427,171 @@ void main() {
     final clean = await upgraded.findBudgetById('b-clean');
     expect(AppDatabase.decodeIdList(clean!.categoryIds), ['cat-live']);
     expect(clean.syncStatus, SyncStatus.synced);
+  });
+
+  group('a partially applied migration still opens', () {
+    // The crash this group exists for:
+    //
+    //   SQLiteException: duplicate column name: occurrence_key
+    //
+    // SQLite commits each ALTER TABLE on its own, and Drift stamps
+    // `user_version` only once the whole upgrade finishes. An upgrade killed in
+    // between — force-close, low storage, OS reclaiming the process — therefore
+    // leaves the column in place and the version behind. The next launch
+    // replays the migration, tries to add the column again, and the database
+    // will not open at all.
+    //
+    // That is the worst possible failure for a local-first app: the user is
+    // locked out of records that are sitting right there, and the advice that
+    // superficially "works" — clear app data — throws away everything not yet
+    // uploaded.
+
+    /// A row in every table the migrations touch, so each case can prove the
+    /// upgrade preserved data rather than just completing.
+    Future<void> seedRepresentativeRows(AppDatabase legacy) async {
+      await legacy.customStatement(
+        'INSERT INTO wallets (id, name, balance, opening_balance, currency, '
+        'wallet_type, icon_name, color, is_default, order_index, sync_status, '
+        "created_at, updated_at) VALUES ('w-keep', 'Cash', 4200, 0, 'USD', 0, "
+        "'wallet', '#fff', 1, 0, 0, 1, 1)",
+      );
+      await legacy.customStatement(
+        'INSERT INTO categories (id, name, icon_name, color, is_income, '
+        'order_index, is_default, sync_status, created_at, updated_at) '
+        "VALUES ('c-keep', 'Groceries', 'shop', '#82E0AA', 0, 8, 1, 0, 1, 1)",
+      );
+      await legacy.customStatement(
+        'INSERT INTO transactions (id, title, amount, date, is_income, '
+        'wallet_id, category_id, transaction_type, is_paid, paid_amount, '
+        'skip_paid, sync_status, created_at, updated_at) VALUES '
+        "('t-keep', 'Weekly shop', 1999, 1, 0, 'w-keep', 'c-keep', 'regular', "
+        '1, 0, 0, 0, 1, 1)',
+      );
+    }
+
+    Future<void> expectRowsSurvived(AppDatabase db) async {
+      expect((await db.findWalletById('w-keep'))?.balance, 4200);
+      expect((await db.findCategoryById('c-keep'))?.name, 'Groceries');
+      final txn = await db.findTransactionById('t-keep');
+      expect(txn?.amount, 1999);
+      expect(txn?.walletId, 'w-keep');
+    }
+
+    /// Opening twice is the real acceptance criterion. The first open fixes the
+    /// database; the second proves the fix is stable rather than something that
+    /// only works while the version is still behind.
+    Future<void> expectOpensTwice(File file) async {
+      final first = AppDatabase(NativeDatabase(file));
+      await expectFullyUpgraded(first);
+      await expectRowsSurvived(first);
+      await first.close();
+
+      final second = AppDatabase(NativeDatabase(file));
+      addTearDown(second.close);
+      await expectFullyUpgraded(second);
+      await expectRowsSurvived(second);
+    }
+
+    test('v11 that already has occurrence_key', () async {
+      // The exact reported state: version 11, schema-12 column already present.
+      final file = await buildLegacyDatabase(
+        11,
+        label: '11_occurrence_key',
+        keep: {'transactions.occurrence_key'},
+        seed: seedRepresentativeRows,
+      );
+      await expectOpensTwice(file);
+    });
+
+    test('v11 that already has local_store_metas', () async {
+      final file = await buildLegacyDatabase(
+        11,
+        label: '11_store_metas',
+        keep: {'local_store_metas'},
+        seed: seedRepresentativeRows,
+      );
+      await expectOpensTwice(file);
+    });
+
+    test('v11 that already has both schema-12 artifacts', () async {
+      final file = await buildLegacyDatabase(
+        11,
+        label: '11_both',
+        keep: {'transactions.occurrence_key', 'local_store_metas'},
+        seed: seedRepresentativeRows,
+      );
+      await expectOpensTwice(file);
+    });
+
+    test('v12 that already has categories.default_key', () async {
+      final file = await buildLegacyDatabase(
+        12,
+        label: '12_default_key',
+        keep: {'categories.default_key'},
+        seed: seedRepresentativeRows,
+      );
+      await expectOpensTwice(file);
+
+      // The point of skipping only the schema step: the data step still has to
+      // run, or the column would exist with nothing in it and the built-in
+      // category would never gain its slug.
+      final db = AppDatabase(NativeDatabase(file));
+      addTearDown(db.close);
+      expect((await db.findCategoryById('c-keep'))?.defaultKey, 'groceries');
+    });
+
+    test('v13 that already has category_reconciliations', () async {
+      final file = await buildLegacyDatabase(
+        13,
+        label: '13_reconciliations',
+        keep: {'category_reconciliations'},
+        seed: seedRepresentativeRows,
+      );
+      await expectOpensTwice(file);
+    });
+
+    test('v14 that already has local_id_repairs', () async {
+      final file = await buildLegacyDatabase(
+        14,
+        label: '14_id_repairs',
+        keep: {'local_id_repairs'},
+        seed: seedRepresentativeRows,
+      );
+      await expectOpensTwice(file);
+    });
+
+    test('an interrupted v11 upgrade keeps unsynced local work', () async {
+      // The records that make "clear app data" unacceptable advice: rows this
+      // device created and has never uploaded.
+      final file = await buildLegacyDatabase(
+        11,
+        label: '11_unsynced',
+        keep: {'transactions.occurrence_key'},
+        seed: (legacy) async {
+          await seedRepresentativeRows(legacy);
+          await legacy.customStatement(
+            'INSERT INTO transactions (id, title, amount, date, is_income, '
+            'wallet_id, category_id, transaction_type, is_paid, paid_amount, '
+            'skip_paid, sync_status, created_at, updated_at) VALUES '
+            "('t-unsynced', 'Not yet uploaded', 700, 1, 0, 'w-keep', 'c-keep', "
+            "'regular', 1, 0, 0, 1, 1, 1)",
+          );
+        },
+      );
+
+      final db = AppDatabase(NativeDatabase(file));
+      addTearDown(db.close);
+      await expectFullyUpgraded(db);
+
+      final unsynced = await db.findTransactionById('t-unsynced');
+      expect(unsynced, isNotNull);
+      expect(unsynced!.amount, 700);
+      expect(
+        unsynced.syncStatus,
+        SyncStatus.pendingCreate,
+        reason: 'an interrupted upgrade must not cost the user unsynced work',
+      );
+    });
   });
 
   test('a database already at the current schema is left alone', () async {

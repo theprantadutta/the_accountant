@@ -29,6 +29,24 @@ class FakeSyncServer {
   /// Matches the backend's PushChangesCommandValidator limit.
   static const int maxChangesPerRequest = 1000;
 
+  /// Enforce the real contract that every `entity_id` is a GUID.
+  ///
+  /// Off by default because most suites use readable ids like `w-keep`, and
+  /// their subject is behaviour rather than binding. It must be ON wherever the
+  /// claim is "this payload would be accepted by the real API": the backend
+  /// binds `SyncChange.EntityId` as a `Guid`, so a non-GUID id fails model
+  /// binding before any handler sees it — and a fake that accepts arbitrary
+  /// strings will happily prove a sync works when in production it could never
+  /// leave the device.
+  final bool strictEntityIds;
+
+  FakeSyncServer({this.strictEntityIds = false});
+
+  static final RegExp _guid = RegExp(
+    r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-'
+    r'[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$',
+  );
+
   /// userId -> tableName -> entityId -> record
   final Map<String, Map<String, Map<String, _Record>>> _store = {};
 
@@ -76,6 +94,16 @@ class FakeSyncServer {
     final resolutions = <SyncCategoryResolutionResult>[];
 
     for (final change in changes) {
+      if (strictEntityIds && !_guid.hasMatch(change.entityId)) {
+        // The real API rejects this at model binding, before any record in the
+        // batch is considered — so the whole push fails, not just this change.
+        throw StateError(
+          'entity_id "${change.entityId}" for ${change.tableName} is not a '
+          'GUID; the backend binds SyncChange.EntityId as Guid and would '
+          'reject this request outright.',
+        );
+      }
+
       final table = _table(userId, change.tableName);
 
       if (change.operation == 'delete') {

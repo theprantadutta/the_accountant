@@ -19,6 +19,7 @@ import 'package:the_accountant/data/models/sync_state.dart';
 import 'package:the_accountant/data/models/exchange_rate.dart';
 import 'package:the_accountant/data/models/local_store_meta.dart';
 import 'package:the_accountant/data/models/category_reconciliation.dart';
+import 'package:the_accountant/data/models/local_id_repair.dart';
 
 part 'app_database.g.dart';
 
@@ -132,13 +133,14 @@ class SystemCategories {
     ExchangeRates,
     LocalStoreMetas,
     CategoryReconciliations,
+    LocalIdRepairs,
   ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 14;
+  int get schemaVersion => 15;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -225,6 +227,10 @@ class AppDatabase extends _$AppDatabase {
       if (from < 14) {
         await _migrateToV14(m);
       }
+
+      if (from < 15) {
+        await _migrateToV15(m);
+      }
     },
     beforeOpen: (details) async {
       // NOTE on foreign keys: SQLite leaves FK enforcement off by default and we
@@ -265,8 +271,8 @@ class AppDatabase extends _$AppDatabase {
   ///    instances so the new uniqueness constraint can't reject legitimate
   ///    history, and duplicates that already exist are collapsed first.
   Future<void> _migrateToV12(Migrator m) async {
-    await m.createTable(localStoreMetas);
-    await m.addColumn(transactions, transactions.occurrenceKey);
+    await _ensureTable(m, localStoreMetas);
+    await _ensureColumn(m, transactions, transactions.occurrenceKey);
     await applyV12DataMigrations();
   }
 
@@ -381,12 +387,63 @@ class AppDatabase extends _$AppDatabase {
   ///    convention nor the domain policy, so a synced recurrence instance
   ///    stopped being recognised as one.
   Future<void> _migrateToV13(Migrator m) async {
-    await m.addColumn(categories, categories.defaultKey);
+    await _ensureColumn(m, categories, categories.defaultKey);
     await applyV13DataMigrations();
     await customStatement(
       'CREATE UNIQUE INDEX IF NOT EXISTS idx_categories_default_key '
       'ON categories (default_key)',
     );
+  }
+
+  // ==================== MIGRATION INTROSPECTION ====================
+  //
+  // Every schema step below asks the database what it actually contains before
+  // changing it, instead of trusting `user_version` to describe it.
+  //
+  // Those two can disagree. An upgrade that adds a column and then fails —
+  // process killed, device out of storage, app force-closed mid-update — leaves
+  // the column in place with the version un-recorded, because SQLite commits
+  // each `ALTER TABLE` on its own and Drift stamps the version at the end. The
+  // next launch replays the migration from the old version, hits
+  // `duplicate column name: occurrence_key`, and the database will not open at
+  // all. The user is then locked out of their own records, and the only advice
+  // that "works" — clear app data — destroys everything not yet uploaded.
+  //
+  // So a schema step that is already done is skipped, and the data step that
+  // follows it still runs. Skipping the whole migration because its column
+  // exists would be the same bug wearing a different hat: the column would be
+  // there and the backfill that gives it meaning would not.
+
+  Future<bool> _tableExists(String name) async {
+    final rows = await customSelect(
+      "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ?",
+      variables: [Variable<String>(name)],
+    ).get();
+    return rows.isNotEmpty;
+  }
+
+  Future<bool> _columnExists(String table, String column) async {
+    if (!await _tableExists(table)) return false;
+    // PRAGMA does not take bound parameters, but `table` here is always a
+    // Drift-generated name, never user input.
+    final rows = await customSelect('PRAGMA table_info($table)').get();
+    return rows.any((row) => row.read<String>('name') == column);
+  }
+
+  /// Create [table] unless the database already has it.
+  Future<void> _ensureTable(Migrator m, TableInfo table) async {
+    if (await _tableExists(table.actualTableName)) return;
+    await m.createTable(table);
+  }
+
+  /// Add [column] to [table] unless the database already has it.
+  Future<void> _ensureColumn(
+    Migrator m,
+    TableInfo table,
+    GeneratedColumn column,
+  ) async {
+    if (await _columnExists(table.actualTableName, column.name)) return;
+    await m.addColumn(table, column);
   }
 
   /// Schema 14: somewhere to keep a reconciliation question the server asked
@@ -406,7 +463,7 @@ class AppDatabase extends _$AppDatabase {
   /// budget's wallets and categories are live. Non-destructive: it removes
   /// pointers to deleted rows, never a budget.
   Future<void> _migrateToV14(Migrator m) async {
-    await m.createTable(categoryReconciliations);
+    await _ensureTable(m, categoryReconciliations);
     await applyV14DataMigrations();
   }
 
@@ -415,6 +472,177 @@ class AppDatabase extends _$AppDatabase {
   Future<void> applyV14DataMigrations() async {
     await pruneDeadBudgetReferences();
   }
+
+  /// Schema 15: give onboarding's timestamp wallet ids a real UUID.
+  ///
+  /// Post-signup onboarding minted its wallet id from
+  /// `DateTime.now().millisecondsSinceEpoch`. The backend's `SyncChange.EntityId`
+  /// is a `Guid`, so such an id cannot bind at all — and because the push is one
+  /// request, the single bad wallet rejects the whole batch. The user's first
+  /// wallet, and every transaction, objective and budget filed against it, stay
+  /// pending forever with nothing on screen to say why.
+  ///
+  /// Only a wallet the server has never seen is re-keyed; see
+  /// [rekeyUnsyncedNonUuidWallets] for why the rest are left alone.
+  Future<void> _migrateToV15(Migrator m) async {
+    await _ensureTable(m, localIdRepairs);
+    await applyV15DataMigrations();
+  }
+
+  /// The data half of the schema-15 migration. (Public so it can be exercised
+  /// directly.)
+  Future<void> applyV15DataMigrations() async {
+    await rekeyUnsyncedNonUuidWallets();
+  }
+
+  /// A canonical 8-4-4-4-12 hexadecimal id, which is the only shape the backend
+  /// will accept.
+  static final RegExp _uuidPattern = RegExp(
+    r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-'
+    r'[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$',
+  );
+
+  static bool isSyncableId(String id) => _uuidPattern.hasMatch(id);
+
+  /// Replaces unsyncable wallet ids, moving every local reference with them.
+  ///
+  /// Returns the old-to-new mapping so callers can repoint whatever lives
+  /// outside the database.
+  ///
+  /// The whole thing runs in one transaction: a wallet whose id changed while
+  /// its transactions still pointed at the old one would read as an empty
+  /// wallet plus a pile of orphaned records, which is worse than the bug being
+  /// fixed.
+  ///
+  /// **A wallet the server might already know is never touched.** Only
+  /// `pendingCreate` rows are re-keyed, because those provably have not been
+  /// uploaded. If an unsyncable id turns up in any other sync state, something
+  /// happened that this migration cannot reason about — so it changes nothing
+  /// and records a diagnostic instead. Guessing there could orphan the cloud
+  /// copy of real financial data, and a stuck wallet is recoverable in a way
+  /// that a severed one is not.
+  Future<Map<String, String>> rekeyUnsyncedNonUuidWallets() async {
+    return transaction(() async {
+      final all = await select(wallets).get();
+      final invalid = all.where((w) => !isSyncableId(w.id)).toList();
+      if (invalid.isEmpty) return <String, String>{};
+
+      final mapping = <String, String>{};
+      final now = DateTime.now();
+
+      for (final wallet in invalid) {
+        if (wallet.syncStatus != SyncStatus.pendingCreate) {
+          final alreadyLogged =
+              await (select(localIdRepairs)
+                    ..where((r) => r.oldId.equals(wallet.id))
+                    ..where((r) => r.status.equals('blocked'))
+                    ..limit(1))
+                  .getSingleOrNull();
+          if (alreadyLogged == null) {
+            await into(localIdRepairs).insert(
+              LocalIdRepairsCompanion.insert(
+                entityTable: wallets.actualTableName,
+                oldId: wallet.id,
+                newId: const Value(null),
+                status: 'blocked',
+                detail: Value(
+                  'Wallet "${wallet.name}" has an id the server cannot accept '
+                  'but is in sync state ${wallet.syncStatus}, so the cloud may '
+                  'already hold it. Left unchanged; needs manual review.',
+                ),
+                createdAt: Value(now),
+              ),
+            );
+          }
+          continue;
+        }
+
+        final newId = const Uuid().v4();
+        mapping[wallet.id] = newId;
+
+        // Children first, then the wallet itself. Foreign keys are off by
+        // design (see beforeOpen), so ordering is a readability choice rather
+        // than a constraint — but the transaction is what makes it safe.
+        await customStatement(
+          'UPDATE transactions SET wallet_id = ? WHERE wallet_id = ?',
+          [newId, wallet.id],
+        );
+        await customStatement(
+          'UPDATE objectives SET wallet_id = ? WHERE wallet_id = ?',
+          [newId, wallet.id],
+        );
+        await _repointBudgetWalletIds(from: wallet.id, to: newId);
+
+        // `sync_status` is deliberately not written: the row must stay a
+        // pending create, and the guard trigger only watches writes to that
+        // column anyway.
+        await customStatement('UPDATE wallets SET id = ? WHERE id = ?', [
+          newId,
+          wallet.id,
+        ]);
+
+        await into(localIdRepairs).insert(
+          LocalIdRepairsCompanion.insert(
+            entityTable: wallets.actualTableName,
+            oldId: wallet.id,
+            newId: Value(newId),
+            status: 'applied',
+            detail: Value('Onboarding wallet "${wallet.name}" re-keyed.'),
+            createdAt: Value(now),
+          ),
+        );
+      }
+
+      return mapping;
+    });
+  }
+
+  /// Rewrites a wallet id inside every budget's `walletIds` JSON array.
+  Future<void> _repointBudgetWalletIds({
+    required String from,
+    required String to,
+  }) async {
+    final affected = await budgetsReferencingWallets({from});
+    for (final b in affected) {
+      await _writeBudgetScope(
+        b.id,
+        BudgetsCompanion(
+          walletIds: Value(
+            jsonEncode(_replaceId(decodeIdList(b.walletIds), from, to)),
+          ),
+        ),
+      );
+    }
+  }
+
+  /// Re-keys this device has carried out but not yet applied outside the
+  /// database.
+  Future<List<LocalIdRepair>> unsettledIdRepairs() =>
+      (select(localIdRepairs)
+            ..where((r) => r.status.equals('applied'))
+            ..where((r) => r.settledAt.isNull()))
+          .get();
+
+  /// Re-keys that were refused because the server may already hold the id.
+  ///
+  /// These are surfaced rather than retried: the data is intact and the
+  /// resolution is a human decision.
+  Future<List<LocalIdRepair>> blockedIdRepairs() =>
+      (select(localIdRepairs)..where((r) => r.status.equals('blocked'))).get();
+
+  /// Total repairs logged for wallets, so a test can prove a second open does
+  /// not log the same one again.
+  Future<int> allWalletRepairCount() async =>
+      (await (select(localIdRepairs)
+                ..where((r) => r.entityTable.equals('wallets')))
+              .get())
+          .length;
+
+  Future<void> markIdRepairSettled(int id) =>
+      (update(localIdRepairs)..where((r) => r.id.equals(id))).write(
+        LocalIdRepairsCompanion(settledAt: Value(DateTime.now())),
+      );
+
 
   /// The data half of the schema-13 migration, separated from the schema half so
   /// it can be exercised directly. (Public for that reason only.)

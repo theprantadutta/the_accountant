@@ -11385,6 +11385,515 @@ class CategoryReconciliationsCompanion
   }
 }
 
+class $LocalIdRepairsTable extends LocalIdRepairs
+    with TableInfo<$LocalIdRepairsTable, LocalIdRepair> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $LocalIdRepairsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _entityTableMeta = const VerificationMeta(
+    'entityTable',
+  );
+  @override
+  late final GeneratedColumn<String> entityTable = GeneratedColumn<String>(
+    'entity_table',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _oldIdMeta = const VerificationMeta('oldId');
+  @override
+  late final GeneratedColumn<String> oldId = GeneratedColumn<String>(
+    'old_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _newIdMeta = const VerificationMeta('newId');
+  @override
+  late final GeneratedColumn<String> newId = GeneratedColumn<String>(
+    'new_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+    'status',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _detailMeta = const VerificationMeta('detail');
+  @override
+  late final GeneratedColumn<String> detail = GeneratedColumn<String>(
+    'detail',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _settledAtMeta = const VerificationMeta(
+    'settledAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> settledAt = GeneratedColumn<DateTime>(
+    'settled_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    entityTable,
+    oldId,
+    newId,
+    status,
+    detail,
+    settledAt,
+    createdAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'local_id_repairs';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<LocalIdRepair> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('entity_table')) {
+      context.handle(
+        _entityTableMeta,
+        entityTable.isAcceptableOrUnknown(
+          data['entity_table']!,
+          _entityTableMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_entityTableMeta);
+    }
+    if (data.containsKey('old_id')) {
+      context.handle(
+        _oldIdMeta,
+        oldId.isAcceptableOrUnknown(data['old_id']!, _oldIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_oldIdMeta);
+    }
+    if (data.containsKey('new_id')) {
+      context.handle(
+        _newIdMeta,
+        newId.isAcceptableOrUnknown(data['new_id']!, _newIdMeta),
+      );
+    }
+    if (data.containsKey('status')) {
+      context.handle(
+        _statusMeta,
+        status.isAcceptableOrUnknown(data['status']!, _statusMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_statusMeta);
+    }
+    if (data.containsKey('detail')) {
+      context.handle(
+        _detailMeta,
+        detail.isAcceptableOrUnknown(data['detail']!, _detailMeta),
+      );
+    }
+    if (data.containsKey('settled_at')) {
+      context.handle(
+        _settledAtMeta,
+        settledAt.isAcceptableOrUnknown(data['settled_at']!, _settledAtMeta),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  LocalIdRepair map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return LocalIdRepair(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      entityTable: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}entity_table'],
+      )!,
+      oldId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}old_id'],
+      )!,
+      newId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}new_id'],
+      ),
+      status: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}status'],
+      )!,
+      detail: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}detail'],
+      ),
+      settledAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}settled_at'],
+      ),
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+    );
+  }
+
+  @override
+  $LocalIdRepairsTable createAlias(String alias) {
+    return $LocalIdRepairsTable(attachedDatabase, alias);
+  }
+}
+
+class LocalIdRepair extends DataClass implements Insertable<LocalIdRepair> {
+  final int id;
+
+  /// Which table the id belongs to, e.g. `wallets`.
+  final String entityTable;
+  final String oldId;
+
+  /// The replacement, or null when the re-key was refused as unsafe.
+  final String? newId;
+
+  /// `applied` — the database was re-keyed and dependent rows repointed.
+  /// `blocked` — nothing was changed; see [detail].
+  final String status;
+  final String? detail;
+
+  /// Set once the preference repoint has been carried out.
+  final DateTime? settledAt;
+  final DateTime createdAt;
+  const LocalIdRepair({
+    required this.id,
+    required this.entityTable,
+    required this.oldId,
+    this.newId,
+    required this.status,
+    this.detail,
+    this.settledAt,
+    required this.createdAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['entity_table'] = Variable<String>(entityTable);
+    map['old_id'] = Variable<String>(oldId);
+    if (!nullToAbsent || newId != null) {
+      map['new_id'] = Variable<String>(newId);
+    }
+    map['status'] = Variable<String>(status);
+    if (!nullToAbsent || detail != null) {
+      map['detail'] = Variable<String>(detail);
+    }
+    if (!nullToAbsent || settledAt != null) {
+      map['settled_at'] = Variable<DateTime>(settledAt);
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  LocalIdRepairsCompanion toCompanion(bool nullToAbsent) {
+    return LocalIdRepairsCompanion(
+      id: Value(id),
+      entityTable: Value(entityTable),
+      oldId: Value(oldId),
+      newId: newId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(newId),
+      status: Value(status),
+      detail: detail == null && nullToAbsent
+          ? const Value.absent()
+          : Value(detail),
+      settledAt: settledAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(settledAt),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory LocalIdRepair.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return LocalIdRepair(
+      id: serializer.fromJson<int>(json['id']),
+      entityTable: serializer.fromJson<String>(json['entityTable']),
+      oldId: serializer.fromJson<String>(json['oldId']),
+      newId: serializer.fromJson<String?>(json['newId']),
+      status: serializer.fromJson<String>(json['status']),
+      detail: serializer.fromJson<String?>(json['detail']),
+      settledAt: serializer.fromJson<DateTime?>(json['settledAt']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'entityTable': serializer.toJson<String>(entityTable),
+      'oldId': serializer.toJson<String>(oldId),
+      'newId': serializer.toJson<String?>(newId),
+      'status': serializer.toJson<String>(status),
+      'detail': serializer.toJson<String?>(detail),
+      'settledAt': serializer.toJson<DateTime?>(settledAt),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  LocalIdRepair copyWith({
+    int? id,
+    String? entityTable,
+    String? oldId,
+    Value<String?> newId = const Value.absent(),
+    String? status,
+    Value<String?> detail = const Value.absent(),
+    Value<DateTime?> settledAt = const Value.absent(),
+    DateTime? createdAt,
+  }) => LocalIdRepair(
+    id: id ?? this.id,
+    entityTable: entityTable ?? this.entityTable,
+    oldId: oldId ?? this.oldId,
+    newId: newId.present ? newId.value : this.newId,
+    status: status ?? this.status,
+    detail: detail.present ? detail.value : this.detail,
+    settledAt: settledAt.present ? settledAt.value : this.settledAt,
+    createdAt: createdAt ?? this.createdAt,
+  );
+  LocalIdRepair copyWithCompanion(LocalIdRepairsCompanion data) {
+    return LocalIdRepair(
+      id: data.id.present ? data.id.value : this.id,
+      entityTable: data.entityTable.present
+          ? data.entityTable.value
+          : this.entityTable,
+      oldId: data.oldId.present ? data.oldId.value : this.oldId,
+      newId: data.newId.present ? data.newId.value : this.newId,
+      status: data.status.present ? data.status.value : this.status,
+      detail: data.detail.present ? data.detail.value : this.detail,
+      settledAt: data.settledAt.present ? data.settledAt.value : this.settledAt,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocalIdRepair(')
+          ..write('id: $id, ')
+          ..write('entityTable: $entityTable, ')
+          ..write('oldId: $oldId, ')
+          ..write('newId: $newId, ')
+          ..write('status: $status, ')
+          ..write('detail: $detail, ')
+          ..write('settledAt: $settledAt, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    entityTable,
+    oldId,
+    newId,
+    status,
+    detail,
+    settledAt,
+    createdAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is LocalIdRepair &&
+          other.id == this.id &&
+          other.entityTable == this.entityTable &&
+          other.oldId == this.oldId &&
+          other.newId == this.newId &&
+          other.status == this.status &&
+          other.detail == this.detail &&
+          other.settledAt == this.settledAt &&
+          other.createdAt == this.createdAt);
+}
+
+class LocalIdRepairsCompanion extends UpdateCompanion<LocalIdRepair> {
+  final Value<int> id;
+  final Value<String> entityTable;
+  final Value<String> oldId;
+  final Value<String?> newId;
+  final Value<String> status;
+  final Value<String?> detail;
+  final Value<DateTime?> settledAt;
+  final Value<DateTime> createdAt;
+  const LocalIdRepairsCompanion({
+    this.id = const Value.absent(),
+    this.entityTable = const Value.absent(),
+    this.oldId = const Value.absent(),
+    this.newId = const Value.absent(),
+    this.status = const Value.absent(),
+    this.detail = const Value.absent(),
+    this.settledAt = const Value.absent(),
+    this.createdAt = const Value.absent(),
+  });
+  LocalIdRepairsCompanion.insert({
+    this.id = const Value.absent(),
+    required String entityTable,
+    required String oldId,
+    this.newId = const Value.absent(),
+    required String status,
+    this.detail = const Value.absent(),
+    this.settledAt = const Value.absent(),
+    this.createdAt = const Value.absent(),
+  }) : entityTable = Value(entityTable),
+       oldId = Value(oldId),
+       status = Value(status);
+  static Insertable<LocalIdRepair> custom({
+    Expression<int>? id,
+    Expression<String>? entityTable,
+    Expression<String>? oldId,
+    Expression<String>? newId,
+    Expression<String>? status,
+    Expression<String>? detail,
+    Expression<DateTime>? settledAt,
+    Expression<DateTime>? createdAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (entityTable != null) 'entity_table': entityTable,
+      if (oldId != null) 'old_id': oldId,
+      if (newId != null) 'new_id': newId,
+      if (status != null) 'status': status,
+      if (detail != null) 'detail': detail,
+      if (settledAt != null) 'settled_at': settledAt,
+      if (createdAt != null) 'created_at': createdAt,
+    });
+  }
+
+  LocalIdRepairsCompanion copyWith({
+    Value<int>? id,
+    Value<String>? entityTable,
+    Value<String>? oldId,
+    Value<String?>? newId,
+    Value<String>? status,
+    Value<String?>? detail,
+    Value<DateTime?>? settledAt,
+    Value<DateTime>? createdAt,
+  }) {
+    return LocalIdRepairsCompanion(
+      id: id ?? this.id,
+      entityTable: entityTable ?? this.entityTable,
+      oldId: oldId ?? this.oldId,
+      newId: newId ?? this.newId,
+      status: status ?? this.status,
+      detail: detail ?? this.detail,
+      settledAt: settledAt ?? this.settledAt,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (entityTable.present) {
+      map['entity_table'] = Variable<String>(entityTable.value);
+    }
+    if (oldId.present) {
+      map['old_id'] = Variable<String>(oldId.value);
+    }
+    if (newId.present) {
+      map['new_id'] = Variable<String>(newId.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (detail.present) {
+      map['detail'] = Variable<String>(detail.value);
+    }
+    if (settledAt.present) {
+      map['settled_at'] = Variable<DateTime>(settledAt.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocalIdRepairsCompanion(')
+          ..write('id: $id, ')
+          ..write('entityTable: $entityTable, ')
+          ..write('oldId: $oldId, ')
+          ..write('newId: $newId, ')
+          ..write('status: $status, ')
+          ..write('detail: $detail, ')
+          ..write('settledAt: $settledAt, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -11412,6 +11921,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   );
   late final $CategoryReconciliationsTable categoryReconciliations =
       $CategoryReconciliationsTable(this);
+  late final $LocalIdRepairsTable localIdRepairs = $LocalIdRepairsTable(this);
   late final Index idxCategoriesDefaultKey = Index(
     'idx_categories_default_key',
     'CREATE UNIQUE INDEX idx_categories_default_key ON categories (default_key)',
@@ -11445,6 +11955,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     exchangeRates,
     localStoreMetas,
     categoryReconciliations,
+    localIdRepairs,
     idxCategoriesDefaultKey,
     idxTransactionsOccurrenceKey,
     idxTransactionsPaired,
@@ -18518,6 +19029,261 @@ typedef $$CategoryReconciliationsTableProcessedTableManager =
       CategoryReconciliation,
       PrefetchHooks Function()
     >;
+typedef $$LocalIdRepairsTableCreateCompanionBuilder =
+    LocalIdRepairsCompanion Function({
+      Value<int> id,
+      required String entityTable,
+      required String oldId,
+      Value<String?> newId,
+      required String status,
+      Value<String?> detail,
+      Value<DateTime?> settledAt,
+      Value<DateTime> createdAt,
+    });
+typedef $$LocalIdRepairsTableUpdateCompanionBuilder =
+    LocalIdRepairsCompanion Function({
+      Value<int> id,
+      Value<String> entityTable,
+      Value<String> oldId,
+      Value<String?> newId,
+      Value<String> status,
+      Value<String?> detail,
+      Value<DateTime?> settledAt,
+      Value<DateTime> createdAt,
+    });
+
+class $$LocalIdRepairsTableFilterComposer
+    extends Composer<_$AppDatabase, $LocalIdRepairsTable> {
+  $$LocalIdRepairsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get entityTable => $composableBuilder(
+    column: $table.entityTable,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get oldId => $composableBuilder(
+    column: $table.oldId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get newId => $composableBuilder(
+    column: $table.newId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get detail => $composableBuilder(
+    column: $table.detail,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get settledAt => $composableBuilder(
+    column: $table.settledAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$LocalIdRepairsTableOrderingComposer
+    extends Composer<_$AppDatabase, $LocalIdRepairsTable> {
+  $$LocalIdRepairsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get entityTable => $composableBuilder(
+    column: $table.entityTable,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get oldId => $composableBuilder(
+    column: $table.oldId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get newId => $composableBuilder(
+    column: $table.newId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get detail => $composableBuilder(
+    column: $table.detail,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get settledAt => $composableBuilder(
+    column: $table.settledAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$LocalIdRepairsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $LocalIdRepairsTable> {
+  $$LocalIdRepairsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get entityTable => $composableBuilder(
+    column: $table.entityTable,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get oldId =>
+      $composableBuilder(column: $table.oldId, builder: (column) => column);
+
+  GeneratedColumn<String> get newId =>
+      $composableBuilder(column: $table.newId, builder: (column) => column);
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<String> get detail =>
+      $composableBuilder(column: $table.detail, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get settledAt =>
+      $composableBuilder(column: $table.settledAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+}
+
+class $$LocalIdRepairsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $LocalIdRepairsTable,
+          LocalIdRepair,
+          $$LocalIdRepairsTableFilterComposer,
+          $$LocalIdRepairsTableOrderingComposer,
+          $$LocalIdRepairsTableAnnotationComposer,
+          $$LocalIdRepairsTableCreateCompanionBuilder,
+          $$LocalIdRepairsTableUpdateCompanionBuilder,
+          (
+            LocalIdRepair,
+            BaseReferences<_$AppDatabase, $LocalIdRepairsTable, LocalIdRepair>,
+          ),
+          LocalIdRepair,
+          PrefetchHooks Function()
+        > {
+  $$LocalIdRepairsTableTableManager(
+    _$AppDatabase db,
+    $LocalIdRepairsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$LocalIdRepairsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$LocalIdRepairsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$LocalIdRepairsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> entityTable = const Value.absent(),
+                Value<String> oldId = const Value.absent(),
+                Value<String?> newId = const Value.absent(),
+                Value<String> status = const Value.absent(),
+                Value<String?> detail = const Value.absent(),
+                Value<DateTime?> settledAt = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+              }) => LocalIdRepairsCompanion(
+                id: id,
+                entityTable: entityTable,
+                oldId: oldId,
+                newId: newId,
+                status: status,
+                detail: detail,
+                settledAt: settledAt,
+                createdAt: createdAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String entityTable,
+                required String oldId,
+                Value<String?> newId = const Value.absent(),
+                required String status,
+                Value<String?> detail = const Value.absent(),
+                Value<DateTime?> settledAt = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+              }) => LocalIdRepairsCompanion.insert(
+                id: id,
+                entityTable: entityTable,
+                oldId: oldId,
+                newId: newId,
+                status: status,
+                detail: detail,
+                settledAt: settledAt,
+                createdAt: createdAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$LocalIdRepairsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $LocalIdRepairsTable,
+      LocalIdRepair,
+      $$LocalIdRepairsTableFilterComposer,
+      $$LocalIdRepairsTableOrderingComposer,
+      $$LocalIdRepairsTableAnnotationComposer,
+      $$LocalIdRepairsTableCreateCompanionBuilder,
+      $$LocalIdRepairsTableUpdateCompanionBuilder,
+      (
+        LocalIdRepair,
+        BaseReferences<_$AppDatabase, $LocalIdRepairsTable, LocalIdRepair>,
+      ),
+      LocalIdRepair,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -18557,4 +19323,6 @@ class $AppDatabaseManager {
         _db,
         _db.categoryReconciliations,
       );
+  $$LocalIdRepairsTableTableManager get localIdRepairs =>
+      $$LocalIdRepairsTableTableManager(_db, _db.localIdRepairs);
 }
