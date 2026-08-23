@@ -20,7 +20,7 @@ if (keystorePropertiesFile.exists()) {
 android {
     namespace = "com.pranta.the_accountant"
     // compileSdk = flutter.compileSdkVersion
-    compileSdk = 36
+    compileSdk = 37
     // ndkVersion = flutter.ndkVersion
     // ndkVersion = "29.0.13113456"
     ndkVersion = "29.0.14206865"
