@@ -97,17 +97,6 @@ dev_dependencies:
   build_runner: ^2.11.1
 
 
-# TODO: Remove this override once riverpod_generator supports analyzer 13+,
-# then run `flutter pub upgrade --major-versions` to move drift_dev to 2.34.2+.
-# Pin sqlparser: drift_dev is held at 2.34.0 because drift_dev 2.34.2 needs
-# analyzer ^13, while riverpod_generator (latest, 4.0.4) still caps analyzer at
-# ^12 — the two code generators can't coexist yet. drift_dev 2.34.0 calls
-# DartPlaceholder.when(), which sqlparser removed in 0.44.6's sealed-class
-# refactor, so pin to 0.44.5. Remove this once riverpod_generator supports
-# analyzer 13+ and drift_dev can move to 2.34.2.
-dependency_overrides:
-  sqlparser: 0.44.5
-
 flutter:
   uses-material-design: true
 
