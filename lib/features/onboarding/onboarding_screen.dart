@@ -1,11 +1,49 @@
 import 'package:flutter/material.dart';
-import 'package:the_accountant/core/themes/app_page_transitions.dart';
 import 'package:flutter/services.dart';
+import 'package:the_accountant/core/themes/app_colors.dart';
+import 'package:the_accountant/core/themes/app_page_transitions.dart';
+import 'package:the_accountant/core/themes/app_spacing.dart';
+import 'package:the_accountant/core/themes/app_typography.dart';
 import 'package:the_accountant/features/legal/legal_acceptance_screen.dart';
 import 'package:the_accountant/features/settings/screens/theme_selection_screen.dart';
-import 'package:the_accountant/core/utils/animation_utils.dart';
-import 'package:the_accountant/core/themes/app_theme.dart';
+import 'package:the_accountant/shared/widgets/glass_card.dart';
 
+/// One page of the first-run introduction.
+class _IntroStep {
+  const _IntroStep({
+    required this.icon,
+    required this.title,
+    required this.body,
+    this.showThemeLink = false,
+  });
+
+  final IconData icon;
+  final String title;
+  final String body;
+
+  /// The last step offers a look at themes before the user commits.
+  final bool showThemeLink;
+}
+
+/// The first thing anyone sees after installing.
+///
+/// Rebuilt to sit inside the app's own visual language rather than beside it.
+/// The previous version fought it on every axis: it painted a second background
+/// over the app-wide one, gave each page its own unrelated pink or blue
+/// gradient, set type with raw sizes instead of the shared scale, and put emoji
+/// in headings the rest of the product does not use. Someone arriving here and
+/// then reaching the sign-in screen met two different products.
+///
+/// Motion is the other half. There were three animations running at once — an
+/// `elasticOut` slide, a `bounceOut` scale, and a two-second float looping
+/// forever — all restarting on every page change. The app's actual motion
+/// language is the opposite: fade-through route transitions and background orbs
+/// that drift over sixteen seconds. Nothing in it bounces.
+///
+/// So there is one movement here now: content fades up sixteen pixels as a page
+/// arrives, once, and then holds still. That is also the whole reason the screen
+/// felt fast — it was not the page speed, it was four elements re-animating on
+/// top of a swipe.
 class OnboardingScreen extends StatefulWidget {
   final VoidCallback? onComplete;
 
@@ -16,99 +54,82 @@ class OnboardingScreen extends StatefulWidget {
 }
 
 class _OnboardingScreenState extends State<OnboardingScreen>
-    with TickerProviderStateMixin {
-  final PageController _pageController = PageController();
-  int _currentPage = 0;
-  late AnimationController _animationController;
-  late AnimationController _floatingController;
-  late Animation<double> _fadeAnimation;
-  late Animation<double> _slideAnimation;
-  late Animation<double> _scaleAnimation;
-  late Animation<double> _floatingAnimation;
-
-  final List<Map<String, dynamic>> _onboardingPages = [
-    {
-      'title': '💰 Welcome to The Accountant',
-      'description':
-          'Your personal finance companion with AI-powered insights and beautiful design',
-      'icon': Icons.account_balance_wallet,
-      'gradient': AppTheme.primaryGradient,
-    },
-    {
-      'title': '📊 Smart Budget Management',
-      'description':
-          'Create intelligent budgets, track spending, and never overspend again',
-      'icon': Icons.pie_chart,
-      'gradient': AppTheme.secondaryGradient,
-    },
-    {
-      'title': '✨ AI-Powered Insights',
-      'description':
-          'Get personalized financial insights and recommendations from our AI assistant',
-      'icon': Icons.auto_awesome,
-      'gradient': LinearGradient(
-        colors: [Color(0xFFee9ca7), Color(0xFFffdde1)],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      ),
-    },
-    {
-      'title': '🎨 Choose Your Style',
-      'description':
-          'Personalize your experience with beautiful themes that reflect your personality',
-      'icon': Icons.palette,
-      'gradient': LinearGradient(
-        colors: [Color(0xFF8EC5FC), Color(0xFFE0C3FC)],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      ),
-      'isThemeSelection': true,
-    },
+    with SingleTickerProviderStateMixin {
+  static const List<_IntroStep> _steps = [
+    _IntroStep(
+      icon: Icons.account_balance_wallet_outlined,
+      title: 'Every account, one balance',
+      body:
+          'Keep cash, cards and savings side by side, and see what you '
+          'actually have left.',
+    ),
+    _IntroStep(
+      icon: Icons.pie_chart_outline_rounded,
+      title: 'Budgets that tell you early',
+      body:
+          'Set a limit per category. The app watches the total and warns you '
+          'before you pass it, not after.',
+    ),
+    _IntroStep(
+      icon: Icons.auto_awesome_outlined,
+      title: 'Ask about your own spending',
+      body:
+          'Scan a receipt, or ask where the money went last month, and get an '
+          'answer drawn from your records.',
+    ),
+    _IntroStep(
+      icon: Icons.palette_outlined,
+      title: 'Make it look like yours',
+      body: 'Pick a theme now, or change it whenever you like from settings.',
+      showThemeLink: true,
+    ),
   ];
 
-  @override
-  void initState() {
-    super.initState();
+  final PageController _pageController = PageController();
+  int _currentPage = 0;
 
-    _animationController = AnimationController(
-      duration: const Duration(milliseconds: 800),
-      vsync: this,
-    );
+  /// Drives the single entrance: fade in, rise a little, stop.
+  late final AnimationController _entrance = AnimationController(
+    duration: const Duration(milliseconds: 340),
+    vsync: this,
+  )..forward();
 
-    _floatingController = AnimationController(
-      duration: const Duration(milliseconds: 2000),
-      vsync: this,
-    );
-
-    _fadeAnimation = CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    );
-
-    _slideAnimation = CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.elasticOut,
-    );
-
-    _scaleAnimation = CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.bounceOut,
-    );
-
-    _floatingAnimation = Tween<double>(begin: 0.0, end: 10.0).animate(
-      CurvedAnimation(parent: _floatingController, curve: Curves.easeInOut),
-    );
-
-    _animationController.forward();
-    _floatingController.repeat(reverse: true);
-  }
+  late final Animation<double> _fade = CurvedAnimation(
+    parent: _entrance,
+    curve: Curves.easeOutCubic,
+  );
 
   @override
   void dispose() {
-    _animationController.dispose();
-    _floatingController.dispose();
+    _entrance.dispose();
     _pageController.dispose();
     super.dispose();
+  }
+
+  void _finish() {
+    if (widget.onComplete != null) {
+      widget.onComplete!();
+      return;
+    }
+    Navigator.pushReplacement(
+      context,
+      FadeThroughPageRoute<void>(
+        builder: (context) => const LegalAcceptanceScreen(),
+      ),
+    );
+  }
+
+  void _advance() {
+    if (_currentPage == _steps.length - 1) {
+      _finish();
+      return;
+    }
+    _pageController.nextPage(
+      // Matched to the app's fade-through routes: unhurried, and eased at both
+      // ends so the swipe settles instead of snapping.
+      duration: const Duration(milliseconds: 420),
+      curve: Curves.easeInOutCubic,
+    );
   }
 
   @override
@@ -120,294 +141,176 @@ class _OnboardingScreenState extends State<OnboardingScreen>
       ),
     );
 
-    return Container(
-      decoration: const BoxDecoration(gradient: AppTheme.backgroundGradient),
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        body: SafeArea(
-          child: Column(
-            children: [
-              Expanded(
-                child: PageView.builder(
-                  controller: _pageController,
-                  itemCount: _onboardingPages.length,
-                  onPageChanged: (int page) {
-                    setState(() {
-                      _currentPage = page;
-                      // Restart animation for new page
-                      _animationController.reset();
-                      _animationController.forward();
-                    });
-                    HapticFeedback.lightImpact();
-                  },
-                  itemBuilder: (context, index) {
-                    final page = _onboardingPages[index];
-                    return _buildOnboardingPage(
-                      title: page['title'] as String,
-                      description: page['description'] as String,
-                      icon: page['icon'] as IconData,
-                      gradient: page['gradient'] as Gradient,
-                      isThemeSelection:
-                          page['isThemeSelection'] as bool? ?? false,
-                    );
-                  },
-                ),
+    // Someone who has asked their device to stop animating gets no entrance at
+    // all — the content is simply there.
+    final reduceMotion = MediaQuery.disableAnimationsOf(context);
+    final isLastStep = _currentPage == _steps.length - 1;
+
+    // The background is painted once for the whole app in `MaterialApp.builder`;
+    // this screen just lets it through.
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      body: SafeArea(
+        child: Column(
+          children: [
+            Expanded(
+              child: PageView.builder(
+                controller: _pageController,
+                itemCount: _steps.length,
+                onPageChanged: (page) {
+                  setState(() => _currentPage = page);
+                  if (!reduceMotion) _entrance.forward(from: 0);
+                  HapticFeedback.selectionClick();
+                },
+                itemBuilder: (context, index) =>
+                    _buildStep(_steps[index], reduceMotion),
               ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Column(
-                  children: [
-                    _buildPageIndicator(),
-                    const SizedBox(height: 32),
-                    _buildActionButton(),
-                    const SizedBox(height: 24),
-                    if (_currentPage < _onboardingPages.length - 1)
-                      _buildSkipButton(),
-                  ],
-                ),
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: AppSpacing.xxl),
+              child: Column(
+                children: [
+                  _buildProgress(),
+                  AppSpacing.gapXxl,
+                  SizedBox(
+                    width: double.infinity,
+                    height: 56,
+                    child: FilledButton(
+                      onPressed: _advance,
+                      child: Text(isLastStep ? 'Create your account' : 'Next'),
+                    ),
+                  ),
+                  AppSpacing.gapSm,
+                  SizedBox(
+                    height: 48,
+                    child: isLastStep
+                        ? null
+                        : TextButton(
+                            onPressed: _finish,
+                            child: Text(
+                              'Skip',
+                              style: AppTypography.labelLarge.copyWith(
+                                color: AppColors.textMuted,
+                              ),
+                            ),
+                          ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 40),
-            ],
-          ),
+            ),
+            AppSpacing.gapLg,
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildOnboardingPage({
-    required String title,
-    required String description,
-    required IconData icon,
-    required Gradient gradient,
-    required bool isThemeSelection,
-  }) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final availableHeight = constraints.maxHeight - 48; // padding
-        final iconSize = (availableHeight * 0.32).clamp(100.0, 200.0);
-        final iconInnerSize = iconSize * 0.4;
-
-        return Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Spacer(flex: 2),
-
-              // Animated floating icon
-              AnimatedBuilder(
-                animation: _floatingAnimation,
-                builder: (context, child) {
-                  return Transform.translate(
-                    offset: Offset(0, _floatingAnimation.value),
-                    child: AnimationUtils.scaleTransition(
-                      animation: _scaleAnimation,
-                      child: AppTheme.gradientContainer(
-                        gradient: gradient,
-                        width: iconSize,
-                        height: iconSize,
-                        borderRadius: BorderRadius.circular(32),
-                        child: Center(
-                          child: Icon(
-                            icon,
-                            size: iconInnerSize,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-
-              const Spacer(flex: 3),
-
-              // Animated title
-              AnimationUtils.slideTransition(
-                animation: _slideAnimation,
-                begin: const Offset(0, 0.5),
-                child: Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    height: 1.2,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-
-              const Spacer(),
-
-              // Animated description
-              AnimationUtils.slideTransition(
-                animation: _slideAnimation,
-                begin: const Offset(0, 1),
-                child: AppTheme.glassmorphicContainer(
-                  child: Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Text(
-                      description,
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.white.withValues(alpha: 0.9),
-                        height: 1.5,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ),
-              ),
-
-              // Special content for theme selection page
-              if (isThemeSelection) ...[
-                const Spacer(),
-                AnimationUtils.fadeTransition(
-                  animation: _fadeAnimation,
-                  child: AppTheme.gradientContainer(
-                    gradient: AppTheme.secondaryGradient,
-                    child: Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(16),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            FadeThroughPageRoute<void>(
-                              builder: (context) =>
-                                  const ThemeSelectionScreen(),
-                            ),
-                          );
-                        },
-                        child: const Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 24,
-                            vertical: 16,
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(Icons.brush, color: Colors.white),
-                              SizedBox(width: 8),
-                              Text(
-                                'Explore Themes',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-
-              const Spacer(),
-            ],
+  Widget _buildStep(_IntroStep step, bool reduceMotion) {
+    final content = Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        _buildGlyph(step.icon),
+        AppSpacing.gapXxxl,
+        Text(
+          step.title,
+          style: AppTypography.displaySmall,
+          textAlign: TextAlign.center,
+        ),
+        AppSpacing.gapLg,
+        GlassCard(
+          padding: EdgeInsets.all(AppSpacing.xl),
+          child: Text(
+            step.body,
+            style: AppTypography.bodyMedium.copyWith(
+              color: AppColors.textSecondary,
+              height: 1.6,
+            ),
+            textAlign: TextAlign.center,
           ),
-        );
-      },
+        ),
+        if (step.showThemeLink) ...[
+          AppSpacing.gapMd,
+          TextButton.icon(
+            onPressed: () => Navigator.push(
+              context,
+              FadeThroughPageRoute<void>(
+                builder: (context) => const ThemeSelectionScreen(),
+              ),
+            ),
+            icon: const Icon(Icons.brush_outlined, size: 18),
+            label: const Text('Browse themes'),
+          ),
+        ],
+      ],
+    );
+
+    final padded = Padding(
+      padding: AppSpacing.paddingScreen,
+      child: Center(child: SingleChildScrollView(child: content)),
+    );
+
+    if (reduceMotion) return padded;
+
+    return AnimatedBuilder(
+      animation: _fade,
+      builder: (context, child) => Opacity(
+        opacity: _fade.value,
+        // Sixteen pixels. Enough to read as arriving, not enough to notice as
+        // travel.
+        child: Transform.translate(
+          offset: Offset(0, 16 * (1 - _fade.value)),
+          child: child,
+        ),
+      ),
+      child: padded,
     );
   }
 
-  Widget _buildPageIndicator() {
+  /// The one accented shape on the screen.
+  ///
+  /// Every step used to bring its own gradient — one of them pink, one of them
+  /// pale blue — which read as four unrelated screens. The plate is the same
+  /// primary gradient the wordmark uses at sign-in, so arriving there feels
+  /// like the same app. Only the glyph changes.
+  Widget _buildGlyph(IconData icon) {
+    return Container(
+      width: 104,
+      height: 104,
+      decoration: BoxDecoration(
+        gradient: AppColors.primaryGradient,
+        borderRadius: BorderRadius.circular(AppSpacing.radiusXxxl),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primaryGlow.withValues(alpha: 0.28),
+            blurRadius: 32,
+            spreadRadius: 2,
+          ),
+        ],
+      ),
+      child: Icon(icon, size: 44, color: AppColors.textPrimary),
+    );
+  }
+
+  Widget _buildProgress() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(_onboardingPages.length, (index) {
+      children: List.generate(_steps.length, (index) {
+        final isCurrent = index == _currentPage;
         return AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
-          margin: const EdgeInsets.symmetric(horizontal: 4),
-          width: _currentPage == index ? 32 : 12,
+          duration: const Duration(milliseconds: 220),
+          curve: Curves.easeOutCubic,
+          margin: EdgeInsets.symmetric(horizontal: AppSpacing.xs),
+          width: isCurrent ? 24 : 6,
           height: 6,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(3),
-            gradient: _currentPage == index ? AppTheme.primaryGradient : null,
-            color: _currentPage != index
-                ? Colors.white.withValues(alpha: 0.3)
-                : null,
+            borderRadius: AppSpacing.borderRadiusFull,
+            color: isCurrent ? AppColors.primaryAccent : AppColors.glassWhite,
+            border: isCurrent
+                ? null
+                : Border.all(color: AppColors.glassBorder, width: 1),
           ),
         );
       }),
-    );
-  }
-
-  Widget _buildActionButton() {
-    return AnimationUtils.scaleTransition(
-      animation: _scaleAnimation,
-      child: AppTheme.gradientContainer(
-        gradient: AppTheme.primaryGradient,
-        width: double.infinity,
-        height: 56,
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            borderRadius: BorderRadius.circular(16),
-            onTap: () {
-              if (_currentPage == _onboardingPages.length - 1) {
-                if (widget.onComplete != null) {
-                  widget.onComplete!();
-                } else {
-                  Navigator.pushReplacement(
-                    context,
-                    FadeThroughPageRoute<void>(
-                      builder: (context) => const LegalAcceptanceScreen(),
-                    ),
-                  );
-                }
-              } else {
-                _pageController.nextPage(
-                  duration: const Duration(milliseconds: 400),
-                  curve: Curves.easeInOut,
-                );
-              }
-            },
-            child: Center(
-              child: Text(
-                _currentPage == _onboardingPages.length - 1
-                    ? '🚀 Get Started'
-                    : 'Continue',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSkipButton() {
-    return AnimationUtils.fadeTransition(
-      animation: _fadeAnimation,
-      child: TextButton(
-        onPressed: () {
-          if (widget.onComplete != null) {
-            widget.onComplete!();
-          } else {
-            Navigator.pushReplacement(
-              context,
-              FadeThroughPageRoute<void>(
-                builder: (context) => const LegalAcceptanceScreen(),
-              ),
-            );
-          }
-        },
-        child: Text(
-          'Skip for now',
-          style: TextStyle(
-            color: Colors.white.withValues(alpha: 0.7),
-            fontSize: 16,
-          ),
-        ),
-      ),
     );
   }
 }
