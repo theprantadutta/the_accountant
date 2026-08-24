@@ -2424,6 +2424,25 @@ class AppDatabase extends _$AppDatabase {
   // ============================================================
   // Associated Title DAO methods (Smart Categorization)
   // ============================================================
+  /// [categoryId] together with any categories filed inside it.
+  ///
+  /// A budget names one category, but the money it is meant to limit can be
+  /// recorded against a category the user put inside that one. Anything asking
+  /// "how much has gone on this area" has to look at the family, not the label.
+  ///
+  /// One level deep, because that is as deep as a category can go here.
+  Future<Set<String>> categoryFamilyIds(String categoryId) async {
+    if (categoryId.isEmpty) return const {};
+
+    final children =
+        await (select(categories)..where(
+              (c) => c.mainCategoryId.equals(categoryId) & c.deletedAt.isNull(),
+            ))
+            .get();
+
+    return {categoryId, ...children.map((c) => c.id)};
+  }
+
   /// Past titles matching [query], most-used first, with the category each was
   /// last filed under.
   ///

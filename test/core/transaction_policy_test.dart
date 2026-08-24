@@ -189,7 +189,7 @@ void main() {
       expect(
         TransactionPolicy.countsTowardBudget(
           outgoing,
-          budgetCategoryId: 'transfer-cat',
+          budgetCategoryIds: const {'transfer-cat'},
         ),
         isFalse,
       );
@@ -241,14 +241,14 @@ void main() {
       expect(
         TransactionPolicy.countsTowardBudget(
           groceries,
-          budgetCategoryId: 'food',
+          budgetCategoryIds: const {'food'},
         ),
         isTrue,
       );
       expect(
         TransactionPolicy.countsTowardBudget(
           groceries,
-          budgetCategoryId: 'travel',
+          budgetCategoryIds: const {'travel'},
         ),
         isFalse,
       );

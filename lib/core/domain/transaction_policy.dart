@@ -199,18 +199,31 @@ class TransactionPolicy {
   ///
   /// A budget tracks either spending (`isIncome == false`) or earnings
   /// (`isIncome == true`); [budgetIsIncome] selects which side, and
-  /// [budgetCategoryId] optionally narrows it to one category.
+  /// [budgetCategoryIds] optionally narrows it to a set of categories.
+  ///
+  /// The set exists because of subcategories. A budget names one category, but
+  /// a budget is a limit on an area of spending rather than on a label: someone
+  /// who sets a Food budget and then files lunches under Sandwich — a category
+  /// they put inside Food — has not stopped spending on food. Matching the
+  /// named id alone left that budget reading zero while the money went out, and
+  /// a limit that silently never triggers is worse than no limit.
+  ///
+  /// This is deliberately the opposite of how reports treat the same rows,
+  /// where Sandwich is its own line. The two answer different questions: "where
+  /// did it go" wants the exact label, "have I overspent on food" wants the
+  /// area. Callers build the set with [AppDatabase.categoryFamilyIds].
   static bool countsTowardBudget(
     Transaction t, {
     bool budgetIsIncome = false,
-    String? budgetCategoryId,
+    Set<String>? budgetCategoryIds,
   }) {
     if (!countsInAnalytics(t)) return false;
     if (t.isIncome != budgetIsIncome) return false;
-    if (budgetCategoryId != null &&
-        budgetCategoryId.isNotEmpty &&
-        t.categoryId != budgetCategoryId) {
-      return false;
+    if (budgetCategoryIds != null && budgetCategoryIds.isNotEmpty) {
+      final categoryId = t.categoryId;
+      if (categoryId == null || !budgetCategoryIds.contains(categoryId)) {
+        return false;
+      }
     }
     return true;
   }

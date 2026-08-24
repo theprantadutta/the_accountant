@@ -48,7 +48,7 @@ void main() {
         TransactionPolicy.countsTowardBudget(
           income,
           budgetIsIncome: true,
-          budgetCategoryId: 'salary',
+          budgetCategoryIds: const {'salary'},
         ),
         isTrue,
       );
@@ -56,18 +56,19 @@ void main() {
         TransactionPolicy.countsTowardBudget(
           income,
           budgetIsIncome: true,
-          budgetCategoryId: 'bonus',
+          budgetCategoryIds: const {'bonus'},
         ),
         isFalse,
       );
     });
 
     test('an all-category budget accepts any category', () {
-      for (final budgetCategoryId in [null, '']) {
+      // Null and empty both mean "not narrowed to anything".
+      for (final budgetCategoryIds in [null, const <String>{}]) {
         expect(
           TransactionPolicy.countsTowardBudget(
             expense,
-            budgetCategoryId: budgetCategoryId,
+            budgetCategoryIds: budgetCategoryIds,
           ),
           isTrue,
         );

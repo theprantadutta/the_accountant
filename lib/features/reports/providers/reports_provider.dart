@@ -268,10 +268,23 @@ class ReportsNotifier extends StateNotifier<ReportsState> {
           ? (entry.value / totalSpending * 100)
           : 0.0;
 
+      // A subcategory is its own line — which is the point of having one — but
+      // "Sandwich" on its own says nothing about where it sits. Naming the
+      // parent alongside it is what keeps a list of a dozen such lines
+      // readable, and what stops two people's "Coffee" under different parents
+      // reading as the same thing.
+      final parent = category.mainCategoryId == null
+          ? null
+          : categories
+                .where((c) => c.id == category.mainCategoryId)
+                .firstOrNull;
+
       result.add(
         CategorySpendingData(
           categoryId: entry.key,
-          categoryName: category.name,
+          categoryName: parent == null
+              ? category.name
+              : '${parent.name} · ${category.name}',
           color: _parseColor(category.colorCode),
           amount: entry.value,
           percentage: percentage,
@@ -412,6 +425,9 @@ class ReportsNotifier extends StateNotifier<ReportsState> {
       );
 
       // Calculate spent amount
+      // The named category and anything filed inside it: a Food budget is
+      // about food, not about the word.
+      final budgetCategories = await _db.categoryFamilyIds(budget.categoryId);
       final spent =
           transactions
               .where(
@@ -423,7 +439,7 @@ class ReportsNotifier extends StateNotifier<ReportsState> {
                 (t) => TransactionPolicy.countsTowardBudget(
                   t,
                   budgetIsIncome: budget.isIncome,
-                  budgetCategoryId: budget.categoryId,
+                  budgetCategoryIds: budgetCategories,
                 ),
               )
               .fold<int>(0, (sum, t) => sum + t.amount.abs()) /

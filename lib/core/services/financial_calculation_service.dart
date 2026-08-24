@@ -314,12 +314,17 @@ class FinancialCalculationService {
         );
 
         final categoryId = budget.categoryId;
+        // The named category and anything filed inside it: a Food budget is
+        // about food, not about the word.
+        final budgetCategories = categoryId == null
+            ? <String>{}
+            : await _db.categoryFamilyIds(categoryId);
         final categoryExpenses = transactions
             .where(
               (t) => TransactionPolicy.countsTowardBudget(
                 t,
                 budgetIsIncome: budget.isIncome,
-                budgetCategoryId: categoryId,
+                budgetCategoryIds: budgetCategories,
               ),
             )
             .fold<int>(0, (sum, t) => sum + t.amount);
@@ -352,12 +357,15 @@ class FinancialCalculationService {
         );
 
         final categoryId = budget.categoryId;
+        final budgetCategories = categoryId == null
+            ? <String>{}
+            : await _db.categoryFamilyIds(categoryId);
         final spent = transactions
             .where(
               (t) => TransactionPolicy.countsTowardBudget(
                 t,
                 budgetIsIncome: budget.isIncome,
-                budgetCategoryId: categoryId,
+                budgetCategoryIds: budgetCategories,
               ),
             )
             .fold<int>(0, (sum, t) => sum + t.amount);
