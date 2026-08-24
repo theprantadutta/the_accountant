@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
+import 'package:the_accountant/core/domain/default_categories.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/data/models/premium_features.dart';
@@ -43,6 +44,14 @@ class Category {
   final String type; // 'expense' or 'income'
   final bool isDefault;
 
+  /// The built-in slug this category was seeded from, or null if the user made
+  /// it themselves.
+  ///
+  /// Categories are seeded per install with random ids, so the slug is the only
+  /// stable way to recognise a particular built-in — including the two the app
+  /// keeps for its own bookkeeping.
+  final String? defaultKey;
+
   Category({
     required this.id,
     required this.name,
@@ -50,10 +59,21 @@ class Category {
     this.iconName,
     required this.type,
     required this.isDefault,
+    this.defaultKey,
   });
 
   /// Helper to check if this is an income category
   bool get isIncome => type == 'income';
+
+  /// Whether the app keeps this category for its own bookkeeping rather than
+  /// for the user to file things under.
+  ///
+  /// Transfer and Balance Correction are written by the app when it moves money
+  /// between wallets or reconciles a balance. They are ordinary rows in the
+  /// database and sync like any other category, but nothing should be filed
+  /// under them by hand.
+  bool get isSystem =>
+      defaultKey != null && SystemCategoryKeys.all.contains(defaultKey);
 }
 
 class CategoryState {
@@ -103,6 +123,7 @@ class CategoryNotifier extends StateNotifier<CategoryState> {
               // Use isIncome to determine type (new approach)
               type: c.isIncome ? 'income' : 'expense',
               isDefault: c.isDefault,
+              defaultKey: c.defaultKey,
             ),
           )
           .toList();

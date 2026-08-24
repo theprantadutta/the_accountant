@@ -22,9 +22,12 @@ void main() {
 
   setUp(() async {
     db = openTestDatabase();
-    // The whole catalogue, not just the two internal system categories —
-    // `ensureSystemCategoriesExist` alone seeds only Transfer and Balance
-    // Correction, which is not what a user's picker looks like.
+    // Seeded the way the app seeds: the system categories first, then the rest.
+    // `getAllCategories` applies no ORDER BY, so rows come back in insertion
+    // order and this is what puts Transfer and Balance Correction at the top of
+    // the sheet — which is the position that made listing them a problem, and
+    // the position the assertions below depend on.
+    await db.ensureSystemCategoriesExist();
     await db.ensureDefaultCategories(DefaultCategoryCatalog.all);
     container = ProviderContainer(
       overrides: [databaseProvider.overrideWithValue(db)],
@@ -80,6 +83,12 @@ void main() {
     // Nothing income-side while the expense chip is the one selected.
     expect(find.text('Salary'), findsNothing);
 
+    // And nothing the app keeps for its own bookkeeping. These two sort first,
+    // so before they were filtered out they were the two most prominent
+    // choices in the sheet.
+    expect(find.text('Transfer'), findsNothing);
+    expect(find.text('Balance Correction'), findsNothing);
+
     final list = find.byType(Scrollable).last;
 
     // The rest of the catalogue is below the fold — a scrolling list, not a
@@ -110,6 +119,44 @@ void main() {
     expect(chosen, isNotNull);
     expect(chosen!.name, 'Food & Dining');
     expect(chosen.isIncome, isFalse);
+  });
+
+  testWidgets('bookkeeping categories are never offered to the user', (
+    tester,
+  ) async {
+    // They exist in the store — the app writes to them when it moves money
+    // between wallets or reconciles a balance — so the assertions below fail
+    // for the right reason rather than because nothing was seeded.
+    expect(
+      container
+          .read(categoryProvider)
+          .categories
+          .where((c) => c.isSystem)
+          .map((c) => c.name),
+      containsAll(<String>['Transfer', 'Balance Correction']),
+    );
+
+    // They were inserted first, so if the picker listed them they would be its
+    // first two rows — always built, never merely scrolled out of view.
+    await openPicker(tester);
+    expect(find.text('Transfer'), findsNothing);
+    expect(find.text('Balance Correction'), findsNothing);
+
+    // Dismiss before reopening: tapping through an open sheet's barrier hits
+    // nothing, and the assertions below would then be checking the first
+    // sheet all over again.
+    await tester.tapAt(const Offset(10, 10));
+    await tester.pumpAndSettle();
+    expect(find.text('Select category'), findsNothing);
+
+    await openPicker(tester, isIncome: true);
+    expect(
+      find.text('Salary'),
+      findsOneWidget,
+      reason: 'the income sheet really is the one open now',
+    );
+    expect(find.text('Transfer'), findsNothing);
+    expect(find.text('Balance Correction'), findsNothing);
   });
 
   testWidgets('switching to income swaps the list', (tester) async {

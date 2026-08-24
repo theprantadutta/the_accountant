@@ -85,8 +85,12 @@ class _CategoryPickerSheetState extends ConsumerState<_CategoryPickerSheet> {
   @override
   Widget build(BuildContext context) {
     final categoryState = ref.watch(categoryProvider);
+    // Transfer and Balance Correction are the app's own bookkeeping. They were
+    // listed here — at the top, being seeded first — so the two most prominent
+    // choices were both ones that file a purchase under the category transfers
+    // use, and quietly make the totals harder to explain.
     final categories = categoryState.categories
-        .where((c) => c.isIncome == _isIncome)
+        .where((c) => c.isIncome == _isIncome && !c.isSystem)
         .toList();
 
     return BackdropFilter(
