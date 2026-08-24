@@ -44,6 +44,12 @@ class Category {
   final String type; // 'expense' or 'income'
   final bool isDefault;
 
+  /// The category this one sits under, or null when it stands on its own.
+  ///
+  /// One level only, by design: a category that is part of another cannot
+  /// itself be a parent.
+  final String? mainCategoryId;
+
   /// The built-in slug this category was seeded from, or null if the user made
   /// it themselves.
   ///
@@ -60,6 +66,7 @@ class Category {
     required this.type,
     required this.isDefault,
     this.defaultKey,
+    this.mainCategoryId,
   });
 
   /// Helper to check if this is an income category
@@ -124,6 +131,7 @@ class CategoryNotifier extends StateNotifier<CategoryState> {
               type: c.isIncome ? 'income' : 'expense',
               isDefault: c.isDefault,
               defaultKey: c.defaultKey,
+              mainCategoryId: c.mainCategoryId,
             ),
           )
           .toList();

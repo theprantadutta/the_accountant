@@ -166,4 +166,130 @@ void main() {
     expect(find.text('Money Borrowed'), findsOneWidget);
     expect(find.text('Loan'), findsNothing);
   });
+
+  group('subcategories', () {
+    /// A tile in the grid, as opposed to the sheet's header — which shows the
+    /// open parent's name too, and is not something you can choose.
+    Finder tile(String name) =>
+        find.descendant(of: find.byType(GridView), matching: find.text(name));
+
+    /// "Sandwich" and "Burger" filed under "Food & Dining".
+    Future<String> seedFoodWithChildren() async {
+      final food = (await db.getAllCategories()).firstWhere(
+        (c) => c.name == 'Food & Dining',
+      );
+      await seedCategory(db, name: 'Sandwich');
+      await seedCategory(db, name: 'Burger');
+      for (final name in ['Sandwich', 'Burger']) {
+        await db.customStatement(
+          'UPDATE categories SET main_category_id = ? WHERE name = ?',
+          [food.id, name],
+        );
+      }
+      await container.read(categoryProvider.notifier).loadCategories();
+      return food.id;
+    }
+
+    testWidgets('a subcategory does not sit beside its parent', (tester) async {
+      await seedFoodWithChildren();
+      await openPicker(tester);
+
+      expect(tile('Food & Dining'), findsOneWidget);
+
+      // All the way to the end before concluding they are absent: they are
+      // seeded last, so a check made without scrolling would pass simply
+      // because they had not been built yet.
+      await tester.scrollUntilVisible(
+        find.text('New'),
+        300,
+        scrollable: find.byType(Scrollable).last,
+      );
+
+      expect(
+        tile('Sandwich'),
+        findsNothing,
+        reason: 'it is reached through the thing it is part of',
+      );
+      expect(tile('Burger'), findsNothing);
+    });
+
+    testWidgets('opening a parent shows what is inside it', (tester) async {
+      await seedFoodWithChildren();
+      await openPicker(tester);
+
+      await tester.tap(tile('Food & Dining'));
+      await tester.pumpAndSettle();
+
+      expect(tile('Sandwich'), findsOneWidget);
+      expect(tile('Burger'), findsOneWidget);
+
+      // The parent is still an answer: not every meal is specifically a
+      // sandwich.
+      expect(tile('Food & Dining'), findsOneWidget);
+
+      // And unrelated categories are out of the way.
+      expect(tile('Transportation'), findsNothing);
+    });
+
+    testWidgets('a subcategory can be chosen', (tester) async {
+      await seedFoodWithChildren();
+      await openPicker(tester);
+
+      await tester.tap(tile('Food & Dining'));
+      await tester.pumpAndSettle();
+      await tester.tap(tile('Sandwich'));
+      await tester.pumpAndSettle();
+
+      final chosen = await picked!;
+      expect(chosen, isNotNull);
+      expect(chosen!.name, 'Sandwich');
+      expect(
+        chosen.mainCategoryId,
+        isNotNull,
+        reason: 'the choice carries which category it belongs to',
+      );
+    });
+
+    testWidgets('the parent itself is still choosable', (tester) async {
+      final foodId = await seedFoodWithChildren();
+      await openPicker(tester);
+
+      await tester.tap(tile('Food & Dining'));
+      await tester.pumpAndSettle();
+      // Inside now: the grid's copy is the parent tile, not the header.
+      await tester.tap(tile('Food & Dining'));
+      await tester.pumpAndSettle();
+
+      final chosen = await picked!;
+      expect(chosen!.id, foodId);
+    });
+
+    testWidgets('going back returns to the top level', (tester) async {
+      await seedFoodWithChildren();
+      await openPicker(tester);
+
+      await tester.tap(tile('Food & Dining'));
+      await tester.pumpAndSettle();
+      expect(tile('Sandwich'), findsOneWidget);
+
+      await tester.tap(find.byIcon(Icons.arrow_back_rounded));
+      await tester.pumpAndSettle();
+
+      expect(tile('Sandwich'), findsNothing);
+      expect(tile('Transportation'), findsOneWidget);
+    });
+
+    testWidgets('a category with nothing inside is chosen, not opened', (
+      tester,
+    ) async {
+      await seedFoodWithChildren();
+      await openPicker(tester);
+
+      await tester.tap(tile('Transportation'));
+      await tester.pumpAndSettle();
+
+      final chosen = await picked!;
+      expect(chosen!.name, 'Transportation');
+    });
+  });
 }

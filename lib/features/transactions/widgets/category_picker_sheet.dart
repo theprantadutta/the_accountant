@@ -31,7 +31,7 @@ Future<Category?> showCategoryPickerSheet({
   );
 }
 
-class _CategoryPickerSheet extends ConsumerWidget {
+class _CategoryPickerSheet extends ConsumerStatefulWidget {
   const _CategoryPickerSheet({this.selectedCategoryId, this.accentColor});
 
   final String? selectedCategoryId;
@@ -39,6 +39,20 @@ class _CategoryPickerSheet extends ConsumerWidget {
   /// The colour of the money being entered. Kept for callers; the tiles take
   /// their colour from the categories themselves.
   final Color? accentColor;
+
+  @override
+  ConsumerState<_CategoryPickerSheet> createState() =>
+      _CategoryPickerSheetState();
+}
+
+class _CategoryPickerSheetState extends ConsumerState<_CategoryPickerSheet> {
+  /// The category whose subcategories are being shown, or null at the top.
+  ///
+  /// Opening a parent replaces the grid rather than expanding inside it: at
+  /// four tiles to a row, inserting a handful of children after their parent
+  /// pushes everything else out of position and leaves the reader hunting for
+  /// where the list resumed.
+  String? _openParentId;
 
   static Color _parseColor(String? colorCode) {
     if (colorCode == null) return AppColors.primaryAccent;
@@ -52,20 +66,20 @@ class _CategoryPickerSheet extends ConsumerWidget {
     }
   }
 
-  void _showAddCategoryForm(BuildContext context) {
+  void _showAddCategoryForm(BuildContext context, {String? parentId}) {
     HapticFeedback.lightImpact();
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (BuildContext ctx) {
-        return const add_category_form.AddCategoryForm();
+        return add_category_form.AddCategoryForm(initialParentId: parentId);
       },
     );
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final categoryState = ref.watch(categoryProvider);
 
     // Every category, whichever way the money is going. A category is a label
@@ -76,9 +90,30 @@ class _CategoryPickerSheet extends ConsumerWidget {
     // Transfer and Balance Correction stay out: those are the app's own
     // bookkeeping, written when it moves money between wallets or reconciles a
     // balance, and nothing should be filed under them by hand.
-    final categories = categoryState.categories
-        .where((c) => !c.isSystem)
-        .toList();
+    final usable = categoryState.categories.where((c) => !c.isSystem).toList();
+
+    final openParent = _openParentId == null
+        ? null
+        : usable.where((c) => c.id == _openParentId).firstOrNull;
+
+    // Inside a parent: its children, and the parent itself, because "Food" is
+    // still a legitimate answer for a meal that was not specifically a sandwich.
+    // At the top: only categories that stand on their own, so a subcategory is
+    // reached through the thing it belongs to rather than sitting beside it
+    // with no indication of what it is part of.
+    final categories = openParent == null
+        ? usable.where((c) => c.mainCategoryId == null).toList()
+        : [
+            openParent,
+            ...usable.where((c) => c.mainCategoryId == openParent.id),
+          ];
+
+    final childCounts = <String, int>{};
+    for (final category in usable) {
+      final parent = category.mainCategoryId;
+      if (parent == null) continue;
+      childCounts[parent] = (childCounts[parent] ?? 0) + 1;
+    }
 
     return BackdropFilter(
       filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
@@ -109,12 +144,31 @@ class _CategoryPickerSheet extends ConsumerWidget {
 
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xxl),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'Select category',
-                  style: AppTypography.headlineSmall,
-                ),
+              child: Row(
+                children: [
+                  if (openParent != null) ...[
+                    GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => setState(() => _openParentId = null),
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: AppSpacing.sm),
+                        child: Icon(
+                          Icons.arrow_back_rounded,
+                          size: AppSpacing.iconSm,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ),
+                  ],
+                  Expanded(
+                    child: Text(
+                      openParent?.name ?? 'Select category',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTypography.headlineSmall,
+                    ),
+                  ),
+                ],
               ),
             ),
             AppSpacing.gapLg,
@@ -156,18 +210,30 @@ class _CategoryPickerSheet extends ConsumerWidget {
                       itemBuilder: (context, index) {
                         if (index == categories.length) {
                           return _NewCategoryTile(
-                            onTap: () => _showAddCategoryForm(context),
+                            // Inside a parent, New makes another of its kind.
+                            onTap: () => _showAddCategoryForm(
+                              context,
+                              parentId: openParent?.id,
+                            ),
                           );
                         }
 
                         final category = categories[index];
+                        final children = childCounts[category.id] ?? 0;
+                        final opensInto = openParent == null && children > 0;
+
                         return _CategoryTile(
                           name: category.name,
                           iconName: category.iconName ?? 'category',
                           tint: _parseColor(category.colorCode),
-                          isSelected: category.id == selectedCategoryId,
+                          isSelected: category.id == widget.selectedCategoryId,
+                          subcategoryCount: opensInto ? children : 0,
                           onTap: () {
                             HapticFeedback.mediumImpact();
+                            if (opensInto) {
+                              setState(() => _openParentId = category.id);
+                              return;
+                            }
                             Navigator.pop(context, category);
                           },
                         );
@@ -189,6 +255,7 @@ class _CategoryTile extends StatelessWidget {
     required this.tint,
     required this.isSelected,
     required this.onTap,
+    this.subcategoryCount = 0,
   });
 
   final String name;
@@ -196,6 +263,10 @@ class _CategoryTile extends StatelessWidget {
   final Color tint;
   final bool isSelected;
   final VoidCallback onTap;
+
+  /// How many categories sit inside this one. Non-zero means tapping opens it
+  /// rather than choosing it, which the tile has to say before it is tapped.
+  final int subcategoryCount;
 
   @override
   Widget build(BuildContext context) {
@@ -220,10 +291,38 @@ class _CategoryTile extends StatelessWidget {
                 width: 1.5,
               ),
             ),
-            child: Icon(
-              IconRegistry.getIcon(iconName),
-              size: AppSpacing.iconMd,
-              color: tint,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Icon(
+                  IconRegistry.getIcon(iconName),
+                  size: AppSpacing.iconMd,
+                  color: tint,
+                ),
+                if (subcategoryCount > 0)
+                  Positioned(
+                    right: 4,
+                    bottom: 4,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 4,
+                        vertical: 1,
+                      ),
+                      decoration: BoxDecoration(
+                        color: tint,
+                        borderRadius: AppSpacing.borderRadiusFull,
+                      ),
+                      child: Text(
+                        '$subcategoryCount',
+                        style: AppTypography.labelSmall.copyWith(
+                          letterSpacing: 0,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.primaryDark,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
             ),
           ),
           AppSpacing.gapXs,
