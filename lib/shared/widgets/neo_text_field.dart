@@ -143,11 +143,20 @@ class _NeoTextFieldState extends State<NeoTextField>
   @override
   Widget build(BuildContext context) {
     final hasError = _errorText != null && _errorText!.isNotEmpty;
-    final borderColor = hasError
-        ? AppColors.error
-        : _isFocused
-        ? AppColors.primaryAccent
-        : AppColors.glassBorder;
+
+    // Focus changes the colour of the outline, not its weight and not the area
+    // around it. The old treatment thickened the border to 2px and added a
+    // 10px accent glow, so the moment a field took focus it grew by a pixel on
+    // every side and lit up like something had gone wrong — which is the one
+    // thing the error state is supposed to mean.
+    final Color borderColor;
+    if (hasError) {
+      borderColor = AppColors.error;
+    } else if (_isFocused) {
+      borderColor = AppColors.primaryAccent.withValues(alpha: 0.7);
+    } else {
+      borderColor = AppColors.glassBorder;
+    }
 
     return AnimatedBuilder(
       animation: _shakeAnimation,
@@ -169,20 +178,8 @@ class _NeoTextFieldState extends State<NeoTextField>
             duration: AppAnimations.fast,
             decoration: BoxDecoration(
               color: AppColors.glassWhite,
-              borderRadius: AppSpacing.borderRadiusMd,
-              border: Border.all(
-                color: borderColor,
-                width: _isFocused || hasError ? 2 : 1,
-              ),
-              boxShadow: _isFocused && !hasError
-                  ? [
-                      BoxShadow(
-                        color: AppColors.primaryAccent.withValues(alpha: 0.2),
-                        blurRadius: 10,
-                        spreadRadius: 0,
-                      ),
-                    ]
-                  : null,
+              borderRadius: AppSpacing.borderRadiusLg,
+              border: Border.all(color: borderColor),
             ),
             child: TextFormField(
               controller: widget.controller,
@@ -214,25 +211,19 @@ class _NeoTextFieldState extends State<NeoTextField>
                 labelText: widget.label,
                 hintText: widget.hint,
                 labelStyle: AppTypography.bodyMedium.copyWith(
-                  color: _isFocused
-                      ? AppColors.primaryAccent
-                      : AppColors.textSecondary,
+                  color: AppColors.textMuted,
                 ),
                 hintStyle: AppTypography.bodyMedium.copyWith(
                   color: AppColors.textMuted,
                 ),
-                floatingLabelStyle: AppTypography.labelMedium.copyWith(
-                  color: hasError
-                      ? AppColors.error
-                      : _isFocused
-                      ? AppColors.primaryAccent
-                      : AppColors.textSecondary,
+                floatingLabelStyle: AppTypography.labelSmall.copyWith(
+                  color: hasError ? AppColors.error : AppColors.textMuted,
                 ),
                 prefixIcon: widget.prefixIcon != null
                     ? Icon(
                         widget.prefixIcon,
                         color: _isFocused
-                            ? AppColors.primaryAccent
+                            ? AppColors.textSecondary
                             : AppColors.textMuted,
                         size: AppSpacing.iconSm,
                       )
