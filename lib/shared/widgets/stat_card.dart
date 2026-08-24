@@ -91,12 +91,24 @@ class _StatCardState extends State<StatCard>
     super.dispose();
   }
 
-  String _formatValue(double value) {
-    if (value >= 1000000) {
+  /// Formats [value], choosing the unit from [reference] rather than from
+  /// [value] itself.
+  ///
+  /// Two reasons they have to be separated. During the count-up, [value] sweeps
+  /// from zero to the target and would cross the thresholds on the way — so a
+  /// figure ending at "3.3K" would render as "0", "482.19", "1.1K", "3.3K",
+  /// changing both its unit and its width several times in one animation.
+  ///
+  /// And the branches do not produce strings of similar length: "3.3K" is four
+  /// characters while "249.39" is six, so the *smaller* number is the wider one.
+  /// A tile that fits thousands would clip hundreds, which is how 249.39 came
+  /// to render as "249.…".
+  String _formatValue(double value, {required double reference}) {
+    if (reference >= 1000000) {
       return '${(value / 1000000).toStringAsFixed(1)}M';
-    } else if (value >= 1000) {
+    } else if (reference >= 1000) {
       return '${(value / 1000).toStringAsFixed(1)}K';
-    } else if (value == value.truncate()) {
+    } else if (reference == reference.truncate()) {
       return value.toInt().toString();
     } else {
       return value.toStringAsFixed(2);
@@ -120,10 +132,17 @@ class _StatCardState extends State<StatCard>
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                widget.label,
-                style: AppTypography.secondary(AppTypography.labelMedium),
+              // A label may be shortened; an amount may not. This one gives
+              // way first so the number below it never has to.
+              Expanded(
+                child: Text(
+                  widget.label,
+                  style: AppTypography.secondary(AppTypography.labelMedium),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
+              AppSpacing.gapHXs,
               if (widget.icon != null)
                 Container(
                   padding: AppSpacing.paddingXs,
@@ -160,10 +179,19 @@ class _StatCardState extends State<StatCard>
                       ),
                     ),
                   Flexible(
-                    child: Text(
-                      _formatValue(displayValue),
-                      style: AppTypography.monoLarge,
-                      overflow: TextOverflow.ellipsis,
+                    // Shrink rather than truncate. An elided amount still looks
+                    // like an amount — "249.…" reads as a precise figure and is
+                    // not one — so a number must never be allowed to lose
+                    // digits to fit. Scaling down keeps every digit and only
+                    // ever reduces from the natural size.
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        _formatValue(displayValue, reference: widget.value),
+                        style: AppTypography.monoLarge,
+                        maxLines: 1,
+                      ),
                     ),
                   ),
                   if (widget.suffix.isNotEmpty)
