@@ -87,20 +87,20 @@ class _MainNavigationContainerState
       // Load unread notification count
       ref.read(notificationHistoryProvider.notifier).loadUnreadCount();
 
-      // Trigger walkthrough for new users
+      // Trigger walkthrough for new users.
+      //
+      // No arbitrary delay: the service waits for the widgets it points at to
+      // exist. Guessing at half a second meant racing the dashboard's first
+      // layout, and losing that race threw the walkthrough away for good.
       final walkthroughState = ref.read(walkthroughProvider);
-      if (!walkthroughState.hasSeenWalkthrough) {
-        Future.delayed(const Duration(milliseconds: 500), () {
-          if (mounted) {
-            WalkthroughService.showDashboardWalkthrough(context, ref, {
-              'balance': _balanceKey,
-              'fab': _fabKey,
-              'notification': _notificationKey,
-              'navHome': _navHomeKey,
-              'navActivity': _navActivityKey,
-              'navAI': _navAIKey,
-            });
-          }
+      if (!walkthroughState.hasSeenWalkthrough && mounted) {
+        WalkthroughService.showDashboardWalkthrough(context, ref, {
+          'balance': _balanceKey,
+          'fab': _fabKey,
+          'notification': _notificationKey,
+          'navHome': _navHomeKey,
+          'navActivity': _navActivityKey,
+          'navAI': _navAIKey,
         });
       }
 

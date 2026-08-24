@@ -6,11 +6,11 @@ import 'package:the_accountant/core/providers/walkthrough_provider.dart';
 import 'package:the_accountant/features/walkthrough/widgets/walkthrough_tooltip.dart';
 
 class WalkthroughService {
-  static void showDashboardWalkthrough(
+  static Future<void> showDashboardWalkthrough(
     BuildContext context,
     WidgetRef ref,
     Map<String, GlobalKey> keys,
-  ) {
+  ) async {
     final steps = <_WalkthroughStep>[
       _WalkthroughStep(
         key: keys['balance']!,
@@ -59,6 +59,22 @@ class WalkthroughService {
       ),
     ];
 
+    // Wait for the things being pointed at to exist.
+    //
+    // `tutorial_coach_mark` resolves a target through `key.currentContext`, and
+    // when that is null it throws, catches its own exception, and quietly ends
+    // the entire tutorial — which used to call `onFinish` and mark the
+    // walkthrough as seen. A first run where the dashboard was still laying out
+    // therefore burned the walkthrough permanently: the user saw a flash of the
+    // first step, or nothing, and never got it again.
+    if (!await _targetsReady(steps.map((step) => step.key).toList())) return;
+    if (!context.mounted) return;
+
+    // Whether the user did anything at all. `onFinish` fires both when someone
+    // reaches the end and when a target could not be found, and those two must
+    // not be recorded the same way.
+    var userAdvanced = false;
+
     late TutorialCoachMark tutorialCoachMark;
 
     final targets = List.generate(steps.length, (index) {
@@ -88,8 +104,14 @@ class WalkthroughService {
                 currentStep: index,
                 totalSteps: steps.length,
                 isLastStep: isLast,
-                onSkip: () => tutorialCoachMark.skip(),
-                onNext: () => controller.next(),
+                onSkip: () {
+                  userAdvanced = true;
+                  tutorialCoachMark.skip();
+                },
+                onNext: () {
+                  userAdvanced = true;
+                  controller.next();
+                },
               );
             },
           ),
@@ -103,7 +125,12 @@ class WalkthroughService {
       opacityShadow: 0.85,
       hideSkip: true,
       onFinish: () {
-        ref.read(walkthroughProvider.notifier).markWalkthroughSeen();
+        // Only when the user actually went through it. Reached without a single
+        // tap, this is the library giving up on a target it could not find, and
+        // treating that as "seen" is what made the failure permanent.
+        if (userAdvanced) {
+          ref.read(walkthroughProvider.notifier).markWalkthroughSeen();
+        }
       },
       onSkip: () {
         ref.read(walkthroughProvider.notifier).markWalkthroughSeen();
@@ -113,6 +140,26 @@ class WalkthroughService {
 
     tutorialCoachMark.show(context: context);
   }
+}
+
+/// Waits until every target is mounted, or gives up.
+///
+/// Giving up is deliberately silent and changes nothing: the walkthrough is
+/// simply not shown this time, and is still waiting on the next launch. That is
+/// far better than showing it against a half-built screen, which is how it got
+/// thrown away in the first place.
+Future<bool> _targetsReady(
+  List<GlobalKey> keys, {
+  Duration limit = const Duration(seconds: 6),
+  Duration interval = const Duration(milliseconds: 100),
+}) async {
+  var waited = Duration.zero;
+  while (waited < limit) {
+    if (keys.every((key) => key.currentContext != null)) return true;
+    await Future<void>.delayed(interval);
+    waited += interval;
+  }
+  return false;
 }
 
 class _WalkthroughStep {
