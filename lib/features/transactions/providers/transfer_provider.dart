@@ -2,6 +2,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
+import 'package:the_accountant/features/transactions/providers/transaction_provider.dart'
+    hide Transaction;
 import 'package:the_accountant/features/transactions/services/transfer_service.dart';
 import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
 
@@ -98,6 +100,13 @@ class TransferNotifier extends StateNotifier<TransferState> {
       // Reload transfers
       await loadTransfers();
 
+      // And the plain transaction list, which is what the Activity screen
+      // reads. Transfers are written straight to the database by the service
+      // rather than through the transaction notifier, so without this the two
+      // legs — and any fee charged alongside them — stayed invisible until the
+      // app was restarted.
+      await _refreshTransactions();
+
       return true;
     } catch (e) {
       state = state.copyWith(
@@ -139,6 +148,13 @@ class TransferNotifier extends StateNotifier<TransferState> {
       // Reload transfers
       await loadTransfers();
 
+      // And the plain transaction list, which is what the Activity screen
+      // reads. Transfers are written straight to the database by the service
+      // rather than through the transaction notifier, so without this the two
+      // legs — and any fee charged alongside them — stayed invisible until the
+      // app was restarted.
+      await _refreshTransactions();
+
       return true;
     } catch (e) {
       state = state.copyWith(
@@ -164,6 +180,13 @@ class TransferNotifier extends StateNotifier<TransferState> {
       // Reload transfers
       await loadTransfers();
 
+      // And the plain transaction list, which is what the Activity screen
+      // reads. Transfers are written straight to the database by the service
+      // rather than through the transaction notifier, so without this the two
+      // legs — and any fee charged alongside them — stayed invisible until the
+      // app was restarted.
+      await _refreshTransactions();
+
       return true;
     } catch (e) {
       state = state.copyWith(
@@ -173,6 +196,13 @@ class TransferNotifier extends StateNotifier<TransferState> {
       return false;
     }
   }
+
+  /// Pull the shared transaction list back in step with the database.
+  ///
+  /// Quietly: the list is already on screen, and a spinner over it would be a
+  /// worse answer than the rows simply appearing.
+  Future<void> _refreshTransactions() =>
+      _ref.read(transactionProvider.notifier).loadTransactions(silent: true);
 
   /// Check if a transaction is a transfer
   Future<bool> isTransfer(String transactionId) async {
