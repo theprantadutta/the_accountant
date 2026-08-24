@@ -1,4 +1,5 @@
 import 'package:drift/drift.dart' show Value;
+import 'package:the_accountant/core/domain/default_categories.dart';
 import 'package:the_accountant/core/domain/transaction_policy.dart';
 import 'package:the_accountant/core/services/wallet_balance_service.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
@@ -165,6 +166,20 @@ class TransferService {
   /// Create a transfer between two wallets.
   ///
   /// Returns `(expenseTransactionId, incomeTransactionId)`.
+  /// Records a transfer, and the charge for making it when there was one.
+  ///
+  /// [feeAmount] is in the same minor units as [amount] and defaults to nothing,
+  /// because most transfers cost nothing. [feeWalletId] is where the provider
+  /// took it from — usually the source wallet, but not always, which is why it
+  /// is asked for separately.
+  ///
+  /// The fee is a third row, not an adjustment to the legs. Moving money between
+  /// your own wallets leaves you no worse off, which is why the two legs must be
+  /// equal; a charge does leave you worse off, so it is recorded the way every
+  /// other loss is — as an expense, against a real category, on a real wallet.
+  /// Folding it into the legs would have made them unequal (breaking the rule
+  /// both this app and the server enforce) and would have made the money
+  /// disappear from the balance with nothing to account for it.
   Future<(String, String)> createTransfer({
     required String sourceWalletId,
     required String destinationWalletId,
@@ -172,12 +187,17 @@ class TransferService {
     required DateTime date,
     String? notes,
     String? title,
+    int feeAmount = 0,
+    String? feeWalletId,
   }) async {
     if (sourceWalletId == destinationWalletId) {
       throw ArgumentError('Source and destination wallets must be different');
     }
     if (amount <= 0) {
       throw ArgumentError('Transfer amount must be positive');
+    }
+    if (feeAmount < 0) {
+      throw ArgumentError('Transfer fee cannot be negative');
     }
 
     final uuid = const Uuid();
@@ -236,11 +256,73 @@ class TransferService {
         ),
       );
 
-      await _recalculate({sourceWalletId, destinationWalletId});
+      final touched = {sourceWalletId, destinationWalletId};
+
+      if (feeAmount > 0) {
+        final chargedTo = feeWalletId ?? sourceWalletId;
+        await _writeFee(
+          feeForTransactionId: expenseId,
+          walletId: chargedTo,
+          amount: feeAmount,
+          date: date,
+          now: now,
+          transferTitle: transferTitle,
+        );
+        touched.add(chargedTo);
+      }
+
+      await _recalculate(touched);
 
       return (expenseId, incomeId);
     });
   }
+
+  /// Writes the charge for a transfer as an ordinary expense.
+  ///
+  /// Filed under the built-in Fees & Charges category so a year of them adds up
+  /// to a number worth seeing, rather than scattering across whatever category
+  /// happened to be selected. Resolved by slug for the same reason the transfer
+  /// category is: ids are random per install.
+  Future<String> _writeFee({
+    required String feeForTransactionId,
+    required String walletId,
+    required int amount,
+    required DateTime date,
+    required DateTime now,
+    required String transferTitle,
+  }) async {
+    final feeId = const Uuid().v4();
+    // Resolves (and seeds if missing) any catalogue slug, not just the system
+    // ones its name suggests.
+    final feeCategoryId = await _db.requireSystemCategoryId(
+      BuiltInCategoryKeys.feesCharges,
+    );
+
+    await _db.addTransaction(
+      TransactionsCompanion(
+        id: Value(feeId),
+        amount: Value(amount),
+        isIncome: const Value(false),
+        title: Value('Fee: $transferTitle'),
+        date: Value(date),
+        categoryId: Value(feeCategoryId),
+        walletId: Value(walletId),
+        // An ordinary expense, deliberately: it should count towards spending,
+        // budgets and category totals exactly like any other charge.
+        transactionType: Value(TransactionPolicy.regularType),
+        feeForTransactionId: Value(feeForTransactionId),
+        isPaid: const Value(true),
+        createdAt: Value(now),
+        updatedAt: Value(now),
+        syncStatus: const Value(SyncStatus.pendingCreate),
+      ),
+    );
+    return feeId;
+  }
+
+  /// The fee recorded against [transferTransactionId], if there is one.
+  Future<Transaction?> feeFor(String transferTransactionId) =>
+      _db.findFeeForTransfer(transferTransactionId);
 
   TransactionsCompanion _legCompanion({
     required String id,
@@ -427,6 +509,18 @@ class TransferService {
           // would never propagate and the row would resurrect on a full pull.
           await _db.softDeleteTransaction(partner.id);
         }
+      }
+
+      // The charge for making the transfer goes with it. They were one action,
+      // so leaving the fee behind would strand a charge with nothing left to
+      // explain what it paid for. Either leg may be the one being deleted, so
+      // both are checked.
+      for (final legId in {transactionId, transaction.pairedTransactionId}) {
+        if (legId == null) continue;
+        final fee = await _db.findFeeForTransfer(legId);
+        if (fee == null) continue;
+        affectedWallets.add(fee.walletId);
+        await _db.softDeleteTransaction(fee.id);
       }
 
       await _db.softDeleteTransaction(transactionId);

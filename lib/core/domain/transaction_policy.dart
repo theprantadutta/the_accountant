@@ -39,6 +39,8 @@ class TransactionPolicy {
 
   /// Value stored in [Transaction.transactionType] for the two legs of a
   /// wallet-to-wallet transfer.
+  static String get regularType => TransactionType.regular.storageValue;
+
   static String get transferType => TransactionType.transfer.storageValue;
 
   /// Value stored in [Transaction.transactionType] for generated recurrence

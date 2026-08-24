@@ -140,7 +140,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 15;
+  int get schemaVersion => 16;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -230,6 +230,10 @@ class AppDatabase extends _$AppDatabase {
 
       if (from < 15) {
         await _migrateToV15(m);
+      }
+
+      if (from < 16) {
+        await _migrateToV16(m);
       }
     },
     beforeOpen: (details) async {
@@ -493,6 +497,14 @@ class AppDatabase extends _$AppDatabase {
   /// directly.)
   Future<void> applyV15DataMigrations() async {
     await rekeyUnsyncedNonUuidWallets();
+  }
+
+  /// Schema 16: record which transfer a fee belongs to.
+  ///
+  /// Purely additive — one nullable column, no backfill. Existing transfers have
+  /// no fee, which is exactly what null means here.
+  Future<void> _migrateToV16(Migrator m) async {
+    await _ensureColumn(m, transactions, transactions.feeForTransactionId);
   }
 
   /// A canonical 8-4-4-4-12 hexadecimal id, which is the only shape the backend
@@ -1440,6 +1452,14 @@ class AppDatabase extends _$AppDatabase {
     }
     return created.id;
   }
+
+  /// The live fee recorded against [transferTransactionId], if any.
+  Future<Transaction?> findFeeForTransfer(String transferTransactionId) =>
+      (select(transactions)
+            ..where((t) => t.feeForTransactionId.equals(transferTransactionId))
+            ..where((t) => t.deletedAt.isNull())
+            ..limit(1))
+          .getSingleOrNull();
 
   /// Collapse duplicate built-in categories down to one row per slug.
   ///

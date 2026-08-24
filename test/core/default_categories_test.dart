@@ -25,6 +25,7 @@ const _pinnedSlugs = <String>[
   'loan_expense',
   'loan_payment',
   'other_expenses',
+  'fees_charges',
   // Income
   'salary',
   'freelance',

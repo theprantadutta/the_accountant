@@ -72,6 +72,8 @@ class TransferNotifier extends StateNotifier<TransferState> {
     required DateTime date,
     String? notes,
     String? title,
+    int feeAmount = 0,
+    String? feeWalletId,
   }) async {
     state = state.copyWith(isLoading: true, errorMessage: null);
     try {
@@ -86,6 +88,8 @@ class TransferNotifier extends StateNotifier<TransferState> {
         date: date,
         notes: notes,
         title: title,
+        feeAmount: feeAmount,
+        feeWalletId: feeWalletId,
       );
 
       // Refresh wallet provider (await to ensure state is updated)

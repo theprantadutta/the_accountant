@@ -127,6 +127,21 @@ class Transactions extends Table {
   // For transfers - paired transaction
   TextColumn get pairedTransactionId => text().nullable()();
 
+  /// The transfer this row is the fee for, or null.
+  ///
+  /// A transfer with a charge is three rows: the two equal legs, plus this
+  /// expense on whichever wallet the charge came out of. Keeping the fee
+  /// separate is what lets the pair stay equal — the invariant both the app and
+  /// the backend enforce — while still recording money that genuinely left,
+  /// which a transfer on its own never does.
+  ///
+  /// Deliberately **not** a foreign key. `pairedTransactionId` is one, and being
+  /// a non-deferrable self-reference is exactly what forced transfers to be
+  /// written in two phases. A soft link keeps insert order irrelevant; the
+  /// cascade on delete lives in `TransferService`, which is where the rule
+  /// belongs anyway.
+  TextColumn get feeForTransactionId => text().nullable()();
+
   // For recurring instances
   TextColumn get recurringConfigId =>
       text().nullable().references(RecurringConfigs, #id)();

@@ -57,6 +57,17 @@ class DefaultCategorySpec {
 }
 
 /// Well-known slugs the code refers to directly.
+/// Slugs of built-ins the app refers to by name.
+///
+/// Distinct from [SystemCategoryKeys]: these are ordinary, user-visible
+/// categories that happen to have code that files things under them.
+class BuiltInCategoryKeys {
+  const BuiltInCategoryKeys._();
+
+  /// Charges a provider takes for moving money — the fee half of a transfer.
+  static const String feesCharges = 'fees_charges';
+}
+
 class SystemCategoryKeys {
   const SystemCategoryKeys._();
 
@@ -209,6 +220,18 @@ class DefaultCategoryCatalog {
       iconName: 'more_horiz',
       isIncome: false,
       orderIndex: 16,
+    ),
+    // Charges a provider takes for moving money — the fee half of a transfer,
+    // card charges, and the like. Grouped so a year of them adds up to a number
+    // worth seeing, rather than scattering across whatever category happened to
+    // be selected at the time.
+    DefaultCategorySpec(
+      key: 'fees_charges',
+      name: 'Fees & Charges',
+      colorCode: '#B39DDB',
+      iconName: 'receipt',
+      isIncome: false,
+      orderIndex: 17,
     ),
   ];
 

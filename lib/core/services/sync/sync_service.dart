@@ -1177,6 +1177,7 @@ class SyncService {
       ),
       skipPaid: Value(data['SkipPaid'] ?? false),
       pairedTransactionId: Value(data['PairedTransactionId']),
+      feeForTransactionId: Value(data['FeeForTransactionId']),
       recurringConfigId: Value(data['RecurringConfigId']),
       occurrenceKey: Value(data['OccurrenceKey'] as String?),
       budgetId: Value(data['BudgetId']),
@@ -1693,6 +1694,7 @@ class SyncService {
     'SkipPaid': t.skipPaid,
     'PaidAmount': t.paidAmount,
     'PairedTransactionId': t.pairedTransactionId,
+    'FeeForTransactionId': t.feeForTransactionId,
     'RecurringConfigId': t.recurringConfigId,
     // Deterministic key for a generated recurrence occurrence. The server has a
     // matching uniqueness constraint, so two offline devices that generated the
