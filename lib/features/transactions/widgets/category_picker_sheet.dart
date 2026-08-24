@@ -33,32 +33,28 @@ Future<Category?> showCategoryPickerSheet({
   );
 }
 
-class _CategoryPickerSheet extends ConsumerStatefulWidget {
-  final bool isIncome;
-  final String? selectedCategoryId;
-  final Color? accentColor;
-
+class _CategoryPickerSheet extends ConsumerWidget {
   const _CategoryPickerSheet({
     required this.isIncome,
     this.selectedCategoryId,
     this.accentColor,
   });
 
-  @override
-  ConsumerState<_CategoryPickerSheet> createState() =>
-      _CategoryPickerSheetState();
-}
+  /// Which side of the ledger the form is on.
+  ///
+  /// Fixed for the life of the sheet. There used to be an Expense/Income
+  /// toggle in here, which asked the user to state something the form that
+  /// opened it had already established — and let them file a purchase under
+  /// "Salary" if they answered it differently.
+  final bool isIncome;
 
-class _CategoryPickerSheetState extends ConsumerState<_CategoryPickerSheet> {
-  late bool _isIncome;
+  final String? selectedCategoryId;
 
-  @override
-  void initState() {
-    super.initState();
-    _isIncome = widget.isIncome;
-  }
+  /// The colour of the money being entered. Kept for callers; the tiles take
+  /// their colour from the categories themselves.
+  final Color? accentColor;
 
-  Color _parseColor(String? colorCode) {
+  static Color _parseColor(String? colorCode) {
     if (colorCode == null) return AppColors.primaryAccent;
     try {
       if (colorCode.startsWith('#')) {
@@ -83,22 +79,25 @@ class _CategoryPickerSheetState extends ConsumerState<_CategoryPickerSheet> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final categoryState = ref.watch(categoryProvider);
-    // Transfer and Balance Correction are the app's own bookkeeping. They were
-    // listed here — at the top, being seeded first — so the two most prominent
-    // choices were both ones that file a purchase under the category transfers
-    // use, and quietly make the totals harder to explain.
+
+    // Transfer and Balance Correction are the app's own bookkeeping: it writes
+    // to them when it moves money between wallets or reconciles a balance.
+    // Nothing should be filed under them by hand.
     final categories = categoryState.categories
-        .where((c) => c.isIncome == _isIncome && !c.isSystem)
+        .where((c) => c.isIncome == isIncome && !c.isSystem)
         .toList();
 
     return BackdropFilter(
       filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
       child: Container(
-        height: MediaQuery.of(context).size.height * 0.75,
+        height: MediaQuery.of(context).size.height * 0.72,
         decoration: BoxDecoration(
-          color: AppColors.primaryDark,
+          // The app's card surface, not the near-black at the bottom of the
+          // palette. A sheet sits above the background and should read that
+          // way; painted in `primaryDark` it looked like a hole in the screen.
+          gradient: AppColors.cardGradient,
           borderRadius: const BorderRadius.vertical(
             top: Radius.circular(AppSpacing.radiusXxxl),
           ),
@@ -111,7 +110,7 @@ class _CategoryPickerSheetState extends ConsumerState<_CategoryPickerSheet> {
               width: 36,
               height: 4,
               decoration: BoxDecoration(
-                color: AppColors.divider,
+                color: AppColors.textMuted,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -119,45 +118,22 @@ class _CategoryPickerSheetState extends ConsumerState<_CategoryPickerSheet> {
 
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xxl),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              child: Row(
                 children: [
-                  Text('Select category', style: AppTypography.headlineSmall),
-                  AppSpacing.gapLg,
-
-                  // Two chips, in the same language as the type toggle on the
-                  // form that opened this sheet. It used to be a segmented
-                  // control with a solid red or green fill, which is the only
-                  // place in the app those colours are used as a background
-                  // rather than as a signal about a number.
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _TypeChip(
-                          label: 'Expense',
-                          icon: Icons.arrow_downward,
-                          color: AppColors.error,
-                          isSelected: !_isIncome,
-                          onTap: () {
-                            HapticFeedback.lightImpact();
-                            setState(() => _isIncome = false);
-                          },
-                        ),
-                      ),
-                      AppSpacing.gapHSm,
-                      Expanded(
-                        child: _TypeChip(
-                          label: 'Income',
-                          icon: Icons.arrow_upward,
-                          color: AppColors.success,
-                          isSelected: _isIncome,
-                          onTap: () {
-                            HapticFeedback.lightImpact();
-                            setState(() => _isIncome = true);
-                          },
-                        ),
-                      ),
-                    ],
+                  Expanded(
+                    child: Text(
+                      'Select category',
+                      style: AppTypography.headlineSmall,
+                    ),
+                  ),
+                  // Says which side of the ledger these belong to, without
+                  // offering to change it.
+                  Text(
+                    isIncome ? 'INCOME' : 'EXPENSE',
+                    style: AppTypography.labelSmall.copyWith(
+                      color: isIncome ? AppColors.success : AppColors.error,
+                      letterSpacing: 0.8,
+                    ),
                   ),
                 ],
               ),
@@ -167,48 +143,50 @@ class _CategoryPickerSheetState extends ConsumerState<_CategoryPickerSheet> {
             Expanded(
               child: categoryState.isLoading
                   ? const Padding(
-                      padding: EdgeInsets.fromLTRB(
-                        AppSpacing.xxl,
-                        0,
-                        AppSpacing.xxl,
-                        AppSpacing.xl,
-                      ),
+                      padding: EdgeInsets.symmetric(horizontal: AppSpacing.xxl),
                       child: Column(
                         children: [
-                          ShimmerCard(height: 56),
+                          ShimmerCard(height: 72),
                           AppSpacing.gapMd,
-                          ShimmerCard(height: 56),
+                          ShimmerCard(height: 72),
                           AppSpacing.gapMd,
-                          ShimmerCard(height: 56),
-                          AppSpacing.gapMd,
-                          ShimmerCard(height: 56),
+                          ShimmerCard(height: 72),
                         ],
                       ),
                     )
-                  // A list, not a grid. Every other list of things in this app
-                  // is a row with a tinted glyph, a name and a value on the
-                  // right; the grid of chunky tiles was the only screen that
-                  // looked like a different product, and it wrapped longer
-                  // names like "Balance Correction" onto two lines to boot.
-                  : ListView.builder(
-                      padding: EdgeInsets.only(
-                        bottom:
-                            AppSpacing.xl +
-                            MediaQuery.of(context).padding.bottom,
+                  // Four to a row: a category is recognised by its icon long
+                  // before its name is read, so the icons are what the layout
+                  // is built around. The tiles carry no frame of their own —
+                  // the tinted glyph is the object, and drawing a card around
+                  // it as well is what made the old grid feel heavy.
+                  : GridView.builder(
+                      padding: EdgeInsets.fromLTRB(
+                        AppSpacing.lg,
+                        0,
+                        AppSpacing.lg,
+                        AppSpacing.xl + MediaQuery.of(context).padding.bottom,
                       ),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 4,
+                            mainAxisSpacing: AppSpacing.lg,
+                            crossAxisSpacing: AppSpacing.sm,
+                            childAspectRatio: 0.82,
+                          ),
                       itemCount: categories.length + 1,
                       itemBuilder: (context, index) {
                         if (index == categories.length) {
-                          return _NewCategoryRow(
+                          return _NewCategoryTile(
                             onTap: () => _showAddCategoryForm(context),
                           );
                         }
 
                         final category = categories[index];
-                        return _CategoryRow(
-                          category: category,
-                          isSelected: category.id == widget.selectedCategoryId,
-                          color: _parseColor(category.colorCode),
+                        return _CategoryTile(
+                          name: category.name,
+                          iconName: category.iconName ?? 'category',
+                          tint: _parseColor(category.colorCode),
+                          isSelected: category.id == selectedCategoryId,
                           onTap: () {
                             HapticFeedback.mediumImpact();
                             Navigator.pop(context, category);
@@ -224,120 +202,74 @@ class _CategoryPickerSheetState extends ConsumerState<_CategoryPickerSheet> {
   }
 }
 
-/// Expense or income, as an outlined chip that tints when chosen.
-class _TypeChip extends StatelessWidget {
-  const _TypeChip({
-    required this.label,
-    required this.icon,
-    required this.color,
+/// One category: its glyph, and its name underneath.
+class _CategoryTile extends StatelessWidget {
+  const _CategoryTile({
+    required this.name,
+    required this.iconName,
+    required this.tint,
     required this.isSelected,
     required this.onTap,
   });
 
-  final String label;
-  final IconData icon;
-  final Color color;
+  final String name;
+  final String iconName;
+  final Color tint;
   final bool isSelected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        curve: Curves.easeOut,
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.sm,
-          vertical: AppSpacing.md,
-        ),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? color.withValues(alpha: 0.15)
-              : AppColors.glassWhite,
-          borderRadius: AppSpacing.borderRadiusFull,
-          border: Border.all(color: isSelected ? color : AppColors.glassBorder),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              icon,
-              size: AppSpacing.iconXs,
-              color: isSelected ? color : AppColors.textMuted,
-            ),
-            AppSpacing.gapHXs,
-            Flexible(
-              child: Text(
-                label,
-                overflow: TextOverflow.ellipsis,
-                style: AppTypography.labelMedium.copyWith(
-                  letterSpacing: 0.2,
-                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                  color: isSelected ? color : AppColors.textSecondary,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// One category, laid out like a transaction row.
-class _CategoryRow extends StatelessWidget {
-  const _CategoryRow({
-    required this.category,
-    required this.isSelected,
-    required this.color,
-    required this.onTap,
-  });
-
-  final Category category;
-  final bool isSelected;
-  final Color color;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.xxl,
-          vertical: AppSpacing.sm,
-        ),
-        child: Row(
-          children: [
-            _CategoryGlyph(
-              tint: color,
-              iconName: category.iconName ?? 'category',
-            ),
-            AppSpacing.gapHMd,
-            Expanded(
-              child: Text(
-                category.name,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: AppTypography.titleSmall.copyWith(
-                  color: isSelected ? color : AppColors.textPrimary,
-                ),
+      borderRadius: AppSpacing.borderRadiusLg,
+      child: Column(
+        children: [
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 180),
+            curve: Curves.easeOut,
+            width: 56,
+            height: 56,
+            decoration: BoxDecoration(
+              color: tint.withValues(alpha: isSelected ? 0.28 : 0.15),
+              borderRadius: AppSpacing.borderRadiusLg,
+              // Selection is a ring, not more fill: the tile is already this
+              // category's colour, so making it more of that colour says
+              // nothing. An outline says "this one".
+              border: Border.all(
+                color: isSelected ? tint : Colors.transparent,
+                width: 1.5,
               ),
             ),
-            if (isSelected)
-              Icon(Icons.check_rounded, size: AppSpacing.iconSm, color: color),
-          ],
-        ),
+            child: Icon(
+              IconRegistry.getIcon(iconName),
+              size: AppSpacing.iconMd,
+              color: tint,
+            ),
+          ),
+          AppSpacing.gapXs,
+          Expanded(
+            child: Text(
+              name,
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: AppTypography.labelSmall.copyWith(
+                letterSpacing: 0,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                color: isSelected ? tint : AppColors.textSecondary,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 }
 
 /// The way out of this sheet when none of the categories fit.
-class _NewCategoryRow extends StatelessWidget {
-  const _NewCategoryRow({required this.onTap});
+class _NewCategoryTile extends StatelessWidget {
+  const _NewCategoryTile({required this.onTap});
 
   final VoidCallback onTap;
 
@@ -345,61 +277,34 @@ class _NewCategoryRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.xxl,
-          vertical: AppSpacing.sm,
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: AppColors.glassWhite,
-                borderRadius: AppSpacing.borderRadiusMd,
-                border: Border.all(color: AppColors.glassBorder),
-              ),
-              child: Icon(
-                Icons.add_rounded,
-                size: AppSpacing.iconSm,
+      borderRadius: AppSpacing.borderRadiusLg,
+      child: Column(
+        children: [
+          Container(
+            width: 56,
+            height: 56,
+            decoration: BoxDecoration(
+              borderRadius: AppSpacing.borderRadiusLg,
+              border: Border.all(color: AppColors.glassBorder),
+            ),
+            child: Icon(
+              Icons.add_rounded,
+              size: AppSpacing.iconMd,
+              color: AppColors.textMuted,
+            ),
+          ),
+          AppSpacing.gapXs,
+          Expanded(
+            child: Text(
+              'New',
+              textAlign: TextAlign.center,
+              style: AppTypography.labelSmall.copyWith(
+                letterSpacing: 0,
                 color: AppColors.textMuted,
               ),
             ),
-            AppSpacing.gapHMd,
-            Text(
-              'New category',
-              style: AppTypography.titleSmall.copyWith(
-                color: AppColors.textSecondary,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// The same rounded, tinted icon tile the transaction list uses.
-class _CategoryGlyph extends StatelessWidget {
-  const _CategoryGlyph({required this.tint, required this.iconName});
-
-  final Color tint;
-  final String iconName;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 40,
-      height: 40,
-      decoration: BoxDecoration(
-        color: tint.withValues(alpha: 0.15),
-        borderRadius: AppSpacing.borderRadiusMd,
-      ),
-      child: Icon(
-        IconRegistry.getIcon(iconName),
-        size: AppSpacing.iconSm,
-        color: tint,
+          ),
+        ],
       ),
     );
   }

@@ -12,10 +12,10 @@ import '../helpers/test_database.dart';
 
 /// Choosing what a transaction was for.
 ///
-/// The picker used to be a three-column grid of tiles — the only screen in the
-/// app that presented a list of things that way, and the reason longer names
-/// like "Balance Correction" wrapped onto two lines. It is now a list of rows,
-/// the same shape as every other list here.
+/// Four tiles to a row, because a category is recognised by its icon before
+/// its name is read. There is no Expense/Income toggle: the form that opens
+/// this sheet has already established which side of the ledger it is on, and
+/// asking again only made it possible to answer differently.
 void main() {
   late AppDatabase db;
   late ProviderContainer container;
@@ -46,6 +46,14 @@ void main() {
   /// Opens the sheet. Awaiting this returns when the sheet is on screen, not
   /// when it closes — [picked] is the future for that.
   Future<void> openPicker(WidgetTester tester, {bool isIncome = false}) async {
+    // A phone-shaped surface. The default 800x600 test window is wider than it
+    // is tall, which makes the grid cells enormous and only a row and a half
+    // fit — nothing like what a reader of these assertions would picture.
+    tester.view.physicalSize = const Size(1080, 2280);
+    tester.view.devicePixelRatio = 2.75;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
     await tester.pumpWidget(
       UncontrolledProviderScope(
         container: container,
@@ -74,39 +82,29 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  testWidgets('expense categories are listed as rows', (tester) async {
+  testWidgets('expense categories are the ones offered', (tester) async {
     await openPicker(tester);
 
     expect(find.text('Select category'), findsOneWidget);
     expect(find.text('Food & Dining'), findsOneWidget);
 
-    // Nothing income-side while the expense chip is the one selected.
+    // Nothing from the income side, since the form asked for an expense.
     expect(find.text('Salary'), findsNothing);
 
-    // And nothing the app keeps for its own bookkeeping. These two sort first,
-    // so before they were filtered out they were the two most prominent
-    // choices in the sheet.
+    // And nothing the app keeps for its own bookkeeping. These two are seeded
+    // first and the query applies no ordering, so before they were filtered
+    // out they were the first two tiles in the sheet.
     expect(find.text('Transfer'), findsNothing);
     expect(find.text('Balance Correction'), findsNothing);
 
-    final list = find.byType(Scrollable).last;
-
-    // The rest of the catalogue is below the fold — a scrolling list, not a
-    // fixed grid that has to shrink its tiles to fit everything at once.
-    await tester.scrollUntilVisible(
-      find.text('Groceries'),
-      300,
-      scrollable: list,
-    );
+    // Four to a row puts most of the catalogue on screen at once, including
+    // one well down the list.
     expect(find.text('Groceries'), findsOneWidget);
 
-    // And the way out, when none of them fit, is the last row.
-    await tester.scrollUntilVisible(
-      find.text('New category'),
-      300,
-      scrollable: list,
-    );
-    expect(find.text('New category'), findsOneWidget);
+    // The way out, when none of them fit, is the tile after the last category.
+    final list = find.byType(Scrollable).last;
+    await tester.scrollUntilVisible(find.text('New'), 300, scrollable: list);
+    expect(find.text('New'), findsOneWidget);
   });
 
   testWidgets('the chosen category is what comes back', (tester) async {
@@ -159,19 +157,20 @@ void main() {
     expect(find.text('Balance Correction'), findsNothing);
   });
 
-  testWidgets('switching to income swaps the list', (tester) async {
-    await openPicker(tester);
+  testWidgets('opening for income offers only income categories', (
+    tester,
+  ) async {
+    await openPicker(tester, isIncome: true);
 
-    expect(find.text('Food & Dining'), findsOneWidget);
-
-    await tester.tap(find.text('Income'));
-    await tester.pumpAndSettle();
-
+    expect(find.text('Salary'), findsOneWidget);
     expect(
       find.text('Food & Dining'),
       findsNothing,
-      reason: 'the expense list should be gone, not merged with income',
+      reason: 'the two sides are not merged into one list',
     );
-    expect(find.text('Salary'), findsOneWidget);
+
+    // And no way to cross over from inside the sheet, which is what the old
+    // toggle allowed.
+    expect(find.text('Expense'), findsNothing);
   });
 }
