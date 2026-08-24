@@ -128,16 +128,47 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
   bool get _isTransfer => _transactionType == TransactionTypeSelection.transfer;
   bool get _isIncome => _transactionType == TransactionTypeSelection.income;
 
+  /// The colour of the money: red out, green in, cyan across.
+  ///
+  /// Reserved for what actually expresses direction — the amount, the type
+  /// toggle, the sheets used to enter an amount or pick its category, and the
+  /// button that commits it.
   Color get _accentColor => _transactionType.color;
+
+  /// The colour of the form itself.
+  ///
+  /// This was [_accentColor] too, which meant that on the screen you see by
+  /// default — a new expense — the date picker and every chip and selector were
+  /// drawn in the app's error red. An empty form looked like one that had
+  /// already failed validation. The date a purchase happened is not an expense,
+  /// so it is not coloured like one.
+  Color get _chromeAccent => AppColors.primaryAccent;
+
+  /// Transfer fee in major units. Zero for almost every transfer, which is why
+  /// the controls for it stay folded away until asked for.
+  double _feeAmount = 0;
+
+  /// Which wallet the charge came out of. Defaults to the source wallet, but a
+  /// provider can bill it somewhere else entirely.
+  String? _feeWalletId;
+
+  bool _showFeeFields = false;
 
   bool get _canSave {
     if (_isTransfer) {
+      // No title needed. A transfer already says what it is — the two accounts
+      // name it better than any words the user would type, and one falls back
+      // to "Transfer" anyway.
       return _amount > 0 &&
           _fromWalletId != null &&
           _toWalletId != null &&
           _fromWalletId != _toWalletId;
     }
+    // Income and expenses do need one. A month of rows that all read as their
+    // category name is a list you cannot recognise anything in, and the title
+    // is the only field that says which coffee, which invoice, which shop.
     return _amount > 0 &&
+        _titleController.text.trim().isNotEmpty &&
         _selectedCategoryId != null &&
         _selectedWalletId != null;
   }
@@ -518,6 +549,8 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
               notes: _notesController.text.isEmpty
                   ? null
                   : _notesController.text,
+              feeAmount: (_feeAmount * 100).round(),
+              feeWalletId: _feeWalletId ?? _fromWalletId,
             );
       } else if (_isEditing) {
         final isPaid = !_specialType.startsUnpaid;
@@ -705,7 +738,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
         iconBuilder: iconOf == null
             ? null
             : (id) => id == null ? Icons.block : iconOf(id),
-        colorBuilder: (id) => id == null ? AppColors.textMuted : _accentColor,
+        colorBuilder: (id) => id == null ? AppColors.textMuted : _chromeAccent,
         onSelected: onSelected,
       ),
     );
@@ -816,144 +849,110 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
       currencySymbol = CurrencyInfo.getSymbol(currentWallet.currency);
     }
 
-    return _buildAmbient(
-      child: Scaffold(
+    // The ambient background is painted once for the whole app in
+    // `MaterialApp.builder`. This screen used to stack its own copy of the same
+    // gradient and orbs on top of it, which is a large part of why it read as a
+    // different app from the ones either side of it.
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      appBar: AppBar(
         backgroundColor: Colors.transparent,
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          leading: IconButton(
-            icon: const Icon(Icons.close),
-            onPressed: () => Navigator.of(context).pop(),
-          ),
-          title: Text(_isEditing ? 'Edit Transaction' : 'New Transaction'),
-          actions: [
-            if (!_isEditing)
-              Padding(
-                padding: const EdgeInsets.only(right: 12),
-                child: Center(
-                  child: GestureDetector(
-                    onTap: _scanReceipt,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
-                      ),
-                      decoration: BoxDecoration(
-                        gradient: AppColors.primaryGradient,
-                        borderRadius: BorderRadius.circular(14),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.primaryAccent.withValues(
-                              alpha: 0.4,
-                            ),
-                            blurRadius: 12,
-                            offset: const Offset(0, 3),
-                          ),
-                        ],
-                      ),
-                      child: const Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.document_scanner_outlined,
-                            color: Colors.white,
-                            size: 18,
-                          ),
-                          SizedBox(width: 6),
-                          Text(
-                            'Scan',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            if (_isEditing)
-              IconButton(
-                icon: Icon(Icons.delete_outline, color: AppColors.error),
-                onPressed: _deleteTransaction,
-              ),
-          ],
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.close),
+          onPressed: () => Navigator.of(context).pop(),
         ),
-        body: Column(
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 4),
-
-                    // Hero: type toggle + amount + category
-                    _buildHero(canTransfer, currencySymbol),
-                    const SizedBox(height: 20),
-
-                    // Date/Time picker
-                    CompactDateTimePicker(
-                      selectedDateTime: _selectedDateTime,
-                      onDateTimeChanged: (dateTime) {
-                        setState(() => _selectedDateTime = dateTime);
-                      },
-                      accentColor: _accentColor,
-                      dateFormat: ref.watch(dateFormatSettingProvider),
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Title input
-                    _buildTitleInput(),
-                    const SizedBox(height: 12),
-
-                    // Notes input
-                    _buildNotesInput(),
-                    const SizedBox(height: 20),
-
-                    if (_isTransfer) ...[
-                      // Transfer: From/To wallet selectors
-                      _buildTransferWalletSelectors(wallets),
-                    ] else ...[
-                      // Regular transaction sections
-                      // Special type chips (Default, Upcoming, Subscription)
-                      _buildSpecialTypeChips(),
-                      if (_specialType == TransactionSpecialType.subscription ||
-                          _specialType == TransactionSpecialType.repetitive)
-                        _buildSubscriptionConfigSection(),
-                      const SizedBox(height: 16),
-
-                      // Wallet chips
-                      _buildWalletChips(wallets),
-                      const SizedBox(height: 16),
-
-                      // Loan type chips
-                      LoanTypeChips(
-                        selectedType: _specialType,
-                        onTypeChanged: (type) {
-                          setState(() => _specialType = type);
-                        },
-                        accentColor: _accentColor,
-                      ),
-
-                      // Optional links (hidden when the user has none)
-                      _buildPaymentMethodSelector(),
-                      _buildBudgetSelector(),
-                      _buildObjectiveSelector(),
-                    ],
-                    const SizedBox(height: 10),
-                  ],
+        title: Text(_isEditing ? 'Edit Transaction' : 'New Transaction'),
+        actions: [
+          if (!_isEditing)
+            Padding(
+              padding: EdgeInsets.only(right: AppSpacing.sm),
+              child: Center(
+                child: TextButton.icon(
+                  onPressed: _scanReceipt,
+                  icon: const Icon(Icons.document_scanner_outlined, size: 18),
+                  label: const Text('Scan'),
                 ),
               ),
             ),
+          if (_isEditing)
+            IconButton(
+              icon: Icon(Icons.delete_outline, color: AppColors.error),
+              onPressed: _deleteTransaction,
+            ),
+        ],
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  AppSpacing.gapXs,
 
-            // Save button (sticky at bottom)
-            _buildSaveButton(),
-          ],
-        ),
+                  // Hero: type toggle + amount + category
+                  _buildHero(canTransfer, currencySymbol),
+                  AppSpacing.gapXl,
+
+                  // Date/Time picker
+                  CompactDateTimePicker(
+                    selectedDateTime: _selectedDateTime,
+                    onDateTimeChanged: (dateTime) {
+                      setState(() => _selectedDateTime = dateTime);
+                    },
+                    accentColor: _chromeAccent,
+                    dateFormat: ref.watch(dateFormatSettingProvider),
+                  ),
+                  AppSpacing.gapLg,
+
+                  // Title input
+                  _buildTitleInput(),
+                  AppSpacing.gapMd,
+
+                  // Notes input
+                  _buildNotesInput(),
+                  AppSpacing.gapXl,
+
+                  if (_isTransfer) ...[
+                    // Transfer: From/To wallet selectors
+                    _buildTransferWalletSelectors(wallets, currencySymbol),
+                  ] else ...[
+                    // Regular transaction sections
+                    // Special type chips (Default, Upcoming, Subscription)
+                    _buildSpecialTypeChips(),
+                    if (_specialType == TransactionSpecialType.subscription ||
+                        _specialType == TransactionSpecialType.repetitive)
+                      _buildSubscriptionConfigSection(),
+                    const SizedBox(height: 16),
+
+                    // Wallet chips
+                    _buildWalletChips(wallets),
+                    const SizedBox(height: 16),
+
+                    // Loan type chips
+                    LoanTypeChips(
+                      selectedType: _specialType,
+                      onTypeChanged: (type) {
+                        setState(() => _specialType = type);
+                      },
+                      accentColor: _chromeAccent,
+                    ),
+
+                    // Optional links (hidden when the user has none)
+                    _buildPaymentMethodSelector(),
+                    _buildBudgetSelector(),
+                    _buildObjectiveSelector(),
+                  ],
+                  AppSpacing.gapMd,
+                ],
+              ),
+            ),
+          ),
+
+          // Save button (sticky at bottom)
+          _buildSaveButton(),
+        ],
       ),
     );
   }
@@ -975,49 +974,6 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
     }
   }
 
-  /// The base app gradient with a couple of faint, neutral (indigo/purple) glow
-  /// orbs — the same calm ambience as the rest of the app. The transaction's
-  /// colour is carried by the amount, the active toggle label and the save
-  /// button, not by bathing the whole screen.
-  Widget _buildAmbient({required Widget child}) {
-    return DecoratedBox(
-      decoration: const BoxDecoration(gradient: AppColors.backgroundGradient),
-      child: Stack(
-        children: [
-          Positioned(
-            top: -120,
-            right: -100,
-            child: _glowOrb(AppColors.primaryGlow, 260, 0.06),
-          ),
-          Positioned(
-            bottom: -150,
-            left: -110,
-            child: _glowOrb(AppColors.neonPurple, 300, 0.05),
-          ),
-          child,
-        ],
-      ),
-    );
-  }
-
-  Widget _glowOrb(Color color, double size, double alpha) {
-    return IgnorePointer(
-      child: Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          gradient: RadialGradient(
-            colors: [
-              color.withValues(alpha: alpha),
-              color.withValues(alpha: 0.0),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   /// Hero card: the type toggle, the big amount, and (for non-transfers) the
   /// category selector — all tinted to the current transaction type.
   Widget _buildHero(bool canTransfer, String currencySymbol) {
@@ -1025,8 +981,8 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
       duration: AppAnimations.normal,
       curve: AppAnimations.easeOut,
       width: double.infinity,
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      padding: const EdgeInsets.all(20),
+      margin: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+      padding: const EdgeInsets.all(AppSpacing.xl),
       decoration: BoxDecoration(
         gradient: AppColors.glassGradient,
         borderRadius: AppSpacing.borderRadiusXl,
@@ -1043,10 +999,10 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           _buildTypeSelector(canTransfer),
-          const SizedBox(height: 24),
+          AppSpacing.gapXxl,
           _buildAmountDisplay(currencySymbol),
           if (!_isTransfer) ...[
-            const SizedBox(height: 18),
+            AppSpacing.gapLg,
             Center(child: _buildCategoryChip()),
           ],
         ],
@@ -1065,7 +1021,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
     return Row(
       children: [
         for (var i = 0; i < types.length; i++) ...[
-          if (i > 0) const SizedBox(width: 8),
+          if (i > 0) AppSpacing.gapHSm,
           Expanded(child: _typeChip(types[i])),
         ],
       ],
@@ -1082,7 +1038,12 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
       child: AnimatedContainer(
         duration: AppAnimations.fast,
         curve: AppAnimations.easeOut,
-        padding: const EdgeInsets.symmetric(vertical: 12),
+        // Horizontal padding as well as vertical: at three across, "Transfer"
+        // ran the full width of its chip and read as cramped.
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.sm,
+          vertical: AppSpacing.md,
+        ),
         decoration: BoxDecoration(
           color: isSelected
               ? color.withValues(alpha: 0.15)
@@ -1098,16 +1059,16 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
           children: [
             Icon(
               type.icon,
-              size: 16,
+              size: AppSpacing.iconXs,
               color: isSelected ? color : AppColors.textMuted,
             ),
-            const SizedBox(width: 6),
+            AppSpacing.gapHXs,
             Flexible(
               child: Text(
                 type.label,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 13,
+                style: AppTypography.labelMedium.copyWith(
+                  letterSpacing: 0.2,
                   fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                   color: isSelected ? color : AppColors.textSecondary,
                 ),
@@ -1161,7 +1122,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
               ],
             ),
           ),
-          const SizedBox(height: 6),
+          AppSpacing.gapSm,
           Text(
             hasAmount ? 'Tap to edit amount' : 'Tap to enter amount',
             style: AppTypography.labelSmall.copyWith(
@@ -1179,7 +1140,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
     final hasCategory = _selectedCategory != null;
     final categoryColor = hasCategory && _selectedCategory!.colorCode.isNotEmpty
         ? _parseHexColor(_selectedCategory!.colorCode)
-        : _accentColor;
+        : _chromeAccent;
 
     return GestureDetector(
       onTap: () {
@@ -1256,7 +1217,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
         return Color(int.parse(code.substring(1), radix: 16) | 0xFF000000);
       }
     } catch (_) {}
-    return _accentColor;
+    return _chromeAccent;
   }
 
   Widget _buildSpecialTypeChips() {
@@ -1310,7 +1271,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                   return type.label;
               }
             },
-            colorBuilder: (type) => _accentColor,
+            colorBuilder: (type) => _chromeAccent,
             onSelected: (type) {
               setState(() => _specialType = type);
             },
@@ -1540,28 +1501,26 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
     );
   }
 
-  Widget _buildTransferWalletSelectors(List<Wallet> wallets) {
+  /// Where the money leaves from, where it lands, and what the move cost.
+  ///
+  /// The two account pickers keep their red/green markers because those say
+  /// something true — money out, money in. Everything else here is neutral, so
+  /// that the only colour on an untouched form belongs to the money.
+  Widget _buildTransferWalletSelectors(
+    List<Wallet> wallets,
+    String currencySymbol,
+  ) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // From wallet
-          Row(
-            children: [
-              Icon(Icons.arrow_upward, size: 16, color: AppColors.error),
-              const SizedBox(width: 6),
-              Text(
-                'From Account',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  color: AppColors.textMuted,
-                ),
-              ),
-            ],
+          _transferFieldLabel(
+            'From account',
+            Icons.arrow_upward,
+            AppColors.error,
           ),
-          const SizedBox(height: 8),
+          AppSpacing.gapSm,
           HorizontalChipSelector<Wallet>(
             items: wallets.where((w) => w.id != _toWalletId).toList(),
             selectedItem: wallets.firstWhere(
@@ -1574,37 +1533,30 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
             },
             padding: EdgeInsets.zero,
           ),
-          const SizedBox(height: 12),
+          AppSpacing.gapMd,
 
-          // Arrow indicator
           Center(
             child: Container(
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(AppSpacing.sm),
               decoration: BoxDecoration(
-                color: _accentColor.withValues(alpha: 0.2),
+                color: _chromeAccent.withValues(alpha: 0.15),
                 shape: BoxShape.circle,
               ),
-              child: Icon(Icons.arrow_downward, color: _accentColor, size: 20),
+              child: Icon(
+                Icons.arrow_downward,
+                color: _chromeAccent,
+                size: AppSpacing.iconSm,
+              ),
             ),
           ),
-          const SizedBox(height: 12),
+          AppSpacing.gapMd,
 
-          // To wallet
-          Row(
-            children: [
-              Icon(Icons.arrow_downward, size: 16, color: AppColors.success),
-              const SizedBox(width: 6),
-              Text(
-                'To Account',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  color: AppColors.textMuted,
-                ),
-              ),
-            ],
+          _transferFieldLabel(
+            'To account',
+            Icons.arrow_downward,
+            AppColors.success,
           ),
-          const SizedBox(height: 8),
+          AppSpacing.gapSm,
           HorizontalChipSelector<Wallet>(
             items: wallets.where((w) => w.id != _fromWalletId).toList(),
             selectedItem: wallets.firstWhere(
@@ -1617,9 +1569,170 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
             },
             padding: EdgeInsets.zero,
           ),
+          // Only offered when creating. Editing a transfer updates the pair and
+          // nothing else, so a fee control here would look like it saved
+          // something when it did not.
+          if (!_isEditing) ...[
+            AppSpacing.gapLg,
+            _buildTransferFeeSection(wallets, currencySymbol),
+          ],
         ],
       ),
     );
+  }
+
+  Widget _transferFieldLabel(String text, IconData icon, Color color) {
+    return Row(
+      children: [
+        Icon(icon, size: AppSpacing.iconXs, color: color),
+        AppSpacing.gapHSm,
+        Text(
+          text,
+          style: AppTypography.labelSmall.copyWith(color: AppColors.textMuted),
+        ),
+      ],
+    );
+  }
+
+  /// What the transfer cost to make, folded away until there is a cost.
+  ///
+  /// Most transfers are free, so this starts as a single quiet line rather than
+  /// a pair of empty fields competing with the two things the screen is for. A
+  /// fee is recorded as its own expense on whichever wallet the provider took
+  /// it from, never subtracted from the transfer: moving your own money leaves
+  /// you no worse off, so the two legs must stay equal, while a charge does
+  /// leave you worse off and has to be accounted for somewhere real.
+  Widget _buildTransferFeeSection(List<Wallet> wallets, String currencySymbol) {
+    if (!_showFeeFields) {
+      return Align(
+        alignment: Alignment.centerLeft,
+        child: TextButton.icon(
+          onPressed: () => setState(() => _showFeeFields = true),
+          icon: const Icon(Icons.add, size: AppSpacing.iconXs),
+          label: const Text('Add a transfer fee'),
+          style: TextButton.styleFrom(
+            foregroundColor: AppColors.textSecondary,
+            padding: EdgeInsets.zero,
+            visualDensity: VisualDensity.compact,
+          ),
+        ),
+      );
+    }
+
+    // Where the charge lands. Usually the wallet the money left, but a provider
+    // can bill it somewhere else entirely, so it is asked for separately.
+    final chargedTo = wallets.firstWhere(
+      (w) => w.id == (_feeWalletId ?? _fromWalletId),
+      orElse: () => wallets.first,
+    );
+
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      decoration: BoxDecoration(
+        color: AppColors.glassWhite,
+        borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
+        border: Border.all(color: AppColors.divider),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text('Transfer fee', style: AppTypography.titleSmall),
+              ),
+              TextButton(
+                onPressed: () => setState(() {
+                  _showFeeFields = false;
+                  _feeAmount = 0;
+                  _feeWalletId = null;
+                }),
+                style: TextButton.styleFrom(
+                  foregroundColor: AppColors.textMuted,
+                  padding: EdgeInsets.zero,
+                  visualDensity: VisualDensity.compact,
+                ),
+                child: const Text('Remove'),
+              ),
+            ],
+          ),
+          Text(
+            'Charged separately, so the transfer itself stays balanced.',
+            style: AppTypography.bodySmall.copyWith(color: AppColors.textMuted),
+          ),
+          AppSpacing.gapMd,
+
+          InkWell(
+            onTap: () => _showFeeCalculator(currencySymbol),
+            borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.md,
+                vertical: AppSpacing.md,
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.receipt_long_outlined,
+                    size: AppSpacing.iconSm,
+                    color: AppColors.textMuted,
+                  ),
+                  AppSpacing.gapHMd,
+                  Expanded(
+                    child: Text(
+                      'Amount',
+                      style: AppTypography.bodyMedium.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ),
+                  Text(
+                    '$currencySymbol${_feeAmount.toStringAsFixed(2)}',
+                    style: AppTypography.monoMedium.copyWith(
+                      color: _feeAmount > 0
+                          ? AppColors.textPrimary
+                          : AppColors.textMuted,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          AppSpacing.gapSm,
+
+          Text(
+            'Deducted from',
+            style: AppTypography.labelSmall.copyWith(
+              color: AppColors.textMuted,
+            ),
+          ),
+          AppSpacing.gapSm,
+          HorizontalChipSelector<Wallet>(
+            items: wallets,
+            selectedItem: chargedTo,
+            labelBuilder: (wallet) => '${wallet.name} (${wallet.currency})',
+            onSelected: (wallet) {
+              setState(() => _feeWalletId = wallet.id);
+            },
+            padding: EdgeInsets.zero,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _showFeeCalculator(String currencySymbol) async {
+    final amount = await showCalculatorBottomSheet(
+      context: context,
+      initialAmount: _feeAmount,
+      isIncome: false,
+      currencySymbol: currencySymbol,
+      accentColor: AppColors.warning,
+    );
+
+    if (amount != null) {
+      setState(() => _feeAmount = amount);
+    }
   }
 
   Widget _buildTitleInput() {
@@ -1629,7 +1742,10 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
         controller: _titleController,
         focusNode: _titleFocusNode,
         label: 'Title',
-        hint: _isTransfer ? 'e.g. Move to savings' : 'What was it for?',
+        hint: _isTransfer
+            ? 'e.g. Move to savings (optional)'
+            : 'What was it for?',
+        onChanged: (_) => setState(() {}),
         prefixIcon: Icons.edit_outlined,
         textInputAction: TextInputAction.done,
         onSubmitted: (_) {
