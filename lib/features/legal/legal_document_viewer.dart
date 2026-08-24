@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:the_accountant/shared/widgets/legal_markdown_style.dart';
-import 'package:the_accountant/shared/widgets/shimmer_loading.dart';
+import 'package:the_accountant/core/themes/app_spacing.dart';
+import 'package:the_accountant/shared/widgets/legal_loading_placeholder.dart';
 
 class LegalDocumentViewer extends StatefulWidget {
   final String title;
@@ -46,29 +47,11 @@ class _LegalDocumentViewerState extends State<LegalDocumentViewer> {
         title: Text(widget.title),
       ),
       body: _isLoading
-          ? const Padding(
-              padding: EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ShimmerCard(height: 28, width: 200),
-                  SizedBox(height: 16),
-                  ShimmerCard(height: 14),
-                  SizedBox(height: 8),
-                  ShimmerCard(height: 14),
-                  SizedBox(height: 8),
-                  ShimmerCard(height: 14),
-                  SizedBox(height: 24),
-                  ShimmerCard(height: 14),
-                  SizedBox(height: 8),
-                  ShimmerCard(height: 14),
-                ],
-              ),
-            )
+          ? const LegalLoadingPlaceholder()
           : Markdown(
               data: _content,
               selectable: true,
-              padding: const EdgeInsets.all(16),
+              padding: AppSpacing.paddingLg,
               styleSheet: legalMarkdownStyleSheet(),
             ),
     );
