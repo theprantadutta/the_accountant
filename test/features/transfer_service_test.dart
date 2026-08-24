@@ -111,11 +111,15 @@ void main() {
           amount: 500,
           date: DateTime(2026, 3, 1),
         ),
-        throwsA(isA<Exception>()),
+        // An ArgumentError now, and thrown before any write: naming a wallet
+        // that is not there is a bad argument, and the currency check has to
+        // load both wallets anyway, so it is caught at the door rather than
+        // part-way through.
+        throwsArgumentError,
       );
 
       // The whole operation runs in one database transaction, so a failure
-      // cannot leave a half transfer behind.
+      // cannot leave a half transfer behind either way.
       expect(await transfers.getTransferTransactions(), isEmpty);
       expect(await balances.calculateWalletBalance(sourceId), 50000);
     });

@@ -33,8 +33,9 @@ void main() {
 
   tearDown(() async => db.close());
 
-  Future<List<Transaction>> allLive() async =>
-      (await db.getAllTransactions()).where((t) => t.deletedAt == null).toList();
+  Future<List<Transaction>> allLive() async => (await db.getAllTransactions())
+      .where((t) => t.deletedAt == null)
+      .toList();
 
   test('a transfer with no fee is still exactly two rows', () async {
     await service.createTransfer(
@@ -210,5 +211,93 @@ void main() {
       isEmpty,
       reason: 'the fee must be invisible to pair validation',
     );
+  });
+
+  group('currencies', () {
+    test('a transfer between differently held wallets is refused', () async {
+      // Both legs of a transfer carry the same figure, because a transfer is one
+      // movement of one sum seen from both ends. Across currencies that figure
+      // means two different amounts: 50000 out of a dollar wallet and 50000 into
+      // a taka wallet invents about nine tenths of the money.
+      final taka = await seedWallet(db, name: 'bKash', currency: 'BDT');
+
+      expect(
+        () => service.createTransfer(
+          sourceWalletId: from,
+          destinationWalletId: taka,
+          amount: 50000,
+          date: DateTime(2026, 6, 1),
+        ),
+        throwsArgumentError,
+      );
+    });
+
+    test(
+      'nothing is written when a cross-currency transfer is refused',
+      () async {
+        final taka = await seedWallet(db, name: 'bKash', currency: 'BDT');
+
+        await expectLater(
+          service.createTransfer(
+            sourceWalletId: from,
+            destinationWalletId: taka,
+            amount: 50000,
+            date: DateTime(2026, 6, 1),
+            feeAmount: 250,
+          ),
+          throwsArgumentError,
+        );
+
+        expect(await allLive(), isEmpty);
+        expect((await db.findWalletById(from))!.balance, 100000);
+        expect((await db.findWalletById(taka))!.balance, 0);
+      },
+    );
+
+    test('same-currency transfers are unaffected', () async {
+      await service.createTransfer(
+        sourceWalletId: from,
+        destinationWalletId: to,
+        amount: 50000,
+        date: DateTime(2026, 6, 1),
+      );
+      expect(await allLive(), hasLength(2));
+    });
+
+    test('an edit cannot move a leg into another currency', () async {
+      final taka = await seedWallet(db, name: 'bKash', currency: 'BDT');
+      final (outgoing, _) = await service.createTransfer(
+        sourceWalletId: from,
+        destinationWalletId: to,
+        amount: 50000,
+        date: DateTime(2026, 6, 1),
+      );
+
+      await expectLater(
+        service.updateTransfer(
+          transactionId: outgoing,
+          destinationWalletId: taka,
+        ),
+        throwsArgumentError,
+      );
+
+      // The pair is still the pair it was.
+      final rows = await allLive();
+      expect(rows, hasLength(2));
+      expect(rows.map((t) => t.walletId).toSet(), {from, to});
+      expect(rows.every((t) => t.amount == 50000), isTrue);
+    });
+
+    test('a transfer naming a wallet that does not exist is refused', () async {
+      expect(
+        () => service.createTransfer(
+          sourceWalletId: from,
+          destinationWalletId: 'no-such-wallet',
+          amount: 50000,
+          date: DateTime(2026, 6, 1),
+        ),
+        throwsArgumentError,
+      );
+    });
   });
 }

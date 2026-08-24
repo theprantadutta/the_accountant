@@ -199,6 +199,7 @@ class TransferService {
     if (feeAmount < 0) {
       throw ArgumentError('Transfer fee cannot be negative');
     }
+    await _refuseCrossCurrency(sourceWalletId, destinationWalletId);
 
     final uuid = const Uuid();
     final expenseId = uuid.v4();
@@ -275,6 +276,43 @@ class TransferService {
 
       return (expenseId, incomeId);
     });
+  }
+
+  /// Refuses a transfer whose two wallets are denominated differently.
+  ///
+  /// The two legs of a transfer carry the same figure, because a transfer is one
+  /// movement of one sum of money seen from both ends. That is only true while
+  /// both ends count in the same unit. Moving 100 from a dollar wallet to a taka
+  /// wallet would write 100 into both, turning $100 into ৳100 — inventing about
+  /// nine tenths of the money out of nothing, and reporting a loss of nothing at
+  /// all.
+  ///
+  /// Converting properly needs a second figure and the rate used to get it, both
+  /// recorded, or the numbers cannot be explained later. Until a transfer can
+  /// carry those, it may not cross currencies at all: refusing is the only
+  /// answer here that is not silently wrong.
+  Future<void> _refuseCrossCurrency(
+    String sourceId,
+    String destinationId,
+  ) async {
+    final source = await _db.findWalletById(sourceId);
+    final destination = await _db.findWalletById(destinationId);
+
+    if (source == null || destination == null) {
+      throw ArgumentError(
+        'Both wallets must exist to transfer between them '
+        '(source: ${source?.name ?? sourceId}, '
+        'destination: ${destination?.name ?? destinationId}).',
+      );
+    }
+
+    if (source.currency != destination.currency) {
+      throw ArgumentError(
+        'Cannot transfer between wallets held in different currencies: '
+        '${source.name} is in ${source.currency} and '
+        '${destination.name} is in ${destination.currency}.',
+      );
+    }
   }
 
   /// Writes the charge for a transfer as an ordinary expense.
@@ -405,6 +443,9 @@ class TransferService {
       if (newSourceWalletId == newDestinationWalletId) {
         throw ArgumentError('Source and destination wallets must be different');
       }
+      // An edit can move a leg to a wallet held in another currency, which
+      // would leave the pair carrying one figure that means two amounts.
+      await _refuseCrossCurrency(newSourceWalletId, newDestinationWalletId);
 
       final now = DateTime.now();
       final transferCategoryId = await _db.requireSystemCategoryId(
