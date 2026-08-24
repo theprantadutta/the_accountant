@@ -73,3 +73,7 @@ nul
 
 # Claude Code temp files
 tmpclaude-*
+
+# Stray dev/test store. The real one lives in the app sandbox, per account.
+db.sqlite
+*.sqlite
