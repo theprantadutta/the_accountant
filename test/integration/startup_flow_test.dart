@@ -1,4 +1,5 @@
 import 'package:drift/native.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -620,6 +621,191 @@ void main() {
         isTrue,
         reason: 'a confirmed-empty account must not be blocked from starting',
       );
+    });
+  });
+
+
+  group('startup never blocks the widget tree or hangs', () {
+    // Both symptoms of the same defect. A listener registered in the
+    // controller's `build()` can fire during the widget build that created it;
+    // the pass it kicked off then mutated `state` from inside that build,
+    // Riverpod asserted, and the aborted pass left the phase at
+    // `checkingIdentity` — which renders as a loading screen forever.
+
+    testWidgets('evaluating from inside a build does not modify providers', (
+      tester,
+    ) async {
+      // The reported crash, reproduced: a widget build reaches the controller,
+      // which mutates `state` before yielding. Riverpod asserts, the pass dies
+      // half-done, and the phase never leaves `checkingIdentity`.
+      bootstrap.next = const AccountBootstrap(
+        onboardingCompleted: false,
+        hasFinancialData: false,
+        liveWalletCount: 0,
+      );
+      final c = buildContainer();
+
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: c,
+          child: Consumer(
+            builder: (context, ref, _) {
+              ref.read(startupFlowProvider.notifier).evaluate();
+              return const SizedBox.shrink();
+            },
+          ),
+        ),
+      );
+
+      expect(
+        tester.takeException(),
+        isNull,
+        reason: 'startup must not modify a provider while the tree is building',
+      );
+
+      await tester.pump(const Duration(milliseconds: 200));
+      await tester.pump(const Duration(milliseconds: 200));
+
+      expect(
+        c.read(startupFlowProvider).phase,
+        StartupPhase.confirmedEmpty,
+        reason: 'the flow must reach the RIGHT answer. Without the deferral it '
+            'still lands somewhere — the fail-safe catches the assertion and '
+            'reports `unavailable` — so only the correct terminal state '
+            'distinguishes a working startup from a rescued one',
+      );
+    });
+
+    test('a failure mid-evaluation ends somewhere actionable', () async {
+      // The store cannot be prepared and the failure escapes as an exception
+      // rather than a recorded error.
+      bootstrap.next = const AccountBootstrap(
+        onboardingCompleted: false,
+        hasFinancialData: false,
+        liveWalletCount: 0,
+      );
+      bootstrap.onCall = (_) => throw StateError('lookup exploded');
+      container = buildContainer();
+
+      await container.read(startupFlowProvider.notifier).evaluate();
+
+      final flow = container.read(startupFlowProvider);
+      expect(
+        flow.phase,
+        StartupPhase.unavailable,
+        reason: 'an unhandled failure must not leave the app on a splash '
+            'screen with nothing to press',
+      );
+      expect(flow.needsUserAttention, isTrue);
+      expect(flow.mayOfferFirstWallet, isFalse);
+    });
+
+    test('the flow recovers after an exception', () async {
+      bootstrap.onCall = (calls) {
+        if (calls == 1) throw StateError('lookup exploded');
+      };
+      bootstrap.next = const AccountBootstrap(
+        onboardingCompleted: false,
+        hasFinancialData: false,
+        liveWalletCount: 0,
+      );
+      container = buildContainer();
+
+      await container.read(startupFlowProvider.notifier).evaluate();
+      expect(container.read(startupFlowProvider).phase, StartupPhase.unavailable);
+
+      await container.read(startupFlowProvider.notifier).retry();
+
+      expect(
+        container.read(startupFlowProvider).phase,
+        StartupPhase.confirmedEmpty,
+        reason: 'a thrown pass must not poison the controller for the session',
+      );
+    });
+  });
+
+
+  group('a settled flow is never sent back to a loading screen', () {
+    // The loop this prevents: `AuthWrapper` only renders the app shell while the
+    // flow is settled, so any transient phase unmounts it — and the shell's own
+    // `initState` used to start the next evaluation. Dashboard, splash,
+    // dashboard, about three times a second, hammering the API with it.
+
+    test('re-evaluating after restore never leaves a settled phase', () async {
+      await seedCloudWallet();
+      bootstrap.next = const AccountBootstrap(
+        onboardingCompleted: true,
+        hasFinancialData: true,
+        liveWalletCount: 1,
+        isPremium: true,
+      );
+      container = buildContainer(entitlement: EntitlementStatus.premium);
+
+      await container.read(startupFlowProvider.notifier).evaluate();
+      expect(container.read(startupFlowProvider).phase, StartupPhase.restored);
+
+      // Watch every emission across a second run.
+      final seen = <StartupPhase>[];
+      container.listen(
+        startupFlowProvider,
+        (_, next) => seen.add(next.phase),
+        fireImmediately: false,
+      );
+
+      await container.read(startupFlowProvider.notifier).evaluate();
+
+      expect(
+        seen.where((p) => p != StartupPhase.restored),
+        isEmpty,
+        reason: 'every non-settled emission here unmounts the app shell, and '
+            'remounting it starts another evaluation: $seen',
+      );
+      expect(container.read(startupFlowProvider).phase, StartupPhase.restored);
+    });
+
+    test('a retry cannot eject someone already in the app', () async {
+      await seedCloudWallet();
+      bootstrap.next = const AccountBootstrap(
+        onboardingCompleted: true,
+        hasFinancialData: true,
+        liveWalletCount: 1,
+        isPremium: true,
+      );
+      container = buildContainer(entitlement: EntitlementStatus.premium);
+      await container.read(startupFlowProvider.notifier).evaluate();
+      expect(container.read(startupFlowProvider).phase, StartupPhase.restored);
+
+      // The network drops and a retry fires.
+      bootstrap.next = null;
+      await container.read(startupFlowProvider.notifier).retry();
+
+      expect(
+        container.read(startupFlowProvider).phase,
+        StartupPhase.restored,
+        reason: 'a failed background re-check must not throw the user out of '
+            'an app they are already using',
+      );
+    });
+
+    test('a confirmed-empty account can still become restored', () async {
+      // The guard blocks transient phases, not genuine progress.
+      bootstrap.next = const AccountBootstrap(
+        onboardingCompleted: false,
+        hasFinancialData: false,
+        liveWalletCount: 0,
+      );
+      container = buildContainer();
+      await container.read(startupFlowProvider.notifier).evaluate();
+      expect(
+        container.read(startupFlowProvider).phase,
+        StartupPhase.confirmedEmpty,
+      );
+
+      // The user creates a wallet; the next pass should notice.
+      await seedWallet(db, name: 'First wallet');
+      await container.read(startupFlowProvider.notifier).evaluate();
+
+      expect(container.read(startupFlowProvider).phase, StartupPhase.restored);
     });
   });
 

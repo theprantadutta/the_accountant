@@ -80,7 +80,6 @@ class _MainNavigationContainerState
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // Pull existing server data before deciding this is a brand-new user.
-      _maybeRestoreData();
 
       // Load unread notification count
       ref.read(notificationHistoryProvider.notifier).loadUnreadCount();
@@ -138,20 +137,12 @@ class _MainNavigationContainerState
   /// existing data down from the server before we'd ever show the
   /// create-first-wallet screen. For genuinely new / free / offline users this
   /// resolves quickly and falls through to that screen.
-  /// Defers the "is this account empty?" question to [startupFlowProvider].
-  ///
-  /// This used to be a pair of timing loops: wait ~5s for wallets, then ~3s for
-  /// a premium entitlement, and if neither arrived show "create your first
-  /// wallet". A slow network was therefore indistinguishable from a new account,
-  /// and the fallback was the one screen that must never be shown on a guess —
-  /// it invites the user to start over on top of data that was never restored.
-  ///
-  /// The controller replaces both loops with explicit states and retries when a
-  /// late entitlement or connectivity arrives, so a timeout ends as
-  /// "unavailable" rather than as "empty".
-  Future<void> _maybeRestoreData() async {
-    await ref.read(startupFlowProvider.notifier).evaluate();
-  }
+  // The startup flow is driven by `AuthWrapper`, which is the widget that
+  // decides whether this container is on screen at all. Driving it from here as
+  // well was a loop: this container's `initState` started an evaluation, the
+  // evaluation's first transient phase made `AuthWrapper` swap the container
+  // out for the splash screen, and remounting it started the next evaluation.
+  // Roughly three a second, both on the device and against the API.
 
   Widget _buildRestoringScreen() {
     return AuthBackground(

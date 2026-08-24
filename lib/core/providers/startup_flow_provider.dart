@@ -200,19 +200,30 @@ class StartupFlowController extends Notifier<StartupFlowState> {
 
   @override
   StartupFlowState build() {
+    // Both listeners hand their work to the next event-loop turn.
+    //
+    // A listener registered here can fire during the very build that created
+    // this controller — `AuthWrapper` watches it, and reading a provider inside
+    // the callback flushes others, which fires them too. Touching `state` at
+    // that moment is modifying a provider while the widget tree is building:
+    // Riverpod asserts, the pass is aborted mid-flight, and the phase never
+    // leaves `checkingIdentity` — which the user sees as a splash screen that
+    // never becomes the dashboard.
     ref.listen<EntitlementStatus>(entitlementStatusProvider, (previous, next) {
       // An entitlement arriving late is the single most common reason the old
       // timeout misfired, so it is the most important retry trigger.
       if (previous != next && next != EntitlementStatus.unknown) {
-        _retryIfUnsettled('entitlement now $next');
+        _afterBuild(() => _retryIfUnsettled('entitlement now $next'));
       }
     });
 
     ref.listen<String?>(authenticatedUserIdProvider, (previous, next) {
       if (previous == next) return;
-      state = const StartupFlowState();
-      _running = false;
-      if (next != null) unawaited(evaluate());
+      _afterBuild(() {
+        state = const StartupFlowState();
+        _running = false;
+        if (next != null) unawaited(evaluate());
+      });
     });
 
     _connectivitySub = ConnectivityService().onConnectivityChanged.listen((
@@ -228,6 +239,11 @@ class StartupFlowController extends Notifier<StartupFlowState> {
     return const StartupFlowState();
   }
 
+  /// Runs [action] once the current build has finished.
+  static void _afterBuild(void Function() action) {
+    Future<void>(action);
+  }
+
   void _retryIfUnsettled(String why) {
     final phase = state.phase;
     if (phase == StartupPhase.restored ||
@@ -240,7 +256,7 @@ class StartupFlowController extends Notifier<StartupFlowState> {
 
   /// User-initiated retry from the recovery screen.
   Future<void> retry() {
-    state = state.copyWith(phase: StartupPhase.checkingIdentity);
+    _enterPhase(StartupPhase.checkingIdentity);
     return evaluate();
   }
 
@@ -260,13 +276,52 @@ class StartupFlowController extends Notifier<StartupFlowState> {
     }
     _running = true;
     try {
+      // Yield before touching `state`. `evaluate()` is reachable synchronously
+      // from a provider listener, and a listener can run inside a widget build
+      // — where mutating a provider is an error. One turn of the event loop is
+      // enough to be safely outside it.
+      await Future<void>.delayed(Duration.zero);
+
       do {
         _rerunRequested = false;
         await _evaluate();
       } while (_rerunRequested && !state.isFinal);
+    } catch (e, stack) {
+      // Startup must always end somewhere the user can act. An unhandled
+      // failure here used to leave the phase wherever it stopped, and every
+      // non-settled phase renders as a loading screen — so a single throw meant
+      // a splash screen that never resolved and offered nothing to press.
+      debugPrint('[StartupFlow] evaluation failed: $e');
+      debugPrintStack(stackTrace: stack);
+      _enterPhase(StartupPhase.unavailable, reason: 'Something went wrong while starting up. Your data is safe on this '
+            'device.',
+      );
     } finally {
       _running = false;
     }
+  }
+
+  /// Moves the flow to [phase], refusing to undo a conclusion already reached.
+  ///
+  /// Once startup has settled, the user is *in* the app. Re-running the flow —
+  /// a retry, a late entitlement, a reconnect — must not put a loading screen
+  /// back over the top of the dashboard they are already using. It did, and the
+  /// result was a loop: `AuthWrapper` renders the app shell only while the flow
+  /// is settled, so a transient phase unmounted the shell, and the shell's own
+  /// `initState` kicked off the next evaluation. Roughly three round trips a
+  /// second, seen as the dashboard and the splash screen alternating.
+  ///
+  /// A final state can still be replaced by another final state — restoring
+  /// data legitimately turns "confirmed empty" into "restored".
+  void _enterPhase(StartupPhase phase, {String? reason}) {
+    final target = StartupFlowState(
+      phase: phase,
+      reason: reason,
+      account: state.account,
+      startedOfflineByChoice: state.startedOfflineByChoice,
+    );
+    if (state.isFinal && !target.isFinal) return;
+    state = target;
   }
 
   Future<void> _evaluate() async {
@@ -279,11 +334,9 @@ class StartupFlowController extends Notifier<StartupFlowState> {
     // 1. The store must belong to this account before anything reads or writes
     // it. Acting earlier would run onboarding or a restore against whichever
     // file happened to be open — in the worst case the previous account's.
-    state = state.copyWith(phase: StartupPhase.checkingIdentity);
+    _enterPhase(StartupPhase.checkingIdentity);
     if (!await _awaitStoreOwner(userId)) {
-      state = state.copyWith(
-        phase: StartupPhase.unavailable,
-        reason: 'Could not open the local data for this account.',
+      _enterPhase(StartupPhase.unavailable, reason: 'Could not open the local data for this account.',
       );
       return;
     }
@@ -297,10 +350,7 @@ class StartupFlowController extends Notifier<StartupFlowState> {
     await ref.read(accountStoreCoordinatorProvider.notifier).prepareActiveStore();
     final storeError = ref.read(accountStoreCoordinatorProvider).error;
     if (storeError != null) {
-      state = state.copyWith(
-        phase: StartupPhase.unavailable,
-        reason:
-            'We could not finish setting up this account on this device. '
+      _enterPhase(StartupPhase.unavailable, reason: 'We could not finish setting up this account on this device. '
             'Nothing has been deleted.',
       );
       return;
@@ -309,19 +359,16 @@ class StartupFlowController extends Notifier<StartupFlowState> {
     // 3. Local data settles it outright — no server round trip needed.
     if (await _hasLocalWallets(ref)) {
       await _reloadWallets();
-      state = state.copyWith(phase: StartupPhase.restored);
+      _enterPhase(StartupPhase.restored);
       return;
     }
 
     // 4. Ask the server what the account holds. A failure here is "unknown",
     // never "empty".
-    state = state.copyWith(phase: StartupPhase.checkingAccount);
+    _enterPhase(StartupPhase.checkingAccount);
     final account = await ref.read(accountBootstrapServiceProvider).fetch();
     if (account == null) {
-      state = state.copyWith(
-        phase: StartupPhase.unavailable,
-        reason:
-            'We could not check whether this account has data to restore. '
+      _enterPhase(StartupPhase.unavailable, reason: 'We could not check whether this account has data to restore. '
             'Your existing data is safe.',
       );
       return;
@@ -331,7 +378,7 @@ class StartupFlowController extends Notifier<StartupFlowState> {
     if (!account.hasFinancialData) {
       // Positive evidence of an empty account: the only thing that opens the
       // first-wallet path.
-      state = state.copyWith(phase: StartupPhase.confirmedEmpty);
+      _enterPhase(StartupPhase.confirmedEmpty);
       return;
     }
 
@@ -340,48 +387,37 @@ class StartupFlowController extends Notifier<StartupFlowState> {
     // answer is evidence of a new account, and neither may reach onboarding.
     final entitlement = _resolveEntitlement(account);
     if (entitlement == EntitlementStatus.notPremium) {
-      state = state.copyWith(
-        phase: StartupPhase.entitlementRequired,
-        reason:
-            'This account has data saved in the cloud. Restoring it needs an '
+      _enterPhase(StartupPhase.entitlementRequired, reason: 'This account has data saved in the cloud. Restoring it needs an '
             'active subscription. Nothing has been deleted.',
       );
       return;
     }
     if (entitlement == EntitlementStatus.unknown) {
-      state = state.copyWith(
-        phase: StartupPhase.checkingEntitlement,
-        reason:
-            'This account has data in the cloud. We are still confirming your '
+      _enterPhase(StartupPhase.checkingEntitlement, reason: 'This account has data in the cloud. We are still confirming your '
             'subscription so it can be restored.',
       );
       return;
     }
 
     // 6. Restore.
-    state = state.copyWith(phase: StartupPhase.restoring);
+    _enterPhase(StartupPhase.restoring);
     try {
       await ref.read(syncNotifierProvider.notifier).syncAll();
     } catch (e) {
-      state = state.copyWith(
-        phase: StartupPhase.unavailable,
-        reason: 'Restore failed: $e',
+      _enterPhase(StartupPhase.unavailable, reason: 'Restore failed: $e',
       );
       return;
     }
 
     if (await _hasLocalWallets(ref)) {
       await _reloadWallets();
-      state = state.copyWith(phase: StartupPhase.restored);
+      _enterPhase(StartupPhase.restored);
       return;
     }
 
     // The server said there was data and the restore brought none down. That is
     // a contradiction, not an empty account — do not offer to start over.
-    state = state.copyWith(
-      phase: StartupPhase.unavailable,
-      reason:
-          'This account has data in the cloud but it could not be restored yet.',
+    _enterPhase(StartupPhase.unavailable, reason: 'This account has data in the cloud but it could not be restored yet.',
     );
   }
 
