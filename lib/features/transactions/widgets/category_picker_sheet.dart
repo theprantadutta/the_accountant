@@ -16,7 +16,6 @@ import 'package:the_accountant/shared/widgets/shimmer_loading.dart';
 Future<Category?> showCategoryPickerSheet({
   required BuildContext context,
   required WidgetRef ref,
-  required bool isIncome,
   String? selectedCategoryId,
   Color? accentColor,
 }) {
@@ -26,7 +25,6 @@ Future<Category?> showCategoryPickerSheet({
     backgroundColor: Colors.transparent,
     barrierColor: Colors.black.withValues(alpha: 0.3),
     builder: (context) => _CategoryPickerSheet(
-      isIncome: isIncome,
       selectedCategoryId: selectedCategoryId,
       accentColor: accentColor,
     ),
@@ -34,19 +32,7 @@ Future<Category?> showCategoryPickerSheet({
 }
 
 class _CategoryPickerSheet extends ConsumerWidget {
-  const _CategoryPickerSheet({
-    required this.isIncome,
-    this.selectedCategoryId,
-    this.accentColor,
-  });
-
-  /// Which side of the ledger the form is on.
-  ///
-  /// Fixed for the life of the sheet. There used to be an Expense/Income
-  /// toggle in here, which asked the user to state something the form that
-  /// opened it had already established — and let them file a purchase under
-  /// "Salary" if they answered it differently.
-  final bool isIncome;
+  const _CategoryPickerSheet({this.selectedCategoryId, this.accentColor});
 
   final String? selectedCategoryId;
 
@@ -82,11 +68,16 @@ class _CategoryPickerSheet extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final categoryState = ref.watch(categoryProvider);
 
-    // Transfer and Balance Correction are the app's own bookkeeping: it writes
-    // to them when it moves money between wallets or reconciles a balance.
-    // Nothing should be filed under them by hand.
+    // Every category, whichever way the money is going. A category is a label
+    // for what something was — the direction is already recorded on the
+    // transaction, and asking the label to agree with it only ever meant
+    // maintaining two lists and picking from the wrong one.
+    //
+    // Transfer and Balance Correction stay out: those are the app's own
+    // bookkeeping, written when it moves money between wallets or reconciles a
+    // balance, and nothing should be filed under them by hand.
     final categories = categoryState.categories
-        .where((c) => c.isIncome == isIncome && !c.isSystem)
+        .where((c) => !c.isSystem)
         .toList();
 
     return BackdropFilter(
@@ -118,24 +109,12 @@ class _CategoryPickerSheet extends ConsumerWidget {
 
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xxl),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      'Select category',
-                      style: AppTypography.headlineSmall,
-                    ),
-                  ),
-                  // Says which side of the ledger these belong to, without
-                  // offering to change it.
-                  Text(
-                    isIncome ? 'INCOME' : 'EXPENSE',
-                    style: AppTypography.labelSmall.copyWith(
-                      color: isIncome ? AppColors.success : AppColors.error,
-                      letterSpacing: 0.8,
-                    ),
-                  ),
-                ],
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Select category',
+                  style: AppTypography.headlineSmall,
+                ),
               ),
             ),
             AppSpacing.gapLg,

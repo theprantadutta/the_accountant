@@ -465,7 +465,6 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
     final category = await showCategoryPickerSheet(
       context: context,
       ref: ref,
-      isIncome: _isIncome,
       selectedCategoryId: _selectedCategoryId,
       accentColor: _accentColor,
     );

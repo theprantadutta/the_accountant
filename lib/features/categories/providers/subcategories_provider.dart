@@ -38,19 +38,10 @@ final categoriesHierarchyProvider =
       return result;
     });
 
-/// Provider for expense categories with hierarchy
-final expenseCategoriesHierarchyProvider =
-    FutureProvider<List<CategoryWithSubcategories>>((ref) async {
-      final hierarchy = await ref.watch(categoriesHierarchyProvider.future);
-      return hierarchy.where((c) => !c.category.isIncome).toList();
-    });
-
-/// Provider for income categories with hierarchy
-final incomeCategoriesHierarchyProvider =
-    FutureProvider<List<CategoryWithSubcategories>>((ref) async {
-      final hierarchy = await ref.watch(categoriesHierarchyProvider.future);
-      return hierarchy.where((c) => c.category.isIncome).toList();
-    });
+// `expenseCategoriesHierarchyProvider` and `incomeCategoriesHierarchyProvider`
+// used to sit here, splitting the hierarchy by direction. Nothing watched
+// either of them, and categories are now one list regardless of which way the
+// money went.
 
 /// Notifier for managing categories with subcategory support
 class CategoriesNotifier

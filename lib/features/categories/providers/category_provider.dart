@@ -276,25 +276,11 @@ class CategoryNotifier extends StateNotifier<CategoryState> {
     }
   }
 
-  /// @deprecated - Use getIncomeCategories or getExpenseCategories instead
-  List<Category> getCategoriesByType(String type) {
-    return state.categories.where((c) => c.type == type).toList();
-  }
-
-  /// Get all income categories
-  List<Category> getIncomeCategories() {
-    return state.categories.where((c) => c.isIncome).toList();
-  }
-
-  /// Get all expense categories
-  List<Category> getExpenseCategories() {
-    return state.categories.where((c) => !c.isIncome).toList();
-  }
-
-  /// Get categories filtered by isIncome flag
-  List<Category> getCategoriesByIsIncome(bool isIncome) {
-    return state.categories.where((c) => c.isIncome == isIncome).toList();
-  }
+  // The four helpers that used to live here all sliced categories by
+  // direction: getCategoriesByType, getIncomeCategories,
+  // getExpenseCategories, getCategoriesByIsIncome. Nothing called any of them
+  // even before categories were merged into one list, and slicing by direction
+  // is exactly what no longer means anything.
 
   Category? getCategoryById(String id) {
     try {

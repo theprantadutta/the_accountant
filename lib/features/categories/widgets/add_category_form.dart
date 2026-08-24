@@ -22,6 +22,14 @@ class AddCategoryForm extends ConsumerStatefulWidget {
 class _AddCategoryFormState extends ConsumerState<AddCategoryForm> {
   final _nameController = TextEditingController();
   final _focusNode = FocusNode();
+
+  /// Which side of the ledger this category is filed under.
+  ///
+  /// No longer asked for. Categories are one flat list — a category is a label
+  /// for what something was, and whether money came in or went out is recorded
+  /// on the transaction. The field survives because existing rows carry it, the
+  /// schema-13 migration reads it, and it is part of the sync contract; for a
+  /// category the user makes now it means nothing.
   String _selectedType = AppConstants.categoryTypeExpense;
   String _selectedColor = '#FF6B6B';
   String _selectedIcon = 'category';
@@ -137,7 +145,6 @@ class _AddCategoryFormState extends ConsumerState<AddCategoryForm> {
   }
 
   Color get _color => ColorUtils.hexToColor(_selectedColor);
-  bool get _isIncome => _selectedType == AppConstants.categoryTypeIncome;
 
   @override
   Widget build(BuildContext context) {
@@ -214,12 +221,6 @@ class _AddCategoryFormState extends ConsumerState<AddCategoryForm> {
                     _buildSectionLabel('Name'),
                     const SizedBox(height: 10),
                     _buildNameInput(),
-                    const SizedBox(height: 24),
-
-                    // Type selection
-                    _buildSectionLabel('Type'),
-                    const SizedBox(height: 10),
-                    _buildTypeToggle(),
                     const SizedBox(height: 24),
 
                     // Color selection
@@ -299,26 +300,6 @@ class _AddCategoryFormState extends ConsumerState<AddCategoryForm> {
                         : AppColors.textPrimary,
                   ),
                 ),
-                const SizedBox(height: 4),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: (_isIncome ? AppColors.success : AppColors.error)
-                        .withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Text(
-                    _isIncome ? 'Income' : 'Expense',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: _isIncome ? AppColors.success : AppColors.error,
-                    ),
-                  ),
-                ),
               ],
             ),
           ),
@@ -350,72 +331,6 @@ class _AddCategoryFormState extends ConsumerState<AddCategoryForm> {
           horizontal: 18,
           vertical: 16,
         ),
-      ),
-    );
-  }
-
-  Widget _buildTypeToggle() {
-    return Container(
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: GestureDetector(
-              onTap: () {
-                HapticFeedback.lightImpact();
-                setState(
-                  () => _selectedType = AppConstants.categoryTypeExpense,
-                );
-              },
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                decoration: BoxDecoration(
-                  color: !_isIncome ? AppColors.error : Colors.transparent,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Text(
-                  'Expense',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: !_isIncome ? Colors.white : AppColors.textMuted,
-                  ),
-                ),
-              ),
-            ),
-          ),
-          Expanded(
-            child: GestureDetector(
-              onTap: () {
-                HapticFeedback.lightImpact();
-                setState(() => _selectedType = AppConstants.categoryTypeIncome);
-              },
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                decoration: BoxDecoration(
-                  color: _isIncome ? AppColors.success : Colors.transparent,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Text(
-                  'Income',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: _isIncome ? Colors.white : AppColors.textMuted,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }
