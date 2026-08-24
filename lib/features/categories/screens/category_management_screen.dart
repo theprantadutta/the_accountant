@@ -4,8 +4,6 @@ import 'package:the_accountant/features/categories/providers/category_provider.d
     as category_provider;
 import 'package:the_accountant/features/categories/widgets/add_category_form.dart'
     as add_category_form;
-import 'package:the_accountant/features/categories/widgets/add_category_form.dart'
-    show Category;
 import 'package:the_accountant/features/categories/widgets/category_list_item.dart'
     as category_list_item;
 import 'package:the_accountant/shared/widgets/shimmer_loading.dart';
@@ -149,17 +147,7 @@ class CategoryManagementScreen extends ConsumerWidget {
       context: context,
       isScrollControlled: true,
       builder: (BuildContext context) {
-        // Create a new Category object compatible with AddCategoryForm
-        final addCategoryFormCategory = Category(
-          id: category.id,
-          name: category.name,
-          colorCode: category.colorCode,
-          type: category.type,
-          isDefault: category.isDefault,
-        );
-        return add_category_form.AddCategoryForm(
-          category: addCategoryFormCategory,
-        );
+        return add_category_form.AddCategoryForm(category: category);
       },
     );
   }

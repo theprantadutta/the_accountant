@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
+import 'package:the_accountant/core/themes/app_spacing.dart';
+import 'package:the_accountant/core/themes/app_typography.dart';
 import 'package:the_accountant/features/categories/providers/category_provider.dart';
 import 'package:the_accountant/core/constants/app_constants.dart';
 import 'package:the_accountant/core/utils/color_utils.dart';
@@ -13,7 +15,14 @@ import 'package:the_accountant/features/premium/widgets/upgrade_limit_dialog.dar
 class AddCategoryForm extends ConsumerStatefulWidget {
   final Category? category;
 
-  const AddCategoryForm({super.key, this.category});
+  /// The category this new one should start out as part of.
+  ///
+  /// Set when the form is opened from inside a category that already has
+  /// subcategories: someone who has drilled into Food and tapped New is asking
+  /// for another kind of food, not another top-level heading.
+  final String? initialParentId;
+
+  const AddCategoryForm({super.key, this.category, this.initialParentId});
 
   @override
   ConsumerState<AddCategoryForm> createState() => _AddCategoryFormState();
@@ -33,6 +42,14 @@ class _AddCategoryFormState extends ConsumerState<AddCategoryForm> {
   String _selectedType = AppConstants.categoryTypeExpense;
   String _selectedColor = '#FF6B6B';
   String _selectedIcon = 'category';
+
+  /// The category this one sits under, or null when it stands on its own.
+  ///
+  /// One level only: a category that is already part of another cannot itself
+  /// be a parent. Arbitrary depth reads well in a tree and badly everywhere
+  /// else — every total, every budget and every picker would have to decide
+  /// how far down to look, and nothing in this app would agree on the answer.
+  String? _parentId;
 
   static const List<String> _colors = [
     '#FF6B6B', // Red
@@ -78,8 +95,11 @@ class _AddCategoryFormState extends ConsumerState<AddCategoryForm> {
     if (widget.category != null) {
       _nameController.text = widget.category!.name;
       _selectedType = widget.category!.type;
+      _parentId = widget.category!.mainCategoryId;
       _selectedColor = widget.category!.colorCode;
       _selectedIcon = widget.category!.iconName ?? 'category';
+    } else {
+      _parentId = widget.initialParentId;
     }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -116,6 +136,7 @@ class _AddCategoryFormState extends ConsumerState<AddCategoryForm> {
           colorCode: _selectedColor,
           type: _selectedType,
           iconName: _selectedIcon,
+          mainCategoryId: _parentId,
         );
       } else {
         await categoryProviderNotifier.addCategory(
@@ -123,6 +144,7 @@ class _AddCategoryFormState extends ConsumerState<AddCategoryForm> {
           colorCode: _selectedColor,
           type: _selectedType,
           iconName: _selectedIcon,
+          mainCategoryId: _parentId,
         );
       }
 
@@ -221,6 +243,11 @@ class _AddCategoryFormState extends ConsumerState<AddCategoryForm> {
                     _buildSectionLabel('Name'),
                     const SizedBox(height: 10),
                     _buildNameInput(),
+                    const SizedBox(height: 24),
+
+                    _buildSectionLabel('Part of'),
+                    const SizedBox(height: 10),
+                    _buildParentSelector(),
                     const SizedBox(height: 24),
 
                     // Color selection
@@ -330,6 +357,95 @@ class _AddCategoryFormState extends ConsumerState<AddCategoryForm> {
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 18,
           vertical: 16,
+        ),
+      ),
+    );
+  }
+
+  /// Which category this one belongs under, if any.
+  ///
+  /// Only categories that are not themselves part of something are offered, so
+  /// the hierarchy stays one level deep. A category being edited cannot be
+  /// offered its own name either — a category that is part of itself has no
+  /// place in any total.
+  Widget _buildParentSelector() {
+    final all = ref.watch(categoryProvider).categories;
+    final editingId = widget.category?.id;
+    final parents = all
+        .where(
+          (c) => !c.isSystem && c.mainCategoryId == null && c.id != editingId,
+        )
+        .toList();
+
+    // Editing a category that already has children: making it part of something
+    // else would push its children to a third level.
+    final hasChildren =
+        editingId != null && all.any((c) => c.mainCategoryId == editingId);
+
+    if (hasChildren) {
+      return Text(
+        'This category has subcategories of its own, so it stays at the top '
+        'level.',
+        style: AppTypography.bodySmall.copyWith(color: AppColors.textMuted),
+      );
+    }
+
+    return SizedBox(
+      height: 40,
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        children: [
+          _parentChip(
+            label: 'Nothing — its own category',
+            selected: _parentId == null,
+            onTap: () => setState(() => _parentId = null),
+          ),
+          for (final parent in parents)
+            _parentChip(
+              label: parent.name,
+              selected: _parentId == parent.id,
+              onTap: () => setState(() => _parentId = parent.id),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _parentChip({
+    required String label,
+    required bool selected,
+    required VoidCallback onTap,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(right: AppSpacing.sm),
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () {
+          HapticFeedback.selectionClick();
+          onTap();
+        },
+        child: Container(
+          alignment: Alignment.center,
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+          decoration: BoxDecoration(
+            color: selected
+                ? AppColors.primaryAccent.withValues(alpha: 0.15)
+                : AppColors.glassWhite,
+            borderRadius: AppSpacing.borderRadiusFull,
+            border: Border.all(
+              color: selected ? AppColors.primaryAccent : AppColors.glassBorder,
+            ),
+          ),
+          child: Text(
+            label,
+            style: AppTypography.labelMedium.copyWith(
+              letterSpacing: 0.2,
+              fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+              color: selected
+                  ? AppColors.primaryAccent
+                  : AppColors.textSecondary,
+            ),
+          ),
         ),
       ),
     );
@@ -451,21 +567,7 @@ class _AddCategoryFormState extends ConsumerState<AddCategoryForm> {
   }
 }
 
-// Simple Category class for the form
-class Category {
-  final String id;
-  final String name;
-  final String colorCode;
-  final String type;
-  final bool isDefault;
-  final String? iconName;
-
-  Category({
-    required this.id,
-    required this.name,
-    required this.colorCode,
-    required this.type,
-    required this.isDefault,
-    this.iconName,
-  });
-}
+// The form used to declare its own `Category` here, a five-field copy that
+// shadowed the real one inside this file. Callers hand-converted into it and
+// quietly dropped `iconName` on the way, so editing a category reset its icon
+// every time. It uses the provider's category now, like everything else.
