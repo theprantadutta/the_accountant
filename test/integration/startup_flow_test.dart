@@ -205,36 +205,12 @@ void main() {
   });
 
   // ------------------------------------------------------------- scenario 2
-  test('a returning premium user restores and never sees first-wallet', () async {
-    await seedCloudWallet();
-    bootstrap.next = const AccountBootstrap(
-      onboardingCompleted: true,
-      hasFinancialData: true,
-      liveWalletCount: 1,
-    );
-    container = buildContainer(entitlement: EntitlementStatus.premium);
-
-    await container.read(startupFlowProvider.notifier).evaluate();
-
-    final flow = container.read(startupFlowProvider);
-    expect(flow.phase, StartupPhase.restored);
-    expect(
-      flow.mayOfferFirstWallet,
-      isFalse,
-      reason: 'a restored account must never be offered a first wallet',
-    );
-    expect((await db.getAllWallets()), isNotEmpty);
-  });
-
-  // ------------------------------------------------------------- scenario 3
   test(
-    'onboarding_completed = false with cloud data still restores',
+    'a returning premium user restores and never sees first-wallet',
     () async {
-      // The exact production shape: the flag was never backfilled, so an
-      // established account reports the same value a brand-new one does.
       await seedCloudWallet();
       bootstrap.next = const AccountBootstrap(
-        onboardingCompleted: false,
+        onboardingCompleted: true,
         hasFinancialData: true,
         liveWalletCount: 1,
       );
@@ -247,96 +223,132 @@ void main() {
       expect(
         flow.mayOfferFirstWallet,
         isFalse,
-        reason: 'the stale flag must not route an established account to '
-            'onboarding',
+        reason: 'a restored account must never be offered a first wallet',
       );
+      expect((await db.getAllWallets()), isNotEmpty);
     },
   );
 
-  // ------------------------------------------------------------- scenario 4
-  test('an entitlement arriving late triggers a retry in the same controller',
-      () async {
+  // ------------------------------------------------------------- scenario 3
+  test('onboarding_completed = false with cloud data still restores', () async {
+    // The exact production shape: the flag was never backfilled, so an
+    // established account reports the same value a brand-new one does.
     await seedCloudWallet();
-    // The realistic shape: the account has data, and at this moment neither the
-    // device nor the backend can vouch for the subscription — a receipt still
-    // propagating, or a backend that does not report entitlement at all.
     bootstrap.next = const AccountBootstrap(
-      onboardingCompleted: true,
+      onboardingCompleted: false,
       hasFinancialData: true,
       liveWalletCount: 1,
-      describesEntitlement: false,
     );
-
-    // Entitlement not yet established. The old code showed create-first-wallet
-    // here, permanently, after a three-second wait.
-    container = buildContainer();
-    // Keep the controller alive so its listener is actually subscribed — this
-    // is the thing under test.
-    container.listen(startupFlowProvider, (_, _) {}, fireImmediately: true);
-    await container.read(startupFlowProvider.notifier).evaluate();
-
-    expect(
-      container.read(startupFlowProvider).phase,
-      StartupPhase.checkingEntitlement,
-    );
-    expect(
-      container.read(startupFlowProvider).mayOfferFirstWallet,
-      isFalse,
-      reason: 'an unconfirmed entitlement is not evidence of an empty account',
-    );
-
-    // The entitlement lands, well after the old window. No new container and no
-    // manual re-evaluate: the running controller must notice on its own.
-    container.read(entitlementOverride.notifier).state =
-        EntitlementStatus.premium;
-
-    await _settle(container);
-
-    expect(
-      container.read(startupFlowProvider).phase,
-      StartupPhase.restored,
-      reason: 'the listener must have re-run the flow without being asked',
-    );
-  });
-
-  test('a confirmed non-premium account with cloud data is actionable', () async {
-    // The state that used to hang forever: the backend says there is data and
-    // says the subscription is not active. Waiting cannot resolve that, so the
-    // user has to be told and given somewhere to go.
-    bootstrap.next = const AccountBootstrap(
-      onboardingCompleted: true,
-      hasFinancialData: true,
-      liveWalletCount: 4,
-      isPremium: false,
-    );
-    container = buildContainer(entitlement: EntitlementStatus.notPremium);
+    container = buildContainer(entitlement: EntitlementStatus.premium);
 
     await container.read(startupFlowProvider.notifier).evaluate();
 
     final flow = container.read(startupFlowProvider);
-    expect(flow.phase, StartupPhase.entitlementRequired);
-    expect(flow.needsUserAttention, isTrue);
-    expect(flow.needsSubscription, isTrue);
+    expect(flow.phase, StartupPhase.restored);
     expect(
       flow.mayOfferFirstWallet,
       isFalse,
-      reason: 'a lapsed subscription must never lead to starting over',
+      reason:
+          'the stale flag must not route an established account to '
+          'onboarding',
     );
-    expect(flow.reason, contains('subscription'));
   });
 
+  // ------------------------------------------------------------- scenario 4
+  test(
+    'an entitlement arriving late triggers a retry in the same controller',
+    () async {
+      await seedCloudWallet();
+      // The realistic shape: the account has data, and at this moment neither the
+      // device nor the backend can vouch for the subscription — a receipt still
+      // propagating, or a backend that does not report entitlement at all.
+      bootstrap.next = const AccountBootstrap(
+        onboardingCompleted: true,
+        hasFinancialData: true,
+        liveWalletCount: 1,
+        describesEntitlement: false,
+      );
+
+      // Entitlement not yet established. The old code showed create-first-wallet
+      // here, permanently, after a three-second wait.
+      container = buildContainer();
+      // Keep the controller alive so its listener is actually subscribed — this
+      // is the thing under test.
+      container.listen(startupFlowProvider, (_, _) {}, fireImmediately: true);
+      await container.read(startupFlowProvider.notifier).evaluate();
+
+      expect(
+        container.read(startupFlowProvider).phase,
+        StartupPhase.checkingEntitlement,
+      );
+      expect(
+        container.read(startupFlowProvider).mayOfferFirstWallet,
+        isFalse,
+        reason:
+            'an unconfirmed entitlement is not evidence of an empty account',
+      );
+
+      // The entitlement lands, well after the old window. No new container and no
+      // manual re-evaluate: the running controller must notice on its own.
+      container.read(entitlementOverride.notifier).state =
+          EntitlementStatus.premium;
+
+      await _settle(container);
+
+      expect(
+        container.read(startupFlowProvider).phase,
+        StartupPhase.restored,
+        reason: 'the listener must have re-run the flow without being asked',
+      );
+    },
+  );
+
+  test(
+    'a confirmed non-premium account with cloud data is actionable',
+    () async {
+      // The state that used to hang forever: the backend says there is data and
+      // says the subscription is not active. Waiting cannot resolve that, so the
+      // user has to be told and given somewhere to go.
+      bootstrap.next = const AccountBootstrap(
+        onboardingCompleted: true,
+        hasFinancialData: true,
+        liveWalletCount: 4,
+        isPremium: false,
+      );
+      container = buildContainer(entitlement: EntitlementStatus.notPremium);
+
+      await container.read(startupFlowProvider.notifier).evaluate();
+
+      final flow = container.read(startupFlowProvider);
+      expect(flow.phase, StartupPhase.entitlementRequired);
+      expect(flow.needsUserAttention, isTrue);
+      expect(flow.needsSubscription, isTrue);
+      expect(
+        flow.mayOfferFirstWallet,
+        isFalse,
+        reason: 'a lapsed subscription must never lead to starting over',
+      );
+      expect(flow.reason, contains('subscription'));
+    },
+  );
+
   test('an unknown entitlement is never mistaken for a lapsed one', () async {
-    // The server could not be reached at all, so nothing is confirmed. This has
-    // to stay retryable rather than becoming an upgrade prompt.
+    // The server could not be reached at all, so nothing is confirmed. Being
+    // unreachable must never turn into "your subscription has lapsed" — that
+    // accuses the user of something the app has no evidence for.
     bootstrap.next = null;
     container = buildContainer();
 
     await container.read(startupFlowProvider.notifier).evaluate();
 
     final flow = container.read(startupFlowProvider);
-    expect(flow.phase, StartupPhase.unavailable);
+    expect(flow.phase, StartupPhase.offline);
     expect(flow.needsSubscription, isFalse);
-    expect(flow.needsUserAttention, isTrue);
+    expect(
+      flow.isFinal,
+      isFalse,
+      reason: 'nothing was confirmed, so a later check must still be able to',
+    );
   });
 
   test('the backend confirming premium is enough on its own', () async {
@@ -357,18 +369,23 @@ void main() {
   });
 
   // ------------------------------------------------------------- scenario 5
-  test('an unreachable server produces recovery, not onboarding', () async {
+  test('an unreachable server is never reported as an empty account', () async {
+    // The app is usable offline, so this no longer stops and asks. What it must
+    // still not do is claim to know something: `confirmedEmpty` is positive
+    // evidence that the account holds nothing, and an unanswered request is not
+    // evidence of anything.
     bootstrap.next = null; // request failed / offline
     container = buildContainer(entitlement: EntitlementStatus.premium);
 
     await container.read(startupFlowProvider.notifier).evaluate();
 
     final flow = container.read(startupFlowProvider);
-    expect(flow.phase, StartupPhase.unavailable);
+    expect(flow.phase, StartupPhase.offline);
+    expect(flow.phase, isNot(StartupPhase.confirmedEmpty));
     expect(
-      flow.mayOfferFirstWallet,
-      isFalse,
-      reason: 'unknown account state must never open the first-wallet path',
+      flow.account,
+      isNull,
+      reason: 'nothing came back, so nothing may be recorded as having',
     );
     expect(flow.reason, isNotNull);
   });
@@ -377,7 +394,7 @@ void main() {
     bootstrap.next = null;
     container = buildContainer();
     await container.read(startupFlowProvider.notifier).evaluate();
-    expect(container.read(startupFlowProvider).phase, StartupPhase.unavailable);
+    expect(container.read(startupFlowProvider).phase, StartupPhase.offline);
 
     bootstrap.next = const AccountBootstrap(
       onboardingCompleted: false,
@@ -392,12 +409,29 @@ void main() {
     );
   });
 
-  test('starting offline is an explicit choice, not a timeout', () async {
+  test('working offline needs no permission from the user', () async {
+    // This used to require an explicit tap before the app would let anyone in
+    // without a server. Offline is not an exceptional mode to be opted into —
+    // the records live on the device, and a phone with no signal is an ordinary
+    // way to use this.
     bootstrap.next = null;
     container = buildContainer();
     await container.read(startupFlowProvider.notifier).evaluate();
 
-    expect(container.read(startupFlowProvider).mayOfferFirstWallet, isFalse);
+    final flow = container.read(startupFlowProvider);
+    expect(flow.mayOfferFirstWallet, isTrue);
+    expect(
+      flow.startedOfflineByChoice,
+      isFalse,
+      reason: 'nobody had to choose it, so nothing should say they did',
+    );
+  });
+
+  test('choosing to start offline still works', () async {
+    // The explicit path is still there for the states that do stop and ask.
+    bootstrap.next = null;
+    container = buildContainer();
+    await container.read(startupFlowProvider.notifier).evaluate();
 
     container.read(startupFlowProvider.notifier).startOfflineAnyway();
 
@@ -499,7 +533,8 @@ void main() {
       expect(
         bootstrap.calls,
         0,
-        reason: 'the account is not worth asking about until its store is ready',
+        reason:
+            'the account is not worth asking about until its store is ready',
       );
     });
 
@@ -513,7 +548,10 @@ void main() {
       db.failPreparationOnce = true;
 
       await container.read(startupFlowProvider.notifier).evaluate();
-      expect(container.read(startupFlowProvider).phase, StartupPhase.unavailable);
+      expect(
+        container.read(startupFlowProvider).phase,
+        StartupPhase.unavailable,
+      );
 
       // Exactly what the recovery screen's button does.
       await container.read(startupFlowProvider.notifier).retry();
@@ -535,35 +573,38 @@ void main() {
     // final meant a trigger that landed mid-lookup was thrown away, and the user
     // sat on a recovery screen that had already stopped trying.
 
-    test('a trigger arriving during a failing lookup runs a second lookup',
-        () async {
-      // First lookup fails; the second — prompted by the queued trigger — works.
-      bootstrap.next = null;
-      bootstrap.onCall = (calls) {
-        if (calls == 1) {
-          // Arrives while the first lookup is still in flight.
-          container.read(startupFlowProvider.notifier).evaluate();
-          bootstrap.next = const AccountBootstrap(
-            onboardingCompleted: false,
-            hasFinancialData: false,
-            liveWalletCount: 0,
-          );
-        }
-      };
-      container = buildContainer();
+    test(
+      'a trigger arriving during a failing lookup runs a second lookup',
+      () async {
+        // First lookup fails; the second — prompted by the queued trigger — works.
+        bootstrap.next = null;
+        bootstrap.onCall = (calls) {
+          if (calls == 1) {
+            // Arrives while the first lookup is still in flight.
+            container.read(startupFlowProvider.notifier).evaluate();
+            bootstrap.next = const AccountBootstrap(
+              onboardingCompleted: false,
+              hasFinancialData: false,
+              liveWalletCount: 0,
+            );
+          }
+        };
+        container = buildContainer();
 
-      await container.read(startupFlowProvider.notifier).evaluate();
+        await container.read(startupFlowProvider.notifier).evaluate();
 
-      expect(
-        bootstrap.calls,
-        2,
-        reason: 'the queued retry must not be discarded by an unavailable result',
-      );
-      expect(
-        container.read(startupFlowProvider).phase,
-        StartupPhase.confirmedEmpty,
-      );
-    });
+        expect(
+          bootstrap.calls,
+          2,
+          reason:
+              'the queued retry must not be discarded by an unavailable result',
+        );
+        expect(
+          container.read(startupFlowProvider).phase,
+          StartupPhase.confirmedEmpty,
+        );
+      },
+    );
 
     test('a final state stops the loop', () async {
       // The mirror image: once the answer is real, a queued trigger must not
@@ -580,8 +621,10 @@ void main() {
 
       await container.read(startupFlowProvider.notifier).evaluate();
 
-      expect(container.read(startupFlowProvider).phase,
-          StartupPhase.confirmedEmpty);
+      expect(
+        container.read(startupFlowProvider).phase,
+        StartupPhase.confirmedEmpty,
+      );
       expect(bootstrap.calls, 1);
     });
   });
@@ -623,7 +666,6 @@ void main() {
       );
     });
   });
-
 
   group('startup never blocks the widget tree or hangs', () {
     // Both symptoms of the same defect. A listener registered in the
@@ -669,7 +711,8 @@ void main() {
       expect(
         c.read(startupFlowProvider).phase,
         StartupPhase.confirmedEmpty,
-        reason: 'the flow must reach the RIGHT answer. Without the deferral it '
+        reason:
+            'the flow must reach the RIGHT answer. Without the deferral it '
             'still lands somewhere — the fail-safe catches the assertion and '
             'reports `unavailable` — so only the correct terminal state '
             'distinguishes a working startup from a rescued one',
@@ -693,7 +736,8 @@ void main() {
       expect(
         flow.phase,
         StartupPhase.unavailable,
-        reason: 'an unhandled failure must not leave the app on a splash '
+        reason:
+            'an unhandled failure must not leave the app on a splash '
             'screen with nothing to press',
       );
       expect(flow.needsUserAttention, isTrue);
@@ -712,7 +756,10 @@ void main() {
       container = buildContainer();
 
       await container.read(startupFlowProvider.notifier).evaluate();
-      expect(container.read(startupFlowProvider).phase, StartupPhase.unavailable);
+      expect(
+        container.read(startupFlowProvider).phase,
+        StartupPhase.unavailable,
+      );
 
       await container.read(startupFlowProvider.notifier).retry();
 
@@ -723,7 +770,6 @@ void main() {
       );
     });
   });
-
 
   group('a settled flow is never sent back to a loading screen', () {
     // The loop this prevents: `AuthWrapper` only renders the app shell while the
@@ -757,7 +803,8 @@ void main() {
       expect(
         seen.where((p) => p != StartupPhase.restored),
         isEmpty,
-        reason: 'every non-settled emission here unmounts the app shell, and '
+        reason:
+            'every non-settled emission here unmounts the app shell, and '
             'remounting it starts another evaluation: $seen',
       );
       expect(container.read(startupFlowProvider).phase, StartupPhase.restored);
@@ -782,7 +829,8 @@ void main() {
       expect(
         container.read(startupFlowProvider).phase,
         StartupPhase.restored,
-        reason: 'a failed background re-check must not throw the user out of '
+        reason:
+            'a failed background re-check must not throw the user out of '
             'an app they are already using',
       );
     });
@@ -809,4 +857,95 @@ void main() {
     });
   });
 
+  group('offline is a normal way to use the app', () {
+    test('an unreachable account does not hold the app hostage', () async {
+      // Everything here is recorded on the device first; the network carries it
+      // to other devices, it is not what makes the app work. Someone with no
+      // signal owns their records as much as anyone else, and a server being
+      // down — or a laptop running the dev backend being shut — must not lock
+      // them out.
+      bootstrap = _ScriptedBootstrap(null); // the fetch fails
+      container = buildContainer();
+
+      await container.read(startupFlowProvider.notifier).evaluate();
+      final state = container.read(startupFlowProvider);
+
+      expect(state.phase, StartupPhase.offline);
+      expect(
+        state.needsUserAttention,
+        isFalse,
+        reason: 'there is nothing for the user to decide here',
+      );
+      expect(
+        state.isSettled,
+        isTrue,
+        reason: 'the app can be shown; it is not still deciding',
+      );
+      expect(
+        state.mayOfferFirstWallet,
+        isTrue,
+        reason: 'a first wallet is how someone starts using it offline',
+      );
+    });
+
+    test('being offline is not mistaken for a settled answer', () async {
+      // The account question was deferred, not answered. A later check that
+      // does reach the server has to be able to improve on it.
+      bootstrap = _ScriptedBootstrap(null);
+      container = buildContainer();
+
+      await container.read(startupFlowProvider.notifier).evaluate();
+      expect(container.read(startupFlowProvider).phase, StartupPhase.offline);
+      expect(
+        container.read(startupFlowProvider).isFinal,
+        isFalse,
+        reason: 'final would mean no later answer could replace it',
+      );
+    });
+
+    test('local data settles it without asking the server at all', () async {
+      // The common case for a returning user with no signal: the answer is
+      // already on the device, so nothing should be waiting on a network call.
+      await seedWallet(db, name: 'Everyday');
+      bootstrap = _ScriptedBootstrap(null);
+      container = buildContainer();
+
+      await container.read(startupFlowProvider.notifier).evaluate();
+
+      expect(container.read(startupFlowProvider).phase, StartupPhase.restored);
+      expect(
+        bootstrap.calls,
+        0,
+        reason: 'the server was never needed, so it was never asked',
+      );
+    });
+
+    test('reaching the server later still restores what is up there', () async {
+      // Offline first, then a successful check finds cloud data.
+      bootstrap = _ScriptedBootstrap(null);
+      container = buildContainer(entitlement: EntitlementStatus.premium);
+
+      await container.read(startupFlowProvider.notifier).evaluate();
+      expect(container.read(startupFlowProvider).phase, StartupPhase.offline);
+
+      // The network comes back and the account turns out to hold data.
+      await seedCloudWallet();
+      bootstrap.next = const AccountBootstrap(
+        onboardingCompleted: true,
+        hasFinancialData: true,
+        liveWalletCount: 1,
+        isPremium: true,
+        subscriptionTier: 'premium',
+        describesEntitlement: true,
+      );
+
+      await container.read(startupFlowProvider.notifier).evaluate();
+
+      expect(
+        container.read(startupFlowProvider).phase,
+        StartupPhase.restored,
+        reason: 'offline was a deferral, not a verdict',
+      );
+    });
+  });
 }

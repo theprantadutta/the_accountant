@@ -51,6 +51,17 @@ enum StartupPhase {
 
   /// State could not be established. Offer retry; never assume "new user".
   unavailable,
+
+  /// The account could not be reached, and the app carried on anyway.
+  ///
+  /// Distinct from [unavailable], which stops and asks. This app is usable
+  /// without a network by design — everything is recorded locally first — so a
+  /// server that cannot be reached is a fact about the network, not a reason to
+  /// withhold the app from someone who owns the data on the device.
+  ///
+  /// Not final: a later check that does reach the server can still find cloud
+  /// data and restore it.
+  offline,
 }
 
 @immutable
@@ -93,10 +104,13 @@ class StartupFlowState {
   /// narrow: nothing but a confirmed-empty account, or the user's own warned
   /// decision to start offline, opens that door.
   bool get mayOfferFirstWallet =>
-      phase == StartupPhase.confirmedEmpty || startedOfflineByChoice;
+      phase == StartupPhase.confirmedEmpty ||
+      phase == StartupPhase.offline ||
+      startedOfflineByChoice;
 
   bool get isSettled =>
       phase == StartupPhase.restored ||
+      phase == StartupPhase.offline ||
       phase == StartupPhase.confirmedEmpty ||
       phase == StartupPhase.unavailable;
 
@@ -374,15 +388,26 @@ class StartupFlowController extends Notifier<StartupFlowState> {
     }
 
     // 4. Ask the server what the account holds. A failure here is "unknown",
-    // never "empty".
+    // never "empty" — but unknown is not a reason to withhold the app.
+    //
+    // Everything this app does is recorded on the device first; the network is
+    // how data reaches other devices, not how it is used. Someone on a plane,
+    // or on a phone with no signal, owns the app as much as anyone else. This
+    // used to stop and ask, which meant a server being down — or a laptop
+    // running the dev backend being closed — locked the user out of their own
+    // records entirely.
+    //
+    // The question is not abandoned, only deferred: `offline` is not a final
+    // phase, so a later check that does reach the server can still find cloud
+    // data and restore it.
     _enterPhase(StartupPhase.checkingAccount);
     final account = await ref.read(accountBootstrapServiceProvider).fetch();
     if (account == null) {
       _enterPhase(
-        StartupPhase.unavailable,
+        StartupPhase.offline,
         reason:
-            'We could not check whether this account has data to restore. '
-            'Your existing data is safe.',
+            'We could not reach your account, so this device is working on '
+            'its own for now. Anything recorded here syncs when it can.',
       );
       return;
     }
