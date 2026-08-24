@@ -164,7 +164,25 @@ class AppDatabase extends _$AppDatabase {
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
-    onCreate: (m) => m.createAll(),
+    onCreate: (m) async {
+      // Create what is missing, rather than assuming nothing is there.
+      //
+      // A store can already hold every table and index while still reporting
+      // version 0: building the schema and stamping the version are two steps,
+      // and anything that interrupts the gap between them — a second isolate
+      // taking the write lock, the process being killed — leaves exactly that.
+      //
+      // `createAll` on such a store reaches the first index that already exists
+      // and throws, so the open fails. Drift then runs `onCreate` again on the
+      // next open, and fails again, for ever: the version is never stamped, so
+      // nothing ever moves it out of that state. The only escape was clearing
+      // app data, which costs the user anything that had not yet synced.
+      final existing = await _existingSchemaNames();
+      for (final entity in allSchemaEntities) {
+        if (existing.contains(entity.entityName)) continue;
+        await m.create(entity);
+      }
+    },
     onUpgrade: (m, from, to) async {
       if (from < 10) {
         // Fix credit/debt isIncome values and recalculate wallet balances
@@ -440,6 +458,19 @@ class AppDatabase extends _$AppDatabase {
   // follows it still runs. Skipping the whole migration because its column
   // exists would be the same bug wearing a different hat: the column would be
   // there and the backfill that gives it meaning would not.
+
+  /// Names of everything already in this database's schema.
+  ///
+  /// Read once and compared in memory: `onCreate` runs before the database is
+  /// usable for ordinary queries, and asking about each entity in turn would be
+  /// a round trip apiece at the least convenient moment.
+  Future<Set<String>> _existingSchemaNames() async {
+    final rows = await customSelect(
+      "SELECT name FROM sqlite_master "
+      "WHERE type IN ('table', 'index', 'view', 'trigger')",
+    ).get();
+    return rows.map((row) => row.read<String>('name')).toSet();
+  }
 
   Future<bool> _tableExists(String name) async {
     final rows = await customSelect(

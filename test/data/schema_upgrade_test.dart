@@ -682,4 +682,82 @@ void main() {
       reason: 'an untouched row should not be queued for a pointless push',
     );
   });
+
+  test('a store with the whole schema but no version still opens', () async {
+    // Exactly the state a device was found in: every table and index present,
+    // `user_version` still 0. Building the schema and stamping the version are
+    // two steps, and something interrupted the gap — most likely a second
+    // isolate taking the write lock while the first was still creating.
+    //
+    // Drift reads version 0 and runs onCreate, which used to call `createAll`
+    // and throw on the first index that already existed. The version was
+    // therefore never stamped, so the next open did the same thing, for ever.
+    // The app could not start and the only way out was clearing app data.
+    final file = File('${tempDir.path}/schema_without_version.sqlite');
+
+    final built = AppDatabase(NativeDatabase(file));
+    await built.customSelect('SELECT 1').get(); // force create
+    await built.close();
+
+    // Roll the version back to what an interrupted creation leaves behind,
+    // without touching any of the objects it created.
+    final wedged = AppDatabase(NativeDatabase(file));
+    await wedged.customStatement('PRAGMA user_version = 0');
+    await wedged.close();
+
+    final reopened = AppDatabase(NativeDatabase(file));
+    addTearDown(reopened.close);
+
+    // The open itself is the assertion: this used to throw
+    // "index idx_categories_default_key already exists".
+    await expectFullyUpgraded(reopened);
+
+    // And the schema is intact rather than half rebuilt.
+    final indexes = await reopened
+        .customSelect(
+          "SELECT name FROM sqlite_master WHERE type = 'index' "
+          "AND name LIKE 'idx_%' ORDER BY name",
+        )
+        .get();
+    expect(
+      indexes.map((r) => r.read<String>('name')),
+      containsAll(<String>[
+        'idx_categories_default_key',
+        'idx_transactions_occurrence_key',
+        'idx_transactions_paired',
+      ]),
+    );
+  });
+
+  test('a store missing only some objects has the rest filled in', () async {
+    // The other half of an interrupted creation: some objects exist, some do
+    // not. Skipping creation wholesale would leave the gaps for ever.
+    final file = File('${tempDir.path}/partial_schema.sqlite');
+
+    final built = AppDatabase(NativeDatabase(file));
+    await built.customSelect('SELECT 1').get();
+    await built.close();
+
+    final wedged = AppDatabase(NativeDatabase(file));
+    await wedged.customStatement('DROP INDEX idx_transactions_paired');
+    await wedged.customStatement('DROP TABLE local_id_repairs');
+    await wedged.customStatement('PRAGMA user_version = 0');
+    await wedged.close();
+
+    final reopened = AppDatabase(NativeDatabase(file));
+    addTearDown(reopened.close);
+    await expectFullyUpgraded(reopened);
+
+    final restored = await reopened
+        .customSelect(
+          "SELECT name FROM sqlite_master WHERE name IN "
+          "('idx_transactions_paired', 'local_id_repairs')",
+        )
+        .get();
+    expect(
+      restored.map((r) => r.read<String>('name')),
+      containsAll(<String>['idx_transactions_paired', 'local_id_repairs']),
+      reason: 'what was missing should have been created',
+    );
+  });
 }
