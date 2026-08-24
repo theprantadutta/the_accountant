@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:drift/drift.dart';
 import 'package:uuid/uuid.dart';
 import 'package:the_accountant/core/domain/default_categories.dart';
+import 'package:the_accountant/core/domain/transaction_policy.dart';
 import 'package:the_accountant/data/models/category.dart';
 import 'package:the_accountant/data/models/transaction.dart';
 import 'package:the_accountant/data/models/wallet.dart';
@@ -74,6 +75,25 @@ class SyncStatus {
       'CASE WHEN sync_status = $pendingCreate THEN $pendingCreate '
       'WHEN sync_status = $pendingDelete THEN $pendingDelete '
       'ELSE $pendingUpdate END';
+}
+
+/// One title the user has used before, and how it was filed.
+class TitleUsage {
+  const TitleUsage({
+    required this.title,
+    required this.useCount,
+    required this.categoryId,
+  });
+
+  final String title;
+
+  /// How many live transactions carry this title. Drives the ordering: the
+  /// thing typed every week should be the first thing offered.
+  final int useCount;
+
+  /// The category the most recent transaction with this title was filed under,
+  /// or null if none of them had one.
+  final String? categoryId;
 }
 
 /// Identifiers for the system-managed categories.
@@ -2404,6 +2424,74 @@ class AppDatabase extends _$AppDatabase {
   // ============================================================
   // Associated Title DAO methods (Smart Categorization)
   // ============================================================
+  /// Past titles matching [query], most-used first, with the category each was
+  /// last filed under.
+  ///
+  /// Searched in the database rather than over a cached list, because the point
+  /// of the feature is to reach something typed months ago. Holding the last
+  /// twenty titles in memory and filtering those would answer for the handful a
+  /// user repeats constantly and silently fail for everything else — which is
+  /// the same as not having it, only harder to notice.
+  ///
+  /// Transfers and transfer fees are excluded: both are titled by the app, and
+  /// offering "Transfer" would file an ordinary purchase under the category the
+  /// app keeps for its own bookkeeping.
+  Future<List<TitleUsage>> searchTitleUsages(
+    String query, {
+    int limit = 8,
+  }) async {
+    final trimmed = query.trim();
+    if (trimmed.isEmpty) return const [];
+
+    // LIKE treats these as wildcards, so a user typing one would otherwise get
+    // matches they did not ask for.
+    final escaped = trimmed
+        .toLowerCase()
+        .replaceAll('\\', '\\\\')
+        .replaceAll('%', '\\%')
+        .replaceAll('_', '\\_');
+
+    final rows = await customSelect(
+      r'''
+      SELECT t.title AS title,
+             COUNT(*) AS use_count,
+             MAX(t.date) AS last_used,
+             (SELECT t2.category_id
+                FROM transactions t2
+               WHERE LOWER(t2.title) = LOWER(t.title)
+                 AND t2.deleted_at IS NULL
+                 AND t2.category_id IS NOT NULL
+               ORDER BY t2.date DESC
+               LIMIT 1) AS category_id
+        FROM transactions t
+       WHERE t.deleted_at IS NULL
+         AND TRIM(t.title) <> ''
+         AND t.transaction_type <> ?
+         AND t.fee_for_transaction_id IS NULL
+         AND LOWER(t.title) LIKE ? ESCAPE '\'
+       GROUP BY LOWER(t.title)
+       ORDER BY use_count DESC, last_used DESC
+       LIMIT ?
+      ''',
+      variables: [
+        Variable<String>(TransactionPolicy.transferType),
+        Variable<String>('%$escaped%'),
+        Variable<int>(limit),
+      ],
+      readsFrom: {transactions},
+    ).get();
+
+    return rows
+        .map(
+          (row) => TitleUsage(
+            title: row.read<String>('title'),
+            useCount: row.read<int>('use_count'),
+            categoryId: row.readNullable<String>('category_id'),
+          ),
+        )
+        .toList();
+  }
+
   Future<List<AssociatedTitle>> getAllAssociatedTitles() =>
       select(associatedTitles).get();
 

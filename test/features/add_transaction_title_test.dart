@@ -189,4 +189,108 @@ void main() {
     );
     expect(find.text('Transfer'), findsWidgets);
   });
+
+  group('suggestions from what has been typed before', () {
+    /// What the suggestion list is showing, as opposed to what the field holds.
+    Finder suggested(String text) => find.descendant(
+      of: find.byKey(const ValueKey('title-suggestions')),
+      matching: find.text(text),
+    );
+
+    /// A transaction already in the history, with a category on it.
+    Future<void> seedHistory(String title, String categoryName) async {
+      final walletId = await seedWallet(db, name: 'Everyday');
+      final categoryId = await seedCategory(db, name: categoryName);
+      await seedTransaction(
+        db,
+        walletId: walletId,
+        categoryId: categoryId,
+        title: title,
+        amount: 250,
+      );
+    }
+
+    testWidgets('typing part of a past title offers it back', (tester) async {
+      await seedHistory('Went to office', 'Transportation');
+      await pump(tester);
+
+      await tester.enterText(
+        find.widgetWithText(TextField, 'What was it for?'),
+        'went',
+      );
+      await tester.pumpAndSettle();
+
+      expect(suggested('Went to office'), findsOneWidget);
+      expect(
+        suggested('Transportation'),
+        findsOneWidget,
+        reason: 'the category is half of what tapping this does, so it shows',
+      );
+    });
+
+    testWidgets('tapping one fills in the title and the category', (
+      tester,
+    ) async {
+      await seedHistory('Went to office', 'Transportation');
+      await pump(tester);
+
+      await tester.enterText(
+        find.widgetWithText(TextField, 'What was it for?'),
+        'went',
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(suggested('Went to office'));
+      await tester.pumpAndSettle();
+
+      // The title is in the field...
+      final field = tester.widget<TextField>(find.byType(TextField).first);
+      expect(field.controller?.text, 'Went to office');
+
+      // ...and the category came with it, which is the point: the form is now
+      // one figure away from being saveable, without the user choosing a
+      // category at all.
+      expect(
+        find.text('Transportation'),
+        findsWidgets,
+        reason: 'the category chip in the hero should now name it',
+      );
+    });
+
+    testWidgets('nothing is offered for a title with no history', (
+      tester,
+    ) async {
+      await seedHistory('Went to office', 'Transportation');
+      await pump(tester);
+
+      await tester.enterText(
+        find.widgetWithText(TextField, 'What was it for?'),
+        'zzz',
+      );
+      await tester.pumpAndSettle();
+
+      expect(suggested('Went to office'), findsNothing);
+    });
+
+    testWidgets('a title typed out in full stops suggesting itself', (
+      tester,
+    ) async {
+      // Once the words are all there the suggestion has nothing left to save,
+      // and a row that does nothing is a row in the way.
+      await seedHistory('Went to office', 'Transportation');
+      await pump(tester);
+
+      await tester.enterText(
+        find.widgetWithText(TextField, 'What was it for?'),
+        'Went to office',
+      );
+      await tester.pumpAndSettle();
+
+      expect(
+        suggested('Went to office'),
+        findsNothing,
+        reason: 'the words are already in the field; there is nothing to save',
+      );
+    });
+  });
 }

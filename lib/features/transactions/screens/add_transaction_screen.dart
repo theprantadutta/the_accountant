@@ -13,13 +13,14 @@ import 'package:the_accountant/features/premium/providers/premium_provider.dart'
 import 'package:the_accountant/shared/widgets/neo_button.dart';
 import 'package:the_accountant/shared/widgets/neo_text_field.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart'
-    show Wallet, Transaction;
+    show Wallet, Transaction, TitleUsage;
 import 'package:the_accountant/data/models/transaction.dart'
     show TransactionSpecialType;
 import 'package:the_accountant/features/categories/providers/category_provider.dart';
 import 'package:the_accountant/features/settings/providers/settings_provider.dart';
 import 'package:the_accountant/features/transactions/providers/transaction_provider.dart'
     hide Transaction;
+import 'package:the_accountant/features/transactions/providers/title_usage_provider.dart';
 import 'package:the_accountant/features/transactions/providers/transfer_provider.dart';
 import 'package:the_accountant/features/transactions/widgets/calculator_bottom_sheet.dart';
 import 'package:the_accountant/features/transactions/widgets/category_picker_sheet.dart';
@@ -154,6 +155,13 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
 
   bool _showFeeFields = false;
 
+  /// Anchors the suggestion list so it can be scrolled into view.
+  final GlobalKey _suggestionsKey = GlobalKey();
+
+  /// The query the list was last scrolled for, so it is not re-scrolled on
+  /// every rebuild — only when what is being offered actually changes.
+  String? _scrolledSuggestionsFor;
+
   bool get _canSave {
     if (_isTransfer) {
       // No title needed. A transfer already says what it is — the two accounts
@@ -179,6 +187,9 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
     _titleController = TextEditingController();
     _notesController = TextEditingController();
     _titleFocusNode = FocusNode();
+    // Suggestions are shown only while the field is focused, so the screen has
+    // to hear about focus changing.
+    _titleFocusNode.addListener(_onTitleFocusChanged);
 
     if (_isEditing) {
       _initFromExisting();
@@ -461,6 +472,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
   void dispose() {
     _titleController.dispose();
     _notesController.dispose();
+    _titleFocusNode.removeListener(_onTitleFocusChanged);
     _titleFocusNode.dispose();
     super.dispose();
   }
@@ -938,6 +950,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
 
                   // Title input
                   _buildTitleInput(),
+                  _buildTitleSuggestions(),
                   AppSpacing.gapMd,
 
                   // Notes input
@@ -1820,6 +1833,45 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
     }
   }
 
+  void _onTitleFocusChanged() {
+    if (mounted) setState(() {});
+  }
+
+  /// Fill in a whole transaction's worth of decisions from one tap.
+  ///
+  /// A title the user has used before was filed under something last time, and
+  /// almost always belongs there again — which is the entire point of offering
+  /// it. Taking the title without the category would leave the slower half of
+  /// the job undone.
+  void _applyTitleSuggestion(TitleUsage suggestion) {
+    HapticFeedback.selectionClick();
+
+    final category = ref
+        .read(categoryProvider)
+        .categories
+        .where((c) => c.id == suggestion.categoryId)
+        .firstOrNull;
+
+    setState(() {
+      _titleController.text = suggestion.title;
+      _titleController.selection = TextSelection.fromPosition(
+        TextPosition(offset: suggestion.title.length),
+      );
+      if (category != null) {
+        _selectedCategoryId = category.id;
+        _selectedCategory = category;
+      }
+    });
+
+    // Title and category are both settled, so the only thing left is the
+    // figure — which is where the guided flow would have arrived anyway, two
+    // taps later.
+    _titleFocusNode.unfocus();
+    if (!_isTransfer && _amount == 0) {
+      _showCalculator();
+    }
+  }
+
   Widget _buildTitleInput() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -1842,6 +1894,84 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
             _showCalculator();
           }
         },
+      ),
+    );
+  }
+
+  /// Titles this user has entered before, offered while they type a new one.
+  ///
+  /// Sits under the field rather than floating over it: an overlay here would
+  /// have to be positioned against a form that scrolls and resizes with the
+  /// keyboard, and would cover the fields underneath while doing it.
+  Widget _buildTitleSuggestions() {
+    if (_isTransfer) return const SizedBox.shrink();
+    if (!_titleFocusNode.hasFocus) return const SizedBox.shrink();
+
+    final query = _titleController.text.trim();
+    if (query.isEmpty) {
+      _scrolledSuggestionsFor = null;
+      return const SizedBox.shrink();
+    }
+
+    final matches = ref.watch(titleUsageSearchProvider(query)).asData?.value;
+    if (matches == null || matches.isEmpty) return const SizedBox.shrink();
+
+    // Typing the whole thing out is not worth interrupting: if the only match
+    // is what has already been typed, there is nothing left to suggest.
+    final useful = matches
+        .where((m) => m.title.toLowerCase() != query.toLowerCase())
+        .toList();
+    if (useful.isEmpty) return const SizedBox.shrink();
+
+    final categories = ref.watch(categoryProvider).categories;
+
+    // The field is focused, so the keyboard is up and there is very little form
+    // left visible below it — enough that the suggestions land just off the
+    // bottom edge and look like a rendering fault. Bring them into view once
+    // per set of results.
+    if (_scrolledSuggestionsFor != query) {
+      _scrolledSuggestionsFor = query;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final anchor = _suggestionsKey.currentContext;
+        if (anchor == null || !mounted) return;
+        Scrollable.ensureVisible(
+          anchor,
+          duration: AppAnimations.fast,
+          curve: AppAnimations.easeOut,
+          alignment: 1.0,
+        );
+      });
+    }
+
+    return Padding(
+      key: _suggestionsKey,
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.lg,
+        AppSpacing.sm,
+        AppSpacing.lg,
+        0,
+      ),
+      child: Container(
+        // Named so a test can ask what is being suggested without also matching
+        // the text sitting in the field above it.
+        key: const ValueKey('title-suggestions'),
+        decoration: BoxDecoration(
+          color: AppColors.glassWhite,
+          borderRadius: AppSpacing.borderRadiusLg,
+          border: Border.all(color: AppColors.glassBorder),
+        ),
+        child: Column(
+          children: [
+            for (final suggestion in useful.take(4))
+              _TitleSuggestionRow(
+                suggestion: suggestion,
+                category: categories
+                    .where((c) => c.id == suggestion.categoryId)
+                    .firstOrNull,
+                onTap: () => _applyTitleSuggestion(suggestion),
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -1880,6 +2010,86 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
           trailingIcon: _isTransfer
               ? Icons.swap_horiz_rounded
               : Icons.check_rounded,
+        ),
+      ),
+    );
+  }
+}
+
+/// One previously-used title, with the category it carries.
+///
+/// Shows the category because the category is half of what tapping this does:
+/// a row that only promised the words would be a worse trade than typing them.
+class _TitleSuggestionRow extends StatelessWidget {
+  const _TitleSuggestionRow({
+    required this.suggestion,
+    required this.category,
+    required this.onTap,
+  });
+
+  final TitleUsage suggestion;
+  final Category? category;
+  final VoidCallback onTap;
+
+  Color get _tint {
+    final code = category?.colorCode;
+    if (code == null || !code.startsWith('#')) return AppColors.primaryAccent;
+    try {
+      return Color(int.parse(code.substring(1), radix: 16) | 0xFF000000);
+    } catch (_) {
+      return AppColors.primaryAccent;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: AppSpacing.borderRadiusLg,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.md,
+          vertical: AppSpacing.sm,
+        ),
+        child: Row(
+          children: [
+            Icon(
+              Icons.history,
+              size: AppSpacing.iconXs,
+              color: AppColors.textMuted,
+            ),
+            AppSpacing.gapHMd,
+            Expanded(
+              child: Text(
+                suggestion.title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppTypography.bodyMedium,
+              ),
+            ),
+            if (category != null) ...[
+              AppSpacing.gapHSm,
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.sm,
+                  vertical: 2,
+                ),
+                decoration: BoxDecoration(
+                  color: _tint.withValues(alpha: 0.15),
+                  borderRadius: AppSpacing.borderRadiusFull,
+                ),
+                child: Text(
+                  category!.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTypography.labelSmall.copyWith(
+                    letterSpacing: 0,
+                    color: _tint,
+                  ),
+                ),
+              ),
+            ],
+          ],
         ),
       ),
     );
