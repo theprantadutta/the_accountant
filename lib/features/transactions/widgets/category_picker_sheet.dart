@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
+import 'package:the_accountant/core/themes/app_spacing.dart';
+import 'package:the_accountant/core/themes/app_typography.dart';
 import 'package:the_accountant/core/utils/icon_registry.dart';
 import 'package:the_accountant/features/categories/providers/category_provider.dart';
 import 'package:the_accountant/features/categories/widgets/add_category_form.dart'
@@ -93,122 +95,116 @@ class _CategoryPickerSheetState extends ConsumerState<_CategoryPickerSheet> {
         height: MediaQuery.of(context).size.height * 0.75,
         decoration: BoxDecoration(
           color: AppColors.primaryDark,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+          borderRadius: const BorderRadius.vertical(
+            top: Radius.circular(AppSpacing.radiusXxxl),
+          ),
+          border: Border(top: BorderSide(color: AppColors.glassBorder)),
         ),
         child: Column(
           children: [
-            // Handle bar
             Container(
-              margin: const EdgeInsets.only(top: 12),
+              margin: const EdgeInsets.only(top: AppSpacing.md),
               width: 36,
               height: 4,
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.2),
+                color: AppColors.divider,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
-            const SizedBox(height: 20),
+            AppSpacing.gapXl,
 
-            // Header
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xxl),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Select Category',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.textPrimary,
-                      letterSpacing: -0.5,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
+                  Text('Select category', style: AppTypography.headlineSmall),
+                  AppSpacing.gapLg,
 
-                  // Type toggle - pill style
-                  Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.05),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: _TypePill(
-                            label: 'Expense',
-                            isSelected: !_isIncome,
-                            color: AppColors.error,
-                            onTap: () {
-                              HapticFeedback.lightImpact();
-                              setState(() => _isIncome = false);
-                            },
-                          ),
+                  // Two chips, in the same language as the type toggle on the
+                  // form that opened this sheet. It used to be a segmented
+                  // control with a solid red or green fill, which is the only
+                  // place in the app those colours are used as a background
+                  // rather than as a signal about a number.
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _TypeChip(
+                          label: 'Expense',
+                          icon: Icons.arrow_downward,
+                          color: AppColors.error,
+                          isSelected: !_isIncome,
+                          onTap: () {
+                            HapticFeedback.lightImpact();
+                            setState(() => _isIncome = false);
+                          },
                         ),
-                        Expanded(
-                          child: _TypePill(
-                            label: 'Income',
-                            isSelected: _isIncome,
-                            color: AppColors.success,
-                            onTap: () {
-                              HapticFeedback.lightImpact();
-                              setState(() => _isIncome = true);
-                            },
-                          ),
+                      ),
+                      AppSpacing.gapHSm,
+                      Expanded(
+                        child: _TypeChip(
+                          label: 'Income',
+                          icon: Icons.arrow_upward,
+                          color: AppColors.success,
+                          isSelected: _isIncome,
+                          onTap: () {
+                            HapticFeedback.lightImpact();
+                            setState(() => _isIncome = true);
+                          },
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 20),
+            AppSpacing.gapLg,
 
-            // Category grid
             Expanded(
               child: categoryState.isLoading
                   ? const Padding(
-                      padding: EdgeInsets.fromLTRB(20, 0, 20, 20),
+                      padding: EdgeInsets.fromLTRB(
+                        AppSpacing.xxl,
+                        0,
+                        AppSpacing.xxl,
+                        AppSpacing.xl,
+                      ),
                       child: Column(
                         children: [
                           ShimmerCard(height: 56),
-                          SizedBox(height: 12),
+                          AppSpacing.gapMd,
                           ShimmerCard(height: 56),
-                          SizedBox(height: 12),
+                          AppSpacing.gapMd,
                           ShimmerCard(height: 56),
-                          SizedBox(height: 12),
+                          AppSpacing.gapMd,
                           ShimmerCard(height: 56),
                         ],
                       ),
                     )
-                  : GridView.builder(
-                      padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 3,
-                            mainAxisSpacing: 12,
-                            crossAxisSpacing: 12,
-                            childAspectRatio: 0.95,
-                          ),
+                  // A list, not a grid. Every other list of things in this app
+                  // is a row with a tinted glyph, a name and a value on the
+                  // right; the grid of chunky tiles was the only screen that
+                  // looked like a different product, and it wrapped longer
+                  // names like "Balance Correction" onto two lines to boot.
+                  : ListView.builder(
+                      padding: EdgeInsets.only(
+                        bottom:
+                            AppSpacing.xl +
+                            MediaQuery.of(context).padding.bottom,
+                      ),
                       itemCount: categories.length + 1,
                       itemBuilder: (context, index) {
-                        // Last item is add button
                         if (index == categories.length) {
-                          return _AddCategoryCard(
+                          return _NewCategoryRow(
                             onTap: () => _showAddCategoryForm(context),
                           );
                         }
 
                         final category = categories[index];
-                        final isSelected =
-                            category.id == widget.selectedCategoryId;
-                        final categoryColor = _parseColor(category.colorCode);
-
-                        return _CategoryCard(
+                        return _CategoryRow(
                           category: category,
-                          isSelected: isSelected,
-                          color: categoryColor,
+                          isSelected: category.id == widget.selectedCategoryId,
+                          color: _parseColor(category.colorCode),
                           onTap: () {
                             HapticFeedback.mediumImpact();
                             Navigator.pop(context, category);
@@ -224,104 +220,58 @@ class _CategoryPickerSheetState extends ConsumerState<_CategoryPickerSheet> {
   }
 }
 
-class _TypePill extends StatelessWidget {
-  final String label;
-  final bool isSelected;
-  final Color color;
-  final VoidCallback onTap;
-
-  const _TypePill({
+/// Expense or income, as an outlined chip that tints when chosen.
+class _TypeChip extends StatelessWidget {
+  const _TypeChip({
     required this.label,
-    required this.isSelected,
+    required this.icon,
     required this.color,
+    required this.isSelected,
     required this.onTap,
   });
 
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(vertical: 10),
-        decoration: BoxDecoration(
-          color: isSelected ? color : Colors.transparent,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Text(
-          label,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: isSelected ? Colors.white : AppColors.textMuted,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _CategoryCard extends StatelessWidget {
-  final Category category;
-  final bool isSelected;
+  final String label;
+  final IconData icon;
   final Color color;
+  final bool isSelected;
   final VoidCallback onTap;
 
-  const _CategoryCard({
-    required this.category,
-    required this.isSelected,
-    required this.color,
-    required this.onTap,
-  });
-
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
+        curve: Curves.easeOut,
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.sm,
+          vertical: AppSpacing.md,
+        ),
         decoration: BoxDecoration(
           color: isSelected
               ? color.withValues(alpha: 0.15)
-              : Colors.white.withValues(alpha: 0.03),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: isSelected ? color : Colors.transparent,
-            width: 2,
-          ),
+              : AppColors.glassWhite,
+          borderRadius: AppSpacing.borderRadiusFull,
+          border: Border.all(color: isSelected ? color : AppColors.glassBorder),
         ),
-        child: Column(
+        child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Icon container
-            Container(
-              width: 52,
-              height: 52,
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: Icon(
-                IconRegistry.getIcon(category.iconName ?? 'category'),
-                size: 26,
-                color: color,
-              ),
+            Icon(
+              icon,
+              size: AppSpacing.iconXs,
+              color: isSelected ? color : AppColors.textMuted,
             ),
-            const SizedBox(height: 10),
-            // Category name
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
+            AppSpacing.gapHXs,
+            Flexible(
               child: Text(
-                category.name,
-                textAlign: TextAlign.center,
-                maxLines: 2,
+                label,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                  color: isSelected ? color : AppColors.textPrimary,
-                  height: 1.2,
+                style: AppTypography.labelMedium.copyWith(
+                  letterSpacing: 0.2,
+                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                  color: isSelected ? color : AppColors.textSecondary,
                 ),
               ),
             ),
@@ -332,52 +282,120 @@ class _CategoryCard extends StatelessWidget {
   }
 }
 
-class _AddCategoryCard extends StatelessWidget {
-  final VoidCallback onTap;
+/// One category, laid out like a transaction row.
+class _CategoryRow extends StatelessWidget {
+  const _CategoryRow({
+    required this.category,
+    required this.isSelected,
+    required this.color,
+    required this.onTap,
+  });
 
-  const _AddCategoryCard({required this.onTap});
+  final Category category;
+  final bool isSelected;
+  final Color color;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return InkWell(
       onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.transparent,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: Colors.white.withValues(alpha: 0.1),
-            width: 1.5,
-            style: BorderStyle.solid,
-          ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.xxl,
+          vertical: AppSpacing.sm,
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+        child: Row(
+          children: [
+            _CategoryGlyph(
+              tint: color,
+              iconName: category.iconName ?? 'category',
+            ),
+            AppSpacing.gapHMd,
+            Expanded(
+              child: Text(
+                category.name,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppTypography.titleSmall.copyWith(
+                  color: isSelected ? color : AppColors.textPrimary,
+                ),
+              ),
+            ),
+            if (isSelected)
+              Icon(Icons.check_rounded, size: AppSpacing.iconSm, color: color),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// The way out of this sheet when none of the categories fit.
+class _NewCategoryRow extends StatelessWidget {
+  const _NewCategoryRow({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.xxl,
+          vertical: AppSpacing.sm,
+        ),
+        child: Row(
           children: [
             Container(
-              width: 52,
-              height: 52,
+              width: 40,
+              height: 40,
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.05),
-                borderRadius: BorderRadius.circular(14),
+                color: AppColors.glassWhite,
+                borderRadius: AppSpacing.borderRadiusMd,
+                border: Border.all(color: AppColors.glassBorder),
               ),
               child: Icon(
                 Icons.add_rounded,
-                size: 28,
+                size: AppSpacing.iconSm,
                 color: AppColors.textMuted,
               ),
             ),
-            const SizedBox(height: 10),
+            AppSpacing.gapHMd,
             Text(
-              'New',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-                color: AppColors.textMuted,
+              'New category',
+              style: AppTypography.titleSmall.copyWith(
+                color: AppColors.textSecondary,
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// The same rounded, tinted icon tile the transaction list uses.
+class _CategoryGlyph extends StatelessWidget {
+  const _CategoryGlyph({required this.tint, required this.iconName});
+
+  final Color tint;
+  final String iconName;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 40,
+      height: 40,
+      decoration: BoxDecoration(
+        color: tint.withValues(alpha: 0.15),
+        borderRadius: AppSpacing.borderRadiusMd,
+      ),
+      child: Icon(
+        IconRegistry.getIcon(iconName),
+        size: AppSpacing.iconSm,
+        color: tint,
       ),
     );
   }
