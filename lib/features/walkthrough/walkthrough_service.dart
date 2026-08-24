@@ -68,6 +68,12 @@ class WalkthroughService {
       return TargetFocus(
         identify: step.title,
         keyTarget: step.key,
+        // A rectangle that hugs the widget, not a circle drawn around it. The
+        // default circle has to be wide enough to contain a full-width card
+        // corner to corner, so it swallowed most of the screen and pointed at
+        // nothing in particular.
+        shape: ShapeLightFocus.RRect,
+        radius: 16,
         alignSkip: Alignment.bottomRight,
         enableOverlayTab: true,
         enableTargetTab: true,

@@ -58,9 +58,12 @@ class _MainNavigationContainerState
   final GlobalKey _navActivityKey = GlobalKey();
   final GlobalKey _navAIKey = GlobalKey();
 
-  // Define the screens for each navigation item
-  final List<Widget> _screens = [
-    const ResponsiveFinancialOverview(), // Home
+  // Define the screens for each navigation item.
+  //
+  // `late` so the home screen can be handed the walkthrough key: a plain field
+  // initialiser cannot reach another instance field.
+  late final List<Widget> _screens = [
+    ResponsiveFinancialOverview(balanceKey: _balanceKey), // Home
     const TransactionListScreen(), // Transactions
     const AIAssistantScreenGated(), // AI Assistant (Premium)
     const ReportsScreen(), // Reports
@@ -485,12 +488,11 @@ class _MainNavigationContainerState
       children: [
         IndexedStack(
           index: _currentIndex,
-          children: _screens.asMap().entries.map((entry) {
-            if (entry.key == 0) {
-              return KeyedSubtree(key: _balanceKey, child: entry.value);
-            }
-            return entry.value;
-          }).toList(),
+          // The walkthrough key is attached to the account cards inside the
+          // home screen, not around the screen itself — wrapping the whole
+          // thing made the spotlight cover the display and pushed the tooltip,
+          // with its Next and Skip buttons, off the bottom of it.
+          children: _screens,
         ),
         // Non-blocking background-sync indicator, floating at the top.
         Positioned(

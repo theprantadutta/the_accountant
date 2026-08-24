@@ -32,7 +32,14 @@ import 'package:the_accountant/features/transactions/screens/transaction_list_sc
 import 'package:the_accountant/features/transactions/screens/transaction_type_screen.dart';
 
 class ResponsiveFinancialOverview extends ConsumerStatefulWidget {
-  const ResponsiveFinancialOverview({super.key});
+  const ResponsiveFinancialOverview({super.key, this.balanceKey});
+
+  /// Marks the account cards for the first-run walkthrough.
+  ///
+  /// It has to land on the cards themselves. The shell used to attach it around
+  /// this whole screen, so the walkthrough spotlit the entire dashboard and
+  /// pointed at nothing in particular.
+  final Key? balanceKey;
 
   @override
   ConsumerState<ResponsiveFinancialOverview> createState() =>
@@ -154,7 +161,11 @@ class _ResponsiveFinancialOverviewState
         AppSpacing.gapLg,
         _buildAnimatedSection(0.0, 0.3, _buildGreetingSection()),
         AppSpacing.gapXxl,
-        _buildAnimatedSection(0.1, 0.4, const WalletCardsSection()),
+        _buildAnimatedSection(
+          0.1,
+          0.4,
+          WalletCardsSection(key: widget.balanceKey),
+        ),
         AppSpacing.gapXl,
         _buildAnimatedSection(0.2, 0.5, _buildQuickStats(income, expenses)),
         AppSpacing.gapXl,
@@ -183,7 +194,11 @@ class _ResponsiveFinancialOverviewState
         AppSpacing.gapLg,
         _buildAnimatedSection(0.0, 0.3, _buildGreetingSection()),
         AppSpacing.gapXl,
-        _buildAnimatedSection(0.1, 0.4, const WalletCardsSection()),
+        _buildAnimatedSection(
+          0.1,
+          0.4,
+          WalletCardsSection(key: widget.balanceKey),
+        ),
         AppSpacing.gapXl,
         _buildAnimatedSection(0.2, 0.5, _buildQuickStats(income, expenses)),
         AppSpacing.gapXl,
