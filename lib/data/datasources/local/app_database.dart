@@ -140,7 +140,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 16;
+  int get schemaVersion => 17;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -234,6 +234,9 @@ class AppDatabase extends _$AppDatabase {
 
       if (from < 16) {
         await _migrateToV16(m);
+      }
+      if (from < 17) {
+        await _migrateToV17();
       }
     },
     beforeOpen: (details) async {
@@ -507,6 +510,47 @@ class AppDatabase extends _$AppDatabase {
     await _ensureColumn(m, transactions, transactions.feeForTransactionId);
   }
 
+  /// Schema 17: give the two built-ins that were both called "Loan" distinct
+  /// names.
+  ///
+  /// Categories are one flat list now — the user picks from all of them
+  /// whichever way the money is going — so two rows called "Loan" are two rows
+  /// nobody can tell apart. They used to be distinguishable only by which side
+  /// of the ledger they sat on, which is exactly the distinction that stopped
+  /// being shown.
+  ///
+  /// Only rows still carrying the old default name are touched: someone who
+  /// renamed the category themselves keeps their own name. Tombstones are left
+  /// alone, so this cannot push an update for a row that is on its way out.
+  Future<void> _migrateToV17() async {
+    if (!await _tableExists('categories')) return;
+
+    for (final spec in DefaultCategoryCatalog.all) {
+      final previousName = spec.legacyName;
+      if (previousName == null) continue;
+
+      final stale =
+          await (select(categories)..where(
+                (c) =>
+                    c.defaultKey.equals(spec.key) &
+                    c.name.equals(previousName) &
+                    c.deletedAt.isNull(),
+              ))
+              .get();
+
+      for (final row in stale) {
+        await (update(categories)..where((c) => c.id.equals(row.id))).write(
+          CategoriesCompanion(
+            name: Value(spec.name),
+            updatedAt: Value(DateTime.now()),
+            // Never downgrades a create; never resurrects a tombstone.
+            syncStatus: Value(SyncStatus.markEdited(row.syncStatus)),
+          ),
+        );
+      }
+    }
+  }
+
   /// A canonical 8-4-4-4-12 hexadecimal id, which is the only shape the backend
   /// will accept.
   static final RegExp _uuidPattern = RegExp(
@@ -644,17 +688,14 @@ class AppDatabase extends _$AppDatabase {
 
   /// Total repairs logged for wallets, so a test can prove a second open does
   /// not log the same one again.
-  Future<int> allWalletRepairCount() async =>
-      (await (select(localIdRepairs)
-                ..where((r) => r.entityTable.equals('wallets')))
-              .get())
-          .length;
+  Future<int> allWalletRepairCount() async => (await (select(
+    localIdRepairs,
+  )..where((r) => r.entityTable.equals('wallets'))).get()).length;
 
   Future<void> markIdRepairSettled(int id) =>
       (update(localIdRepairs)..where((r) => r.id.equals(id))).write(
         LocalIdRepairsCompanion(settledAt: Value(DateTime.now())),
       );
-
 
   /// The data half of the schema-13 migration, separated from the schema half so
   /// it can be exercised directly. (Public for that reason only.)
@@ -1573,7 +1614,6 @@ class AppDatabase extends _$AppDatabase {
     await _absorbCategory(loser: loser, survivorId: survivorId);
   }
 
-
   // ==================== BUDGET SCOPE REFERENCES ====================
   //
   // A budget scopes itself to wallets and categories by id: `walletIds` and
@@ -1638,7 +1678,10 @@ class AppDatabase extends _$AppDatabase {
   /// Sync state goes through [SyncStatus.markEdited]: a budget the server has
   /// never seen stays a pending create, because downgrading it to an update
   /// would make it permanently unsyncable.
-  Future<void> _writeBudgetScope(String budgetId, BudgetsCompanion scope) async {
+  Future<void> _writeBudgetScope(
+    String budgetId,
+    BudgetsCompanion scope,
+  ) async {
     await (update(budgets)..where((t) => t.id.equals(budgetId))).write(
       scope.copyWith(updatedAt: Value(DateTime.now())),
     );
@@ -1773,7 +1816,9 @@ class AppDatabase extends _$AppDatabase {
       for (final b in all) {
         final categoryIds = decodeIdList(b.categoryIds);
         final walletIds = decodeIdList(b.walletIds);
-        final keptCategories = categoryIds.where(liveCategories.contains).toList();
+        final keptCategories = categoryIds
+            .where(liveCategories.contains)
+            .toList();
         final keptWallets = walletIds.where(liveWallets.contains).toList();
         final legacyIsDead =
             b.categoryId != null &&
@@ -1803,10 +1848,9 @@ class AppDatabase extends _$AppDatabase {
   // ==================== LEGACY CATEGORY RECONCILIATION ====================
 
   /// Every open or answered reconciliation question, oldest first.
-  Future<List<CategoryReconciliation>> allCategoryReconciliations() =>
-      (select(categoryReconciliations)
-            ..orderBy([(r) => OrderingTerm(expression: r.detectedAt)]))
-          .get();
+  Future<List<CategoryReconciliation>> allCategoryReconciliations() => (select(
+    categoryReconciliations,
+  )..orderBy([(r) => OrderingTerm(expression: r.detectedAt)])).get();
 
   /// Questions the user has not answered yet.
   Future<List<CategoryReconciliation>> unresolvedCategoryReconciliations() =>
@@ -1816,16 +1860,17 @@ class AppDatabase extends _$AppDatabase {
           .get();
 
   Stream<List<CategoryReconciliation>> watchCategoryReconciliations() =>
-      (select(categoryReconciliations)
-            ..orderBy([(r) => OrderingTerm(expression: r.detectedAt)]))
-          .watch();
+      (select(
+        categoryReconciliations,
+      )..orderBy([(r) => OrderingTerm(expression: r.detectedAt)])).watch();
 
   Future<CategoryReconciliation?> findCategoryReconciliation(
     String defaultKey,
-  ) => (select(categoryReconciliations)
-        ..where((r) => r.defaultKey.equals(defaultKey))
-        ..limit(1))
-      .getSingleOrNull();
+  ) =>
+      (select(categoryReconciliations)
+            ..where((r) => r.defaultKey.equals(defaultKey))
+            ..limit(1))
+          .getSingleOrNull();
 
   /// Categories that must not be pushed because the server is still waiting on
   /// the user to say what they are.
@@ -1865,16 +1910,16 @@ class AppDatabase extends _$AppDatabase {
     final existing = await findCategoryReconciliation(defaultKey);
     final now = DateTime.now();
     if (existing != null) {
-      await (update(categoryReconciliations)
-            ..where((r) => r.defaultKey.equals(defaultKey)))
-          .write(
-            CategoryReconciliationsCompanion(
-              provisionalCategoryId: Value(provisionalCategoryId),
-              catalogName: Value(catalogName),
-              catalogIsIncome: Value(catalogIsIncome),
-              candidatesJson: Value(candidatesJson),
-            ),
-          );
+      await (update(
+        categoryReconciliations,
+      )..where((r) => r.defaultKey.equals(defaultKey))).write(
+        CategoryReconciliationsCompanion(
+          provisionalCategoryId: Value(provisionalCategoryId),
+          catalogName: Value(catalogName),
+          catalogIsIncome: Value(catalogIsIncome),
+          candidatesJson: Value(candidatesJson),
+        ),
+      );
       return;
     }
     await into(categoryReconciliations).insert(
@@ -1894,9 +1939,10 @@ class AppDatabase extends _$AppDatabase {
     required String defaultKey,
     required String kind,
     String? candidateId,
-  }) => (update(categoryReconciliations)
-        ..where((r) => r.defaultKey.equals(defaultKey)))
-      .write(
+  }) =>
+      (update(
+        categoryReconciliations,
+      )..where((r) => r.defaultKey.equals(defaultKey))).write(
         CategoryReconciliationsCompanion(
           resolutionKind: Value(kind),
           resolutionCandidateId: Value(candidateId),
@@ -1910,21 +1956,20 @@ class AppDatabase extends _$AppDatabase {
   /// The row stays, so the provisional category stays held back; only the
   /// decision is cleared.
   Future<void> reopenCategoryReconciliation(String defaultKey) =>
-      (update(categoryReconciliations)
-            ..where((r) => r.defaultKey.equals(defaultKey)))
-          .write(
-            const CategoryReconciliationsCompanion(
-              resolutionKind: Value(null),
-              resolutionCandidateId: Value(null),
-              resolvedAt: Value(null),
-            ),
-          );
+      (update(
+        categoryReconciliations,
+      )..where((r) => r.defaultKey.equals(defaultKey))).write(
+        const CategoryReconciliationsCompanion(
+          resolutionKind: Value(null),
+          resolutionCandidateId: Value(null),
+          resolvedAt: Value(null),
+        ),
+      );
 
   /// Drops the question once the server has acted on the answer.
-  Future<void> clearCategoryReconciliation(String defaultKey) =>
-      (delete(categoryReconciliations)
-            ..where((r) => r.defaultKey.equals(defaultKey)))
-          .go();
+  Future<void> clearCategoryReconciliation(String defaultKey) => (delete(
+    categoryReconciliations,
+  )..where((r) => r.defaultKey.equals(defaultKey))).go();
 
   /// Hands a built-in slug back, so another row can take it.
   ///

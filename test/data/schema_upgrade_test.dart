@@ -81,9 +81,8 @@ void main() {
 
   /// Every artifact the current schema should have once an upgrade finishes.
   Future<void> expectFullyUpgraded(AppDatabase db) async {
-    final version = (await db
-        .customSelect('PRAGMA user_version')
-        .getSingle()).read<int>('user_version');
+    final version = (await db.customSelect('PRAGMA user_version').getSingle())
+        .read<int>('user_version');
     expect(version, db.schemaVersion);
 
     Future<bool> hasTable(String name) async =>
@@ -606,6 +605,81 @@ void main() {
     expect(
       (await reopened.getAllCategories()).map((c) => c.id).toSet(),
       before,
+    );
+  });
+
+  test('the two categories both called "Loan" are renamed apart', () async {
+    // Categories are one flat list now, so two rows with the same name are two
+    // rows the user cannot choose between. They used to be distinguishable only
+    // by direction, which is the distinction that stopped being shown.
+    final file = await buildLegacyDatabase(
+      16,
+      label: 'loan_rename',
+      seed: (db) async {
+        await db.customStatement(
+          "INSERT INTO categories "
+          '(id, name, color, is_income, is_default, default_key, order_index, '
+          'created_at, updated_at, sync_status) VALUES '
+          "('c-lent', 'Loan', '#E57373', 0, 1, 'loan_expense', 14, 0, 0, 0), "
+          "('c-borrowed', 'Loan', '#81C784', 1, 1, 'loan_income', 8, 0, 0, 0)",
+        );
+      },
+    );
+
+    final upgraded = AppDatabase(NativeDatabase(file));
+    addTearDown(upgraded.close);
+    await expectFullyUpgraded(upgraded);
+
+    Future<String> nameOf(String id) async =>
+        (await upgraded
+                .customSelect("SELECT name FROM categories WHERE id = '$id'")
+                .getSingle())
+            .read<String>('name');
+
+    expect(await nameOf('c-lent'), 'Money Lent');
+    expect(await nameOf('c-borrowed'), 'Money Borrowed');
+
+    // Both were synced, so the rename has to go up to the server too.
+    final statuses = await upgraded
+        .customSelect(
+          "SELECT sync_status FROM categories WHERE id IN ('c-lent', 'c-borrowed')",
+        )
+        .get();
+    expect(
+      statuses.map((r) => r.read<int>('sync_status')),
+      everyElement(SyncStatus.pendingUpdate),
+    );
+  });
+
+  test('a category the user renamed themselves is left alone', () async {
+    final file = await buildLegacyDatabase(
+      16,
+      label: 'loan_kept',
+      seed: (db) async {
+        await db.customStatement(
+          "INSERT INTO categories "
+          '(id, name, color, is_income, is_default, default_key, order_index, '
+          'created_at, updated_at, sync_status) VALUES '
+          "('c-mine', 'Money I lent Sam', '#E57373', 0, 1, 'loan_expense', 14, "
+          '0, 0, 0)',
+        );
+      },
+    );
+
+    final upgraded = AppDatabase(NativeDatabase(file));
+    addTearDown(upgraded.close);
+    await expectFullyUpgraded(upgraded);
+
+    final row = await upgraded
+        .customSelect(
+          "SELECT name, sync_status FROM categories WHERE id = 'c-mine'",
+        )
+        .getSingle();
+    expect(row.read<String>('name'), 'Money I lent Sam');
+    expect(
+      row.read<int>('sync_status'),
+      SyncStatus.synced,
+      reason: 'an untouched row should not be queued for a pointless push',
     );
   });
 }

@@ -38,8 +38,26 @@ class DefaultCategorySpec {
   final String name;
   final String colorCode;
   final String iconName;
+
+  /// Which side of the ledger this built-in was seeded for.
+  ///
+  /// Historical, and seed-side only: it decides nothing about what the user may
+  /// file a transaction under. Categories are one flat list now — the direction
+  /// of the money is a property of the transaction, not of the label you put on
+  /// it. Still carried because existing rows have it, the schema-13 migration
+  /// below reads it, and it is part of the sync contract.
   final bool isIncome;
+
   final int orderIndex;
+
+  /// What this built-in was called when the schema-13 migration shipped, if it
+  /// has been renamed since.
+  ///
+  /// That migration identifies pre-slug rows by the name stored in the user's
+  /// own database, so it has to keep matching what the category was called
+  /// then — not what it is called now. Without this, renaming a built-in would
+  /// silently strand every category in every store that had not yet upgraded.
+  final String? legacyName;
 
   /// System categories are created for internal bookkeeping (transfers, balance
   /// corrections) rather than for the user to pick from a list.
@@ -53,7 +71,11 @@ class DefaultCategorySpec {
     required this.isIncome,
     required this.orderIndex,
     this.isSystem = false,
+    this.legacyName,
   });
+
+  /// The name to match against when identifying a pre-slug row.
+  String get nameAtSchema13 => legacyName ?? name;
 }
 
 /// Well-known slugs the code refers to directly.
@@ -199,7 +221,8 @@ class DefaultCategoryCatalog {
     ),
     DefaultCategorySpec(
       key: 'loan_expense',
-      name: 'Loan',
+      name: 'Money Lent',
+      legacyName: 'Loan',
       colorCode: '#E57373',
       iconName: 'account_balance',
       isIncome: false,
@@ -303,7 +326,8 @@ class DefaultCategoryCatalog {
     ),
     DefaultCategorySpec(
       key: 'loan_income',
-      name: 'Loan',
+      name: 'Money Borrowed',
+      legacyName: 'Loan',
       colorCode: '#81C784',
       iconName: 'account_balance',
       isIncome: true,
@@ -365,15 +389,21 @@ class DefaultCategoryCatalog {
   /// Resolve the slug for a legacy default category that predates slugs, by its
   /// stored name and direction.
   ///
-  /// Used once by the schema-13 migration to give existing rows an identity. Two
-  /// built-ins are both called "Loan" — one income, one expense — so the
-  /// direction is part of the match.
+  /// Used once by the schema-13 migration to give existing rows an identity.
+  ///
+  /// Matches on [DefaultCategorySpec.nameAtSchema13] rather than the current
+  /// display name, because the row being identified was written before any
+  /// later rename. Two built-ins were both called "Loan" then — one income, one
+  /// expense — so the direction is still part of the match even though nothing
+  /// else uses it any more.
   static String? keyForLegacyDefault({
     required String name,
     required bool isIncome,
   }) {
     for (final spec in all) {
-      if (spec.name == name && spec.isIncome == isIncome) return spec.key;
+      if (spec.nameAtSchema13 == name && spec.isIncome == isIncome) {
+        return spec.key;
+      }
     }
     return null;
   }

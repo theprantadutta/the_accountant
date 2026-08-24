@@ -74,6 +74,61 @@ void main() {
     }
   });
 
+  group('renames', () {
+    test('a renamed built-in is still found by the name it used to have', () {
+      // The schema-13 migration identifies rows by the name sitting in the
+      // user's own database, which was written before any later rename. If the
+      // matcher read the current display name instead, every store that had not
+      // yet upgraded would have these two categories stranded without a slug —
+      // and a category with no slug cannot be matched across devices.
+      final lent = DefaultCategoryCatalog.byKey['loan_expense']!;
+      final borrowed = DefaultCategoryCatalog.byKey['loan_income']!;
+
+      expect(lent.name, 'Money Lent');
+      expect(borrowed.name, 'Money Borrowed');
+      expect(lent.nameAtSchema13, 'Loan');
+      expect(borrowed.nameAtSchema13, 'Loan');
+
+      expect(
+        DefaultCategoryCatalog.keyForLegacyDefault(
+          name: 'Loan',
+          isIncome: false,
+        ),
+        'loan_expense',
+      );
+      expect(
+        DefaultCategoryCatalog.keyForLegacyDefault(
+          name: 'Loan',
+          isIncome: true,
+        ),
+        'loan_income',
+      );
+    });
+
+    test('the new names are not what a pre-slug row would be called', () {
+      // Nothing in an old store is called "Money Lent", so the matcher must not
+      // claim one — otherwise a user's own category by that name would be
+      // adopted as a built-in.
+      expect(
+        DefaultCategoryCatalog.keyForLegacyDefault(
+          name: 'Money Lent',
+          isIncome: false,
+        ),
+        isNull,
+      );
+    });
+
+    test('no two built-ins share a display name', () {
+      // The picker shows one flat list, so a duplicate name is two rows the
+      // user cannot tell apart.
+      final names = DefaultCategoryCatalog.all
+          .where((s) => !s.isSystem)
+          .map((s) => s.name)
+          .toList();
+      expect(names.toSet().length, names.length, reason: names.toString());
+    });
+  });
+
   group('legacy name matching', () {
     test('resolves a pre-slug default by name and direction', () {
       expect(
