@@ -76,6 +76,16 @@ class Transaction {
   final bool isRecurring;
   final String? recurrencePattern;
 
+  /// How the row came to exist: a plain entry, one leg of a transfer, or a
+  /// generated recurrence occurrence.
+  ///
+  /// [type] only ever says "income" or "expense", because it is derived from
+  /// the direction the money moved. That is not enough to tell a purchase from
+  /// the outgoing half of a transfer between your own wallets, and screens that
+  /// could not tell were counting internal movements as spending. Carry the
+  /// real kind so callers can ask [TransactionPolicy] instead of guessing.
+  final String transactionType;
+
   Transaction({
     required this.id,
     required this.amount,
@@ -89,7 +99,11 @@ class Transaction {
     required this.paymentMethod,
     this.isRecurring = false,
     this.recurrencePattern,
+    this.transactionType = 'regular',
   });
+
+  /// Whether this row is one leg of a wallet-to-wallet transfer.
+  bool get isTransferLeg => transactionType == TransactionPolicy.transferType;
 
   /// Convert to new TransactionViewModel
   TransactionViewModel toViewModel() => TransactionViewModel(
@@ -165,6 +179,7 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
           paymentMethod: t.paymentMethodId ?? '',
           isRecurring: false, // Deprecated - use RecurringConfigs
           recurrencePattern: null, // Deprecated - use RecurringConfigs
+          transactionType: t.transactionType,
         );
       }).toList();
 
