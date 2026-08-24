@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/services/sync/sync_models.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
-import 'package:the_accountant/data/providers/database_provider.dart';
+import 'package:the_accountant/data/datasources/local/database_provider.dart';
 
 /// A question about one built-in category, ready to put in front of the user.
 class PendingCategoryReconciliation {
