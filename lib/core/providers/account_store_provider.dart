@@ -102,10 +102,18 @@ class AccountStoreCoordinator extends Notifier<AccountStoreState> {
 
       if (targetFile != ref.read(activeStoreFileProvider)) {
         ref.read(activeStoreFileProvider.notifier).state = targetFile;
-        await _prepareStore(manager.databaseForFile(targetFile), targetFile, userId);
+        await _prepareStore(
+          manager.databaseForFile(targetFile),
+          targetFile,
+          userId,
+        );
         await manager.closeAllExcept(targetFile);
       } else {
-        await _prepareStore(manager.databaseForFile(targetFile), targetFile, userId);
+        await _prepareStore(
+          manager.databaseForFile(targetFile),
+          targetFile,
+          userId,
+        );
       }
       ref.read(activeStoreOwnerProvider.notifier).state = userId;
 

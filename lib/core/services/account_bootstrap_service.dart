@@ -53,11 +53,9 @@ class AccountBootstrap {
           pick<bool>(['onboarding_completed', 'onboardingCompleted']) ?? false,
       hasFinancialData:
           pick<bool>(['has_financial_data', 'hasFinancialData']) ?? false,
-      liveWalletCount:
-          pick<int>(['live_wallet_count', 'liveWalletCount']) ?? 0,
+      liveWalletCount: pick<int>(['live_wallet_count', 'liveWalletCount']) ?? 0,
       isPremium: pick<bool>(['is_premium', 'isPremium']) ?? false,
-      subscriptionTier:
-          pick<String>(['subscription_tier', 'subscriptionTier']),
+      subscriptionTier: pick<String>(['subscription_tier', 'subscriptionTier']),
       describesEntitlement:
           json.containsKey('is_premium') || json.containsKey('isPremium'),
     );

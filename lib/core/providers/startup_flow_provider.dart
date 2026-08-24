@@ -293,7 +293,10 @@ class StartupFlowController extends Notifier<StartupFlowState> {
       // a splash screen that never resolved and offered nothing to press.
       debugPrint('[StartupFlow] evaluation failed: $e');
       debugPrintStack(stackTrace: stack);
-      _enterPhase(StartupPhase.unavailable, reason: 'Something went wrong while starting up. Your data is safe on this '
+      _enterPhase(
+        StartupPhase.unavailable,
+        reason:
+            'Something went wrong while starting up. Your data is safe on this '
             'device.',
       );
     } finally {
@@ -336,7 +339,9 @@ class StartupFlowController extends Notifier<StartupFlowState> {
     // file happened to be open — in the worst case the previous account's.
     _enterPhase(StartupPhase.checkingIdentity);
     if (!await _awaitStoreOwner(userId)) {
-      _enterPhase(StartupPhase.unavailable, reason: 'Could not open the local data for this account.',
+      _enterPhase(
+        StartupPhase.unavailable,
+        reason: 'Could not open the local data for this account.',
       );
       return;
     }
@@ -347,10 +352,15 @@ class StartupFlowController extends Notifier<StartupFlowState> {
     // and they have to happen before the wallet check, because a store that
     // failed to prepare can look empty for reasons that have nothing to do with
     // the account being new.
-    await ref.read(accountStoreCoordinatorProvider.notifier).prepareActiveStore();
+    await ref
+        .read(accountStoreCoordinatorProvider.notifier)
+        .prepareActiveStore();
     final storeError = ref.read(accountStoreCoordinatorProvider).error;
     if (storeError != null) {
-      _enterPhase(StartupPhase.unavailable, reason: 'We could not finish setting up this account on this device. '
+      _enterPhase(
+        StartupPhase.unavailable,
+        reason:
+            'We could not finish setting up this account on this device. '
             'Nothing has been deleted.',
       );
       return;
@@ -368,7 +378,10 @@ class StartupFlowController extends Notifier<StartupFlowState> {
     _enterPhase(StartupPhase.checkingAccount);
     final account = await ref.read(accountBootstrapServiceProvider).fetch();
     if (account == null) {
-      _enterPhase(StartupPhase.unavailable, reason: 'We could not check whether this account has data to restore. '
+      _enterPhase(
+        StartupPhase.unavailable,
+        reason:
+            'We could not check whether this account has data to restore. '
             'Your existing data is safe.',
       );
       return;
@@ -387,13 +400,19 @@ class StartupFlowController extends Notifier<StartupFlowState> {
     // answer is evidence of a new account, and neither may reach onboarding.
     final entitlement = _resolveEntitlement(account);
     if (entitlement == EntitlementStatus.notPremium) {
-      _enterPhase(StartupPhase.entitlementRequired, reason: 'This account has data saved in the cloud. Restoring it needs an '
+      _enterPhase(
+        StartupPhase.entitlementRequired,
+        reason:
+            'This account has data saved in the cloud. Restoring it needs an '
             'active subscription. Nothing has been deleted.',
       );
       return;
     }
     if (entitlement == EntitlementStatus.unknown) {
-      _enterPhase(StartupPhase.checkingEntitlement, reason: 'This account has data in the cloud. We are still confirming your '
+      _enterPhase(
+        StartupPhase.checkingEntitlement,
+        reason:
+            'This account has data in the cloud. We are still confirming your '
             'subscription so it can be restored.',
       );
       return;
@@ -404,8 +423,7 @@ class StartupFlowController extends Notifier<StartupFlowState> {
     try {
       await ref.read(syncNotifierProvider.notifier).syncAll();
     } catch (e) {
-      _enterPhase(StartupPhase.unavailable, reason: 'Restore failed: $e',
-      );
+      _enterPhase(StartupPhase.unavailable, reason: 'Restore failed: $e');
       return;
     }
 
@@ -417,7 +435,10 @@ class StartupFlowController extends Notifier<StartupFlowState> {
 
     // The server said there was data and the restore brought none down. That is
     // a contradiction, not an empty account — do not offer to start over.
-    _enterPhase(StartupPhase.unavailable, reason: 'This account has data in the cloud but it could not be restored yet.',
+    _enterPhase(
+      StartupPhase.unavailable,
+      reason:
+          'This account has data in the cloud but it could not be restored yet.',
     );
   }
 

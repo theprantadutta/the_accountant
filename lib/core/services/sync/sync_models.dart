@@ -243,36 +243,35 @@ class SyncCategoryResolutionResult {
     return null;
   }
 
-  factory SyncCategoryResolutionResult.fromJson(Map<String, dynamic> json) =>
-      SyncCategoryResolutionResult(
-        requestedEntityId:
-            _pick<String>(json, [
-              'requested_entity_id',
-              'requestedEntityId',
-              'RequestedEntityId',
-            ]) ??
-            '',
-        resolvedCategoryId:
-            _pick<String>(json, [
-              'resolved_category_id',
-              'resolvedCategoryId',
-              'ResolvedCategoryId',
-            ]) ??
-            '',
-        defaultKey:
-            _pick<String>(json, ['default_key', 'defaultKey', 'DefaultKey']) ??
-            '',
-        kind: _pick<String>(json, ['kind', 'Kind']) ?? '',
-        name: _pick<String>(json, ['name', 'Name']) ?? '',
-        isIncome:
-            _pick<bool>(json, ['is_income', 'isIncome', 'IsIncome']) ?? false,
-        iconName:
-            _pick<String>(json, ['icon_name', 'iconName', 'IconName']) ??
-            'category',
-        color: _pick<String>(json, ['color', 'Color']) ?? '#6366F1',
-        orderIndex:
-            _pick<int>(json, ['order_index', 'orderIndex', 'OrderIndex']) ?? 0,
-      );
+  factory SyncCategoryResolutionResult.fromJson(
+    Map<String, dynamic> json,
+  ) => SyncCategoryResolutionResult(
+    requestedEntityId:
+        _pick<String>(json, [
+          'requested_entity_id',
+          'requestedEntityId',
+          'RequestedEntityId',
+        ]) ??
+        '',
+    resolvedCategoryId:
+        _pick<String>(json, [
+          'resolved_category_id',
+          'resolvedCategoryId',
+          'ResolvedCategoryId',
+        ]) ??
+        '',
+    defaultKey:
+        _pick<String>(json, ['default_key', 'defaultKey', 'DefaultKey']) ?? '',
+    kind: _pick<String>(json, ['kind', 'Kind']) ?? '',
+    name: _pick<String>(json, ['name', 'Name']) ?? '',
+    isIncome: _pick<bool>(json, ['is_income', 'isIncome', 'IsIncome']) ?? false,
+    iconName:
+        _pick<String>(json, ['icon_name', 'iconName', 'IconName']) ??
+        'category',
+    color: _pick<String>(json, ['color', 'Color']) ?? '#6366F1',
+    orderIndex:
+        _pick<int>(json, ['order_index', 'orderIndex', 'OrderIndex']) ?? 0,
+  );
 }
 
 /// Response from pull operation (matches backend SyncPullResponse)
@@ -419,9 +418,7 @@ class SyncConflict {
       entityId: json['entity_id'] ?? json['entityId'] ?? json['EntityId'] ?? '',
       reason: json['reason'] ?? json['Reason'] ?? '',
       code: json['code'] ?? json['Code'],
-      details: rawDetails is Map
-          ? rawDetails.cast<String, dynamic>()
-          : null,
+      details: rawDetails is Map ? rawDetails.cast<String, dynamic>() : null,
     );
   }
 }
@@ -520,8 +517,7 @@ class LegacyCategoryReconciliationDetails {
     Map<String, dynamic>? json,
   ) {
     if (json == null) return null;
-    final key =
-        json['default_key'] ?? json['defaultKey'] ?? json['DefaultKey'];
+    final key = json['default_key'] ?? json['defaultKey'] ?? json['DefaultKey'];
     if (key is! String || key.isEmpty) return null;
     final rawCandidates =
         json['candidates'] ?? json['Candidates'] ?? const <dynamic>[];

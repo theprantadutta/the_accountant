@@ -34,9 +34,7 @@ class LocalIdRepairService {
       if (repair.entityTable == 'wallets' &&
           _prefs.getString(defaultWalletKey) == repair.oldId) {
         await _prefs.setString(defaultWalletKey, newId);
-        debugPrint(
-          '[LocalIdRepair] default wallet preference moved to $newId',
-        );
+        debugPrint('[LocalIdRepair] default wallet preference moved to $newId');
       }
 
       await _database.markIdRepairSettled(repair.id);

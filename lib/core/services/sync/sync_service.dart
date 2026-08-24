@@ -773,7 +773,6 @@ class SyncService {
     }
   }
 
-
   static String? _categoryDefaultKeyOf(SyncChange change) {
     final value = change.data?['DefaultKey'] ?? change.data?['default_key'];
     return value is String && value.isNotEmpty ? value : null;
@@ -789,7 +788,8 @@ class SyncService {
     List<SyncConflict> conflicts,
   ) async {
     for (final conflict in conflicts) {
-      if (conflict.code != SyncConflictCodes.legacyCategoryReconciliationRequired) {
+      if (conflict.code !=
+          SyncConflictCodes.legacyCategoryReconciliationRequired) {
         continue;
       }
       final details = LegacyCategoryReconciliationDetails.tryParse(
@@ -823,7 +823,8 @@ class SyncService {
     // deleted or claimed in the meantime. Drop the stale answer so the question
     // is asked again with a fresh list, instead of retrying a dead choice.
     for (final conflict in conflicts) {
-      if (conflict.code != SyncConflictCodes.legacyCategoryCandidateUnavailable) {
+      if (conflict.code !=
+          SyncConflictCodes.legacyCategoryCandidateUnavailable) {
         continue;
       }
       final key =
