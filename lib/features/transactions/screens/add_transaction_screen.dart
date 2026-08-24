@@ -405,16 +405,43 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final wallets = ref.read(walletProvider).wallets;
-      if (wallets.isNotEmpty) {
-        setState(() {
-          _selectedWalletId = wallets.first.id;
-          _fromWalletId = wallets.first.id;
-          if (wallets.length > 1) {
-            _toWalletId = wallets[1].id;
-          }
-        });
-      }
+      if (wallets.isEmpty) return;
+
+      setState(() {
+        _selectedWalletId = wallets.first.id;
+        _fromWalletId = wallets.first.id;
+        // The default pair has to be a pair a transfer is allowed to use, or
+        // the form opens already holding a combination it will refuse to save.
+        _toWalletId = _firstWalletSharingCurrency(wallets, wallets.first)?.id;
+      });
     });
+  }
+
+  /// Wallets that have at least one other wallet counting in the same currency.
+  ///
+  /// A wallet alone in its currency has nowhere to transfer to.
+  List<Wallet> _walletsSharingACurrency(List<Wallet> wallets) {
+    final perCurrency = <String, int>{};
+    for (final wallet in wallets) {
+      perCurrency[wallet.currency] = (perCurrency[wallet.currency] ?? 0) + 1;
+    }
+    return wallets.where((w) => (perCurrency[w.currency] ?? 0) > 1).toList();
+  }
+
+  /// The currency of [walletId], or the first wallet's if it cannot be found.
+  String _currencyOf(List<Wallet> wallets, String? walletId) {
+    return wallets
+        .firstWhere((w) => w.id == walletId, orElse: () => wallets.first)
+        .currency;
+  }
+
+  /// The first wallet other than [origin] that counts in the same currency.
+  Wallet? _firstWalletSharingCurrency(List<Wallet> wallets, Wallet origin) {
+    for (final wallet in wallets) {
+      if (wallet.id == origin.id) continue;
+      if (wallet.currency == origin.currency) return wallet;
+    }
+    return null;
   }
 
   void _loadCategoryDetails() {
@@ -835,7 +862,11 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
   @override
   Widget build(BuildContext context) {
     final wallets = ref.watch(walletProvider).wallets;
-    final canTransfer = wallets.length >= 2;
+    // Two wallets is not enough — they have to count in the same currency.
+    // The two legs of a transfer carry one figure, so a dollar wallet and a
+    // taka wallet cannot be two ends of the same movement; see
+    // `TransferService.createTransfer`, which refuses the pair outright.
+    final canTransfer = _walletsSharingACurrency(wallets).isNotEmpty;
 
     // Get currency symbol for current wallet
     final walletId = _isTransfer ? _fromWalletId : _selectedWalletId;
@@ -1013,11 +1044,31 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
   /// rest of the screen (the selected one is tinted in its own colour, the others
   /// are plain glass), so it reads clearly as a three-way switch.
   Widget _buildTypeSelector(bool canTransfer) {
-    final types = (canTransfer && !_isEditing)
-        ? TransactionTypeSelection.values
-        : [TransactionTypeSelection.expense, TransactionTypeSelection.income];
+    // What a transaction *is* cannot be edited — an expense cannot become a
+    // transfer, because a transfer is a pair of rows and an expense is one. So
+    // while editing, the chips show what this transaction already is and none
+    // of them can be tapped.
+    //
+    // They used to be hidden instead, and Transfer was hidden hardest: editing
+    // a transfer offered Expense and Income with neither selected, and tapping
+    // either turned the form into a regular-transaction UI while the save still
+    // went through the transfer path.
+    final List<TransactionTypeSelection> types;
+    if (_isEditing) {
+      types = [_transactionType];
+    } else if (canTransfer) {
+      types = TransactionTypeSelection.values;
+    } else {
+      types = [
+        TransactionTypeSelection.expense,
+        TransactionTypeSelection.income,
+      ];
+    }
 
     return Row(
+      // Named so a test can ask what the type chips say without also matching
+      // the save button, which is labelled "Transfer" in transfer mode too.
+      key: const ValueKey('transaction-type-selector'),
       children: [
         for (var i = 0; i < types.length; i++) ...[
           if (i > 0) AppSpacing.gapHSm,
@@ -1033,7 +1084,9 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: () => _onTypeChanged(type),
+      // Locked while editing: the chip is there to say what this is, not to
+      // offer to change it.
+      onTap: _isEditing ? null : () => _onTypeChanged(type),
       child: AnimatedContainer(
         duration: AppAnimations.fast,
         curve: AppAnimations.easeOut,
@@ -1521,14 +1574,32 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
           ),
           AppSpacing.gapSm,
           HorizontalChipSelector<Wallet>(
-            items: wallets.where((w) => w.id != _toWalletId).toList(),
+            // Only wallets with somewhere to send money: one held in a currency
+            // no other wallet uses has no valid destination at all.
+            items: _walletsSharingACurrency(
+              wallets,
+            ).where((w) => w.id != _toWalletId).toList(),
             selectedItem: wallets.firstWhere(
               (w) => w.id == _fromWalletId,
               orElse: () => wallets.first,
             ),
             labelBuilder: (wallet) => '${wallet.name} (${wallet.currency})',
             onSelected: (wallet) {
-              setState(() => _fromWalletId = wallet.id);
+              setState(() {
+                _fromWalletId = wallet.id;
+                // Changing the source can strand the destination in another
+                // currency; move it to one this source can actually reach.
+                final destination = wallets
+                    .where((w) => w.id == _toWalletId)
+                    .firstOrNull;
+                if (destination == null ||
+                    destination.currency != wallet.currency) {
+                  _toWalletId = _firstWalletSharingCurrency(
+                    wallets,
+                    wallet,
+                  )?.id;
+                }
+              });
             },
             padding: EdgeInsets.zero,
           ),
@@ -1557,7 +1628,15 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
           ),
           AppSpacing.gapSm,
           HorizontalChipSelector<Wallet>(
-            items: wallets.where((w) => w.id != _fromWalletId).toList(),
+            // Same currency as the source, always. Offering a wallet the
+            // transfer would be refused for is offering a dead end.
+            items: wallets
+                .where(
+                  (w) =>
+                      w.id != _fromWalletId &&
+                      w.currency == _currencyOf(wallets, _fromWalletId),
+                )
+                .toList(),
             selectedItem: wallets.firstWhere(
               (w) => w.id == _toWalletId,
               orElse: () => wallets.last,
@@ -1573,7 +1652,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
           // something when it did not.
           if (!_isEditing) ...[
             AppSpacing.gapLg,
-            _buildTransferFeeSection(wallets, currencySymbol),
+            _buildTransferFeeSection(wallets),
           ],
         ],
       ),
@@ -1601,7 +1680,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
   /// it from, never subtracted from the transfer: moving your own money leaves
   /// you no worse off, so the two legs must stay equal, while a charge does
   /// leave you worse off and has to be accounted for somewhere real.
-  Widget _buildTransferFeeSection(List<Wallet> wallets, String currencySymbol) {
+  Widget _buildTransferFeeSection(List<Wallet> wallets) {
     if (!_showFeeFields) {
       return Align(
         alignment: Alignment.centerLeft,
@@ -1624,6 +1703,13 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
       (w) => w.id == (_feeWalletId ?? _fromWalletId),
       orElse: () => wallets.first,
     );
+
+    // The fee is its own expense on that wallet, so it is counted in that
+    // wallet's money — not the transfer's. Those are the same currency when the
+    // charge comes off the source, and need not be when it does not: this field
+    // was labelled with the transfer's symbol either way, which showed a charge
+    // billed to a taka wallet as though it were dollars.
+    final feeCurrencySymbol = CurrencyInfo.getSymbol(chargedTo.currency);
 
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
@@ -1662,7 +1748,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
           AppSpacing.gapMd,
 
           InkWell(
-            onTap: () => _showFeeCalculator(currencySymbol),
+            onTap: () => _showFeeCalculator(feeCurrencySymbol),
             borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
             child: Padding(
               padding: const EdgeInsets.symmetric(
@@ -1686,7 +1772,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                     ),
                   ),
                   Text(
-                    '$currencySymbol${_feeAmount.toStringAsFixed(2)}',
+                    '$feeCurrencySymbol${_feeAmount.toStringAsFixed(2)}',
                     style: AppTypography.monoMedium.copyWith(
                       color: _feeAmount > 0
                           ? AppColors.textPrimary
