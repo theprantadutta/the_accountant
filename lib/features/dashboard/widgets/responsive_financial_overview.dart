@@ -668,7 +668,8 @@ class _ResponsiveFinancialOverviewState
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const TransactionListScreen(),
+                      builder: (context) =>
+                          const TransactionListScreen(standalone: true),
                     ),
                   );
                 },

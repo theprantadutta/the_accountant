@@ -4,11 +4,32 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/providers/currency_provider.dart';
 import 'package:the_accountant/core/services/currency_service.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
+import 'package:the_accountant/core/themes/app_spacing.dart';
+import 'package:the_accountant/core/themes/app_typography.dart';
 import 'package:the_accountant/core/utils/color_utils.dart';
 import 'package:the_accountant/core/utils/icon_registry.dart';
 import 'package:the_accountant/core/utils/number_formatter.dart';
 import 'package:the_accountant/features/settings/providers/settings_provider.dart';
 
+/// One transaction in a list.
+///
+/// Rebuilt to match the row the dashboard already uses, because the two sat one
+/// tap apart and looked like they came from different products.
+///
+/// The old row spent the category colour on everything it could: a gradient
+/// across the whole card, a border, an 80px watermark of the category icon
+/// bleeding out of the corner, and the category name again as a filled chip.
+/// Stacked into a list that produced a column of saturated blocks — green, red,
+/// teal, purple — where the colour carried no more information than the icon
+/// already did, and the amounts had to compete with all of it.
+///
+/// Here the colour appears once, on the icon plate, and the row itself is
+/// transparent. That leaves exactly two things emphasised, which are the two
+/// things anyone scanning a ledger is looking for: what it was, and how much.
+///
+/// The amount is set in the mono face for the same reason a bank statement is —
+/// in a vertical column, proportional digits do not line up, so you cannot
+/// compare two figures without reading both.
 class TransactionCard extends ConsumerWidget {
   final String id;
   final String title;
@@ -43,10 +64,9 @@ class TransactionCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final walletCurrency = ref.watch(walletCurrencyProvider(walletId));
     final useDecimals = ref.watch(walletDecimalProvider(walletId));
-    final color = ColorUtils.hexToColor(categoryColor);
+    final categoryTint = ColorUtils.hexToColor(categoryColor);
     final isExpense = transactionType == 'expense';
 
-    // Format amount with currency from the transaction's wallet
     final nf = ref.watch(numberFormatSettingProvider);
     final formattedAmount = AppNumberFormatter.currency(
       CurrencyInfo.getSymbol(walletCurrency),
@@ -54,148 +74,57 @@ class TransactionCard extends ConsumerWidget {
       decimalDigits: useDecimals ? 2 : 0,
     ).format(useDecimals ? amount : amount.round());
 
-    return GestureDetector(
-      onTap: onTap,
-      onLongPress: () => _showOptionsMenu(context),
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              color.withValues(alpha: 0.15),
-              color.withValues(alpha: 0.05),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        onLongPress: () => _showOptionsMenu(context),
+        borderRadius: AppSpacing.borderRadiusLg,
+        child: Padding(
+          // The tap target stays full-bleed so the ripple covers the whole
+          // row; only the content is inset, to the same margin the search field
+          // and month chips above it use.
+          padding: EdgeInsets.symmetric(
+            horizontal: AppSpacing.xxl,
+            vertical: AppSpacing.sm,
           ),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: color.withValues(alpha: 0.2), width: 1),
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(16),
-          child: Stack(
+          child: Row(
             children: [
-              // Subtle background icon
-              Positioned(
-                right: -20,
-                bottom: -20,
-                child: Icon(
-                  categoryIcon != null
-                      ? IconRegistry.getIcon(categoryIcon!)
-                      : (isExpense ? Icons.arrow_upward : Icons.arrow_downward),
-                  size: 80,
-                  color: color.withValues(alpha: 0.06),
-                ),
+              _CategoryGlyph(
+                tint: categoryTint,
+                iconName: categoryIcon,
+                isExpense: isExpense,
               ),
-
-              // Main content
-              Padding(
-                padding: const EdgeInsets.all(14),
-                child: Row(
+              AppSpacing.gapHMd,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Category icon container
-                    Container(
-                      width: 50,
-                      height: 50,
-                      decoration: BoxDecoration(
-                        color: color.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      child: Icon(
-                        categoryIcon != null
-                            ? IconRegistry.getIcon(categoryIcon!)
-                            : (isExpense
-                                  ? Icons.arrow_upward
-                                  : Icons.arrow_downward),
-                        color: color,
-                        size: 24,
-                      ),
+                    Text(
+                      title.isNotEmpty ? title : category,
+                      style: AppTypography.titleSmall,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(width: 14),
-
-                    // Title, category, and date
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            title.isNotEmpty ? title : category,
-                            style: const TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.textPrimary,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          const SizedBox(height: 4),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color: color.withValues(alpha: 0.15),
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: Text(
-                              category,
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600,
-                                color: color,
-                              ),
-                            ),
-                          ),
-                        ],
+                    Text(
+                      category,
+                      style: AppTypography.bodySmall.copyWith(
+                        color: AppColors.textMuted,
                       ),
-                    ),
-
-                    // Amount
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: isExpense
-                                ? AppColors.error.withValues(alpha: 0.1)
-                                : AppColors.success.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                isExpense
-                                    ? Icons.trending_down
-                                    : Icons.trending_up,
-                                size: 14,
-                                color: isExpense
-                                    ? AppColors.error
-                                    : AppColors.success,
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                formattedAmount,
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                  color: isExpense
-                                      ? AppColors.error
-                                      : AppColors.success,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
+                ),
+              ),
+              AppSpacing.gapHSm,
+              // The sign does the work the trend arrow used to, in a character
+              // that belongs to the number rather than sitting beside it.
+              Text(
+                '${isExpense ? '-' : '+'}$formattedAmount',
+                style: AppTypography.monoSmall.copyWith(
+                  color: isExpense ? AppColors.error : AppColors.success,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ],
@@ -206,69 +135,61 @@ class TransactionCard extends ConsumerWidget {
   }
 
   void _showOptionsMenu(BuildContext context) {
-    HapticFeedback.mediumImpact();
+    HapticFeedback.selectionClick();
     final outerContext = context;
-    final color = ColorUtils.hexToColor(categoryColor);
+    final tint = ColorUtils.hexToColor(categoryColor);
 
-    showModalBottomSheet(
+    showModalBottomSheet<void>(
       context: context,
       backgroundColor: AppColors.primarySurface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(AppSpacing.radiusXxl),
+        ),
       ),
       builder: (sheetContext) => SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Handle bar
             Container(
-              margin: const EdgeInsets.symmetric(vertical: 12),
+              margin: EdgeInsets.symmetric(vertical: AppSpacing.md),
               width: 40,
               height: 4,
               decoration: BoxDecoration(
                 color: AppColors.divider,
-                borderRadius: BorderRadius.circular(2),
+                borderRadius: AppSpacing.borderRadiusFull,
               ),
             ),
-
-            // Transaction header
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+              padding: EdgeInsets.fromLTRB(
+                AppSpacing.xl,
+                AppSpacing.sm,
+                AppSpacing.xl,
+                AppSpacing.lg,
+              ),
               child: Row(
                 children: [
-                  Container(
-                    width: 44,
-                    height: 44,
-                    decoration: BoxDecoration(
-                      color: color.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Icon(
-                      categoryIcon != null
-                          ? IconRegistry.getIcon(categoryIcon!)
-                          : Icons.receipt_long,
-                      color: color,
-                      size: 22,
-                    ),
+                  _CategoryGlyph(
+                    tint: tint,
+                    iconName: categoryIcon,
+                    isExpense: transactionType == 'expense',
                   ),
-                  const SizedBox(width: 14),
+                  AppSpacing.gapHMd,
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           title.isNotEmpty ? title : category,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.textPrimary,
-                          ),
+                          style: AppTypography.titleSmall,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
                         Text(
                           category,
-                          style: TextStyle(fontSize: 13, color: color),
+                          style: AppTypography.bodySmall.copyWith(
+                            color: AppColors.textMuted,
+                          ),
                         ),
                       ],
                     ),
@@ -276,33 +197,34 @@ class TransactionCard extends ConsumerWidget {
                 ],
               ),
             ),
-
-            const Divider(color: AppColors.divider),
-            const SizedBox(height: 4),
-
-            // Edit option
-            _OptionTile(
-              icon: Icons.edit_outlined,
-              label: 'Edit Transaction',
-              onTap: () {
-                Navigator.pop(sheetContext);
-                onEdit?.call();
-              },
-            ),
-
-            // Delete option
-            _OptionTile(
-              icon: Icons.delete_outline,
-              label: 'Delete Transaction',
-              iconColor: AppColors.error,
-              labelColor: AppColors.error,
-              onTap: () {
-                Navigator.pop(sheetContext);
-                _confirmDelete(outerContext);
-              },
-            ),
-
-            const SizedBox(height: 16),
+            Divider(height: 1, color: AppColors.divider),
+            if (onEdit != null)
+              ListTile(
+                leading: Icon(
+                  Icons.edit_outlined,
+                  color: AppColors.textSecondary,
+                ),
+                title: Text('Edit', style: AppTypography.bodyLarge),
+                onTap: () {
+                  Navigator.pop(sheetContext);
+                  onEdit!();
+                },
+              ),
+            if (onDelete != null)
+              ListTile(
+                leading: Icon(Icons.delete_outline, color: AppColors.error),
+                title: Text(
+                  'Delete',
+                  style: AppTypography.bodyLarge.copyWith(
+                    color: AppColors.error,
+                  ),
+                ),
+                onTap: () {
+                  Navigator.pop(sheetContext);
+                  _confirmDelete(outerContext);
+                },
+              ),
+            AppSpacing.gapSm,
           ],
         ),
       ),
@@ -310,56 +232,33 @@ class TransactionCard extends ConsumerWidget {
   }
 
   void _confirmDelete(BuildContext context) {
-    showDialog(
+    showDialog<void>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         backgroundColor: AppColors.primarySurface,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: AppColors.error.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(
-                Icons.delete_outline,
-                color: AppColors.error,
-                size: 20,
-              ),
-            ),
-            const SizedBox(width: 12),
-            const Text(
-              'Delete Transaction',
-              style: TextStyle(color: AppColors.textPrimary, fontSize: 18),
-            ),
-          ],
+        title: Text(
+          'Delete this transaction?',
+          style: AppTypography.titleLarge,
         ),
         content: Text(
-          'Are you sure you want to delete this transaction? This action cannot be undone.',
-          style: TextStyle(color: AppColors.textSecondary, height: 1.5),
+          'It will be removed from your records and your balance will be '
+          'recalculated.',
+          style: AppTypography.bodyMedium.copyWith(
+            color: AppColors.textSecondary,
+          ),
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              'Cancel',
-              style: TextStyle(color: AppColors.textSecondary),
-            ),
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Cancel'),
           ),
-          ElevatedButton(
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: AppColors.error),
             onPressed: () {
-              Navigator.pop(context);
+              Navigator.pop(dialogContext);
               onDelete?.call();
             },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.error,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-            child: const Text('Delete', style: TextStyle(color: Colors.white)),
+            child: const Text('Delete'),
           ),
         ],
       ),
@@ -367,36 +266,34 @@ class TransactionCard extends ConsumerWidget {
   }
 }
 
-class _OptionTile extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final Color? iconColor;
-  final Color? labelColor;
-  final VoidCallback onTap;
-
-  const _OptionTile({
-    required this.icon,
-    required this.label,
-    this.iconColor,
-    this.labelColor,
-    required this.onTap,
+/// The one place a transaction's category colour appears.
+class _CategoryGlyph extends StatelessWidget {
+  const _CategoryGlyph({
+    required this.tint,
+    required this.iconName,
+    required this.isExpense,
   });
+
+  final Color tint;
+  final String? iconName;
+  final bool isExpense;
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      onTap: onTap,
-      leading: Icon(icon, color: iconColor ?? AppColors.textPrimary, size: 22),
-      title: Text(
-        label,
-        style: TextStyle(
-          color: labelColor ?? AppColors.textPrimary,
-          fontSize: 15,
-          fontWeight: FontWeight.w500,
-        ),
+    return Container(
+      width: 40,
+      height: 40,
+      decoration: BoxDecoration(
+        color: tint.withValues(alpha: 0.15),
+        borderRadius: AppSpacing.borderRadiusMd,
       ),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Icon(
+        iconName != null
+            ? IconRegistry.getIcon(iconName!)
+            : (isExpense ? Icons.arrow_upward : Icons.arrow_downward),
+        color: tint,
+        size: AppSpacing.iconSm,
+      ),
     );
   }
 }

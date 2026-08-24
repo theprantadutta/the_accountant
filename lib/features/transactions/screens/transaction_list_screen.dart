@@ -3,16 +3,29 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
+import 'package:the_accountant/core/themes/app_spacing.dart';
+import 'package:the_accountant/core/themes/app_typography.dart';
 import 'package:the_accountant/core/utils/date_formatter.dart';
 import 'package:the_accountant/features/categories/providers/category_provider.dart';
 import 'package:the_accountant/features/settings/providers/settings_provider.dart';
 import 'package:the_accountant/features/transactions/providers/transaction_provider.dart';
 import 'package:the_accountant/features/transactions/screens/add_transaction_screen.dart';
+import 'package:the_accountant/features/transactions/widgets/month_strip.dart';
+import 'package:the_accountant/shared/widgets/neo_button.dart';
 import 'package:the_accountant/shared/widgets/transaction_card.dart';
 import 'package:the_accountant/shared/widgets/shimmer_loading.dart';
 
 class TransactionListScreen extends ConsumerStatefulWidget {
-  const TransactionListScreen({super.key});
+  const TransactionListScreen({super.key, this.standalone = false});
+
+  /// Whether this screen is pushed as its own route rather than shown inside
+  /// the tab shell.
+  ///
+  /// The shell already puts the screen's name in the header, so an embedded
+  /// copy carries no bar of its own — two bars a few pixels apart both saying
+  /// "Transactions" is the sort of thing you stop noticing after a week and
+  /// never stop noticing in a screenshot.
+  final bool standalone;
 
   @override
   ConsumerState<TransactionListScreen> createState() =>
@@ -133,16 +146,10 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
   void _scrollToMonth(int index) {
     if (!_monthScrollController.hasClients) return;
 
-    // Fixed chip width (95) + horizontal padding (4*2) = 103
-    const itemWidth = 103.0;
-    const listPadding = 12.0;
-    final screenWidth = MediaQuery.of(context).size.width;
-
-    // Calculate offset to center the selected item
-    final itemStart = listPadding + (index * itemWidth);
-    final itemCenter = itemStart + (itemWidth / 2);
-    final screenCenter = screenWidth / 2;
-    final offset = itemCenter - screenCenter;
+    final offset = MonthStrip.centeringOffset(
+      index,
+      MediaQuery.of(context).size.width,
+    );
 
     _monthScrollController.animateTo(
       offset.clamp(0.0, _monthScrollController.position.maxScrollExtent),
@@ -582,138 +589,6 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
     }
   }
 
-  Widget _buildMonthSelector() {
-    final now = DateTime.now();
-
-    return SizedBox(
-      height: 44,
-      child: ListView.builder(
-        controller: _monthScrollController,
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-        itemCount: _availableMonths.length,
-        itemBuilder: (context, index) {
-          final month = _availableMonths[index];
-          final isSelected = index == _currentPageIndex;
-          final isCurrentMonth =
-              month.year == now.year && month.month == now.month;
-          final isFutureMonth = month.isAfter(DateTime(now.year, now.month));
-
-          final chipColor = isSelected
-              ? AppColors.primaryAccent
-              : isCurrentMonth
-              ? AppColors.primaryAccent
-              : isFutureMonth
-              ? AppColors.success
-              : AppColors.textSecondary;
-
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4),
-            child: GestureDetector(
-              onTap: () => _onMonthChipTapped(index),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                width: 95,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 8,
-                ),
-                decoration: BoxDecoration(
-                  gradient: isSelected
-                      ? LinearGradient(
-                          colors: [
-                            AppColors.primaryAccent,
-                            AppColors.primaryAccent.withValues(alpha: 0.8),
-                          ],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        )
-                      : null,
-                  color: isSelected ? null : AppColors.primaryElevated,
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: isSelected
-                        ? AppColors.primaryAccent
-                        : isCurrentMonth
-                        ? AppColors.primaryAccent
-                        : isFutureMonth
-                        ? AppColors.success.withValues(alpha: 0.4)
-                        : AppColors.divider,
-                    width: isSelected || isCurrentMonth ? 2 : 1,
-                  ),
-                  boxShadow: isSelected
-                      ? [
-                          BoxShadow(
-                            color: AppColors.primaryAccent.withValues(
-                              alpha: 0.3,
-                            ),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
-                          ),
-                        ]
-                      : null,
-                ),
-                child: Center(
-                  child: Text(
-                    DateFormat('MMM yyyy').format(month),
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: isSelected
-                          ? FontWeight.bold
-                          : FontWeight.w600,
-                      color: isSelected ? Colors.white : chipColor,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildDateHeader(DateTime date) {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final isFuture = date.isAfter(today);
-    final headerColor = isFuture ? AppColors.success : AppColors.primaryAccent;
-
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: headerColor.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (isFuture) ...[
-                  Icon(Icons.schedule, size: 14, color: headerColor),
-                  const SizedBox(width: 6),
-                ],
-                Text(
-                  _formatDateHeader(date),
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: headerColor,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(child: Container(height: 1, color: AppColors.divider)),
-        ],
-      ),
-    );
-  }
-
   Widget _buildEmptyState(DateTime month) {
     final now = DateTime.now();
     final isFutureMonth = month.isAfter(DateTime(now.year, now.month));
@@ -800,6 +675,10 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
     }
 
     return ListView.builder(
+      // Room at the bottom for the floating add button, which otherwise sits
+      // on top of the last row and hides its amount — the one part of a
+      // transaction you cannot guess from the rest of it.
+      padding: const EdgeInsets.only(bottom: AppSpacing.huge + AppSpacing.xxl),
       itemCount: sortedDates.length,
       itemBuilder: (context, dateIndex) {
         final date = sortedDates[dateIndex];
@@ -809,7 +688,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Date header
-            _buildDateHeader(date),
+            TransactionDateHeader(date: date, label: _formatDateHeader(date)),
             // Transactions for this date
             ...dayTransactions.map((transaction) {
               final categoryState = ref.watch(categoryProvider);
@@ -864,49 +743,25 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
     final transactionState = ref.watch(transactionProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Transactions'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.filter_list),
-            onPressed: () => _showFilterOptions(context),
-          ),
-        ],
-      ),
+      // Transparent, so the app-wide background painted in `MaterialApp.builder`
+      // shows through here the same way it does on every other screen.
+      backgroundColor: Colors.transparent,
+      appBar: widget.standalone
+          ? AppBar(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              title: Text('Transactions', style: AppTypography.titleLarge),
+            )
+          : null,
       body: Column(
         children: [
-          // Month selector
-          _buildMonthSelector(),
-          // Search bar
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16.0,
-              vertical: 8.0,
-            ),
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: 'Search transactions...',
-                prefixIcon: const Icon(Icons.search),
-                suffixIcon: _searchQuery.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Icons.clear),
-                        onPressed: () {
-                          _searchController.clear();
-                          setState(() {
-                            _searchQuery = '';
-                          });
-                        },
-                      )
-                    : null,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-              ),
-            ),
+          MonthStrip(
+            months: _availableMonths,
+            selectedIndex: _currentPageIndex,
+            onSelected: _onMonthChipTapped,
+            controller: _monthScrollController,
           ),
-          // Transaction pages - horizontal swipe
+          _buildSearchRow(),
           Expanded(
             child: PageView.builder(
               controller: _pageController,
@@ -923,6 +778,34 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  /// Search and filtering, side by side.
+  ///
+  /// Filtering used to live in the app bar this screen no longer has, and it
+  /// belongs next to search anyway — both narrow the same list.
+  Widget _buildSearchRow() {
+    final hasFilters = _filterType != null || _filterCategory != null;
+
+    return TransactionSearchField(
+      controller: _searchController,
+      query: _searchQuery,
+      onCleared: () {
+        _searchController.clear();
+        setState(() => _searchQuery = '');
+      },
+      trailing: NeoIconButton(
+        icon: Icons.tune,
+        tooltip: 'Filter',
+        size: AppSpacing.inputHeight,
+        onPressed: () => _showFilterOptions(context),
+        // Coloured only while something is actually filtered out, so the
+        // control says the list is not showing everything.
+        iconColor: hasFilters
+            ? AppColors.primaryAccent
+            : AppColors.textSecondary,
       ),
     );
   }

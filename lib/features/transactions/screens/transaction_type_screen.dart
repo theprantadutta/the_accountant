@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
+import 'package:the_accountant/features/transactions/widgets/month_strip.dart';
 import 'package:the_accountant/core/themes/app_typography.dart';
 import 'package:the_accountant/core/providers/currency_provider.dart';
 import 'package:the_accountant/core/services/currency_service.dart';
@@ -131,14 +132,10 @@ class _TransactionTypeScreenState extends ConsumerState<TransactionTypeScreen> {
   void _scrollToMonth(int index) {
     if (!_monthScrollController.hasClients) return;
 
-    const itemWidth = 103.0;
-    const listPadding = 12.0;
-    final screenWidth = MediaQuery.of(context).size.width;
-
-    final itemStart = listPadding + (index * itemWidth);
-    final itemCenter = itemStart + (itemWidth / 2);
-    final screenCenter = screenWidth / 2;
-    final offset = itemCenter - screenCenter;
+    final offset = MonthStrip.centeringOffset(
+      index,
+      MediaQuery.of(context).size.width,
+    );
 
     _monthScrollController.animateTo(
       offset.clamp(0.0, _monthScrollController.position.maxScrollExtent),
@@ -588,136 +585,6 @@ class _TransactionTypeScreenState extends ConsumerState<TransactionTypeScreen> {
     );
   }
 
-  Widget _buildMonthSelector() {
-    final now = DateTime.now();
-
-    return SizedBox(
-      height: 44,
-      child: ListView.builder(
-        controller: _monthScrollController,
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-        itemCount: _availableMonths.length,
-        itemBuilder: (context, index) {
-          final month = _availableMonths[index];
-          final isSelected = index == _currentPageIndex;
-          final isCurrentMonth =
-              month.year == now.year && month.month == now.month;
-          final isFutureMonth = month.isAfter(DateTime(now.year, now.month));
-
-          final chipColor = isSelected
-              ? _accentColor
-              : isCurrentMonth
-              ? _accentColor
-              : isFutureMonth
-              ? AppColors.success
-              : AppColors.textSecondary;
-
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4),
-            child: GestureDetector(
-              onTap: () => _onMonthChipTapped(index),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                width: 95,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 8,
-                ),
-                decoration: BoxDecoration(
-                  gradient: isSelected
-                      ? LinearGradient(
-                          colors: [
-                            _accentColor,
-                            _accentColor.withValues(alpha: 0.8),
-                          ],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        )
-                      : null,
-                  color: isSelected ? null : AppColors.primaryElevated,
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: isSelected
-                        ? _accentColor
-                        : isCurrentMonth
-                        ? _accentColor
-                        : isFutureMonth
-                        ? AppColors.success.withValues(alpha: 0.4)
-                        : AppColors.divider,
-                    width: isSelected || isCurrentMonth ? 2 : 1,
-                  ),
-                  boxShadow: isSelected
-                      ? [
-                          BoxShadow(
-                            color: _accentColor.withValues(alpha: 0.3),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
-                          ),
-                        ]
-                      : null,
-                ),
-                child: Center(
-                  child: Text(
-                    DateFormat('MMM yyyy').format(month),
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: isSelected
-                          ? FontWeight.bold
-                          : FontWeight.w600,
-                      color: isSelected ? Colors.white : chipColor,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildDateHeader(DateTime date) {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final isFuture = date.isAfter(today);
-    final headerColor = isFuture ? AppColors.success : _accentColor;
-
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: headerColor.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (isFuture) ...[
-                  Icon(Icons.schedule, size: 14, color: headerColor),
-                  const SizedBox(width: 6),
-                ],
-                Text(
-                  _formatDateHeader(date),
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: headerColor,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(child: Container(height: 1, color: AppColors.divider)),
-        ],
-      ),
-    );
-  }
-
   Widget _buildEmptyState(DateTime month) {
     final now = DateTime.now();
     final isFutureMonth = month.isAfter(DateTime(now.year, now.month));
@@ -812,7 +679,7 @@ class _TransactionTypeScreenState extends ConsumerState<TransactionTypeScreen> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildDateHeader(date),
+            TransactionDateHeader(date: date, label: _formatDateHeader(date)),
             ...dayTransactions.map((transaction) {
               final categoryState = ref.watch(categoryProvider);
               final category = categoryState.categories.firstWhere(
@@ -894,39 +761,23 @@ class _TransactionTypeScreenState extends ConsumerState<TransactionTypeScreen> {
               // Summary card
               _buildSummaryCard(transactionState.transactions),
 
-              // Month selector
-              _buildMonthSelector(),
+              MonthStrip(
+                months: _availableMonths,
+                selectedIndex: _currentPageIndex,
+                onSelected: _onMonthChipTapped,
+                controller: _monthScrollController,
+              ),
 
-              // Search bar
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16.0,
-                  vertical: 8.0,
-                ),
-                child: TextField(
-                  controller: _searchController,
-                  decoration: InputDecoration(
-                    hintText: widget.transactionType == 'income'
-                        ? 'Search income...'
-                        : 'Search expenses...',
-                    prefixIcon: const Icon(Icons.search),
-                    suffixIcon: _searchQuery.isNotEmpty
-                        ? IconButton(
-                            icon: const Icon(Icons.clear),
-                            onPressed: () {
-                              _searchController.clear();
-                              setState(() {
-                                _searchQuery = '';
-                              });
-                            },
-                          )
-                        : null,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                  ),
-                ),
+              TransactionSearchField(
+                controller: _searchController,
+                query: _searchQuery,
+                hint: widget.transactionType == 'income'
+                    ? 'Search income'
+                    : 'Search expenses',
+                onCleared: () {
+                  _searchController.clear();
+                  setState(() => _searchQuery = '');
+                },
               ),
 
               // Transaction pages
