@@ -656,6 +656,167 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
     }
   }
 
+  // ---------------------------------------------------------------------------
+  // Acting on several transactions at once
+  // ---------------------------------------------------------------------------
+  //
+  // Every one of these routes through the single-row operation rather than
+  // writing rows directly. A transfer is one domain object stored as two rows,
+  // a loan carries a repayment total, and a recurrence has a config behind it;
+  // a bulk path that wrote rows itself would have to know all of that, and
+  // would fall behind the moment any of it changed. Looping is slower and
+  // correct, which is the right trade for something a person triggers by hand.
+  //
+  // The list is reloaded once at the end instead of after each row, so a
+  // hundred-row selection does not redraw a hundred times.
+
+  /// Delete every transaction in [ids].
+  ///
+  /// Returns how many were removed. Transfers take their partner and any fee
+  /// with them, so the count can exceed the number of rows the user selected.
+  Future<int> deleteMany(Iterable<String> ids) async {
+    return _bulk(ids, (id) => _deleteOne(id));
+  }
+
+  /// Move every transaction in [ids] to [categoryId].
+  Future<int> setCategoryForMany(
+    Iterable<String> ids,
+    String categoryId,
+  ) async {
+    return _bulk(ids, (id) async {
+      await updateTransaction(id: id, categoryId: categoryId);
+      return true;
+    });
+  }
+
+  /// Move every transaction in [ids] to [walletId].
+  ///
+  /// Transfer legs are skipped: moving one leg to the account the other leg is
+  /// already on would make a transfer that goes nowhere, and silently changing
+  /// both legs is not what the user asked for either.
+  Future<int> setWalletForMany(Iterable<String> ids, String walletId) async {
+    return _bulk(ids, (id) async {
+      final row = await _db.findTransactionById(id);
+      if (row == null || TransactionPolicy.isTransfer(row)) return false;
+      await updateTransaction(id: id, walletId: walletId);
+      return true;
+    });
+  }
+
+  /// Re-date every transaction in [ids].
+  Future<int> setDateForMany(Iterable<String> ids, DateTime date) async {
+    return _bulk(ids, (id) async {
+      await updateTransaction(id: id, date: date);
+      return true;
+    });
+  }
+
+  /// Mark every unpaid transaction in [ids] as paid.
+  ///
+  /// Cashew has no equivalent; its only way to settle a backlog is an automatic
+  /// pass on launch that the user does not choose. Rows that are already paid
+  /// are left alone rather than re-dated.
+  Future<int> markManyPaid(Iterable<String> ids) async {
+    return _bulk(ids, (id) async {
+      final row = await _db.findTransactionById(id);
+      if (row == null || row.isPaid) return false;
+      await _db.markTransactionAsPaid(id);
+      final wallet = await _db.findWalletById(row.walletId);
+      if (wallet != null) {
+        await _walletBalanceService.updateWalletBalance(row.walletId);
+      }
+      return true;
+    });
+  }
+
+  /// Copy every transaction in [ids], dated [date] or their own date.
+  ///
+  /// Transfer legs are skipped: half a transfer is not a transaction anyone
+  /// meant to create, and copying both legs would need the pair rebuilt rather
+  /// than the rows duplicated.
+  Future<int> duplicateMany(Iterable<String> ids, {DateTime? date}) async {
+    return _bulk(ids, (id) async => await _duplicateOne(id, date: date) != null);
+  }
+
+  /// Copy one transaction. Returns the new id, or null when it was skipped.
+  Future<String?> duplicateTransaction(String id, {DateTime? date}) async {
+    final created = await _duplicateOne(id, date: date, reload: true);
+    return created;
+  }
+
+  Future<bool> _deleteOne(String id) async {
+    // A row that is not there has nothing to delete, and counting it would
+    // report more removed than there were.
+    if (await _db.findTransactionById(id) == null) return false;
+    await deleteTransaction(id);
+    return true;
+  }
+
+  Future<String?> _duplicateOne(
+    String id, {
+    DateTime? date,
+    bool reload = false,
+  }) async {
+    final row = await _db.findTransactionById(id);
+    if (row == null || TransactionPolicy.isTransfer(row)) return null;
+
+    final newId = const Uuid().v4();
+    final now = DateTime.now();
+
+    await _db.addTransaction(
+      TransactionsCompanion.insert(
+        id: newId,
+        amount: row.amount,
+        title: Value(row.title),
+        notes: Value(row.notes),
+        date: date ?? row.date,
+        isIncome: Value(row.isIncome),
+        categoryId: Value(row.categoryId),
+        walletId: row.walletId,
+        paymentMethodId: Value(row.paymentMethodId),
+        specialType: Value(row.specialType),
+        isPaid: Value(row.isPaid),
+        budgetId: Value(row.budgetId),
+        objectiveId: Value(row.objectiveId),
+        // Deliberately not copied: the paired id and fee link belong to one
+        // transfer, the occurrence key is unique per recurrence and would
+        // collide, and a copy has repaid nothing yet.
+        syncStatus: const Value(SyncStatus.pendingCreate),
+        createdAt: Value(now),
+        updatedAt: Value(now),
+      ),
+    );
+
+    if (TransactionPolicy.affectsWalletBalance(row)) {
+      await _walletBalanceService.updateWalletBalance(row.walletId);
+    }
+
+    if (reload) await loadTransactions(silent: true);
+    return newId;
+  }
+
+  /// Run [action] over [ids], counting the ones that reported a change.
+  ///
+  /// The action returns whether it did anything, so a row deliberately skipped
+  /// -- a transfer leg that must not move accounts, a row already paid -- is
+  /// not counted as changed.
+  Future<int> _bulk(
+    Iterable<String> ids,
+    Future<bool> Function(String id) action,
+  ) async {
+    var changed = 0;
+    for (final id in ids) {
+      try {
+        if (await action(id)) changed++;
+      } catch (_) {
+        // One bad row must not abandon the rest of the selection. The count
+        // reported back is what actually happened.
+      }
+    }
+    await loadTransactions(silent: true);
+    return changed;
+  }
+
   Future<void> deleteTransaction(String id) async {
     state = state.copyWith(isLoading: true);
 
