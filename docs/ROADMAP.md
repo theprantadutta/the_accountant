@@ -105,7 +105,15 @@ Recurring configs are not soft-deletable. Deleting one sets a flag, pull never e
 
 ## Phase 1 — Budgets
 
-The feature is not merely weak, it is non-functional. Rewrite it end to end on the schema that already exists.
+**Status: mostly done.** Client commits `a1a249c`, `93cdee0`, `b226781`; backend commits `03ff62e`, `c053f37`. Flutter analyze clean with 370 tests passing; backend clean with 40.
+
+Done: the data model on schema 18 with the two legacy columns dropped and their data folded in; one engine replacing all four spend calculations; the provider rewritten so create, edit, delete, archive and pin all work; the create/edit form on real categories with all six periods and an interval; the list with actions; the detail screen with period navigation, category breakdown and recent periods; the alert units and filter fixed and the timer actually started; rollover; interval and rollover carried over sync.
+
+Still to do in this phase: per-category spending limits inside a budget (needs a new synced table on both sides, server first), and the forecast described under 1.5.
+
+The rest of this section is the original plan, kept for the detail.
+
+The feature was not merely weak, it was non-functional. Rewritten end to end on the schema that already existed.
 
 ### What is actually broken
 
