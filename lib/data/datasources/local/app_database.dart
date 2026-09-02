@@ -2671,10 +2671,19 @@ class AppDatabase extends _$AppDatabase {
             ..orderBy([(t) => OrderingTerm.desc(t.date)]))
           .get();
 
-  /// Get total amount contributed to an objective (integer minor units / cents).
+  /// What has actually been put toward an objective, in cents.
+  ///
+  /// Only transactions whose money has moved count, via
+  /// [TransactionPolicy.countsTowardObjective]. This used to sum every linked
+  /// row, so an unpaid bill scheduled for next month already counted as
+  /// progress and a goal could report itself complete on money that had not
+  /// left anyone's account. It was the last money surface in the app not going
+  /// through the shared policy.
   Future<int> getObjectiveProgress(String objectiveId) async {
     final linked = await getTransactionsForObjective(objectiveId);
-    return linked.fold<int>(0, (sum, t) => sum + t.amount);
+    return linked
+        .where(TransactionPolicy.countsTowardObjective)
+        .fold<int>(0, (sum, t) => sum + t.amount);
   }
 
   /// Assign [transactionId] to [objectiveId], marking the row for sync so the

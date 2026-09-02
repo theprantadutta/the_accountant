@@ -60,9 +60,11 @@ class ObjectivesNotifier extends _$ObjectivesNotifier {
   }
 
   /// Create a new objective
+  /// Create a goal or loan. [targetAmount] is in integer minor units (cents),
+  /// like every other money value in the app.
   Future<String> createObjective({
     required String name,
-    required double targetAmount,
+    required int targetAmount,
     required String type,
     required DateTime startDate,
     DateTime? endDate,
@@ -88,7 +90,7 @@ class ObjectivesNotifier extends _$ObjectivesNotifier {
 
     final id = await service.createObjective(
       name: name,
-      targetAmount: (targetAmount * 100).round(), // dollars -> integer cents
+      targetAmount: targetAmount,
       type: type,
       startDate: startDate,
       endDate: endDate,
@@ -112,7 +114,7 @@ class ObjectivesNotifier extends _$ObjectivesNotifier {
   Future<void> updateObjective({
     required String objectiveId,
     String? name,
-    double? targetAmount,
+    int? targetAmount,
     Object? endDate = ObjectivesService.keepEndDate,
     String? iconName,
     String? color,
@@ -124,9 +126,7 @@ class ObjectivesNotifier extends _$ObjectivesNotifier {
     await service.updateObjective(
       objectiveId: objectiveId,
       name: name,
-      targetAmount: targetAmount == null
-          ? null
-          : (targetAmount * 100).round(), // dollars -> integer cents
+      targetAmount: targetAmount,
       endDate: endDate,
       iconName: iconName,
       color: color,

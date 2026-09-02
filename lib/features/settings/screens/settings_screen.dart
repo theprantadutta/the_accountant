@@ -1,5 +1,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:the_accountant/features/wallets/screens/wallet_management_screen.dart';
+import 'package:the_accountant/features/transactions/screens/upcoming_transactions_screen.dart';
+import 'package:the_accountant/features/settings/screens/theme_selection_screen.dart';
+import 'package:the_accountant/features/objectives/screens/objectives_list_screen.dart';
+import 'package:the_accountant/features/categories/screens/category_management_screen.dart';
+import 'package:the_accountant/features/budgets/screens/budget_list_screen.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -299,6 +305,90 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       sections.add(SettingsSection(title: 'ACCOUNT', tiles: accountTiles));
     }
 
+    // MONEY SECTION
+    //
+    // Four screens that were fully built and unreachable: goals had no entry
+    // point anywhere, the upcoming list could only be opened from code that was
+    // commented out, category management was pushed from a dead route, and the
+    // theme picker existed only inside the intro slideshow. All of them work;
+    // none of them had a door.
+    final moneyTiles = <Widget>[];
+    if (_matchesSearch('Goals') ||
+        _matchesKeywords(['goal', 'objective', 'saving', 'target'])) {
+      moneyTiles.add(
+        SettingsNavigationTile(
+          icon: Icons.flag_outlined,
+          title: 'Goals',
+          subtitle: 'Save toward something and track how far along you are',
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const ObjectivesListScreen()),
+          ),
+        ),
+      );
+    }
+    if (_matchesSearch('Budgets') ||
+        _matchesKeywords(['budget', 'limit', 'spending'])) {
+      moneyTiles.add(
+        SettingsNavigationTile(
+          icon: Icons.pie_chart_outline,
+          title: 'Budgets',
+          subtitle: 'Set limits and see how the period is going',
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const BudgetListScreen()),
+          ),
+        ),
+      );
+    }
+    if (_matchesSearch('Upcoming') ||
+        _matchesKeywords(['upcoming', 'overdue', 'scheduled', 'due'])) {
+      moneyTiles.add(
+        SettingsNavigationTile(
+          icon: Icons.schedule_outlined,
+          title: 'Upcoming and overdue',
+          subtitle: 'What is due, and what was missed',
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const UpcomingTransactionsScreen(),
+            ),
+          ),
+        ),
+      );
+    }
+    if (_matchesSearch('Categories') ||
+        _matchesKeywords(['category', 'categories', 'icon', 'colour', 'color'])) {
+      moneyTiles.add(
+        SettingsNavigationTile(
+          icon: Icons.category_outlined,
+          title: 'Categories',
+          subtitle: 'Rename, recolour, and group them',
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const CategoryManagementScreen()),
+          ),
+        ),
+      );
+    }
+    if (_matchesSearch('Accounts') ||
+        _matchesKeywords(['wallet', 'account', 'balance'])) {
+      moneyTiles.add(
+        SettingsNavigationTile(
+          icon: Icons.account_balance_wallet_outlined,
+          title: 'Accounts',
+          subtitle: 'Add, reorder, and edit your accounts',
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const WalletManagementScreen()),
+          ),
+        ),
+      );
+    }
+    if (moneyTiles.isNotEmpty) {
+      sections.add(SettingsSection(title: 'MONEY', tiles: moneyTiles));
+    }
+
     // REGIONAL SECTION
     final regionalTiles = <Widget>[];
     if (_matchesSearch('Regional') ||
@@ -312,6 +402,20 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const RegionalSettingsScreen()),
+          ),
+        ),
+      );
+    }
+    if (_matchesSearch('Appearance') ||
+        _matchesKeywords(['theme', 'dark', 'light', 'colour', 'color', 'appearance'])) {
+      regionalTiles.add(
+        SettingsNavigationTile(
+          icon: Icons.palette_outlined,
+          title: 'Appearance',
+          subtitle: 'Theme and accent colour',
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const ThemeSelectionScreen()),
           ),
         ),
       );

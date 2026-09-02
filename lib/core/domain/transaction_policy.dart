@@ -109,6 +109,21 @@ class TransactionPolicy {
     return t.isPaid || isCreditOrDebt(t);
   }
 
+  /// Whether [t] counts toward the goal it is linked to.
+  ///
+  /// Money has to have actually moved: a bill that has not been paid yet is not
+  /// progress toward a holiday fund, and counting it would let a goal reach its
+  /// target on transactions that never happened.
+  ///
+  /// Transfers **do** count here, which is the opposite of how budgets and
+  /// reports treat them. Those ask what was earned and spent, and moving your
+  /// own money between your own accounts is neither. A goal asks how much has
+  /// been set aside, and moving money into savings is exactly how that is
+  /// done — excluding transfers would leave the most common way of funding a
+  /// goal invisible to it. Only the leg the user linked is counted, so the two
+  /// halves of one transfer cannot both land on the same goal.
+  static bool countsTowardObjective(Transaction t) => affectsWalletBalance(t);
+
   /// Signed effect of [t] on its wallet's balance, in integer minor units.
   ///
   /// Returns 0 when the transaction is not realized. Amounts are stored as

@@ -349,9 +349,12 @@ class ObjectiveWithProgress {
     return '${(days / 365).toStringAsFixed(1)} years left';
   }
 
-  String? get dailyTargetText {
-    if (dailyTarget == null || dailyTarget! <= 0) return null;
-    // dailyTarget is in minor units (cents) per day; show major-unit dollars.
-    return '\$${(dailyTarget! / 100).toStringAsFixed(2)}/day needed';
-  }
+  /// Cents that need to go in each day to arrive on time, or null when there
+  /// is no deadline, no shortfall, or no time left.
+  ///
+  /// Deliberately a number rather than a string: this class has no idea which
+  /// currency the user keeps, and the version that built the text itself
+  /// hard-coded a dollar sign onto every account in the world.
+  int? get dailyTargetCents =>
+      (dailyTarget == null || dailyTarget! <= 0) ? null : dailyTarget!.round();
 }
