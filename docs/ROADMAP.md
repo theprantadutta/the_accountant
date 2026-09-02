@@ -27,7 +27,9 @@ Three more standing rules, drawn from how the code already works:
 
 ## Phase 0 — Sync contract repair
 
-Nothing else is safe until this lands. These are live data-corruption and sync-brick bugs, not feature gaps. Ships in two steps: backend first, then client.
+**Status: done**, except the pull cap noted at 0.5. Backend commit `03ff62e`, client commit `54d4169`. Flutter analyze clean and 351 tests passing; backend builds clean with 40 unit tests passing.
+
+Nothing else was safe until this landed. These are live data-corruption and sync-brick bugs, not feature gaps. Shipped in two steps: backend first, then client.
 
 ### 0.1 Budget period ordinals disagree (data corruption)
 
@@ -90,7 +92,7 @@ The sync-status endpoint reports nine tables including exchange rates and associ
 
 - **Client:** add a `default` arm to the pull dispatch switch that logs and refuses to advance the cursor on an unknown table, instead of silently dropping it.
 - **Server:** add a push-handler test that builds `data` from snake_case keys and asserts the request is rejected rather than silently zeroing every field. Every current test builds PascalCase objects, so the real client's casing is untested.
-- **Server:** cap the pull response. It currently materialises every changed row for a user with no limit, so a first sync loads an entire account into memory in one response. Push is already capped at 1000 and the client chunks at 400.
+- **Server: cap the pull response. Deferred, not done.** It currently materialises every changed row for a user with no limit, so a first sync loads an entire account into memory in one response. Push is already capped at 1000 and the client chunks at 400. Capping it correctly needs paging on both sides: the cursor is a timestamp, so truncating without a watermark would advance it past rows that were never sent and lose them permanently. That means a `has_more` flag and a client that loops. It is a memory and latency risk rather than a correctness bug, and the sync path currently works, so it was left out of a change set whose whole purpose was to stop corruption. Do it as its own piece of work with its own tests.
 - **Both:** add a test asserting the six enum wire tables match. Five are correct today and only budget period is broken; the test stops the next one drifting.
 
 ### 0.6 Reclaim recurring config rows
