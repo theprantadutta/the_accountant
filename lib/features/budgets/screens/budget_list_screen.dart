@@ -8,6 +8,7 @@ import 'package:the_accountant/data/datasources/local/database_provider.dart';
 import 'package:the_accountant/features/budgets/domain/budget_engine.dart';
 import 'package:the_accountant/features/budgets/providers/budget_provider.dart';
 import 'package:the_accountant/features/budgets/screens/add_budget_screen.dart';
+import 'package:the_accountant/features/budgets/screens/budget_detail_screen.dart';
 import 'package:the_accountant/features/settings/widgets/confirmation_dialog.dart';
 import 'package:the_accountant/shared/widgets/budget_progress.dart';
 import 'package:the_accountant/shared/widgets/shimmer_loading.dart';
@@ -81,7 +82,7 @@ class _BudgetListScreenState extends ConsumerState<BudgetListScreen> {
                     key: ValueKey(budget.id),
                     budget: budget,
                     currency: currency,
-                    onEdit: () => _editBudget(budget),
+                    onOpen: () => _openBudget(budget),
                     onMenu: () => _showActions(budget),
                   );
                 },
@@ -94,6 +95,15 @@ class _BudgetListScreenState extends ConsumerState<BudgetListScreen> {
     await Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => const AddBudgetScreen()),
+    );
+  }
+
+  Future<void> _openBudget(BudgetView budget) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => BudgetDetailScreen(budgetId: budget.id),
+      ),
     );
   }
 
@@ -199,14 +209,14 @@ class _BudgetListScreenState extends ConsumerState<BudgetListScreen> {
 class _BudgetRow extends ConsumerWidget {
   final BudgetView budget;
   final String currency;
-  final VoidCallback onEdit;
+  final VoidCallback onOpen;
   final VoidCallback onMenu;
 
   const _BudgetRow({
     super.key,
     required this.budget,
     required this.currency,
-    required this.onEdit,
+    required this.onOpen,
     required this.onMenu,
   });
 
@@ -222,7 +232,7 @@ class _BudgetRow extends ConsumerWidget {
         return BudgetProgressCard(
           progress: progress,
           currency: currency,
-          onTap: onEdit,
+          onTap: onOpen,
           onLongPress: onMenu,
         );
       },
