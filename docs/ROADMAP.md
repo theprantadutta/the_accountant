@@ -220,6 +220,7 @@ The daily-use surface, and the widest everyday gap against Cashew.
 ## Phase 5 — Data portability
 
 - **Local backup and restore**, free. Sync is premium, so a free user currently has no way to get their data out and back. This is a trust feature.
+- **Google Drive backup**, modelled on Cashew: backups in the hidden app-data folder, an automatic interval with a retained count, and a manage view to download, delete or restore. Cashew names each file after the schema version and device, which is worth copying so a restore can refuse a file newer than the app reading it. We are not copying its sync: it merges whole database files by modification time, and our delta protocol is better than that.
 - **CSV import** with charset and header detection, a column mapping sheet, and a date-format field with live preview. Beyond Cashew: **saved mapping templates per bank**.
 
 Import must be purely client-side. The existing bulk endpoint mutates wallet balances, which contradicts the sync contract where balance is client-authoritative, and it validates only the wallet, silently dropping rows and returning 500 on a bad reference. Routing an import through it would double-count every balance.
@@ -270,8 +271,8 @@ Phases 2 and 5 are client-only and can run in parallel with any backend work.
 
 These change what gets built and are worth answering before the later phases.
 
-1. **Guest mode.** Sign-in is currently mandatory. Cashew never requires an account. Should there be a local-only mode that upgrades to an account later?
-2. **Free-tier backup.** Sync is premium. Should the local backup file be free so no user is ever locked in?
+1. ~~**Guest mode.**~~ **Decided: no guest mode.** Sign-in stays mandatory. Do not add a local-only or anonymous mode.
+2. ~~**Free-tier backup.**~~ **Decided: yes, and modelled on Cashew.** Phase 5 builds local backup plus Google Drive backup and restore, the way Cashew does it: a hidden app-data folder, automatic backups on an interval, and a managed list to download, delete or restore from. Cashew's cross-device merge is not the target; we already have delta sync for that.
 3. **Recurring confirmation.** Should new subscriptions post automatically, as now, or ask first, as Cashew does, with the other available as a setting?
 4. **Long-term loans.** A separate concept like Cashew's, or is a per-contact running balance enough?
 5. **Web.** Cashew ships a progressive web app. Several of our plugins are mobile-only. Is web a target?
