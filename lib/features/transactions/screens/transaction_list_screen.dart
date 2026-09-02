@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/features/transactions/widgets/transaction_filter_sheet.dart';
+import 'package:the_accountant/features/transactions/domain/transaction_filters.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -38,8 +40,10 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
   late PageController _pageController;
 
   String _searchQuery = '';
-  String? _filterType;
-  String? _filterCategory;
+
+  /// Everything the list is narrowed by. Replaces a direction and one category,
+  /// which was about a tenth of what someone hunting a payment needs.
+  TransactionFilters _filters = TransactionFilters.none;
 
   late List<DateTime> _availableMonths;
   late int _currentPageIndex;
@@ -191,6 +195,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
   void _onSearchChanged() {
     setState(() {
       _searchQuery = _searchController.text.toLowerCase();
+      _filters = _filters.copyWith(query: _searchQuery);
     });
   }
 
@@ -198,39 +203,21 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
     List<Transaction> transactions,
     DateTime month,
   ) {
-    List<Transaction> filtered = transactions;
+    final categories = ref.read(categoryProvider).categories;
+    // Choosing a parent category means the things filed inside it too, so the
+    // filter needs to know which categories sit under which.
+    Set<String> familyOf(String id) => {
+      id,
+      for (final c in categories)
+        if (c.mainCategoryId == id) c.id,
+    };
 
-    // Apply month filter
-    filtered = filtered.where((transaction) {
-      return transaction.date.year == month.year &&
-          transaction.date.month == month.month;
+    return transactions.where((t) {
+      if (t.date.year != month.year || t.date.month != month.month) {
+        return false;
+      }
+      return _filters.matches(t, familyOf: familyOf);
     }).toList();
-
-    // Apply search filter
-    if (_searchQuery.isNotEmpty) {
-      filtered = filtered.where((transaction) {
-        return transaction.title.toLowerCase().contains(_searchQuery) ||
-            transaction.notes.toLowerCase().contains(_searchQuery) ||
-            transaction.category.toLowerCase().contains(_searchQuery) ||
-            transaction.paymentMethod.toLowerCase().contains(_searchQuery);
-      }).toList();
-    }
-
-    // Apply type filter
-    if (_filterType != null) {
-      filtered = filtered
-          .where((transaction) => transaction.type == _filterType)
-          .toList();
-    }
-
-    // Apply category filter
-    if (_filterCategory != null) {
-      filtered = filtered
-          .where((transaction) => transaction.categoryId == _filterCategory)
-          .toList();
-    }
-
-    return filtered;
   }
 
   Map<DateTime, List<Transaction>> _groupTransactionsByDate(
@@ -317,277 +304,14 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
     }
   }
 
-  void _showFilterOptions(BuildContext context) {
-    final categoryState = ref.read(categoryProvider);
-    final categories = categoryState.categories;
-
-    showModalBottomSheet(
+  Future<void> _showFilterOptions(BuildContext context) async {
+    final updated = await showTransactionFilterSheet(
       context: context,
-      backgroundColor: AppColors.primarySurface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      isScrollControlled: true,
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (BuildContext context, StateSetter setModalState) {
-            return Container(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Handle bar
-                  Center(
-                    child: Container(
-                      width: 40,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: AppColors.divider,
-                        borderRadius: BorderRadius.circular(2),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Header
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Filter Transactions',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                      if (_filterType != null || _filterCategory != null)
-                        TextButton(
-                          onPressed: () {
-                            setState(() {
-                              _filterType = null;
-                              _filterCategory = null;
-                            });
-                            Navigator.of(context).pop();
-                          },
-                          child: Text(
-                            'Clear All',
-                            style: TextStyle(color: AppColors.error),
-                          ),
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-
-                  // Transaction Type Section
-                  Text(
-                    'Transaction Type',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      _buildTypeChip(
-                        label: 'All',
-                        isSelected: _filterType == null || _filterType!.isEmpty,
-                        onTap: () {
-                          setState(() => _filterType = null);
-                          setModalState(() {});
-                        },
-                      ),
-                      const SizedBox(width: 8),
-                      _buildTypeChip(
-                        label: 'Income',
-                        isSelected: _filterType == 'income',
-                        color: AppColors.success,
-                        onTap: () {
-                          setState(() => _filterType = 'income');
-                          setModalState(() {});
-                        },
-                      ),
-                      const SizedBox(width: 8),
-                      _buildTypeChip(
-                        label: 'Expense',
-                        isSelected: _filterType == 'expense',
-                        color: AppColors.error,
-                        onTap: () {
-                          setState(() => _filterType = 'expense');
-                          setModalState(() {});
-                        },
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-
-                  // Categories Section
-                  Text(
-                    'Categories',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-
-                  // Horizontally scrollable category chips
-                  SizedBox(
-                    height: 40,
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: categories.length + 1, // +1 for "All" option
-                      itemBuilder: (context, index) {
-                        if (index == 0) {
-                          // "All" option
-                          return Padding(
-                            padding: const EdgeInsets.only(right: 8),
-                            child: _buildCategoryChip(
-                              label: 'All',
-                              colorCode: '#6366F1',
-                              isSelected:
-                                  _filterCategory == null ||
-                                  _filterCategory!.isEmpty,
-                              onTap: () {
-                                setState(() => _filterCategory = null);
-                                setModalState(() {});
-                              },
-                            ),
-                          );
-                        }
-
-                        final category = categories[index - 1];
-                        return Padding(
-                          padding: const EdgeInsets.only(right: 8),
-                          child: _buildCategoryChip(
-                            label: category.name,
-                            colorCode: category.colorCode,
-                            isSelected: _filterCategory == category.id,
-                            onTap: () {
-                              setState(() => _filterCategory = category.id);
-                              setModalState(() {});
-                            },
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-
-                  // Apply button
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primaryAccent,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: const Text(
-                        'Apply Filters',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                ],
-              ),
-            );
-          },
-        );
-      },
+      current: _filters,
     );
+    if (updated != null) setState(() => _filters = updated);
   }
 
-  Widget _buildTypeChip({
-    required String label,
-    required bool isSelected,
-    Color? color,
-    required VoidCallback onTap,
-  }) {
-    final chipColor = color ?? AppColors.primaryAccent;
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? chipColor.withValues(alpha: 0.2)
-              : AppColors.primaryElevated,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: isSelected ? chipColor : AppColors.divider,
-            width: isSelected ? 2 : 1,
-          ),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-            color: isSelected ? chipColor : AppColors.textSecondary,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCategoryChip({
-    required String label,
-    required String colorCode,
-    required bool isSelected,
-    required VoidCallback onTap,
-  }) {
-    final color = _parseColor(colorCode);
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? color.withValues(alpha: 0.2)
-              : AppColors.primaryElevated,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: isSelected ? color : AppColors.divider,
-            width: isSelected ? 2 : 1,
-          ),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-            color: isSelected ? color : AppColors.textSecondary,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Color _parseColor(String colorCode) {
-    try {
-      if (colorCode.startsWith('#')) {
-        return Color(int.parse(colorCode.substring(1), radix: 16) | 0xFF000000);
-      }
-      return Colors.grey;
-    } catch (e) {
-      return Colors.grey;
-    }
-  }
 
   Widget _buildEmptyState(DateTime month) {
     final now = DateTime.now();
@@ -787,14 +511,17 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
   /// Filtering used to live in the app bar this screen no longer has, and it
   /// belongs next to search anyway — both narrow the same list.
   Widget _buildSearchRow() {
-    final hasFilters = _filterType != null || _filterCategory != null;
+    final hasFilters = _filters.hasActiveFilters;
 
     return TransactionSearchField(
       controller: _searchController,
       query: _searchQuery,
       onCleared: () {
         _searchController.clear();
-        setState(() => _searchQuery = '');
+        setState(() {
+          _searchQuery = '';
+          _filters = _filters.copyWith(query: '');
+        });
       },
       trailing: NeoIconButton(
         icon: Icons.tune,

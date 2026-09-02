@@ -86,6 +86,22 @@ class Transaction {
   /// real kind so callers can ask [TransactionPolicy] instead of guessing.
   final String transactionType;
 
+  /// Whether the money has actually moved. See [TransactionPolicy].
+  final bool isPaid;
+
+  /// Upcoming, subscription, repetitive, credit, debt, or none.
+  final TransactionSpecialType specialType;
+
+  /// Set when the user chose to skip this occurrence rather than pay it.
+  final bool skipPaid;
+
+  /// Of a loan, how much has been repaid so far, in cents.
+  final int paidAmount;
+
+  /// The budget and goal this row was attached to, when it was.
+  final String? budgetId;
+  final String? objectiveId;
+
   Transaction({
     required this.id,
     required this.amount,
@@ -100,6 +116,12 @@ class Transaction {
     this.isRecurring = false,
     this.recurrencePattern,
     this.transactionType = 'regular',
+    this.isPaid = true,
+    this.specialType = TransactionSpecialType.none,
+    this.skipPaid = false,
+    this.paidAmount = 0,
+    this.budgetId,
+    this.objectiveId,
   });
 
   /// Whether this row is one leg of a wallet-to-wallet transfer.
@@ -180,6 +202,12 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
           isRecurring: false, // Deprecated - use RecurringConfigs
           recurrencePattern: null, // Deprecated - use RecurringConfigs
           transactionType: t.transactionType,
+          isPaid: t.isPaid,
+          specialType: t.specialType ?? TransactionSpecialType.none,
+          skipPaid: t.skipPaid,
+          paidAmount: t.paidAmount,
+          budgetId: t.budgetId,
+          objectiveId: t.objectiveId,
         );
       }).toList();
 
