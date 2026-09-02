@@ -58,4 +58,54 @@ void main() {
     expect(await pushedPeriodFor('yearly'), 4);
     expect(await pushedPeriodFor('custom'), 5);
   });
+
+  test('a budget keeps its shape across a round trip', () async {
+    final other = openTestDatabase();
+    addTearDown(other.close);
+    await other.claimLocalStore(userId: user);
+
+    // The scope has to name real rows: both ends reject a budget pointing at a
+    // category or wallet that does not exist for this user.
+    final catA = await seedCategory(device, name: 'Food');
+    final catB = await seedCategory(device, name: 'Drink');
+    final wallet = await seedWallet(device, name: 'Everyday');
+
+    final id = await seedBudget(
+      device,
+      name: 'Fortnightly food',
+      amount: 75000,
+      period: 'biweekly',
+      periodLength: 2,
+      categoryIds: [catA, catB],
+      walletIds: [wallet],
+      rollover: true,
+      isIncome: false,
+    );
+
+    final pushed = await SyncService(
+      database: device,
+      transport: FakeSyncTransport(server: server, userId: user),
+    ).syncAll();
+    expect(pushed.conflicts, isEmpty, reason: 'the budget should be accepted');
+
+    final pulled = await SyncService(
+      database: other,
+      transport: FakeSyncTransport(server: server, userId: user),
+    ).syncAll();
+    expect(pulled.applyFailures, isEmpty);
+
+    final landed = await other.findBudgetById(id);
+    expect(landed, isNotNull, reason: 'the budget should have travelled');
+    expect(landed!.amount, 75000);
+    expect(landed.period, 'biweekly');
+    expect(
+      landed.periodLength,
+      2,
+      reason: 'an interval that does not survive turns a monthly budget '
+          'into a fortnightly one on the other device',
+    );
+    expect(landed.rollover, isTrue);
+    expect(AppDatabase.decodeIdList(landed.categoryIds), [catA, catB]);
+    expect(AppDatabase.decodeIdList(landed.walletIds), [wallet]);
+  });
 }

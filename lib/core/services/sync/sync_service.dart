@@ -1395,6 +1395,10 @@ class SyncService {
       // stops the pull cursor advancing, which left the account retrying the
       // same failing batch on every sync from then on. An absent scope means
       // "scoped to nothing in particular", which is what an empty array says.
+      // A server that predates this field sends nothing, and one window per
+      // period is what those budgets meant.
+      periodLength: Value((data['PeriodLength'] as num?)?.toInt() ?? 1),
+      rollover: Value(data['Rollover'] ?? false),
       walletIds: Value(data['WalletIds'] ?? '[]'),
       categoryIds: Value(data['CategoryIds'] ?? '[]'),
       isIncome: Value(data['IsIncome'] ?? false),
@@ -1759,6 +1763,8 @@ class SyncService {
     'StartDate': b.startDate.toUtc().toIso8601String(),
     'EndDate': b.endDate?.toUtc().toIso8601String(),
     'Period': _budgetPeriodToInt(b.period),
+    'PeriodLength': b.periodLength,
+    'Rollover': b.rollover,
     'WalletIds': b.walletIds,
     'CategoryIds': b.categoryIds,
     'IsIncome': b.isIncome,
