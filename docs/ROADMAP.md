@@ -105,11 +105,17 @@ Recurring configs are not soft-deletable. Deleting one sets a flag, pull never e
 
 ## Phase 1 — Budgets
 
-**Status: mostly done.** Client commits `a1a249c`, `93cdee0`, `b226781`; backend commits `03ff62e`, `c053f37`. Flutter analyze clean with 370 tests passing; backend clean with 40.
+**Status: done.** Client commits `a1a249c`, `93cdee0`, `b226781`, `e99b1a7`, `14349bf`; backend commits `03ff62e`, `c053f37`, `6a93866`. Flutter analyze clean with 387 tests passing; backend clean with 45.
 
-Done: the data model on schema 18 with the two legacy columns dropped and their data folded in; one engine replacing all four spend calculations; the provider rewritten so create, edit, delete, archive and pin all work; the create/edit form on real categories with all six periods and an interval; the list with actions; the detail screen with period navigation, category breakdown and recent periods; the alert units and filter fixed and the timer actually started; rollover; interval and rollover carried over sync.
+Everything in this phase shipped:
 
-Still to do in this phase: per-category spending limits inside a budget (needs a new synced table on both sides, server first), and the forecast described under 1.5.
+- Schema 18 dropped the two legacy columns after folding their data in, resolving a stored category name back to a real id where possible and recording it where not. Schema 19 added the per-category caps table.
+- One engine replaced all four spend calculations. Windows anchor on the budget's own start date and honour an interval.
+- The provider was rewritten: create, edit, delete, archive and pin all work.
+- The create/edit form uses real categories, all six periods, an interval, wallet scope and income budgets.
+- The list has actions; the detail screen has period navigation, a cumulative graph with the previous period behind it, category breakdown, caps and recent periods.
+- Alerts have the right units and filter, the timer starts, and being over reads differently from being close.
+- Beyond Cashew: rollover, a pace marker, per-category caps expressed as a share of the budget, and an overspend forecast that counts scheduled transactions as commitments rather than guesses.
 
 The rest of this section is the original plan, kept for the detail.
 
