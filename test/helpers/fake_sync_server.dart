@@ -60,6 +60,23 @@ class FakeSyncServer {
   /// the next pull — used to inject an invalid remote record.
   Map<String, dynamic> Function(Map<String, dynamic> data)? corruptTransaction;
 
+  /// Rewrites any table's payload on its way out of [pull].
+  ///
+  /// The real API serializes with "ignore when writing null", so a column that
+  /// is null on the server does not reach the client as an explicit null — the
+  /// key is absent altogether. A fake that always emits every key cannot
+  /// reproduce that, and it is exactly the shape that used to wedge the pull
+  /// cursor, so tests need a way to ask for it.
+  Map<String, dynamic> Function(String table, Map<String, dynamic> data)?
+  rewritePulledPayload;
+
+  /// Extra buckets to include in the next pull, keyed by table name.
+  ///
+  /// Lets a test play a server that is newer than the client and sends a table
+  /// this build has never heard of, which is otherwise unreachable because the
+  /// fake only emits tables the client's own entity order already lists.
+  final Map<String, List<SyncChange>> extraPulledChanges = {};
+
   DateTime _clock = DateTime.utc(2026, 1, 1);
 
   DateTime _tick() {
@@ -472,6 +489,9 @@ class FakeSyncServer {
                 corruptTransaction != null) {
               payload = corruptTransaction!(payload);
             }
+            if (payload != null && rewritePulledPayload != null) {
+              payload = rewritePulledPayload!(table, payload);
+            }
             return SyncChange(
               tableName: table,
               entityId: e.key,
@@ -485,11 +505,18 @@ class FakeSyncServer {
       if (rows.isNotEmpty) changes[table] = rows;
     }
 
+    changes.addAll(extraPulledChanges);
+
     return SyncPullResponse(
       changes: changes,
       currentVersions: const {},
       serverTime: _tick(),
-      entityOrder: SyncEntityOrder.applyOrder,
+      entityOrder: [
+        ...SyncEntityOrder.applyOrder,
+        ...extraPulledChanges.keys.where(
+          (t) => !SyncEntityOrder.applyOrder.contains(t),
+        ),
+      ],
     );
   }
 }

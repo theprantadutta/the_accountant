@@ -1128,6 +1128,17 @@ class SyncService {
       case 'recurring_configs':
         await _applyRecurringConfigChange(change);
         break;
+      default:
+        // A table this build does not know about. Falling through silently
+        // would let the cursor advance past these rows, and because the cursor
+        // only ever moves forward they would never be offered again — the data
+        // would be missing on this device permanently, with nothing to show for
+        // it. Refusing the batch keeps the cursor where it is, so the rows are
+        // still waiting once the app is updated.
+        throw UnsupportedError(
+          'Pulled a change for unknown table "$tableName". '
+          'This build is older than the server; update the app.',
+        );
     }
   }
 
@@ -1378,8 +1389,14 @@ class SyncService {
       endDate: Value(
         data['EndDate'] != null ? DateTime.parse(data['EndDate']) : null,
       ),
-      walletIds: Value(data['WalletIds']),
-      categoryIds: Value(data['CategoryIds']),
+      // Both columns are NOT NULL here, and the server omits a null value
+      // rather than sending it, so an unscoped budget arrives with the keys
+      // simply absent. Writing that null threw, and a throw while applying
+      // stops the pull cursor advancing, which left the account retrying the
+      // same failing batch on every sync from then on. An absent scope means
+      // "scoped to nothing in particular", which is what an empty array says.
+      walletIds: Value(data['WalletIds'] ?? '[]'),
+      categoryIds: Value(data['CategoryIds'] ?? '[]'),
       isIncome: Value(data['IsIncome'] ?? false),
       isPinned: Value(data['IsPinned'] ?? false),
       isArchived: Value(data['IsArchived'] ?? false),
