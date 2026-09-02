@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/legacy.dart';
 import 'package:the_accountant/core/domain/transaction_policy.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
+import 'package:the_accountant/features/budgets/domain/budget_engine.dart';
 import 'package:the_accountant/features/budgets/providers/budget_provider.dart';
 import 'package:the_accountant/features/categories/providers/category_provider.dart'
     as cat_provider;
@@ -413,54 +414,34 @@ class ReportsNotifier extends StateNotifier<ReportsState> {
     return result;
   }
 
+  /// Budget-versus-actual for the budgets that are currently running.
+  ///
+  /// Consumption comes from [BudgetEngine], the single place it is calculated,
+  /// so this agrees with the dashboard and the budget screens. It used to do
+  /// its own sum over the budget's whole lifetime rather than its current
+  /// window, and divided it by a limit held in dollars, so the reports tab and
+  /// the dashboard could show different numbers for the same budget.
   Future<List<BudgetComparisonData>> _calculateBudgetComparison() async {
-    final budgetState = _ref.read(budgetProvider);
-    final List<BudgetComparisonData> result = [];
+    final notifier = _ref.read(budgetProvider.notifier);
+    await notifier.loadBudgets(silent: true);
 
-    for (final budget in budgetState.budgets) {
-      // Get transactions within budget period
-      final transactions = await _db.getTransactionsByDateRange(
-        budget.startDate,
-        budget.endDate,
-      );
+    final progress = await BudgetEngine(
+      _db,
+    ).progressForAll(notifier.activeBudgets());
 
-      // Calculate spent amount
-      // The named category and anything filed inside it: a Food budget is
-      // about food, not about the word.
-      final budgetCategories = await _db.categoryFamilyIds(budget.categoryId);
-      final spent =
-          transactions
-              .where(
-                // The budget's DIRECTION matters as much as its category: an
-                // income budget tracks earnings, not spending. Omitting it made
-                // every income budget evaluate as an expense budget, so the
-                // reports tab disagreed with the dashboard and the financial
-                // calculation service about the same budget.
-                (t) => TransactionPolicy.countsTowardBudget(
-                  t,
-                  budgetIsIncome: budget.isIncome,
-                  budgetCategoryIds: budgetCategories,
-                ),
-              )
-              .fold<int>(0, (sum, t) => sum + t.amount.abs()) /
-          100.0;
-
-      final percentage = budget.limit > 0 ? (spent / budget.limit) : 0.0;
-
-      result.add(
+    return [
+      for (final p in progress)
         BudgetComparisonData(
-          budgetId: budget.id,
-          budgetName: budget.name,
-          budgetLimit: budget.limit,
-          spent: spent,
-          color: const Color(0xFF667eea), // Default color
-          percentage: percentage,
-          isOverBudget: percentage > 1.0,
+          budgetId: p.budget.id,
+          budgetName: p.budget.name,
+          // This chart speaks in major units; the engine works in cents.
+          budgetLimit: p.limit / 100.0,
+          spent: p.spent / 100.0,
+          color: const Color(0xFF667eea),
+          percentage: p.fraction,
+          isOverBudget: p.isOver,
         ),
-      );
-    }
-
-    return result;
+    ];
   }
 
   String _getDayLabel(DateTime date) {

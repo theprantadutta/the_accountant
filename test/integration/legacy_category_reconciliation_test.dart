@@ -340,7 +340,6 @@ void main() {
       final budgetId = await seedBudget(
         device,
         categoryIds: [provisionalId],
-        categoryId: provisionalId,
       );
       final txnId = await seedTransaction(
         device,
@@ -367,12 +366,11 @@ void main() {
       );
       await syncFor(device).syncAll();
 
-      // Both storage locations moved to the adopted id — together.
+      // The budget's scope moved to the adopted id.
       final local = await device.findBudgetById(budgetId);
       expect(AppDatabase.decodeIdList(local!.categoryIds), [
         legacyCategoryId,
       ]);
-      expect(local.categoryId, legacyCategoryId);
       expect(local.syncStatus, SyncStatus.synced);
 
       // And what reached the cloud names the adopted category, not the
@@ -401,7 +399,6 @@ void main() {
     final budgetId = await seedBudget(
       device,
       categoryIds: [provisionalId],
-      categoryId: provisionalId,
     );
 
     await CategoryReconciliationService(
@@ -413,7 +410,6 @@ void main() {
     // are already right and must be left exactly as they are.
     final local = await device.findBudgetById(budgetId);
     expect(AppDatabase.decodeIdList(local!.categoryIds), [provisionalId]);
-    expect(local.categoryId, provisionalId);
 
     final uploaded = server
         .recordsIn(userId, 'budgets')
@@ -454,14 +450,12 @@ void main() {
     final budgetId = await seedBudget(
       device,
       categoryIds: [keptId, doomedId],
-      categoryId: doomedId,
     );
 
     await device.softDeleteCategory(doomedId);
 
     final local = await device.findBudgetById(budgetId);
     expect(AppDatabase.decodeIdList(local!.categoryIds), [keptId]);
-    expect(local.categoryId, isNull);
     // Never uploaded, so it must still be a create — not downgraded to an
     // update the server has no row for.
     expect(local.syncStatus, SyncStatus.pendingCreate);

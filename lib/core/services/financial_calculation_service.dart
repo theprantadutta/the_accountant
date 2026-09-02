@@ -1,6 +1,9 @@
 import 'package:the_accountant/core/domain/transaction_policy.dart';
-import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/core/services/currency_service.dart';
+import 'package:the_accountant/data/datasources/local/app_database.dart';
+import 'package:the_accountant/features/budgets/domain/budget_engine.dart';
+import 'package:the_accountant/features/budgets/providers/budget_provider.dart'
+    show BudgetView;
 
 class BudgetProgressItem {
   final String budgetId;
@@ -295,95 +298,52 @@ class FinancialCalculationService {
     }
   }
 
-  /// Calculate budget progress for active budgets
+  /// Share of its limit each running budget has used, as a percentage.
+  ///
+  /// Delegates to [BudgetEngine], which is the only place consumption is
+  /// worked out. This method used to do its own arithmetic over the budget's
+  /// whole lifetime rather than its current window, so a monthly budget kept
+  /// counting January's spending in February and never came back down.
   Future<Map<String, double>> getBudgetProgress() async {
     try {
-      final activeBudgets = await _db.getActiveBudgets();
-      final Map<String, double> budgetProgress = {};
-
-      for (final budget in activeBudgets) {
-        // Use amount field instead of limit (limit is legacy and nullable)
-        final budgetAmount = budget.amount;
-        if (budgetAmount <= 0) continue;
-
-        // Skip if no date range
-        final endDate = budget.endDate ?? DateTime.now();
-        final transactions = await _db.getTransactionsByDateRange(
-          budget.startDate,
-          endDate,
-        );
-
-        final categoryId = budget.categoryId;
-        // The named category and anything filed inside it: a Food budget is
-        // about food, not about the word.
-        final budgetCategories = categoryId == null
-            ? <String>{}
-            : await _db.categoryFamilyIds(categoryId);
-        final categoryExpenses = transactions
-            .where(
-              (t) => TransactionPolicy.countsTowardBudget(
-                t,
-                budgetIsIncome: budget.isIncome,
-                budgetCategoryIds: budgetCategories,
-              ),
-            )
-            .fold<int>(0, (sum, t) => sum + t.amount);
-
-        final progressPercentage = (categoryExpenses / budgetAmount) * 100;
-        budgetProgress[budget.id] = progressPercentage.clamp(0.0, 100.0);
-      }
-
-      return budgetProgress;
+      final progress = await _budgetProgress();
+      return {
+        for (final p in progress)
+          p.budget.id: (p.fraction * 100).clamp(0.0, 100.0),
+      };
     } catch (e) {
       return {};
     }
   }
 
-  /// Detailed budget progress for active budgets with category and amounts
+  /// Running budgets with the numbers the dashboard shows.
   Future<List<BudgetProgressItem>> getBudgetProgressDetails() async {
     try {
-      final activeBudgets = await _db.getActiveBudgets();
-      final List<BudgetProgressItem> items = [];
+      final progress = await _budgetProgress();
+      final items = <BudgetProgressItem>[];
 
-      for (final budget in activeBudgets) {
-        // Use amount field instead of limit (limit is legacy and nullable)
-        final budgetAmount = budget.amount;
-
-        // Skip if no date range
-        final endDate = budget.endDate ?? DateTime.now();
-        final transactions = await _db.getTransactionsByDateRange(
-          budget.startDate,
-          endDate,
-        );
-
-        final categoryId = budget.categoryId;
-        final budgetCategories = categoryId == null
-            ? <String>{}
-            : await _db.categoryFamilyIds(categoryId);
-        final spent = transactions
-            .where(
-              (t) => TransactionPolicy.countsTowardBudget(
-                t,
-                budgetIsIncome: budget.isIncome,
-                budgetCategoryIds: budgetCategories,
-              ),
-            )
-            .fold<int>(0, (sum, t) => sum + t.amount);
-
-        Category? category;
-        if (categoryId != null) {
-          category = await _db.findCategoryById(categoryId);
+      for (final p in progress) {
+        // A budget can name several categories now. One is shown by name, more
+        // than one reads as a count, and none means it is not narrowed at all.
+        final scope = p.budget.categoryIds;
+        Category? only;
+        if (scope.length == 1) {
+          only = await _db.findCategoryById(scope.first);
         }
 
         items.add(
           BudgetProgressItem(
-            budgetId: budget.id,
-            budgetName: budget.name,
-            categoryId: categoryId ?? '',
-            categoryName: category?.name ?? 'All Categories',
-            colorCode: category?.color ?? '#999999',
-            spent: spent,
-            limit: budgetAmount,
+            budgetId: p.budget.id,
+            budgetName: p.budget.name,
+            categoryId: scope.length == 1 ? scope.first : '',
+            categoryName: switch (scope.length) {
+              0 => 'All categories',
+              1 => only?.name ?? 'All categories',
+              _ => '${scope.length} categories',
+            },
+            colorCode: only?.color ?? '#999999',
+            spent: p.spent,
+            limit: p.limit,
           ),
         );
       }
@@ -392,6 +352,12 @@ class FinancialCalculationService {
     } catch (e) {
       return [];
     }
+  }
+
+  Future<List<BudgetProgress>> _budgetProgress() async {
+    final rows = await _db.getActiveBudgets();
+    final budgets = rows.map(BudgetView.fromRow).toList();
+    return BudgetEngine(_db).progressForAll(budgets);
   }
 
   /// Get recent transactions (last 10)

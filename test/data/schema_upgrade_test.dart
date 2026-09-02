@@ -44,6 +44,22 @@ void main() {
 
     final db = AppDatabase(NativeDatabase(file));
     await db.customSelect('SELECT 1').get(); // force open + createAll
+
+    // Columns schema 18 removed. The tables here are built from the CURRENT
+    // definitions, so anything since deleted has to be put back before the seed
+    // runs, or a fixture describing an older store cannot write the rows that
+    // store really had.
+    if (version < 18) {
+      if (!keep.contains('budgets.category_id')) {
+        await db.customStatement('ALTER TABLE budgets ADD COLUMN category_id TEXT');
+      }
+      if (!keep.contains('budgets.limit')) {
+        await db.customStatement('ALTER TABLE budgets ADD COLUMN "limit" REAL');
+      }
+      await db.customStatement('ALTER TABLE budgets DROP COLUMN period_length');
+      await db.customStatement('ALTER TABLE budgets DROP COLUMN rollover');
+    }
+
     await seed?.call(db);
 
     if (version < 15 && !keep.contains('local_id_repairs')) {
@@ -364,10 +380,12 @@ void main() {
   });
 
   test('schema 14 drops budget references to categories that are gone', () async {
-    // `categoryIds` and the legacy `categoryId` are not foreign keys, and builds
-    // before this one did not prune them when a category was deleted. A budget
-    // left pointing at a deleted category does not fail — it silently counts
-    // nothing — and it would now be rejected by the server too.
+    // `categoryIds` is not a foreign key, and builds before this one did not
+    // prune it when a category was deleted. A budget left pointing at a deleted
+    // category does not fail — it silently counts nothing — and it would now be
+    // rejected by the server too. The seed below still writes the legacy
+    // single-category column, because a store built at version 13 had one;
+    // schema 18 folds it into the list and drops it.
     final file = await buildLegacyDatabase(
       13,
       seed: (legacy) async {
@@ -412,7 +430,6 @@ void main() {
 
     final synced = await upgraded.findBudgetById('b-synced');
     expect(AppDatabase.decodeIdList(synced!.categoryIds), ['cat-live']);
-    expect(synced.categoryId, isNull);
     expect(synced.syncStatus, SyncStatus.pendingUpdate);
 
     final fresh = await upgraded.findBudgetById('b-new');

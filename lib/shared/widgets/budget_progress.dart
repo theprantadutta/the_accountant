@@ -1,155 +1,205 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:the_accountant/core/themes/app_colors.dart';
-import 'package:the_accountant/core/services/currency_service.dart';
 import 'package:the_accountant/core/providers/currency_provider.dart';
-import 'package:the_accountant/core/utils/number_formatter.dart';
+import 'package:the_accountant/core/themes/app_colors.dart';
+import 'package:the_accountant/core/utils/currency_formatter.dart';
+import 'package:the_accountant/features/budgets/domain/budget_engine.dart';
 import 'package:the_accountant/features/settings/providers/settings_provider.dart';
-import 'package:the_accountant/features/transactions/providers/transaction_provider.dart';
 
-class BudgetProgress extends ConsumerWidget {
-  final String budgetName;
-  final String categoryId;
-  final double limit;
-  final DateTime startDate;
-  final DateTime endDate;
+/// One budget's card: name, spend against limit, a bar, and how it is pacing.
+///
+/// Purely presentational. It used to work out the spend itself, filtering on a
+/// deprecated `type` column that nothing writes, so every card read zero spent
+/// and a full limit remaining no matter what the user had recorded. Consumption
+/// now arrives already calculated by [BudgetEngine], the one place that does it.
+class BudgetProgressCard extends ConsumerWidget {
+  final BudgetProgress progress;
   final String currency;
+  final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
 
-  const BudgetProgress({
+  const BudgetProgressCard({
     super.key,
-    required this.budgetName,
-    required this.categoryId,
-    required this.limit,
-    required this.startDate,
-    required this.endDate,
+    required this.progress,
     required this.currency,
+    this.onTap,
+    this.onLongPress,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final transactionState = ref.watch(transactionProvider);
     final useDecimals = ref.watch(defaultDecimalProvider);
+    final numberFormat = ref.watch(numberFormatSettingProvider);
 
-    // Calculate spent amount for this budget's category and date range
-    final spent = transactionState.transactions
-        .where(
-          (transaction) =>
-              transaction.categoryId == categoryId &&
-              transaction.type == 'expense' &&
-              transaction.date.isAfter(startDate) &&
-              transaction.date.isBefore(endDate),
-        )
-        .fold(0.0, (sum, transaction) => sum + transaction.amount / 100.0);
+    String money(int cents) => cents.formatCurrency(
+      currency,
+      useDecimals: useDecimals,
+      numberFormat: numberFormat,
+    );
 
-    final percentage = limit > 0 ? (spent / limit).clamp(0.0, 1.0) : 0.0;
-    final remaining = limit - spent;
+    final fraction = progress.fraction.clamp(0.0, 1.0);
+    final remaining = progress.remaining;
+    final isOver = progress.isOver;
 
-    final nf = ref.watch(numberFormatSettingProvider);
-    final decimalDigits = useDecimals ? 2 : 0;
-    final formattedLimit = AppNumberFormatter.currency(
-      CurrencyInfo.getSymbol(currency),
-      nf,
-      decimalDigits: decimalDigits,
-    ).format(useDecimals ? limit : limit.round());
+    final (accent, gradient) = switch (fraction) {
+      < 0.5 => (AppColors.success, AppColors.successCardGradient),
+      < 0.8 => (AppColors.warning, AppColors.warningCardGradient),
+      _ => (AppColors.error, AppColors.errorCardGradient),
+    };
 
-    final formattedSpent = AppNumberFormatter.currency(
-      CurrencyInfo.getSymbol(currency),
-      nf,
-      decimalDigits: decimalDigits,
-    ).format(useDecimals ? spent : spent.round());
-
-    final formattedRemaining = AppNumberFormatter.currency(
-      CurrencyInfo.getSymbol(currency),
-      nf,
-      decimalDigits: decimalDigits,
-    ).format(useDecimals ? remaining.abs() : remaining.abs().round());
-
-    Color getProgressColor() {
-      if (percentage < 0.5) return AppColors.success;
-      if (percentage < 0.8) return AppColors.warning;
-      return AppColors.error;
-    }
-
-    Gradient getCardGradient() {
-      if (percentage < 0.5) return AppColors.successCardGradient;
-      if (percentage < 0.8) return AppColors.warningCardGradient;
-      return AppColors.errorCardGradient;
-    }
-
-    Color getBorderColor() {
-      if (percentage < 0.5) return AppColors.success.withValues(alpha: 0.3);
-      if (percentage < 0.8) return AppColors.warning.withValues(alpha: 0.3);
-      return AppColors.error.withValues(alpha: 0.3);
-    }
-
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        gradient: getCardGradient(),
+    return Semantics(
+      button: onTap != null,
+      label: '${progress.budget.name}, '
+          '${money(progress.spent)} of ${money(progress.limit)} used',
+      child: InkWell(
+        onTap: onTap,
+        onLongPress: onLongPress,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: getBorderColor(), width: 1),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        child: Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            gradient: gradient,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: accent.withValues(alpha: 0.3),
+              width: 1,
+            ),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  budgetName,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                    color: AppColors.textPrimary,
-                  ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        progress.budget.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      '${money(progress.spent)} / ${money(progress.limit)}',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                  ],
                 ),
-                Text(
-                  '$formattedSpent / $formattedLimit',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary,
-                  ),
+                const SizedBox(height: 12),
+                _PaceBar(fraction: fraction, accent: accent, progress: progress),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    Icon(
+                      isOver
+                          ? Icons.warning_amber_rounded
+                          : Icons.check_circle_outline,
+                      size: 16,
+                      color: isOver ? AppColors.error : AppColors.success,
+                    ),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        isOver
+                            ? '${money(remaining.abs())} over'
+                            : '${money(remaining)} left',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: isOver ? AppColors.error : AppColors.success,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      _paceLabel(progress),
+                      style: const TextStyle(
+                        color: AppColors.textSecondary,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
-            const SizedBox(height: 12),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(4),
-              child: LinearProgressIndicator(
-                value: percentage,
-                backgroundColor: AppColors.divider,
-                color: getProgressColor(),
-                minHeight: 6,
-              ),
-            ),
-            const SizedBox(height: 10),
-            Row(
-              children: [
-                Icon(
-                  remaining >= 0
-                      ? Icons.check_circle_outline
-                      : Icons.warning_amber_rounded,
-                  size: 16,
-                  color: remaining >= 0 ? AppColors.success : AppColors.error,
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  remaining >= 0
-                      ? '$formattedRemaining remaining'
-                      : '$formattedRemaining over budget',
-                  style: TextStyle(
-                    color: remaining >= 0 ? AppColors.success : AppColors.error,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 13,
-                  ),
-                ),
-              ],
-            ),
-          ],
+          ),
         ),
       ),
+    );
+  }
+
+  /// What is still available per day, or how the window is going.
+  static String _paceLabel(BudgetProgress progress) {
+    final now = DateTime.now();
+    if (progress.window.end.isBefore(now)) return 'Period ended';
+    final perDay = progress.dailyAllowanceFrom(now);
+    if (perDay == null) return progress.isOver ? 'Over' : '';
+    final days = progress.window.end.difference(now).inDays;
+    return '$days ${days == 1 ? 'day' : 'days'} left';
+  }
+}
+
+/// The spend bar, with a tick showing how far through the period we are.
+///
+/// The tick is what turns a bar into a judgement: half a budget spent is fine
+/// halfway through the month and a problem on the third.
+class _PaceBar extends StatelessWidget {
+  final double fraction;
+  final Color accent;
+  final BudgetProgress progress;
+
+  const _PaceBar({
+    required this.fraction,
+    required this.accent,
+    required this.progress,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final pace = progress.paceAt(DateTime.now()).clamp(0.0, 1.0);
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+        return SizedBox(
+          height: 8,
+          child: Stack(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: Container(
+                  height: 8,
+                  color: AppColors.divider,
+                  child: FractionallySizedBox(
+                    alignment: Alignment.centerLeft,
+                    widthFactor: fraction,
+                    child: Container(color: accent),
+                  ),
+                ),
+              ),
+              if (pace > 0 && pace < 1)
+                Positioned(
+                  left: (width * pace).clamp(0.0, width - 2),
+                  child: Container(
+                    width: 2,
+                    height: 8,
+                    color: AppColors.textPrimary.withValues(alpha: 0.55),
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:drift/drift.dart' show Value;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:the_accountant/core/domain/transaction_policy.dart';
@@ -160,7 +162,7 @@ void main() {
           period: const Value('monthly'),
           startDate: Value(now.subtract(const Duration(days: 30))),
           endDate: Value(now.add(const Duration(days: 30))),
-          categoryId: Value(categoryId),
+          categoryIds: Value(jsonEncode(categoryId == null ? [] : [categoryId])),
           isIncome: Value(isIncome),
           createdAt: Value(now),
           updatedAt: Value(now),

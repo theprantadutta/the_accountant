@@ -160,7 +160,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 17;
+  int get schemaVersion => 18;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -184,6 +184,17 @@ class AppDatabase extends _$AppDatabase {
       }
     },
     onUpgrade: (m, from, to) async {
+      // Columns first, before any step that reads rows.
+      //
+      // The steps below use typed selects, and those go through the CURRENT
+      // generated mapper — which expects every column this build knows about,
+      // including ones added by a later step than the one running. Adding a
+      // column late therefore breaks an earlier migration on any store old
+      // enough to need both: the read fails on a column that is not there yet.
+      // Adding a column is independent of everything else, so it is safe to do
+      // all of them up front, and it keeps that trap from being re-set.
+      if (from < 18) await _addV18Columns(m);
+
       if (from < 10) {
         // Fix credit/debt isIncome values and recalculate wallet balances
         // Debt (borrowed) transactions should be isIncome=true (money comes IN)
@@ -275,6 +286,9 @@ class AppDatabase extends _$AppDatabase {
       }
       if (from < 17) {
         await _migrateToV17();
+      }
+      if (from < 18) {
+        await _migrateToV18(m);
       }
     },
     beforeOpen: (details) async {
@@ -599,6 +613,108 @@ class AppDatabase extends _$AppDatabase {
           ),
         );
       }
+    }
+  }
+
+  /// Schema 18: make budgets work, and retire the two columns that stopped them
+  /// working.
+  ///
+  /// A budget carried its limit twice. `amount` is the real column, in cents,
+  /// and it is what every calculation reads; `limit` is an older one holding
+  /// major-unit dollars. The create form only ever wrote `limit`, and `amount`
+  /// is required on insert, so creating a budget threw outright and nothing
+  /// reached the database at all. Rows that predate that, or arrived from
+  /// another device, can hold either.
+  ///
+  /// It carried its category twice as well. `categoryIds` is the real scope and
+  /// the only one that syncs; `categoryId` is an older single reference that
+  /// the calculations read instead — and the form filled it with the category's
+  /// *name* rather than its id, so every lookup missed and the budget silently
+  /// counted every category.
+  ///
+  /// So this migration folds both legacy columns into the real ones before
+  /// dropping them: a missing `amount` is taken from `limit`, and a
+  /// `categoryId` is resolved to a genuine id, by name when that is what it
+  /// holds, before joining `categoryIds`. A name that matches nothing is left
+  /// behind rather than guessed at, which turns the budget into an unscoped one
+  /// — the same thing it was already doing, only now visibly.
+  /// The schema half of the schema-18 migration, run before any data step.
+  Future<void> _addV18Columns(Migrator m) async {
+    if (!await _tableExists('budgets')) return;
+    await _ensureColumn(m, budgets, budgets.periodLength);
+    await _ensureColumn(m, budgets, budgets.rollover);
+  }
+
+  Future<void> _migrateToV18(Migrator m) async {
+    if (!await _tableExists('budgets')) return;
+
+    final hasLegacyLimit = await _columnExists('budgets', 'limit');
+    final hasLegacyCategory = await _columnExists('budgets', 'category_id');
+
+    if (hasLegacyLimit) {
+      // Dollars to cents, only where the real column has nothing to say.
+      await customStatement('''
+        UPDATE budgets
+        SET amount = CAST(ROUND("limit" * 100) AS INTEGER)
+        WHERE (amount IS NULL OR amount = 0)
+          AND "limit" IS NOT NULL
+          AND "limit" > 0
+      ''');
+    }
+
+    if (hasLegacyCategory) {
+      await _foldLegacyBudgetCategories();
+    }
+
+    // Both are gone from the table definition now, so the columns have to go
+    // too or every generated insert names a column SQLite does not have.
+    if (hasLegacyLimit) {
+      await customStatement('ALTER TABLE budgets DROP COLUMN "limit"');
+    }
+    if (hasLegacyCategory) {
+      await customStatement('ALTER TABLE budgets DROP COLUMN category_id');
+    }
+  }
+
+  /// Move each budget's single legacy category into its `categoryIds` array.
+  ///
+  /// The value is an id on rows that came from sync and a display name on rows
+  /// the create form wrote, so both are tried. Anything that resolves to no
+  /// live category is dropped: it was never matching a transaction anyway.
+  Future<void> _foldLegacyBudgetCategories() async {
+    final rows = await customSelect(
+      'SELECT id, category_id, category_ids, sync_status FROM budgets '
+      "WHERE category_id IS NOT NULL AND category_id != ''",
+    ).get();
+    if (rows.isEmpty) return;
+
+    final live = await (select(
+      categories,
+    )..where((c) => c.deletedAt.isNull())).get();
+    final byId = {for (final c in live) c.id: c};
+    final byName = <String, Category>{};
+    for (final c in live) {
+      byName.putIfAbsent(c.name.toLowerCase(), () => c);
+    }
+
+    for (final row in rows) {
+      final id = row.read<String>('id');
+      final legacy = row.read<String>('category_id');
+      final resolved = byId[legacy] ?? byName[legacy.toLowerCase()];
+      if (resolved == null) continue;
+
+      final existing = decodeIdList(row.read<String?>('category_ids'));
+      if (existing.contains(resolved.id)) continue;
+
+      await customStatement(
+        'UPDATE budgets SET category_ids = ?, updated_at = ?, '
+        'sync_status = ${SyncStatus.markEditedSql} WHERE id = ?',
+        [
+          jsonEncode([...existing, resolved.id]),
+          DateTime.now().millisecondsSinceEpoch ~/ 1000,
+          id,
+        ],
+      );
     }
   }
 
@@ -1352,6 +1468,23 @@ class AppDatabase extends _$AppDatabase {
   Future<bool> updateBudget(BudgetsCompanion entry) =>
       update(budgets).replace(entry);
 
+  /// Apply only the fields [changes] actually sets, and mark the row for sync.
+  ///
+  /// The alternative is `replace`, which needs a complete row: handing it a
+  /// partial companion silently resets every column it does not mention, so an
+  /// edit that only changed the name also wiped the amount and the scope. The
+  /// status goes through [SyncStatus.markEditedSql] so an edit can never
+  /// downgrade a create that has not been pushed yet.
+  Future<void> writeBudget(String id, BudgetsCompanion changes) async {
+    await (update(budgets)..where((b) => b.id.equals(id))).write(
+      changes.copyWith(updatedAt: Value(DateTime.now())),
+    );
+    await customStatement(
+      'UPDATE budgets SET sync_status = ${SyncStatus.markEditedSql} WHERE id = ?',
+      [id],
+    );
+  }
+
   Future<int> deleteBudget(String id) =>
       (delete(budgets)..where((b) => b.id.equals(id))).go();
 
@@ -1696,11 +1829,14 @@ class AppDatabase extends _$AppDatabase {
     }
   }
 
-  /// Every category id a budget refers to, from both places it can store one.
-  static Set<String> budgetCategoryReferences(Budget b) => {
-    ...decodeIdList(b.categoryIds),
-    if (b.categoryId != null && b.categoryId!.isNotEmpty) b.categoryId!,
-  };
+  /// Every category id a budget scopes itself to.
+  ///
+  /// One place, since schema 18. A budget used to keep a second, single
+  /// category alongside this list, and that one was what the calculations
+  /// actually read — while the create form filled it with the category's *name*
+  /// instead of its id, so nothing ever matched.
+  static Set<String> budgetCategoryReferences(Budget b) =>
+      decodeIdList(b.categoryIds).toSet();
 
   /// Every wallet id a budget refers to.
   static Set<String> budgetWalletReferences(Budget b) =>
@@ -1777,9 +1913,6 @@ class AppDatabase extends _$AppDatabase {
                 ),
               ),
             ),
-            categoryId: b.categoryId == fromCategoryId
-                ? Value(toCategoryId)
-                : const Value.absent(),
           ),
         );
       }
@@ -1806,9 +1939,6 @@ class AppDatabase extends _$AppDatabase {
                 ).where((id) => id != categoryId).toList(),
               ),
             ),
-            categoryId: b.categoryId == categoryId
-                ? const Value(null)
-                : const Value.absent(),
           ),
         );
       }
@@ -1871,14 +2001,9 @@ class AppDatabase extends _$AppDatabase {
             .where(liveCategories.contains)
             .toList();
         final keptWallets = walletIds.where(liveWallets.contains).toList();
-        final legacyIsDead =
-            b.categoryId != null &&
-            b.categoryId!.isNotEmpty &&
-            !liveCategories.contains(b.categoryId);
 
         if (keptCategories.length == categoryIds.length &&
-            keptWallets.length == walletIds.length &&
-            !legacyIsDead) {
+            keptWallets.length == walletIds.length) {
           continue;
         }
 
@@ -1887,7 +2012,6 @@ class AppDatabase extends _$AppDatabase {
           BudgetsCompanion(
             categoryIds: Value(jsonEncode(keptCategories)),
             walletIds: Value(jsonEncode(keptWallets)),
-            categoryId: legacyIsDead ? const Value(null) : const Value.absent(),
           ),
         );
         changed++;

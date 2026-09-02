@@ -51,6 +51,7 @@ Future<String> seedCategory(
   bool isIncome = false,
   bool isDefault = false,
   String? defaultKey,
+  String? mainCategoryId,
   int syncStatus = SyncStatus.pendingCreate,
 }) async {
   final categoryId = id ?? _uuid.v4();
@@ -62,6 +63,7 @@ Future<String> seedCategory(
       isIncome: Value(isIncome),
       isDefault: Value(isDefault),
       defaultKey: Value(defaultKey),
+      mainCategoryId: Value(mainCategoryId),
       createdAt: Value(now),
       updatedAt: Value(now),
       syncStatus: Value(syncStatus),
@@ -190,8 +192,12 @@ Future<String> seedBudget(
   int amount = 50000,
   List<String> categoryIds = const [],
   List<String> walletIds = const [],
-  String? categoryId,
   bool isIncome = false,
+  String period = 'monthly',
+  int periodLength = 1,
+  DateTime? startDate,
+  DateTime? endDate,
+  bool rollover = false,
   int syncStatus = SyncStatus.pendingCreate,
 }) async {
   final budgetId = id ?? const Uuid().v4();
@@ -202,11 +208,14 @@ Future<String> seedBudget(
           id: budgetId,
           name: name,
           amount: amount,
-          startDate: DateTime.utc(2026, 1, 1),
+          startDate: startDate ?? DateTime.utc(2026, 1, 1),
+          endDate: Value(endDate),
+          period: Value(period),
+          periodLength: Value(periodLength),
           categoryIds: Value(jsonEncode(categoryIds)),
           walletIds: Value(jsonEncode(walletIds)),
-          categoryId: Value(categoryId),
           isIncome: Value(isIncome),
+          rollover: Value(rollover),
           syncStatus: Value(syncStatus),
         ),
       );

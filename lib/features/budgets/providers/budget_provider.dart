@@ -1,57 +1,115 @@
+import 'dart:convert';
+
+import 'package:drift/drift.dart' show Value;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:the_accountant/core/services/analytics_service.dart';
-import 'package:the_accountant/data/datasources/local/database_provider.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
+import 'package:the_accountant/data/datasources/local/database_provider.dart';
+import 'package:the_accountant/data/models/budget.dart' show BudgetPeriod;
 import 'package:the_accountant/data/models/premium_features.dart';
 import 'package:the_accountant/features/premium/exceptions/premium_limit_exception.dart';
 import 'package:the_accountant/features/premium/providers/premium_provider.dart';
-import 'package:drift/drift.dart' show Value;
 import 'package:uuid/uuid.dart';
 
-class Budget {
+/// One budget, as the UI needs it.
+///
+/// Money is integer minor units (cents) here, matching the column and the rest
+/// of the app. It used to be major-unit dollars on this class alone, which is
+/// how the alert checker ended up dividing cents by dollars and reporting
+/// spending at a hundred times its real share of the limit.
+class BudgetView {
   final String id;
   final String name;
-  final String categoryId;
-  final double limit;
-  final String period;
+
+  /// The limit, in cents.
+  final int amount;
+
+  /// Category ids this budget is scoped to. Empty means every category.
+  final List<String> categoryIds;
+
+  /// Wallet ids this budget is scoped to. Empty means every wallet.
+  final List<String> walletIds;
+
+  final BudgetPeriod period;
+
+  /// How many [period] units one window spans. Always at least 1.
+  final int periodLength;
+
   final DateTime startDate;
-  final DateTime endDate;
-  final DateTime createdAt;
+
+  /// When the budget stops repeating. Null means it does not.
+  final DateTime? endDate;
 
   /// Whether this budget tracks earnings rather than spending.
   ///
-  /// Carried on the view model because every consumer needs it to ask the shared
-  /// policy the right question; without it the reports tab silently treated
-  /// income budgets as expense budgets.
+  /// Every consumer needs it to ask the shared policy the right question;
+  /// without it the reports tab treated income budgets as expense budgets.
   final bool isIncome;
 
-  Budget({
+  final bool isPinned;
+  final bool isArchived;
+  final bool rollover;
+  final DateTime createdAt;
+
+  const BudgetView({
     required this.id,
     required this.name,
-    required this.categoryId,
-    required this.limit,
+    required this.amount,
     required this.period,
     required this.startDate,
-    required this.endDate,
     required this.createdAt,
+    this.categoryIds = const [],
+    this.walletIds = const [],
+    this.periodLength = 1,
+    this.endDate,
     this.isIncome = false,
+    this.isPinned = false,
+    this.isArchived = false,
+    this.rollover = false,
   });
+
+  factory BudgetView.fromRow(Budget row) => BudgetView(
+    id: row.id,
+    name: row.name,
+    amount: row.amount,
+    categoryIds: AppDatabase.decodeIdList(row.categoryIds),
+    walletIds: AppDatabase.decodeIdList(row.walletIds),
+    period: parsePeriod(row.period),
+    periodLength: row.periodLength < 1 ? 1 : row.periodLength,
+    startDate: row.startDate,
+    endDate: row.endDate,
+    isIncome: row.isIncome,
+    isPinned: row.isPinned,
+    isArchived: row.isArchived,
+    rollover: row.rollover,
+    createdAt: row.createdAt,
+  );
+
+  /// The stored period name as an enum, defaulting to monthly for anything
+  /// unrecognised so one bad row cannot take the screen down.
+  static BudgetPeriod parsePeriod(String raw) {
+    final wanted = raw.toLowerCase();
+    for (final value in BudgetPeriod.values) {
+      if (value.name == wanted) return value;
+    }
+    return BudgetPeriod.monthly;
+  }
 }
 
 class BudgetState {
-  final List<Budget> budgets;
+  final List<BudgetView> budgets;
   final bool isLoading;
   final String? errorMessage;
 
-  BudgetState({
+  const BudgetState({
     required this.budgets,
     required this.isLoading,
     this.errorMessage,
   });
 
   BudgetState copyWith({
-    List<Budget>? budgets,
+    List<BudgetView>? budgets,
     bool? isLoading,
     String? errorMessage,
   }) {
@@ -68,38 +126,24 @@ class BudgetNotifier extends StateNotifier<BudgetState> {
   final Ref _ref;
 
   BudgetNotifier(this._db, this._ref)
-    : super(BudgetState(budgets: [], isLoading: false)) {
+    : super(const BudgetState(budgets: [], isLoading: false)) {
     loadBudgets();
   }
 
+  /// Every live budget, archived ones included.
+  ///
+  /// Rows with no end date are kept. They used to be dropped here, which meant
+  /// a repeating budget — the ordinary kind, which has no finish — was invisible
+  /// on this screen while the dashboard, reading straight from the database,
+  /// showed it. The two surfaces disagreed about which budgets existed.
   Future<void> loadBudgets({bool silent = false}) async {
     if (!silent) state = state.copyWith(isLoading: true);
     try {
-      final dbBudgets = await _db.getAllBudgets();
-      final budgets = dbBudgets
-          .where(
-            (b) => b.endDate != null,
-          ) // Filter out budgets without end date
-          .map(
-            (b) => Budget(
-              id: b.id,
-              name: b.name,
-              categoryId: b.categoryId ?? '',
-              // Legacy view model keeps `limit` as major-unit dollars. The money column
-              // `amount` is now integer cents, so convert it when falling back.
-              limit:
-                  b.limit ??
-                  (b.amount / 100.0), // Use amount (cents) if limit is null
-              period: b.period,
-              startDate: b.startDate,
-              endDate: b.endDate!, // Safe because we filtered above
-              createdAt: b.createdAt,
-              isIncome: b.isIncome,
-            ),
-          )
-          .toList();
-
-      state = state.copyWith(budgets: budgets, isLoading: false);
+      final rows = await _db.getAllBudgets();
+      state = state.copyWith(
+        budgets: rows.map(BudgetView.fromRow).toList(),
+        isLoading: false,
+      );
     } catch (e) {
       if (!silent) {
         state = state.copyWith(
@@ -110,49 +154,63 @@ class BudgetNotifier extends StateNotifier<BudgetState> {
     }
   }
 
-  Future<void> addBudget({
+  /// Create a budget. Returns its id.
+  ///
+  /// [amount] is in cents. Creating one used to throw outright: the insert
+  /// never wrote `amount`, which the column requires, so nothing reached the
+  /// database and the screen reported a generic failure.
+  Future<String> addBudget({
     required String name,
-    required String categoryId,
-    required double limit,
-    required String period,
+    required int amount,
+    required BudgetPeriod period,
     required DateTime startDate,
-    required DateTime endDate,
+    int periodLength = 1,
+    DateTime? endDate,
+    List<String> categoryIds = const [],
+    List<String> walletIds = const [],
+    bool isIncome = false,
+    bool isPinned = false,
+    bool rollover = false,
   }) async {
     state = state.copyWith(isLoading: true);
 
     try {
-      // Check premium limit for active budgets
       final premiumState = _ref.read(premiumProvider);
       if (!premiumState.isPremium) {
-        final activeBudgets = getActiveBudgets();
-        if (activeBudgets.length >= FreeTierLimits.maxActiveBudgets) {
+        final active = activeBudgets();
+        if (active.length >= FreeTierLimits.maxActiveBudgets) {
           throw PremiumLimitException(
             entityType: 'budget',
-            currentCount: activeBudgets.length,
+            currentCount: active.length,
             limit: FreeTierLimits.maxActiveBudgets,
           );
         }
       }
 
+      final id = const Uuid().v4();
       final now = DateTime.now();
-      final newBudget = BudgetsCompanion(
-        id: Value(const Uuid().v4()),
-        name: Value(name),
-        categoryId: Value(categoryId),
-        limit: Value(limit),
-        period: Value(period),
-        startDate: Value(startDate),
-        endDate: Value(endDate),
-        syncStatus: const Value(SyncStatus.pendingCreate),
-        createdAt: Value(now),
-        updatedAt: Value(now),
+      await _db.addBudget(
+        BudgetsCompanion.insert(
+          id: id,
+          name: name,
+          amount: amount,
+          startDate: startDate,
+          period: Value(period.name),
+          periodLength: Value(periodLength < 1 ? 1 : periodLength),
+          endDate: Value(endDate),
+          categoryIds: Value(jsonEncode(categoryIds)),
+          walletIds: Value(jsonEncode(walletIds)),
+          isIncome: Value(isIncome),
+          isPinned: Value(isPinned),
+          rollover: Value(rollover),
+          syncStatus: const Value(SyncStatus.pendingCreate),
+          createdAt: Value(now),
+          updatedAt: Value(now),
+        ),
       );
-
-      await _db.addBudget(newBudget);
       AnalyticsService().logBudgetCreate();
-
-      // Reload budgets to get the new one
       await loadBudgets();
+      return id;
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
@@ -160,83 +218,117 @@ class BudgetNotifier extends StateNotifier<BudgetState> {
             ? e.message
             : 'Failed to add budget',
       );
-      rethrow; // Rethrow to let UI handle PremiumLimitException
+      rethrow;
     }
   }
 
+  /// Sentinel meaning "leave the end date alone", so null can mean "clear it".
+  static const Object keepEndDate = Object();
+
+  /// Change a budget. Anything left out keeps its current value.
+  ///
+  /// Writes only the fields it was given rather than replacing the row, which
+  /// the old version did — and because it built a partial companion, that reset
+  /// every column it did not mention, wiping the amount and the scope on every
+  /// edit.
   Future<void> updateBudget({
     required String id,
     String? name,
-    String? categoryId,
-    double? limit,
-    String? period,
+    int? amount,
+    BudgetPeriod? period,
+    int? periodLength,
     DateTime? startDate,
-    DateTime? endDate,
+    Object? endDate = keepEndDate,
+    List<String>? categoryIds,
+    List<String>? walletIds,
+    bool? isIncome,
+    bool? isPinned,
+    bool? isArchived,
+    bool? rollover,
   }) async {
     state = state.copyWith(isLoading: true);
 
     try {
       final existing = await _db.findBudgetById(id);
-      if (existing == null) {
-        throw Exception('Budget not found');
-      }
+      if (existing == null) throw Exception('Budget not found');
 
-      final updatedBudget = BudgetsCompanion(
-        id: Value(id),
-        name: Value(name ?? existing.name),
-        categoryId: Value(categoryId ?? existing.categoryId),
-        limit: Value(limit ?? existing.limit),
-        period: Value(period ?? existing.period),
-        startDate: Value(startDate ?? existing.startDate),
-        endDate: Value(endDate ?? existing.endDate),
-        syncStatus: const Value(SyncStatus.pendingUpdate),
-        createdAt: Value(existing.createdAt),
-        updatedAt: Value(DateTime.now()),
+      await _db.writeBudget(
+        id,
+        BudgetsCompanion(
+          name: name == null ? const Value.absent() : Value(name),
+          amount: amount == null ? const Value.absent() : Value(amount),
+          period: period == null ? const Value.absent() : Value(period.name),
+          periodLength: periodLength == null
+              ? const Value.absent()
+              : Value(periodLength < 1 ? 1 : periodLength),
+          startDate: startDate == null
+              ? const Value.absent()
+              : Value(startDate),
+          endDate: identical(endDate, keepEndDate)
+              ? const Value.absent()
+              : Value(endDate as DateTime?),
+          categoryIds: categoryIds == null
+              ? const Value.absent()
+              : Value(jsonEncode(categoryIds)),
+          walletIds: walletIds == null
+              ? const Value.absent()
+              : Value(jsonEncode(walletIds)),
+          isIncome: isIncome == null ? const Value.absent() : Value(isIncome),
+          isPinned: isPinned == null ? const Value.absent() : Value(isPinned),
+          isArchived: isArchived == null
+              ? const Value.absent()
+              : Value(isArchived),
+          rollover: rollover == null ? const Value.absent() : Value(rollover),
+        ),
       );
 
-      await _db.updateBudget(updatedBudget);
-
-      // Reload budgets to get the updated one
       await loadBudgets();
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
         errorMessage: 'Failed to update budget',
       );
+      rethrow;
     }
   }
 
   Future<void> deleteBudget(String id) async {
     state = state.copyWith(isLoading: true);
-
     try {
       await _db.softDeleteBudget(id);
       AnalyticsService().logBudgetDelete();
-
-      // Reload budgets to reflect the deletion
       await loadBudgets();
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
         errorMessage: 'Failed to delete budget',
       );
+      rethrow;
     }
   }
 
-  Budget? getBudgetById(String id) {
-    try {
-      return state.budgets.firstWhere((budget) => budget.id == id);
-    } catch (e) {
-      return null;
+  Future<void> setArchived(String id, bool archived) =>
+      updateBudget(id: id, isArchived: archived);
+
+  Future<void> setPinned(String id, bool pinned) =>
+      updateBudget(id: id, isPinned: pinned);
+
+  BudgetView? getBudgetById(String id) {
+    for (final b in state.budgets) {
+      if (b.id == id) return b;
     }
+    return null;
   }
 
-  List<Budget> getActiveBudgets() {
+  /// Budgets that are running right now: started, not finished, not archived.
+  List<BudgetView> activeBudgets() {
     final now = DateTime.now();
     return state.budgets
         .where(
-          (budget) =>
-              budget.startDate.isBefore(now) && budget.endDate.isAfter(now),
+          (b) =>
+              !b.isArchived &&
+              !b.startDate.isAfter(now) &&
+              (b.endDate == null || b.endDate!.isAfter(now)),
         )
         .toList();
   }

@@ -119,7 +119,6 @@ void main() {
       db,
       walletIds: [liveWallet, 'wallet-vanished'],
       categoryIds: [liveCategory, 'category-vanished'],
-      categoryId: 'category-vanished',
       syncStatus: SyncStatus.synced,
     );
 
@@ -129,7 +128,6 @@ void main() {
     final b = await db.findBudgetById(budgetId);
     expect(walletsOf(b!), [liveWallet]);
     expect(categoriesOf(b), [liveCategory]);
-    expect(b.categoryId, isNull);
     expect(b.syncStatus, SyncStatus.pendingUpdate);
   });
 
@@ -151,7 +149,6 @@ void main() {
     final budgetId = await seedBudget(
       db,
       categoryIds: [loser],
-      categoryId: loser,
       syncStatus: SyncStatus.synced,
     );
 
@@ -162,7 +159,6 @@ void main() {
 
     final b = await db.findBudgetById(budgetId);
     expect(categoriesOf(b!), [survivor]);
-    expect(b.categoryId, survivor);
     expect(b.syncStatus, SyncStatus.pendingUpdate);
   });
 

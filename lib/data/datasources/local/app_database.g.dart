@@ -5470,6 +5470,18 @@ class $BudgetsTable extends Budgets with TableInfo<$BudgetsTable, Budget> {
     requiredDuringInsert: false,
     defaultValue: const Constant('monthly'),
   );
+  static const VerificationMeta _periodLengthMeta = const VerificationMeta(
+    'periodLength',
+  );
+  @override
+  late final GeneratedColumn<int> periodLength = GeneratedColumn<int>(
+    'period_length',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(1),
+  );
   static const VerificationMeta _startDateMeta = const VerificationMeta(
     'startDate',
   );
@@ -5516,16 +5528,20 @@ class $BudgetsTable extends Budgets with TableInfo<$BudgetsTable, Budget> {
     requiredDuringInsert: false,
     defaultValue: const Constant('[]'),
   );
-  static const VerificationMeta _categoryIdMeta = const VerificationMeta(
-    'categoryId',
+  static const VerificationMeta _rolloverMeta = const VerificationMeta(
+    'rollover',
   );
   @override
-  late final GeneratedColumn<String> categoryId = GeneratedColumn<String>(
-    'category_id',
+  late final GeneratedColumn<bool> rollover = GeneratedColumn<bool>(
+    'rollover',
     aliasedName,
-    true,
-    type: DriftSqlType.string,
+    false,
+    type: DriftSqlType.bool,
     requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("rollover" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
   );
   static const VerificationMeta _isIncomeMeta = const VerificationMeta(
     'isIncome',
@@ -5571,15 +5587,6 @@ class $BudgetsTable extends Budgets with TableInfo<$BudgetsTable, Budget> {
       'CHECK ("is_archived" IN (0, 1))',
     ),
     defaultValue: const Constant(false),
-  );
-  static const VerificationMeta _limitMeta = const VerificationMeta('limit');
-  @override
-  late final GeneratedColumn<double> limit = GeneratedColumn<double>(
-    'limit',
-    aliasedName,
-    true,
-    type: DriftSqlType.double,
-    requiredDuringInsert: false,
   );
   static const VerificationMeta _serverIdMeta = const VerificationMeta(
     'serverId',
@@ -5645,15 +5652,15 @@ class $BudgetsTable extends Budgets with TableInfo<$BudgetsTable, Budget> {
     name,
     amount,
     period,
+    periodLength,
     startDate,
     endDate,
     walletIds,
     categoryIds,
-    categoryId,
+    rollover,
     isIncome,
     isPinned,
     isArchived,
-    limit,
     serverId,
     syncStatus,
     createdAt,
@@ -5699,6 +5706,15 @@ class $BudgetsTable extends Budgets with TableInfo<$BudgetsTable, Budget> {
         period.isAcceptableOrUnknown(data['period']!, _periodMeta),
       );
     }
+    if (data.containsKey('period_length')) {
+      context.handle(
+        _periodLengthMeta,
+        periodLength.isAcceptableOrUnknown(
+          data['period_length']!,
+          _periodLengthMeta,
+        ),
+      );
+    }
     if (data.containsKey('start_date')) {
       context.handle(
         _startDateMeta,
@@ -5728,10 +5744,10 @@ class $BudgetsTable extends Budgets with TableInfo<$BudgetsTable, Budget> {
         ),
       );
     }
-    if (data.containsKey('category_id')) {
+    if (data.containsKey('rollover')) {
       context.handle(
-        _categoryIdMeta,
-        categoryId.isAcceptableOrUnknown(data['category_id']!, _categoryIdMeta),
+        _rolloverMeta,
+        rollover.isAcceptableOrUnknown(data['rollover']!, _rolloverMeta),
       );
     }
     if (data.containsKey('is_income')) {
@@ -5750,12 +5766,6 @@ class $BudgetsTable extends Budgets with TableInfo<$BudgetsTable, Budget> {
       context.handle(
         _isArchivedMeta,
         isArchived.isAcceptableOrUnknown(data['is_archived']!, _isArchivedMeta),
-      );
-    }
-    if (data.containsKey('limit')) {
-      context.handle(
-        _limitMeta,
-        limit.isAcceptableOrUnknown(data['limit']!, _limitMeta),
       );
     }
     if (data.containsKey('server_id')) {
@@ -5813,6 +5823,10 @@ class $BudgetsTable extends Budgets with TableInfo<$BudgetsTable, Budget> {
         DriftSqlType.string,
         data['${effectivePrefix}period'],
       )!,
+      periodLength: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}period_length'],
+      )!,
       startDate: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}start_date'],
@@ -5829,10 +5843,10 @@ class $BudgetsTable extends Budgets with TableInfo<$BudgetsTable, Budget> {
         DriftSqlType.string,
         data['${effectivePrefix}category_ids'],
       )!,
-      categoryId: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}category_id'],
-      ),
+      rollover: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}rollover'],
+      )!,
       isIncome: attachedDatabase.typeMapping.read(
         DriftSqlType.bool,
         data['${effectivePrefix}is_income'],
@@ -5845,10 +5859,6 @@ class $BudgetsTable extends Budgets with TableInfo<$BudgetsTable, Budget> {
         DriftSqlType.bool,
         data['${effectivePrefix}is_archived'],
       )!,
-      limit: attachedDatabase.typeMapping.read(
-        DriftSqlType.double,
-        data['${effectivePrefix}limit'],
-      ),
       serverId: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}server_id'],
@@ -5881,17 +5891,35 @@ class $BudgetsTable extends Budgets with TableInfo<$BudgetsTable, Budget> {
 class Budget extends DataClass implements Insertable<Budget> {
   final String id;
   final String name;
+
+  /// The limit, in integer minor units (cents).
+  ///
+  /// Named `amount` rather than `limit` because the latter is reserved in SQL.
   final int amount;
+
+  /// One of [BudgetPeriod]'s names.
   final String period;
+
+  /// How many [period] units one window spans, so "every 2 weeks" is expressible.
+  ///
+  /// Always at least 1. The server carries this as an integer and treats a
+  /// missing value as 1, which is what every budget written before this column
+  /// existed meant.
+  final int periodLength;
   final DateTime startDate;
   final DateTime? endDate;
   final String walletIds;
   final String categoryIds;
-  final String? categoryId;
+
+  /// Whether an unspent balance carries into the next window.
+  ///
+  /// Cashew has no equivalent: its budgets always restart at zero, so someone
+  /// who underspends one month and wants that headroom the next has to edit the
+  /// amount by hand.
+  final bool rollover;
   final bool isIncome;
   final bool isPinned;
   final bool isArchived;
-  final double? limit;
   final String? serverId;
   final int syncStatus;
   final DateTime createdAt;
@@ -5902,15 +5930,15 @@ class Budget extends DataClass implements Insertable<Budget> {
     required this.name,
     required this.amount,
     required this.period,
+    required this.periodLength,
     required this.startDate,
     this.endDate,
     required this.walletIds,
     required this.categoryIds,
-    this.categoryId,
+    required this.rollover,
     required this.isIncome,
     required this.isPinned,
     required this.isArchived,
-    this.limit,
     this.serverId,
     required this.syncStatus,
     required this.createdAt,
@@ -5924,21 +5952,17 @@ class Budget extends DataClass implements Insertable<Budget> {
     map['name'] = Variable<String>(name);
     map['amount'] = Variable<int>(amount);
     map['period'] = Variable<String>(period);
+    map['period_length'] = Variable<int>(periodLength);
     map['start_date'] = Variable<DateTime>(startDate);
     if (!nullToAbsent || endDate != null) {
       map['end_date'] = Variable<DateTime>(endDate);
     }
     map['wallet_ids'] = Variable<String>(walletIds);
     map['category_ids'] = Variable<String>(categoryIds);
-    if (!nullToAbsent || categoryId != null) {
-      map['category_id'] = Variable<String>(categoryId);
-    }
+    map['rollover'] = Variable<bool>(rollover);
     map['is_income'] = Variable<bool>(isIncome);
     map['is_pinned'] = Variable<bool>(isPinned);
     map['is_archived'] = Variable<bool>(isArchived);
-    if (!nullToAbsent || limit != null) {
-      map['limit'] = Variable<double>(limit);
-    }
     if (!nullToAbsent || serverId != null) {
       map['server_id'] = Variable<String>(serverId);
     }
@@ -5957,21 +5981,17 @@ class Budget extends DataClass implements Insertable<Budget> {
       name: Value(name),
       amount: Value(amount),
       period: Value(period),
+      periodLength: Value(periodLength),
       startDate: Value(startDate),
       endDate: endDate == null && nullToAbsent
           ? const Value.absent()
           : Value(endDate),
       walletIds: Value(walletIds),
       categoryIds: Value(categoryIds),
-      categoryId: categoryId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(categoryId),
+      rollover: Value(rollover),
       isIncome: Value(isIncome),
       isPinned: Value(isPinned),
       isArchived: Value(isArchived),
-      limit: limit == null && nullToAbsent
-          ? const Value.absent()
-          : Value(limit),
       serverId: serverId == null && nullToAbsent
           ? const Value.absent()
           : Value(serverId),
@@ -5994,15 +6014,15 @@ class Budget extends DataClass implements Insertable<Budget> {
       name: serializer.fromJson<String>(json['name']),
       amount: serializer.fromJson<int>(json['amount']),
       period: serializer.fromJson<String>(json['period']),
+      periodLength: serializer.fromJson<int>(json['periodLength']),
       startDate: serializer.fromJson<DateTime>(json['startDate']),
       endDate: serializer.fromJson<DateTime?>(json['endDate']),
       walletIds: serializer.fromJson<String>(json['walletIds']),
       categoryIds: serializer.fromJson<String>(json['categoryIds']),
-      categoryId: serializer.fromJson<String?>(json['categoryId']),
+      rollover: serializer.fromJson<bool>(json['rollover']),
       isIncome: serializer.fromJson<bool>(json['isIncome']),
       isPinned: serializer.fromJson<bool>(json['isPinned']),
       isArchived: serializer.fromJson<bool>(json['isArchived']),
-      limit: serializer.fromJson<double?>(json['limit']),
       serverId: serializer.fromJson<String?>(json['serverId']),
       syncStatus: serializer.fromJson<int>(json['syncStatus']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
@@ -6018,15 +6038,15 @@ class Budget extends DataClass implements Insertable<Budget> {
       'name': serializer.toJson<String>(name),
       'amount': serializer.toJson<int>(amount),
       'period': serializer.toJson<String>(period),
+      'periodLength': serializer.toJson<int>(periodLength),
       'startDate': serializer.toJson<DateTime>(startDate),
       'endDate': serializer.toJson<DateTime?>(endDate),
       'walletIds': serializer.toJson<String>(walletIds),
       'categoryIds': serializer.toJson<String>(categoryIds),
-      'categoryId': serializer.toJson<String?>(categoryId),
+      'rollover': serializer.toJson<bool>(rollover),
       'isIncome': serializer.toJson<bool>(isIncome),
       'isPinned': serializer.toJson<bool>(isPinned),
       'isArchived': serializer.toJson<bool>(isArchived),
-      'limit': serializer.toJson<double?>(limit),
       'serverId': serializer.toJson<String?>(serverId),
       'syncStatus': serializer.toJson<int>(syncStatus),
       'createdAt': serializer.toJson<DateTime>(createdAt),
@@ -6040,15 +6060,15 @@ class Budget extends DataClass implements Insertable<Budget> {
     String? name,
     int? amount,
     String? period,
+    int? periodLength,
     DateTime? startDate,
     Value<DateTime?> endDate = const Value.absent(),
     String? walletIds,
     String? categoryIds,
-    Value<String?> categoryId = const Value.absent(),
+    bool? rollover,
     bool? isIncome,
     bool? isPinned,
     bool? isArchived,
-    Value<double?> limit = const Value.absent(),
     Value<String?> serverId = const Value.absent(),
     int? syncStatus,
     DateTime? createdAt,
@@ -6059,15 +6079,15 @@ class Budget extends DataClass implements Insertable<Budget> {
     name: name ?? this.name,
     amount: amount ?? this.amount,
     period: period ?? this.period,
+    periodLength: periodLength ?? this.periodLength,
     startDate: startDate ?? this.startDate,
     endDate: endDate.present ? endDate.value : this.endDate,
     walletIds: walletIds ?? this.walletIds,
     categoryIds: categoryIds ?? this.categoryIds,
-    categoryId: categoryId.present ? categoryId.value : this.categoryId,
+    rollover: rollover ?? this.rollover,
     isIncome: isIncome ?? this.isIncome,
     isPinned: isPinned ?? this.isPinned,
     isArchived: isArchived ?? this.isArchived,
-    limit: limit.present ? limit.value : this.limit,
     serverId: serverId.present ? serverId.value : this.serverId,
     syncStatus: syncStatus ?? this.syncStatus,
     createdAt: createdAt ?? this.createdAt,
@@ -6080,21 +6100,21 @@ class Budget extends DataClass implements Insertable<Budget> {
       name: data.name.present ? data.name.value : this.name,
       amount: data.amount.present ? data.amount.value : this.amount,
       period: data.period.present ? data.period.value : this.period,
+      periodLength: data.periodLength.present
+          ? data.periodLength.value
+          : this.periodLength,
       startDate: data.startDate.present ? data.startDate.value : this.startDate,
       endDate: data.endDate.present ? data.endDate.value : this.endDate,
       walletIds: data.walletIds.present ? data.walletIds.value : this.walletIds,
       categoryIds: data.categoryIds.present
           ? data.categoryIds.value
           : this.categoryIds,
-      categoryId: data.categoryId.present
-          ? data.categoryId.value
-          : this.categoryId,
+      rollover: data.rollover.present ? data.rollover.value : this.rollover,
       isIncome: data.isIncome.present ? data.isIncome.value : this.isIncome,
       isPinned: data.isPinned.present ? data.isPinned.value : this.isPinned,
       isArchived: data.isArchived.present
           ? data.isArchived.value
           : this.isArchived,
-      limit: data.limit.present ? data.limit.value : this.limit,
       serverId: data.serverId.present ? data.serverId.value : this.serverId,
       syncStatus: data.syncStatus.present
           ? data.syncStatus.value
@@ -6112,15 +6132,15 @@ class Budget extends DataClass implements Insertable<Budget> {
           ..write('name: $name, ')
           ..write('amount: $amount, ')
           ..write('period: $period, ')
+          ..write('periodLength: $periodLength, ')
           ..write('startDate: $startDate, ')
           ..write('endDate: $endDate, ')
           ..write('walletIds: $walletIds, ')
           ..write('categoryIds: $categoryIds, ')
-          ..write('categoryId: $categoryId, ')
+          ..write('rollover: $rollover, ')
           ..write('isIncome: $isIncome, ')
           ..write('isPinned: $isPinned, ')
           ..write('isArchived: $isArchived, ')
-          ..write('limit: $limit, ')
           ..write('serverId: $serverId, ')
           ..write('syncStatus: $syncStatus, ')
           ..write('createdAt: $createdAt, ')
@@ -6136,15 +6156,15 @@ class Budget extends DataClass implements Insertable<Budget> {
     name,
     amount,
     period,
+    periodLength,
     startDate,
     endDate,
     walletIds,
     categoryIds,
-    categoryId,
+    rollover,
     isIncome,
     isPinned,
     isArchived,
-    limit,
     serverId,
     syncStatus,
     createdAt,
@@ -6159,15 +6179,15 @@ class Budget extends DataClass implements Insertable<Budget> {
           other.name == this.name &&
           other.amount == this.amount &&
           other.period == this.period &&
+          other.periodLength == this.periodLength &&
           other.startDate == this.startDate &&
           other.endDate == this.endDate &&
           other.walletIds == this.walletIds &&
           other.categoryIds == this.categoryIds &&
-          other.categoryId == this.categoryId &&
+          other.rollover == this.rollover &&
           other.isIncome == this.isIncome &&
           other.isPinned == this.isPinned &&
           other.isArchived == this.isArchived &&
-          other.limit == this.limit &&
           other.serverId == this.serverId &&
           other.syncStatus == this.syncStatus &&
           other.createdAt == this.createdAt &&
@@ -6180,15 +6200,15 @@ class BudgetsCompanion extends UpdateCompanion<Budget> {
   final Value<String> name;
   final Value<int> amount;
   final Value<String> period;
+  final Value<int> periodLength;
   final Value<DateTime> startDate;
   final Value<DateTime?> endDate;
   final Value<String> walletIds;
   final Value<String> categoryIds;
-  final Value<String?> categoryId;
+  final Value<bool> rollover;
   final Value<bool> isIncome;
   final Value<bool> isPinned;
   final Value<bool> isArchived;
-  final Value<double?> limit;
   final Value<String?> serverId;
   final Value<int> syncStatus;
   final Value<DateTime> createdAt;
@@ -6200,15 +6220,15 @@ class BudgetsCompanion extends UpdateCompanion<Budget> {
     this.name = const Value.absent(),
     this.amount = const Value.absent(),
     this.period = const Value.absent(),
+    this.periodLength = const Value.absent(),
     this.startDate = const Value.absent(),
     this.endDate = const Value.absent(),
     this.walletIds = const Value.absent(),
     this.categoryIds = const Value.absent(),
-    this.categoryId = const Value.absent(),
+    this.rollover = const Value.absent(),
     this.isIncome = const Value.absent(),
     this.isPinned = const Value.absent(),
     this.isArchived = const Value.absent(),
-    this.limit = const Value.absent(),
     this.serverId = const Value.absent(),
     this.syncStatus = const Value.absent(),
     this.createdAt = const Value.absent(),
@@ -6221,15 +6241,15 @@ class BudgetsCompanion extends UpdateCompanion<Budget> {
     required String name,
     required int amount,
     this.period = const Value.absent(),
+    this.periodLength = const Value.absent(),
     required DateTime startDate,
     this.endDate = const Value.absent(),
     this.walletIds = const Value.absent(),
     this.categoryIds = const Value.absent(),
-    this.categoryId = const Value.absent(),
+    this.rollover = const Value.absent(),
     this.isIncome = const Value.absent(),
     this.isPinned = const Value.absent(),
     this.isArchived = const Value.absent(),
-    this.limit = const Value.absent(),
     this.serverId = const Value.absent(),
     this.syncStatus = const Value.absent(),
     this.createdAt = const Value.absent(),
@@ -6245,15 +6265,15 @@ class BudgetsCompanion extends UpdateCompanion<Budget> {
     Expression<String>? name,
     Expression<int>? amount,
     Expression<String>? period,
+    Expression<int>? periodLength,
     Expression<DateTime>? startDate,
     Expression<DateTime>? endDate,
     Expression<String>? walletIds,
     Expression<String>? categoryIds,
-    Expression<String>? categoryId,
+    Expression<bool>? rollover,
     Expression<bool>? isIncome,
     Expression<bool>? isPinned,
     Expression<bool>? isArchived,
-    Expression<double>? limit,
     Expression<String>? serverId,
     Expression<int>? syncStatus,
     Expression<DateTime>? createdAt,
@@ -6266,15 +6286,15 @@ class BudgetsCompanion extends UpdateCompanion<Budget> {
       if (name != null) 'name': name,
       if (amount != null) 'amount': amount,
       if (period != null) 'period': period,
+      if (periodLength != null) 'period_length': periodLength,
       if (startDate != null) 'start_date': startDate,
       if (endDate != null) 'end_date': endDate,
       if (walletIds != null) 'wallet_ids': walletIds,
       if (categoryIds != null) 'category_ids': categoryIds,
-      if (categoryId != null) 'category_id': categoryId,
+      if (rollover != null) 'rollover': rollover,
       if (isIncome != null) 'is_income': isIncome,
       if (isPinned != null) 'is_pinned': isPinned,
       if (isArchived != null) 'is_archived': isArchived,
-      if (limit != null) 'limit': limit,
       if (serverId != null) 'server_id': serverId,
       if (syncStatus != null) 'sync_status': syncStatus,
       if (createdAt != null) 'created_at': createdAt,
@@ -6289,15 +6309,15 @@ class BudgetsCompanion extends UpdateCompanion<Budget> {
     Value<String>? name,
     Value<int>? amount,
     Value<String>? period,
+    Value<int>? periodLength,
     Value<DateTime>? startDate,
     Value<DateTime?>? endDate,
     Value<String>? walletIds,
     Value<String>? categoryIds,
-    Value<String?>? categoryId,
+    Value<bool>? rollover,
     Value<bool>? isIncome,
     Value<bool>? isPinned,
     Value<bool>? isArchived,
-    Value<double?>? limit,
     Value<String?>? serverId,
     Value<int>? syncStatus,
     Value<DateTime>? createdAt,
@@ -6310,15 +6330,15 @@ class BudgetsCompanion extends UpdateCompanion<Budget> {
       name: name ?? this.name,
       amount: amount ?? this.amount,
       period: period ?? this.period,
+      periodLength: periodLength ?? this.periodLength,
       startDate: startDate ?? this.startDate,
       endDate: endDate ?? this.endDate,
       walletIds: walletIds ?? this.walletIds,
       categoryIds: categoryIds ?? this.categoryIds,
-      categoryId: categoryId ?? this.categoryId,
+      rollover: rollover ?? this.rollover,
       isIncome: isIncome ?? this.isIncome,
       isPinned: isPinned ?? this.isPinned,
       isArchived: isArchived ?? this.isArchived,
-      limit: limit ?? this.limit,
       serverId: serverId ?? this.serverId,
       syncStatus: syncStatus ?? this.syncStatus,
       createdAt: createdAt ?? this.createdAt,
@@ -6343,6 +6363,9 @@ class BudgetsCompanion extends UpdateCompanion<Budget> {
     if (period.present) {
       map['period'] = Variable<String>(period.value);
     }
+    if (periodLength.present) {
+      map['period_length'] = Variable<int>(periodLength.value);
+    }
     if (startDate.present) {
       map['start_date'] = Variable<DateTime>(startDate.value);
     }
@@ -6355,8 +6378,8 @@ class BudgetsCompanion extends UpdateCompanion<Budget> {
     if (categoryIds.present) {
       map['category_ids'] = Variable<String>(categoryIds.value);
     }
-    if (categoryId.present) {
-      map['category_id'] = Variable<String>(categoryId.value);
+    if (rollover.present) {
+      map['rollover'] = Variable<bool>(rollover.value);
     }
     if (isIncome.present) {
       map['is_income'] = Variable<bool>(isIncome.value);
@@ -6366,9 +6389,6 @@ class BudgetsCompanion extends UpdateCompanion<Budget> {
     }
     if (isArchived.present) {
       map['is_archived'] = Variable<bool>(isArchived.value);
-    }
-    if (limit.present) {
-      map['limit'] = Variable<double>(limit.value);
     }
     if (serverId.present) {
       map['server_id'] = Variable<String>(serverId.value);
@@ -6398,15 +6418,15 @@ class BudgetsCompanion extends UpdateCompanion<Budget> {
           ..write('name: $name, ')
           ..write('amount: $amount, ')
           ..write('period: $period, ')
+          ..write('periodLength: $periodLength, ')
           ..write('startDate: $startDate, ')
           ..write('endDate: $endDate, ')
           ..write('walletIds: $walletIds, ')
           ..write('categoryIds: $categoryIds, ')
-          ..write('categoryId: $categoryId, ')
+          ..write('rollover: $rollover, ')
           ..write('isIncome: $isIncome, ')
           ..write('isPinned: $isPinned, ')
           ..write('isArchived: $isArchived, ')
-          ..write('limit: $limit, ')
           ..write('serverId: $serverId, ')
           ..write('syncStatus: $syncStatus, ')
           ..write('createdAt: $createdAt, ')
@@ -15628,15 +15648,15 @@ typedef $$BudgetsTableCreateCompanionBuilder =
       required String name,
       required int amount,
       Value<String> period,
+      Value<int> periodLength,
       required DateTime startDate,
       Value<DateTime?> endDate,
       Value<String> walletIds,
       Value<String> categoryIds,
-      Value<String?> categoryId,
+      Value<bool> rollover,
       Value<bool> isIncome,
       Value<bool> isPinned,
       Value<bool> isArchived,
-      Value<double?> limit,
       Value<String?> serverId,
       Value<int> syncStatus,
       Value<DateTime> createdAt,
@@ -15650,15 +15670,15 @@ typedef $$BudgetsTableUpdateCompanionBuilder =
       Value<String> name,
       Value<int> amount,
       Value<String> period,
+      Value<int> periodLength,
       Value<DateTime> startDate,
       Value<DateTime?> endDate,
       Value<String> walletIds,
       Value<String> categoryIds,
-      Value<String?> categoryId,
+      Value<bool> rollover,
       Value<bool> isIncome,
       Value<bool> isPinned,
       Value<bool> isArchived,
-      Value<double?> limit,
       Value<String?> serverId,
       Value<int> syncStatus,
       Value<DateTime> createdAt,
@@ -15696,6 +15716,11 @@ class $$BudgetsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<int> get periodLength => $composableBuilder(
+    column: $table.periodLength,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<DateTime> get startDate => $composableBuilder(
     column: $table.startDate,
     builder: (column) => ColumnFilters(column),
@@ -15716,8 +15741,8 @@ class $$BudgetsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get categoryId => $composableBuilder(
-    column: $table.categoryId,
+  ColumnFilters<bool> get rollover => $composableBuilder(
+    column: $table.rollover,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -15733,11 +15758,6 @@ class $$BudgetsTableFilterComposer
 
   ColumnFilters<bool> get isArchived => $composableBuilder(
     column: $table.isArchived,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<double> get limit => $composableBuilder(
-    column: $table.limit,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -15796,6 +15816,11 @@ class $$BudgetsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get periodLength => $composableBuilder(
+    column: $table.periodLength,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get startDate => $composableBuilder(
     column: $table.startDate,
     builder: (column) => ColumnOrderings(column),
@@ -15816,8 +15841,8 @@ class $$BudgetsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get categoryId => $composableBuilder(
-    column: $table.categoryId,
+  ColumnOrderings<bool> get rollover => $composableBuilder(
+    column: $table.rollover,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -15833,11 +15858,6 @@ class $$BudgetsTableOrderingComposer
 
   ColumnOrderings<bool> get isArchived => $composableBuilder(
     column: $table.isArchived,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<double> get limit => $composableBuilder(
-    column: $table.limit,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -15888,6 +15908,11 @@ class $$BudgetsTableAnnotationComposer
   GeneratedColumn<String> get period =>
       $composableBuilder(column: $table.period, builder: (column) => column);
 
+  GeneratedColumn<int> get periodLength => $composableBuilder(
+    column: $table.periodLength,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<DateTime> get startDate =>
       $composableBuilder(column: $table.startDate, builder: (column) => column);
 
@@ -15902,10 +15927,8 @@ class $$BudgetsTableAnnotationComposer
     builder: (column) => column,
   );
 
-  GeneratedColumn<String> get categoryId => $composableBuilder(
-    column: $table.categoryId,
-    builder: (column) => column,
-  );
+  GeneratedColumn<bool> get rollover =>
+      $composableBuilder(column: $table.rollover, builder: (column) => column);
 
   GeneratedColumn<bool> get isIncome =>
       $composableBuilder(column: $table.isIncome, builder: (column) => column);
@@ -15917,9 +15940,6 @@ class $$BudgetsTableAnnotationComposer
     column: $table.isArchived,
     builder: (column) => column,
   );
-
-  GeneratedColumn<double> get limit =>
-      $composableBuilder(column: $table.limit, builder: (column) => column);
 
   GeneratedColumn<String> get serverId =>
       $composableBuilder(column: $table.serverId, builder: (column) => column);
@@ -15971,15 +15991,15 @@ class $$BudgetsTableTableManager
                 Value<String> name = const Value.absent(),
                 Value<int> amount = const Value.absent(),
                 Value<String> period = const Value.absent(),
+                Value<int> periodLength = const Value.absent(),
                 Value<DateTime> startDate = const Value.absent(),
                 Value<DateTime?> endDate = const Value.absent(),
                 Value<String> walletIds = const Value.absent(),
                 Value<String> categoryIds = const Value.absent(),
-                Value<String?> categoryId = const Value.absent(),
+                Value<bool> rollover = const Value.absent(),
                 Value<bool> isIncome = const Value.absent(),
                 Value<bool> isPinned = const Value.absent(),
                 Value<bool> isArchived = const Value.absent(),
-                Value<double?> limit = const Value.absent(),
                 Value<String?> serverId = const Value.absent(),
                 Value<int> syncStatus = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
@@ -15991,15 +16011,15 @@ class $$BudgetsTableTableManager
                 name: name,
                 amount: amount,
                 period: period,
+                periodLength: periodLength,
                 startDate: startDate,
                 endDate: endDate,
                 walletIds: walletIds,
                 categoryIds: categoryIds,
-                categoryId: categoryId,
+                rollover: rollover,
                 isIncome: isIncome,
                 isPinned: isPinned,
                 isArchived: isArchived,
-                limit: limit,
                 serverId: serverId,
                 syncStatus: syncStatus,
                 createdAt: createdAt,
@@ -16013,15 +16033,15 @@ class $$BudgetsTableTableManager
                 required String name,
                 required int amount,
                 Value<String> period = const Value.absent(),
+                Value<int> periodLength = const Value.absent(),
                 required DateTime startDate,
                 Value<DateTime?> endDate = const Value.absent(),
                 Value<String> walletIds = const Value.absent(),
                 Value<String> categoryIds = const Value.absent(),
-                Value<String?> categoryId = const Value.absent(),
+                Value<bool> rollover = const Value.absent(),
                 Value<bool> isIncome = const Value.absent(),
                 Value<bool> isPinned = const Value.absent(),
                 Value<bool> isArchived = const Value.absent(),
-                Value<double?> limit = const Value.absent(),
                 Value<String?> serverId = const Value.absent(),
                 Value<int> syncStatus = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
@@ -16033,15 +16053,15 @@ class $$BudgetsTableTableManager
                 name: name,
                 amount: amount,
                 period: period,
+                periodLength: periodLength,
                 startDate: startDate,
                 endDate: endDate,
                 walletIds: walletIds,
                 categoryIds: categoryIds,
-                categoryId: categoryId,
+                rollover: rollover,
                 isIncome: isIncome,
                 isPinned: isPinned,
                 isArchived: isArchived,
-                limit: limit,
                 serverId: serverId,
                 syncStatus: syncStatus,
                 createdAt: createdAt,
