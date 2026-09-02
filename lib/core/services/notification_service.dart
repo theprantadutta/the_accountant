@@ -197,12 +197,15 @@ class NotificationService {
   // Local storage key prefix for budget notification tracking
   static const String _keyLastBudgetNotification = 'last_budget_notification_';
 
-  /// Check if a budget notification should be shown (24-hour cooldown)
-  Future<bool> _shouldShowBudgetNotification(String budgetId) async {
+  /// Whether a budget notification should be shown, given a 24-hour cooldown.
+  ///
+  /// The cooldown is per budget AND per state. Crossing the limit is a
+  /// different event from approaching it, so a warning at 80% this morning
+  /// must not silence the message that the budget is now spent — which is the
+  /// one the user actually needs.
+  Future<bool> _shouldShowBudgetNotification(String key) async {
     final prefs = await SharedPreferences.getInstance();
-    final lastNotified = prefs.getString(
-      '$_keyLastBudgetNotification$budgetId',
-    );
+    final lastNotified = prefs.getString('$_keyLastBudgetNotification$key');
     if (lastNotified == null) return true;
 
     final lastDate = DateTime.parse(lastNotified);
@@ -210,10 +213,10 @@ class NotificationService {
   }
 
   /// Record that a budget notification was shown
-  Future<void> _recordBudgetNotification(String budgetId) async {
+  Future<void> _recordBudgetNotification(String key) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(
-      '$_keyLastBudgetNotification$budgetId',
+      '$_keyLastBudgetNotification$key',
       DateTime.now().toIso8601String(),
     );
   }
@@ -225,22 +228,30 @@ class NotificationService {
   }) async {
     // Use budgetName as ID if no specific ID provided
     final id = budgetId ?? budgetName;
+    final exceeded = percentage >= 100;
+    final cooldownKey = exceeded ? '$id:over' : '$id:warn';
 
-    // Check if we should show this notification (24-hour cooldown)
-    final shouldShow = await _shouldShowBudgetNotification(id);
+    final shouldShow = await _shouldShowBudgetNotification(cooldownKey);
     if (!shouldShow) {
       _logger.d('Budget notification for $budgetName skipped (cooldown)');
       return;
     }
 
-    final title = 'Budget Alert: $budgetName';
-    final body =
-        'You have used ${percentage.toStringAsFixed(0)}% of your $budgetName budget.';
+    // Past the limit and merely close to it are different situations, and one
+    // wording for both makes the serious case read like the routine one.
+    final title = exceeded
+        ? 'Over budget: $budgetName'
+        : 'Budget alert: $budgetName';
+    final body = exceeded
+        ? 'You have spent ${percentage.toStringAsFixed(0)}% of your '
+              '$budgetName budget for this period.'
+        : 'You have used ${percentage.toStringAsFixed(0)}% of your '
+              '$budgetName budget.';
 
     await _showLocalNotification(title, body, id: 2000 + (id.hashCode % 1000));
 
     // Record that we showed this notification
-    await _recordBudgetNotification(id);
+    await _recordBudgetNotification(cooldownKey);
     _logger.i('Budget warning notification shown for $budgetName');
   }
 

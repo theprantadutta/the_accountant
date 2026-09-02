@@ -1,3 +1,4 @@
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/providers/currency_provider.dart';
@@ -92,6 +93,13 @@ class _BudgetDetailScreenState extends ConsumerState<BudgetDetailScreen> {
                 progress: progress,
                 engine: engine,
                 onChanged: () => setState(() {}),
+              ),
+              AppSpacing.gapLg,
+              _SpendGraph(
+                budget: budget,
+                progress: progress,
+                engine: engine,
+                offset: _offset,
               ),
               AppSpacing.gapLg,
               _CategoryBreakdown(
@@ -773,4 +781,176 @@ class _AddCapDialogState extends State<_AddCapDialog> {
       ],
     );
   }
+}
+
+/// Spending across the period, with the previous one faded behind it.
+///
+/// Cumulative rather than per-day, because the question a budget raises is
+/// whether the total will hold, and a bar chart of individual days answers a
+/// different one. The straight line is where the limit would be reached if the
+/// period were spent evenly, so the gap between the two lines is the whole
+/// story: above it and the budget is running hot.
+class _SpendGraph extends ConsumerWidget {
+  final BudgetView budget;
+  final BudgetProgress progress;
+  final BudgetEngine engine;
+  final int offset;
+
+  const _SpendGraph({
+    required this.budget,
+    required this.progress,
+    required this.engine,
+    required this.offset,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return FutureBuilder<List<List<int>>>(
+      future: _series(),
+      builder: (context, snapshot) {
+        final series = snapshot.data;
+        if (series == null || series.first.length < 2) {
+          return const SizedBox.shrink();
+        }
+
+        final current = series[0];
+        final previous = series[1];
+        final days = current.length;
+
+        // The scale has to cover the limit as well as the spending, or a budget
+        // that stayed well under would draw a line that looks alarming.
+        final peak = [
+          progress.limit,
+          ...current,
+          ...previous,
+        ].fold<int>(1, (a, b) => b > a ? b : a);
+
+        return GlassCard(
+          padding: AppSpacing.paddingLg,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Across the period', style: AppTypography.titleSmall),
+              AppSpacing.gapMd,
+              SizedBox(
+                height: 140,
+                child: LineChart(
+                  LineChartData(
+                    minY: 0,
+                    maxY: peak.toDouble(),
+                    minX: 0,
+                    maxX: (days - 1).toDouble(),
+                    gridData: const FlGridData(show: false),
+                    titlesData: const FlTitlesData(show: false),
+                    borderData: FlBorderData(show: false),
+                    lineTouchData: const LineTouchData(enabled: false),
+                    lineBarsData: [
+                      // Even-pace reference: where the limit lands if spread out.
+                      LineChartBarData(
+                        spots: [
+                          FlSpot(0, 0),
+                          FlSpot((days - 1).toDouble(), progress.limit.toDouble()),
+                        ],
+                        isCurved: false,
+                        barWidth: 1,
+                        dotData: const FlDotData(show: false),
+                        color: AppColors.textMuted.withValues(alpha: 0.35),
+                        dashArray: const [4, 4],
+                      ),
+                      if (previous.isNotEmpty)
+                        LineChartBarData(
+                          spots: [
+                            for (var i = 0; i < previous.length && i < days; i++)
+                              FlSpot(i.toDouble(), previous[i].toDouble()),
+                          ],
+                          isCurved: true,
+                          barWidth: 2,
+                          dotData: const FlDotData(show: false),
+                          color: AppColors.textMuted.withValues(alpha: 0.4),
+                        ),
+                      LineChartBarData(
+                        spots: [
+                          for (var i = 0; i < days; i++)
+                            FlSpot(i.toDouble(), current[i].toDouble()),
+                        ],
+                        isCurved: true,
+                        barWidth: 3,
+                        dotData: const FlDotData(show: false),
+                        color: progress.isOver
+                            ? AppColors.error
+                            : AppColors.success,
+                        belowBarData: BarAreaData(
+                          show: true,
+                          color:
+                              (progress.isOver
+                                      ? AppColors.error
+                                      : AppColors.success)
+                                  .withValues(alpha: 0.12),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              AppSpacing.gapSm,
+              Row(
+                children: [
+                  _Key(color: AppColors.textMuted.withValues(alpha: 0.4),
+                      label: 'Previous period'),
+                  const SizedBox(width: 16),
+                  _Key(
+                    color: AppColors.textMuted.withValues(alpha: 0.35),
+                    label: 'Even pace',
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  /// This period's running total, and the one before it for comparison.
+  Future<List<List<int>>> _series() async {
+    final current = await engine.dailyTotals(
+      budget,
+      progress.window,
+      cumulative: true,
+    );
+
+    final earlier = await engine.progressFor(budget, offset: offset - 1);
+    // Stepping back stops at the budget's start, so an unchanged window means
+    // there is no previous period to draw.
+    if (earlier.window.start == progress.window.start) {
+      return [current, const []];
+    }
+
+    final previous = await engine.dailyTotals(
+      budget,
+      earlier.window,
+      cumulative: true,
+    );
+    return [current, previous];
+  }
+}
+
+class _Key extends StatelessWidget {
+  final Color color;
+  final String label;
+
+  const _Key({required this.color, required this.label});
+
+  @override
+  Widget build(BuildContext context) => Row(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      Container(width: 12, height: 2, color: color),
+      const SizedBox(width: 6),
+      Text(
+        label,
+        style: AppTypography.labelSmall.copyWith(color: AppColors.textMuted),
+      ),
+    ],
+  );
 }
