@@ -8,6 +8,7 @@ import 'package:the_accountant/data/models/category.dart';
 import 'package:the_accountant/data/models/transaction.dart';
 import 'package:the_accountant/data/models/wallet.dart';
 import 'package:the_accountant/data/models/budget.dart';
+import 'package:the_accountant/data/models/category_budget_limit.dart';
 import 'package:the_accountant/data/models/user.dart';
 import 'package:the_accountant/data/models/settings.dart';
 import 'package:the_accountant/data/models/user_profile.dart';
@@ -141,6 +142,7 @@ class SystemCategories {
     Wallets,
     Transactions,
     Budgets,
+    CategoryBudgetLimits,
     Settings,
     UserProfiles,
     PaymentMethods,
@@ -160,7 +162,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 18;
+  int get schemaVersion => 19;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -289,6 +291,9 @@ class AppDatabase extends _$AppDatabase {
       }
       if (from < 18) {
         await _migrateToV18(m);
+      }
+      if (from < 19) {
+        await _migrateToV19(m);
       }
     },
     beforeOpen: (details) async {
@@ -638,6 +643,20 @@ class AppDatabase extends _$AppDatabase {
   /// holds, before joining `categoryIds`. A name that matches nothing is left
   /// behind rather than guessed at, which turns the budget into an unscoped one
   /// — the same thing it was already doing, only now visibly.
+  /// Schema 19: somewhere to keep a per-category cap inside a budget.
+  ///
+  /// Purely additive. The unique index is partial rather than a table
+  /// constraint so a deleted limit does not block setting a new one for the
+  /// same budget and category, which matches the server's filtered index.
+  Future<void> _migrateToV19(Migrator m) async {
+    await _ensureTable(m, categoryBudgetLimits);
+    await customStatement(
+      'CREATE UNIQUE INDEX IF NOT EXISTS idx_category_budget_limits_pair '
+      'ON category_budget_limits (budget_id, category_id) '
+      'WHERE deleted_at IS NULL',
+    );
+  }
+
   /// The schema half of the schema-18 migration, run before any data step.
   Future<void> _addV18Columns(Migrator m) async {
     if (!await _tableExists('budgets')) return;
@@ -679,8 +698,14 @@ class AppDatabase extends _$AppDatabase {
   /// Move each budget's single legacy category into its `categoryIds` array.
   ///
   /// The value is an id on rows that came from sync and a display name on rows
-  /// the create form wrote, so both are tried. Anything that resolves to no
-  /// live category is dropped: it was never matching a transaction anyway.
+  /// the create form wrote, so both are tried.
+  ///
+  /// A value that matches neither is written to [localIdRepairs] rather than
+  /// discarded quietly. It was never matching a transaction, so the budget was
+  /// already reading zero — but an unresolvable reference leaves the budget with
+  /// no scope at all, and an unscoped budget counts *everything*. That is a
+  /// visible jump from zero to the whole month's spending, and the user
+  /// deserves a record of why rather than a number that changed on its own.
   Future<void> _foldLegacyBudgetCategories() async {
     final rows = await customSelect(
       'SELECT id, category_id, category_ids, sync_status FROM budgets '
@@ -701,9 +726,23 @@ class AppDatabase extends _$AppDatabase {
       final id = row.read<String>('id');
       final legacy = row.read<String>('category_id');
       final resolved = byId[legacy] ?? byName[legacy.toLowerCase()];
-      if (resolved == null) continue;
-
       final existing = decodeIdList(row.read<String?>('category_ids'));
+
+      if (resolved == null) {
+        await into(localIdRepairs).insert(
+          LocalIdRepairsCompanion.insert(
+            entityTable: 'budgets',
+            oldId: legacy,
+            status: 'blocked',
+            detail: Value(
+              'Budget $id named a category that no longer exists. Its scope '
+              '${existing.isEmpty ? 'is now empty, so it counts every category' : 'keeps its other categories'}.',
+            ),
+          ),
+        );
+        continue;
+      }
+
       if (existing.contains(resolved.id)) continue;
 
       await customStatement(
@@ -1027,6 +1066,7 @@ class AppDatabase extends _$AppDatabase {
     'objectives',
     'payment_methods',
     'recurring_configs',
+    'category_budget_limits',
   ];
 
   /// Install a database-level guard: **a pending create can never become a
@@ -1468,6 +1508,104 @@ class AppDatabase extends _$AppDatabase {
   Future<bool> updateBudget(BudgetsCompanion entry) =>
       update(budgets).replace(entry);
 
+  // ============================================================
+  // Category budget limit DAO methods
+  // ============================================================
+
+  /// Live caps inside [budgetId].
+  Future<List<CategoryBudgetLimit>> getCategoryLimitsForBudget(
+    String budgetId,
+  ) => (select(categoryBudgetLimits)
+        ..where((l) => l.budgetId.equals(budgetId) & l.deletedAt.isNull()))
+      .get();
+
+  /// Set or replace the cap on [categoryId] within [budgetId].
+  ///
+  /// Upserts on the pair rather than the id, because that pair is what the user
+  /// is choosing: setting a limit on a category that already has one is an
+  /// edit, not a second limit.
+  Future<void> setCategoryLimit({
+    required String budgetId,
+    required String categoryId,
+    required int amount,
+    bool isPercent = false,
+  }) async {
+    final existing =
+        await (select(categoryBudgetLimits)..where(
+              (l) =>
+                  l.budgetId.equals(budgetId) &
+                  l.categoryId.equals(categoryId) &
+                  l.deletedAt.isNull(),
+            ))
+            .getSingleOrNull();
+
+    if (existing == null) {
+      await into(categoryBudgetLimits).insert(
+        CategoryBudgetLimitsCompanion.insert(
+          id: const Uuid().v4(),
+          budgetId: budgetId,
+          categoryId: categoryId,
+          amount: amount,
+          isPercent: Value(isPercent),
+          syncStatus: const Value(SyncStatus.pendingCreate),
+        ),
+      );
+      return;
+    }
+
+    await (update(categoryBudgetLimits)..where((l) => l.id.equals(existing.id)))
+        .write(
+          CategoryBudgetLimitsCompanion(
+            amount: Value(amount),
+            isPercent: Value(isPercent),
+            updatedAt: Value(DateTime.now()),
+            syncStatus: Value(SyncStatus.markEdited(existing.syncStatus)),
+          ),
+        );
+  }
+
+  Future<void> removeCategoryLimit(String id) async {
+    await (update(categoryBudgetLimits)..where((l) => l.id.equals(id))).write(
+      CategoryBudgetLimitsCompanion(
+        deletedAt: Value(DateTime.now()),
+        updatedAt: Value(DateTime.now()),
+        syncStatus: const Value(SyncStatus.pendingDelete),
+      ),
+    );
+  }
+
+  /// Drop every cap belonging to [budgetId].
+  ///
+  /// Called when a budget is deleted: a cap on a budget that is gone has
+  /// nothing left to cap, and the server would reject it for naming a budget
+  /// that is not live.
+  Future<void> removeCategoryLimitsForBudget(String budgetId) async {
+    await customStatement(
+      'UPDATE category_budget_limits SET deleted_at = ?, updated_at = ?, '
+      'sync_status = ${SyncStatus.pendingDelete} '
+      'WHERE budget_id = ? AND deleted_at IS NULL',
+      [
+        DateTime.now().millisecondsSinceEpoch ~/ 1000,
+        DateTime.now().millisecondsSinceEpoch ~/ 1000,
+        budgetId,
+      ],
+    );
+  }
+
+  /// Drop every cap naming [categoryId], for the same reason.
+  Future<void> removeCategoryLimitsForCategory(String categoryId) async {
+    await customStatement(
+      'UPDATE category_budget_limits SET deleted_at = ?, updated_at = ?, '
+      'sync_status = ${SyncStatus.pendingDelete} '
+      'WHERE category_id = ? AND deleted_at IS NULL',
+      [
+        DateTime.now().millisecondsSinceEpoch ~/ 1000,
+        DateTime.now().millisecondsSinceEpoch ~/ 1000,
+        categoryId,
+      ],
+    );
+  }
+
   /// Apply only the fields [changes] actually sets, and mark the row for sync.
   ///
   /// The alternative is `replace`, which needs a complete row: handing it a
@@ -1490,13 +1628,18 @@ class AppDatabase extends _$AppDatabase {
 
   /// Soft delete a budget (sets deletedAt and marks for sync)
   Future<void> softDeleteBudget(String id) async {
-    await (update(budgets)..where((b) => b.id.equals(id))).write(
-      BudgetsCompanion(
-        deletedAt: Value(DateTime.now()),
-        syncStatus: const Value(SyncStatus.pendingDelete),
-        updatedAt: Value(DateTime.now()),
-      ),
-    );
+    await transaction(() async {
+      await (update(budgets)..where((b) => b.id.equals(id))).write(
+        BudgetsCompanion(
+          deletedAt: Value(DateTime.now()),
+          syncStatus: const Value(SyncStatus.pendingDelete),
+          updatedAt: Value(DateTime.now()),
+        ),
+      );
+      // A cap on a budget that is gone has nothing left to cap, and the server
+      // rejects a limit naming a budget that is not live.
+      await removeCategoryLimitsForBudget(id);
+    });
   }
 
   Future<List<Budget>> getActiveBudgets() =>
@@ -1550,6 +1693,7 @@ class AppDatabase extends _$AppDatabase {
         ),
       );
       await pruneCategoryFromBudgets(id);
+      await removeCategoryLimitsForCategory(id);
     });
   }
 

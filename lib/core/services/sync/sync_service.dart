@@ -499,6 +499,7 @@ class SyncService {
       'categories': await _getPendingCategoryChanges(),
       'payment_methods': await _getPendingPaymentMethodChanges(),
       'budgets': await _getPendingBudgetChanges(),
+      'category_budget_limits': await _getPendingCategoryLimitChanges(),
       'objectives': await _getPendingObjectiveChanges(),
       'transactions': await _getPendingTransactionChanges(),
       'recurring_configs': await _getPendingRecurringConfigChanges(),
@@ -708,6 +709,10 @@ class SyncService {
 
       case 'budgets':
         return null;
+
+      case 'category_budget_limits':
+        return await _liveBudget(data['BudgetId'] as String?) ??
+            await _liveCategory(data['CategoryId'] as String?);
 
       default:
         return null;
@@ -1041,6 +1046,31 @@ class SyncService {
     return changes;
   }
 
+  /// Pending category-limit changes.
+  ///
+  /// Held back while the budget or category it names is itself an unsettled
+  /// provisional row, for the same reason budgets are: pushing a limit that
+  /// points at an id the server has not accepted only earns a rejection.
+  Future<List<SyncChange>> _getPendingCategoryLimitChanges() async {
+    final records = await (_database.select(
+      _database.categoryBudgetLimits,
+    )..where((l) => l.syncStatus.isBiggerThanValue(0))).get();
+
+    final unsettled = await _database.unsettledProvisionalCategoryIds();
+
+    return [
+      for (final r in records)
+        if (unsettled.isEmpty || !unsettled.contains(r.categoryId))
+          SyncChange(
+            tableName: 'category_budget_limits',
+            entityId: r.id,
+            operation: _getOperationFromStatus(r.syncStatus),
+            sourceUpdatedAt: r.updatedAt,
+            data: _categoryLimitToMap(r),
+          ),
+    ];
+  }
+
   Future<List<SyncChange>> _getPendingObjectiveChanges() async {
     final changes = <SyncChange>[];
     final records = await (_database.select(
@@ -1118,6 +1148,9 @@ class SyncService {
         break;
       case 'budgets':
         await _applyBudgetChange(change);
+        break;
+      case 'category_budget_limits':
+        await _applyCategoryLimitChange(change);
         break;
       case 'objectives':
         await _applyObjectiveChange(change);
@@ -1414,6 +1447,44 @@ class SyncService {
       )..where((b) => b.id.equals(change.entityId))).write(companion);
     } else {
       await _database.into(_database.budgets).insert(companion);
+    }
+  }
+
+  Future<void> _applyCategoryLimitChange(SyncChange change) async {
+    if (change.operation == 'delete') {
+      await (_database.update(
+        _database.categoryBudgetLimits,
+      )..where((l) => l.id.equals(change.entityId))).write(
+        CategoryBudgetLimitsCompanion(
+          deletedAt: Value(DateTime.now()),
+          syncStatus: const Value(SyncStatus.synced),
+        ),
+      );
+      return;
+    }
+
+    final data = _normalizeKeys(change.data!);
+
+    final companion = CategoryBudgetLimitsCompanion(
+      id: Value(change.entityId),
+      budgetId: Value(data['BudgetId'] ?? ''),
+      categoryId: Value(data['CategoryId'] ?? ''),
+      amount: Value((data['Amount'] as num?)?.toInt() ?? 0),
+      isPercent: Value(data['IsPercent'] ?? false),
+      syncStatus: const Value(SyncStatus.synced),
+      updatedAt: Value(DateTime.now()),
+    );
+
+    final existing = await (_database.select(
+      _database.categoryBudgetLimits,
+    )..where((l) => l.id.equals(change.entityId))).getSingleOrNull();
+
+    if (existing == null) {
+      await _database.into(_database.categoryBudgetLimits).insert(companion);
+    } else {
+      await (_database.update(
+        _database.categoryBudgetLimits,
+      )..where((l) => l.id.equals(change.entityId))).write(companion);
     }
   }
 
@@ -1773,6 +1844,14 @@ class SyncService {
     'UpdatedAt': b.updatedAt.toUtc().toIso8601String(),
   };
 
+  Map<String, dynamic> _categoryLimitToMap(CategoryBudgetLimit l) => {
+    'BudgetId': l.budgetId,
+    'CategoryId': l.categoryId,
+    'Amount': l.amount,
+    'IsPercent': l.isPercent,
+    'UpdatedAt': l.updatedAt.toUtc().toIso8601String(),
+  };
+
   Map<String, dynamic> _objectiveToMap(Objective o) => {
     'Name': o.name,
     'TargetAmount': o.targetAmount,
@@ -1905,6 +1984,18 @@ class SyncService {
               const BudgetsCompanion(syncStatus: Value(SyncStatus.synced)),
             );
         break;
+      case 'category_budget_limits':
+        await (_database.update(_database.categoryBudgetLimits)..where(
+              (l) => expected == null
+                  ? l.id.equals(id)
+                  : l.id.equals(id) & l.updatedAt.equals(expected),
+            ))
+            .write(
+              const CategoryBudgetLimitsCompanion(
+                syncStatus: Value(SyncStatus.synced),
+              ),
+            );
+        break;
       case 'objectives':
         await (_database.update(_database.objectives)..where(
               (o) => expected == null
@@ -1969,6 +2060,12 @@ class SyncService {
       case 'budgets':
         await (_database.delete(_database.budgets)..where(
               (b) => b.id.equals(id) & b.syncStatus.equals(pendingDelete),
+            ))
+            .go();
+        break;
+      case 'category_budget_limits':
+        await (_database.delete(_database.categoryBudgetLimits)..where(
+              (l) => l.id.equals(id) & l.syncStatus.equals(pendingDelete),
             ))
             .go();
         break;

@@ -1,3 +1,4 @@
+import 'package:drift/drift.dart' show Value;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/data/models/budget.dart' show BudgetPeriod;
@@ -393,6 +394,259 @@ void main() {
         progress.isAheadOfPace(DateTime(2026, 1, 3)),
         isTrue,
         reason: 'a bar without a pace marker cannot say this',
+      );
+    });
+  });
+
+  group('caps on individual categories', () {
+    test('an absolute cap counts only its own category', () async {
+      final budgetView = await budget(categoryIds: [food], amount: 100000);
+      await db.setCategoryLimit(
+        budgetId: budgetView.id,
+        categoryId: snacks,
+        amount: 10000,
+      );
+      await seedTransaction(
+        db,
+        walletId: walletId,
+        categoryId: snacks,
+        amount: 12000,
+        date: DateTime(2026, 1, 6),
+      );
+      await seedTransaction(
+        db,
+        walletId: walletId,
+        categoryId: food,
+        amount: 30000,
+        date: DateTime(2026, 1, 7),
+      );
+
+      final engine = BudgetEngine(db);
+      final progress = await engine.progressFor(
+        budgetView,
+        moment: DateTime(2026, 1, 15),
+      );
+      final limits = await engine.categoryLimits(budgetView, progress);
+
+      expect(progress.spent, 42000, reason: 'the budget itself counts both');
+      expect(limits, hasLength(1));
+      expect(
+        limits.single.spent,
+        12000,
+        reason:
+            'the cap is about snacks; the rest of the food budget is not its '
+            'business',
+      );
+      expect(
+        limits.single.isOver,
+        isTrue,
+        reason:
+            'a budget on track overall can still be mostly one thing, which is '
+            'the whole point of a cap inside it',
+      );
+    });
+
+    test('a percentage cap follows the budget when the amount changes', () async {
+      final budgetView = await budget(categoryIds: [food], amount: 100000);
+      // 25.5%, stored as hundredths of a percent.
+      await db.setCategoryLimit(
+        budgetId: budgetView.id,
+        categoryId: snacks,
+        amount: 2550,
+        isPercent: true,
+      );
+
+      final engine = BudgetEngine(db);
+      final before = await engine.categoryLimits(
+        budgetView,
+        await engine.progressFor(budgetView, moment: DateTime(2026, 1, 15)),
+      );
+      expect(before.single.limit, 25500);
+
+      await db.writeBudget(
+        budgetView.id,
+        const BudgetsCompanion(amount: Value(200000)),
+      );
+      final bigger = BudgetView.fromRow(
+        (await db.findBudgetById(budgetView.id))!,
+      );
+
+      final after = await engine.categoryLimits(
+        bigger,
+        await engine.progressFor(bigger, moment: DateTime(2026, 1, 15)),
+      );
+      expect(
+        after.single.limit,
+        51000,
+        reason:
+            'a quarter of the budget means a quarter, whatever that becomes',
+      );
+    });
+
+    test('a cap on a parent counts what is filed inside it', () async {
+      final budgetView = await budget(categoryIds: [food]);
+      await db.setCategoryLimit(
+        budgetId: budgetView.id,
+        categoryId: food,
+        amount: 50000,
+      );
+      await seedTransaction(
+        db,
+        walletId: walletId,
+        categoryId: snacks,
+        amount: 9000,
+        date: DateTime(2026, 1, 6),
+      );
+
+      final engine = BudgetEngine(db);
+      final limits = await engine.categoryLimits(
+        budgetView,
+        await engine.progressFor(budgetView, moment: DateTime(2026, 1, 15)),
+      );
+
+      expect(limits.single.spent, 9000);
+    });
+
+    test('setting a cap twice edits it rather than adding a second', () async {
+      final budgetView = await budget(categoryIds: [food]);
+      await db.setCategoryLimit(
+        budgetId: budgetView.id,
+        categoryId: food,
+        amount: 10000,
+      );
+      await db.setCategoryLimit(
+        budgetId: budgetView.id,
+        categoryId: food,
+        amount: 20000,
+      );
+
+      final limits = await db.getCategoryLimitsForBudget(budgetView.id);
+      expect(limits, hasLength(1));
+      expect(limits.single.amount, 20000);
+    });
+
+    test('deleting the budget takes its caps with it', () async {
+      final budgetView = await budget(categoryIds: [food]);
+      await db.setCategoryLimit(
+        budgetId: budgetView.id,
+        categoryId: food,
+        amount: 10000,
+      );
+
+      await db.softDeleteBudget(budgetView.id);
+
+      expect(
+        await db.getCategoryLimitsForBudget(budgetView.id),
+        isEmpty,
+        reason:
+            'a cap on a budget that is gone has nothing to cap, and the server '
+            'rejects one naming a budget that is not live',
+      );
+    });
+  });
+
+  group('where the period is heading', () {
+    test('a steady run rate projects past the limit', () async {
+      // Nine days in, three fifths of the limit already gone.
+      await seedTransaction(
+        db,
+        walletId: walletId,
+        categoryId: food,
+        amount: 60000,
+        date: DateTime(2026, 1, 3),
+      );
+
+      final budgetView = await budget(categoryIds: [food], amount: 100000);
+      final engine = BudgetEngine(db);
+      final moment = DateTime(2026, 1, 10);
+      final forecast = await engine.forecast(
+        budgetView,
+        await engine.progressFor(budgetView, moment: moment),
+        moment: moment,
+      );
+
+      expect(forecast, isNotNull);
+      expect(
+        forecast!.willExceed,
+        isTrue,
+        reason: 'still inside the limit today, but not by the end of the month',
+      );
+      expect(forecast.overBy, greaterThan(0));
+    });
+
+    test('an upcoming bill counts as committed, not guessed', () async {
+      await seedTransaction(
+        db,
+        walletId: walletId,
+        categoryId: food,
+        amount: 120000,
+        date: DateTime(2026, 1, 25),
+        isPaid: false,
+        specialType: TransactionSpecialType.upcoming,
+      );
+
+      final budgetView = await budget(categoryIds: [food], amount: 100000);
+      final engine = BudgetEngine(db);
+      final moment = DateTime(2026, 1, 20);
+      final forecast = await engine.forecast(
+        budgetView,
+        await engine.progressFor(budgetView, moment: moment),
+        moment: moment,
+      );
+
+      expect(
+        forecast!.scheduled,
+        120000,
+        reason:
+            'a dated bill that has not happened yet is knowable; Cashew cannot '
+            'see this because it only creates the next instance once the last '
+            'one is paid',
+      );
+      expect(forecast.willExceed, isTrue);
+    });
+
+    test('one purchase on day one does not project a catastrophe', () async {
+      await seedTransaction(
+        db,
+        walletId: walletId,
+        categoryId: food,
+        amount: 20000,
+        date: DateTime(2026, 1, 1),
+      );
+
+      final budgetView = await budget(categoryIds: [food], amount: 100000);
+      final engine = BudgetEngine(db);
+      final moment = DateTime(2026, 1, 1, 12);
+      final forecast = await engine.forecast(
+        budgetView,
+        await engine.progressFor(budgetView, moment: moment),
+        moment: moment,
+      );
+
+      expect(
+        forecast!.willExceed,
+        isFalse,
+        reason:
+            'extrapolating half a day of spending would warn on the first of '
+            'every month, which is noise rather than information',
+      );
+    });
+
+    test('there is nothing to forecast once the period has closed', () async {
+      final budgetView = await budget(categoryIds: [food]);
+      final engine = BudgetEngine(db);
+      final progress = await engine.progressFor(
+        budgetView,
+        moment: DateTime(2026, 1, 15),
+      );
+
+      expect(
+        await engine.forecast(
+          budgetView,
+          progress,
+          moment: DateTime(2026, 3, 1),
+        ),
+        isNull,
       );
     });
   });

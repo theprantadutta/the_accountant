@@ -108,4 +108,52 @@ void main() {
     expect(AppDatabase.decodeIdList(landed.categoryIds), [catA, catB]);
     expect(AppDatabase.decodeIdList(landed.walletIds), [wallet]);
   });
+
+  test('a category cap travels with its budget', () async {
+    final other = openTestDatabase();
+    addTearDown(other.close);
+    await other.claimLocalStore(userId: user);
+
+    final category = await seedCategory(device, name: 'Snacks');
+    final budgetId = await seedBudget(
+      device,
+      name: 'Food',
+      amount: 100000,
+      categoryIds: [category],
+    );
+    await device.setCategoryLimit(
+      budgetId: budgetId,
+      categoryId: category,
+      amount: 2550,
+      isPercent: true,
+    );
+
+    final pushed = await SyncService(
+      database: device,
+      transport: FakeSyncTransport(server: server, userId: user),
+    ).syncAll();
+    expect(
+      pushed.conflicts,
+      isEmpty,
+      reason: 'a cap sent alongside the budget it belongs to must be accepted',
+    );
+
+    final pulled = await SyncService(
+      database: other,
+      transport: FakeSyncTransport(server: server, userId: user),
+    ).syncAll();
+    expect(pulled.applyFailures, isEmpty);
+
+    final landed = await other.getCategoryLimitsForBudget(budgetId);
+    expect(landed, hasLength(1));
+    expect(landed.single.categoryId, category);
+    expect(landed.single.amount, 2550);
+    expect(
+      landed.single.isPercent,
+      isTrue,
+      reason:
+          'a share that arrives as a flat sum stops moving with the budget, '
+          'which is the whole reason for expressing it as a share',
+    );
+  });
 }

@@ -86,6 +86,14 @@ class _BudgetDetailScreenState extends ConsumerState<BudgetDetailScreen> {
               AppSpacing.gapLg,
               _Headline(progress: progress),
               AppSpacing.gapLg,
+              _Forecast(budget: budget, progress: progress, engine: engine),
+              _CategoryCaps(
+                budget: budget,
+                progress: progress,
+                engine: engine,
+                onChanged: () => setState(() {}),
+              ),
+              AppSpacing.gapLg,
               _CategoryBreakdown(
                 budget: budget,
                 progress: progress,
@@ -436,5 +444,333 @@ class _PastPeriods extends ConsumerWidget {
       out.add(p);
     }
     return out;
+  }
+}
+
+/// Where this period is heading, when that is worth saying.
+///
+/// Silent unless the projection actually goes over: a forecast that agrees with
+/// the bar is not information, and one shown every period stops being read.
+class _Forecast extends ConsumerWidget {
+  final BudgetView budget;
+  final BudgetProgress progress;
+  final BudgetEngine engine;
+
+  const _Forecast({
+    required this.budget,
+    required this.progress,
+    required this.engine,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currency = ref.watch(defaultCurrencyProvider);
+    final useDecimals = ref.watch(defaultDecimalProvider);
+    final numberFormat = ref.watch(numberFormatSettingProvider);
+
+    return FutureBuilder<BudgetForecast?>(
+      future: engine.forecast(budget, progress),
+      builder: (context, snapshot) {
+        final forecast = snapshot.data;
+        if (forecast == null || !forecast.willExceed) {
+          return const SizedBox.shrink();
+        }
+
+        String money(int cents) => cents.formatCurrency(
+          currency,
+          useDecimals: useDecimals,
+          numberFormat: numberFormat,
+        );
+
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 16),
+          child: GlassCard(
+            padding: AppSpacing.paddingLg,
+            variant: GlassCardVariant.warning,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Icon(
+                  Icons.query_stats,
+                  size: 20,
+                  color: AppColors.warning,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Heading for ${money(forecast.overBy)} over',
+                        style: AppTypography.titleSmall.copyWith(
+                          color: AppColors.warning,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        forecast.scheduled > 0
+                            ? 'At this rate, and counting '
+                                  '${money(forecast.scheduled)} already '
+                                  'scheduled before the period ends.'
+                            : 'At this rate, by the end of the period.',
+                        style: AppTypography.bodySmall.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// A cap chosen in the dialog below.
+typedef _CapChoice = ({String categoryId, int amount, bool isPercent});
+
+/// Caps on individual categories inside the budget.
+class _CategoryCaps extends ConsumerWidget {
+  final BudgetView budget;
+  final BudgetProgress progress;
+  final BudgetEngine engine;
+  final VoidCallback onChanged;
+
+  const _CategoryCaps({
+    required this.budget,
+    required this.progress,
+    required this.engine,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currency = ref.watch(defaultCurrencyProvider);
+    final useDecimals = ref.watch(defaultDecimalProvider);
+    final numberFormat = ref.watch(numberFormatSettingProvider);
+    final categories = ref.watch(categoryProvider).categories;
+
+    String nameOf(String id) =>
+        categories.where((c) => c.id == id).firstOrNull?.name ?? 'Category';
+
+    String money(int cents) => cents.formatCurrency(
+      currency,
+      useDecimals: useDecimals,
+      numberFormat: numberFormat,
+    );
+
+    return FutureBuilder<List<CategoryLimitProgress>>(
+      future: engine.categoryLimits(budget, progress),
+      builder: (context, snapshot) {
+        final limits = snapshot.data ?? const <CategoryLimitProgress>[];
+
+        return GlassCard(
+          padding: AppSpacing.paddingLg,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text('Caps', style: AppTypography.titleSmall),
+                  ),
+                  TextButton.icon(
+                    onPressed: () => _addCap(context, ref),
+                    icon: const Icon(Icons.add, size: 18),
+                    label: const Text('Add'),
+                  ),
+                ],
+              ),
+              if (limits.isEmpty)
+                Text(
+                  'A budget says whether the period is overspent. A cap says '
+                  'where: a food budget on track overall can still be mostly '
+                  'takeaway.',
+                  style: AppTypography.bodySmall.copyWith(
+                    color: AppColors.textMuted,
+                  ),
+                )
+              else
+                for (final limit in limits)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 12),
+                    child: InkWell(
+                      onLongPress: () => _removeCap(ref, limit),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  nameOf(limit.categoryId),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: AppTypography.bodyMedium,
+                                ),
+                              ),
+                              Text(
+                                '${money(limit.spent)} / ${money(limit.limit)}',
+                                style: AppTypography.bodySmall.copyWith(
+                                  color: limit.isOver
+                                      ? AppColors.error
+                                      : AppColors.textSecondary,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(2),
+                            child: LinearProgressIndicator(
+                              value: limit.fraction.clamp(0.0, 1.0),
+                              minHeight: 4,
+                              backgroundColor: AppColors.divider,
+                              color: limit.isOver
+                                  ? AppColors.error
+                                  : AppColors.success,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _removeCap(WidgetRef ref, CategoryLimitProgress limit) async {
+    await ref.read(databaseProvider).removeCategoryLimit(limit.limitId);
+    onChanged();
+  }
+
+  Future<void> _addCap(BuildContext context, WidgetRef ref) async {
+    final categories = ref.read(categoryProvider).categories;
+    // Only categories the budget actually watches; capping one it ignores
+    // would draw a bar that can never move.
+    final choices = budget.categoryIds.isEmpty
+        ? categories
+              .where((c) => (c.type == 'income') == budget.isIncome)
+              .toList()
+        : categories.where((c) => budget.categoryIds.contains(c.id)).toList();
+
+    if (choices.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('This budget has no categories to cap yet.'),
+        ),
+      );
+      return;
+    }
+
+    final result = await showDialog<_CapChoice>(
+      context: context,
+      builder: (context) => _AddCapDialog(
+        choices: [for (final c in choices) (id: c.id, name: c.name)],
+      ),
+    );
+    if (result == null) return;
+
+    await ref
+        .read(databaseProvider)
+        .setCategoryLimit(
+          budgetId: budget.id,
+          categoryId: result.categoryId,
+          amount: result.amount,
+          isPercent: result.isPercent,
+        );
+    onChanged();
+  }
+}
+
+class _AddCapDialog extends StatefulWidget {
+  final List<({String id, String name})> choices;
+
+  const _AddCapDialog({required this.choices});
+
+  @override
+  State<_AddCapDialog> createState() => _AddCapDialogState();
+}
+
+class _AddCapDialogState extends State<_AddCapDialog> {
+  late String _categoryId;
+  final _amountController = TextEditingController();
+  bool _isPercent = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _categoryId = widget.choices.first.id;
+  }
+
+  @override
+  void dispose() {
+    _amountController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Cap a category'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          DropdownButtonFormField<String>(
+            initialValue: _categoryId,
+            decoration: const InputDecoration(labelText: 'Category'),
+            items: [
+              for (final c in widget.choices)
+                DropdownMenuItem(value: c.id, child: Text(c.name)),
+            ],
+            onChanged: (v) => setState(() => _categoryId = v!),
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: _amountController,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            decoration: InputDecoration(
+              labelText: _isPercent ? 'Percent of budget' : 'Amount',
+              suffixText: _isPercent ? '%' : null,
+            ),
+          ),
+          SwitchListTile(
+            contentPadding: EdgeInsets.zero,
+            value: _isPercent,
+            onChanged: (v) => setState(() => _isPercent = v),
+            title: const Text('As a share of the budget'),
+            subtitle: const Text('Moves with the budget when you change it'),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancel'),
+        ),
+        FilledButton(
+          onPressed: () {
+            final text = _amountController.text.trim();
+            final amount = _isPercent
+                // Hundredths of a percent, so 25.5 becomes 2550.
+                ? ((double.tryParse(text) ?? 0) * 100).round()
+                : text.toCentsOrNull();
+            if (amount == null || amount <= 0) return;
+            Navigator.pop(context, (
+              categoryId: _categoryId,
+              amount: amount,
+              isPercent: _isPercent,
+            ));
+          },
+          child: const Text('Set'),
+        ),
+      ],
+    );
   }
 }
