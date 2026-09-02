@@ -178,6 +178,13 @@ Fix the units, use the shared policy, watch the provider so the timer actually s
 
 ## Phase 2 — Objectives, and screens that exist but cannot be reached
 
+**Status: done.** Client commits `d91b5c9`, `c61faed`, and the goal planner. No backend work was needed. Flutter analyze clean with 401 tests passing.
+
+Done: goals have list, detail and create/edit screens; progress goes through the shared policy, counting transfers deliberately where budgets do not; the upcoming, category management and theme screens were given entry points in Settings; the theme choice persists; payment methods gained the screen they never had; pinned goals appear on the dashboard; the dead support ticket screen was removed; and a planner says how many payments of what size finish a goal.
+
+The rest of this section is the original plan, kept for the detail.
+
+
 ### 2.1 Objectives
 
 The service layer is complete and the backend entity needs no changes at all. There is simply no screen. Meanwhile the in-app help already documents an "Objectives section", and the picker in the add-transaction form hides itself when the list is empty, which it always is.
