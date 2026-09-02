@@ -349,6 +349,54 @@ class ObjectiveWithProgress {
     return '${(days / 365).toStringAsFixed(1)} years left';
   }
 
+  /// How often money is put toward a goal.
+  ///
+  /// Only the cadences someone actually saves on. Nobody funds a holiday daily.
+  static const List<InstallmentCadence> cadences = InstallmentCadence.values;
+
+  /// A plan for finishing this goal: how many payments of what size.
+  ///
+  /// Two questions, one answer. Given a deadline, it works out the payment;
+  /// given a payment the user can manage, [planForPayment] works out when they
+  /// will arrive. A target on its own tells someone nothing about whether it is
+  /// achievable, which is the thing they want to know before starting.
+  ///
+  /// Null when there is nothing left to save, or no deadline to work back from.
+  InstallmentPlan? planForDeadline(InstallmentCadence cadence) {
+    final remaining = remainingAmount;
+    if (remaining <= 0) return null;
+
+    final days = timeRemaining?.inDays;
+    if (days == null || days <= 0) return null;
+
+    final payments = (days / cadence.days).ceil();
+    if (payments <= 0) return null;
+
+    return InstallmentPlan(
+      cadence: cadence,
+      payments: payments,
+      // Rounded up, so the last payment is never short of the target.
+      amountCents: (remaining / payments).ceil(),
+    );
+  }
+
+  /// The same plan read the other way: how long [amountCents] a period takes.
+  ///
+  /// Null when the payment is not positive, or the goal is already reached.
+  InstallmentPlan? planForPayment(
+    InstallmentCadence cadence,
+    int amountCents,
+  ) {
+    final remaining = remainingAmount;
+    if (remaining <= 0 || amountCents <= 0) return null;
+
+    return InstallmentPlan(
+      cadence: cadence,
+      payments: (remaining / amountCents).ceil(),
+      amountCents: amountCents,
+    );
+  }
+
   /// Cents that need to go in each day to arrive on time, or null when there
   /// is no deadline, no shortfall, or no time left.
   ///
@@ -357,4 +405,37 @@ class ObjectiveWithProgress {
   /// hard-coded a dollar sign onto every account in the world.
   int? get dailyTargetCents =>
       (dailyTarget == null || dailyTarget! <= 0) ? null : dailyTarget!.round();
+}
+
+/// How often a goal is paid into.
+enum InstallmentCadence {
+  weekly('Weekly', 7),
+  fortnightly('Fortnightly', 14),
+  monthly('Monthly', 30);
+
+  const InstallmentCadence(this.label, this.days);
+
+  final String label;
+
+  /// Approximate length in days. A month is taken as 30, which is close enough
+  /// for "roughly this much, roughly this often" and avoids a plan that shifts
+  /// depending on which month it is read in.
+  final int days;
+}
+
+/// A way of reaching a goal: [payments] payments of [amountCents], [cadence].
+class InstallmentPlan {
+  final InstallmentCadence cadence;
+  final int payments;
+  final int amountCents;
+
+  const InstallmentPlan({
+    required this.cadence,
+    required this.payments,
+    required this.amountCents,
+  });
+
+  /// Roughly when the last payment lands, counting from today.
+  DateTime get finishesAround =>
+      DateTime.now().add(Duration(days: payments * cadence.days));
 }

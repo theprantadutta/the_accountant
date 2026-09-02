@@ -177,6 +177,9 @@ class ObjectiveDetailScreen extends ConsumerWidget {
           ),
           AppSpacing.gapLg,
 
+          if (!objective.isComplete)
+            _PlanCard(objective: objective, currency: currency),
+
           GlassCard(
             padding: AppSpacing.paddingLg,
             child: Column(
@@ -269,5 +272,87 @@ class ObjectiveDetailScreen extends ConsumerWidget {
         .deleteObjective(objective.objective.id);
     ref.invalidate(allObjectivesProvider);
     if (context.mounted) Navigator.pop(context);
+  }
+}
+
+/// What it takes to finish: so many payments of so much.
+///
+/// A target on its own says nothing about whether it is achievable, which is
+/// the thing someone wants to know before starting. With a deadline the payment
+/// is worked out from the date; without one the user picks a payment they can
+/// manage and the card says when they arrive.
+class _PlanCard extends ConsumerStatefulWidget {
+  final ObjectiveWithProgress objective;
+  final String currency;
+
+  const _PlanCard({required this.objective, required this.currency});
+
+  @override
+  ConsumerState<_PlanCard> createState() => _PlanCardState();
+}
+
+class _PlanCardState extends ConsumerState<_PlanCard> {
+  InstallmentCadence _cadence = InstallmentCadence.monthly;
+
+  @override
+  Widget build(BuildContext context) {
+    final useDecimals = ref.watch(defaultDecimalProvider);
+    final numberFormat = ref.watch(numberFormatSettingProvider);
+    final dateFormat = ref.watch(dateFormatSettingProvider);
+
+    String money(int cents) => cents.formatCurrency(
+      widget.currency,
+      useDecimals: useDecimals,
+      numberFormat: numberFormat,
+    );
+
+    final plan = widget.objective.planForDeadline(_cadence);
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: GlassCard(
+        padding: AppSpacing.paddingLg,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Getting there', style: AppTypography.titleSmall),
+            AppSpacing.gapMd,
+            Wrap(
+              spacing: 8,
+              children: [
+                for (final c in InstallmentCadence.values)
+                  ChoiceChip(
+                    label: Text(c.label),
+                    selected: _cadence == c,
+                    onSelected: (_) => setState(() => _cadence = c),
+                  ),
+              ],
+            ),
+            AppSpacing.gapMd,
+            if (plan == null)
+              Text(
+                'Set a target date and this works out what to put aside.',
+                style: AppTypography.bodySmall.copyWith(
+                  color: AppColors.textMuted,
+                ),
+              )
+            else ...[
+              Text(
+                '${plan.payments} payments of ${money(plan.amountCents)}',
+                style: AppTypography.titleMedium,
+              ),
+              AppSpacing.gapSm,
+              Text(
+                'Finishing around '
+                '${AppDateFormatter.formatShortDate(plan.finishesAround, dateFormat)}.',
+                style: AppTypography.bodySmall.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
   }
 }

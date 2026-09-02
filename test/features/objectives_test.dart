@@ -181,4 +181,94 @@ void main() {
     expect(progress.progressPercent, 100);
     expect(progress.isComplete, isTrue);
   });
+
+  group('working out what it takes to finish', () {
+    test('a deadline gives a payment count and a payment size', () async {
+      final id = await goal(
+        target: 120000,
+        endDate: DateTime.now().add(const Duration(days: 90)),
+      );
+      final progress = await service.getObjectiveWithProgress(id);
+
+      final plan = progress.planForDeadline(InstallmentCadence.monthly);
+
+      expect(plan, isNotNull);
+      expect(plan!.payments, 3);
+      expect(plan.amountCents, 40000);
+    });
+
+    test('the payment is rounded up so the last one is never short', () async {
+      final id = await goal(
+        target: 100000,
+        endDate: DateTime.now().add(const Duration(days: 90)),
+      );
+      final progress = await service.getObjectiveWithProgress(id);
+
+      final plan = progress.planForDeadline(InstallmentCadence.monthly)!;
+
+      expect(plan.payments, 3);
+      expect(
+        plan.amountCents * plan.payments,
+        greaterThanOrEqualTo(100000),
+        reason:
+            'rounding down would leave the goal a few pence short after every '
+            'payment had been made, which is the one outcome nobody wants',
+      );
+    });
+
+    test('what is already saved is taken off the plan', () async {
+      final id = await goal(
+        target: 120000,
+        endDate: DateTime.now().add(const Duration(days: 60)),
+      );
+      final txn = await seedTransaction(
+        db,
+        walletId: walletId,
+        amount: 60000,
+        date: DateTime(2026, 1, 5),
+      );
+      await service.linkTransaction(id, txn);
+
+      final progress = await service.getObjectiveWithProgress(id);
+      final plan = progress.planForDeadline(InstallmentCadence.monthly)!;
+
+      expect(plan.payments, 2);
+      expect(plan.amountCents, 30000);
+    });
+
+    test('no deadline means no plan to work back from', () async {
+      final id = await goal(target: 50000);
+      final progress = await service.getObjectiveWithProgress(id);
+
+      expect(progress.planForDeadline(InstallmentCadence.monthly), isNull);
+    });
+
+    test('read the other way, a payment gives a number of payments', () async {
+      final id = await goal(target: 100000);
+      final progress = await service.getObjectiveWithProgress(id);
+
+      final plan = progress.planForPayment(InstallmentCadence.weekly, 15000)!;
+
+      expect(
+        plan.payments,
+        7,
+        reason: 'seven payments of 15000 is the first that clears 100000',
+      );
+    });
+
+    test('a goal already reached needs no plan', () async {
+      final id = await goal(target: 10000);
+      final txn = await seedTransaction(
+        db,
+        walletId: walletId,
+        amount: 20000,
+        date: DateTime(2026, 1, 5),
+      );
+      await service.linkTransaction(id, txn);
+
+      final progress = await service.getObjectiveWithProgress(id);
+      expect(progress.planForDeadline(InstallmentCadence.monthly), isNull);
+      expect(progress.planForPayment(InstallmentCadence.monthly, 5000), isNull);
+    });
+  });
 }
