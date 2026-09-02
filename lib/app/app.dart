@@ -8,7 +8,6 @@ import 'package:the_accountant/core/themes/app_theme.dart';
 import 'package:the_accountant/features/onboarding/screens/post_signup_onboarding_screen.dart';
 import 'package:the_accountant/features/premium/providers/premium_sync_provider.dart';
 import 'package:the_accountant/features/premium/screens/premium_screen.dart';
-import 'package:the_accountant/features/support/screens/support_screen.dart';
 import 'package:the_accountant/features/authentication/presentation/screens/sign_in_screen.dart';
 import 'package:the_accountant/features/authentication/presentation/screens/sign_up_screen.dart';
 import 'package:the_accountant/features/authentication/presentation/screens/user_profile_screen.dart';
@@ -130,10 +129,6 @@ class _MyAppState extends ConsumerState<MyApp> {
         '/categories': (context) => const CategoryManagementScreen(),
         '/exchange-rates': (context) => const ExchangeRatesScreen(),
         '/premium': (context) => const PremiumScreen(),
-        '/support': (context) {
-          final args = ModalRoute.of(context)!.settings.arguments as String?;
-          return SupportScreen(userId: args ?? 'default_user');
-        },
         '/settings/profile': (context) => const ProfileEditScreen(),
         '/settings/privacy-security': (context) =>
             const PrivacySecurityScreen(),

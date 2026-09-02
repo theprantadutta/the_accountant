@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:the_accountant/features/transactions/screens/payment_methods_screen.dart';
 import 'package:the_accountant/features/wallets/screens/wallet_management_screen.dart';
 import 'package:the_accountant/features/transactions/screens/upcoming_transactions_screen.dart';
 import 'package:the_accountant/features/settings/screens/theme_selection_screen.dart';
@@ -381,6 +382,20 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const WalletManagementScreen()),
+          ),
+        ),
+      );
+    }
+    if (_matchesSearch('Payment methods') ||
+        _matchesKeywords(['payment', 'card', 'method'])) {
+      moneyTiles.add(
+        SettingsNavigationTile(
+          icon: Icons.credit_card,
+          title: 'Payment methods',
+          subtitle: 'The cards and accounts you pay with',
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const PaymentMethodsScreen()),
           ),
         ),
       );

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/features/dashboard/widgets/pinned_goals_section.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -176,6 +177,8 @@ class _ResponsiveFinancialOverviewState
         _buildAnimatedSection(0.5, 0.8, _buildRecentTransactions(recent)),
         AppSpacing.gapXl,
         _buildAnimatedSection(0.6, 0.9, _buildBudgetProgress()),
+        AppSpacing.gapXl,
+        _buildAnimatedSection(0.7, 1.0, const PinnedGoalsSection()),
         SizedBox(height: AppSpacing.lg),
       ],
     );
@@ -225,6 +228,8 @@ class _ResponsiveFinancialOverviewState
                   _buildAnimatedSection(0.3, 0.6, _buildQuickLinks()),
                   AppSpacing.gapXl,
                   _buildAnimatedSection(0.6, 0.9, _buildBudgetProgress()),
+                  AppSpacing.gapXl,
+                  _buildAnimatedSection(0.7, 1.0, const PinnedGoalsSection()),
                 ],
               ),
             ),
