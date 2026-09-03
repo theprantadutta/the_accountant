@@ -47,6 +47,20 @@ class Wallets extends Table {
   // Display ordering
   IntColumn get orderIndex => integer().withDefault(const Constant(0))();
 
+  /// Kept for its history, but no longer offered or counted.
+  ///
+  /// Not the same as deleting it: an account someone has closed still explains
+  /// where last year's money went, so removing it would rewrite their past.
+  BoolColumn get isArchived => boolean().withDefault(const Constant(false))();
+
+  /// Left out of the total across accounts.
+  ///
+  /// For a balance that is not really the user's to spend — a joint pot, or an
+  /// account they only administer — where counting it makes every summary
+  /// figure wrong in a way nothing on screen explains.
+  BoolColumn get excludeFromTotal =>
+      boolean().withDefault(const Constant(false))();
+
   // Sync fields
   TextColumn get serverId => text().nullable()();
   IntColumn get syncStatus => integer().withDefault(

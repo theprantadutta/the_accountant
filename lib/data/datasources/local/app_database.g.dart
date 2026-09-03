@@ -1380,6 +1380,36 @@ class $WalletsTable extends Wallets with TableInfo<$WalletsTable, Wallet> {
     requiredDuringInsert: false,
     defaultValue: const Constant(0),
   );
+  static const VerificationMeta _isArchivedMeta = const VerificationMeta(
+    'isArchived',
+  );
+  @override
+  late final GeneratedColumn<bool> isArchived = GeneratedColumn<bool>(
+    'is_archived',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_archived" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _excludeFromTotalMeta = const VerificationMeta(
+    'excludeFromTotal',
+  );
+  @override
+  late final GeneratedColumn<bool> excludeFromTotal = GeneratedColumn<bool>(
+    'exclude_from_total',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("exclude_from_total" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
   static const VerificationMeta _serverIdMeta = const VerificationMeta(
     'serverId',
   );
@@ -1453,6 +1483,8 @@ class $WalletsTable extends Wallets with TableInfo<$WalletsTable, Wallet> {
     creditLimit,
     billingCycleDay,
     orderIndex,
+    isArchived,
+    excludeFromTotal,
     serverId,
     syncStatus,
     createdAt,
@@ -1556,6 +1588,21 @@ class $WalletsTable extends Wallets with TableInfo<$WalletsTable, Wallet> {
         orderIndex.isAcceptableOrUnknown(data['order_index']!, _orderIndexMeta),
       );
     }
+    if (data.containsKey('is_archived')) {
+      context.handle(
+        _isArchivedMeta,
+        isArchived.isAcceptableOrUnknown(data['is_archived']!, _isArchivedMeta),
+      );
+    }
+    if (data.containsKey('exclude_from_total')) {
+      context.handle(
+        _excludeFromTotalMeta,
+        excludeFromTotal.isAcceptableOrUnknown(
+          data['exclude_from_total']!,
+          _excludeFromTotalMeta,
+        ),
+      );
+    }
     if (data.containsKey('server_id')) {
       context.handle(
         _serverIdMeta,
@@ -1649,6 +1696,14 @@ class $WalletsTable extends Wallets with TableInfo<$WalletsTable, Wallet> {
         DriftSqlType.int,
         data['${effectivePrefix}order_index'],
       )!,
+      isArchived: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_archived'],
+      )!,
+      excludeFromTotal: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}exclude_from_total'],
+      )!,
       serverId: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}server_id'],
@@ -1695,6 +1750,19 @@ class Wallet extends DataClass implements Insertable<Wallet> {
   final int? creditLimit;
   final int? billingCycleDay;
   final int orderIndex;
+
+  /// Kept for its history, but no longer offered or counted.
+  ///
+  /// Not the same as deleting it: an account someone has closed still explains
+  /// where last year's money went, so removing it would rewrite their past.
+  final bool isArchived;
+
+  /// Left out of the total across accounts.
+  ///
+  /// For a balance that is not really the user's to spend — a joint pot, or an
+  /// account they only administer — where counting it makes every summary
+  /// figure wrong in a way nothing on screen explains.
+  final bool excludeFromTotal;
   final String? serverId;
   final int syncStatus;
   final DateTime createdAt;
@@ -1714,6 +1782,8 @@ class Wallet extends DataClass implements Insertable<Wallet> {
     this.creditLimit,
     this.billingCycleDay,
     required this.orderIndex,
+    required this.isArchived,
+    required this.excludeFromTotal,
     this.serverId,
     required this.syncStatus,
     required this.createdAt,
@@ -1744,6 +1814,8 @@ class Wallet extends DataClass implements Insertable<Wallet> {
       map['billing_cycle_day'] = Variable<int>(billingCycleDay);
     }
     map['order_index'] = Variable<int>(orderIndex);
+    map['is_archived'] = Variable<bool>(isArchived);
+    map['exclude_from_total'] = Variable<bool>(excludeFromTotal);
     if (!nullToAbsent || serverId != null) {
       map['server_id'] = Variable<String>(serverId);
     }
@@ -1775,6 +1847,8 @@ class Wallet extends DataClass implements Insertable<Wallet> {
           ? const Value.absent()
           : Value(billingCycleDay),
       orderIndex: Value(orderIndex),
+      isArchived: Value(isArchived),
+      excludeFromTotal: Value(excludeFromTotal),
       serverId: serverId == null && nullToAbsent
           ? const Value.absent()
           : Value(serverId),
@@ -1808,6 +1882,8 @@ class Wallet extends DataClass implements Insertable<Wallet> {
       creditLimit: serializer.fromJson<int?>(json['creditLimit']),
       billingCycleDay: serializer.fromJson<int?>(json['billingCycleDay']),
       orderIndex: serializer.fromJson<int>(json['orderIndex']),
+      isArchived: serializer.fromJson<bool>(json['isArchived']),
+      excludeFromTotal: serializer.fromJson<bool>(json['excludeFromTotal']),
       serverId: serializer.fromJson<String?>(json['serverId']),
       syncStatus: serializer.fromJson<int>(json['syncStatus']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
@@ -1834,6 +1910,8 @@ class Wallet extends DataClass implements Insertable<Wallet> {
       'creditLimit': serializer.toJson<int?>(creditLimit),
       'billingCycleDay': serializer.toJson<int?>(billingCycleDay),
       'orderIndex': serializer.toJson<int>(orderIndex),
+      'isArchived': serializer.toJson<bool>(isArchived),
+      'excludeFromTotal': serializer.toJson<bool>(excludeFromTotal),
       'serverId': serializer.toJson<String?>(serverId),
       'syncStatus': serializer.toJson<int>(syncStatus),
       'createdAt': serializer.toJson<DateTime>(createdAt),
@@ -1856,6 +1934,8 @@ class Wallet extends DataClass implements Insertable<Wallet> {
     Value<int?> creditLimit = const Value.absent(),
     Value<int?> billingCycleDay = const Value.absent(),
     int? orderIndex,
+    bool? isArchived,
+    bool? excludeFromTotal,
     Value<String?> serverId = const Value.absent(),
     int? syncStatus,
     DateTime? createdAt,
@@ -1877,6 +1957,8 @@ class Wallet extends DataClass implements Insertable<Wallet> {
         ? billingCycleDay.value
         : this.billingCycleDay,
     orderIndex: orderIndex ?? this.orderIndex,
+    isArchived: isArchived ?? this.isArchived,
+    excludeFromTotal: excludeFromTotal ?? this.excludeFromTotal,
     serverId: serverId.present ? serverId.value : this.serverId,
     syncStatus: syncStatus ?? this.syncStatus,
     createdAt: createdAt ?? this.createdAt,
@@ -1910,6 +1992,12 @@ class Wallet extends DataClass implements Insertable<Wallet> {
       orderIndex: data.orderIndex.present
           ? data.orderIndex.value
           : this.orderIndex,
+      isArchived: data.isArchived.present
+          ? data.isArchived.value
+          : this.isArchived,
+      excludeFromTotal: data.excludeFromTotal.present
+          ? data.excludeFromTotal.value
+          : this.excludeFromTotal,
       serverId: data.serverId.present ? data.serverId.value : this.serverId,
       syncStatus: data.syncStatus.present
           ? data.syncStatus.value
@@ -1936,6 +2024,8 @@ class Wallet extends DataClass implements Insertable<Wallet> {
           ..write('creditLimit: $creditLimit, ')
           ..write('billingCycleDay: $billingCycleDay, ')
           ..write('orderIndex: $orderIndex, ')
+          ..write('isArchived: $isArchived, ')
+          ..write('excludeFromTotal: $excludeFromTotal, ')
           ..write('serverId: $serverId, ')
           ..write('syncStatus: $syncStatus, ')
           ..write('createdAt: $createdAt, ')
@@ -1960,6 +2050,8 @@ class Wallet extends DataClass implements Insertable<Wallet> {
     creditLimit,
     billingCycleDay,
     orderIndex,
+    isArchived,
+    excludeFromTotal,
     serverId,
     syncStatus,
     createdAt,
@@ -1983,6 +2075,8 @@ class Wallet extends DataClass implements Insertable<Wallet> {
           other.creditLimit == this.creditLimit &&
           other.billingCycleDay == this.billingCycleDay &&
           other.orderIndex == this.orderIndex &&
+          other.isArchived == this.isArchived &&
+          other.excludeFromTotal == this.excludeFromTotal &&
           other.serverId == this.serverId &&
           other.syncStatus == this.syncStatus &&
           other.createdAt == this.createdAt &&
@@ -2004,6 +2098,8 @@ class WalletsCompanion extends UpdateCompanion<Wallet> {
   final Value<int?> creditLimit;
   final Value<int?> billingCycleDay;
   final Value<int> orderIndex;
+  final Value<bool> isArchived;
+  final Value<bool> excludeFromTotal;
   final Value<String?> serverId;
   final Value<int> syncStatus;
   final Value<DateTime> createdAt;
@@ -2024,6 +2120,8 @@ class WalletsCompanion extends UpdateCompanion<Wallet> {
     this.creditLimit = const Value.absent(),
     this.billingCycleDay = const Value.absent(),
     this.orderIndex = const Value.absent(),
+    this.isArchived = const Value.absent(),
+    this.excludeFromTotal = const Value.absent(),
     this.serverId = const Value.absent(),
     this.syncStatus = const Value.absent(),
     this.createdAt = const Value.absent(),
@@ -2045,6 +2143,8 @@ class WalletsCompanion extends UpdateCompanion<Wallet> {
     this.creditLimit = const Value.absent(),
     this.billingCycleDay = const Value.absent(),
     this.orderIndex = const Value.absent(),
+    this.isArchived = const Value.absent(),
+    this.excludeFromTotal = const Value.absent(),
     this.serverId = const Value.absent(),
     this.syncStatus = const Value.absent(),
     this.createdAt = const Value.absent(),
@@ -2067,6 +2167,8 @@ class WalletsCompanion extends UpdateCompanion<Wallet> {
     Expression<int>? creditLimit,
     Expression<int>? billingCycleDay,
     Expression<int>? orderIndex,
+    Expression<bool>? isArchived,
+    Expression<bool>? excludeFromTotal,
     Expression<String>? serverId,
     Expression<int>? syncStatus,
     Expression<DateTime>? createdAt,
@@ -2088,6 +2190,8 @@ class WalletsCompanion extends UpdateCompanion<Wallet> {
       if (creditLimit != null) 'credit_limit': creditLimit,
       if (billingCycleDay != null) 'billing_cycle_day': billingCycleDay,
       if (orderIndex != null) 'order_index': orderIndex,
+      if (isArchived != null) 'is_archived': isArchived,
+      if (excludeFromTotal != null) 'exclude_from_total': excludeFromTotal,
       if (serverId != null) 'server_id': serverId,
       if (syncStatus != null) 'sync_status': syncStatus,
       if (createdAt != null) 'created_at': createdAt,
@@ -2111,6 +2215,8 @@ class WalletsCompanion extends UpdateCompanion<Wallet> {
     Value<int?>? creditLimit,
     Value<int?>? billingCycleDay,
     Value<int>? orderIndex,
+    Value<bool>? isArchived,
+    Value<bool>? excludeFromTotal,
     Value<String?>? serverId,
     Value<int>? syncStatus,
     Value<DateTime>? createdAt,
@@ -2132,6 +2238,8 @@ class WalletsCompanion extends UpdateCompanion<Wallet> {
       creditLimit: creditLimit ?? this.creditLimit,
       billingCycleDay: billingCycleDay ?? this.billingCycleDay,
       orderIndex: orderIndex ?? this.orderIndex,
+      isArchived: isArchived ?? this.isArchived,
+      excludeFromTotal: excludeFromTotal ?? this.excludeFromTotal,
       serverId: serverId ?? this.serverId,
       syncStatus: syncStatus ?? this.syncStatus,
       createdAt: createdAt ?? this.createdAt,
@@ -2185,6 +2293,12 @@ class WalletsCompanion extends UpdateCompanion<Wallet> {
     if (orderIndex.present) {
       map['order_index'] = Variable<int>(orderIndex.value);
     }
+    if (isArchived.present) {
+      map['is_archived'] = Variable<bool>(isArchived.value);
+    }
+    if (excludeFromTotal.present) {
+      map['exclude_from_total'] = Variable<bool>(excludeFromTotal.value);
+    }
     if (serverId.present) {
       map['server_id'] = Variable<String>(serverId.value);
     }
@@ -2222,6 +2336,8 @@ class WalletsCompanion extends UpdateCompanion<Wallet> {
           ..write('creditLimit: $creditLimit, ')
           ..write('billingCycleDay: $billingCycleDay, ')
           ..write('orderIndex: $orderIndex, ')
+          ..write('isArchived: $isArchived, ')
+          ..write('excludeFromTotal: $excludeFromTotal, ')
           ..write('serverId: $serverId, ')
           ..write('syncStatus: $syncStatus, ')
           ..write('createdAt: $createdAt, ')
@@ -3856,6 +3972,26 @@ class $TransactionsTable extends Transactions
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _fxRateMeta = const VerificationMeta('fxRate');
+  @override
+  late final GeneratedColumn<double> fxRate = GeneratedColumn<double>(
+    'fx_rate',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _counterAmountMeta = const VerificationMeta(
+    'counterAmount',
+  );
+  @override
+  late final GeneratedColumn<int> counterAmount = GeneratedColumn<int>(
+    'counter_amount',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _budgetIdMeta = const VerificationMeta(
     'budgetId',
   );
@@ -4057,6 +4193,8 @@ class $TransactionsTable extends Transactions
     feeForTransactionId,
     recurringConfigId,
     occurrenceKey,
+    fxRate,
+    counterAmount,
     budgetId,
     objectiveId,
     isRecurring,
@@ -4204,6 +4342,21 @@ class $TransactionsTable extends Transactions
         occurrenceKey.isAcceptableOrUnknown(
           data['occurrence_key']!,
           _occurrenceKeyMeta,
+        ),
+      );
+    }
+    if (data.containsKey('fx_rate')) {
+      context.handle(
+        _fxRateMeta,
+        fxRate.isAcceptableOrUnknown(data['fx_rate']!, _fxRateMeta),
+      );
+    }
+    if (data.containsKey('counter_amount')) {
+      context.handle(
+        _counterAmountMeta,
+        counterAmount.isAcceptableOrUnknown(
+          data['counter_amount']!,
+          _counterAmountMeta,
         ),
       );
     }
@@ -4379,6 +4532,14 @@ class $TransactionsTable extends Transactions
         DriftSqlType.string,
         data['${effectivePrefix}occurrence_key'],
       ),
+      fxRate: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}fx_rate'],
+      ),
+      counterAmount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}counter_amount'],
+      ),
       budgetId: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}budget_id'],
@@ -4497,6 +4658,18 @@ class Transaction extends DataClass implements Insertable<Transaction> {
   /// Null for every non-generated transaction (SQLite treats NULLs as distinct
   /// in a unique index, so ordinary rows are unaffected).
   final String? occurrenceKey;
+
+  /// The rate used when a transfer crossed currencies, or null when it did not.
+  ///
+  /// Recorded rather than recomputed. Rates move, so working one out later from
+  /// today's table would quietly restate what a past transfer cost.
+  final double? fxRate;
+
+  /// What the other leg received, in its own currency's minor units.
+  ///
+  /// Only set on a cross-currency transfer. Both legs of a same-currency
+  /// transfer carry equal amounts, and this stays null there.
+  final int? counterAmount;
   final String? budgetId;
   final String? objectiveId;
   final bool isRecurring;
@@ -4529,6 +4702,8 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     this.feeForTransactionId,
     this.recurringConfigId,
     this.occurrenceKey,
+    this.fxRate,
+    this.counterAmount,
     this.budgetId,
     this.objectiveId,
     required this.isRecurring,
@@ -4579,6 +4754,12 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     }
     if (!nullToAbsent || occurrenceKey != null) {
       map['occurrence_key'] = Variable<String>(occurrenceKey);
+    }
+    if (!nullToAbsent || fxRate != null) {
+      map['fx_rate'] = Variable<double>(fxRate);
+    }
+    if (!nullToAbsent || counterAmount != null) {
+      map['counter_amount'] = Variable<int>(counterAmount);
     }
     if (!nullToAbsent || budgetId != null) {
       map['budget_id'] = Variable<String>(budgetId);
@@ -4650,6 +4831,12 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       occurrenceKey: occurrenceKey == null && nullToAbsent
           ? const Value.absent()
           : Value(occurrenceKey),
+      fxRate: fxRate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(fxRate),
+      counterAmount: counterAmount == null && nullToAbsent
+          ? const Value.absent()
+          : Value(counterAmount),
       budgetId: budgetId == null && nullToAbsent
           ? const Value.absent()
           : Value(budgetId),
@@ -4712,6 +4899,8 @@ class Transaction extends DataClass implements Insertable<Transaction> {
         json['recurringConfigId'],
       ),
       occurrenceKey: serializer.fromJson<String?>(json['occurrenceKey']),
+      fxRate: serializer.fromJson<double?>(json['fxRate']),
+      counterAmount: serializer.fromJson<int?>(json['counterAmount']),
       budgetId: serializer.fromJson<String?>(json['budgetId']),
       objectiveId: serializer.fromJson<String?>(json['objectiveId']),
       isRecurring: serializer.fromJson<bool>(json['isRecurring']),
@@ -4753,6 +4942,8 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       'feeForTransactionId': serializer.toJson<String?>(feeForTransactionId),
       'recurringConfigId': serializer.toJson<String?>(recurringConfigId),
       'occurrenceKey': serializer.toJson<String?>(occurrenceKey),
+      'fxRate': serializer.toJson<double?>(fxRate),
+      'counterAmount': serializer.toJson<int?>(counterAmount),
       'budgetId': serializer.toJson<String?>(budgetId),
       'objectiveId': serializer.toJson<String?>(objectiveId),
       'isRecurring': serializer.toJson<bool>(isRecurring),
@@ -4790,6 +4981,8 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     Value<String?> feeForTransactionId = const Value.absent(),
     Value<String?> recurringConfigId = const Value.absent(),
     Value<String?> occurrenceKey = const Value.absent(),
+    Value<double?> fxRate = const Value.absent(),
+    Value<int?> counterAmount = const Value.absent(),
     Value<String?> budgetId = const Value.absent(),
     Value<String?> objectiveId = const Value.absent(),
     bool? isRecurring,
@@ -4834,6 +5027,10 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     occurrenceKey: occurrenceKey.present
         ? occurrenceKey.value
         : this.occurrenceKey,
+    fxRate: fxRate.present ? fxRate.value : this.fxRate,
+    counterAmount: counterAmount.present
+        ? counterAmount.value
+        : this.counterAmount,
     budgetId: budgetId.present ? budgetId.value : this.budgetId,
     objectiveId: objectiveId.present ? objectiveId.value : this.objectiveId,
     isRecurring: isRecurring ?? this.isRecurring,
@@ -4890,6 +5087,10 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       occurrenceKey: data.occurrenceKey.present
           ? data.occurrenceKey.value
           : this.occurrenceKey,
+      fxRate: data.fxRate.present ? data.fxRate.value : this.fxRate,
+      counterAmount: data.counterAmount.present
+          ? data.counterAmount.value
+          : this.counterAmount,
       budgetId: data.budgetId.present ? data.budgetId.value : this.budgetId,
       objectiveId: data.objectiveId.present
           ? data.objectiveId.value
@@ -4943,6 +5144,8 @@ class Transaction extends DataClass implements Insertable<Transaction> {
           ..write('feeForTransactionId: $feeForTransactionId, ')
           ..write('recurringConfigId: $recurringConfigId, ')
           ..write('occurrenceKey: $occurrenceKey, ')
+          ..write('fxRate: $fxRate, ')
+          ..write('counterAmount: $counterAmount, ')
           ..write('budgetId: $budgetId, ')
           ..write('objectiveId: $objectiveId, ')
           ..write('isRecurring: $isRecurring, ')
@@ -4980,6 +5183,8 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     feeForTransactionId,
     recurringConfigId,
     occurrenceKey,
+    fxRate,
+    counterAmount,
     budgetId,
     objectiveId,
     isRecurring,
@@ -5016,6 +5221,8 @@ class Transaction extends DataClass implements Insertable<Transaction> {
           other.feeForTransactionId == this.feeForTransactionId &&
           other.recurringConfigId == this.recurringConfigId &&
           other.occurrenceKey == this.occurrenceKey &&
+          other.fxRate == this.fxRate &&
+          other.counterAmount == this.counterAmount &&
           other.budgetId == this.budgetId &&
           other.objectiveId == this.objectiveId &&
           other.isRecurring == this.isRecurring &&
@@ -5050,6 +5257,8 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
   final Value<String?> feeForTransactionId;
   final Value<String?> recurringConfigId;
   final Value<String?> occurrenceKey;
+  final Value<double?> fxRate;
+  final Value<int?> counterAmount;
   final Value<String?> budgetId;
   final Value<String?> objectiveId;
   final Value<bool> isRecurring;
@@ -5083,6 +5292,8 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     this.feeForTransactionId = const Value.absent(),
     this.recurringConfigId = const Value.absent(),
     this.occurrenceKey = const Value.absent(),
+    this.fxRate = const Value.absent(),
+    this.counterAmount = const Value.absent(),
     this.budgetId = const Value.absent(),
     this.objectiveId = const Value.absent(),
     this.isRecurring = const Value.absent(),
@@ -5117,6 +5328,8 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     this.feeForTransactionId = const Value.absent(),
     this.recurringConfigId = const Value.absent(),
     this.occurrenceKey = const Value.absent(),
+    this.fxRate = const Value.absent(),
+    this.counterAmount = const Value.absent(),
     this.budgetId = const Value.absent(),
     this.objectiveId = const Value.absent(),
     this.isRecurring = const Value.absent(),
@@ -5154,6 +5367,8 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     Expression<String>? feeForTransactionId,
     Expression<String>? recurringConfigId,
     Expression<String>? occurrenceKey,
+    Expression<double>? fxRate,
+    Expression<int>? counterAmount,
     Expression<String>? budgetId,
     Expression<String>? objectiveId,
     Expression<bool>? isRecurring,
@@ -5190,6 +5405,8 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
         'fee_for_transaction_id': feeForTransactionId,
       if (recurringConfigId != null) 'recurring_config_id': recurringConfigId,
       if (occurrenceKey != null) 'occurrence_key': occurrenceKey,
+      if (fxRate != null) 'fx_rate': fxRate,
+      if (counterAmount != null) 'counter_amount': counterAmount,
       if (budgetId != null) 'budget_id': budgetId,
       if (objectiveId != null) 'objective_id': objectiveId,
       if (isRecurring != null) 'is_recurring': isRecurring,
@@ -5226,6 +5443,8 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     Value<String?>? feeForTransactionId,
     Value<String?>? recurringConfigId,
     Value<String?>? occurrenceKey,
+    Value<double?>? fxRate,
+    Value<int?>? counterAmount,
     Value<String?>? budgetId,
     Value<String?>? objectiveId,
     Value<bool>? isRecurring,
@@ -5260,6 +5479,8 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
       feeForTransactionId: feeForTransactionId ?? this.feeForTransactionId,
       recurringConfigId: recurringConfigId ?? this.recurringConfigId,
       occurrenceKey: occurrenceKey ?? this.occurrenceKey,
+      fxRate: fxRate ?? this.fxRate,
+      counterAmount: counterAmount ?? this.counterAmount,
       budgetId: budgetId ?? this.budgetId,
       objectiveId: objectiveId ?? this.objectiveId,
       isRecurring: isRecurring ?? this.isRecurring,
@@ -5334,6 +5555,12 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     if (occurrenceKey.present) {
       map['occurrence_key'] = Variable<String>(occurrenceKey.value);
     }
+    if (fxRate.present) {
+      map['fx_rate'] = Variable<double>(fxRate.value);
+    }
+    if (counterAmount.present) {
+      map['counter_amount'] = Variable<int>(counterAmount.value);
+    }
     if (budgetId.present) {
       map['budget_id'] = Variable<String>(budgetId.value);
     }
@@ -5406,6 +5633,8 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
           ..write('feeForTransactionId: $feeForTransactionId, ')
           ..write('recurringConfigId: $recurringConfigId, ')
           ..write('occurrenceKey: $occurrenceKey, ')
+          ..write('fxRate: $fxRate, ')
+          ..write('counterAmount: $counterAmount, ')
           ..write('budgetId: $budgetId, ')
           ..write('objectiveId: $objectiveId, ')
           ..write('isRecurring: $isRecurring, ')
@@ -13549,6 +13778,8 @@ typedef $$WalletsTableCreateCompanionBuilder =
       Value<int?> creditLimit,
       Value<int?> billingCycleDay,
       Value<int> orderIndex,
+      Value<bool> isArchived,
+      Value<bool> excludeFromTotal,
       Value<String?> serverId,
       Value<int> syncStatus,
       Value<DateTime> createdAt,
@@ -13571,6 +13802,8 @@ typedef $$WalletsTableUpdateCompanionBuilder =
       Value<int?> creditLimit,
       Value<int?> billingCycleDay,
       Value<int> orderIndex,
+      Value<bool> isArchived,
+      Value<bool> excludeFromTotal,
       Value<String?> serverId,
       Value<int> syncStatus,
       Value<DateTime> createdAt,
@@ -13692,6 +13925,16 @@ class $$WalletsTableFilterComposer
 
   ColumnFilters<int> get orderIndex => $composableBuilder(
     column: $table.orderIndex,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isArchived => $composableBuilder(
+    column: $table.isArchived,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get excludeFromTotal => $composableBuilder(
+    column: $table.excludeFromTotal,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -13845,6 +14088,16 @@ class $$WalletsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<bool> get isArchived => $composableBuilder(
+    column: $table.isArchived,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get excludeFromTotal => $composableBuilder(
+    column: $table.excludeFromTotal,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get serverId => $composableBuilder(
     column: $table.serverId,
     builder: (column) => ColumnOrderings(column),
@@ -13929,6 +14182,16 @@ class $$WalletsTableAnnotationComposer
 
   GeneratedColumn<int> get orderIndex => $composableBuilder(
     column: $table.orderIndex,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get isArchived => $composableBuilder(
+    column: $table.isArchived,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get excludeFromTotal => $composableBuilder(
+    column: $table.excludeFromTotal,
     builder: (column) => column,
   );
 
@@ -14041,6 +14304,8 @@ class $$WalletsTableTableManager
                 Value<int?> creditLimit = const Value.absent(),
                 Value<int?> billingCycleDay = const Value.absent(),
                 Value<int> orderIndex = const Value.absent(),
+                Value<bool> isArchived = const Value.absent(),
+                Value<bool> excludeFromTotal = const Value.absent(),
                 Value<String?> serverId = const Value.absent(),
                 Value<int> syncStatus = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
@@ -14061,6 +14326,8 @@ class $$WalletsTableTableManager
                 creditLimit: creditLimit,
                 billingCycleDay: billingCycleDay,
                 orderIndex: orderIndex,
+                isArchived: isArchived,
+                excludeFromTotal: excludeFromTotal,
                 serverId: serverId,
                 syncStatus: syncStatus,
                 createdAt: createdAt,
@@ -14083,6 +14350,8 @@ class $$WalletsTableTableManager
                 Value<int?> creditLimit = const Value.absent(),
                 Value<int?> billingCycleDay = const Value.absent(),
                 Value<int> orderIndex = const Value.absent(),
+                Value<bool> isArchived = const Value.absent(),
+                Value<bool> excludeFromTotal = const Value.absent(),
                 Value<String?> serverId = const Value.absent(),
                 Value<int> syncStatus = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
@@ -14103,6 +14372,8 @@ class $$WalletsTableTableManager
                 creditLimit: creditLimit,
                 billingCycleDay: billingCycleDay,
                 orderIndex: orderIndex,
+                isArchived: isArchived,
+                excludeFromTotal: excludeFromTotal,
                 serverId: serverId,
                 syncStatus: syncStatus,
                 createdAt: createdAt,
@@ -15112,6 +15383,8 @@ typedef $$TransactionsTableCreateCompanionBuilder =
       Value<String?> feeForTransactionId,
       Value<String?> recurringConfigId,
       Value<String?> occurrenceKey,
+      Value<double?> fxRate,
+      Value<int?> counterAmount,
       Value<String?> budgetId,
       Value<String?> objectiveId,
       Value<bool> isRecurring,
@@ -15147,6 +15420,8 @@ typedef $$TransactionsTableUpdateCompanionBuilder =
       Value<String?> feeForTransactionId,
       Value<String?> recurringConfigId,
       Value<String?> occurrenceKey,
+      Value<double?> fxRate,
+      Value<int?> counterAmount,
       Value<String?> budgetId,
       Value<String?> objectiveId,
       Value<bool> isRecurring,
@@ -15331,6 +15606,16 @@ class $$TransactionsTableFilterComposer
 
   ColumnFilters<String> get occurrenceKey => $composableBuilder(
     column: $table.occurrenceKey,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get fxRate => $composableBuilder(
+    column: $table.fxRate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get counterAmount => $composableBuilder(
+    column: $table.counterAmount,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -15602,6 +15887,16 @@ class $$TransactionsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<double> get fxRate => $composableBuilder(
+    column: $table.fxRate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get counterAmount => $composableBuilder(
+    column: $table.counterAmount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get budgetId => $composableBuilder(
     column: $table.budgetId,
     builder: (column) => ColumnOrderings(column),
@@ -15822,6 +16117,14 @@ class $$TransactionsTableAnnotationComposer
 
   GeneratedColumn<String> get occurrenceKey => $composableBuilder(
     column: $table.occurrenceKey,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get fxRate =>
+      $composableBuilder(column: $table.fxRate, builder: (column) => column);
+
+  GeneratedColumn<int> get counterAmount => $composableBuilder(
+    column: $table.counterAmount,
     builder: (column) => column,
   );
 
@@ -16056,6 +16359,8 @@ class $$TransactionsTableTableManager
                 Value<String?> feeForTransactionId = const Value.absent(),
                 Value<String?> recurringConfigId = const Value.absent(),
                 Value<String?> occurrenceKey = const Value.absent(),
+                Value<double?> fxRate = const Value.absent(),
+                Value<int?> counterAmount = const Value.absent(),
                 Value<String?> budgetId = const Value.absent(),
                 Value<String?> objectiveId = const Value.absent(),
                 Value<bool> isRecurring = const Value.absent(),
@@ -16090,6 +16395,8 @@ class $$TransactionsTableTableManager
                 feeForTransactionId: feeForTransactionId,
                 recurringConfigId: recurringConfigId,
                 occurrenceKey: occurrenceKey,
+                fxRate: fxRate,
+                counterAmount: counterAmount,
                 budgetId: budgetId,
                 objectiveId: objectiveId,
                 isRecurring: isRecurring,
@@ -16125,6 +16432,8 @@ class $$TransactionsTableTableManager
                 Value<String?> feeForTransactionId = const Value.absent(),
                 Value<String?> recurringConfigId = const Value.absent(),
                 Value<String?> occurrenceKey = const Value.absent(),
+                Value<double?> fxRate = const Value.absent(),
+                Value<int?> counterAmount = const Value.absent(),
                 Value<String?> budgetId = const Value.absent(),
                 Value<String?> objectiveId = const Value.absent(),
                 Value<bool> isRecurring = const Value.absent(),
@@ -16159,6 +16468,8 @@ class $$TransactionsTableTableManager
                 feeForTransactionId: feeForTransactionId,
                 recurringConfigId: recurringConfigId,
                 occurrenceKey: occurrenceKey,
+                fxRate: fxRate,
+                counterAmount: counterAmount,
                 budgetId: budgetId,
                 objectiveId: objectiveId,
                 isRecurring: isRecurring,

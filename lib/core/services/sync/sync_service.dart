@@ -1260,6 +1260,10 @@ class SyncService {
       budgetId: Value(data['BudgetId']),
       objectiveId: Value(data['ObjectiveId']),
       receiptImageUrl: Value(data['ReceiptImageUrl']),
+      // Null on both unless the transfer crossed currencies; a server that
+      // predates the fields sends neither, which means the same thing.
+      fxRate: Value((data['FxRate'] as num?)?.toDouble()),
+      counterAmount: Value((data['CounterAmount'] as num?)?.toInt()),
       syncStatus: const Value(SyncStatus.synced),
       updatedAt: Value(DateTime.now()),
     );
@@ -1332,6 +1336,9 @@ class SyncService {
       creditLimit: Value((data['CreditLimit'] as num?)?.toInt()),
       billingCycleDay: Value(data['BillingCycleDay'] as int?),
       orderIndex: Value((data['OrderIndex'] as num?)?.toInt() ?? 0),
+      isArchived: Value(data['IsArchived'] ?? false),
+      excludeFromTotal: Value(data['ExcludeFromTotal'] ?? false),
+      useDecimals: Value(data['UseDecimals'] ?? true),
       syncStatus: const Value(SyncStatus.synced),
       updatedAt: Value(DateTime.now()),
     );
@@ -1866,6 +1873,8 @@ class SyncService {
     'BudgetId': t.budgetId,
     'ObjectiveId': t.objectiveId,
     'ReceiptImageUrl': t.receiptImageUrl,
+    'FxRate': t.fxRate,
+    'CounterAmount': t.counterAmount,
     'UpdatedAt': t.updatedAt.toUtc().toIso8601String(),
   };
 
@@ -1881,6 +1890,11 @@ class SyncService {
     'CreditLimit': w.creditLimit,
     'BillingCycleDay': w.billingCycleDay,
     'OrderIndex': w.orderIndex,
+    'IsArchived': w.isArchived,
+    'ExcludeFromTotal': w.excludeFromTotal,
+    // Stored only on the device that set it until now, so a reinstall put the
+    // pennies back on a yen account.
+    'UseDecimals': w.useDecimals,
     'UpdatedAt': w.updatedAt.toUtc().toIso8601String(),
   };
 

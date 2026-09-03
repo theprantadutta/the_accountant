@@ -157,6 +157,18 @@ class Transactions extends Table {
   TextColumn get occurrenceKey => text().nullable()();
 
   // Budget assignment (for tracking against budgets)
+  /// The rate used when a transfer crossed currencies, or null when it did not.
+  ///
+  /// Recorded rather than recomputed. Rates move, so working one out later from
+  /// today's table would quietly restate what a past transfer cost.
+  RealColumn get fxRate => real().nullable()();
+
+  /// What the other leg received, in its own currency's minor units.
+  ///
+  /// Only set on a cross-currency transfer. Both legs of a same-currency
+  /// transfer carry equal amounts, and this stays null there.
+  IntColumn get counterAmount => integer().nullable()();
+
   TextColumn get budgetId => text().nullable()();
 
   // Objective assignment (for goals/loans)

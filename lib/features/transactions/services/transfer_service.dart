@@ -95,14 +95,31 @@ class TransferIntegrity {
       );
     }
 
-    if (leg.amount != partner.amount) {
+    // Equal amounts only hold within one currency. Across two, the legs are
+    // different numbers by definition, and each says what the other received.
+    final crossesCurrency =
+        leg.counterAmount != null || partner.counterAmount != null;
+
+    if (!crossesCurrency && leg.amount != partner.amount) {
       issues.add(
         TransferIntegrityIssue(
           transactionId: leg.id,
           code: amountMismatch,
           message:
               'Amounts differ (${leg.amount} vs ${partner.amount}); a transfer '
-              'must be net-zero across the pair.',
+              'within one currency must be net-zero across the pair.',
+        ),
+      );
+    }
+
+    if (crossesCurrency && leg.counterAmount != partner.amount) {
+      issues.add(
+        TransferIntegrityIssue(
+          transactionId: leg.id,
+          code: amountMismatch,
+          message:
+              'This leg says the other side received ${leg.counterAmount}, but '
+              'it recorded ${partner.amount}.',
         ),
       );
     }
@@ -189,6 +206,7 @@ class TransferService {
     String? title,
     int feeAmount = 0,
     String? feeWalletId,
+    int? receivedAmount,
   }) async {
     if (sourceWalletId == destinationWalletId) {
       throw ArgumentError('Source and destination wallets must be different');
@@ -199,7 +217,12 @@ class TransferService {
     if (feeAmount < 0) {
       throw ArgumentError('Transfer fee cannot be negative');
     }
-    await _refuseCrossCurrency(sourceWalletId, destinationWalletId);
+    final conversion = await _resolveConversion(
+      sourceWalletId,
+      destinationWalletId,
+      amount,
+      receivedAmount,
+    );
 
     final uuid = const Uuid();
     final expenseId = uuid.v4();
@@ -225,7 +248,7 @@ class TransferService {
         SystemCategories.transferKey,
       );
 
-      // Leg 1: expense from source wallet.
+      // Leg 1: expense from source wallet, in the source's own currency.
       await _db.addTransaction(
         _legCompanion(
           id: expenseId,
@@ -238,22 +261,30 @@ class TransferService {
           date: date,
           now: now,
           categoryId: transferCategoryId,
+          fxRate: conversion.rate,
+          counterAmount: conversion.crossesCurrency
+              ? conversion.received
+              : null,
         ),
       );
 
-      // Leg 2: income to destination wallet.
+      // Leg 2: income to destination wallet, in the destination's own currency.
+      // Across currencies these two figures differ by definition, and each leg
+      // records what the other side saw so neither has to be recomputed later.
       await _db.addTransaction(
         _legCompanion(
           id: incomeId,
           partnerId: expenseId,
           walletId: destinationWalletId,
           isIncome: true,
-          amount: amount,
+          amount: conversion.received,
           title: transferTitle,
           notes: notes,
           date: date,
           now: now,
           categoryId: transferCategoryId,
+          fxRate: conversion.rate,
+          counterAmount: conversion.crossesCurrency ? amount : null,
         ),
       );
 
@@ -278,22 +309,29 @@ class TransferService {
     });
   }
 
-  /// Refuses a transfer whose two wallets are denominated differently.
+  /// Works out what the destination receives, and at what rate.
   ///
-  /// The two legs of a transfer carry the same figure, because a transfer is one
-  /// movement of one sum of money seen from both ends. That is only true while
-  /// both ends count in the same unit. Moving 100 from a dollar wallet to a taka
-  /// wallet would write 100 into both, turning $100 into ৳100 — inventing about
-  /// nine tenths of the money out of nothing, and reporting a loss of nothing at
-  /// all.
+  /// The two legs of a transfer used to have to carry the same figure, because
+  /// a transfer is one movement of one sum seen from both ends. That holds only
+  /// while both ends count in the same unit: writing 100 into a dollar wallet
+  /// and a taka wallet alike would turn $100 into 100 taka, inventing nine
+  /// tenths of the money and reporting a loss of nothing at all. So a transfer
+  /// across currencies was refused outright — honest, but it left anyone with
+  /// accounts in two places unable to record a movement they had really made.
   ///
-  /// Converting properly needs a second figure and the rate used to get it, both
-  /// recorded, or the numbers cannot be explained later. Until a transfer can
-  /// carry those, it may not cross currencies at all: refusing is the only
-  /// answer here that is not silently wrong.
-  Future<void> _refuseCrossCurrency(
+  /// It is allowed now, and each leg carries both the amount the other side saw
+  /// and the rate between them. The rate is stored rather than looked up again
+  /// later: rates move, and recomputing would quietly restate what a past
+  /// transfer cost.
+  ///
+  /// [received] is what actually landed, which the user is better placed to
+  /// know than any table — a bank's rate and its charges are not the mid-market
+  /// figure. Without it the app's own rate gives a starting point.
+  Future<_Conversion> _resolveConversion(
     String sourceId,
     String destinationId,
+    int amount,
+    int? received,
   ) async {
     final source = await _db.findWalletById(sourceId);
     final destination = await _db.findWalletById(destinationId);
@@ -306,12 +344,73 @@ class TransferService {
       );
     }
 
-    if (source.currency != destination.currency) {
+    if (source.currency == destination.currency) {
+      if (received != null && received != amount) {
+        throw ArgumentError(
+          'A transfer within one currency moves one figure: ${source.name} and '
+          '${destination.name} are both in ${source.currency}, so the amount '
+          'received cannot differ.',
+        );
+      }
+      return const _Conversion(
+        received: 0,
+        rate: null,
+        crossesCurrency: false,
+      ).withReceived(amount);
+    }
+
+    final landed =
+        received ??
+        await _convertedAmount(
+          amount,
+          from: source.currency,
+          to: destination.currency,
+        );
+
+    if (landed == null) {
       throw ArgumentError(
-        'Cannot transfer between wallets held in different currencies: '
-        '${source.name} is in ${source.currency} and '
-        '${destination.name} is in ${destination.currency}.',
+        'No rate is known between ${source.currency} and '
+        '${destination.currency}, so enter what actually landed in '
+        '${destination.name}.',
       );
+    }
+
+    if (landed <= 0) {
+      throw ArgumentError(
+        'The amount received has to be more than zero. Enter what actually '
+        'landed in ${destination.name}.',
+      );
+    }
+
+    return _Conversion(
+      received: landed,
+      // Derived from the two figures rather than read from the rate table, so
+      // the stored rate always explains the two amounts beside it exactly.
+      rate: landed / amount,
+      crossesCurrency: true,
+    );
+  }
+
+  /// [amount] converted with the app's own rates, or null when none is known.
+  ///
+  /// Deliberately null rather than the same number back. Treating one dollar as
+  /// one taka is not a rough answer, it is a wrong one by a factor of a
+  /// hundred, and it would be written into the ledger looking exactly as
+  /// settled as a correct figure. Asking is the only honest option left.
+  Future<int?> _convertedAmount(
+    int amount, {
+    required String from,
+    required String to,
+  }) async {
+    try {
+      final rate = await _db.getExchangeRate(from, to);
+      final effective = rate?.useCustomRate == true
+          ? rate?.customRate
+          : rate?.apiRate;
+      if (effective == null || effective <= 0) return null;
+      return (amount * effective).round();
+    } catch (_) {
+      return null;
     }
   }
 
@@ -373,6 +472,8 @@ class TransferService {
     required DateTime date,
     required DateTime now,
     required String categoryId,
+    double? fxRate,
+    int? counterAmount,
   }) {
     return TransactionsCompanion(
       id: Value(id),
@@ -387,6 +488,10 @@ class TransferService {
       walletId: Value(walletId),
       transactionType: Value(TransactionPolicy.transferType),
       pairedTransactionId: Value(partnerId),
+      // Null on both unless the transfer crossed currencies, which is exactly
+      // what a same-currency transfer means.
+      fxRate: Value(fxRate),
+      counterAmount: Value(counterAmount),
       isPaid: const Value(true),
       createdAt: Value(now),
       updatedAt: Value(now),
@@ -407,6 +512,7 @@ class TransferService {
     String? title,
     String? sourceWalletId,
     String? destinationWalletId,
+    int? receivedAmount,
   }) async {
     if (amount != null && amount <= 0) {
       throw ArgumentError('Transfer amount must be positive');
@@ -443,15 +549,19 @@ class TransferService {
       if (newSourceWalletId == newDestinationWalletId) {
         throw ArgumentError('Source and destination wallets must be different');
       }
-      // An edit can move a leg to a wallet held in another currency, which
-      // would leave the pair carrying one figure that means two amounts.
-      await _refuseCrossCurrency(newSourceWalletId, newDestinationWalletId);
-
       final now = DateTime.now();
       final transferCategoryId = await _db.requireSystemCategoryId(
         SystemCategories.transferKey,
       );
       final newAmount = amount ?? expenseTxn.amount;
+      // An edit can move a leg onto an account held in another currency, so
+      // the pair is re-resolved rather than assumed to still balance.
+      final conversion = await _resolveConversion(
+        newSourceWalletId,
+        newDestinationWalletId,
+        newAmount,
+        receivedAmount,
+      );
       final newDate = date ?? expenseTxn.date;
       final newTitle = title ?? expenseTxn.title;
       final newNotes = notes ?? expenseTxn.notes;
@@ -467,18 +577,22 @@ class TransferService {
         date: newDate,
         now: now,
         categoryId: transferCategoryId,
+        fxRate: conversion.rate,
+        counterAmount: conversion.crossesCurrency ? conversion.received : null,
       );
       await _writeLeg(
         existing: incomeTxn,
         partnerId: expenseTxn.id,
         walletId: newDestinationWalletId,
         isIncome: true,
-        amount: newAmount,
+        amount: conversion.received,
         title: newTitle,
         notes: newNotes,
         date: newDate,
         now: now,
         categoryId: transferCategoryId,
+        fxRate: conversion.rate,
+        counterAmount: conversion.crossesCurrency ? newAmount : null,
       );
 
       await _recalculate({
@@ -501,12 +615,16 @@ class TransferService {
     required DateTime date,
     required DateTime now,
     required String categoryId,
+    double? fxRate,
+    int? counterAmount,
   }) async {
     await (_db.update(
       _db.transactions,
     )..where((t) => t.id.equals(existing.id))).write(
       TransactionsCompanion(
         amount: Value(amount),
+        fxRate: Value(fxRate),
+        counterAmount: Value(counterAmount),
         isIncome: Value(isIncome),
         title: Value(title),
         notes: Value(notes),
@@ -657,4 +775,27 @@ class TransferService {
     }
     return repaired;
   }
+}
+
+/// What a transfer's destination receives, and the rate that produced it.
+class _Conversion {
+  /// The destination leg's amount, in the destination currency's minor units.
+  final int received;
+
+  /// Destination units per source unit, or null within one currency.
+  final double? rate;
+
+  final bool crossesCurrency;
+
+  const _Conversion({
+    required this.received,
+    required this.rate,
+    required this.crossesCurrency,
+  });
+
+  _Conversion withReceived(int amount) => _Conversion(
+    received: amount,
+    rate: rate,
+    crossesCurrency: crossesCurrency,
+  );
 }

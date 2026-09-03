@@ -162,7 +162,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 20;
+  int get schemaVersion => 21;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -297,6 +297,9 @@ class AppDatabase extends _$AppDatabase {
       }
       if (from < 20) {
         await _migrateToV20(m);
+      }
+      if (from < 21) {
+        await _migrateToV21(m);
       }
     },
     beforeOpen: (details) async {
@@ -646,6 +649,18 @@ class AppDatabase extends _$AppDatabase {
   /// holds, before joining `categoryIds`. A name that matches nothing is left
   /// behind rather than guessed at, which turns the budget into an unscoped one
   /// — the same thing it was already doing, only now visibly.
+  /// Schema 21: set an account aside, and let a transfer cross currencies.
+  ///
+  /// Purely additive. Every existing account is live and counted, and every
+  /// existing transfer was within one currency, which is what null on the two
+  /// transaction columns already means.
+  Future<void> _migrateToV21(Migrator m) async {
+    await _ensureColumn(m, wallets, wallets.isArchived);
+    await _ensureColumn(m, wallets, wallets.excludeFromTotal);
+    await _ensureColumn(m, transactions, transactions.fxRate);
+    await _ensureColumn(m, transactions, transactions.counterAmount);
+  }
+
   /// Schema 20: title rules sync, so a deleted one needs a tombstone.
   ///
   /// Purely additive. Every existing rule is live, which is what a null here
