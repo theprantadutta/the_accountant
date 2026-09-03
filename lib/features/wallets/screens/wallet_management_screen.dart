@@ -1,5 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:the_accountant/features/wallets/screens/wallet_detail_screen.dart';
+import 'package:the_accountant/core/providers/currency_provider.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/services/currency_service.dart';
@@ -251,6 +253,11 @@ class _WalletManagementScreenState extends ConsumerState<WalletManagementScreen>
                     wallet: wallet,
                     index: index,
                     animatedIds: _animatedWalletIds,
+                    // Tapping opens the account rather than the editor: the
+                    // question people have about an account is what has moved
+                    // through it, not what it is called. Editing stays on the
+                    // long-press menu, where it was.
+                    onOpen: () => _openWallet(wallet),
                     onEdit: () => _showEditWalletSheet(wallet),
                     onDelete: () => _showDeleteConfirmationDialog(wallet),
                     onSetDefault: () => _setAsDefault(wallet),
@@ -278,30 +285,24 @@ class _WalletManagementScreenState extends ConsumerState<WalletManagementScreen>
     );
   }
 
+  Future<void> _openWallet(Wallet wallet) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => WalletDetailScreen(walletId: wallet.id),
+      ),
+    );
+    if (mounted) await ref.read(walletProvider.notifier).loadWallets();
+  }
+
   Widget _buildHeader(List<Wallet> wallets, WalletState walletState) {
-    // Calculate total balance (simplified - in real app you'd convert currencies)
-    double totalBalance = 0;
-    String primaryCurrency = 'USD';
-
-    if (wallets.isNotEmpty) {
-      final defaultWallet = wallets.firstWhere(
-        (w) => w.isDefault == true,
-        orElse: () => wallets.first,
-      );
-      primaryCurrency = defaultWallet.currency;
-
-      for (final wallet in wallets) {
-        // Balances are integer cents; header total is shown in major-unit dollars.
-        final balance =
-            (walletState.walletBalances[wallet.id] ?? wallet.balance) / 100.0;
-        if (wallet.currency == primaryCurrency) {
-          totalBalance += balance;
-        } else {
-          // For now, just add as-is (proper conversion would need exchange rates)
-          totalBalance += balance;
-        }
-      }
-    }
+    // Converted, and only over the accounts that count. This used to add the
+    // raw balances together whatever currency they were in — a hundred dollars
+    // plus a hundred taka came out as two hundred of whatever the default
+    // account happened to be, which is not a number that means anything.
+    final primaryCurrency = ref.watch(defaultCurrencyProvider);
+    final converted = ref.watch(convertedTotalBalanceProvider);
+    final totalBalance = (converted.asData?.value ?? 0) / 100.0;
 
     return AnimatedBuilder(
       animation: _headerAnimation,
@@ -669,6 +670,7 @@ class _WalletCard extends ConsumerStatefulWidget {
   /// Ids that have already animated in; shared/owned by the parent screen so the
   /// entrance animation plays once and never replays on reorder.
   final Set<String> animatedIds;
+  final VoidCallback onOpen;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
   final VoidCallback onSetDefault;
@@ -677,6 +679,7 @@ class _WalletCard extends ConsumerStatefulWidget {
     required this.wallet,
     required this.index,
     required this.animatedIds,
+    required this.onOpen,
     required this.onEdit,
     required this.onDelete,
     required this.onSetDefault,
@@ -750,7 +753,7 @@ class _WalletCardState extends ConsumerState<_WalletCard>
       child: ReorderableDelayedDragStartListener(
         index: widget.index,
         child: GestureDetector(
-          onTap: widget.onEdit,
+          onTap: widget.onOpen,
           child: Container(
             margin: const EdgeInsets.only(bottom: 16),
             decoration: BoxDecoration(

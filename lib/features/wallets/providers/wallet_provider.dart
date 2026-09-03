@@ -1,4 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:the_accountant/core/providers/currency_provider.dart';
+import 'package:the_accountant/core/services/financial_calculation_service.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:the_accountant/core/providers/default_wallet_provider.dart';
 import 'package:the_accountant/core/services/analytics_service.dart';
@@ -216,6 +218,8 @@ class WalletNotifier extends StateNotifier<WalletState> {
     bool? useDecimals,
     int? creditLimit,
     int? billingCycleDay,
+    bool? isArchived,
+    bool? excludeFromTotal,
   }) async {
     try {
       // If setting as default, clear other defaults first
@@ -240,6 +244,12 @@ class WalletNotifier extends StateNotifier<WalletState> {
         billingCycleDay: billingCycleDay != null
             ? Value(billingCycleDay)
             : const Value.absent(),
+        isArchived: isArchived != null
+            ? Value(isArchived)
+            : const Value.absent(),
+        excludeFromTotal: excludeFromTotal != null
+            ? Value(excludeFromTotal)
+            : const Value.absent(),
         syncStatus: const Value(SyncStatus.pendingUpdate),
         updatedAt: Value(DateTime.now()),
       );
@@ -250,6 +260,28 @@ class WalletNotifier extends StateNotifier<WalletState> {
       state = state.copyWith(error: e.toString());
     }
   }
+
+  /// Close an account without losing what it explains.
+  ///
+  /// Archiving keeps every transaction filed against it, so last year's
+  /// spending still adds up, while the account stops being offered on the add
+  /// form and stops counting toward the total. Deleting takes the history with
+  /// it, which is almost never what someone closing a bank account means.
+  Future<void> setArchived(String id, bool archived) async {
+    // An archived account cannot stay the default, or the add form would open
+    // on an account the user has closed.
+    final wallet = state.wallets.where((w) => w.id == id).firstOrNull;
+    if (archived && wallet?.isDefault == true) {
+      final replacement = state.wallets
+          .where((w) => w.id != id && !w.isArchived)
+          .firstOrNull;
+      if (replacement != null) await setDefaultWallet(replacement.id);
+    }
+    await updateWallet(id: id, isArchived: archived);
+  }
+
+  Future<void> setExcludedFromTotal(String id, bool excluded) =>
+      updateWallet(id: id, excludeFromTotal: excluded);
 
   Future<void> deleteWallet(String id) async {
     try {
@@ -338,4 +370,31 @@ final effectiveDefaultWalletIdProvider = Provider<String?>((ref) {
   } catch (_) {
     return walletState.wallets.first.id;
   }
+});
+
+/// Accounts that can still be chosen on a transaction.
+///
+/// Archived ones are left out: closing an account and still being offered it
+/// on the add form is the whole thing archiving was meant to stop. They stay
+/// visible on the accounts screen, and in filters, so their history is still
+/// reachable.
+final selectableWalletsProvider = Provider<List<Wallet>>((ref) {
+  return ref.watch(walletProvider).wallets.where((w) => !w.isArchived).toList();
+});
+
+/// Every counted account's balance, converted into the user's own currency.
+///
+/// In cents. The accounts screen used to add the raw balances together and say
+/// so in a comment — a hundred dollars plus a hundred taka came out as two
+/// hundred of whatever the default account happened to be, which is not a
+/// number that means anything. Archived and excluded accounts are left out.
+final convertedTotalBalanceProvider = FutureProvider<int>((ref) async {
+  // Depend on the wallet list so the figure refreshes when a balance moves.
+  ref.watch(walletProvider);
+  final currency = ref.watch(defaultCurrencyProvider);
+  final service = FinancialCalculationService(
+    ref.watch(databaseProvider),
+    ref.watch(currencyServiceProvider),
+  );
+  return service.getTotalBalanceConverted(currency);
 });

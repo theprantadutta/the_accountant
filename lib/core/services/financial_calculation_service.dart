@@ -81,14 +81,20 @@ class FinancialCalculationService {
     }
   }
 
-  /// Calculate total balance with currency conversion
-  /// Converts all amounts to the target currency
+  /// Every live account's balance, converted into [targetCurrency], in cents.
+  ///
+  /// Archived accounts and ones the user has excluded are left out. An archived
+  /// account is closed, so counting it would report money that is not there;
+  /// an excluded one is a balance the user has said is not theirs to spend, and
+  /// including it makes every summary figure wrong in a way nothing on screen
+  /// explains.
   Future<int> getTotalBalanceConverted(String targetCurrency) async {
     try {
       final wallets = await _db.getAllWallets();
       int totalBalance = 0;
 
       for (final wallet in wallets) {
+        if (wallet.isArchived || wallet.excludeFromTotal) continue;
         // wallet.balance is the authoritative running balance (opening balance + realized
         // transaction effects). Do NOT also sum transactions here — that double-counted every
         // transaction (balance ≈ opening + 2×Σtxns).

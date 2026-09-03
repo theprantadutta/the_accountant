@@ -416,7 +416,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
     }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final wallets = ref.read(walletProvider).wallets;
+      final wallets = ref.read(selectableWalletsProvider);
       if (wallets.isEmpty) return;
 
       setState(() {
@@ -479,7 +479,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
   }
 
   void _onTypeChanged(TransactionTypeSelection type) {
-    final wallets = ref.read(walletProvider).wallets;
+    final wallets = ref.read(selectableWalletsProvider);
 
     if (type == TransactionTypeSelection.transfer && wallets.length < 2) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -529,7 +529,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
         .wallets
         .firstWhere(
           (w) => w.id == walletId,
-          orElse: () => ref.read(walletProvider).wallets.first,
+          orElse: () => ref.read(selectableWalletsProvider).first,
         );
     final currencySymbol = CurrencyInfo.getSymbol(wallet.currency);
 
@@ -900,7 +900,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final wallets = ref.watch(walletProvider).wallets;
+    final wallets = ref.watch(selectableWalletsProvider);
     // Two wallets is not enough — they have to count in the same currency.
     // The two legs of a transfer carry one figure, so a dollar wallet and a
     // taka wallet cannot be two ends of the same movement; see
