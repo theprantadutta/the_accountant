@@ -7399,6 +7399,42 @@ class $SettingsTable extends Settings with TableInfo<$SettingsTable, Setting> {
     requiredDuringInsert: false,
     defaultValue: const Constant('comma_dot'),
   );
+  static const VerificationMeta _symbolPositionMeta = const VerificationMeta(
+    'symbolPosition',
+  );
+  @override
+  late final GeneratedColumn<String> symbolPosition = GeneratedColumn<String>(
+    'symbol_position',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('before'),
+  );
+  static const VerificationMeta _timeFormatMeta = const VerificationMeta(
+    'timeFormat',
+  );
+  @override
+  late final GeneratedColumn<String> timeFormat = GeneratedColumn<String>(
+    'time_format',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('system'),
+  );
+  static const VerificationMeta _firstDayOfWeekMeta = const VerificationMeta(
+    'firstDayOfWeek',
+  );
+  @override
+  late final GeneratedColumn<int> firstDayOfWeek = GeneratedColumn<int>(
+    'first_day_of_week',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
   static const VerificationMeta _biometricLockEnabledMeta =
       const VerificationMeta('biometricLockEnabled');
   @override
@@ -7434,6 +7470,9 @@ class $SettingsTable extends Settings with TableInfo<$SettingsTable, Setting> {
     budgetWarningThreshold,
     dateFormat,
     numberFormat,
+    symbolPosition,
+    timeFormat,
+    firstDayOfWeek,
     biometricLockEnabled,
     autoLockTimeoutMinutes,
   ];
@@ -7506,6 +7545,30 @@ class $SettingsTable extends Settings with TableInfo<$SettingsTable, Setting> {
         ),
       );
     }
+    if (data.containsKey('symbol_position')) {
+      context.handle(
+        _symbolPositionMeta,
+        symbolPosition.isAcceptableOrUnknown(
+          data['symbol_position']!,
+          _symbolPositionMeta,
+        ),
+      );
+    }
+    if (data.containsKey('time_format')) {
+      context.handle(
+        _timeFormatMeta,
+        timeFormat.isAcceptableOrUnknown(data['time_format']!, _timeFormatMeta),
+      );
+    }
+    if (data.containsKey('first_day_of_week')) {
+      context.handle(
+        _firstDayOfWeekMeta,
+        firstDayOfWeek.isAcceptableOrUnknown(
+          data['first_day_of_week']!,
+          _firstDayOfWeekMeta,
+        ),
+      );
+    }
     if (data.containsKey('biometric_lock_enabled')) {
       context.handle(
         _biometricLockEnabledMeta,
@@ -7565,6 +7628,18 @@ class $SettingsTable extends Settings with TableInfo<$SettingsTable, Setting> {
         DriftSqlType.string,
         data['${effectivePrefix}number_format'],
       )!,
+      symbolPosition: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}symbol_position'],
+      )!,
+      timeFormat: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}time_format'],
+      )!,
+      firstDayOfWeek: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}first_day_of_week'],
+      )!,
       biometricLockEnabled: attachedDatabase.typeMapping.read(
         DriftSqlType.bool,
         data['${effectivePrefix}biometric_lock_enabled'],
@@ -7591,6 +7666,22 @@ class Setting extends DataClass implements Insertable<Setting> {
   final double budgetWarningThreshold;
   final String dateFormat;
   final String numberFormat;
+
+  /// Where the currency symbol goes: `before` (¤1.00) or `after` (1,00 €).
+  ///
+  /// Defaults to before, which is what every amount in the app did when there
+  /// was no choice. Roughly half of Europe writes it the other way round.
+  final String symbolPosition;
+
+  /// `system`, `12` or `24`.
+  ///
+  /// System means whatever the phone is set to, which is what most people
+  /// expect and nobody had a way to get before.
+  final String timeFormat;
+
+  /// 0 to follow the phone, otherwise 1 (Monday) through 7 (Sunday), matching
+  /// [DateTime.monday] and friends.
+  final int firstDayOfWeek;
   final bool biometricLockEnabled;
   final int autoLockTimeoutMinutes;
   const Setting({
@@ -7602,6 +7693,9 @@ class Setting extends DataClass implements Insertable<Setting> {
     required this.budgetWarningThreshold,
     required this.dateFormat,
     required this.numberFormat,
+    required this.symbolPosition,
+    required this.timeFormat,
+    required this.firstDayOfWeek,
     required this.biometricLockEnabled,
     required this.autoLockTimeoutMinutes,
   });
@@ -7618,6 +7712,9 @@ class Setting extends DataClass implements Insertable<Setting> {
     map['budget_warning_threshold'] = Variable<double>(budgetWarningThreshold);
     map['date_format'] = Variable<String>(dateFormat);
     map['number_format'] = Variable<String>(numberFormat);
+    map['symbol_position'] = Variable<String>(symbolPosition);
+    map['time_format'] = Variable<String>(timeFormat);
+    map['first_day_of_week'] = Variable<int>(firstDayOfWeek);
     map['biometric_lock_enabled'] = Variable<bool>(biometricLockEnabled);
     map['auto_lock_timeout_minutes'] = Variable<int>(autoLockTimeoutMinutes);
     return map;
@@ -7633,6 +7730,9 @@ class Setting extends DataClass implements Insertable<Setting> {
       budgetWarningThreshold: Value(budgetWarningThreshold),
       dateFormat: Value(dateFormat),
       numberFormat: Value(numberFormat),
+      symbolPosition: Value(symbolPosition),
+      timeFormat: Value(timeFormat),
+      firstDayOfWeek: Value(firstDayOfWeek),
       biometricLockEnabled: Value(biometricLockEnabled),
       autoLockTimeoutMinutes: Value(autoLockTimeoutMinutes),
     );
@@ -7658,6 +7758,9 @@ class Setting extends DataClass implements Insertable<Setting> {
       ),
       dateFormat: serializer.fromJson<String>(json['dateFormat']),
       numberFormat: serializer.fromJson<String>(json['numberFormat']),
+      symbolPosition: serializer.fromJson<String>(json['symbolPosition']),
+      timeFormat: serializer.fromJson<String>(json['timeFormat']),
+      firstDayOfWeek: serializer.fromJson<int>(json['firstDayOfWeek']),
       biometricLockEnabled: serializer.fromJson<bool>(
         json['biometricLockEnabled'],
       ),
@@ -7682,6 +7785,9 @@ class Setting extends DataClass implements Insertable<Setting> {
       ),
       'dateFormat': serializer.toJson<String>(dateFormat),
       'numberFormat': serializer.toJson<String>(numberFormat),
+      'symbolPosition': serializer.toJson<String>(symbolPosition),
+      'timeFormat': serializer.toJson<String>(timeFormat),
+      'firstDayOfWeek': serializer.toJson<int>(firstDayOfWeek),
       'biometricLockEnabled': serializer.toJson<bool>(biometricLockEnabled),
       'autoLockTimeoutMinutes': serializer.toJson<int>(autoLockTimeoutMinutes),
     };
@@ -7696,6 +7802,9 @@ class Setting extends DataClass implements Insertable<Setting> {
     double? budgetWarningThreshold,
     String? dateFormat,
     String? numberFormat,
+    String? symbolPosition,
+    String? timeFormat,
+    int? firstDayOfWeek,
     bool? biometricLockEnabled,
     int? autoLockTimeoutMinutes,
   }) => Setting(
@@ -7709,6 +7818,9 @@ class Setting extends DataClass implements Insertable<Setting> {
         budgetWarningThreshold ?? this.budgetWarningThreshold,
     dateFormat: dateFormat ?? this.dateFormat,
     numberFormat: numberFormat ?? this.numberFormat,
+    symbolPosition: symbolPosition ?? this.symbolPosition,
+    timeFormat: timeFormat ?? this.timeFormat,
+    firstDayOfWeek: firstDayOfWeek ?? this.firstDayOfWeek,
     biometricLockEnabled: biometricLockEnabled ?? this.biometricLockEnabled,
     autoLockTimeoutMinutes:
         autoLockTimeoutMinutes ?? this.autoLockTimeoutMinutes,
@@ -7733,6 +7845,15 @@ class Setting extends DataClass implements Insertable<Setting> {
       numberFormat: data.numberFormat.present
           ? data.numberFormat.value
           : this.numberFormat,
+      symbolPosition: data.symbolPosition.present
+          ? data.symbolPosition.value
+          : this.symbolPosition,
+      timeFormat: data.timeFormat.present
+          ? data.timeFormat.value
+          : this.timeFormat,
+      firstDayOfWeek: data.firstDayOfWeek.present
+          ? data.firstDayOfWeek.value
+          : this.firstDayOfWeek,
       biometricLockEnabled: data.biometricLockEnabled.present
           ? data.biometricLockEnabled.value
           : this.biometricLockEnabled,
@@ -7753,6 +7874,9 @@ class Setting extends DataClass implements Insertable<Setting> {
           ..write('budgetWarningThreshold: $budgetWarningThreshold, ')
           ..write('dateFormat: $dateFormat, ')
           ..write('numberFormat: $numberFormat, ')
+          ..write('symbolPosition: $symbolPosition, ')
+          ..write('timeFormat: $timeFormat, ')
+          ..write('firstDayOfWeek: $firstDayOfWeek, ')
           ..write('biometricLockEnabled: $biometricLockEnabled, ')
           ..write('autoLockTimeoutMinutes: $autoLockTimeoutMinutes')
           ..write(')'))
@@ -7769,6 +7893,9 @@ class Setting extends DataClass implements Insertable<Setting> {
     budgetWarningThreshold,
     dateFormat,
     numberFormat,
+    symbolPosition,
+    timeFormat,
+    firstDayOfWeek,
     biometricLockEnabled,
     autoLockTimeoutMinutes,
   );
@@ -7784,6 +7911,9 @@ class Setting extends DataClass implements Insertable<Setting> {
           other.budgetWarningThreshold == this.budgetWarningThreshold &&
           other.dateFormat == this.dateFormat &&
           other.numberFormat == this.numberFormat &&
+          other.symbolPosition == this.symbolPosition &&
+          other.timeFormat == this.timeFormat &&
+          other.firstDayOfWeek == this.firstDayOfWeek &&
           other.biometricLockEnabled == this.biometricLockEnabled &&
           other.autoLockTimeoutMinutes == this.autoLockTimeoutMinutes);
 }
@@ -7797,6 +7927,9 @@ class SettingsCompanion extends UpdateCompanion<Setting> {
   final Value<double> budgetWarningThreshold;
   final Value<String> dateFormat;
   final Value<String> numberFormat;
+  final Value<String> symbolPosition;
+  final Value<String> timeFormat;
+  final Value<int> firstDayOfWeek;
   final Value<bool> biometricLockEnabled;
   final Value<int> autoLockTimeoutMinutes;
   const SettingsCompanion({
@@ -7808,6 +7941,9 @@ class SettingsCompanion extends UpdateCompanion<Setting> {
     this.budgetWarningThreshold = const Value.absent(),
     this.dateFormat = const Value.absent(),
     this.numberFormat = const Value.absent(),
+    this.symbolPosition = const Value.absent(),
+    this.timeFormat = const Value.absent(),
+    this.firstDayOfWeek = const Value.absent(),
     this.biometricLockEnabled = const Value.absent(),
     this.autoLockTimeoutMinutes = const Value.absent(),
   });
@@ -7820,6 +7956,9 @@ class SettingsCompanion extends UpdateCompanion<Setting> {
     this.budgetWarningThreshold = const Value.absent(),
     this.dateFormat = const Value.absent(),
     this.numberFormat = const Value.absent(),
+    this.symbolPosition = const Value.absent(),
+    this.timeFormat = const Value.absent(),
+    this.firstDayOfWeek = const Value.absent(),
     this.biometricLockEnabled = const Value.absent(),
     this.autoLockTimeoutMinutes = const Value.absent(),
   });
@@ -7832,6 +7971,9 @@ class SettingsCompanion extends UpdateCompanion<Setting> {
     Expression<double>? budgetWarningThreshold,
     Expression<String>? dateFormat,
     Expression<String>? numberFormat,
+    Expression<String>? symbolPosition,
+    Expression<String>? timeFormat,
+    Expression<int>? firstDayOfWeek,
     Expression<bool>? biometricLockEnabled,
     Expression<int>? autoLockTimeoutMinutes,
   }) {
@@ -7847,6 +7989,9 @@ class SettingsCompanion extends UpdateCompanion<Setting> {
         'budget_warning_threshold': budgetWarningThreshold,
       if (dateFormat != null) 'date_format': dateFormat,
       if (numberFormat != null) 'number_format': numberFormat,
+      if (symbolPosition != null) 'symbol_position': symbolPosition,
+      if (timeFormat != null) 'time_format': timeFormat,
+      if (firstDayOfWeek != null) 'first_day_of_week': firstDayOfWeek,
       if (biometricLockEnabled != null)
         'biometric_lock_enabled': biometricLockEnabled,
       if (autoLockTimeoutMinutes != null)
@@ -7863,6 +8008,9 @@ class SettingsCompanion extends UpdateCompanion<Setting> {
     Value<double>? budgetWarningThreshold,
     Value<String>? dateFormat,
     Value<String>? numberFormat,
+    Value<String>? symbolPosition,
+    Value<String>? timeFormat,
+    Value<int>? firstDayOfWeek,
     Value<bool>? biometricLockEnabled,
     Value<int>? autoLockTimeoutMinutes,
   }) {
@@ -7877,6 +8025,9 @@ class SettingsCompanion extends UpdateCompanion<Setting> {
           budgetWarningThreshold ?? this.budgetWarningThreshold,
       dateFormat: dateFormat ?? this.dateFormat,
       numberFormat: numberFormat ?? this.numberFormat,
+      symbolPosition: symbolPosition ?? this.symbolPosition,
+      timeFormat: timeFormat ?? this.timeFormat,
+      firstDayOfWeek: firstDayOfWeek ?? this.firstDayOfWeek,
       biometricLockEnabled: biometricLockEnabled ?? this.biometricLockEnabled,
       autoLockTimeoutMinutes:
           autoLockTimeoutMinutes ?? this.autoLockTimeoutMinutes,
@@ -7914,6 +8065,15 @@ class SettingsCompanion extends UpdateCompanion<Setting> {
     if (numberFormat.present) {
       map['number_format'] = Variable<String>(numberFormat.value);
     }
+    if (symbolPosition.present) {
+      map['symbol_position'] = Variable<String>(symbolPosition.value);
+    }
+    if (timeFormat.present) {
+      map['time_format'] = Variable<String>(timeFormat.value);
+    }
+    if (firstDayOfWeek.present) {
+      map['first_day_of_week'] = Variable<int>(firstDayOfWeek.value);
+    }
     if (biometricLockEnabled.present) {
       map['biometric_lock_enabled'] = Variable<bool>(
         biometricLockEnabled.value,
@@ -7938,6 +8098,9 @@ class SettingsCompanion extends UpdateCompanion<Setting> {
           ..write('budgetWarningThreshold: $budgetWarningThreshold, ')
           ..write('dateFormat: $dateFormat, ')
           ..write('numberFormat: $numberFormat, ')
+          ..write('symbolPosition: $symbolPosition, ')
+          ..write('timeFormat: $timeFormat, ')
+          ..write('firstDayOfWeek: $firstDayOfWeek, ')
           ..write('biometricLockEnabled: $biometricLockEnabled, ')
           ..write('autoLockTimeoutMinutes: $autoLockTimeoutMinutes')
           ..write(')'))
@@ -18051,6 +18214,9 @@ typedef $$SettingsTableCreateCompanionBuilder =
       Value<double> budgetWarningThreshold,
       Value<String> dateFormat,
       Value<String> numberFormat,
+      Value<String> symbolPosition,
+      Value<String> timeFormat,
+      Value<int> firstDayOfWeek,
       Value<bool> biometricLockEnabled,
       Value<int> autoLockTimeoutMinutes,
     });
@@ -18064,6 +18230,9 @@ typedef $$SettingsTableUpdateCompanionBuilder =
       Value<double> budgetWarningThreshold,
       Value<String> dateFormat,
       Value<String> numberFormat,
+      Value<String> symbolPosition,
+      Value<String> timeFormat,
+      Value<int> firstDayOfWeek,
       Value<bool> biometricLockEnabled,
       Value<int> autoLockTimeoutMinutes,
     });
@@ -18114,6 +18283,21 @@ class $$SettingsTableFilterComposer
 
   ColumnFilters<String> get numberFormat => $composableBuilder(
     column: $table.numberFormat,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get symbolPosition => $composableBuilder(
+    column: $table.symbolPosition,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get timeFormat => $composableBuilder(
+    column: $table.timeFormat,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get firstDayOfWeek => $composableBuilder(
+    column: $table.firstDayOfWeek,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -18177,6 +18361,21 @@ class $$SettingsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get symbolPosition => $composableBuilder(
+    column: $table.symbolPosition,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get timeFormat => $composableBuilder(
+    column: $table.timeFormat,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get firstDayOfWeek => $composableBuilder(
+    column: $table.firstDayOfWeek,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<bool> get biometricLockEnabled => $composableBuilder(
     column: $table.biometricLockEnabled,
     builder: (column) => ColumnOrderings(column),
@@ -18231,6 +18430,21 @@ class $$SettingsTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<String> get symbolPosition => $composableBuilder(
+    column: $table.symbolPosition,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get timeFormat => $composableBuilder(
+    column: $table.timeFormat,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get firstDayOfWeek => $composableBuilder(
+    column: $table.firstDayOfWeek,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<bool> get biometricLockEnabled => $composableBuilder(
     column: $table.biometricLockEnabled,
     builder: (column) => column,
@@ -18278,6 +18492,9 @@ class $$SettingsTableTableManager
                 Value<double> budgetWarningThreshold = const Value.absent(),
                 Value<String> dateFormat = const Value.absent(),
                 Value<String> numberFormat = const Value.absent(),
+                Value<String> symbolPosition = const Value.absent(),
+                Value<String> timeFormat = const Value.absent(),
+                Value<int> firstDayOfWeek = const Value.absent(),
                 Value<bool> biometricLockEnabled = const Value.absent(),
                 Value<int> autoLockTimeoutMinutes = const Value.absent(),
               }) => SettingsCompanion(
@@ -18289,6 +18506,9 @@ class $$SettingsTableTableManager
                 budgetWarningThreshold: budgetWarningThreshold,
                 dateFormat: dateFormat,
                 numberFormat: numberFormat,
+                symbolPosition: symbolPosition,
+                timeFormat: timeFormat,
+                firstDayOfWeek: firstDayOfWeek,
                 biometricLockEnabled: biometricLockEnabled,
                 autoLockTimeoutMinutes: autoLockTimeoutMinutes,
               ),
@@ -18302,6 +18522,9 @@ class $$SettingsTableTableManager
                 Value<double> budgetWarningThreshold = const Value.absent(),
                 Value<String> dateFormat = const Value.absent(),
                 Value<String> numberFormat = const Value.absent(),
+                Value<String> symbolPosition = const Value.absent(),
+                Value<String> timeFormat = const Value.absent(),
+                Value<int> firstDayOfWeek = const Value.absent(),
                 Value<bool> biometricLockEnabled = const Value.absent(),
                 Value<int> autoLockTimeoutMinutes = const Value.absent(),
               }) => SettingsCompanion.insert(
@@ -18313,6 +18536,9 @@ class $$SettingsTableTableManager
                 budgetWarningThreshold: budgetWarningThreshold,
                 dateFormat: dateFormat,
                 numberFormat: numberFormat,
+                symbolPosition: symbolPosition,
+                timeFormat: timeFormat,
+                firstDayOfWeek: firstDayOfWeek,
                 biometricLockEnabled: biometricLockEnabled,
                 autoLockTimeoutMinutes: autoLockTimeoutMinutes,
               ),

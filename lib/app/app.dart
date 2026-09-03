@@ -4,11 +4,13 @@ import 'package:in_app_update/in_app_update.dart';
 import 'package:the_accountant/core/providers/theme_provider.dart';
 import 'package:the_accountant/core/providers/account_store_provider.dart';
 import 'package:the_accountant/core/services/analytics_service.dart';
+import 'package:the_accountant/core/domain/regional_preferences.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_theme.dart';
 import 'package:the_accountant/core/themes/premium_themes.dart';
 import 'package:the_accountant/features/onboarding/screens/post_signup_onboarding_screen.dart';
 import 'package:the_accountant/features/premium/providers/premium_sync_provider.dart';
+import 'package:the_accountant/features/settings/providers/settings_provider.dart';
 import 'package:the_accountant/features/premium/screens/premium_screen.dart';
 import 'package:the_accountant/features/authentication/presentation/screens/sign_in_screen.dart';
 import 'package:the_accountant/features/authentication/presentation/screens/sign_up_screen.dart';
@@ -103,6 +105,17 @@ class _MyAppState extends ConsumerState<MyApp> {
     // own light/dark setting rebuilds this widget, and with it the tree.
     final platformBrightness = MediaQuery.platformBrightnessOf(context);
     AppColors.usePalette(themeState.paletteFor(platformBrightness));
+
+    // Same bargain as the palette, for the same reason: these reach several
+    // hundred formatting call sites that already thread two arguments, and
+    // threading three more through all of them would be pure noise. One
+    // writer, here, on the build that reads them.
+    final settings = ref.watch(settingsProvider);
+    RegionalPreferences.apply(
+      symbol: settings.symbolPosition,
+      time: settings.timeFormat,
+      weekStart: settings.firstDayOfWeek,
+    );
 
     final isPremiumTheme = PremiumThemes.themeMap.containsKey(
       themeState.currentTheme,

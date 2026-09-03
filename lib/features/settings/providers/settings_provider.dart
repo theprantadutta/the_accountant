@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:the_accountant/core/domain/regional_preferences.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:the_accountant/core/constants/app_constants.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
@@ -16,6 +17,11 @@ class SettingsState {
   // Regional settings
   final String dateFormat;
   final String numberFormat;
+  final SymbolPosition symbolPosition;
+  final TimeFormatChoice timeFormat;
+
+  /// 0 to follow the phone, otherwise 1 (Monday) through 7 (Sunday).
+  final int firstDayOfWeek;
 
   // Security settings
   final bool biometricLockEnabled;
@@ -30,6 +36,9 @@ class SettingsState {
     required this.isPremium,
     this.dateFormat = 'MM/dd/yyyy',
     this.numberFormat = 'comma_dot',
+    this.symbolPosition = SymbolPosition.before,
+    this.timeFormat = TimeFormatChoice.system,
+    this.firstDayOfWeek = FirstDayOfWeek.followLocale,
     this.biometricLockEnabled = false,
     this.autoLockTimeoutMinutes = 0,
   });
@@ -43,6 +52,9 @@ class SettingsState {
     bool? isPremium,
     String? dateFormat,
     String? numberFormat,
+    SymbolPosition? symbolPosition,
+    TimeFormatChoice? timeFormat,
+    int? firstDayOfWeek,
     bool? biometricLockEnabled,
     int? autoLockTimeoutMinutes,
   }) {
@@ -57,6 +69,9 @@ class SettingsState {
       isPremium: isPremium ?? this.isPremium,
       dateFormat: dateFormat ?? this.dateFormat,
       numberFormat: numberFormat ?? this.numberFormat,
+      symbolPosition: symbolPosition ?? this.symbolPosition,
+      timeFormat: timeFormat ?? this.timeFormat,
+      firstDayOfWeek: firstDayOfWeek ?? this.firstDayOfWeek,
       biometricLockEnabled: biometricLockEnabled ?? this.biometricLockEnabled,
       autoLockTimeoutMinutes:
           autoLockTimeoutMinutes ?? this.autoLockTimeoutMinutes,
@@ -97,6 +112,9 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
           budgetWarningThreshold: dbSettings.budgetWarningThreshold,
           dateFormat: dbSettings.dateFormat,
           numberFormat: dbSettings.numberFormat,
+          symbolPosition: SymbolPosition.fromStored(dbSettings.symbolPosition),
+          timeFormat: TimeFormatChoice.fromStored(dbSettings.timeFormat),
+          firstDayOfWeek: dbSettings.firstDayOfWeek,
           biometricLockEnabled: dbSettings.biometricLockEnabled,
           autoLockTimeoutMinutes: dbSettings.autoLockTimeoutMinutes,
         );
@@ -145,6 +163,9 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
         budgetWarningThreshold: Value(state.budgetWarningThreshold),
         dateFormat: Value(state.dateFormat),
         numberFormat: Value(state.numberFormat),
+        symbolPosition: Value(state.symbolPosition.storedAs),
+        timeFormat: Value(state.timeFormat.storedAs),
+        firstDayOfWeek: Value(state.firstDayOfWeek),
         biometricLockEnabled: Value(state.biometricLockEnabled),
         autoLockTimeoutMinutes: Value(state.autoLockTimeoutMinutes),
       );
@@ -200,6 +221,21 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
     await _saveSettings();
   }
 
+  Future<void> setSymbolPosition(SymbolPosition position) async {
+    state = state.copyWith(symbolPosition: position);
+    await _saveSettings();
+  }
+
+  Future<void> setTimeFormat(TimeFormatChoice choice) async {
+    state = state.copyWith(timeFormat: choice);
+    await _saveSettings();
+  }
+
+  Future<void> setFirstDayOfWeek(int day) async {
+    state = state.copyWith(firstDayOfWeek: day);
+    await _saveSettings();
+  }
+
   // Security settings
   Future<void> setBiometricLock(bool enabled) async {
     state = state.copyWith(biometricLockEnabled: enabled);
@@ -222,6 +258,15 @@ final settingsProvider = StateNotifierProvider<SettingsNotifier, SettingsState>(
 // Convenience providers for regional settings
 final dateFormatSettingProvider = Provider<String>(
   (ref) => ref.watch(settingsProvider).dateFormat,
+);
+final symbolPositionSettingProvider = Provider<SymbolPosition>(
+  (ref) => ref.watch(settingsProvider).symbolPosition,
+);
+final timeFormatSettingProvider = Provider<TimeFormatChoice>(
+  (ref) => ref.watch(settingsProvider).timeFormat,
+);
+final firstDayOfWeekSettingProvider = Provider<int>(
+  (ref) => ref.watch(settingsProvider).firstDayOfWeek,
 );
 final numberFormatSettingProvider = Provider<String>(
   (ref) => ref.watch(settingsProvider).numberFormat,

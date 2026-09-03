@@ -1,5 +1,18 @@
+import 'package:the_accountant/core/domain/regional_preferences.dart';
 import 'package:the_accountant/core/services/currency_service.dart';
 import 'package:the_accountant/core/utils/number_formatter.dart';
+
+/// Put the symbol where the user wants it.
+///
+/// A non-breaking space before a trailing symbol, because an amount that wraps
+/// between the number and its currency is worse than no space at all.
+String _place(String symbol, String amount, SymbolPosition? position) {
+  final where = position ?? RegionalPreferences.symbolPosition;
+  return switch (where) {
+    SymbolPosition.before => '$symbol$amount',
+    SymbolPosition.after => '$amount\u00A0$symbol',
+  };
+}
 
 /// Extension on int for currency formatting.
 ///
@@ -14,6 +27,7 @@ extension CentsCurrencyFormatting on int {
     String currencyCode, {
     bool useDecimals = true,
     String numberFormat = 'comma_dot',
+    SymbolPosition? symbolPosition,
   }) {
     final symbol = CurrencyInfo.getSymbol(currencyCode);
     final formatter = AppNumberFormatter.get(
@@ -22,7 +36,7 @@ extension CentsCurrencyFormatting on int {
     );
     final dollars = _asDollars;
     final value = useDecimals ? dollars : dollars.round().toDouble();
-    return '$symbol${formatter.format(value)}';
+    return _place(symbol, formatter.format(value), symbolPosition);
   }
 
   /// Format with sign: +$1,234.56 or -$1,234.56 (or whole numbers if useDecimals=false)
@@ -31,11 +45,13 @@ extension CentsCurrencyFormatting on int {
     required bool isIncome,
     bool useDecimals = true,
     String numberFormat = 'comma_dot',
+    SymbolPosition? symbolPosition,
   }) {
     final formatted = abs().formatCurrency(
       currencyCode,
       useDecimals: useDecimals,
       numberFormat: numberFormat,
+      symbolPosition: symbolPosition,
     );
     return isIncome ? '+$formatted' : '-$formatted';
   }
@@ -45,19 +61,25 @@ extension CentsCurrencyFormatting on int {
     String currencyCode, {
     bool useDecimals = true,
     String numberFormat = 'comma_dot',
+    SymbolPosition? symbolPosition,
   }) {
     final symbol = CurrencyInfo.getSymbol(currencyCode);
     final decSep = AppNumberFormatter.decimalSeparator(numberFormat);
     final dollars = _asDollars;
     if (dollars.abs() >= 1000000) {
-      return '$symbol${(dollars / 1000000).toStringAsFixed(1).replaceAll('.', decSep)}M';
+      final short = (dollars / 1000000)
+          .toStringAsFixed(1)
+          .replaceAll('.', decSep);
+      return _place(symbol, '${short}M', symbolPosition);
     } else if (dollars.abs() >= 1000) {
-      return '$symbol${(dollars / 1000).toStringAsFixed(1).replaceAll('.', decSep)}K';
+      final short = (dollars / 1000).toStringAsFixed(1).replaceAll('.', decSep);
+      return _place(symbol, '${short}K', symbolPosition);
     }
     return formatCurrency(
       currencyCode,
       useDecimals: useDecimals,
       numberFormat: numberFormat,
+      symbolPosition: symbolPosition,
     );
   }
 
@@ -65,10 +87,11 @@ extension CentsCurrencyFormatting on int {
   String formatCurrencyWhole(
     String currencyCode, {
     String numberFormat = 'comma_dot',
+    SymbolPosition? symbolPosition,
   }) {
     final symbol = CurrencyInfo.getSymbol(currencyCode);
     final formatter = AppNumberFormatter.get(numberFormat, useDecimals: false);
-    return '$symbol${formatter.format(_asDollars.round())}';
+    return _place(symbol, formatter.format(_asDollars.round()), symbolPosition);
   }
 
   /// Format with sign and no decimal: +$1,235 or -$1,235
@@ -76,10 +99,12 @@ extension CentsCurrencyFormatting on int {
     String currencyCode, {
     required bool isIncome,
     String numberFormat = 'comma_dot',
+    SymbolPosition? symbolPosition,
   }) {
     final formatted = abs().formatCurrencyWhole(
       currencyCode,
       numberFormat: numberFormat,
+      symbolPosition: symbolPosition,
     );
     return isIncome ? '+$formatted' : '-$formatted';
   }

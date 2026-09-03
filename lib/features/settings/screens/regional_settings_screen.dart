@@ -1,5 +1,8 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:the_accountant/core/utils/time_formatter.dart';
+import 'package:the_accountant/core/utils/currency_formatter.dart';
+import 'package:the_accountant/core/domain/regional_preferences.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/providers/currency_provider.dart';
@@ -7,7 +10,6 @@ import 'package:the_accountant/core/services/currency_service.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/core/utils/date_formatter.dart';
-import 'package:the_accountant/core/utils/number_formatter.dart';
 import 'package:the_accountant/features/settings/providers/settings_provider.dart';
 import 'package:the_accountant/features/settings/widgets/settings_tile.dart';
 import 'package:the_accountant/shared/widgets/shimmer_loading.dart';
@@ -64,11 +66,31 @@ class RegionalSettingsScreen extends ConsumerWidget {
                 subtitle: _getNumberFormatExample(settingsState.numberFormat),
                 onTap: () => _showNumberFormatPicker(context, ref),
               ),
+              SettingsNavigationTile(
+                icon: Icons.sell_outlined,
+                title: 'Currency Symbol',
+                subtitle: settingsState.symbolPosition.example,
+                onTap: () => _showSymbolPositionPicker(context, ref),
+              ),
+              SettingsNavigationTile(
+                icon: Icons.schedule,
+                title: 'Time Format',
+                subtitle: settingsState.timeFormat.label,
+                onTap: () => _showTimeFormatPicker(context, ref),
+              ),
+              SettingsNavigationTile(
+                icon: Icons.view_week_outlined,
+                title: 'First Day of the Week',
+                subtitle:
+                    FirstDayOfWeek.labels[settingsState.firstDayOfWeek] ??
+                    'Match my phone',
+                onTap: () => _showFirstDayPicker(context, ref),
+              ),
             ],
           ),
 
           // PREVIEW SECTION
-          _buildPreviewCard(settingsState),
+          _buildPreviewCard(context, settingsState),
 
           SizedBox(height: AppSpacing.xxl),
         ],
@@ -76,10 +98,23 @@ class RegionalSettingsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildPreviewCard(SettingsState settings) {
+  Widget _buildPreviewCard(BuildContext context, SettingsState settings) {
     final now = DateTime.now();
     final formattedDate = _formatDate(now, settings.dateFormat);
-    final formattedNumber = _formatNumber(12345.67, settings.numberFormat);
+    // Through the real formatter rather than a local copy of it, so the preview
+    // cannot claim one thing while the rest of the app does another.
+    final formattedAmount = 1234567.formatCurrency(
+      settings.currency,
+      numberFormat: settings.numberFormat,
+      symbolPosition: settings.symbolPosition,
+    );
+    final formattedTime = AppTimeFormatter.formatTime(
+      now,
+      use24Hour: settings.timeFormat.resolve(
+        platformUses24Hour: AppTimeFormatter.platformUses24Hour(context),
+      ),
+    );
+    final weekStart = FirstDayOfWeek.startOfWeek(now, settings.firstDayOfWeek);
 
     return Container(
       margin: EdgeInsets.only(top: AppSpacing.lg),
@@ -104,7 +139,14 @@ class RegionalSettingsScreen extends ConsumerWidget {
           SizedBox(height: AppSpacing.md),
           _buildPreviewRow('Date', formattedDate),
           SizedBox(height: AppSpacing.sm),
-          _buildPreviewRow('Amount', '${settings.currency} $formattedNumber'),
+          _buildPreviewRow('Time', formattedTime),
+          SizedBox(height: AppSpacing.sm),
+          _buildPreviewRow('Amount', formattedAmount),
+          SizedBox(height: AppSpacing.sm),
+          _buildPreviewRow(
+            'This week starts',
+            AppDateFormatter.formatDate(weekStart, settings.dateFormat),
+          ),
         ],
       ),
     );
@@ -128,10 +170,6 @@ class RegionalSettingsScreen extends ConsumerWidget {
 
   String _formatDate(DateTime date, String format) {
     return AppDateFormatter.formatDate(date, format);
-  }
-
-  String _formatNumber(double number, String format) {
-    return AppNumberFormatter.get(format).format(number);
   }
 
   String _getDateFormatLabel(String format, WidgetRef ref) {
@@ -202,6 +240,57 @@ class RegionalSettingsScreen extends ConsumerWidget {
     }
   }
 
+  Future<void> _showSymbolPositionPicker(
+    BuildContext context,
+    WidgetRef ref,
+  ) async {
+    final selected = await _pickOne<SymbolPosition>(
+      context: context,
+      title: 'Currency Symbol',
+      options: [
+        for (final position in SymbolPosition.values)
+          (value: position, label: '${position.label}  ${position.example}'),
+      ],
+      current: ref.read(settingsProvider).symbolPosition,
+    );
+    if (selected != null) {
+      await ref.read(settingsProvider.notifier).setSymbolPosition(selected);
+    }
+  }
+
+  Future<void> _showTimeFormatPicker(
+    BuildContext context,
+    WidgetRef ref,
+  ) async {
+    final selected = await _pickOne<TimeFormatChoice>(
+      context: context,
+      title: 'Time Format',
+      options: [
+        for (final choice in TimeFormatChoice.values)
+          (value: choice, label: choice.label),
+      ],
+      current: ref.read(settingsProvider).timeFormat,
+    );
+    if (selected != null) {
+      await ref.read(settingsProvider.notifier).setTimeFormat(selected);
+    }
+  }
+
+  Future<void> _showFirstDayPicker(BuildContext context, WidgetRef ref) async {
+    final selected = await _pickOne<int>(
+      context: context,
+      title: 'First Day of the Week',
+      options: [
+        for (final entry in FirstDayOfWeek.labels.entries)
+          (value: entry.key, label: entry.value),
+      ],
+      current: ref.read(settingsProvider).firstDayOfWeek,
+    );
+    if (selected != null) {
+      await ref.read(settingsProvider.notifier).setFirstDayOfWeek(selected);
+    }
+  }
+
   Future<void> _showNumberFormatPicker(
     BuildContext context,
     WidgetRef ref,
@@ -226,6 +315,53 @@ class RegionalSettingsScreen extends ConsumerWidget {
       await ref.read(settingsProvider.notifier).setNumberFormat(selected);
     }
   }
+}
+
+/// One sheet shape for the three settings that are a short list of choices.
+Future<T?> _pickOne<T>({
+  required BuildContext context,
+  required String title,
+  required List<({T value, String label})> options,
+  required T current,
+}) {
+  return showModalBottomSheet<T>(
+    context: context,
+    backgroundColor: AppColors.primarySurface,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    ),
+    builder: (context) => SafeArea(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: EdgeInsets.all(AppSpacing.lg),
+            child: Text(
+              title,
+              style: TextStyle(
+                color: AppColors.textPrimary,
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          for (final option in options)
+            ListTile(
+              title: Text(
+                option.label,
+                style: TextStyle(color: AppColors.textPrimary),
+              ),
+              trailing: option.value == current
+                  ? Icon(Icons.check, color: AppColors.primaryAccent)
+                  : null,
+              onTap: () => Navigator.pop(context, option.value),
+            ),
+          SizedBox(height: AppSpacing.md),
+        ],
+      ),
+    ),
+  );
 }
 
 class _PickerSheet extends StatelessWidget {

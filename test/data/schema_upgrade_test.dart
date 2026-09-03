@@ -7,6 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/data/models/transaction.dart'
     show TransactionType;
+import 'package:the_accountant/core/domain/regional_preferences.dart';
 import 'package:the_accountant/features/import/domain/column_mapping.dart';
 import 'package:the_accountant/features/import/domain/csv_reader.dart';
 import 'package:the_accountant/features/import/services/import_template_service.dart';
@@ -69,6 +70,15 @@ void main() {
 
     await seed?.call(db);
 
+    if (version < 23 && !keep.contains('settings.regional')) {
+      for (final column in [
+        'symbol_position',
+        'time_format',
+        'first_day_of_week',
+      ]) {
+        await db.customStatement('ALTER TABLE settings DROP COLUMN $column');
+      }
+    }
     if (version < 22 && !keep.contains('import_templates')) {
       await db.customStatement('DROP TABLE IF EXISTS import_templates');
     }
@@ -127,6 +137,9 @@ void main() {
     expect(await hasTable('category_reconciliations'), isTrue);
     expect(await hasTable('local_id_repairs'), isTrue);
     expect(await hasTable('import_templates'), isTrue);
+    expect(await hasColumn('settings', 'symbol_position'), isTrue);
+    expect(await hasColumn('settings', 'time_format'), isTrue);
+    expect(await hasColumn('settings', 'first_day_of_week'), isTrue);
     expect(await hasColumn('transactions', 'occurrence_key'), isTrue);
     expect(await hasColumn('categories', 'default_key'), isTrue);
   }
@@ -388,6 +401,37 @@ void main() {
     final kept = await upgraded.findCategoryById('cat-keep');
     expect(kept, isNotNull);
     expect(kept!.defaultKey, 'groceries');
+  });
+
+  test('a schema-22 database gains the regional preferences', () async {
+    // Additive, and every default is exactly what the app did when there was
+    // no setting: symbol in front, clock from the phone, week from the locale.
+    // An existing install must see no change until it asks for one.
+    final file = await buildLegacyDatabase(
+      22,
+      seed: (legacy) async {
+        await legacy.customStatement(
+          "INSERT INTO settings (id, theme_mode, currency, date_format, "
+          "number_format) VALUES (1, 'dark', 'EUR', 'dd/MM/yyyy', 'dot_comma')",
+        );
+      },
+    );
+
+    final upgraded = AppDatabase(NativeDatabase(file));
+    addTearDown(upgraded.close);
+
+    final settings = await upgraded.getSettings();
+    expect(settings, isNotNull);
+    expect(
+      settings!.currency,
+      'EUR',
+      reason: 'an additive migration must not disturb what was already there',
+    );
+    expect(settings.dateFormat, 'dd/MM/yyyy');
+    expect(settings.symbolPosition, 'before');
+    expect(settings.timeFormat, 'system');
+    expect(settings.firstDayOfWeek, FirstDayOfWeek.followLocale);
+    await expectFullyUpgraded(upgraded);
   });
 
   test('a schema-21 database gains somewhere to keep import mappings', () async {

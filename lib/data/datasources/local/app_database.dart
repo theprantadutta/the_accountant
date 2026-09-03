@@ -164,7 +164,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 22;
+  int get schemaVersion => 23;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -306,6 +306,10 @@ class AppDatabase extends _$AppDatabase {
 
       if (from < 22) {
         await _migrateToV22(m);
+      }
+
+      if (from < 23) {
+        await _migrateToV23(m);
       }
     },
     beforeOpen: (details) async {
@@ -660,6 +664,17 @@ class AppDatabase extends _$AppDatabase {
   /// Purely additive. Every existing account is live and counted, and every
   /// existing transfer was within one currency, which is what null on the two
   /// transaction columns already means.
+  /// Three regional preferences that had no home.
+  ///
+  /// Additive, and each column's default is exactly what the app did when there
+  /// was no setting, so an existing install sees no change until it asks for
+  /// one.
+  Future<void> _migrateToV23(Migrator m) async {
+    await _ensureColumn(m, settings, settings.symbolPosition);
+    await _ensureColumn(m, settings, settings.timeFormat);
+    await _ensureColumn(m, settings, settings.firstDayOfWeek);
+  }
+
   /// Saved column mappings for imported statements.
   ///
   /// A new table and nothing else — there is no data to fold in, because
