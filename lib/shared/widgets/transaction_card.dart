@@ -41,8 +41,12 @@ class TransactionCard extends ConsumerWidget {
   final String? walletId;
   final String? notes;
   final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
+
+  /// Whether this row is picked out as part of a multiple selection.
+  final bool selected;
 
   const TransactionCard({
     super.key,
@@ -56,6 +60,8 @@ class TransactionCard extends ConsumerWidget {
     this.walletId,
     this.notes,
     this.onTap,
+    this.onLongPress,
+    this.selected = false,
     this.onEdit,
     this.onDelete,
   });
@@ -75,10 +81,16 @@ class TransactionCard extends ConsumerWidget {
     ).format(useDecimals ? amount : amount.round());
 
     return Material(
-      color: Colors.transparent,
+      // Tinted while selected, so a row picked out of a long list is obvious
+      // without a checkbox stealing space from the amount.
+      color: selected
+          ? AppColors.primaryAccent.withValues(alpha: 0.16)
+          : Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        onLongPress: () => _showOptionsMenu(context),
+        // A long press picks the row out when the screen offers that; where it
+        // does not, it falls back to the row's own menu.
+        onLongPress: onLongPress ?? () => _showOptionsMenu(context),
         borderRadius: AppSpacing.borderRadiusLg,
         child: Padding(
           // The tap target stays full-bleed so the ripple covers the whole
@@ -90,11 +102,21 @@ class TransactionCard extends ConsumerWidget {
           ),
           child: Row(
             children: [
-              _CategoryGlyph(
-                tint: categoryTint,
-                iconName: categoryIcon,
-                isExpense: isExpense,
-              ),
+              if (selected)
+                const Padding(
+                  padding: EdgeInsets.only(right: 4),
+                  child: Icon(
+                    Icons.check_circle,
+                    color: AppColors.primaryAccent,
+                    size: 20,
+                  ),
+                )
+              else
+                _CategoryGlyph(
+                  tint: categoryTint,
+                  iconName: categoryIcon,
+                  isExpense: isExpense,
+                ),
               AppSpacing.gapHMd,
               Expanded(
                 child: Column(

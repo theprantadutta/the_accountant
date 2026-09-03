@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/features/transactions/widgets/category_picker_sheet.dart';
+import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
+import 'package:the_accountant/features/settings/widgets/confirmation_dialog.dart';
 import 'package:the_accountant/features/transactions/widgets/transaction_filter_sheet.dart';
 import 'package:the_accountant/features/transactions/domain/transaction_filters.dart';
 import 'package:flutter/services.dart';
@@ -44,6 +47,12 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
   /// Everything the list is narrowed by. Replaces a direction and one category,
   /// which was about a tenth of what someone hunting a payment needs.
   TransactionFilters _filters = TransactionFilters.none;
+
+  /// Rows the user has picked out. Empty means not in selection mode at all,
+  /// so there is no separate flag to keep in step with it.
+  final Set<String> _selected = {};
+
+  bool get _selecting => _selected.isNotEmpty;
 
   late List<DateTime> _availableMonths;
   late int _currentPageIndex;
@@ -264,6 +273,124 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
     }
   }
 
+  void _toggleSelected(String id) {
+    setState(() {
+      if (!_selected.remove(id)) _selected.add(id);
+    });
+  }
+
+  void _clearSelection() => setState(_selected.clear);
+
+  /// Run a bulk action, then report what actually happened.
+  ///
+  /// The count comes back from the operation rather than from the selection,
+  /// because some rows are deliberately skipped — a transfer leg that must not
+  /// change account, a row that was already paid — and claiming to have
+  /// changed them would be a lie the user could not see through.
+  Future<void> _runBulk(
+    Future<int> Function() action,
+    String Function(int count) describe,
+  ) async {
+    final count = await action();
+    if (!mounted) return;
+    _clearSelection();
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(describe(count))));
+  }
+
+  Future<void> _bulkDelete() async {
+    final confirmed = await showConfirmationDialog(
+      context: context,
+      title: 'Delete ${_selected.length} transactions?',
+      message:
+          'Balances are recalculated. Any transfer among them takes its other '
+          'half with it.',
+      confirmText: 'Delete',
+      isDangerous: true,
+    );
+    if (confirmed != true) return;
+    final ids = _selected.toList();
+    await _runBulk(
+      () => ref.read(transactionProvider.notifier).deleteMany(ids),
+      (n) => n == 1 ? '1 transaction deleted' : '$n transactions deleted',
+    );
+  }
+
+  Future<void> _bulkCategory() async {
+    final category = await showCategoryPickerSheet(context: context, ref: ref);
+    if (category == null) return;
+    final ids = _selected.toList();
+    await _runBulk(
+      () => ref
+          .read(transactionProvider.notifier)
+          .setCategoryForMany(ids, category.id),
+      (n) => 'Moved $n to ${category.name}',
+    );
+  }
+
+  Future<void> _bulkWallet() async {
+    final wallets = ref.read(walletProvider).wallets;
+    if (wallets.isEmpty) return;
+
+    final chosen = await showDialog<String>(
+      context: context,
+      builder: (context) => SimpleDialog(
+        title: const Text('Move to account'),
+        children: [
+          for (final w in wallets)
+            SimpleDialogOption(
+              onPressed: () => Navigator.pop(context, w.id),
+              child: Text(w.name),
+            ),
+        ],
+      ),
+    );
+    if (chosen == null) return;
+
+    final ids = _selected.toList();
+    await _runBulk(
+      () =>
+          ref.read(transactionProvider.notifier).setWalletForMany(ids, chosen),
+      (n) => n < ids.length
+          ? 'Moved $n; transfers were left where they are'
+          : 'Moved $n to another account',
+    );
+  }
+
+  Future<void> _bulkDate() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(DateTime.now().year - 10),
+      lastDate: DateTime(DateTime.now().year + 5),
+    );
+    if (picked == null) return;
+    final ids = _selected.toList();
+    await _runBulk(
+      () => ref.read(transactionProvider.notifier).setDateForMany(ids, picked),
+      (n) => 'Re-dated $n',
+    );
+  }
+
+  Future<void> _bulkMarkPaid() async {
+    final ids = _selected.toList();
+    await _runBulk(
+      () => ref.read(transactionProvider.notifier).markManyPaid(ids),
+      (n) => n == 0 ? 'Nothing was waiting to be paid' : 'Marked $n as paid',
+    );
+  }
+
+  Future<void> _bulkDuplicate() async {
+    final ids = _selected.toList();
+    await _runBulk(
+      () => ref.read(transactionProvider.notifier).duplicateMany(ids),
+      (n) => n < ids.length
+          ? 'Copied $n; transfers cannot be copied on their own'
+          : 'Copied $n',
+    );
+  }
+
   Future<void> _editTransaction(Transaction transaction) async {
     // Get the database transaction for editing
     final dbTransaction = await ref
@@ -311,7 +438,6 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
     );
     if (updated != null) setState(() => _filters = updated);
   }
-
 
   Widget _buildEmptyState(DateTime month) {
     final now = DateTime.now();
@@ -445,9 +571,15 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                 transactionType: transaction.type,
                 walletId: transaction.walletId,
                 notes: transaction.notes,
+                selected: _selected.contains(transaction.id),
                 onTap: () {
-                  _editTransaction(transaction);
+                  if (_selecting) {
+                    _toggleSelected(transaction.id);
+                  } else {
+                    _editTransaction(transaction);
+                  }
                 },
+                onLongPress: () => _toggleSelected(transaction.id),
                 onEdit: () {
                   _editTransaction(transaction);
                 },
@@ -466,40 +598,149 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
   Widget build(BuildContext context) {
     final transactionState = ref.watch(transactionProvider);
 
-    return Scaffold(
-      // Transparent, so the app-wide background painted in `MaterialApp.builder`
-      // shows through here the same way it does on every other screen.
-      backgroundColor: Colors.transparent,
-      appBar: widget.standalone
-          ? AppBar(
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              title: Text('Transactions', style: AppTypography.titleLarge),
-            )
-          : null,
-      body: Column(
-        children: [
-          MonthStrip(
-            months: _availableMonths,
-            selectedIndex: _currentPageIndex,
-            onSelected: _onMonthChipTapped,
-            controller: _monthScrollController,
-          ),
-          _buildSearchRow(),
-          Expanded(
-            child: PageView.builder(
-              controller: _pageController,
-              onPageChanged: _onPageChanged,
-              itemCount: _availableMonths.length,
-              itemBuilder: (context, index) {
-                final month = _availableMonths[index];
-                return _buildMonthPage(
-                  month,
-                  transactionState.transactions,
-                  transactionState.isLoading,
-                );
-              },
+    return PopScope(
+      // Back should put the selection down before it leaves the screen: losing
+      // a dozen deliberately picked rows to a stray gesture is the kind of
+      // thing people do not forgive.
+      canPop: !_selecting,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop && _selecting) _clearSelection();
+      },
+      child: Scaffold(
+        // Transparent, so the app-wide background painted in `MaterialApp.builder`
+        // shows through here the same way it does on every other screen.
+        backgroundColor: Colors.transparent,
+        appBar: widget.standalone
+            ? AppBar(
+                backgroundColor: Colors.transparent,
+                elevation: 0,
+                title: Text('Transactions', style: AppTypography.titleLarge),
+              )
+            : null,
+        body: Column(
+          children: [
+            MonthStrip(
+              months: _availableMonths,
+              selectedIndex: _currentPageIndex,
+              onSelected: _onMonthChipTapped,
+              controller: _monthScrollController,
             ),
+            // While rows are picked out, the actions replace search rather than
+            // sitting beside it: narrowing the list mid-selection would quietly
+            // change what "all of these" means.
+            if (_selecting) _buildSelectionBar() else _buildSearchRow(),
+            Expanded(
+              child: PageView.builder(
+                controller: _pageController,
+                onPageChanged: _onPageChanged,
+                itemCount: _availableMonths.length,
+                itemBuilder: (context, index) {
+                  final month = _availableMonths[index];
+                  return _buildMonthPage(
+                    month,
+                    transactionState.transactions,
+                    transactionState.isLoading,
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// What can be done to the rows that are picked out.
+  ///
+  /// Named by what they do to the selection rather than by icon alone: "move
+  /// account" and "re-date" are not guessable from a picture, and a bulk action
+  /// applied by mistake is expensive to undo by hand.
+  Widget _buildSelectionBar() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      color: AppColors.primaryAccent.withValues(alpha: 0.12),
+      child: Row(
+        children: [
+          IconButton(
+            tooltip: 'Cancel',
+            icon: const Icon(Icons.close),
+            onPressed: _clearSelection,
+          ),
+          Text('${_selected.length} selected', style: AppTypography.titleSmall),
+          const Spacer(),
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.more_horiz),
+            tooltip: 'Actions',
+            onSelected: (value) {
+              switch (value) {
+                case 'category':
+                  _bulkCategory();
+                case 'wallet':
+                  _bulkWallet();
+                case 'date':
+                  _bulkDate();
+                case 'paid':
+                  _bulkMarkPaid();
+                case 'duplicate':
+                  _bulkDuplicate();
+                case 'delete':
+                  _bulkDelete();
+              }
+            },
+            itemBuilder: (context) => const [
+              PopupMenuItem(
+                value: 'category',
+                child: ListTile(
+                  leading: Icon(Icons.category_outlined),
+                  title: Text('Change category'),
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ),
+              PopupMenuItem(
+                value: 'wallet',
+                child: ListTile(
+                  leading: Icon(Icons.account_balance_wallet_outlined),
+                  title: Text('Move to account'),
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ),
+              PopupMenuItem(
+                value: 'date',
+                child: ListTile(
+                  leading: Icon(Icons.event_outlined),
+                  title: Text('Change date'),
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ),
+              PopupMenuItem(
+                value: 'paid',
+                child: ListTile(
+                  leading: Icon(Icons.check_circle_outline),
+                  title: Text('Mark as paid'),
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ),
+              PopupMenuItem(
+                value: 'duplicate',
+                child: ListTile(
+                  leading: Icon(Icons.copy_outlined),
+                  title: Text('Duplicate'),
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ),
+              PopupMenuDivider(),
+              PopupMenuItem(
+                value: 'delete',
+                child: ListTile(
+                  leading: Icon(Icons.delete_outline, color: AppColors.error),
+                  title: Text(
+                    'Delete',
+                    style: TextStyle(color: AppColors.error),
+                  ),
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ),
+            ],
           ),
         ],
       ),
