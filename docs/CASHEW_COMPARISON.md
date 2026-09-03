@@ -46,16 +46,16 @@ So the answer to "are we doing everything Cashew does?" is **no, not yet**, and 
 | Search | title/note/category/budget/goal/amount/date parsing | title/notes/category/payment method | **Behind** |
 | Home page | 14 reorderable sections, per-section periods | fixed order, 7 sections | **Behind** |
 | Analytics | pie, line with past overlays, heatmap, history | line, pie, category bars, budget bars, PDF | **Mixed** |
-| Import | CSV with mapping, Google Sheets, raw DB | none | **Missing** |
+| Import | CSV with mapping, Google Sheets, raw DB | CSV with mapping, saved per-bank templates, duplicate skipping | **Ahead** on CSV, behind on Sheets |
 | Export | CSV, raw DB | CSV, PDF (premium) | **Parity** |
-| Backup/sync | Drive whole-file backups + LWW sync | server delta sync, restore from cloud, no local file | **Ahead** on sync, **Behind** on backup |
+| Backup/sync | Drive whole-file backups + LWW sync | server delta sync, restore from cloud, free JSON backup file, Drive app-folder backups | **Ahead** |
 | Notifications | daily reminder, per-transaction upcoming | daily, budget, large tx, due reminders w/ actions, inbox, push | **Ahead** |
 | Security | OS lock at cold start | biometric + auto-lock timeout | **Ahead** |
 | Themes | system/light/dark/black, Material You, 6 fonts | dark only, 5 premium palettes | **Behind** |
 | Localization | 48 locales | English only | **Far behind** |
 | Integrations | widgets, shortcuts, app links, bill splitter | none | **Missing** |
 | AI / OCR | none | OCR prefill, insights, chat | **Ahead** |
-| Accounts / auth | optional Google for Drive | mandatory sign-in, email/Google/Apple, per-user DB | **Mixed** (no guest mode) |
+| Accounts / auth | optional Google for Drive | mandatory sign-in, email/Google/Apple, per-user DB | **Different by design** — sign-in is mandatory, decided |
 | Monetization | soft paywall, free unlock after countdown | server-verified subscriptions, hard gates | **Ahead** on infra |
 | Platforms | Android, iOS, web PWA | Android shipping, iOS configured | **Behind** |
 
@@ -368,14 +368,17 @@ Heatmap, past-period overlays, category-over-time, wallet history. Fix the incom
 
 **Sync** is a premium delta protocol: push pending rows in dependency order in chunks, pull with parent checks and cursor hold-back on failure, soft-delete tombstones, idempotent creates, conflict per record, a category reconciliation flow, an ownership check between the JWT and the local store, and a full "Restore from Cloud" that applies atomically. Conflict resolution is still timestamp last-write-wins on client-supplied `updatedAt`.
 
-There is **no local backup file**, **no import** of any kind, and no Drive integration. Sync is premium, so a free user has no backup path at all except CSV export, which cannot be re-imported.
+**Backup** (Phase 5) is a single JSON file holding every row, free for everyone. It is dumped at the column level with plain SQL rather than through the generated mappers, so a file written today can still be read by a build several schema versions later. The sync cursor and the store's owner binding are deliberately left out, so a file cannot claim a device it does not own. Restoring runs in one transaction and refuses a file from a newer build outright.
+
+**Google Drive** backups sit in the app-data folder only this app can see — not the broad Drive scope, which would grant the ability to read every document the person owns. An interval and a retained count, with old copies pruned only after a new one lands, and a list to restore, save a copy of, or delete. The scheduled run never prompts, so a lapsed permission records why it skipped rather than throwing a consent screen at somebody who has just opened their finance app. Drive is reached through its REST endpoints rather than the generated `googleapis` package.
+
+**CSV import** is client-side, and guesses the encoding, the delimiter, the header, the date format and the decimal separator — then shows every one of those guesses against real rows from the user's own file before writing anything. Lines it cannot read are reported by line number rather than dropped. Rows already on file are skipped, so re-importing an overlapping statement cannot double a balance. Accounts are matched by name but never created. Beyond Cashew, a mapping is saved under the bank's name against a fingerprint of the column titles and applied on sight next time.
 
 ### What to do
 
-- **Local backup and restore** (JSON or the SQLite file) to the device and to the share sheet, free. This is a trust feature; a free user must be able to get their data out and back in.
-- **CSV import** with a mapping sheet and, beyond Cashew, **saved mapping templates** per bank.
 - **Server-assigned version counters** instead of client timestamps for conflict detection. The infrastructure is already there; `SyncStatus.conflict` is defined and never assigned.
-- Optionally, Google Drive as a free backup target for parity.
+- **Google Sheets import**, which Cashew has and this does not. Lower value than CSV now that CSV is done, since a Sheet exports to CSV in two clicks.
+- **Raw SQLite export**, which Cashew has. The JSON backup covers the same need more portably, so this is optional.
 
 ---
 
@@ -493,6 +496,8 @@ Not about Cashew, but they surfaced while reading and should be fixed before any
 
 ## 19. Roadmap
 
+> The three phases below were the first sketch. The plan actually being worked is [ROADMAP.md](ROADMAP.md), which supersedes them; Phases 0 through 5 of it are done.
+
 ### Phase 0: repair what exists (foundation)
 
 Fix everything in §18. Wire the unreachable screens. Rewrite budgets on the existing schema (§7 steps 1, 2, 6). Build the objectives screens. Add the repayment link and the `Contacts` table. Start localisation scaffolding. Add light and system themes and move the theme picker into Settings.
@@ -503,13 +508,13 @@ Transaction filters, search parsing, multi-select and bulk edit, duplicate, deta
 
 ### Phase 2: surpass
 
-People screen with per-contact running balances. Loan schedules with interest. Bill splitter that generates per-person loans. Tags. Split transactions. Attachments stored locally and synced. Rollover and envelope budgets. Budget forecasts using upcoming and recurring data. Net worth over time. Calendar view. Recurring rules by weekday and month-day, occurrence counts, and "this and future" edits. Credit-card statement cycles. App shortcuts, deep links, Android and iOS widgets. Quiet hours and tap-to-navigate notifications. PIN fallback. Guest mode with later account upgrade. Saved CSV mapping templates. Translations.
+People screen with per-contact running balances. Loan schedules with interest. Bill splitter that generates per-person loans. Tags. Split transactions. Attachments stored locally and synced. Rollover and envelope budgets. Budget forecasts using upcoming and recurring data. Net worth over time. Calendar view. Recurring rules by weekday and month-day, occurrence counts, and "this and future" edits. Credit-card statement cycles. App shortcuts, deep links, Android and iOS widgets. Quiet hours and tap-to-navigate notifications. PIN fallback. ~~Guest mode with later account upgrade~~ (decided against — sign-in stays mandatory). ~~Saved CSV mapping templates~~ (shipped in Phase 5). Translations.
 
 ---
 
 ## 20. Open questions
 
-1. **Guest mode.** Cashew never requires an account. Ours requires sign-in before anything works. Do you want a local-only mode with an optional upgrade to an account later, or is mandatory sign-in a deliberate product decision?
+1. ~~**Guest mode.**~~ **Answered: no.** Sign-in stays mandatory; a local-only or anonymous mode is not to be built.
 2. **Free-tier backup.** Sync is premium. Should a local backup file be free so that free users are never locked in?
 3. **Recurring confirmation.** Should the default for new subscriptions be "post automatically" (current) or "ask me" (Cashew), with the other as an option?
 4. **Long-term loans.** Do you want a separate "long-term loan" concept like Cashew's, or is the `Contacts` running-balance model enough?

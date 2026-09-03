@@ -258,6 +258,18 @@ The rest of this section is the original plan, kept for the detail.
 
 ## Phase 5 — Data portability
 
+**Status: done.** Client commits `56e2346`, `9782bb5`. No backend work was needed. Flutter analyze clean with 605 tests passing.
+
+Done: a backup is one JSON file holding every row, dumped at the column level with plain SQL so a file written today survives later schema versions — an unknown column is dropped and a new one takes its default. The sync cursor and the store's owner binding stay behind, so a file cannot claim a device it does not own or tell a fresh phone it had already pulled changes it was never present for. Restoring runs in one transaction and refuses a file from a newer build outright. Drive backups sit in the app-data folder only this app can see, on an interval with a retained count, pruned only after a new copy lands; the scheduled run never prompts, so a lapsed permission records why it skipped. CSV import guesses the encoding, the delimiter, the header, the date format and the decimal separator, shows every guess against the user's own rows before writing anything, reports unreadable lines by line number rather than dropping them, skips rows already on file so an overlapping statement cannot double a balance, and saves the mapping under the bank's name for next time.
+
+Three decisions worth recording. Restored live rows are queued as `pendingCreate`, never `pendingUpdate` — the server treats a create for a row it already holds as an accepted no-op, whereas an update for a row it has never seen is answered "not found" for ever and the record is stranded on the device; the cost is that a restore does not undo a cloud-side edit to a row the server still has, for which "Restore from cloud" is the tool. Drive is reached through its REST endpoints rather than the generated `googleapis` package, because four calls are needed and the generated client would add megabytes describing the rest of Drive. And an account named in an imported file is matched but never created: an account has a currency and an opening balance a CSV does not know.
+
+Two things found on the way and fixed: `clearAllData` never removed category budget limits, so a cloud restore left stale caps behind; and nothing invalidated the notifiers after a restore, so every screen went on showing records that no longer existed until the app was killed.
+
+**Before Drive backups work in a release build**, the Drive API must be enabled for the project in the Google Cloud console and the `drive.appdata` scope added to the OAuth consent screen. It is a narrow scope that does not require verification, but it does have to be listed.
+
+### What it was
+
 - **Local backup and restore**, free. Sync is premium, so a free user currently has no way to get their data out and back. This is a trust feature.
 - **Google Drive backup**, modelled on Cashew: backups in the hidden app-data folder, an automatic interval with a retained count, and a manage view to download, delete or restore. Cashew names each file after the schema version and device, which is worth copying so a restore can refuse a file newer than the app reading it. We are not copying its sync: it merges whole database files by modification time, and our delta protocol is better than that.
 - **CSV import** with charset and header detection, a column mapping sheet, and a date-format field with live preview. Beyond Cashew: **saved mapping templates per bank**.
@@ -295,10 +307,10 @@ Import must be purely client-side. The existing bulk endpoint mutates wallet bal
 |---|---|---|
 | 0 | Enum fix, data migration, null defaults, status endpoint, cleanup job, guards | Server, then client |
 | 1 | Period length, rollover, category limits table | Server, then client |
-| 2 | None | Client only |
+| 2 | None | Client only — **done** |
 | 3 | Associated titles into sync | Server, then client |
 | 4 | Transfer validation, wallet flags, exchange rates into sync | Server, then client |
-| 5 | None | Client only |
+| 5 | None | Client only — **done** |
 | 6 | Locale handling, conflict code contract | Either order |
 | 7 | Contacts, tags, splits, attachments, storage | Server, then client |
 
