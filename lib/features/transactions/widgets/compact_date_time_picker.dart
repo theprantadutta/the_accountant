@@ -37,7 +37,7 @@ class CompactDateTimePicker extends StatelessWidget {
           data: Theme.of(context).copyWith(
             colorScheme: ColorScheme.dark(
               primary: accentColor,
-              onPrimary: Colors.white,
+              onPrimary: AppColors.textPrimary,
               surface: AppColors.primarySurface,
               onSurface: AppColors.textPrimary,
             ),
@@ -70,7 +70,7 @@ class CompactDateTimePicker extends StatelessWidget {
           data: Theme.of(context).copyWith(
             colorScheme: ColorScheme.dark(
               primary: accentColor,
-              onPrimary: Colors.white,
+              onPrimary: AppColors.textPrimary,
               surface: AppColors.primarySurface,
               onSurface: AppColors.textPrimary,
             ),

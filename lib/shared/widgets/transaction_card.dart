@@ -103,7 +103,7 @@ class TransactionCard extends ConsumerWidget {
           child: Row(
             children: [
               if (selected)
-                const Padding(
+                Padding(
                   padding: EdgeInsets.only(right: 4),
                   child: Icon(
                     Icons.check_circle,

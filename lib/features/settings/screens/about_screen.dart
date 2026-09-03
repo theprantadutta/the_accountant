@@ -155,7 +155,7 @@ class AboutScreen extends StatelessWidget {
           ),
         ),
         SizedBox(height: AppSpacing.lg),
-        const Text(
+        Text(
           'The Accountant',
           style: TextStyle(
             fontSize: 28,

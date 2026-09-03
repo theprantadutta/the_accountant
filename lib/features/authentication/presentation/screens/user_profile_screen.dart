@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -197,7 +198,11 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
                                 ),
                           ),
                         )
-                      : const Icon(Icons.person, size: 50, color: Colors.white),
+                      : Icon(
+                          Icons.person,
+                          size: 50,
+                          color: AppColors.textPrimary,
+                        ),
                 ),
                 Positioned(
                   bottom: 0,
@@ -231,8 +236,8 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
             // Name and Email
             Text(
               displayName,
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: AppColors.textPrimary,
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
               ),
@@ -241,7 +246,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
             Text(
               email,
               style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.8),
+                color: AppColors.textPrimary.withValues(alpha: 0.8),
                 fontSize: 16,
               ),
             ),
@@ -254,14 +259,14 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
                 children: [
                   Icon(
                     Icons.calendar_today,
-                    color: Colors.white.withValues(alpha: 0.7),
+                    color: AppColors.textPrimary.withValues(alpha: 0.7),
                     size: 16,
                   ),
                   const SizedBox(width: 6),
                   Text(
                     'Member since ${DateFormat('MMMM yyyy').format(memberSince)}',
                     style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.7),
+                      color: AppColors.textPrimary.withValues(alpha: 0.7),
                       fontSize: 14,
                     ),
                   ),
@@ -325,8 +330,8 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
                     const SizedBox(height: 8),
                     Text(
                       stat['value'] as String,
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: AppColors.textPrimary,
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                       ),
@@ -334,7 +339,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
                     Text(
                       stat['title'] as String,
                       style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.7),
+                        color: AppColors.textPrimary.withValues(alpha: 0.7),
                         fontSize: 12,
                       ),
                     ),
@@ -355,10 +360,10 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Personal Information',
               style: TextStyle(
-                color: Colors.white,
+                color: AppColors.textPrimary,
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
@@ -397,22 +402,29 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
     return Container(
       decoration: BoxDecoration(
         color: enabled
-            ? Colors.white.withValues(alpha: 0.05)
-            : Colors.white.withValues(alpha: 0.02),
+            ? AppColors.textPrimary.withValues(alpha: 0.05)
+            : AppColors.textPrimary.withValues(alpha: 0.02),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+        border: Border.all(color: AppColors.textPrimary.withValues(alpha: 0.1)),
       ),
       child: TextFormField(
         controller: controller,
         enabled: enabled,
         keyboardType: keyboardType,
         style: TextStyle(
-          color: enabled ? Colors.white : Colors.white.withValues(alpha: 0.6),
+          color: enabled
+              ? AppColors.textPrimary
+              : AppColors.textPrimary.withValues(alpha: 0.6),
         ),
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
-          prefixIcon: Icon(icon, color: Colors.white.withValues(alpha: 0.7)),
+          labelStyle: TextStyle(
+            color: AppColors.textPrimary.withValues(alpha: 0.7),
+          ),
+          prefixIcon: Icon(
+            icon,
+            color: AppColors.textPrimary.withValues(alpha: 0.7),
+          ),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.all(16),
         ),
@@ -455,21 +467,24 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
                     ),
                   ),
                   const SizedBox(width: 16),
-                  const Expanded(
+                  Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           'Upgrade to Premium',
                           style: TextStyle(
-                            color: Colors.white,
+                            color: AppColors.textPrimary,
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         Text(
                           'Unlock unlimited budgets, advanced analytics, and more!',
-                          style: TextStyle(color: Colors.white70, fontSize: 14),
+                          style: TextStyle(
+                            color: AppColors.textPrimary.withValues(alpha: 0.7),
+                            fontSize: 14,
+                          ),
                         ),
                       ],
                     ),
@@ -545,7 +560,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
               ),
             ),
             const SizedBox(width: 16),
-            const Expanded(
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -565,7 +580,10 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
                   ),
                   Text(
                     'Enjoying all premium features',
-                    style: TextStyle(color: Colors.white70, fontSize: 14),
+                    style: TextStyle(
+                      color: AppColors.textPrimary.withValues(alpha: 0.7),
+                      fontSize: 14,
+                    ),
                   ),
                 ],
               ),
@@ -699,10 +717,10 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
                         ),
                       ),
                       const SizedBox(height: 16),
-                      const Text(
+                      Text(
                         'Sign Out',
                         style: TextStyle(
-                          color: Colors.white,
+                          color: AppColors.textPrimary,
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                         ),
@@ -711,7 +729,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
                       Text(
                         'Are you sure you want to sign out of your account?',
                         style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.8),
+                          color: AppColors.textPrimary.withValues(alpha: 0.8),
                           fontSize: 16,
                         ),
                         textAlign: TextAlign.center,
@@ -774,16 +792,18 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
                                               SnackBar(
                                                 content: Row(
                                                   children: [
-                                                    const Icon(
+                                                    Icon(
                                                       Icons.error_outline,
-                                                      color: Colors.white,
+                                                      color:
+                                                          AppColors.textPrimary,
                                                     ),
                                                     const SizedBox(width: 8),
                                                     Expanded(
                                                       child: Text(
                                                         'Failed to sign out: ${e.toString()}',
-                                                        style: const TextStyle(
-                                                          color: Colors.white,
+                                                        style: TextStyle(
+                                                          color: AppColors
+                                                              .textPrimary,
                                                         ),
                                                       ),
                                                     ),
@@ -828,10 +848,10 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
                                         strokeWidth: 2,
                                       ),
                                     )
-                                  : const Text(
+                                  : Text(
                                       'Sign Out',
                                       style: TextStyle(
-                                        color: Colors.white,
+                                        color: AppColors.textPrimary,
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
@@ -882,14 +902,14 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
                     ),
                     child: const Icon(Icons.camera_alt, color: Colors.blue),
                   ),
-                  title: const Text(
+                  title: Text(
                     'Take Photo',
-                    style: TextStyle(color: Colors.white),
+                    style: TextStyle(color: AppColors.textPrimary),
                   ),
                   subtitle: Text(
                     'Use your camera',
                     style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.7),
+                      color: AppColors.textPrimary.withValues(alpha: 0.7),
                     ),
                   ),
                   onTap: () {
@@ -911,14 +931,14 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
                       color: Colors.purple,
                     ),
                   ),
-                  title: const Text(
+                  title: Text(
                     'Choose from Gallery',
-                    style: TextStyle(color: Colors.white),
+                    style: TextStyle(color: AppColors.textPrimary),
                   ),
                   subtitle: Text(
                     'Select an existing photo',
                     style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.7),
+                      color: AppColors.textPrimary.withValues(alpha: 0.7),
                     ),
                   ),
                   onTap: () {
@@ -950,13 +970,13 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: const Row(
+              content: Row(
                 children: [
-                  Icon(Icons.check_circle, color: Colors.white),
+                  Icon(Icons.check_circle, color: AppColors.textPrimary),
                   SizedBox(width: 8),
                   Text(
                     'Photo selected! Upload feature coming soon.',
-                    style: TextStyle(color: Colors.white),
+                    style: TextStyle(color: AppColors.textPrimary),
                   ),
                 ],
               ),
@@ -976,12 +996,12 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
           SnackBar(
             content: Row(
               children: [
-                const Icon(Icons.error_outline, color: Colors.white),
+                Icon(Icons.error_outline, color: AppColors.textPrimary),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     'Failed to pick image: ${e.toString()}',
-                    style: const TextStyle(color: Colors.white),
+                    style: TextStyle(color: AppColors.textPrimary),
                   ),
                 ),
               ],
@@ -1005,13 +1025,13 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
     if (newName.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Row(
+          content: Row(
             children: [
-              Icon(Icons.error_outline, color: Colors.white),
+              Icon(Icons.error_outline, color: AppColors.textPrimary),
               SizedBox(width: 8),
               Text(
                 'Name cannot be empty',
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(color: AppColors.textPrimary),
               ),
             ],
           ),
@@ -1035,13 +1055,13 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Row(
+            content: Row(
               children: [
-                Icon(Icons.check_circle, color: Colors.white),
+                Icon(Icons.check_circle, color: AppColors.textPrimary),
                 SizedBox(width: 8),
                 Text(
                   'Profile updated successfully!',
-                  style: TextStyle(color: Colors.white),
+                  style: TextStyle(color: AppColors.textPrimary),
                 ),
               ],
             ),
@@ -1060,12 +1080,12 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
           SnackBar(
             content: Row(
               children: [
-                const Icon(Icons.error_outline, color: Colors.white),
+                Icon(Icons.error_outline, color: AppColors.textPrimary),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     'Failed to update profile: ${e.toString()}',
-                    style: const TextStyle(color: Colors.white),
+                    style: TextStyle(color: AppColors.textPrimary),
                   ),
                 ),
               ],

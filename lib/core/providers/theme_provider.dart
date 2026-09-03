@@ -2,8 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:the_accountant/core/services/analytics_service.dart';
+import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_theme.dart';
 import 'package:the_accountant/core/themes/premium_themes.dart';
+
+/// The three themes everybody has, before any subscription.
+class BaseThemes {
+  const BaseThemes._();
+
+  /// Follow whatever the phone is set to.
+  static const String system = 'System';
+  static const String light = 'Light';
+  static const String dark = 'Dark';
+
+  static const List<String> all = [system, light, dark];
+}
 
 class ThemeState {
   final String currentTheme;
@@ -15,6 +28,30 @@ class ThemeState {
     required this.isPremiumTheme,
     required this.availableThemes,
   });
+
+  /// Which colours to draw with, given what the phone is currently set to.
+  ///
+  /// [platformBrightness] only matters for [BaseThemes.system]; the other
+  /// choices are an instruction to ignore it.
+  AppPalette paletteFor(Brightness platformBrightness) {
+    switch (currentTheme) {
+      case BaseThemes.system:
+        return AppPalette.of(platformBrightness);
+      case BaseThemes.light:
+        return AppPalette.light;
+      default:
+        // Every premium theme is a dark theme, so anything unrecognised —
+        // including a saved name from a build that had more of them — is dark.
+        return AppPalette.dark;
+    }
+  }
+
+  /// What to hand `MaterialApp.themeMode`.
+  ThemeMode get themeMode => switch (currentTheme) {
+    BaseThemes.system => ThemeMode.system,
+    BaseThemes.light => ThemeMode.light,
+    _ => ThemeMode.dark,
+  };
 
   ThemeState copyWith({
     String? currentTheme,
@@ -33,12 +70,19 @@ class ThemeNotifier extends StateNotifier<ThemeState> {
   /// Where the chosen theme is remembered between launches.
   static const String _storageKey = 'selected_theme';
 
+  /// Dark, not System, is the default on purpose.
+  ///
+  /// The app has always been dark and every existing install is looking at it
+  /// now. Defaulting to System would turn the app light for anybody whose phone
+  /// is, without their having asked for anything — a worse surprise than the
+  /// mild unfashionability of not following the system out of the box. System
+  /// is the first option in the picker.
   ThemeNotifier()
     : super(
         ThemeState(
-          currentTheme: 'Dark',
+          currentTheme: BaseThemes.dark,
           isPremiumTheme: false,
-          availableThemes: ['Light', 'Dark'],
+          availableThemes: BaseThemes.all,
         ),
       ) {
     _restore();
@@ -92,18 +136,17 @@ class ThemeNotifier extends StateNotifier<ThemeState> {
   /// Unlock premium themes
   void unlockPremiumThemes() {
     state = state.copyWith(
-      availableThemes: ['Light', 'Dark', ...PremiumThemes.themeNames],
+      availableThemes: [...BaseThemes.all, ...PremiumThemes.themeNames],
     );
   }
 
   /// Lock premium themes
   void lockPremiumThemes() {
     state = state.copyWith(
-      availableThemes: ['Light', 'Dark'],
-      currentTheme:
-          state.currentTheme == 'Light' || state.currentTheme == 'Dark'
+      availableThemes: BaseThemes.all,
+      currentTheme: BaseThemes.all.contains(state.currentTheme)
           ? state.currentTheme
-          : 'Dark',
+          : BaseThemes.dark,
       isPremiumTheme: false,
     );
     // Persist the fallback too, or the next launch restores a theme the user

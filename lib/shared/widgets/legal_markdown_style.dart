@@ -4,10 +4,10 @@ import 'package:the_accountant/core/themes/app_colors.dart';
 
 MarkdownStyleSheet legalMarkdownStyleSheet() {
   return MarkdownStyleSheet(
-    h1: const TextStyle(
+    h1: TextStyle(
       fontSize: 22,
       fontWeight: FontWeight.bold,
-      color: Colors.white,
+      color: AppColors.textPrimary,
       height: 1.4,
     ),
     h2: TextStyle(
@@ -16,34 +16,37 @@ MarkdownStyleSheet legalMarkdownStyleSheet() {
       color: AppColors.primaryGlow,
       height: 1.6,
     ),
-    h3: const TextStyle(
+    h3: TextStyle(
       fontSize: 16,
       fontWeight: FontWeight.w600,
-      color: Colors.white,
+      color: AppColors.textPrimary,
       height: 1.5,
     ),
     p: TextStyle(
       fontSize: 14,
-      color: Colors.white.withValues(alpha: 0.85),
+      color: AppColors.textPrimary.withValues(alpha: 0.85),
       height: 1.6,
     ),
     listBullet: TextStyle(
       fontSize: 14,
-      color: Colors.white.withValues(alpha: 0.85),
+      color: AppColors.textPrimary.withValues(alpha: 0.85),
     ),
-    strong: const TextStyle(fontWeight: FontWeight.w700, color: Colors.white),
+    strong: TextStyle(
+      fontWeight: FontWeight.w700,
+      color: AppColors.textPrimary,
+    ),
     em: TextStyle(
       fontStyle: FontStyle.italic,
-      color: Colors.white.withValues(alpha: 0.9),
+      color: AppColors.textPrimary.withValues(alpha: 0.9),
     ),
-    tableHead: const TextStyle(
+    tableHead: TextStyle(
       fontSize: 13,
       fontWeight: FontWeight.w600,
-      color: Colors.white,
+      color: AppColors.textPrimary,
     ),
     tableBody: TextStyle(
       fontSize: 13,
-      color: Colors.white.withValues(alpha: 0.8),
+      color: AppColors.textPrimary.withValues(alpha: 0.8),
     ),
     tableBorder: TableBorder.all(color: AppColors.glassBorder, width: 1),
     tableHeadAlign: TextAlign.left,

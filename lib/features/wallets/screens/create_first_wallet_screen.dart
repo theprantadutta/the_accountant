@@ -203,7 +203,7 @@ class _CreateFirstWalletScreenState
                                 icon,
                                 size: 16,
                                 color: isSelected
-                                    ? Colors.white
+                                    ? AppColors.textPrimary
                                     : AppColors.textSecondary,
                               ),
                               const SizedBox(width: 6),
@@ -216,7 +216,7 @@ class _CreateFirstWalletScreenState
                           backgroundColor: AppColors.primarySurface,
                           labelStyle: TextStyle(
                             color: isSelected
-                                ? Colors.white
+                                ? AppColors.textPrimary
                                 : AppColors.textPrimary,
                             fontSize: 13,
                             fontWeight: isSelected

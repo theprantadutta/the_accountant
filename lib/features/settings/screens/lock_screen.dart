@@ -93,7 +93,7 @@ class _LockScreenState extends State<LockScreen> {
                   'Unlock to access The Accountant',
                   style: TextStyle(
                     fontSize: 16,
-                    color: Colors.white.withValues(alpha: 0.7),
+                    color: AppColors.textPrimary.withValues(alpha: 0.7),
                   ),
                 ),
                 const SizedBox(height: 48),

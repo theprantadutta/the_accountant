@@ -180,7 +180,7 @@ class _NavItem extends StatelessWidget {
     final Color labelColor;
 
     if (isAiButton) {
-      iconColor = isSelected ? Colors.white : AppColors.neonCyan;
+      iconColor = isSelected ? AppColors.textPrimary : AppColors.neonCyan;
       labelColor = AppColors.neonCyan;
     } else {
       iconColor = isSelected ? AppColors.primaryAccent : AppColors.textMuted;

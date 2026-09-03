@@ -80,7 +80,7 @@ class UpgradeLimitDialog extends StatelessWidget {
             const SizedBox(height: 20),
 
             // Title
-            const Text(
+            Text(
               'Limit Reached',
               style: TextStyle(
                 fontSize: 22,

@@ -109,7 +109,7 @@ class _AmountInputSheetState extends State<_AmountInputSheet> {
                   width: 36,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.2),
+                    color: AppColors.textPrimary.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -200,7 +200,7 @@ class _AmountInputSheetState extends State<_AmountInputSheet> {
                         borderSide: BorderSide(color: color, width: 2),
                       ),
                       filled: true,
-                      fillColor: Colors.white.withValues(alpha: 0.05),
+                      fillColor: AppColors.textPrimary.withValues(alpha: 0.05),
                       contentPadding: const EdgeInsets.symmetric(
                         horizontal: 20,
                         vertical: 20,

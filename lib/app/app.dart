@@ -4,7 +4,9 @@ import 'package:in_app_update/in_app_update.dart';
 import 'package:the_accountant/core/providers/theme_provider.dart';
 import 'package:the_accountant/core/providers/account_store_provider.dart';
 import 'package:the_accountant/core/services/analytics_service.dart';
+import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_theme.dart';
+import 'package:the_accountant/core/themes/premium_themes.dart';
 import 'package:the_accountant/features/onboarding/screens/post_signup_onboarding_screen.dart';
 import 'package:the_accountant/features/premium/providers/premium_sync_provider.dart';
 import 'package:the_accountant/features/premium/screens/premium_screen.dart';
@@ -92,7 +94,27 @@ class _MyAppState extends ConsumerState<MyApp> {
   Widget build(BuildContext context) {
     // Watch theme changes
     final themeState = ref.watch(themeProvider);
-    final currentTheme = AppTheme.getCurrentTheme(themeState.currentTheme);
+    // The palette has to be in place before anything below builds, because the
+    // whole app reads its colours from AppColors rather than from the
+    // ThemeData — see AppPalette for why. Assigning here, in the build that
+    // also produces the ThemeData, is what keeps the two agreeing.
+    //
+    // MediaQuery rather than PlatformDispatcher so that a change to the phone's
+    // own light/dark setting rebuilds this widget, and with it the tree.
+    final platformBrightness = MediaQuery.platformBrightnessOf(context);
+    AppColors.usePalette(themeState.paletteFor(platformBrightness));
+
+    final isPremiumTheme = PremiumThemes.themeMap.containsKey(
+      themeState.currentTheme,
+    );
+    // A premium theme is a fixed dark ThemeData of its own; the base themes are
+    // built from whichever palette is now current.
+    final lightTheme = isPremiumTheme
+        ? AppTheme.getCurrentTheme(themeState.currentTheme)
+        : AppTheme.themeFor(AppPalette.light);
+    final darkTheme = isPremiumTheme
+        ? AppTheme.getCurrentTheme(themeState.currentTheme)
+        : AppTheme.themeFor(AppPalette.dark);
 
     // Activate IAP → Premium state bridge (needs to be alive for app lifetime)
     ref.watch(premiumIapSyncProvider);
@@ -105,9 +127,9 @@ class _MyAppState extends ConsumerState<MyApp> {
 
     return MaterialApp(
       title: 'The Accountant',
-      theme: currentTheme,
-      darkTheme: currentTheme,
-      themeMode: ThemeMode.dark,
+      theme: lightTheme,
+      darkTheme: darkTheme,
+      themeMode: isPremiumTheme ? ThemeMode.dark : themeState.themeMode,
       navigatorObservers: [AnalyticsService().observer],
       // One ambient gradient background painted behind every screen. Scaffolds
       // are transparent (see AppTheme) so this shows through app-wide. Width

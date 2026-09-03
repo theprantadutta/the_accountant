@@ -117,11 +117,11 @@ class _RecentlyDeletedScreenState extends ConsumerState<RecentlyDeletedScreen> {
           Container(
             width: 80,
             height: 80,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: AppColors.glassWhite,
               shape: BoxShape.circle,
             ),
-            child: const Icon(
+            child: Icon(
               Icons.restore_from_trash_outlined,
               size: 40,
               color: AppColors.textMuted,

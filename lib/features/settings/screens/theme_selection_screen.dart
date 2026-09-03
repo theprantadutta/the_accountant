@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/providers/theme_provider.dart';
 import 'package:the_accountant/features/premium/providers/premium_provider.dart';
+import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_theme.dart';
 import 'package:the_accountant/core/themes/premium_themes.dart';
 import 'package:the_accountant/core/utils/animation_utils.dart';
@@ -61,13 +62,13 @@ class _ThemeSelectionScreenState extends ConsumerState<ThemeSelectionScreen>
           backgroundColor: Colors.transparent,
           elevation: 0,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            icon: Icon(Icons.arrow_back, color: AppColors.textPrimary),
             onPressed: () => Navigator.pop(context),
           ),
-          title: const Text(
+          title: Text(
             'Choose Your Theme',
             style: TextStyle(
-              color: Colors.white,
+              color: AppColors.textPrimary,
               fontWeight: FontWeight.w600,
               fontSize: 20,
             ),
@@ -87,19 +88,20 @@ class _ThemeSelectionScreenState extends ConsumerState<ThemeSelectionScreen>
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        Text(
                           '✨ Express Yourself',
                           style: TextStyle(
-                            color: Colors.white,
+                            color: AppColors.textPrimary,
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Choose a theme that reflects your style and makes managing finances a joy.',
+                          'Choose a theme that reflects your style and makes '
+                          'managing finances a joy.',
                           style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.8),
+                            color: AppColors.textSecondary,
                             fontSize: 16,
                           ),
                         ),
@@ -110,35 +112,40 @@ class _ThemeSelectionScreenState extends ConsumerState<ThemeSelectionScreen>
               ),
               const SizedBox(height: 32),
 
-              // Default Theme
+              // The three everybody has. This used to offer a single option
+              // called "Default", which was not a theme the app knew about at
+              // all: selecting it stored a name nothing recognised, and there
+              // was no way to reach the light theme from anywhere in the app.
               AnimationUtils.slideTransition(
                 animation: _slideAnimation,
                 begin: const Offset(-1, 0),
-                child: _buildThemeOption(
-                  name: 'Default',
-                  description: 'The classic dark theme',
-                  colors: [
-                    const Color(0xFF0f0c29),
-                    const Color(0xFF667eea),
-                    const Color(0xFF764ba2),
+                child: Column(
+                  children: [
+                    for (final name in BaseThemes.all) ...[
+                      _buildThemeOption(
+                        name: name,
+                        description: _getThemeDescription(name),
+                        colors: _getThemeColors(name),
+                        isSelected: themeState.currentTheme == name,
+                        onTap: () => _selectTheme(name),
+                        isPremium: false,
+                        isUnlocked: true,
+                      ),
+                      const SizedBox(height: 16),
+                    ],
                   ],
-                  isSelected: themeState.currentTheme == 'Default',
-                  onTap: () => _selectTheme('Default'),
-                  isPremium: false,
-                  isUnlocked: true,
                 ),
               ),
-              const SizedBox(height: 16),
 
               // Premium Themes Section
               AnimationUtils.fadeTransition(
                 animation: _fadeAnimation,
                 child: Row(
                   children: [
-                    const Text(
+                    Text(
                       'Premium Themes',
                       style: TextStyle(
-                        color: Colors.white,
+                        color: AppColors.textPrimary,
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                       ),
@@ -274,7 +281,7 @@ class _ThemeSelectionScreenState extends ConsumerState<ThemeSelectionScreen>
                         end: Alignment.bottomRight,
                       ),
                       border: isSelected
-                          ? Border.all(color: Colors.white, width: 3)
+                          ? Border.all(color: AppColors.textPrimary, width: 3)
                           : null,
                       boxShadow: [
                         BoxShadow(
@@ -287,10 +294,10 @@ class _ThemeSelectionScreenState extends ConsumerState<ThemeSelectionScreen>
                     child: Stack(
                       children: [
                         if (isSelected)
-                          const Center(
+                          Center(
                             child: Icon(
                               Icons.check,
-                              color: Colors.white,
+                              color: AppColors.textPrimary,
                               size: 24,
                             ),
                           ),
@@ -322,8 +329,8 @@ class _ThemeSelectionScreenState extends ConsumerState<ThemeSelectionScreen>
                           children: [
                             Text(
                               name,
-                              style: const TextStyle(
-                                color: Colors.white,
+                              style: TextStyle(
+                                color: AppColors.textPrimary,
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -342,7 +349,7 @@ class _ThemeSelectionScreenState extends ConsumerState<ThemeSelectionScreen>
                         Text(
                           description,
                           style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.7),
+                            color: AppColors.textSecondary,
                             fontSize: 14,
                           ),
                         ),
@@ -355,13 +362,13 @@ class _ThemeSelectionScreenState extends ConsumerState<ThemeSelectionScreen>
                     Container(
                       width: 24,
                       height: 24,
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
+                      decoration: BoxDecoration(
+                        color: AppColors.primaryAccent,
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
                         Icons.check,
-                        color: Color(0xFF667eea),
+                        color: Colors.white,
                         size: 16,
                       ),
                     ),
@@ -383,6 +390,12 @@ class _ThemeSelectionScreenState extends ConsumerState<ThemeSelectionScreen>
 
   String _getThemeDescription(String themeName) {
     switch (themeName) {
+      case BaseThemes.system:
+        return 'Match whatever your phone is set to';
+      case BaseThemes.light:
+        return 'Bright, for daylight and shared screens';
+      case BaseThemes.dark:
+        return 'The original - deep space with indigo accents';
       case 'Sapphire':
         return 'Ocean depths with brilliant blue accents';
       case 'Emerald':
@@ -400,6 +413,25 @@ class _ThemeSelectionScreenState extends ConsumerState<ThemeSelectionScreen>
 
   List<Color> _getThemeColors(String themeName) {
     switch (themeName) {
+      // Half and half, which is the whole idea of it.
+      case BaseThemes.system:
+        return [
+          const Color(0xFF0D0D1A),
+          const Color(0xFF0D0D1A),
+          const Color(0xFFF1F5F9),
+        ];
+      case BaseThemes.light:
+        return [
+          const Color(0xFFFFFFFF),
+          const Color(0xFFEEF2F8),
+          const Color(0xFF4F46E5),
+        ];
+      case BaseThemes.dark:
+        return [
+          const Color(0xFF0D0D1A),
+          const Color(0xFF1A1A2E),
+          const Color(0xFF6366F1),
+        ];
       case 'Sapphire':
         return [
           const Color(0xFF0D1B2A),

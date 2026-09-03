@@ -51,7 +51,7 @@ class _AppBackgroundState extends State<AppBackground>
     final eased = CurvedAnimation(parent: _controller, curve: Curves.easeInOut);
 
     return DecoratedBox(
-      decoration: const BoxDecoration(gradient: AppColors.backgroundGradient),
+      decoration: BoxDecoration(gradient: AppColors.backgroundGradient),
       child: ClipRect(
         child: Stack(
           children: [

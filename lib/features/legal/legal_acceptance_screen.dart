@@ -14,7 +14,7 @@ import 'package:the_accountant/shared/widgets/legal_markdown_style.dart';
 ///
 /// Brought into line with the rest of the pre-auth flow. It used to paint its
 /// own background over the app-wide one, set every string with a raw
-/// `TextStyle` and `Colors.white`, space itself with bare numbers, and fake a
+/// `TextStyle` and `AppColors.textPrimary`, space itself with bare numbers, and fake a
 /// disabled button with 40% opacity over a transparent shadow. Sitting between
 /// the intro and the sign-in screen — both of which use the shared scale — it
 /// was the one screen that looked borrowed from somewhere else.

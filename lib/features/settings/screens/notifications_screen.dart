@@ -473,7 +473,7 @@ class _NotificationDebugSectionState extends State<_NotificationDebugSection> {
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text('Test notification sent! Check your notifications.'),
           backgroundColor: AppColors.success,
         ),
@@ -522,7 +522,7 @@ class _NotificationDebugSectionState extends State<_NotificationDebugSection> {
                         ? AppColors.success
                         : AppColors.error,
                   ),
-                  title: const Text(
+                  title: Text(
                     'Exact Alarm Permission',
                     style: TextStyle(color: AppColors.textPrimary),
                   ),
@@ -542,14 +542,14 @@ class _NotificationDebugSectionState extends State<_NotificationDebugSection> {
                 const Divider(height: 1, indent: 16, endIndent: 16),
                 // Device Timezone
                 ListTile(
-                  leading: const Icon(Icons.public, color: AppColors.info),
-                  title: const Text(
+                  leading: Icon(Icons.public, color: AppColors.info),
+                  title: Text(
                     'Device Timezone',
                     style: TextStyle(color: AppColors.textPrimary),
                   ),
                   subtitle: Text(
                     _isLoading ? 'Checking...' : _deviceTimezone,
-                    style: const TextStyle(color: AppColors.textSecondary),
+                    style: TextStyle(color: AppColors.textSecondary),
                   ),
                 ),
                 const Divider(height: 1, indent: 16, endIndent: 16),
@@ -561,7 +561,7 @@ class _NotificationDebugSectionState extends State<_NotificationDebugSection> {
                         ? AppColors.success
                         : AppColors.warning,
                   ),
-                  title: const Text(
+                  title: Text(
                     'Scheduled Notifications',
                     style: TextStyle(color: AppColors.textPrimary),
                   ),
@@ -569,28 +569,25 @@ class _NotificationDebugSectionState extends State<_NotificationDebugSection> {
                     _isLoading
                         ? 'Checking...'
                         : '$_pendingCount pending (daily: ${_hasPendingReminder ? "Yes" : "No"}, tz: $_scheduledTimezone)',
-                    style: const TextStyle(color: AppColors.textSecondary),
+                    style: TextStyle(color: AppColors.textSecondary),
                   ),
                   trailing: IconButton(
-                    icon: const Icon(
-                      Icons.refresh,
-                      color: AppColors.textSecondary,
-                    ),
+                    icon: Icon(Icons.refresh, color: AppColors.textSecondary),
                     onPressed: _checkStatus,
                   ),
                 ),
                 const Divider(height: 1, indent: 16, endIndent: 16),
                 // Test Notification Button
                 ListTile(
-                  leading: const Icon(
+                  leading: Icon(
                     Icons.notifications_active,
                     color: AppColors.info,
                   ),
-                  title: const Text(
+                  title: Text(
                     'Send Test Notification',
                     style: TextStyle(color: AppColors.textPrimary),
                   ),
-                  subtitle: const Text(
+                  subtitle: Text(
                     'Tap to verify notifications work',
                     style: TextStyle(color: AppColors.textSecondary),
                   ),

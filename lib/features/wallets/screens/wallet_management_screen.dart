@@ -355,7 +355,7 @@ class _WalletManagementScreenState extends ConsumerState<WalletManagementScreen>
                             AppNumberFormatter.get(
                               ref.watch(numberFormatSettingProvider),
                             ).format(totalBalance * _headerAnimation.value),
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 32,
                               fontWeight: FontWeight.bold,
                               color: AppColors.textPrimary,
@@ -447,11 +447,11 @@ class _WalletManagementScreenState extends ConsumerState<WalletManagementScreen>
             const SizedBox(height: 32),
             ElevatedButton.icon(
               onPressed: _showAddWalletSheet,
-              icon: const Icon(Icons.add, color: Colors.white),
-              label: const Text(
+              icon: Icon(Icons.add, color: AppColors.textPrimary),
+              label: Text(
                 'Create Account',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: AppColors.textPrimary,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -847,7 +847,7 @@ class _WalletCardState extends ConsumerState<_WalletCard>
                                       Flexible(
                                         child: Text(
                                           wallet.name,
-                                          style: const TextStyle(
+                                          style: TextStyle(
                                             fontSize: 18,
                                             fontWeight: FontWeight.bold,
                                             color: AppColors.textPrimary,
@@ -1272,7 +1272,7 @@ class _WalletCardState extends ConsumerState<_WalletCard>
                         children: [
                           Text(
                             widget.wallet.name,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                               color: AppColors.textPrimary,
@@ -1292,7 +1292,7 @@ class _WalletCardState extends ConsumerState<_WalletCard>
                 ),
 
                 const SizedBox(height: 20),
-                const Divider(color: AppColors.divider),
+                Divider(color: AppColors.divider),
                 const SizedBox(height: 10),
 
                 // Options

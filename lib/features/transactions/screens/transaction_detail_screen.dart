@@ -134,7 +134,7 @@ class _TransactionDetailScreenState
                   ),
                 ),
               const PopupMenuDivider(),
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: 'delete',
                 child: ListTile(
                   leading: Icon(Icons.delete_outline, color: AppColors.error),

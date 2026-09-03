@@ -1036,7 +1036,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
       case TransactionTypeSelection.expense:
         return AppColors.errorGradient;
       case TransactionTypeSelection.transfer:
-        return const LinearGradient(
+        return LinearGradient(
           colors: [AppColors.neonCyan, AppColors.neonBlue],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,

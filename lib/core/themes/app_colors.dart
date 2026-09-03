@@ -1,221 +1,175 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/core/themes/app_palette.dart';
 
-/// Comprehensive color system for The Accountant app
-/// Futuristic dark theme with neon accents
+export 'package:the_accountant/core/themes/app_palette.dart' show AppPalette;
+
+/// The colour vocabulary the whole app is written in.
+///
+/// Every name here used to be a `static const` holding a dark value, which is
+/// the reason the light theme could be defined and never selected: the widgets
+/// read these constants rather than `Theme.of(context)`, so changing the
+/// `ThemeData` changed nothing anybody could see.
+///
+/// The names are unchanged and the 1,800-odd call sites are untouched. What
+/// changed is that each one now reads through [palette], so swapping the
+/// palette repaints the app.
+///
+/// **Read these in `build`, not in `initState`.** A colour captured once in a
+/// field will not follow a theme change. That is the one rule this indirection
+/// asks for, and it is what the whole codebase already did anyway.
 class AppColors {
   AppColors._();
 
-  // ============================================
-  // PRIMARY PALETTE - Cyber Purple/Blue
-  // ============================================
+  static AppPalette _palette = AppPalette.dark;
 
-  /// Deep space black - main background
-  static const Color primaryDark = Color(0xFF0D0D1A);
+  /// The set currently in force.
+  static AppPalette get palette => _palette;
 
-  /// Card/surface backgrounds
-  static const Color primarySurface = Color(0xFF1A1A2E);
-
-  /// Elevated surface (modals, dialogs)
-  static const Color primaryElevated = Color(0xFF252542);
-
-  /// Main accent color - Indigo
-  static const Color primaryAccent = Color(0xFF6366F1);
-
-  /// Lighter accent for glows/highlights
-  static const Color primaryGlow = Color(0xFF818CF8);
-
-  /// Darker accent for pressed states
-  static const Color primaryPressed = Color(0xFF4F46E5);
+  /// Switch to [next], returning whether anything actually changed.
+  ///
+  /// The caller uses the answer to decide whether a repaint is needed; setting
+  /// the same palette twice — which happens on every rebuild — must not cost a
+  /// full-tree rebuild.
+  static bool usePalette(AppPalette next) {
+    if (identical(_palette, next)) return false;
+    _palette = next;
+    return true;
+  }
 
   // ============================================
-  // SECONDARY PALETTE - Neon Accents
+  // PRIMARY PALETTE
   // ============================================
 
-  /// Cyan neon accent
-  static const Color neonCyan = Color(0xFF22D3EE);
+  /// Main background.
+  static Color get primaryDark => _palette.primaryDark;
 
-  /// Purple neon accent
-  static const Color neonPurple = Color(0xFFA855F7);
+  /// Card and surface backgrounds.
+  static Color get primarySurface => _palette.primarySurface;
 
-  /// Pink neon accent
-  static const Color neonPink = Color(0xFFEC4899);
+  /// Elevated surface (modals, dialogs).
+  static Color get primaryElevated => _palette.primaryElevated;
 
-  /// Blue neon accent
-  static const Color neonBlue = Color(0xFF3B82F6);
+  /// Main accent colour.
+  static Color get primaryAccent => _palette.primaryAccent;
+
+  /// Lighter accent for glows and highlights.
+  static Color get primaryGlow => _palette.primaryGlow;
+
+  /// Darker accent for pressed states.
+  static Color get primaryPressed => _palette.primaryPressed;
+
+  // ============================================
+  // SECONDARY PALETTE
+  // ============================================
+
+  static Color get neonCyan => _palette.neonCyan;
+  static Color get neonPurple => _palette.neonPurple;
+  static Color get neonPink => _palette.neonPink;
+  static Color get neonBlue => _palette.neonBlue;
 
   // ============================================
   // SEMANTIC COLORS
   // ============================================
 
-  /// Success/Income - Emerald green
-  static const Color success = Color(0xFF10B981);
-  static const Color successLight = Color(0xFF34D399);
-  static const Color successDark = Color(0xFF059669);
+  /// Success and income.
+  static Color get success => _palette.success;
+  static Color get successLight => _palette.successLight;
+  static Color get successDark => _palette.successDark;
 
-  /// Error/Expense - Red
-  static const Color error = Color(0xFFEF4444);
-  static const Color errorLight = Color(0xFFF87171);
-  static const Color errorDark = Color(0xFFDC2626);
+  /// Error and expense.
+  static Color get error => _palette.error;
+  static Color get errorLight => _palette.errorLight;
+  static Color get errorDark => _palette.errorDark;
 
-  /// Warning - Amber
-  static const Color warning = Color(0xFFF59E0B);
-  static const Color warningLight = Color(0xFFFBBF24);
-  static const Color warningDark = Color(0xFFD97706);
+  static Color get warning => _palette.warning;
+  static Color get warningLight => _palette.warningLight;
+  static Color get warningDark => _palette.warningDark;
 
-  /// Info - Blue
-  static const Color info = Color(0xFF3B82F6);
-  static const Color infoLight = Color(0xFF60A5FA);
-  static const Color infoDark = Color(0xFF2563EB);
+  static Color get info => _palette.info;
+  static Color get infoLight => _palette.infoLight;
+  static Color get infoDark => _palette.infoDark;
 
   // ============================================
   // TEXT COLORS
   // ============================================
 
-  /// Primary text - almost white
-  static const Color textPrimary = Color(0xFFF8FAFC);
+  static Color get textPrimary => _palette.textPrimary;
+  static Color get textSecondary => _palette.textSecondary;
+  static Color get textMuted => _palette.textMuted;
 
-  /// Secondary text - muted
-  static const Color textSecondary = Color(0xFF94A3B8);
-
-  /// Tertiary/disabled text
-  static const Color textMuted = Color(0xFF64748B);
-
-  /// Inverse text (for light backgrounds)
-  static const Color textInverse = Color(0xFF0F172A);
+  /// Text for a surface of the opposite brightness.
+  static Color get textInverse => _palette.textInverse;
 
   // ============================================
   // GLASS/SURFACE COLORS
   // ============================================
 
-  /// Glass effect - 5% white
-  static const Color glassWhite = Color(0x0DFFFFFF);
-
-  /// Glass border - subtle accent tint
-  static const Color glassBorder = Color(0x306366F1);
-
-  /// Glass highlight - 20% white
-  static const Color glassHighlight = Color(0x33FFFFFF);
-
-  /// Glass shadow
-  static const Color glassShadow = Color(0x40000000);
-
-  /// Divider color
-  static const Color divider = Color(0xFF2D2D44);
+  static Color get glassWhite => _palette.glassWhite;
+  static Color get glassBorder => _palette.glassBorder;
+  static Color get glassHighlight => _palette.glassHighlight;
+  static Color get glassShadow => _palette.glassShadow;
+  static Color get divider => _palette.divider;
 
   // ============================================
   // GRADIENTS
   // ============================================
 
-  /// Primary gradient - Purple to Indigo
+  /// Brand gradients do not change with the theme.
+  ///
+  /// They are the identity of the app rather than part of its surface, and they
+  /// are always drawn behind white text, so they read the same either way.
   static const LinearGradient primaryGradient = LinearGradient(
     colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
-  /// Secondary gradient - Cyan to Teal
   static const LinearGradient secondaryGradient = LinearGradient(
     colors: [Color(0xFF06B6D4), Color(0xFF10B981)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
-  /// Accent gradient - Pink to Purple
   static const LinearGradient accentGradient = LinearGradient(
     colors: [Color(0xFFEC4899), Color(0xFFA855F7)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
-  /// Background gradient - Deep space
-  static const LinearGradient backgroundGradient = LinearGradient(
-    colors: [Color(0xFF0D0D1A), Color(0xFF1A1A2E), Color(0xFF0D0D1A)],
-    begin: Alignment.topCenter,
-    end: Alignment.bottomCenter,
-    stops: [0.0, 0.5, 1.0],
-  );
-
-  /// Card gradient - Surface with subtle accent tint
-  static const LinearGradient cardGradient = LinearGradient(
-    colors: [Color(0xFF1E1E38), Color(0xFF2A2A4A)],
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-  );
-
-  /// Glass gradient - Frosted effect with subtle accent tint
-  static const LinearGradient glassGradient = LinearGradient(
-    colors: [Color(0x206366F1), Color(0x10252542)],
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-  );
-
-  /// Accent card gradient - Indigo tint
-  static const LinearGradient accentCardGradient = LinearGradient(
-    colors: [Color(0x256366F1), Color(0x15818CF8)],
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-  );
-
-  /// Success card gradient - Green tint (for income)
-  static const LinearGradient successCardGradient = LinearGradient(
-    colors: [Color(0x2010B981), Color(0x1034D399)],
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-  );
-
-  /// Error card gradient - Red tint (for expenses)
-  static const LinearGradient errorCardGradient = LinearGradient(
-    colors: [Color(0x20EF4444), Color(0x10F87171)],
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-  );
-
-  /// Info card gradient - Blue tint
-  static const LinearGradient infoCardGradient = LinearGradient(
-    colors: [Color(0x203B82F6), Color(0x1060A5FA)],
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-  );
-
-  /// Warning card gradient - Amber tint
-  static const LinearGradient warningCardGradient = LinearGradient(
-    colors: [Color(0x20F59E0B), Color(0x10FBBF24)],
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-  );
-
-  /// Cyan card gradient - Cyan tint
-  static const LinearGradient cyanCardGradient = LinearGradient(
-    colors: [Color(0x2022D3EE), Color(0x1006B6D4)],
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-  );
-
-  /// Purple card gradient - Purple tint
-  static const LinearGradient purpleCardGradient = LinearGradient(
-    colors: [Color(0x20A855F7), Color(0x108B5CF6)],
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-  );
-
-  /// Success gradient - Income
   static const LinearGradient successGradient = LinearGradient(
     colors: [Color(0xFF10B981), Color(0xFF34D399)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
-  /// Error gradient - Expense
   static const LinearGradient errorGradient = LinearGradient(
     colors: [Color(0xFFEF4444), Color(0xFFF87171)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
+  /// Surface gradients, which do.
+  static LinearGradient get backgroundGradient => _palette.backgroundGradient;
+  static LinearGradient get cardGradient => _palette.cardGradient;
+  static LinearGradient get glassGradient => _palette.glassGradient;
+  static LinearGradient get accentCardGradient => _palette.accentCardGradient;
+  static LinearGradient get successCardGradient => _palette.successCardGradient;
+  static LinearGradient get errorCardGradient => _palette.errorCardGradient;
+  static LinearGradient get infoCardGradient => _palette.infoCardGradient;
+  static LinearGradient get warningCardGradient => _palette.warningCardGradient;
+  static LinearGradient get cyanCardGradient => _palette.cyanCardGradient;
+  static LinearGradient get purpleCardGradient => _palette.purpleCardGradient;
+
   // ============================================
   // CATEGORY COLORS (for transactions)
   // ============================================
 
+  /// Fixed in both themes.
+  ///
+  /// A category's colour is the user's data, not decoration: it is stored
+  /// against the row, shown in charts beside its own legend, and recognised by
+  /// sight. Shifting it when the theme changes would make the same category
+  /// look like a different one.
   static const List<Color> categoryColors = [
     Color(0xFF6366F1), // Indigo
     Color(0xFF8B5CF6), // Purple

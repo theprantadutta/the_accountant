@@ -334,7 +334,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
           Container(
             padding: const EdgeInsets.all(6),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.textPrimary,
               borderRadius: AppSpacing.borderRadiusSm,
             ),
             child: const GoogleGLogo(size: 20),

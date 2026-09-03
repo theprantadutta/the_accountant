@@ -126,9 +126,9 @@ void showSuccessSnackBar(BuildContext context, String message) {
     SnackBar(
       content: Row(
         children: [
-          const Icon(Icons.check_circle, color: Colors.white),
+          Icon(Icons.check_circle, color: AppColors.textPrimary),
           const SizedBox(width: 8),
-          Text(message, style: const TextStyle(color: Colors.white)),
+          Text(message, style: TextStyle(color: AppColors.textPrimary)),
         ],
       ),
       backgroundColor: AppColors.success.withValues(alpha: 0.9),

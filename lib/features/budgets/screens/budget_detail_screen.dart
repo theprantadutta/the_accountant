@@ -237,11 +237,7 @@ class _Headline extends ConsumerWidget {
             AppSpacing.gapSm,
             Row(
               children: [
-                const Icon(
-                  Icons.trending_up,
-                  size: 16,
-                  color: AppColors.warning,
-                ),
+                Icon(Icons.trending_up, size: 16, color: AppColors.warning),
                 const SizedBox(width: 6),
                 Expanded(
                   child: Text(
@@ -491,11 +487,7 @@ class _Forecast extends ConsumerWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(
-                  Icons.query_stats,
-                  size: 20,
-                  color: AppColors.warning,
-                ),
+                Icon(Icons.query_stats, size: 20, color: AppColors.warning),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(

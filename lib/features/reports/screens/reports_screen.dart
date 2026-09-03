@@ -319,7 +319,11 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
                       ),
                       if (isLocked) ...[
                         const SizedBox(width: 4),
-                        const Icon(Icons.lock, size: 12, color: Colors.white38),
+                        Icon(
+                          Icons.lock,
+                          size: 12,
+                          color: AppColors.textPrimary.withValues(alpha: 0.38),
+                        ),
                       ],
                     ],
                   ),
@@ -338,18 +342,21 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xFF1a1a2e),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Row(
+        title: Row(
           children: [
             Icon(Icons.analytics, color: Colors.amber),
             SizedBox(width: 8),
-            Text('Advanced Reports', style: TextStyle(color: Colors.white)),
+            Text(
+              'Advanced Reports',
+              style: TextStyle(color: AppColors.textPrimary),
+            ),
           ],
         ),
-        content: const Text(
+        content: Text(
           'Monthly and yearly reports are available with Premium.\n\n'
           'Upgrade to unlock the month & year timeframes, longer-term spending '
           'trends, and detailed Spending Insights.',
-          style: TextStyle(color: Colors.white70),
+          style: TextStyle(color: AppColors.textPrimary.withValues(alpha: 0.7)),
         ),
         actions: [
           TextButton(
@@ -485,14 +492,14 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
           children: [
             Icon(
               Icons.show_chart,
-              color: Colors.white.withValues(alpha: 0.5),
+              color: AppColors.textPrimary.withValues(alpha: 0.5),
               size: 48,
             ),
             const SizedBox(height: 8),
             Text(
               'No spending data for this period',
               style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.7),
+                color: AppColors.textPrimary.withValues(alpha: 0.7),
                 fontSize: 14,
               ),
             ),
@@ -511,7 +518,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
           drawVerticalLine: false,
           horizontalInterval: yInterval,
           getDrawingHorizontalLine: (value) => FlLine(
-            color: Colors.white.withValues(alpha: 0.1),
+            color: AppColors.textPrimary.withValues(alpha: 0.1),
             strokeWidth: 1,
           ),
         ),
@@ -535,8 +542,8 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
                 }
                 return Text(
                   labels[index],
-                  style: const TextStyle(
-                    color: Colors.white70,
+                  style: TextStyle(
+                    color: AppColors.textPrimary.withValues(alpha: 0.7),
                     fontWeight: FontWeight.w500,
                     fontSize: 12,
                   ),
@@ -552,8 +559,8 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
                 if (value >= 1000) {
                   return Text(
                     '$currencySymbol${(value / 1000).toStringAsFixed(1)}k',
-                    style: const TextStyle(
-                      color: Colors.white70,
+                    style: TextStyle(
+                      color: AppColors.textPrimary.withValues(alpha: 0.7),
                       fontWeight: FontWeight.w500,
                       fontSize: 12,
                     ),
@@ -561,8 +568,8 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
                 }
                 return Text(
                   '$currencySymbol${value.toStringAsFixed(0)}',
-                  style: const TextStyle(
-                    color: Colors.white70,
+                  style: TextStyle(
+                    color: AppColors.textPrimary.withValues(alpha: 0.7),
                     fontWeight: FontWeight.w500,
                     fontSize: 12,
                   ),
@@ -624,14 +631,14 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
           children: [
             Icon(
               Icons.pie_chart_outline,
-              color: Colors.white.withValues(alpha: 0.5),
+              color: AppColors.textPrimary.withValues(alpha: 0.5),
               size: 48,
             ),
             const SizedBox(height: 8),
             Text(
               'No category spending data',
               style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.7),
+                color: AppColors.textPrimary.withValues(alpha: 0.7),
                 fontSize: 14,
               ),
             ),
@@ -709,10 +716,10 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Financial Summary',
           style: TextStyle(
-            color: Colors.white,
+            color: AppColors.textPrimary,
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
@@ -770,15 +777,15 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
                         Text(
                           data['title'] as String,
                           style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.7),
+                            color: AppColors.textPrimary.withValues(alpha: 0.7),
                             fontSize: 12,
                           ),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           data['amount'] as String,
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(
+                            color: AppColors.textPrimary,
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),
@@ -865,14 +872,14 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
                   children: [
                     Icon(
                       Icons.pie_chart_outline,
-                      color: Colors.white.withValues(alpha: 0.5),
+                      color: AppColors.textPrimary.withValues(alpha: 0.5),
                       size: 48,
                     ),
                     const SizedBox(height: 8),
                     Text(
                       'No spending data available',
                       style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.7),
+                        color: AppColors.textPrimary.withValues(alpha: 0.7),
                         fontSize: 16,
                       ),
                     ),
@@ -925,8 +932,8 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
                               Expanded(
                                 child: Text(
                                   category['name'] as String,
-                                  style: const TextStyle(
-                                    color: Colors.white,
+                                  style: TextStyle(
+                                    color: AppColors.textPrimary,
                                     fontSize: 14,
                                     fontWeight: FontWeight.w500,
                                   ),
@@ -940,8 +947,8 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
                         const SizedBox(width: 8),
                         Text(
                           category['amount'] as String,
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(
+                            color: AppColors.textPrimary,
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
                           ),
@@ -951,7 +958,9 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
                     const SizedBox(height: 8),
                     LinearProgressIndicator(
                       value: (category['percentage'] as int) / 100,
-                      backgroundColor: Colors.white.withValues(alpha: 0.1),
+                      backgroundColor: AppColors.textPrimary.withValues(
+                        alpha: 0.1,
+                      ),
                       valueColor: AlwaysStoppedAnimation<Color>(
                         category['color'] as Color,
                       ),
@@ -997,14 +1006,14 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
                   children: [
                     Icon(
                       Icons.account_balance_wallet_outlined,
-                      color: Colors.white.withValues(alpha: 0.5),
+                      color: AppColors.textPrimary.withValues(alpha: 0.5),
                       size: 48,
                     ),
                     const SizedBox(height: 8),
                     Text(
                       'No active budgets',
                       style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.7),
+                        color: AppColors.textPrimary.withValues(alpha: 0.7),
                         fontSize: 16,
                       ),
                     ),
@@ -1012,7 +1021,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
                     Text(
                       'Create a budget to track your spending',
                       style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.5),
+                        color: AppColors.textPrimary.withValues(alpha: 0.5),
                         fontSize: 14,
                       ),
                     ),
@@ -1054,8 +1063,8 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
                         Expanded(
                           child: Text(
                             budget.budgetName,
-                            style: const TextStyle(
-                              color: Colors.white,
+                            style: TextStyle(
+                              color: AppColors.textPrimary,
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
                             ),
@@ -1069,7 +1078,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
                               style: TextStyle(
                                 color: budget.isOverBudget
                                     ? Colors.red
-                                    : Colors.white,
+                                    : AppColors.textPrimary,
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -1077,7 +1086,9 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
                             Text(
                               ' / $currencySymbol${budget.budgetLimit.toStringAsFixed(0)}',
                               style: TextStyle(
-                                color: Colors.white.withValues(alpha: 0.7),
+                                color: AppColors.textPrimary.withValues(
+                                  alpha: 0.7,
+                                ),
                                 fontSize: 14,
                               ),
                             ),
@@ -1097,7 +1108,9 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
                               width: double.infinity,
                               height: 6,
                               decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.1),
+                                color: AppColors.textPrimary.withValues(
+                                  alpha: 0.1,
+                                ),
                                 borderRadius: BorderRadius.circular(3),
                               ),
                             ),
@@ -1123,7 +1136,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
                       style: TextStyle(
                         color: budget.isOverBudget
                             ? Colors.red
-                            : Colors.white.withValues(alpha: 0.7),
+                            : AppColors.textPrimary.withValues(alpha: 0.7),
                         fontSize: 12,
                       ),
                     ),

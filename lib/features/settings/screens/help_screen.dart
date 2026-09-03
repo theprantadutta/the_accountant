@@ -302,7 +302,7 @@ class _HelpScreenState extends State<HelpScreen> {
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 14,
-              color: Colors.white.withValues(alpha: 0.9),
+              color: AppColors.textPrimary.withValues(alpha: 0.9),
             ),
           ),
         ],

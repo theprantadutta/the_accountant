@@ -189,19 +189,19 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
                           fit: BoxFit.cover,
                           width: 102,
                           height: 102,
-                          errorBuilder: (_, _, _) => const Center(
+                          errorBuilder: (_, _, _) => Center(
                             child: Icon(
                               Icons.person,
                               size: 52,
-                              color: Colors.white,
+                              color: AppColors.textPrimary,
                             ),
                           ),
                         )
-                      : const Center(
+                      : Center(
                           child: Icon(
                             Icons.person,
                             size: 52,
-                            color: Colors.white,
+                            color: AppColors.textPrimary,
                           ),
                         ),
                 ),

@@ -162,11 +162,8 @@ class _BudgetListScreenState extends ConsumerState<BudgetListScreen> {
               onTap: () => Navigator.pop(context, 'archive'),
             ),
             ListTile(
-              leading: const Icon(Icons.delete_outline, color: AppColors.error),
-              title: const Text(
-                'Delete',
-                style: TextStyle(color: AppColors.error),
-              ),
+              leading: Icon(Icons.delete_outline, color: AppColors.error),
+              title: Text('Delete', style: TextStyle(color: AppColors.error)),
               onTap: () => Navigator.pop(context, 'delete'),
             ),
             const SizedBox(height: 8),

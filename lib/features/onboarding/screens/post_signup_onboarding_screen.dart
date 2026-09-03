@@ -121,7 +121,7 @@ class _PostSignupOnboardingScreenState
     final onboardingState = ref.watch(onboardingProvider);
 
     return Container(
-      decoration: const BoxDecoration(gradient: AppTheme.backgroundGradient),
+      decoration: BoxDecoration(gradient: AppTheme.backgroundGradient),
       child: Scaffold(
         backgroundColor: Colors.transparent,
         body: SafeArea(
@@ -393,7 +393,7 @@ class _PostSignupOnboardingScreenState
                           icon,
                           size: 16,
                           color: isSelected
-                              ? Colors.white
+                              ? AppColors.textPrimary
                               : AppColors.textSecondary,
                         ),
                         const SizedBox(width: 6),
@@ -405,7 +405,9 @@ class _PostSignupOnboardingScreenState
                     selectedColor: AppColors.primaryAccent,
                     backgroundColor: AppColors.glassWhite,
                     labelStyle: TextStyle(
-                      color: isSelected ? Colors.white : AppColors.textPrimary,
+                      color: isSelected
+                          ? AppColors.textPrimary
+                          : AppColors.textPrimary,
                       fontSize: 13,
                       fontWeight: isSelected
                           ? FontWeight.w600

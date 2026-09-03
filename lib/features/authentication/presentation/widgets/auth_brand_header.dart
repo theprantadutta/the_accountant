@@ -13,7 +13,9 @@ class AuthBrandHeader extends StatelessWidget {
     required this.title,
     required this.subtitle,
     this.gradient = AppColors.primaryGradient,
-    this.glowColor = AppColors.primaryGlow,
+    // Nullable rather than defaulted: a palette colour follows the theme, so
+    // it is no longer a compile-time constant.
+    this.glowColor,
     this.floatingAnimation,
     this.showWordmark = true,
   });
@@ -22,7 +24,7 @@ class AuthBrandHeader extends StatelessWidget {
   final String title;
   final String subtitle;
   final Gradient gradient;
-  final Color glowColor;
+  final Color? glowColor;
 
   /// Optional vertical-offset animation to make the logo gently float.
   final Animation<double>? floatingAnimation;
@@ -74,7 +76,7 @@ class AuthBrandHeader extends StatelessWidget {
         shape: BoxShape.circle,
         boxShadow: [
           BoxShadow(
-            color: glowColor.withValues(alpha: 0.5),
+            color: (glowColor ?? AppColors.primaryGlow).withValues(alpha: 0.5),
             blurRadius: 34,
             spreadRadius: 2,
           ),

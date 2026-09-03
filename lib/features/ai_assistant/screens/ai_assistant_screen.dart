@@ -228,12 +228,12 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
       decoration: BoxDecoration(
         color: isCurrent
             ? AppColors.primaryAccent.withValues(alpha: 0.12)
-            : Colors.white.withValues(alpha: 0.03),
+            : AppColors.textPrimary.withValues(alpha: 0.03),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color: isCurrent
               ? AppColors.primaryAccent.withValues(alpha: 0.5)
-              : Colors.white.withValues(alpha: 0.06),
+              : AppColors.textPrimary.withValues(alpha: 0.06),
         ),
       ),
       // Transparent Material so the ListTile ink is visible over the colour.
@@ -549,9 +549,9 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
       margin: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
-        color: Colors.white.withValues(alpha: 0.03),
+        color: AppColors.textPrimary.withValues(alpha: 0.03),
         border: Border.all(
-          color: Colors.white.withValues(alpha: 0.08),
+          color: AppColors.textPrimary.withValues(alpha: 0.08),
           width: 1,
         ),
       ),
@@ -649,13 +649,13 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
             ),
           ),
           const SizedBox(width: 10),
-          const Expanded(
+          Expanded(
             child: Text(
               'AI Financial Assistant',
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                color: Colors.white,
+                color: AppColors.textPrimary,
                 fontSize: 15,
                 fontWeight: FontWeight.w600,
               ),
@@ -672,23 +672,25 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.06),
+                color: AppColors.textPrimary.withValues(alpha: 0.06),
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
+                border: Border.all(
+                  color: AppColors.textPrimary.withValues(alpha: 0.12),
+                ),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(
                     Icons.add_comment_outlined,
-                    color: Colors.white.withValues(alpha: 0.9),
+                    color: AppColors.textPrimary.withValues(alpha: 0.9),
                     size: 15,
                   ),
                   const SizedBox(width: 6),
                   Text(
                     'New chat',
                     style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.9),
+                      color: AppColors.textPrimary.withValues(alpha: 0.9),
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
                     ),
@@ -713,11 +715,17 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
         width: 38,
         height: 38,
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.06),
+          color: AppColors.textPrimary.withValues(alpha: 0.06),
           borderRadius: BorderRadius.circular(19),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
+          border: Border.all(
+            color: AppColors.textPrimary.withValues(alpha: 0.12),
+          ),
         ),
-        child: Icon(icon, color: Colors.white.withValues(alpha: 0.9), size: 18),
+        child: Icon(
+          icon,
+          color: AppColors.textPrimary.withValues(alpha: 0.9),
+          size: 18,
+        ),
       ),
     );
   }
@@ -792,10 +800,10 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         'AI Financial Assistant',
                         style: TextStyle(
-                          color: Colors.white,
+                          color: AppColors.textPrimary,
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
@@ -803,7 +811,7 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
                       Text(
                         'Smart insights \u2022 Budget tips \u2022 Personalized advice',
                         style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.8),
+                          color: AppColors.textPrimary.withValues(alpha: 0.8),
                           fontSize: 13,
                         ),
                       ),
@@ -869,7 +877,9 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+            border: Border.all(
+              color: AppColors.textPrimary.withValues(alpha: 0.1),
+            ),
             gradient: LinearGradient(
               colors: [
                 const Color(0xFF11998e).withValues(alpha: 0.18),
@@ -911,7 +921,7 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
                     Text(
                       "Snap a photo — we'll log the transaction",
                       style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.7),
+                        color: AppColors.textPrimary.withValues(alpha: 0.7),
                         fontSize: 12.5,
                       ),
                     ),
@@ -920,7 +930,7 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
               ),
               Icon(
                 Icons.chevron_right,
-                color: Colors.white.withValues(alpha: 0.5),
+                color: AppColors.textPrimary.withValues(alpha: 0.5),
               ),
             ],
           ),
@@ -1009,8 +1019,8 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
                         const SizedBox(height: 6),
                         Text(
                           action['label'] as String,
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(
+                            color: AppColors.textPrimary,
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
                             height: 1.2,
@@ -1036,9 +1046,9 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
       margin: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
-        color: Colors.white.withValues(alpha: 0.03),
+        color: AppColors.textPrimary.withValues(alpha: 0.03),
         border: Border.all(
-          color: Colors.white.withValues(alpha: 0.08),
+          color: AppColors.textPrimary.withValues(alpha: 0.08),
           width: 1,
         ),
         boxShadow: [
@@ -1128,7 +1138,7 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
                 Text(
                   'AI is thinking...',
                   style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.8),
+                    color: AppColors.textPrimary.withValues(alpha: 0.8),
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                   ),
@@ -1158,7 +1168,7 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
           height: 8,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: Colors.white.withValues(alpha: animation.value),
+            color: AppColors.textPrimary.withValues(alpha: animation.value),
             boxShadow: [
               BoxShadow(
                 color: const Color(
@@ -1251,7 +1261,7 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
                                     : (isSuggestion
                                           ? Icons.tips_and_updates
                                           : Icons.auto_awesome))),
-                    color: Colors.white,
+                    color: AppColors.textPrimary,
                     size: 18,
                   ),
                 ),
@@ -1300,7 +1310,7 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
                           ? Colors.transparent
                           : (isError || isInsight || isSuggestion || isWelcome
                                 ? accentColor.withValues(alpha: 0.4)
-                                : Colors.white.withValues(alpha: 0.1)),
+                                : AppColors.textPrimary.withValues(alpha: 0.1)),
                       width: 1,
                     ),
                     boxShadow: [
@@ -1370,8 +1380,8 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
                         text,
                         style: TextStyle(
                           color: isUser
-                              ? Colors.white
-                              : Colors.white.withValues(alpha: 0.95),
+                              ? AppColors.textPrimary
+                              : AppColors.textPrimary.withValues(alpha: 0.95),
                           fontSize: 15,
                           height: 1.4,
                         ),
@@ -1385,7 +1395,7 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
                   child: Text(
                     DateFormat('h:mm a').format(timestamp),
                     style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.5),
+                      color: AppColors.textPrimary.withValues(alpha: 0.5),
                       fontSize: 11,
                     ),
                   ),
@@ -1442,14 +1452,14 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
             Expanded(
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.05),
+                  color: AppColors.textPrimary.withValues(alpha: 0.05),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: TextField(
                   controller: _textController,
                   enabled: !isLoading,
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: AppColors.textPrimary,
                     fontSize: 16,
                     fontWeight: FontWeight.w400,
                   ),
@@ -1459,7 +1469,7 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
                         ? 'Waiting for response...'
                         : 'Ask about your finances...',
                     hintStyle: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.4),
+                      color: AppColors.textPrimary.withValues(alpha: 0.4),
                       fontSize: 16,
                     ),
                     border: InputBorder.none,
@@ -1511,7 +1521,7 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
                 ),
                 child: Icon(
                   isLoading ? Icons.hourglass_empty : Icons.send_rounded,
-                  color: Colors.white,
+                  color: AppColors.textPrimary,
                   size: 20,
                 ),
               ),

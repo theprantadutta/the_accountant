@@ -188,7 +188,7 @@ class _AddCategoryFormState extends ConsumerState<AddCategoryForm> {
               width: 36,
               height: 4,
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.2),
+                color: AppColors.textPrimary.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -291,7 +291,7 @@ class _AddCategoryFormState extends ConsumerState<AddCategoryForm> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.03),
+        color: AppColors.textPrimary.withValues(alpha: 0.03),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: _color.withValues(alpha: 0.3), width: 1),
       ),
@@ -345,7 +345,7 @@ class _AddCategoryFormState extends ConsumerState<AddCategoryForm> {
         hintText: 'Enter category name',
         hintStyle: TextStyle(color: AppColors.textMuted),
         filled: true,
-        fillColor: Colors.white.withValues(alpha: 0.05),
+        fillColor: AppColors.textPrimary.withValues(alpha: 0.05),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide.none,
@@ -472,7 +472,7 @@ class _AddCategoryFormState extends ConsumerState<AddCategoryForm> {
               color: color,
               shape: BoxShape.circle,
               border: Border.all(
-                color: isSelected ? Colors.white : Colors.transparent,
+                color: isSelected ? AppColors.textPrimary : Colors.transparent,
                 width: 3,
               ),
               boxShadow: isSelected
@@ -486,7 +486,11 @@ class _AddCategoryFormState extends ConsumerState<AddCategoryForm> {
                   : null,
             ),
             child: isSelected
-                ? const Icon(Icons.check_rounded, color: Colors.white, size: 24)
+                ? Icon(
+                    Icons.check_rounded,
+                    color: AppColors.textPrimary,
+                    size: 24,
+                  )
                 : null,
           ),
         );
@@ -513,7 +517,7 @@ class _AddCategoryFormState extends ConsumerState<AddCategoryForm> {
             decoration: BoxDecoration(
               color: isSelected
                   ? _color.withValues(alpha: 0.2)
-                  : Colors.white.withValues(alpha: 0.05),
+                  : AppColors.textPrimary.withValues(alpha: 0.05),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
                 color: isSelected ? _color : Colors.transparent,

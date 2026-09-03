@@ -705,7 +705,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                   _bulkDelete();
               }
             },
-            itemBuilder: (context) => const [
+            itemBuilder: (context) => [
               PopupMenuItem(
                 value: 'category',
                 child: ListTile(

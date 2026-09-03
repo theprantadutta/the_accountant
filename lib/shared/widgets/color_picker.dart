@@ -49,7 +49,7 @@ class ColorPicker extends StatelessWidget {
                     color: effectiveColor,
                     borderRadius: AppSpacing.borderRadiusSm,
                     border: Border.all(
-                      color: Colors.white.withValues(alpha: 0.3),
+                      color: AppColors.textPrimary.withValues(alpha: 0.3),
                       width: 2,
                     ),
                   ),
@@ -246,8 +246,8 @@ class _ColorPickerSheetState extends State<_ColorPickerSheet> {
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
                         color: isSelected
-                            ? Colors.white
-                            : Colors.white.withValues(alpha: 0.2),
+                            ? AppColors.textPrimary
+                            : AppColors.textPrimary.withValues(alpha: 0.2),
                         width: isSelected ? 3 : 1,
                       ),
                       boxShadow: isSelected
@@ -263,7 +263,11 @@ class _ColorPickerSheetState extends State<_ColorPickerSheet> {
                           : null,
                     ),
                     child: isSelected
-                        ? const Icon(Icons.check, color: Colors.white, size: 24)
+                        ? Icon(
+                            Icons.check,
+                            color: AppColors.textPrimary,
+                            size: 24,
+                          )
                         : null,
                   ),
                 );
@@ -308,12 +312,12 @@ class InlineColorPicker extends StatelessWidget {
               color: WalletColors.parseColor(color),
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
-                color: isSelected ? Colors.white : Colors.transparent,
+                color: isSelected ? AppColors.textPrimary : Colors.transparent,
                 width: 2,
               ),
             ),
             child: isSelected
-                ? const Icon(Icons.check, color: Colors.white, size: 18)
+                ? Icon(Icons.check, color: AppColors.textPrimary, size: 18)
                 : null,
           ),
         );

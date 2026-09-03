@@ -18,45 +18,56 @@ class AppTheme {
 
   static const LinearGradient primaryGradient = AppColors.primaryGradient;
   static const LinearGradient secondaryGradient = AppColors.secondaryGradient;
-  static const LinearGradient cardGradient = AppColors.cardGradient;
-  static const LinearGradient backgroundGradient = AppColors.backgroundGradient;
   static const LinearGradient accentGradient = AppColors.accentGradient;
+
+  // Surface gradients follow the palette, so these have to be read each time
+  // rather than captured once.
+  static LinearGradient get cardGradient => AppColors.cardGradient;
+  static LinearGradient get backgroundGradient => AppColors.backgroundGradient;
 
   // ============================================
   // THEME DATA
   // ============================================
 
-  /// Light theme (minimal - app is dark-first)
-  static final ThemeData lightTheme = ThemeData(
-    useMaterial3: true,
-    brightness: Brightness.light,
-    colorScheme: ColorScheme.fromSeed(
-      seedColor: AppColors.primaryAccent,
-      brightness: Brightness.light,
-    ),
-    textTheme: AppTypography.textTheme,
-  );
+  /// The light theme, built from the light palette.
+  ///
+  /// It used to be four lines — a seeded colour scheme and nothing else — which
+  /// is part of why it was never selectable: even if it had been reachable, it
+  /// would have themed none of the components the dark theme themes. Both are
+  /// now the same builder over a different set of colours, so neither can drift
+  /// away from the other.
+  static ThemeData get lightTheme => themeFor(AppPalette.light);
 
-  /// Dark theme (primary)
-  static final ThemeData darkTheme = ThemeData(
+  /// The dark theme, built from the dark palette.
+  static ThemeData get darkTheme => themeFor(AppPalette.dark);
+
+  /// Build the app's theme over [palette].
+  /// Call [AppColors.usePalette] with the same palette first: the text styles
+  /// come from [AppTypography], which reads the palette that is current rather
+  /// than one handed to it, and the two disagreeing would give a theme with the
+  /// wrong text colour in it.
+  static ThemeData themeFor(AppPalette palette) => ThemeData(
     useMaterial3: true,
-    brightness: Brightness.dark,
+    brightness: palette.brightness,
     // Transparent so the app-wide AppBackground gradient shows through.
     scaffoldBackgroundColor: Colors.transparent,
-    colorScheme: ColorScheme.dark(
-      primary: AppColors.primaryAccent,
-      secondary: AppColors.neonCyan,
-      tertiary: AppColors.neonPurple,
-      surface: AppColors.primarySurface,
-      error: AppColors.error,
-      onPrimary: AppColors.textPrimary,
-      onSecondary: AppColors.textPrimary,
-      onSurface: AppColors.textPrimary,
-      onError: AppColors.textPrimary,
+    colorScheme: ColorScheme(
+      brightness: palette.brightness,
+      primary: palette.primaryAccent,
+      secondary: palette.neonCyan,
+      tertiary: palette.neonPurple,
+      surface: palette.primarySurface,
+      error: palette.error,
+      // White on the accent either way: these sit on a saturated fill, not on
+      // the page, so they do not follow the palette's text colour.
+      onPrimary: Colors.white,
+      onSecondary: Colors.white,
+      onSurface: palette.textPrimary,
+      onError: Colors.white,
     ),
     textTheme: AppTypography.textTheme,
     pageTransitionsTheme: appPageTransitionsTheme,
-    appBarTheme: const AppBarTheme(
+    appBarTheme: AppBarTheme(
       backgroundColor: Colors.transparent,
       elevation: 0,
       scrolledUnderElevation: 0,
@@ -64,25 +75,31 @@ class AppTheme {
       titleTextStyle: TextStyle(
         fontSize: 18,
         fontWeight: FontWeight.w600,
-        color: AppColors.textPrimary,
+        color: palette.textPrimary,
       ),
-      iconTheme: IconThemeData(color: AppColors.textPrimary),
+      iconTheme: IconThemeData(color: palette.textPrimary),
       systemOverlayStyle: SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.light,
-        systemNavigationBarColor: AppColors.primaryDark,
-        systemNavigationBarIconBrightness: Brightness.light,
+        // Inverted: dark icons are what shows up on a light bar.
+        statusBarIconBrightness: palette.isDark
+            ? Brightness.light
+            : Brightness.dark,
+        statusBarBrightness: palette.brightness,
+        systemNavigationBarColor: palette.primaryDark,
+        systemNavigationBarIconBrightness: palette.isDark
+            ? Brightness.light
+            : Brightness.dark,
       ),
     ),
     cardTheme: CardThemeData(
-      color: AppColors.primarySurface,
+      color: palette.primarySurface,
       elevation: 0,
       shape: RoundedRectangleBorder(borderRadius: AppSpacing.borderRadiusXl),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        backgroundColor: AppColors.primaryAccent,
-        foregroundColor: AppColors.textPrimary,
+        backgroundColor: palette.primaryAccent,
+        foregroundColor: palette.textPrimary,
         elevation: 0,
         shape: RoundedRectangleBorder(borderRadius: AppSpacing.borderRadiusMd),
         padding: AppSpacing.paddingButton,
@@ -91,8 +108,8 @@ class AppTheme {
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
-        foregroundColor: AppColors.textPrimary,
-        side: const BorderSide(color: AppColors.glassBorder),
+        foregroundColor: palette.textPrimary,
+        side: BorderSide(color: palette.glassBorder),
         shape: RoundedRectangleBorder(borderRadius: AppSpacing.borderRadiusMd),
         padding: AppSpacing.paddingButton,
         minimumSize: Size(0, AppSpacing.buttonHeightMd),
@@ -100,69 +117,69 @@ class AppTheme {
     ),
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
-        foregroundColor: AppColors.primaryAccent,
+        foregroundColor: palette.primaryAccent,
         shape: RoundedRectangleBorder(borderRadius: AppSpacing.borderRadiusMd),
         padding: AppSpacing.paddingButtonCompact,
       ),
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: AppColors.glassWhite,
-      hintStyle: TextStyle(color: AppColors.textMuted),
-      labelStyle: TextStyle(color: AppColors.textSecondary),
+      fillColor: palette.glassWhite,
+      hintStyle: TextStyle(color: palette.textMuted),
+      labelStyle: TextStyle(color: palette.textSecondary),
       border: OutlineInputBorder(
         borderRadius: AppSpacing.borderRadiusMd,
-        borderSide: BorderSide(color: AppColors.glassBorder),
+        borderSide: BorderSide(color: palette.glassBorder),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: AppSpacing.borderRadiusMd,
-        borderSide: BorderSide(color: AppColors.glassBorder),
+        borderSide: BorderSide(color: palette.glassBorder),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: AppSpacing.borderRadiusMd,
-        borderSide: BorderSide(color: AppColors.primaryAccent, width: 2),
+        borderSide: BorderSide(color: palette.primaryAccent, width: 2),
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: AppSpacing.borderRadiusMd,
-        borderSide: BorderSide(color: AppColors.error),
+        borderSide: BorderSide(color: palette.error),
       ),
       focusedErrorBorder: OutlineInputBorder(
         borderRadius: AppSpacing.borderRadiusMd,
-        borderSide: BorderSide(color: AppColors.error, width: 2),
+        borderSide: BorderSide(color: palette.error, width: 2),
       ),
       contentPadding: AppSpacing.paddingInput,
     ),
-    dividerTheme: const DividerThemeData(
-      color: AppColors.divider,
+    dividerTheme: DividerThemeData(
+      color: palette.divider,
       thickness: 1,
       space: 1,
     ),
-    bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+    bottomNavigationBarTheme: BottomNavigationBarThemeData(
       backgroundColor: Colors.transparent,
       elevation: 0,
-      selectedItemColor: AppColors.primaryAccent,
-      unselectedItemColor: AppColors.textMuted,
+      selectedItemColor: palette.primaryAccent,
+      unselectedItemColor: palette.textMuted,
       type: BottomNavigationBarType.fixed,
     ),
     floatingActionButtonTheme: FloatingActionButtonThemeData(
-      backgroundColor: AppColors.primaryAccent,
-      foregroundColor: AppColors.textPrimary,
+      backgroundColor: palette.primaryAccent,
+      foregroundColor: palette.textPrimary,
       elevation: 0,
       shape: RoundedRectangleBorder(borderRadius: AppSpacing.borderRadiusLg),
     ),
     snackBarTheme: SnackBarThemeData(
-      backgroundColor: AppColors.primaryElevated,
+      backgroundColor: palette.primaryElevated,
       contentTextStyle: AppTypography.bodyMedium,
       shape: RoundedRectangleBorder(borderRadius: AppSpacing.borderRadiusMd),
       behavior: SnackBarBehavior.floating,
     ),
     dialogTheme: DialogThemeData(
-      backgroundColor: AppColors.primarySurface,
+      backgroundColor: palette.primarySurface,
       surfaceTintColor: Colors.transparent,
       shape: RoundedRectangleBorder(borderRadius: AppSpacing.borderRadiusXl),
     ),
     bottomSheetTheme: BottomSheetThemeData(
-      backgroundColor: AppColors.primarySurface,
+      backgroundColor: palette.primarySurface,
       surfaceTintColor: Colors.transparent,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
@@ -171,30 +188,30 @@ class AppTheme {
       ),
     ),
     chipTheme: ChipThemeData(
-      backgroundColor: AppColors.glassWhite,
-      selectedColor: AppColors.primaryAccent.withValues(alpha: 0.2),
+      backgroundColor: palette.glassWhite,
+      selectedColor: palette.primaryAccent.withValues(alpha: 0.2),
       labelStyle: AppTypography.labelMedium,
       shape: RoundedRectangleBorder(
         borderRadius: AppSpacing.borderRadiusFull,
-        side: BorderSide(color: AppColors.glassBorder),
+        side: BorderSide(color: palette.glassBorder),
       ),
     ),
-    progressIndicatorTheme: const ProgressIndicatorThemeData(
-      color: AppColors.primaryAccent,
-      linearTrackColor: AppColors.glassWhite,
+    progressIndicatorTheme: ProgressIndicatorThemeData(
+      color: palette.primaryAccent,
+      linearTrackColor: palette.glassWhite,
     ),
     switchTheme: SwitchThemeData(
       thumbColor: WidgetStateProperty.resolveWith((states) {
         if (states.contains(WidgetState.selected)) {
-          return AppColors.primaryAccent;
+          return palette.primaryAccent;
         }
-        return AppColors.textMuted;
+        return palette.textMuted;
       }),
       trackColor: WidgetStateProperty.resolveWith((states) {
         if (states.contains(WidgetState.selected)) {
-          return AppColors.primaryAccent.withValues(alpha: 0.3);
+          return palette.primaryAccent.withValues(alpha: 0.3);
         }
-        return AppColors.glassWhite;
+        return palette.glassWhite;
       }),
     ),
   );
@@ -317,7 +334,9 @@ class AppTheme {
     double? width,
     double? height,
     BorderRadius? borderRadius,
-    Color glowColor = AppColors.primaryGlow,
+    // Nullable rather than defaulted: a palette colour is no longer a
+    // compile-time constant, so it cannot be a default value.
+    Color? glowColor,
     double glowSpread = 20,
   }) {
     return Container(
@@ -327,7 +346,7 @@ class AppTheme {
         borderRadius: borderRadius ?? AppSpacing.borderRadiusLg,
         boxShadow: [
           BoxShadow(
-            color: glowColor.withValues(alpha: 0.4),
+            color: (glowColor ?? AppColors.primaryGlow).withValues(alpha: 0.4),
             blurRadius: glowSpread,
             spreadRadius: 0,
           ),

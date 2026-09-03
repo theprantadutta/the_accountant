@@ -157,7 +157,7 @@ class ObjectiveDetailScreen extends ConsumerWidget {
                   AppSpacing.gapSm,
                   Row(
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.schedule,
                         size: 14,
                         color: AppColors.textMuted,

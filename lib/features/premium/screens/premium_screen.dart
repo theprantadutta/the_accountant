@@ -286,7 +286,7 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
         SizedBox(height: AppSpacing.lg),
         Text(
           headline,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 28,
             fontWeight: FontWeight.bold,
             color: AppColors.textPrimary,
@@ -316,7 +316,7 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(
+                Icon(
                   Icons.lock_outline,
                   size: 14,
                   color: AppColors.primaryAccent,
@@ -324,7 +324,7 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
                 SizedBox(width: AppSpacing.xs),
                 Text(
                   '${widget.triggerFeatureName} is a Premium feature',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                     color: AppColors.primaryAccent,
@@ -368,7 +368,7 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
               '${premiumState.daysRemaining} days remaining',
               style: TextStyle(
                 fontSize: 14,
-                color: Colors.white.withValues(alpha: 0.9),
+                color: AppColors.textPrimary.withValues(alpha: 0.9),
               ),
             ),
           ],
@@ -378,7 +378,7 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
               'Lifetime access - Never expires',
               style: TextStyle(
                 fontSize: 14,
-                color: Colors.white.withValues(alpha: 0.9),
+                color: AppColors.textPrimary.withValues(alpha: 0.9),
               ),
             ),
           ],
@@ -391,7 +391,7 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Premium Features',
           style: TextStyle(
             fontSize: 20,
@@ -667,7 +667,7 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Choose Your Plan',
           style: TextStyle(
             fontSize: 20,
@@ -776,7 +776,7 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
                   decoration: BoxDecoration(
                     gradient: isRecommended
                         ? AppColors.primaryGradient
-                        : const LinearGradient(
+                        : LinearGradient(
                             colors: [AppColors.warning, AppColors.warningDark],
                           ),
                     borderRadius: BorderRadius.circular(20),
@@ -813,7 +813,7 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
                           child: Container(
                             width: 12,
                             height: 12,
-                            decoration: const BoxDecoration(
+                            decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               color: AppColors.primaryAccent,
                             ),
@@ -830,7 +830,7 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
                     children: [
                       Text(
                         title,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                           color: AppColors.textPrimary,
@@ -857,7 +857,7 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
                       children: [
                         Text(
                           price,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
                             color: AppColors.textPrimary,
@@ -889,7 +889,7 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
                     color: AppColors.primaryDark.withValues(alpha: 0.7),
                     borderRadius: AppSpacing.borderRadiusLg,
                   ),
-                  child: const Center(
+                  child: Center(
                     child: CircularProgressIndicator(
                       color: AppColors.primaryAccent,
                     ),

@@ -253,11 +253,7 @@ class ObjectiveCard extends ConsumerWidget {
                 ),
               ),
               if (objective.isComplete)
-                const Icon(
-                  Icons.check_circle,
-                  color: AppColors.success,
-                  size: 22,
-                ),
+                Icon(Icons.check_circle, color: AppColors.success, size: 22),
             ],
           ),
           AppSpacing.gapMd,
@@ -317,7 +313,7 @@ class _Empty extends StatelessWidget {
             Container(
               width: 80,
               height: 80,
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 color: AppColors.glassWhite,
                 shape: BoxShape.circle,
               ),

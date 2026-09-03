@@ -240,7 +240,7 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
                               icon,
                               size: 16,
                               color: isSelected
-                                  ? Colors.white
+                                  ? AppColors.textPrimary
                                   : AppColors.textSecondary,
                             ),
                             const SizedBox(width: 6),
@@ -255,7 +255,7 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
                         backgroundColor: AppColors.glassWhite,
                         labelStyle: TextStyle(
                           color: isSelected
-                              ? Colors.white
+                              ? AppColors.textPrimary
                               : AppColors.textPrimary,
                           fontSize: 13,
                           fontWeight: isSelected
@@ -890,7 +890,7 @@ class _LabeledColorButton extends StatelessWidget {
                     color: parsedColor,
                     borderRadius: AppSpacing.borderRadiusSm,
                     border: Border.all(
-                      color: Colors.white.withValues(alpha: 0.3),
+                      color: AppColors.textPrimary.withValues(alpha: 0.3),
                       width: 2,
                     ),
                   ),
@@ -1068,8 +1068,8 @@ class _ColorPickerSheet extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
                         color: isSelected
-                            ? Colors.white
-                            : Colors.white.withValues(alpha: 0.2),
+                            ? AppColors.textPrimary
+                            : AppColors.textPrimary.withValues(alpha: 0.2),
                         width: isSelected ? 3 : 1,
                       ),
                       boxShadow: isSelected
@@ -1085,7 +1085,11 @@ class _ColorPickerSheet extends StatelessWidget {
                           : null,
                     ),
                     child: isSelected
-                        ? const Icon(Icons.check, color: Colors.white, size: 24)
+                        ? Icon(
+                            Icons.check,
+                            color: AppColors.textPrimary,
+                            size: 24,
+                          )
                         : null,
                   ),
                 );

@@ -801,7 +801,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         ),
                       ),
                     )
-                  : const Icon(Icons.person, color: Colors.white, size: 28),
+                  : Icon(Icons.person, color: AppColors.textPrimary, size: 28),
             ),
             SizedBox(width: AppSpacing.md),
 

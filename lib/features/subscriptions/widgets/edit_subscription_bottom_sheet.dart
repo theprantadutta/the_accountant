@@ -244,7 +244,7 @@ class _EditSubscriptionBottomSheetState
                       hintText: 'Subscription name',
                       hintStyle: TextStyle(color: AppColors.textMuted),
                       filled: true,
-                      fillColor: Colors.white.withValues(alpha: 0.05),
+                      fillColor: AppColors.textPrimary.withValues(alpha: 0.05),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(14),
                         borderSide: BorderSide.none,
@@ -276,7 +276,7 @@ class _EditSubscriptionBottomSheetState
                         vertical: 16,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.05),
+                        color: AppColors.textPrimary.withValues(alpha: 0.05),
                         borderRadius: BorderRadius.circular(14),
                       ),
                       child: Text(
@@ -401,7 +401,7 @@ class _EditSubscriptionBottomSheetState
                         vertical: 10,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.05),
+                        color: AppColors.textPrimary.withValues(alpha: 0.05),
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(color: AppColors.divider),
                       ),

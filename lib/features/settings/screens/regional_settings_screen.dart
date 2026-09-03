@@ -340,7 +340,7 @@ class _CurrencyPickerSheetState extends ConsumerState<_CurrencyPickerSheet> {
             width: 36,
             height: 4,
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.2),
+              color: AppColors.textPrimary.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(2),
             ),
           ),
@@ -391,7 +391,7 @@ class _CurrencyPickerSheetState extends ConsumerState<_CurrencyPickerSheet> {
                       )
                     : null,
                 filled: true,
-                fillColor: Colors.white.withValues(alpha: 0.05),
+                fillColor: AppColors.textPrimary.withValues(alpha: 0.05),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
                   borderSide: BorderSide.none,
@@ -472,7 +472,7 @@ class _CurrencyPickerSheetState extends ConsumerState<_CurrencyPickerSheet> {
                       decoration: BoxDecoration(
                         color: isSelected
                             ? AppColors.primaryAccent.withValues(alpha: 0.1)
-                            : Colors.white.withValues(alpha: 0.03),
+                            : AppColors.textPrimary.withValues(alpha: 0.03),
                         borderRadius: BorderRadius.circular(14),
                         border: isSelected
                             ? Border.all(

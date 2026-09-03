@@ -75,7 +75,7 @@ class BudgetProgressCard extends ConsumerWidget {
                         progress.budget.name,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
                           color: AppColors.textPrimary,
@@ -85,7 +85,7 @@ class BudgetProgressCard extends ConsumerWidget {
                     const SizedBox(width: 8),
                     Text(
                       '${money(progress.spent)} / ${money(progress.limit)}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontWeight: FontWeight.bold,
                         color: AppColors.textPrimary,
                       ),
@@ -125,7 +125,7 @@ class BudgetProgressCard extends ConsumerWidget {
                     ),
                     Text(
                       _paceLabel(progress),
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppColors.textSecondary,
                         fontSize: 12,
                       ),
