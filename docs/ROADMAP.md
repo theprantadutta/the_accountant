@@ -235,6 +235,15 @@ The daily-use surface, and the widest everyday gap against Cashew.
 
 ## Phase 4 — Wallets and multi-currency
 
+**Status: done**, except exchange-rate sync. Client commits `796876f`, `8a63207`, `d2041d2`, `69fbac7`; backend commit `cb63764`. Flutter analyze clean with 479 tests passing; backend clean with 50.
+
+Done: cross-currency transfers, with each leg carrying its own amount, what the other side received, and the rate; a wallet detail screen; the total across accounts converted rather than added raw; archive and exclude-from-total; correct-balance recorded as a transaction; merge one account into another; and the blind-delta balance path replaced by a recompute plus a startup drift check.
+
+**Deferred: exchange rates into sync.** These carry a unique key on (user, from, to) rather than only an id, so two devices that each create an override for the same pair produce different ids for one row — and pulling the other device's version collides with the local unique index. That is the same shape as the category reconciliation problem, which took a whole flow to solve properly, and a half-built version would wedge sync rather than merely miss a feature. The data at stake is small: only the custom overrides are the user's, and the API rates are a cache each device refetches anyway. Worth doing on its own, with the natural-key merge designed deliberately.
+
+The rest of this section is the original plan, kept for the detail.
+
+
 - **Wallet detail page** and an all-accounts spending view. Cashew's is one of its best screens; we have none.
 - **Cross-currency transfers.** Currently refused outright on the client. The server additionally requires both legs to have equal amounts, in a static check that cannot see wallet currencies. Both sides change together: store the rate and the counter amount on the transfer, and relax the equality check to compare against the counter amount when the wallets differ.
 - **Correct balance** action, posting to the balance-correction category that already exists but has no UI.
