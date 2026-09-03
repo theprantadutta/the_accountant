@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/data/datasources/local/database_provider.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/domain/transaction_policy.dart';
@@ -547,6 +548,26 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
     }
   }
 
+  /// Teach the app where a title belongs, from a transaction just created.
+  ///
+  /// A "contains" rule rather than an exact one, because titles carry noise --
+  /// a card reference, a branch, a date -- and a rule that only fires on an
+  /// exact repeat would almost never fire at all. Silent by design: a failure
+  /// here must not fail the save the user actually asked for.
+  Future<void> _learnTitleRule() async {
+    final title = _titleController.text.trim();
+    final categoryId = _selectedCategoryId;
+    if (title.isEmpty || title.length < 3 || categoryId == null) return;
+
+    try {
+      await ref
+          .read(databaseProvider)
+          .setAssociatedTitle(title: title, categoryId: categoryId);
+    } catch (_) {
+      // Not worth interrupting anyone for.
+    }
+  }
+
   Future<void> _saveTransaction() async {
     if (!_canSave || _isSaving) return;
 
@@ -682,6 +703,12 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
           );
           ref.read(subscriptionDashboardProvider.notifier).refresh();
         }
+
+        // Remember where this title was filed, so the next one like it lands
+        // in the same place. Only on create: an edit is as often a correction
+        // to this one row as it is a change of mind about the rule, and the
+        // rules screen is where a rule is meant to be changed deliberately.
+        await _learnTitleRule();
       }
 
       if (mounted) {

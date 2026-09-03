@@ -19,6 +19,8 @@ class SyncEntityOrder {
   static const List<String> applyOrder = [
     'wallets',
     'categories',
+    // After categories: a title rule points at one.
+    'associated_titles',
     'payment_methods',
     'budgets',
     // After budgets and categories: a limit points at both.

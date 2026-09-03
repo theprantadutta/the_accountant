@@ -162,7 +162,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 19;
+  int get schemaVersion => 20;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -294,6 +294,9 @@ class AppDatabase extends _$AppDatabase {
       }
       if (from < 19) {
         await _migrateToV19(m);
+      }
+      if (from < 20) {
+        await _migrateToV20(m);
       }
     },
     beforeOpen: (details) async {
@@ -643,6 +646,14 @@ class AppDatabase extends _$AppDatabase {
   /// holds, before joining `categoryIds`. A name that matches nothing is left
   /// behind rather than guessed at, which turns the budget into an unscoped one
   /// — the same thing it was already doing, only now visibly.
+  /// Schema 20: title rules sync, so a deleted one needs a tombstone.
+  ///
+  /// Purely additive. Every existing rule is live, which is what a null here
+  /// already means.
+  Future<void> _migrateToV20(Migrator m) async {
+    await _ensureColumn(m, associatedTitles, associatedTitles.deletedAt);
+  }
+
   /// Schema 19: somewhere to keep a per-category cap inside a budget.
   ///
   /// Purely additive. The unique index is partial rather than a table
@@ -1067,6 +1078,7 @@ class AppDatabase extends _$AppDatabase {
     'payment_methods',
     'recurring_configs',
     'category_budget_limits',
+    'associated_titles',
   ];
 
   /// Install a database-level guard: **a pending create can never become a
@@ -2861,7 +2873,7 @@ class AppDatabase extends _$AppDatabase {
   }
 
   Future<List<AssociatedTitle>> getAllAssociatedTitles() =>
-      select(associatedTitles).get();
+      (select(associatedTitles)..where((a) => a.deletedAt.isNull())).get();
 
   Future<AssociatedTitle?> findAssociatedTitleById(String id) => (select(
     associatedTitles,
@@ -2873,27 +2885,87 @@ class AppDatabase extends _$AppDatabase {
   Future<bool> updateAssociatedTitle(AssociatedTitlesCompanion entry) =>
       update(associatedTitles).replace(entry);
 
-  Future<int> deleteAssociatedTitle(String id) =>
-      (delete(associatedTitles)..where((a) => a.id.equals(id))).go();
+  /// Tombstone a rule so the deletion reaches the other devices.
+  Future<void> deleteAssociatedTitle(String id) async {
+    await (update(associatedTitles)..where((a) => a.id.equals(id))).write(
+      AssociatedTitlesCompanion(
+        deletedAt: Value(DateTime.now()),
+        updatedAt: Value(DateTime.now()),
+        syncStatus: const Value(SyncStatus.pendingDelete),
+      ),
+    );
+  }
+
+  /// Add or update the rule for [title], marking it for sync.
+  ///
+  /// Upserts on the title rather than the id, because the title is what the
+  /// user is choosing: teaching the app about Tesco twice is a correction, not
+  /// a second rule that contradicts the first.
+  Future<void> setAssociatedTitle({
+    required String title,
+    required String categoryId,
+    bool isExactMatch = false,
+  }) async {
+    final normalized = title.trim();
+    if (normalized.isEmpty) return;
+
+    final existing =
+        await (select(associatedTitles)..where(
+              (a) =>
+                  a.title.lower().equals(normalized.toLowerCase()) &
+                  a.deletedAt.isNull(),
+            ))
+            .getSingleOrNull();
+
+    if (existing == null) {
+      await into(associatedTitles).insert(
+        AssociatedTitlesCompanion.insert(
+          id: const Uuid().v4(),
+          title: normalized,
+          categoryId: categoryId,
+          isExactMatch: Value(isExactMatch),
+          syncStatus: const Value(SyncStatus.pendingCreate),
+        ),
+      );
+      return;
+    }
+
+    await (update(
+      associatedTitles,
+    )..where((a) => a.id.equals(existing.id))).write(
+      AssociatedTitlesCompanion(
+        title: Value(normalized),
+        categoryId: Value(categoryId),
+        isExactMatch: Value(isExactMatch),
+        updatedAt: Value(DateTime.now()),
+        syncStatus: Value(SyncStatus.markEdited(existing.syncStatus)),
+      ),
+    );
+  }
 
   /// Find category suggestion by exact title match
   Future<AssociatedTitle?> findExactTitleMatch(String title) =>
       (select(associatedTitles)
             ..where((a) => a.title.equals(title.toLowerCase()))
-            ..where((a) => a.isExactMatch.equals(true)))
+            ..where((a) => a.isExactMatch.equals(true))
+            ..where((a) => a.deletedAt.isNull()))
           .getSingleOrNull();
 
   /// Find category suggestion by contains match
-  Future<List<AssociatedTitle>> findContainsTitleMatches() => (select(
-    associatedTitles,
-  )..where((a) => a.isExactMatch.equals(false))).get();
+  Future<List<AssociatedTitle>> findContainsTitleMatches() =>
+      (select(associatedTitles)
+            ..where((a) => a.isExactMatch.equals(false))
+            ..where((a) => a.deletedAt.isNull()))
+          .get();
 
   /// Get associated titles for a category
   Future<List<AssociatedTitle>> getAssociatedTitlesForCategory(
     String categoryId,
-  ) => (select(
-    associatedTitles,
-  )..where((a) => a.categoryId.equals(categoryId))).get();
+  ) =>
+      (select(associatedTitles)
+            ..where((a) => a.categoryId.equals(categoryId))
+            ..where((a) => a.deletedAt.isNull()))
+          .get();
 
   // ============================================================
   // Sync State DAO methods
@@ -3222,11 +3294,13 @@ class AppDatabase extends _$AppDatabase {
     await customStatement('''
       UPDATE recurring_configs SET sync_status = 1 WHERE sync_status = 0
     ''');
-    // NOTE: exchange_rates and associated_titles are intentionally NOT reset
-    // here. They carry a syncStatus column for historical reasons but are
-    // DEVICE-LOCAL: SyncService has no cloud operation for either, so flagging
-    // them pending only produced rows that could never drain. See
-    // [deviceLocalTables].
+    await customStatement('''
+      UPDATE associated_titles SET sync_status = 1 WHERE sync_status = 0
+    ''');
+    // NOTE: exchange_rates is intentionally NOT reset here. It carries a
+    // syncStatus column for historical reasons but is DEVICE-LOCAL: SyncService
+    // has no cloud operation for it, so flagging it pending would only produce
+    // rows that could never drain. See [deviceLocalTables].
   }
 
   /// Tables that carry a `syncStatus` column but are deliberately device-local.
@@ -3236,15 +3310,13 @@ class AppDatabase extends _$AppDatabase {
   ///
   /// * `exchange_rates` — custom FX overrides, meaningful only alongside the
   ///   locally cached API rates they override.
-  /// * `associated_titles` — the smart-categorization learning cache, rebuilt
-  ///   from the user's own transactions on any device.
-  ///
   /// Listed explicitly so the vestigial column is not mistaken for a promise
   /// that this data follows the user across premium devices.
-  static const List<String> deviceLocalTables = [
-    'exchange_rates',
-    'associated_titles',
-  ];
+  ///
+  /// `associated_titles` used to be here. Title rules are something the user
+  /// teaches the app deliberately, so losing them on a reinstall was a real
+  /// loss rather than a cache miss; they sync now.
+  static const List<String> deviceLocalTables = ['exchange_rates'];
 
   /// Get database statistics for display in settings
   Future<Map<String, int>> getDatabaseStats() async {

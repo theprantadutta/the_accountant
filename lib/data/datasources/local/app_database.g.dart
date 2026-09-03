@@ -9577,6 +9577,17 @@ class $AssociatedTitlesTable extends AssociatedTitles
     requiredDuringInsert: false,
     defaultValue: currentDateAndTime,
   );
+  static const VerificationMeta _deletedAtMeta = const VerificationMeta(
+    'deletedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+    'deleted_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -9587,6 +9598,7 @@ class $AssociatedTitlesTable extends AssociatedTitles
     syncStatus,
     createdAt,
     updatedAt,
+    deletedAt,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -9654,6 +9666,12 @@ class $AssociatedTitlesTable extends AssociatedTitles
         updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
       );
     }
+    if (data.containsKey('deleted_at')) {
+      context.handle(
+        _deletedAtMeta,
+        deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta),
+      );
+    }
     return context;
   }
 
@@ -9695,6 +9713,10 @@ class $AssociatedTitlesTable extends AssociatedTitles
         DriftSqlType.dateTime,
         data['${effectivePrefix}updated_at'],
       )!,
+      deletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}deleted_at'],
+      ),
     );
   }
 
@@ -9713,6 +9735,13 @@ class AssociatedTitle extends DataClass implements Insertable<AssociatedTitle> {
   final int syncStatus;
   final DateTime createdAt;
   final DateTime updatedAt;
+
+  /// When the rule was removed, or null while it is live.
+  ///
+  /// These sync, so a delete has to leave a tombstone: hard-deleting the row
+  /// gives the other devices no way to learn the rule is gone, and it comes
+  /// straight back on the next pull.
+  final DateTime? deletedAt;
   const AssociatedTitle({
     required this.id,
     required this.title,
@@ -9722,6 +9751,7 @@ class AssociatedTitle extends DataClass implements Insertable<AssociatedTitle> {
     required this.syncStatus,
     required this.createdAt,
     required this.updatedAt,
+    this.deletedAt,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -9736,6 +9766,9 @@ class AssociatedTitle extends DataClass implements Insertable<AssociatedTitle> {
     map['sync_status'] = Variable<int>(syncStatus);
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
     return map;
   }
 
@@ -9751,6 +9784,9 @@ class AssociatedTitle extends DataClass implements Insertable<AssociatedTitle> {
       syncStatus: Value(syncStatus),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
     );
   }
 
@@ -9768,6 +9804,7 @@ class AssociatedTitle extends DataClass implements Insertable<AssociatedTitle> {
       syncStatus: serializer.fromJson<int>(json['syncStatus']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
     );
   }
   @override
@@ -9782,6 +9819,7 @@ class AssociatedTitle extends DataClass implements Insertable<AssociatedTitle> {
       'syncStatus': serializer.toJson<int>(syncStatus),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
     };
   }
 
@@ -9794,6 +9832,7 @@ class AssociatedTitle extends DataClass implements Insertable<AssociatedTitle> {
     int? syncStatus,
     DateTime? createdAt,
     DateTime? updatedAt,
+    Value<DateTime?> deletedAt = const Value.absent(),
   }) => AssociatedTitle(
     id: id ?? this.id,
     title: title ?? this.title,
@@ -9803,6 +9842,7 @@ class AssociatedTitle extends DataClass implements Insertable<AssociatedTitle> {
     syncStatus: syncStatus ?? this.syncStatus,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
   );
   AssociatedTitle copyWithCompanion(AssociatedTitlesCompanion data) {
     return AssociatedTitle(
@@ -9820,6 +9860,7 @@ class AssociatedTitle extends DataClass implements Insertable<AssociatedTitle> {
           : this.syncStatus,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
     );
   }
 
@@ -9833,7 +9874,8 @@ class AssociatedTitle extends DataClass implements Insertable<AssociatedTitle> {
           ..write('serverId: $serverId, ')
           ..write('syncStatus: $syncStatus, ')
           ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt')
           ..write(')'))
         .toString();
   }
@@ -9848,6 +9890,7 @@ class AssociatedTitle extends DataClass implements Insertable<AssociatedTitle> {
     syncStatus,
     createdAt,
     updatedAt,
+    deletedAt,
   );
   @override
   bool operator ==(Object other) =>
@@ -9860,7 +9903,8 @@ class AssociatedTitle extends DataClass implements Insertable<AssociatedTitle> {
           other.serverId == this.serverId &&
           other.syncStatus == this.syncStatus &&
           other.createdAt == this.createdAt &&
-          other.updatedAt == this.updatedAt);
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt);
 }
 
 class AssociatedTitlesCompanion extends UpdateCompanion<AssociatedTitle> {
@@ -9872,6 +9916,7 @@ class AssociatedTitlesCompanion extends UpdateCompanion<AssociatedTitle> {
   final Value<int> syncStatus;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
   final Value<int> rowid;
   const AssociatedTitlesCompanion({
     this.id = const Value.absent(),
@@ -9882,6 +9927,7 @@ class AssociatedTitlesCompanion extends UpdateCompanion<AssociatedTitle> {
     this.syncStatus = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   AssociatedTitlesCompanion.insert({
@@ -9893,6 +9939,7 @@ class AssociatedTitlesCompanion extends UpdateCompanion<AssociatedTitle> {
     this.syncStatus = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        title = Value(title),
@@ -9906,6 +9953,7 @@ class AssociatedTitlesCompanion extends UpdateCompanion<AssociatedTitle> {
     Expression<int>? syncStatus,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -9917,6 +9965,7 @@ class AssociatedTitlesCompanion extends UpdateCompanion<AssociatedTitle> {
       if (syncStatus != null) 'sync_status': syncStatus,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -9930,6 +9979,7 @@ class AssociatedTitlesCompanion extends UpdateCompanion<AssociatedTitle> {
     Value<int>? syncStatus,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
+    Value<DateTime?>? deletedAt,
     Value<int>? rowid,
   }) {
     return AssociatedTitlesCompanion(
@@ -9941,6 +9991,7 @@ class AssociatedTitlesCompanion extends UpdateCompanion<AssociatedTitle> {
       syncStatus: syncStatus ?? this.syncStatus,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -9972,6 +10023,9 @@ class AssociatedTitlesCompanion extends UpdateCompanion<AssociatedTitle> {
     if (updatedAt.present) {
       map['updated_at'] = Variable<DateTime>(updatedAt.value);
     }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -9989,6 +10043,7 @@ class AssociatedTitlesCompanion extends UpdateCompanion<AssociatedTitle> {
           ..write('syncStatus: $syncStatus, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -18652,6 +18707,7 @@ typedef $$AssociatedTitlesTableCreateCompanionBuilder =
       Value<int> syncStatus,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
+      Value<DateTime?> deletedAt,
       Value<int> rowid,
     });
 typedef $$AssociatedTitlesTableUpdateCompanionBuilder =
@@ -18664,6 +18720,7 @@ typedef $$AssociatedTitlesTableUpdateCompanionBuilder =
       Value<int> syncStatus,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
+      Value<DateTime?> deletedAt,
       Value<int> rowid,
     });
 
@@ -18738,6 +18795,11 @@ class $$AssociatedTitlesTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
   $$CategoriesTableFilterComposer get categoryId {
     final $$CategoriesTableFilterComposer composer = $composerBuilder(
       composer: this,
@@ -18806,6 +18868,11 @@ class $$AssociatedTitlesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$CategoriesTableOrderingComposer get categoryId {
     final $$CategoriesTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -18863,6 +18930,9 @@ class $$AssociatedTitlesTableAnnotationComposer
 
   GeneratedColumn<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
 
   $$CategoriesTableAnnotationComposer get categoryId {
     final $$CategoriesTableAnnotationComposer composer = $composerBuilder(
@@ -18926,6 +18996,7 @@ class $$AssociatedTitlesTableTableManager
                 Value<int> syncStatus = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
+                Value<DateTime?> deletedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => AssociatedTitlesCompanion(
                 id: id,
@@ -18936,6 +19007,7 @@ class $$AssociatedTitlesTableTableManager
                 syncStatus: syncStatus,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
+                deletedAt: deletedAt,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -18948,6 +19020,7 @@ class $$AssociatedTitlesTableTableManager
                 Value<int> syncStatus = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
+                Value<DateTime?> deletedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => AssociatedTitlesCompanion.insert(
                 id: id,
@@ -18958,6 +19031,7 @@ class $$AssociatedTitlesTableTableManager
                 syncStatus: syncStatus,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
+                deletedAt: deletedAt,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

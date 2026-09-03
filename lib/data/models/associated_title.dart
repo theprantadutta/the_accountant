@@ -26,6 +26,13 @@ class AssociatedTitles extends Table {
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
 
+  /// When the rule was removed, or null while it is live.
+  ///
+  /// These sync, so a delete has to leave a tombstone: hard-deleting the row
+  /// gives the other devices no way to learn the rule is gone, and it comes
+  /// straight back on the next pull.
+  DateTimeColumn get deletedAt => dateTime().nullable()();
+
   @override
   Set<Column> get primaryKey => {id};
 }

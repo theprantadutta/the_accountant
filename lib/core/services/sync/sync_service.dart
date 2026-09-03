@@ -497,6 +497,7 @@ class SyncService {
     final byTable = <String, List<SyncChange>>{
       'wallets': await _getPendingWalletChanges(),
       'categories': await _getPendingCategoryChanges(),
+      'associated_titles': await _getPendingAssociatedTitleChanges(),
       'payment_methods': await _getPendingPaymentMethodChanges(),
       'budgets': await _getPendingBudgetChanges(),
       'category_budget_limits': await _getPendingCategoryLimitChanges(),
@@ -713,6 +714,9 @@ class SyncService {
       case 'category_budget_limits':
         return await _liveBudget(data['BudgetId'] as String?) ??
             await _liveCategory(data['CategoryId'] as String?);
+
+      case 'associated_titles':
+        return await _liveCategory(data['CategoryId'] as String?);
 
       default:
         return null;
@@ -1046,6 +1050,31 @@ class SyncService {
     return changes;
   }
 
+  /// Pending title-rule changes.
+  ///
+  /// Held back while the category the rule names is an unsettled provisional
+  /// row, for the same reason budgets are: pushing a rule that points at an id
+  /// the server has not accepted only earns a rejection.
+  Future<List<SyncChange>> _getPendingAssociatedTitleChanges() async {
+    final records = await (_database.select(
+      _database.associatedTitles,
+    )..where((a) => a.syncStatus.isBiggerThanValue(0))).get();
+
+    final unsettled = await _database.unsettledProvisionalCategoryIds();
+
+    return [
+      for (final r in records)
+        if (unsettled.isEmpty || !unsettled.contains(r.categoryId))
+          SyncChange(
+            tableName: 'associated_titles',
+            entityId: r.id,
+            operation: _getOperationFromStatus(r.syncStatus),
+            sourceUpdatedAt: r.updatedAt,
+            data: _associatedTitleToMap(r),
+          ),
+    ];
+  }
+
   /// Pending category-limit changes.
   ///
   /// Held back while the budget or category it names is itself an unsettled
@@ -1151,6 +1180,9 @@ class SyncService {
         break;
       case 'category_budget_limits':
         await _applyCategoryLimitChange(change);
+        break;
+      case 'associated_titles':
+        await _applyAssociatedTitleChange(change);
         break;
       case 'objectives':
         await _applyObjectiveChange(change);
@@ -1447,6 +1479,44 @@ class SyncService {
       )..where((b) => b.id.equals(change.entityId))).write(companion);
     } else {
       await _database.into(_database.budgets).insert(companion);
+    }
+  }
+
+  Future<void> _applyAssociatedTitleChange(SyncChange change) async {
+    if (change.operation == 'delete') {
+      await (_database.update(
+        _database.associatedTitles,
+      )..where((a) => a.id.equals(change.entityId))).write(
+        AssociatedTitlesCompanion(
+          deletedAt: Value(DateTime.now()),
+          syncStatus: const Value(SyncStatus.synced),
+        ),
+      );
+      return;
+    }
+
+    final data = _normalizeKeys(change.data!);
+
+    final companion = AssociatedTitlesCompanion(
+      id: Value(change.entityId),
+      title: Value(data['Title'] ?? ''),
+      categoryId: Value(data['CategoryId'] ?? ''),
+      isExactMatch: Value(data['IsExactMatch'] ?? false),
+      deletedAt: const Value(null),
+      syncStatus: const Value(SyncStatus.synced),
+      updatedAt: Value(DateTime.now()),
+    );
+
+    final existing = await (_database.select(
+      _database.associatedTitles,
+    )..where((a) => a.id.equals(change.entityId))).getSingleOrNull();
+
+    if (existing == null) {
+      await _database.into(_database.associatedTitles).insert(companion);
+    } else {
+      await (_database.update(
+        _database.associatedTitles,
+      )..where((a) => a.id.equals(change.entityId))).write(companion);
     }
   }
 
@@ -1844,6 +1914,13 @@ class SyncService {
     'UpdatedAt': b.updatedAt.toUtc().toIso8601String(),
   };
 
+  Map<String, dynamic> _associatedTitleToMap(AssociatedTitle a) => {
+    'Title': a.title,
+    'CategoryId': a.categoryId,
+    'IsExactMatch': a.isExactMatch,
+    'UpdatedAt': a.updatedAt.toUtc().toIso8601String(),
+  };
+
   Map<String, dynamic> _categoryLimitToMap(CategoryBudgetLimit l) => {
     'BudgetId': l.budgetId,
     'CategoryId': l.categoryId,
@@ -1996,6 +2073,18 @@ class SyncService {
               ),
             );
         break;
+      case 'associated_titles':
+        await (_database.update(_database.associatedTitles)..where(
+              (a) => expected == null
+                  ? a.id.equals(id)
+                  : a.id.equals(id) & a.updatedAt.equals(expected),
+            ))
+            .write(
+              const AssociatedTitlesCompanion(
+                syncStatus: Value(SyncStatus.synced),
+              ),
+            );
+        break;
       case 'objectives':
         await (_database.update(_database.objectives)..where(
               (o) => expected == null
@@ -2066,6 +2155,12 @@ class SyncService {
       case 'category_budget_limits':
         await (_database.delete(_database.categoryBudgetLimits)..where(
               (l) => l.id.equals(id) & l.syncStatus.equals(pendingDelete),
+            ))
+            .go();
+        break;
+      case 'associated_titles':
+        await (_database.delete(_database.associatedTitles)..where(
+              (a) => a.id.equals(id) & a.syncStatus.equals(pendingDelete),
             ))
             .go();
         break;

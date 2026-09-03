@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:the_accountant/features/transactions/screens/title_rules_screen.dart';
 import 'package:the_accountant/features/transactions/screens/recently_deleted_screen.dart';
 import 'package:the_accountant/features/transactions/screens/payment_methods_screen.dart';
 import 'package:the_accountant/features/wallets/screens/wallet_management_screen.dart';
@@ -403,6 +404,26 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const PaymentMethodsScreen()),
+          ),
+        ),
+      );
+    }
+    if (_matchesSearch('Naming rules') ||
+        _matchesKeywords([
+          'rule',
+          'title',
+          'automatic',
+          'categorise',
+          'categorize',
+        ])) {
+      moneyTiles.add(
+        SettingsNavigationTile(
+          icon: Icons.auto_awesome_outlined,
+          title: 'Naming rules',
+          subtitle: 'Where something goes, based on what it is called',
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const TitleRulesScreen()),
           ),
         ),
       );
