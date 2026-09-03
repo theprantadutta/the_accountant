@@ -86,6 +86,9 @@ dependencies:
   in_app_purchase_android: ^0.5.1
   in_app_update: ^5.0.0
   file_picker: ^12.2.0
+  flutter_localizations:
+    sdk: flutter
+  material_ui: ^1.1.1
 
 dev_dependencies:
   flutter_test:
@@ -100,6 +103,9 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+  # Generate lib/l10n/generated from the ARB files on every build.
+  generate: true
 
   assets:
     - .env

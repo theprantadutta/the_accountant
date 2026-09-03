@@ -1,0 +1,90 @@
+{
+  "@@locale": "bn",
+
+  "appTitle": "The Accountant",
+
+  "actionSave": "সংরক্ষণ",
+  "actionCancel": "বাতিল",
+  "actionDelete": "মুছুন",
+  "actionEdit": "সম্পাদনা",
+  "actionAdd": "যোগ করুন",
+  "actionDone": "হয়ে গেছে",
+  "actionConfirm": "নিশ্চিত করুন",
+  "actionRetry": "আবার চেষ্টা করুন",
+  "actionClose": "বন্ধ করুন",
+  "actionSearch": "খুঁজুন",
+
+  "dateToday": "আজ",
+  "dateYesterday": "গতকাল",
+  "dateTomorrow": "আগামীকাল",
+
+  "moneyIncome": "আয়",
+  "moneyExpense": "ব্যয়",
+  "moneyTransfer": "স্থানান্তর",
+  "moneyBalance": "ব্যালেন্স",
+
+  "navDashboard": "ড্যাশবোর্ড",
+  "navTransactions": "লেনদেন",
+  "navBudgets": "বাজেট",
+  "navReports": "রিপোর্ট",
+  "navSettings": "সেটিংস",
+
+  "entityAccount": "অ্যাকাউন্ট",
+  "entityCategory": "ক্যাটাগরি",
+  "entityBudget": "বাজেট",
+  "entityGoal": "লক্ষ্য",
+  "entityTransaction": "লেনদেন",
+
+  "settingsRegionalTitle": "আঞ্চলিক সেটিংস",
+  "settingsSectionCurrency": "মুদ্রা",
+  "settingsSectionDisplayFormat": "প্রদর্শন বিন্যাস",
+  "settingsSectionLanguage": "ভাষা",
+
+  "settingsDefaultCurrency": "ডিফল্ট মুদ্রা",
+  "settingsExchangeRates": "বিনিময় হার",
+  "settingsExchangeRatesSubtitle": "মুদ্রা রূপান্তরের হার পরিচালনা করুন",
+  "settingsDateFormat": "তারিখের বিন্যাস",
+  "settingsNumberFormat": "সংখ্যার বিন্যাস",
+  "settingsCurrencySymbol": "মুদ্রার প্রতীক",
+  "settingsTimeFormat": "সময়ের বিন্যাস",
+  "settingsFirstDayOfWeek": "সপ্তাহের প্রথম দিন",
+  "settingsLanguage": "ভাষা",
+
+  "settingsPreview": "প্রিভিউ",
+  "previewDate": "তারিখ",
+  "previewTime": "সময়",
+  "previewAmount": "পরিমাণ",
+  "previewWeekStarts": "এই সপ্তাহ শুরু",
+
+  "choiceMatchMyPhone": "ফোনের সেটিং অনুসরণ করুন",
+
+  "symbolBeforeAmount": "পরিমাণের আগে",
+  "symbolAfterAmount": "পরিমাণের পরে",
+  "time12Hour": "১২-ঘণ্টা (1:30 PM)",
+  "time24Hour": "২৪-ঘণ্টা (13:30)",
+
+  "weekdayMonday": "সোমবার",
+  "weekdaySaturday": "শনিবার",
+  "weekdaySunday": "রবিবার",
+
+  "selectDateFormat": "তারিখের বিন্যাস বাছুন",
+  "selectNumberFormat": "সংখ্যার বিন্যাস বাছুন",
+  "selectCurrency": "মুদ্রা বাছুন",
+
+  "themeTitle": "আপনার থিম বাছুন",
+  "themeSystem": "সিস্টেম",
+  "themeLight": "লাইট",
+  "themeDark": "ডার্ক",
+  "themeSystemDescription": "আপনার ফোন যা সেট করা আছে তা অনুসরণ করুন",
+  "themeLightDescription": "উজ্জ্বল — দিনের আলো ও ভাগ করা স্ক্রিনের জন্য",
+  "themeDarkDescription": "মূল রূপ — গভীর কালোয় ইন্ডিগো ছোঁয়া",
+
+  "languageSystem": "ফোনের ভাষা অনুসরণ করুন",
+  "languageEnglish": "English",
+  "languageBangla": "বাংলা",
+
+  "confirmDeleteTitle": "এটি মুছে ফেলবেন?",
+  "confirmIrreversible": "এটি আর ফেরানো যাবে না।",
+
+  "emptyNothingHere": "এখানে এখনও কিছু নেই।"
+}

@@ -1,5 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
+import 'package:the_accountant/core/providers/locale_provider.dart';
 import 'package:the_accountant/core/utils/time_formatter.dart';
 import 'package:the_accountant/core/utils/currency_formatter.dart';
 import 'package:the_accountant/core/domain/regional_preferences.dart';
@@ -20,31 +22,32 @@ class RegionalSettingsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final settingsState = ref.watch(settingsProvider);
+    final l10n = L10n.of(context);
 
     return Scaffold(
       backgroundColor: Colors.transparent,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text('Regional Settings'),
+        title: Text(l10n.settingsRegionalTitle),
       ),
       body: ListView(
         padding: EdgeInsets.symmetric(horizontal: AppSpacing.md),
         children: [
           // CURRENCY SECTION
           SettingsSection(
-            title: 'CURRENCY',
+            title: l10n.settingsSectionCurrency,
             tiles: [
               SettingsNavigationTile(
                 icon: Icons.attach_money,
-                title: 'Default Currency',
+                title: l10n.settingsDefaultCurrency,
                 subtitle: settingsState.currency,
                 onTap: () => _showCurrencyPicker(context, ref),
               ),
               SettingsNavigationTile(
                 icon: Icons.currency_exchange,
-                title: 'Exchange Rates',
-                subtitle: 'Manage currency conversion rates',
+                title: l10n.settingsExchangeRates,
+                subtitle: l10n.settingsExchangeRatesSubtitle,
                 onTap: () => Navigator.pushNamed(context, '/exchange-rates'),
               ),
             ],
@@ -52,39 +55,52 @@ class RegionalSettingsScreen extends ConsumerWidget {
 
           // FORMAT SECTION
           SettingsSection(
-            title: 'DISPLAY FORMAT',
+            title: l10n.settingsSectionDisplayFormat,
             tiles: [
               SettingsNavigationTile(
                 icon: Icons.calendar_today_outlined,
-                title: 'Date Format',
+                title: l10n.settingsDateFormat,
                 subtitle: _getDateFormatLabel(settingsState.dateFormat, ref),
                 onTap: () => _showDateFormatPicker(context, ref),
               ),
               SettingsNavigationTile(
                 icon: Icons.numbers,
-                title: 'Number Format',
+                title: l10n.settingsNumberFormat,
                 subtitle: _getNumberFormatExample(settingsState.numberFormat),
                 onTap: () => _showNumberFormatPicker(context, ref),
               ),
               SettingsNavigationTile(
                 icon: Icons.sell_outlined,
-                title: 'Currency Symbol',
+                title: l10n.settingsCurrencySymbol,
                 subtitle: settingsState.symbolPosition.example,
                 onTap: () => _showSymbolPositionPicker(context, ref),
               ),
               SettingsNavigationTile(
                 icon: Icons.schedule,
-                title: 'Time Format',
+                title: l10n.settingsTimeFormat,
                 subtitle: settingsState.timeFormat.label,
                 onTap: () => _showTimeFormatPicker(context, ref),
               ),
               SettingsNavigationTile(
                 icon: Icons.view_week_outlined,
-                title: 'First Day of the Week',
+                title: l10n.settingsFirstDayOfWeek,
                 subtitle:
                     FirstDayOfWeek.labels[settingsState.firstDayOfWeek] ??
-                    'Match my phone',
+                    l10n.choiceMatchMyPhone,
                 onTap: () => _showFirstDayPicker(context, ref),
+              ),
+            ],
+          ),
+
+          // LANGUAGE SECTION
+          SettingsSection(
+            title: l10n.settingsSectionLanguage,
+            tiles: [
+              SettingsNavigationTile(
+                icon: Icons.translate,
+                title: l10n.settingsLanguage,
+                subtitle: AppLanguages.labelFor(ref.watch(localeProvider)),
+                onTap: () => _showLanguagePicker(context, ref),
               ),
             ],
           ),
@@ -238,6 +254,28 @@ class RegionalSettingsScreen extends ConsumerWidget {
     if (selected != null) {
       await ref.read(settingsProvider.notifier).setDateFormat(selected);
     }
+  }
+
+  Future<void> _showLanguagePicker(BuildContext context, WidgetRef ref) async {
+    // A sentinel, because null already means "follow the phone" and the sheet
+    // returns null when it is dismissed. Without one, cancelling would look
+    // like choosing the default.
+    const followPhone = Locale('und');
+    final current = ref.read(localeProvider) ?? followPhone;
+
+    final selected = await _pickOne<Locale>(
+      context: context,
+      title: L10n.of(context).settingsLanguage,
+      options: [
+        for (final locale in AppLanguages.supported)
+          (value: locale ?? followPhone, label: AppLanguages.labelFor(locale)),
+      ],
+      current: current,
+    );
+    if (selected == null) return;
+    await ref
+        .read(localeProvider.notifier)
+        .setLocale(selected == followPhone ? null : selected);
   }
 
   Future<void> _showSymbolPositionPicker(

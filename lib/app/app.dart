@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
+import 'package:the_accountant/core/providers/locale_provider.dart';
+import 'package:material_ui/material_ui.dart' as material_ui;
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:in_app_update/in_app_update.dart';
 import 'package:the_accountant/core/providers/theme_provider.dart';
@@ -140,6 +144,23 @@ class _MyAppState extends ConsumerState<MyApp> {
 
     return MaterialApp(
       title: 'The Accountant',
+      locale: ref.watch(localeProvider),
+      supportedLocales: L10n.supportedLocales,
+      localeListResolutionCallback: AppLanguages.resolve,
+      localizationsDelegates: const [
+        L10n.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        // material_ui declares its OWN MaterialLocalizations — a different Dart
+        // type from the one in package:flutter/material.dart — and
+        // flutter_localizations cannot satisfy it. This app is still written
+        // against package:flutter/material.dart, but shimmer 4 pulls material_ui
+        // in transitively, so anything of its that asks for localizations throws
+        // at runtime without these. Both sets coexist; material_ui ships the
+        // same 80 locales, so this costs no coverage.
+        ...material_ui.GlobalMaterialLocalizations.delegates,
+      ],
       theme: lightTheme,
       darkTheme: darkTheme,
       themeMode: isPremiumTheme ? ThemeMode.dark : themeState.themeMode,

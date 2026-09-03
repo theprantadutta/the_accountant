@@ -1,5 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:the_accountant/core/domain/regional_preferences.dart';
+import 'package:intl/intl.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:the_accountant/core/domain/transaction_policy.dart';
@@ -355,35 +357,38 @@ class ReportsNotifier extends StateNotifier<ReportsState> {
         );
       }
     } else if (timeframe == 1) {
-      // Monthly - group by week
-      final weeksInMonth = ((endDate.day - 1) ~/ 7) + 1;
-      for (int week = 0; week < weeksInMonth; week++) {
-        final weekStart = DateTime(
-          startDate.year,
-          startDate.month,
-          1 + (week * 7),
-        );
-        final weekEnd = DateTime(
-          startDate.year,
-          startDate.month,
-          (week + 1) * 7,
-        );
+      // Monthly, grouped into real weeks.
+      //
+      // These used to be chunks of seven calendar days — the 1st to the 7th,
+      // the 8th to the 14th — which are not weeks. A Saturday could land in the
+      // same bar as the Monday five days later, so "which week did I overspend"
+      // had no answer you could act on. They now begin on whichever day the
+      // user says a week begins, and the label says the date rather than a
+      // meaningless ordinal.
+      final weekStart = RegionalPreferences.firstDayOfWeek;
+      var cursor = FirstDayOfWeek.startOfWeek(startDate, weekStart);
+      var index = 0;
 
+      while (cursor.isBefore(endDate)) {
+        final next = cursor.add(const Duration(days: 7));
         final weekExpenses = expenses
-            .where(
-              (t) =>
-                  t.date.isAfter(weekStart.subtract(const Duration(days: 1))) &&
-                  t.date.isBefore(weekEnd.add(const Duration(days: 1))),
-            )
+            .where((t) => !t.date.isBefore(cursor) && t.date.isBefore(next))
             .fold(0.0, (sum, t) => sum + t.amount / 100.0);
 
         result.add(
           DailySpendingData(
-            date: weekStart,
+            date: cursor,
             amount: weekExpenses,
-            dayLabel: 'W${week + 1}',
+            // The day the week starts, which is what tells two bars apart.
+            dayLabel: DateFormat('d MMM').format(cursor),
           ),
         );
+
+        cursor = next;
+        index++;
+        // A month spans at most six partial weeks; the guard is against a
+        // date-arithmetic surprise turning this into a spin.
+        if (index > 6) break;
       }
     } else {
       // Yearly - group by month
