@@ -280,6 +280,26 @@ Import must be purely client-side. The existing bulk endpoint mutates wallet bal
 
 ## Phase 6 — Presentation
 
+**Status: mostly done.** Client commits `45a512a`, `dadb42c`, `ddf1c5e`, `c4e5dca`. No backend work was needed yet. Flutter analyze clean with 666 tests passing.
+
+Done: light and system themes, genuinely selectable; the three regional settings that had no home; localisation scaffolding with English and Bangla; and the sync conflict contract pinned by tests rather than by a comment.
+
+**The light theme's real blocker was not the four lines pinning `themeMode` to dark.** It was that the app does not read colours from `Theme.of(context)` — it reads them from `AppColors`, 1,836 compile-time constants naming dark values across 94 files. Rewriting every call site would have been enormous and would have lost the vocabulary the design is written in (`Theme` has no slot for "glass border"), so the names stayed and the values behind them became swappable through `AppPalette`. Three things followed: 50 `const` keywords had to go; `app_theme` now builds both themes from one builder, where the light theme used to be a bare colour scheme that themed none of the components the dark one does; and 163 of 268 hard-coded `Colors.white` were on the page rather than on a coloured fill, and became the palette's foreground colour with alpha preserved — a near-identity change in dark, the correct inversion in light. A test holds that at zero. The picker also offered a phantom option called "Default" that was not a theme the app knew about, and had no route to the light theme at all.
+
+Dark stays the default rather than System: every existing install is looking at dark, and defaulting to System would turn the app light for anybody whose phone is, unasked.
+
+**Two bugs the new tests found.** Flutter falls back to the *first* supported locale when it recognises none of the phone's, and the generated list is alphabetical — so a French phone would have come up in Bangla. And this project has two different `MaterialLocalizations` types in scope, because Flutter is moving Material into `package:material_ui` and shimmer 4 already pulls it in transitively; registering only Flutter's delegates leaves anything from a migrated package throwing at runtime, with the symptom appearing nowhere near the cause.
+
+The monthly report's "weeks" were chunks of seven calendar days, so a Saturday could share a bar with the Monday five days later. They are now real weeks starting on the chosen day, which is also what gives that setting something to do.
+
+### Still open in this phase
+
+- **String extraction.** The scaffolding is complete and Regional Settings is converted as the worked example, since it is where the language is changed. The other hundred-odd screens are still hard-coded English. This is steady mechanical work, not a design problem.
+- **First day of week does not reach Flutter's calendars.** `GlobalMaterialLocalizations.firstDayOfWeekIndex` derives from the locale's own data and has no override hook; the only way in is a hand-written 110-member `MaterialLocalizations` forwarder that would break on every Flutter upgrade. The setting governs the app's own week logic instead. Worth revisiting if Flutter adds a hook.
+- **Server-side strings.** Notification bodies, email templates and built-in category names still reach users as English prose. This needs a locale on each request and templates on the server — real backend work, best done alongside the client extraction rather than before it.
+
+### What it was
+
 - **Light and system themes.** The light theme is already defined but unselectable: the app pins dark mode, both theme slots receive the same object, and the choice is never persisted. Wire the settings column that already exists, add a System option, and put the picker in Settings.
 - **Localization.** English only, hard-coded, with no scaffolding on either side. Start now, before more screens are written in hard-coded English: add the Flutter localization packages and resource files, extract existing strings, then translate. Bangla and English first.
 - Server-side strings also need a plan: notification bodies, email templates, the built-in category names, and sync conflict reasons all reach users as English prose. The conflict DTO already says clients must branch on the code and never on the reason text, but the client displays the reason directly. Fix that contract as part of this work.
@@ -311,7 +331,7 @@ Import must be purely client-side. The existing bulk endpoint mutates wallet bal
 | 3 | Associated titles into sync | Server, then client |
 | 4 | Transfer validation, wallet flags, exchange rates into sync | Server, then client |
 | 5 | None | Client only — **done** |
-| 6 | Locale handling, conflict code contract | Either order |
+| 6 | Locale handling, conflict code contract | Either order — **mostly done** |
 | 7 | Contacts, tags, splits, attachments, storage | Server, then client |
 
 Phases 2 and 5 are client-only and can run in parallel with any backend work.
