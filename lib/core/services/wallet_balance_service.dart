@@ -42,39 +42,27 @@ class WalletBalanceService {
     await _db.updateWalletBalance(walletId, calculatedBalance);
   }
 
-  /// Update balance for a wallet after adding a transaction.
-  /// More efficient than full recalculation for single transaction changes.
-  Future<void> updateBalanceAfterTransaction({
-    required String walletId,
-    required int amount,
-    required bool isIncome,
-    bool isDelete = false,
-  }) async {
-    final wallet = await _db.findWalletById(walletId);
-    if (wallet == null) {
-      throw Exception('Wallet not found: $walletId');
-    }
-
-    int currentBalance = wallet.balance;
-    int change = amount.abs();
-
-    if (isDelete) {
-      // Reverse the transaction effect
-      if (isIncome) {
-        currentBalance -= change;
-      } else {
-        currentBalance += change;
-      }
-    } else {
-      // Apply the transaction effect
-      if (isIncome) {
-        currentBalance += change;
-      } else {
-        currentBalance -= change;
+  /// Accounts whose stored balance no longer matches their transactions.
+  ///
+  /// Maps the account id to how far out it is, in cents, so a caller can log or
+  /// show the size of the problem rather than only that there is one. An empty
+  /// map is the normal answer.
+  ///
+  /// This exists because the stored balance is a cache. It was kept up to date
+  /// in two ways: a full recalculation, and a blind add-or-subtract applied
+  /// when a transaction was created or paid. The second could not check
+  /// anything, so any path that missed it — or applied it twice — left an
+  /// account quietly wrong, and a wrong balance is the one number in this app
+  /// nobody double-checks. That path is gone, and this is the proof.
+  Future<Map<String, int>> findBalanceDrift() async {
+    final drift = <String, int>{};
+    for (final wallet in await _db.getAllWallets()) {
+      final expected = await calculateWalletBalance(wallet.id);
+      if (expected != wallet.balance) {
+        drift[wallet.id] = wallet.balance - expected;
       }
     }
-
-    await _db.updateWalletBalance(walletId, currentBalance);
+    return drift;
   }
 
   /// Recalculate and update balances for all wallets.

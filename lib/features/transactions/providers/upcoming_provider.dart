@@ -87,11 +87,7 @@ class UpcomingNotifier extends StateNotifier<UpcomingState> {
       // affect the wallet balance
       final transaction = await _db.findTransactionById(transactionId);
       if (transaction != null) {
-        await _walletBalanceService.updateBalanceAfterTransaction(
-          walletId: transaction.walletId,
-          amount: transaction.amount,
-          isIncome: transaction.isIncome,
-        );
+        await _walletBalanceService.updateWalletBalance(transaction.walletId);
         await _ref.read(walletProvider.notifier).loadWallets();
       }
 
@@ -112,12 +108,7 @@ class UpcomingNotifier extends StateNotifier<UpcomingState> {
       // Reverse the wallet balance effect — the transaction is no longer paid
       // so its effect on the wallet should be removed
       if (transaction != null && transaction.isPaid) {
-        await _walletBalanceService.updateBalanceAfterTransaction(
-          walletId: transaction.walletId,
-          amount: transaction.amount,
-          isIncome: transaction.isIncome,
-          isDelete: true,
-        );
+        await _walletBalanceService.updateWalletBalance(transaction.walletId);
         await _ref.read(walletProvider.notifier).loadWallets();
       }
 

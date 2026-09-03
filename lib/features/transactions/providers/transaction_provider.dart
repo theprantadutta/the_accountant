@@ -365,11 +365,11 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
           effectiveIsPaid;
 
       if (shouldUpdateBalance) {
-        await _walletBalanceService.updateBalanceAfterTransaction(
-          walletId: walletId,
-          amount: amount,
-          isIncome: isIncome,
-        );
+        // Recomputed from the account's transactions rather than nudged by the
+        // amount just written. A blind delta cannot tell whether it has already
+        // been applied, so any path that ran twice, or not at all, left the
+        // balance quietly wrong.
+        await _walletBalanceService.updateWalletBalance(walletId);
 
         // Refresh wallet provider to reflect new balance (await to ensure state is updated)
         await _ref.read(walletProvider.notifier).loadWallets();

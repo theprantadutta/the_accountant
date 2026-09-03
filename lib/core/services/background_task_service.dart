@@ -9,6 +9,7 @@ import 'package:the_accountant/core/constants/background_task_constants.dart';
 import 'package:the_accountant/core/services/background_notification_helper.dart';
 import 'package:the_accountant/core/services/local_store_manager.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
+import 'package:the_accountant/core/services/wallet_balance_service.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/data/models/transaction.dart'
     show TransactionSpecialType;
@@ -346,6 +347,24 @@ class BackgroundTaskService {
       }
     } catch (e) {
       debugPrint('BackgroundTaskService: startup processing failed: $e');
+    }
+
+    // A stored balance is a cache over the account's transactions, and a wrong
+    // one is the single number in this app nobody thinks to double-check. It is
+    // corrected here rather than merely reported: leaving someone looking at a
+    // figure known to be wrong, on the grounds that it was logged, helps nobody.
+    try {
+      final balances = WalletBalanceService(db);
+      final drift = await balances.findBalanceDrift();
+      if (drift.isNotEmpty) {
+        debugPrint(
+          'BackgroundTaskService: ${drift.length} account balance(s) had '
+          'drifted from their transactions and were recalculated: $drift',
+        );
+        await balances.recalculateAllWalletBalancesLocal();
+      }
+    } catch (e) {
+      debugPrint('BackgroundTaskService: balance check failed: $e');
     }
   }
 
