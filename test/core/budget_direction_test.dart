@@ -162,7 +162,9 @@ void main() {
           period: const Value('monthly'),
           startDate: Value(now.subtract(const Duration(days: 30))),
           endDate: Value(now.add(const Duration(days: 30))),
-          categoryIds: Value(jsonEncode(categoryId == null ? [] : [categoryId])),
+          categoryIds: Value(
+            jsonEncode(categoryId == null ? [] : [categoryId]),
+          ),
           isIncome: Value(isIncome),
           createdAt: Value(now),
           updatedAt: Value(now),

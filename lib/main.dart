@@ -113,5 +113,4 @@ Future<void> _initializeServicesInBackground() async {
   } catch (e) {
     debugPrint('[main] WorkManager init failed: $e');
   }
-
 }

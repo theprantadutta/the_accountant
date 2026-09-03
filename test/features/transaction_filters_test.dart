@@ -82,9 +82,8 @@ void main() {
       expect(
         filters.matches(
           sandwich,
-          familyOf: (id) => id == 'cat-food'
-              ? {'cat-food', 'cat-sandwich'}
-              : {id},
+          familyOf: (id) =>
+              id == 'cat-food' ? {'cat-food', 'cat-sandwich'} : {id},
         ),
         isTrue,
         reason:

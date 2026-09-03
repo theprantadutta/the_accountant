@@ -23,7 +23,8 @@ class CategoryReconciliationCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final async = ref.watch(categoryReconciliationsProvider);
-    final items = async.asData?.value ?? const <PendingCategoryReconciliation>[];
+    final items =
+        async.asData?.value ?? const <PendingCategoryReconciliation>[];
     if (items.isEmpty) return const SizedBox.shrink();
 
     return Column(
@@ -204,7 +205,8 @@ class _PendingDecision extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final adopted = item.resolutionKind == CategoryReconciliationKinds.adoptLegacy;
+    final adopted =
+        item.resolutionKind == CategoryReconciliationKinds.adoptLegacy;
     final chosen = adopted
         ? item.candidates
               .where((c) => c.id == item.resolutionCandidateId)

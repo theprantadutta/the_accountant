@@ -212,9 +212,7 @@ class BudgetEngine {
     if (!cumulative) return perDay;
 
     var running = 0;
-    return [
-      for (final value in perDay) running += value,
-    ];
+    return [for (final value in perDay) running += value];
   }
 
   /// Each category cap inside [budget], with what has gone against it.
@@ -308,7 +306,8 @@ class BudgetEngine {
         : ((progress.spent / elapsed) - progress.spent).round();
 
     return BudgetForecast(
-      projected: progress.spent + scheduled + (extrapolated < 0 ? 0 : extrapolated),
+      projected:
+          progress.spent + scheduled + (extrapolated < 0 ? 0 : extrapolated),
       limit: progress.limit,
       scheduled: scheduled,
     );

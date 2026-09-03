@@ -172,9 +172,9 @@ class PaymentMethodsScreen extends ConsumerWidget {
       isDangerous: true,
     );
     if (confirmed != true || !context.mounted) return;
-    await ref.read(paymentMethodProvider.notifier).deletePaymentMethod(
-      method.id,
-    );
+    await ref
+        .read(paymentMethodProvider.notifier)
+        .deletePaymentMethod(method.id);
   }
 }
 

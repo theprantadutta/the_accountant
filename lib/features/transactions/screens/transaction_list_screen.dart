@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/features/transactions/screens/transaction_detail_screen.dart';
 import 'package:the_accountant/features/transactions/widgets/category_picker_sheet.dart';
 import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
 import 'package:the_accountant/features/settings/widgets/confirmation_dialog.dart';
@@ -391,6 +392,20 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
     );
   }
 
+  Future<void> _openTransaction(Transaction transaction) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => TransactionDetailScreen(transactionId: transaction.id),
+      ),
+    );
+    if (mounted) {
+      await ref
+          .read(transactionProvider.notifier)
+          .loadTransactions(silent: true);
+    }
+  }
+
   Future<void> _editTransaction(Transaction transaction) async {
     // Get the database transaction for editing
     final dbTransaction = await ref
@@ -576,7 +591,10 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                   if (_selecting) {
                     _toggleSelected(transaction.id);
                   } else {
-                    _editTransaction(transaction);
+                    // Opens the row rather than the editor: there was nowhere
+                    // to simply look at a transaction without being one stray
+                    // keystroke away from changing it.
+                    _openTransaction(transaction);
                   }
                 },
                 onLongPress: () => _toggleSelected(transaction.id),

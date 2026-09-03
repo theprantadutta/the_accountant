@@ -34,9 +34,9 @@ void main() {
 
   Future<int?> pushedPeriodFor(String period) async {
     final id = await seedBudget(device, name: 'B-$period');
-    await (device.update(
-      device.budgets,
-    )..where((b) => b.id.equals(id))).write(BudgetsCompanion(period: Value(period)));
+    await (device.update(device.budgets)..where((b) => b.id.equals(id))).write(
+      BudgetsCompanion(period: Value(period)),
+    );
 
     final result = await SyncService(
       database: device,
@@ -101,7 +101,8 @@ void main() {
     expect(
       landed.periodLength,
       2,
-      reason: 'an interval that does not survive turns a monthly budget '
+      reason:
+          'an interval that does not survive turns a monthly budget '
           'into a fortnightly one on the other device',
     );
     expect(landed.rollover, isTrue);

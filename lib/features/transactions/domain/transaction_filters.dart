@@ -266,7 +266,10 @@ class SearchQuery {
       }
 
       final asYear = int.tryParse(word);
-      if (asYear != null && word.length == 4 && asYear > 1900 && asYear < 2200) {
+      if (asYear != null &&
+          word.length == 4 &&
+          asYear > 1900 &&
+          asYear < 2200) {
         year ??= asYear;
         continue;
       }
@@ -308,7 +311,8 @@ class SearchQuery {
   static int? _monthOf(String word) {
     if (word.length < 3) return null;
     for (var i = 0; i < _months.length; i++) {
-      if (_months[i] == word || _months[i].startsWith(word) && word.length >= 3) {
+      if (_months[i] == word ||
+          _months[i].startsWith(word) && word.length >= 3) {
         return i + 1;
       }
     }

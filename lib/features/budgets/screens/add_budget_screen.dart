@@ -148,7 +148,9 @@ class _AddBudgetScreenState extends ConsumerState<AddBudgetScreen> {
             ),
             AppSpacing.gapXl,
 
-            _SectionLabel(_isIncome ? 'Tracking earnings' : 'Tracking spending'),
+            _SectionLabel(
+              _isIncome ? 'Tracking earnings' : 'Tracking spending',
+            ),
             SegmentedButton<bool>(
               segments: const [
                 ButtonSegment(value: false, label: Text('Spending')),

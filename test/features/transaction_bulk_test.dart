@@ -144,8 +144,9 @@ void main() {
         amount: 5000,
         date: DateTime(2026, 1, 5),
       );
-      final leg = (await db.getAllTransactions())
-          .firstWhere((t) => t.transactionType == 'transfer');
+      final leg = (await db.getAllTransactions()).firstWhere(
+        (t) => t.transactionType == 'transfer',
+      );
 
       final changed = await notifier.setWalletForMany([leg.id], walletB);
 
@@ -262,8 +263,9 @@ void main() {
         amount: 5000,
         date: DateTime(2026, 1, 5),
       );
-      final leg = (await db.getAllTransactions())
-          .firstWhere((t) => t.transactionType == 'transfer');
+      final leg = (await db.getAllTransactions()).firstWhere(
+        (t) => t.transactionType == 'transfer',
+      );
 
       expect(
         await notifier.duplicateTransaction(leg.id),

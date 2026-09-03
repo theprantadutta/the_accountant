@@ -54,9 +54,7 @@ class _ObjectivesListScreenState extends ConsumerState<ObjectivesListScreen> {
             ),
       body: switch (all) {
         AsyncData(:final value) => _body(value, currency),
-        AsyncError() => const Center(
-          child: Text('Could not load your goals.'),
-        ),
+        AsyncError() => const Center(child: Text('Could not load your goals.')),
         _ => const Padding(
           padding: EdgeInsets.all(16),
           child: Column(
@@ -75,7 +73,9 @@ class _ObjectivesListScreenState extends ConsumerState<ObjectivesListScreen> {
         .where((o) => o.isGoal && o.isArchived == _showArchived)
         .toList();
 
-    if (visible.isEmpty) return _Empty(archived: _showArchived, onCreate: _create);
+    if (visible.isEmpty) {
+      return _Empty(archived: _showArchived, onCreate: _create);
+    }
 
     return RefreshIndicator(
       onRefresh: () async => ref.invalidate(allObjectivesProvider),

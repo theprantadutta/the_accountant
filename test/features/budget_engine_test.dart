@@ -138,10 +138,9 @@ void main() {
         date: DateTime(2026, 1, 8),
       );
 
-      final progress = await BudgetEngine(db).progressFor(
-        await budget(),
-        moment: DateTime(2026, 1, 15),
-      );
+      final progress = await BudgetEngine(
+        db,
+      ).progressFor(await budget(), moment: DateTime(2026, 1, 15));
 
       expect(progress.spent, 0);
     });
@@ -237,27 +236,30 @@ void main() {
       expect(window.end, DateTime(2026, 1, 29));
     });
 
-    test('a budget starting on the 31st lands on the last day of short months', () {
-      final window = BudgetWindows.containing(
-        start: DateTime(2026, 1, 31),
-        period: BudgetPeriod.monthly,
-        periodLength: 1,
-        moment: DateTime(2026, 2, 10),
-      );
+    test(
+      'a budget starting on the 31st lands on the last day of short months',
+      () {
+        final window = BudgetWindows.containing(
+          start: DateTime(2026, 1, 31),
+          period: BudgetPeriod.monthly,
+          periodLength: 1,
+          moment: DateTime(2026, 2, 10),
+        );
 
-      expect(
-        window.start,
-        DateTime(2026, 1, 31),
-        reason: 'still inside the first window',
-      );
-      expect(
-        window.end,
-        DateTime(2026, 2, 28),
-        reason:
-            'naive date arithmetic turns 31 January into 3 March and skips '
-            'February altogether',
-      );
-    });
+        expect(
+          window.start,
+          DateTime(2026, 1, 31),
+          reason: 'still inside the first window',
+        );
+        expect(
+          window.end,
+          DateTime(2026, 2, 28),
+          reason:
+              'naive date arithmetic turns 31 January into 3 March and skips '
+              'February altogether',
+        );
+      },
+    );
 
     test('a one-off budget is a single fixed span', () {
       final window = BudgetWindows.containing(
@@ -313,7 +315,11 @@ void main() {
         moment: DateTime(2026, 2, 10),
       );
 
-      expect(progress.carriedIn, 60000, reason: '100000 limit less 40000 spent');
+      expect(
+        progress.carriedIn,
+        60000,
+        reason: '100000 limit less 40000 spent',
+      );
       expect(progress.limit, 160000);
     });
 
@@ -359,22 +365,25 @@ void main() {
   });
 
   group('pacing', () {
-    test('half the limit two thirds through the month is not flagged', () async {
-      await seedTransaction(
-        db,
-        walletId: walletId,
-        categoryId: food,
-        amount: 50000,
-        date: DateTime(2026, 1, 5),
-      );
+    test(
+      'half the limit two thirds through the month is not flagged',
+      () async {
+        await seedTransaction(
+          db,
+          walletId: walletId,
+          categoryId: food,
+          amount: 50000,
+          date: DateTime(2026, 1, 5),
+        );
 
-      final progress = await BudgetEngine(db).progressFor(
-        await budget(categoryIds: [food]),
-        moment: DateTime(2026, 1, 21),
-      );
+        final progress = await BudgetEngine(db).progressFor(
+          await budget(categoryIds: [food]),
+          moment: DateTime(2026, 1, 21),
+        );
 
-      expect(progress.isAheadOfPace(DateTime(2026, 1, 21)), isFalse);
-    });
+        expect(progress.isAheadOfPace(DateTime(2026, 1, 21)), isFalse);
+      },
+    );
 
     test('half the limit on the third day is not', () async {
       await seedTransaction(
@@ -446,42 +455,45 @@ void main() {
       );
     });
 
-    test('a percentage cap follows the budget when the amount changes', () async {
-      final budgetView = await budget(categoryIds: [food], amount: 100000);
-      // 25.5%, stored as hundredths of a percent.
-      await db.setCategoryLimit(
-        budgetId: budgetView.id,
-        categoryId: snacks,
-        amount: 2550,
-        isPercent: true,
-      );
+    test(
+      'a percentage cap follows the budget when the amount changes',
+      () async {
+        final budgetView = await budget(categoryIds: [food], amount: 100000);
+        // 25.5%, stored as hundredths of a percent.
+        await db.setCategoryLimit(
+          budgetId: budgetView.id,
+          categoryId: snacks,
+          amount: 2550,
+          isPercent: true,
+        );
 
-      final engine = BudgetEngine(db);
-      final before = await engine.categoryLimits(
-        budgetView,
-        await engine.progressFor(budgetView, moment: DateTime(2026, 1, 15)),
-      );
-      expect(before.single.limit, 25500);
+        final engine = BudgetEngine(db);
+        final before = await engine.categoryLimits(
+          budgetView,
+          await engine.progressFor(budgetView, moment: DateTime(2026, 1, 15)),
+        );
+        expect(before.single.limit, 25500);
 
-      await db.writeBudget(
-        budgetView.id,
-        const BudgetsCompanion(amount: Value(200000)),
-      );
-      final bigger = BudgetView.fromRow(
-        (await db.findBudgetById(budgetView.id))!,
-      );
+        await db.writeBudget(
+          budgetView.id,
+          const BudgetsCompanion(amount: Value(200000)),
+        );
+        final bigger = BudgetView.fromRow(
+          (await db.findBudgetById(budgetView.id))!,
+        );
 
-      final after = await engine.categoryLimits(
-        bigger,
-        await engine.progressFor(bigger, moment: DateTime(2026, 1, 15)),
-      );
-      expect(
-        after.single.limit,
-        51000,
-        reason:
-            'a quarter of the budget means a quarter, whatever that becomes',
-      );
-    });
+        final after = await engine.categoryLimits(
+          bigger,
+          await engine.progressFor(bigger, moment: DateTime(2026, 1, 15)),
+        );
+        expect(
+          after.single.limit,
+          51000,
+          reason:
+              'a quarter of the budget means a quarter, whatever that becomes',
+        );
+      },
+    );
 
     test('a cap on a parent counts what is filed inside it', () async {
       final budgetView = await budget(categoryIds: [food]);

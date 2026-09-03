@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:the_accountant/features/transactions/screens/recently_deleted_screen.dart';
 import 'package:the_accountant/features/transactions/screens/payment_methods_screen.dart';
 import 'package:the_accountant/features/wallets/screens/wallet_management_screen.dart';
 import 'package:the_accountant/features/transactions/screens/upcoming_transactions_screen.dart';
@@ -359,7 +360,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       );
     }
     if (_matchesSearch('Categories') ||
-        _matchesKeywords(['category', 'categories', 'icon', 'colour', 'color'])) {
+        _matchesKeywords([
+          'category',
+          'categories',
+          'icon',
+          'colour',
+          'color',
+        ])) {
       moneyTiles.add(
         SettingsNavigationTile(
           icon: Icons.category_outlined,
@@ -422,7 +429,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       );
     }
     if (_matchesSearch('Appearance') ||
-        _matchesKeywords(['theme', 'dark', 'light', 'colour', 'color', 'appearance'])) {
+        _matchesKeywords([
+          'theme',
+          'dark',
+          'light',
+          'colour',
+          'color',
+          'appearance',
+        ])) {
       regionalTiles.add(
         SettingsNavigationTile(
           icon: Icons.palette_outlined,
@@ -511,6 +525,20 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const ExportScreen()),
+          ),
+        ),
+      );
+    }
+    if (_matchesSearch('Recently deleted') ||
+        _matchesKeywords(['deleted', 'restore', 'undo', 'trash'])) {
+      dataTiles.add(
+        SettingsNavigationTile(
+          icon: Icons.restore_from_trash_outlined,
+          title: 'Recently deleted',
+          subtitle: 'Put back something removed in the last thirty days',
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const RecentlyDeletedScreen()),
           ),
         ),
       );

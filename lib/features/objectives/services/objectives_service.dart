@@ -383,10 +383,7 @@ class ObjectiveWithProgress {
   /// The same plan read the other way: how long [amountCents] a period takes.
   ///
   /// Null when the payment is not positive, or the goal is already reached.
-  InstallmentPlan? planForPayment(
-    InstallmentCadence cadence,
-    int amountCents,
-  ) {
+  InstallmentPlan? planForPayment(InstallmentCadence cadence, int amountCents) {
     final remaining = remainingAmount;
     if (remaining <= 0 || amountCents <= 0) return null;
 

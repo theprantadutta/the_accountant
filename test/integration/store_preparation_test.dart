@@ -199,7 +199,8 @@ void main() {
       expect(
         db.startupProcessingRan,
         isFalse,
-        reason: 'recurrence generation must not run on a store that failed to '
+        reason:
+            'recurrence generation must not run on a store that failed to '
             'bootstrap',
       );
       expect(
@@ -246,13 +247,11 @@ void main() {
       expect(
         db.startupProcessingRan,
         isFalse,
-        reason: 'recurrence rows must not be generated against wallet ids that '
+        reason:
+            'recurrence rows must not be generated against wallet ids that '
             'are still mid-repair',
       );
-      expect(
-        container.read(accountStoreCoordinatorProvider).error,
-        isNotNull,
-      );
+      expect(container.read(accountStoreCoordinatorProvider).error, isNotNull);
     });
 
     test('a second attempt after an id-repair failure succeeds', () async {
@@ -311,5 +310,4 @@ void main() {
       );
     });
   });
-
 }

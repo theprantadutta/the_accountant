@@ -267,21 +267,17 @@ void main() {
         .firstWhere((t) => t['Id'] == transactionId);
     expect(uploadedTxn['WalletId'], walletId);
 
+    expect(server.recordsIn(userId, 'objectives').single['WalletId'], walletId);
     expect(
-      server.recordsIn(userId, 'objectives').single['WalletId'],
-      walletId,
-    );
-    expect(
-      jsonDecode(server.recordsIn(userId, 'budgets').single['WalletIds']
-          as String),
+      jsonDecode(
+        server.recordsIn(userId, 'budgets').single['WalletIds'] as String,
+      ),
       [walletId],
     );
 
     // And nothing was left behind pointing at the dead id.
     expect(
-      server
-          .recordsIn(userId, 'wallets')
-          .where((w) => w['Id'] == legacyId),
+      server.recordsIn(userId, 'wallets').where((w) => w['Id'] == legacyId),
       isEmpty,
     );
   });

@@ -735,7 +735,10 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
   /// meant to create, and copying both legs would need the pair rebuilt rather
   /// than the rows duplicated.
   Future<int> duplicateMany(Iterable<String> ids, {DateTime? date}) async {
-    return _bulk(ids, (id) async => await _duplicateOne(id, date: date) != null);
+    return _bulk(
+      ids,
+      (id) async => await _duplicateOne(id, date: date) != null,
+    );
   }
 
   /// Copy one transaction. Returns the new id, or null when it was skipped.

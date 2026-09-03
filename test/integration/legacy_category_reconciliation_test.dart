@@ -138,7 +138,10 @@ void main() {
     await seedProvisionalGroceries(device);
 
     final first = await syncFor(device).syncAll();
-    expect(first.conflicts.where((c) => c.tableName == 'categories'), hasLength(1));
+    expect(
+      first.conflicts.where((c) => c.tableName == 'categories'),
+      hasLength(1),
+    );
 
     // Three more syncs: the held-back record is not re-offered, so the user is
     // not shown a permanent stream of failures for a question they have already
@@ -175,11 +178,8 @@ void main() {
       // A subcategory and a learned title the user created against the
       // provisional copy while the question was open.
       final subId = await seedCategory(device, name: 'Fruit');
-      await (device.update(
-        device.categories,
-      )..where((c) => c.id.equals(subId))).write(
-        CategoriesCompanion(mainCategoryId: Value(provisionalId)),
-      );
+      await (device.update(device.categories)..where((c) => c.id.equals(subId)))
+          .write(CategoriesCompanion(mainCategoryId: Value(provisionalId)));
       await device
           .into(device.associatedTitles)
           .insert(
@@ -190,10 +190,9 @@ void main() {
             ),
           );
 
-      await CategoryReconciliationService(device).adoptExisting(
-        defaultKey: 'groceries',
-        candidateId: legacyCategoryId,
-      );
+      await CategoryReconciliationService(
+        device,
+      ).adoptExisting(defaultKey: 'groceries', candidateId: legacyCategoryId);
       await syncFor(device).syncAll();
 
       // The legacy row IS the built-in now — same id, so every cloud
@@ -207,9 +206,9 @@ void main() {
 
       // Exactly one category holds the slug, on the server and locally.
       expect(
-        server.recordsIn(userId, 'categories').where(
-          (c) => c['DefaultKey'] == 'groceries',
-        ),
+        server
+            .recordsIn(userId, 'categories')
+            .where((c) => c['DefaultKey'] == 'groceries'),
         hasLength(1),
       );
       final local = (await device.getAllCategories())
@@ -231,43 +230,46 @@ void main() {
   );
 
   // ---------------------------------------------------------------- scenario 4
-  test('keeping it custom creates a separate built-in and touches nothing else', () async {
-    await seedLegacyCloudCategory(transactionCount: 2);
+  test(
+    'keeping it custom creates a separate built-in and touches nothing else',
+    () async {
+      await seedLegacyCloudCategory(transactionCount: 2);
 
-    final provisionalId = await seedProvisionalGroceries(device);
-    await syncFor(device).syncAll();
+      final provisionalId = await seedProvisionalGroceries(device);
+      await syncFor(device).syncAll();
 
-    await CategoryReconciliationService(
-      device,
-    ).keepSeparate(defaultKey: 'groceries');
-    await syncFor(device).syncAll();
+      await CategoryReconciliationService(
+        device,
+      ).keepSeparate(defaultKey: 'groceries');
+      await syncFor(device).syncAll();
 
-    // The user's own category is exactly as it was.
-    final legacy = server
-        .recordsIn(userId, 'categories')
-        .firstWhere((c) => c['Id'] == legacyCategoryId);
-    expect(legacy['DefaultKey'], isNull);
-    expect(legacy['IsDefault'], isFalse);
-    expect(server.countIn(userId, 'transactions'), 2);
+      // The user's own category is exactly as it was.
+      final legacy = server
+          .recordsIn(userId, 'categories')
+          .firstWhere((c) => c['Id'] == legacyCategoryId);
+      expect(legacy['DefaultKey'], isNull);
+      expect(legacy['IsDefault'], isFalse);
+      expect(server.countIn(userId, 'transactions'), 2);
 
-    // The built-in now exists alongside it, under the id this device chose.
-    final builtIn = server
-        .recordsIn(userId, 'categories')
-        .where((c) => c['DefaultKey'] == 'groceries')
-        .toList();
-    expect(builtIn, hasLength(1));
-    expect(builtIn.single['Id'], provisionalId);
+      // The built-in now exists alongside it, under the id this device chose.
+      final builtIn = server
+          .recordsIn(userId, 'categories')
+          .where((c) => c['DefaultKey'] == 'groceries')
+          .toList();
+      expect(builtIn, hasLength(1));
+      expect(builtIn.single['Id'], provisionalId);
 
-    // Two categories named Groceries, which is precisely what the user asked
-    // for.
-    expect(
-      server.recordsIn(userId, 'categories').where(
-        (c) => c['Name'] == 'Groceries',
-      ),
-      hasLength(2),
-    );
-    expect(await questionsOn(device), isEmpty);
-  });
+      // Two categories named Groceries, which is precisely what the user asked
+      // for.
+      expect(
+        server
+            .recordsIn(userId, 'categories')
+            .where((c) => c['Name'] == 'Groceries'),
+        hasLength(2),
+      );
+      expect(await questionsOn(device), isEmpty);
+    },
+  );
 
   // ---------------------------------------------------------------- scenario 5
   test(
@@ -296,9 +298,9 @@ void main() {
         isEmpty,
       );
       expect(
-        server.recordsIn(userId, 'transactions').where(
-          (t) => t['Id'] == offlineTxn,
-        ),
+        server
+            .recordsIn(userId, 'transactions')
+            .where((t) => t['Id'] == offlineTxn),
         isEmpty,
       );
       final held = await device.findTransactionById(offlineTxn);
@@ -306,10 +308,9 @@ void main() {
 
       // The user answers, and the transaction goes up — re-pointed at the
       // adopted category, with its amount and title intact.
-      await CategoryReconciliationService(device).adoptExisting(
-        defaultKey: 'groceries',
-        candidateId: legacyCategoryId,
-      );
+      await CategoryReconciliationService(
+        device,
+      ).adoptExisting(defaultKey: 'groceries', candidateId: legacyCategoryId);
       await syncFor(device).syncAll();
 
       final uploaded = server
@@ -337,10 +338,7 @@ void main() {
 
       // The user sets up a budget against the built-in while the question is
       // open, and files a transaction under it.
-      final budgetId = await seedBudget(
-        device,
-        categoryIds: [provisionalId],
-      );
+      final budgetId = await seedBudget(device, categoryIds: [provisionalId]);
       final txnId = await seedTransaction(
         device,
         walletId: walletId,
@@ -360,17 +358,14 @@ void main() {
       final heldBudget = await device.findBudgetById(budgetId);
       expect(heldBudget!.syncStatus, SyncStatus.pendingCreate);
 
-      await CategoryReconciliationService(device).adoptExisting(
-        defaultKey: 'groceries',
-        candidateId: legacyCategoryId,
-      );
+      await CategoryReconciliationService(
+        device,
+      ).adoptExisting(defaultKey: 'groceries', candidateId: legacyCategoryId);
       await syncFor(device).syncAll();
 
       // The budget's scope moved to the adopted id.
       final local = await device.findBudgetById(budgetId);
-      expect(AppDatabase.decodeIdList(local!.categoryIds), [
-        legacyCategoryId,
-      ]);
+      expect(AppDatabase.decodeIdList(local!.categoryIds), [legacyCategoryId]);
       expect(local.syncStatus, SyncStatus.synced);
 
       // And what reached the cloud names the adopted category, not the
@@ -390,32 +385,32 @@ void main() {
     },
   );
 
-  test('keeping it custom leaves a budget pointed at the new built-in', () async {
-    await seedLegacyCloudCategory();
+  test(
+    'keeping it custom leaves a budget pointed at the new built-in',
+    () async {
+      await seedLegacyCloudCategory();
 
-    final provisionalId = await seedProvisionalGroceries(device);
-    await syncFor(device).syncAll();
+      final provisionalId = await seedProvisionalGroceries(device);
+      await syncFor(device).syncAll();
 
-    final budgetId = await seedBudget(
-      device,
-      categoryIds: [provisionalId],
-    );
+      final budgetId = await seedBudget(device, categoryIds: [provisionalId]);
 
-    await CategoryReconciliationService(
-      device,
-    ).keepSeparate(defaultKey: 'groceries');
-    await syncFor(device).syncAll();
+      await CategoryReconciliationService(
+        device,
+      ).keepSeparate(defaultKey: 'groceries');
+      await syncFor(device).syncAll();
 
-    // The provisional category became the built-in, so the budget's references
-    // are already right and must be left exactly as they are.
-    final local = await device.findBudgetById(budgetId);
-    expect(AppDatabase.decodeIdList(local!.categoryIds), [provisionalId]);
+      // The provisional category became the built-in, so the budget's references
+      // are already right and must be left exactly as they are.
+      final local = await device.findBudgetById(budgetId);
+      expect(AppDatabase.decodeIdList(local!.categoryIds), [provisionalId]);
 
-    final uploaded = server
-        .recordsIn(userId, 'budgets')
-        .firstWhere((b) => b['Id'] == budgetId);
-    expect(jsonDecode(uploaded['CategoryIds'] as String), [provisionalId]);
-  });
+      final uploaded = server
+          .recordsIn(userId, 'budgets')
+          .firstWhere((b) => b['Id'] == budgetId);
+      expect(jsonDecode(uploaded['CategoryIds'] as String), [provisionalId]);
+    },
+  );
 
   test('a budget scoped to both copies collapses to one reference', () async {
     await seedLegacyCloudCategory();
@@ -430,61 +425,64 @@ void main() {
       categoryIds: [legacyCategoryId, provisionalId],
     );
 
-    await CategoryReconciliationService(device).adoptExisting(
-      defaultKey: 'groceries',
-      candidateId: legacyCategoryId,
-    );
+    await CategoryReconciliationService(
+      device,
+    ).adoptExisting(defaultKey: 'groceries', candidateId: legacyCategoryId);
     await syncFor(device).syncAll();
 
     final local = await device.findBudgetById(budgetId);
-    expect(
-      AppDatabase.decodeIdList(local!.categoryIds),
-      [legacyCategoryId],
-      reason: 'the two references are the same category now, not a duplicate',
-    );
+    expect(AppDatabase.decodeIdList(local!.categoryIds), [
+      legacyCategoryId,
+    ], reason: 'the two references are the same category now, not a duplicate');
   });
 
-  test('deleting a category drops it from the budgets that scoped to it', () async {
-    final keptId = await seedCategory(device, name: 'Transport');
-    final doomedId = await seedCategory(device, name: 'Hobbies');
-    final budgetId = await seedBudget(
-      device,
-      categoryIds: [keptId, doomedId],
-    );
+  test(
+    'deleting a category drops it from the budgets that scoped to it',
+    () async {
+      final keptId = await seedCategory(device, name: 'Transport');
+      final doomedId = await seedCategory(device, name: 'Hobbies');
+      final budgetId = await seedBudget(
+        device,
+        categoryIds: [keptId, doomedId],
+      );
 
-    await device.softDeleteCategory(doomedId);
+      await device.softDeleteCategory(doomedId);
 
-    final local = await device.findBudgetById(budgetId);
-    expect(AppDatabase.decodeIdList(local!.categoryIds), [keptId]);
-    // Never uploaded, so it must still be a create — not downgraded to an
-    // update the server has no row for.
-    expect(local.syncStatus, SyncStatus.pendingCreate);
-  });
+      final local = await device.findBudgetById(budgetId);
+      expect(AppDatabase.decodeIdList(local!.categoryIds), [keptId]);
+      // Never uploaded, so it must still be a create — not downgraded to an
+      // update the server has no row for.
+      expect(local.syncStatus, SyncStatus.pendingCreate);
+    },
+  );
 
   // ------------------------------------------------------------ scope + safety
-  test('a same-named category of the other direction is not a candidate', () async {
-    // "Loan" exists as both an expense and an income built-in, so direction is
-    // the only thing separating them. An expense "Loan" must never be offered
-    // as a candidate for the income one.
-    await seedLegacyCloudCategory(name: 'Loan', isIncome: false);
+  test(
+    'a same-named category of the other direction is not a candidate',
+    () async {
+      // "Loan" exists as both an expense and an income built-in, so direction is
+      // the only thing separating them. An expense "Loan" must never be offered
+      // as a candidate for the income one.
+      await seedLegacyCloudCategory(name: 'Loan', isIncome: false);
 
-    await seedCategory(
-      device,
-      name: 'Loan',
-      isIncome: true,
-      isDefault: true,
-      defaultKey: 'loan_income',
-    );
-    await syncFor(device).syncAll();
+      await seedCategory(
+        device,
+        name: 'Loan',
+        isIncome: true,
+        isDefault: true,
+        defaultKey: 'loan_income',
+      );
+      await syncFor(device).syncAll();
 
-    expect(await questionsOn(device), isEmpty);
-    expect(
-      server.recordsIn(userId, 'categories').where(
-        (c) => c['DefaultKey'] == 'loan_income',
-      ),
-      hasLength(1),
-    );
-  });
+      expect(await questionsOn(device), isEmpty);
+      expect(
+        server
+            .recordsIn(userId, 'categories')
+            .where((c) => c['DefaultKey'] == 'loan_income'),
+        hasLength(1),
+      );
+    },
+  );
 
   test('a differently named category is left entirely alone', () async {
     await seedLegacyCloudCategory(name: 'Food shopping');
@@ -495,9 +493,9 @@ void main() {
     // No name match, so no question — and the built-in is created normally.
     expect(await questionsOn(device), isEmpty);
     expect(
-      server.recordsIn(userId, 'categories').where(
-        (c) => c['DefaultKey'] == 'groceries',
-      ),
+      server
+          .recordsIn(userId, 'categories')
+          .where((c) => c['DefaultKey'] == 'groceries'),
       hasLength(1),
     );
     final untouched = server
@@ -506,34 +504,36 @@ void main() {
     expect(untouched['DefaultKey'], isNull);
   });
 
-  test('a decision that can no longer be applied is asked again, not retried', () async {
-    await seedLegacyCloudCategory();
-    await seedProvisionalGroceries(device);
-    await syncFor(device).syncAll();
+  test(
+    'a decision that can no longer be applied is asked again, not retried',
+    () async {
+      await seedLegacyCloudCategory();
+      await seedProvisionalGroceries(device);
+      await syncFor(device).syncAll();
 
-    await CategoryReconciliationService(device).adoptExisting(
-      defaultKey: 'groceries',
-      candidateId: legacyCategoryId,
-    );
+      await CategoryReconciliationService(
+        device,
+      ).adoptExisting(defaultKey: 'groceries', candidateId: legacyCategoryId);
 
-    // Another device deletes the chosen category before this one syncs.
-    server.push(userId, [
-      SyncChange(
-        tableName: 'categories',
-        entityId: legacyCategoryId,
-        operation: 'delete',
-      ),
-    ]);
+      // Another device deletes the chosen category before this one syncs.
+      server.push(userId, [
+        SyncChange(
+          tableName: 'categories',
+          entityId: legacyCategoryId,
+          operation: 'delete',
+        ),
+      ]);
 
-    await syncFor(device).syncAll();
+      await syncFor(device).syncAll();
 
-    final questions = await questionsOn(device);
-    expect(questions, hasLength(1));
-    expect(
-      questions.single.isAwaitingUser,
-      isTrue,
-      reason: 'the dead choice should be cleared, not retried forever',
-    );
-    expect(questions.single.resolutionCandidateId, isNull);
-  });
+      final questions = await questionsOn(device);
+      expect(questions, hasLength(1));
+      expect(
+        questions.single.isAwaitingUser,
+        isTrue,
+        reason: 'the dead choice should be cleared, not retried forever',
+      );
+      expect(questions.single.resolutionCandidateId, isNull);
+    },
+  );
 }

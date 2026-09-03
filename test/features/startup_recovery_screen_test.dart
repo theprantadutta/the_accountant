@@ -24,9 +24,7 @@ void main() {
   Future<void> pumpAt(WidgetTester tester, StartupFlowState state) async {
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [
-          startupFlowProvider.overrideWith(() => _PinnedFlow(state)),
-        ],
+        overrides: [startupFlowProvider.overrideWith(() => _PinnedFlow(state))],
         child: const MaterialApp(home: StartupRecoveryScreen()),
       ),
     );

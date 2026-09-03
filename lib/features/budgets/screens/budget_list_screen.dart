@@ -142,9 +142,7 @@ class _BudgetListScreenState extends ConsumerState<BudgetListScreen> {
             ),
             ListTile(
               leading: Icon(
-                budget.isPinned
-                    ? Icons.push_pin
-                    : Icons.push_pin_outlined,
+                budget.isPinned ? Icons.push_pin : Icons.push_pin_outlined,
               ),
               title: Text(budget.isPinned ? 'Unpin' : 'Pin to top'),
               onTap: () => Navigator.pop(context, 'pin'),
@@ -164,10 +162,7 @@ class _BudgetListScreenState extends ConsumerState<BudgetListScreen> {
               onTap: () => Navigator.pop(context, 'archive'),
             ),
             ListTile(
-              leading: const Icon(
-                Icons.delete_outline,
-                color: AppColors.error,
-              ),
+              leading: const Icon(Icons.delete_outline, color: AppColors.error),
               title: const Text(
                 'Delete',
                 style: TextStyle(color: AppColors.error),

@@ -60,10 +60,14 @@ void main() {
   test('matching is case-insensitive and can start mid-title', () async {
     await spend('Went to office', categoryId: transport);
 
-    expect((await db.searchTitleUsages('OFFICE')).single.title,
-        'Went to office');
-    expect((await db.searchTitleUsages('to off')).single.title,
-        'Went to office');
+    expect(
+      (await db.searchTitleUsages('OFFICE')).single.title,
+      'Went to office',
+    );
+    expect(
+      (await db.searchTitleUsages('to off')).single.title,
+      'Went to office',
+    );
   });
 
   test('a title far outside the recent handful is still reachable', () async {

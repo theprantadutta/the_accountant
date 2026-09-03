@@ -208,10 +208,7 @@ class _Headline extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            money(progress.spent),
-            style: AppTypography.displaySmall,
-          ),
+          Text(money(progress.spent), style: AppTypography.displaySmall),
           Text(
             'of ${money(progress.limit)}'
             '${progress.carriedIn > 0 ? ' including ${money(progress.carriedIn)} carried over' : ''}',
@@ -230,16 +227,12 @@ class _Headline extends ConsumerWidget {
             ),
           ),
           AppSpacing.gapMd,
-          Text(
-            switch ((progress.isOver, perDay)) {
-              (true, _) =>
-                '${money(progress.remaining.abs())} over the limit.',
-              (false, final int p) when isCurrent =>
-                '${money(progress.remaining)} left, about ${money(p)} a day.',
-              _ => '${money(progress.remaining)} left.',
-            },
-            style: AppTypography.bodyMedium,
-          ),
+          Text(switch ((progress.isOver, perDay)) {
+            (true, _) => '${money(progress.remaining.abs())} over the limit.',
+            (false, final int p) when isCurrent =>
+              '${money(progress.remaining)} left, about ${money(p)} a day.',
+            _ => '${money(progress.remaining)} left.',
+          }, style: AppTypography.bodyMedium),
           if (isCurrent && progress.isAheadOfPace(now)) ...[
             AppSpacing.gapSm,
             Row(
@@ -849,7 +842,10 @@ class _SpendGraph extends ConsumerWidget {
                       LineChartBarData(
                         spots: [
                           FlSpot(0, 0),
-                          FlSpot((days - 1).toDouble(), progress.limit.toDouble()),
+                          FlSpot(
+                            (days - 1).toDouble(),
+                            progress.limit.toDouble(),
+                          ),
                         ],
                         isCurved: false,
                         barWidth: 1,
@@ -860,7 +856,11 @@ class _SpendGraph extends ConsumerWidget {
                       if (previous.isNotEmpty)
                         LineChartBarData(
                           spots: [
-                            for (var i = 0; i < previous.length && i < days; i++)
+                            for (
+                              var i = 0;
+                              i < previous.length && i < days;
+                              i++
+                            )
                               FlSpot(i.toDouble(), previous[i].toDouble()),
                           ],
                           isCurved: true,
@@ -895,8 +895,10 @@ class _SpendGraph extends ConsumerWidget {
               AppSpacing.gapSm,
               Row(
                 children: [
-                  _Key(color: AppColors.textMuted.withValues(alpha: 0.4),
-                      label: 'Previous period'),
+                  _Key(
+                    color: AppColors.textMuted.withValues(alpha: 0.4),
+                    label: 'Previous period',
+                  ),
                   const SizedBox(width: 16),
                   _Key(
                     color: AppColors.textMuted.withValues(alpha: 0.35),

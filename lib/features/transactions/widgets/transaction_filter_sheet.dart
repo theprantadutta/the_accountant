@@ -118,8 +118,9 @@ class _FilterSheetState extends ConsumerState<_FilterSheet> {
                     ),
                   ],
                   selected: {_draft.direction},
-                  onSelectionChanged: (s) =>
-                      setState(() => _draft = _draft.copyWith(direction: s.first)),
+                  onSelectionChanged: (s) => setState(
+                    () => _draft = _draft.copyWith(direction: s.first),
+                  ),
                 ),
                 AppSpacing.gapXl,
 
@@ -131,8 +132,9 @@ class _FilterSheetState extends ConsumerState<_FilterSheet> {
                       ChoiceChip(
                         label: Text(_paidLabel(option)),
                         selected: _draft.paid == option,
-                        onSelected: (_) =>
-                            setState(() => _draft = _draft.copyWith(paid: option)),
+                        onSelected: (_) => setState(
+                          () => _draft = _draft.copyWith(paid: option),
+                        ),
                       ),
                   ],
                 ),
@@ -268,7 +270,8 @@ class _FilterSheetState extends ConsumerState<_FilterSheet> {
                     ),
                   ],
                 ),
-                if (_draft.minAmount != null && _draft.maxAmount != null &&
+                if (_draft.minAmount != null &&
+                    _draft.maxAmount != null &&
                     _draft.minAmount! > _draft.maxAmount!) ...[
                   AppSpacing.gapSm,
                   Text(
@@ -390,9 +393,8 @@ class _AmountFieldState extends State<_AmountField> {
         border: const OutlineInputBorder(),
         isDense: true,
       ),
-      onChanged: (text) => widget.onChanged(
-        text.trim().isEmpty ? null : text.toCentsOrNull(),
-      ),
+      onChanged: (text) =>
+          widget.onChanged(text.trim().isEmpty ? null : text.toCentsOrNull()),
     );
   }
 }
@@ -436,7 +438,9 @@ class _DateField extends StatelessWidget {
                 ),
         ),
         child: Text(
-          value == null ? 'Any' : AppDateFormatter.formatShortDate(value!, format),
+          value == null
+              ? 'Any'
+              : AppDateFormatter.formatShortDate(value!, format),
         ),
       ),
     );

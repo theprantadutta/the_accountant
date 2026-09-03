@@ -23,8 +23,10 @@ void main() {
 
   const user = 'user-a';
 
-  SyncService serviceFor(AppDatabase db) =>
-      SyncService(database: db, transport: FakeSyncTransport(server: server, userId: user));
+  SyncService serviceFor(AppDatabase db) => SyncService(
+    database: db,
+    transport: FakeSyncTransport(server: server, userId: user),
+  );
 
   setUp(() async {
     server = FakeSyncServer();
@@ -47,7 +49,11 @@ void main() {
         amount: 120000,
       );
       final uploaded = await serviceFor(deviceA).syncAll();
-      expect(uploaded.success, isTrue, reason: 'the upload itself must succeed');
+      expect(
+        uploaded.success,
+        isTrue,
+        reason: 'the upload itself must succeed',
+      );
 
       // Reproduce the real API's serializer, which drops null-valued keys
       // instead of writing them, so an unscoped budget arrives without them.
@@ -68,7 +74,8 @@ void main() {
       expect(
         downloaded.canAdvanceCursor,
         isTrue,
-        reason: 'the cursor must move on, or every later sync replays this batch',
+        reason:
+            'the cursor must move on, or every later sync replays this batch',
       );
 
       final landed = await (deviceB.select(

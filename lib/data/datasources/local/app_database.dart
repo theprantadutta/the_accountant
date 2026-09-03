@@ -1280,6 +1280,46 @@ class AppDatabase extends _$AppDatabase {
     );
   }
 
+  /// Transactions deleted within the last [within], newest first.
+  ///
+  /// A soft delete leaves the row in place until the server confirms it and the
+  /// cleanup sweep removes it, so the data to undo a mistake is already here.
+  /// Cashew keeps its own list of the last fifty in shared preferences, which
+  /// does not survive a reinstall and cannot be trusted after a sync; this is
+  /// just the table.
+  Future<List<Transaction>> getRecentlyDeletedTransactions({
+    Duration within = const Duration(days: 30),
+  }) {
+    final cutoff = DateTime.now().subtract(within);
+    return (select(transactions)
+          ..where((t) => t.deletedAt.isNotNull())
+          ..where((t) => t.deletedAt.isBiggerThanValue(cutoff))
+          ..orderBy([(t) => OrderingTerm.desc(t.deletedAt)]))
+        .get();
+  }
+
+  /// Put a deleted transaction back.
+  ///
+  /// The row goes back to pending-create rather than pending-update when it had
+  /// never reached the server: an update names a row the server has no record
+  /// of, and would be rejected every time it was pushed.
+  Future<void> restoreTransaction(String id) async {
+    final row = await findTransactionById(id);
+    if (row == null) return;
+
+    await (update(transactions)..where((t) => t.id.equals(id))).write(
+      TransactionsCompanion(
+        deletedAt: const Value(null),
+        updatedAt: Value(DateTime.now()),
+        syncStatus: Value(
+          row.syncStatus == SyncStatus.pendingDelete
+              ? SyncStatus.pendingUpdate
+              : SyncStatus.markEdited(row.syncStatus),
+        ),
+      ),
+    );
+  }
+
   /// @deprecated - Use getIncomeTransactions or getExpenseTransactions instead
   Future<List<Transaction>> getTransactionsByType(String type) =>
       (select(transactions)
@@ -1515,9 +1555,9 @@ class AppDatabase extends _$AppDatabase {
   /// Live caps inside [budgetId].
   Future<List<CategoryBudgetLimit>> getCategoryLimitsForBudget(
     String budgetId,
-  ) => (select(categoryBudgetLimits)
-        ..where((l) => l.budgetId.equals(budgetId) & l.deletedAt.isNull()))
-      .get();
+  ) => (select(
+    categoryBudgetLimits,
+  )..where((l) => l.budgetId.equals(budgetId) & l.deletedAt.isNull())).get();
 
   /// Set or replace the cap on [categoryId] within [budgetId].
   ///
@@ -1553,15 +1593,16 @@ class AppDatabase extends _$AppDatabase {
       return;
     }
 
-    await (update(categoryBudgetLimits)..where((l) => l.id.equals(existing.id)))
-        .write(
-          CategoryBudgetLimitsCompanion(
-            amount: Value(amount),
-            isPercent: Value(isPercent),
-            updatedAt: Value(DateTime.now()),
-            syncStatus: Value(SyncStatus.markEdited(existing.syncStatus)),
-          ),
-        );
+    await (update(
+      categoryBudgetLimits,
+    )..where((l) => l.id.equals(existing.id))).write(
+      CategoryBudgetLimitsCompanion(
+        amount: Value(amount),
+        isPercent: Value(isPercent),
+        updatedAt: Value(DateTime.now()),
+        syncStatus: Value(SyncStatus.markEdited(existing.syncStatus)),
+      ),
+    );
   }
 
   Future<void> removeCategoryLimit(String id) async {

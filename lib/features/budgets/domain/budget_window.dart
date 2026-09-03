@@ -137,7 +137,11 @@ class BudgetWindows {
   }
 
   /// The start of the window after the one opening at [from].
-  static DateTime advance(DateTime from, BudgetPeriod period, int periodLength) {
+  static DateTime advance(
+    DateTime from,
+    BudgetPeriod period,
+    int periodLength,
+  ) {
     final n = periodLength < 1 ? 1 : periodLength;
     switch (period) {
       case BudgetPeriod.daily:
@@ -156,7 +160,11 @@ class BudgetWindows {
   }
 
   /// The start of the window before the one opening at [from].
-  static DateTime retreat(DateTime from, BudgetPeriod period, int periodLength) {
+  static DateTime retreat(
+    DateTime from,
+    BudgetPeriod period,
+    int periodLength,
+  ) {
     final n = periodLength < 1 ? 1 : periodLength;
     switch (period) {
       case BudgetPeriod.daily:

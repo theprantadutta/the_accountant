@@ -49,7 +49,8 @@ class BudgetProgressCard extends ConsumerWidget {
 
     return Semantics(
       button: onTap != null,
-      label: '${progress.budget.name}, '
+      label:
+          '${progress.budget.name}, '
           '${money(progress.spent)} of ${money(progress.limit)} used',
       child: InkWell(
         onTap: onTap,
@@ -60,10 +61,7 @@ class BudgetProgressCard extends ConsumerWidget {
           decoration: BoxDecoration(
             gradient: gradient,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: accent.withValues(alpha: 0.3),
-              width: 1,
-            ),
+            border: Border.all(color: accent.withValues(alpha: 0.3), width: 1),
           ),
           child: Padding(
             padding: const EdgeInsets.all(16),
@@ -95,7 +93,11 @@ class BudgetProgressCard extends ConsumerWidget {
                   ],
                 ),
                 const SizedBox(height: 12),
-                _PaceBar(fraction: fraction, accent: accent, progress: progress),
+                _PaceBar(
+                  fraction: fraction,
+                  accent: accent,
+                  progress: progress,
+                ),
                 const SizedBox(height: 10),
                 Row(
                   children: [

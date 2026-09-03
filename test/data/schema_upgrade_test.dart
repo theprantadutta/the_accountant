@@ -51,7 +51,9 @@ void main() {
     // store really had.
     if (version < 18) {
       if (!keep.contains('budgets.category_id')) {
-        await db.customStatement('ALTER TABLE budgets ADD COLUMN category_id TEXT');
+        await db.customStatement(
+          'ALTER TABLE budgets ADD COLUMN category_id TEXT',
+        );
       }
       if (!keep.contains('budgets.limit')) {
         await db.customStatement('ALTER TABLE budgets ADD COLUMN "limit" REAL');

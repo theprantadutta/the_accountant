@@ -80,24 +80,27 @@ void main() {
       final family = await db.categoryFamilyIds(food);
 
       expect(
-        TransactionPolicy.countsTowardBudget(
-          lunch,
-          budgetCategoryIds: family,
-        ),
+        TransactionPolicy.countsTowardBudget(lunch, budgetCategoryIds: family),
         isTrue,
         reason: 'a Food budget is about food, not about the word',
       );
     });
 
-    test('a budget on the parent still counts spending on the parent', () async {
-      final dinner = await spend(food, 3400);
-      final family = await db.categoryFamilyIds(food);
+    test(
+      'a budget on the parent still counts spending on the parent',
+      () async {
+        final dinner = await spend(food, 3400);
+        final family = await db.categoryFamilyIds(food);
 
-      expect(
-        TransactionPolicy.countsTowardBudget(dinner, budgetCategoryIds: family),
-        isTrue,
-      );
-    });
+        expect(
+          TransactionPolicy.countsTowardBudget(
+            dinner,
+            budgetCategoryIds: family,
+          ),
+          isTrue,
+        );
+      },
+    );
 
     test('a budget on the parent ignores unrelated categories', () async {
       final bus = await spend(transport, 290);
@@ -125,7 +128,10 @@ void main() {
       final lunch = await spend(sandwich, 1200);
 
       expect(
-        TransactionPolicy.countsTowardBudget(lunch, budgetCategoryIds: const {}),
+        TransactionPolicy.countsTowardBudget(
+          lunch,
+          budgetCategoryIds: const {},
+        ),
         isTrue,
       );
       expect(

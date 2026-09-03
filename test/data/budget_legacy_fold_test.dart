@@ -42,16 +42,13 @@ void main() {
     return file;
   }
 
-  Future<void> insertCategory(
-    AppDatabase db,
-    String id,
-    String name,
-  ) => db.customStatement(
-    'INSERT INTO categories (id, name, icon_name, color, is_income, '
-    'order_index, is_default, sync_status, created_at, updated_at) '
-    "VALUES (?, ?, 'x', '#fff', 0, 1, 0, 0, 1, 1)",
-    [id, name],
-  );
+  Future<void> insertCategory(AppDatabase db, String id, String name) =>
+      db.customStatement(
+        'INSERT INTO categories (id, name, icon_name, color, is_income, '
+        'order_index, is_default, sync_status, created_at, updated_at) '
+        "VALUES (?, ?, 'x', '#fff', 0, 1, 0, 0, 1, 1)",
+        [id, name],
+      );
 
   Future<void> insertBudget(
     AppDatabase db, {

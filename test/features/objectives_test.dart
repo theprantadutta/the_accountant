@@ -116,44 +116,52 @@ void main() {
     expect((await service.getObjectiveWithProgress(id)).currentAmount, 0);
   });
 
-  test('unlinking removes it from the goal but keeps the transaction', () async {
-    final id = await goal();
-    final txn = await seedTransaction(
-      db,
-      walletId: walletId,
-      amount: 30000,
-      date: DateTime(2026, 1, 5),
-    );
-    await service.linkTransaction(id, txn);
-    await service.unlinkTransaction(id, txn);
+  test(
+    'unlinking removes it from the goal but keeps the transaction',
+    () async {
+      final id = await goal();
+      final txn = await seedTransaction(
+        db,
+        walletId: walletId,
+        amount: 30000,
+        date: DateTime(2026, 1, 5),
+      );
+      await service.linkTransaction(id, txn);
+      await service.unlinkTransaction(id, txn);
 
-    expect((await service.getObjectiveWithProgress(id)).currentAmount, 0);
-    expect(
-      await db.findTransactionById(txn),
-      isNotNull,
-      reason: 'detaching a transaction from a goal must not delete it',
-    );
-  });
+      expect((await service.getObjectiveWithProgress(id)).currentAmount, 0);
+      expect(
+        await db.findTransactionById(txn),
+        isNotNull,
+        reason: 'detaching a transaction from a goal must not delete it',
+      );
+    },
+  );
 
-  test('deleting a goal detaches its transactions rather than removing them', () async {
-    final id = await goal();
-    final txn = await seedTransaction(
-      db,
-      walletId: walletId,
-      amount: 30000,
-      date: DateTime(2026, 1, 5),
-    );
-    await service.linkTransaction(id, txn);
+  test(
+    'deleting a goal detaches its transactions rather than removing them',
+    () async {
+      final id = await goal();
+      final txn = await seedTransaction(
+        db,
+        walletId: walletId,
+        amount: 30000,
+        date: DateTime(2026, 1, 5),
+      );
+      await service.linkTransaction(id, txn);
 
-    await service.deleteObjective(id);
+      await service.deleteObjective(id);
 
-    final kept = await db.findTransactionById(txn);
-    expect(kept, isNotNull);
-    expect(kept!.objectiveId, isNull);
-  });
+      final kept = await db.findTransactionById(txn);
+      expect(kept, isNotNull);
+      expect(kept!.objectiveId, isNull);
+    },
+  );
 
   test('a deadline gives a daily amount, without one there is none', () async {
-    final dated = await goal(endDate: DateTime.now().add(const Duration(days: 10)));
+    final dated = await goal(
+      endDate: DateTime.now().add(const Duration(days: 10)),
+    );
     final open = await goal();
 
     expect(
