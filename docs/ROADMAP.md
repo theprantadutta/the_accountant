@@ -210,6 +210,15 @@ The table, provider and free-tier limit all exist, but nothing can create one, s
 
 ## Phase 3 — The transaction workbench
 
+**Status: done**, except windowed loading. Client commits `5879904`, `caf1f15`, `ef71cbf`, `3fcdd22`, `f1dab17`; backend commit `482dbde`. Flutter analyze clean with 447 tests passing; backend clean with 45.
+
+Done: filters on accounts, several categories, direction, paid state, kind, amount range, date range and transfer visibility; search that reads amounts and month names; multi-select with bulk delete, recategorise, move account, re-date, mark paid and duplicate; a transaction detail screen; recently deleted with restore; and a naming-rules editor whose rules now sync.
+
+**Deferred: windowed loading.** The list still loads the whole table into memory. It is a scaling concern rather than a correctness one, and it wants its own change with its own measurements rather than being bolted onto a set of behaviour changes.
+
+The rest of this section is the original plan, kept for the detail.
+
+
 The daily-use surface, and the widest everyday gap against Cashew.
 
 - **Filters**: wallets, multiple categories, subcategories, date range, amount range, paid status, special type, budget, objective, transfer visibility. Persisted between sessions.
