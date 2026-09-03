@@ -22,6 +22,7 @@ import 'package:the_accountant/features/settings/screens/about_screen.dart';
 import 'package:the_accountant/features/settings/screens/contact_support_screen.dart';
 import 'package:the_accountant/features/settings/screens/help_screen.dart';
 import 'package:the_accountant/features/backup/screens/backup_screen.dart';
+import 'package:the_accountant/features/import/screens/import_screen.dart';
 import 'package:the_accountant/features/settings/screens/export_screen.dart';
 import 'package:the_accountant/features/settings/screens/profile_edit_screen.dart';
 import 'package:the_accountant/features/settings/screens/privacy_security_screen.dart';
@@ -567,6 +568,20 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const ExportScreen()),
+          ),
+        ),
+      );
+    }
+    if (_matchesSearch('Import a statement') ||
+        _matchesKeywords(['import', 'csv', 'statement', 'bank', 'upload'])) {
+      dataTiles.add(
+        SettingsNavigationTile(
+          icon: Icons.upload_file_outlined,
+          title: 'Import a statement',
+          subtitle: 'Bring in a CSV from your bank, mapped once and remembered',
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const ImportScreen()),
           ),
         ),
       );

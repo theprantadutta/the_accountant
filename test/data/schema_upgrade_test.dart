@@ -1,10 +1,15 @@
+import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/data/models/transaction.dart'
     show TransactionType;
+import 'package:the_accountant/features/import/domain/column_mapping.dart';
+import 'package:the_accountant/features/import/domain/csv_reader.dart';
+import 'package:the_accountant/features/import/services/import_template_service.dart';
 
 /// Exercises the REAL Drift upgrade path, not just the data-migration helper.
 ///
@@ -64,6 +69,9 @@ void main() {
 
     await seed?.call(db);
 
+    if (version < 22 && !keep.contains('import_templates')) {
+      await db.customStatement('DROP TABLE IF EXISTS import_templates');
+    }
     if (version < 15 && !keep.contains('local_id_repairs')) {
       await db.customStatement('DROP TABLE IF EXISTS local_id_repairs');
     }
@@ -118,6 +126,7 @@ void main() {
     expect(await hasTable('local_store_metas'), isTrue);
     expect(await hasTable('category_reconciliations'), isTrue);
     expect(await hasTable('local_id_repairs'), isTrue);
+    expect(await hasTable('import_templates'), isTrue);
     expect(await hasColumn('transactions', 'occurrence_key'), isTrue);
     expect(await hasColumn('categories', 'default_key'), isTrue);
   }
@@ -379,6 +388,51 @@ void main() {
     final kept = await upgraded.findCategoryById('cat-keep');
     expect(kept, isNotNull);
     expect(kept!.defaultKey, 'groceries');
+  });
+
+  test('a schema-21 database gains somewhere to keep import mappings', () async {
+    // Schema 22 is purely additive: a place to remember how one bank writes its
+    // statements. An existing install must gain the table without losing
+    // anything it already had, and must be able to write to it straight away.
+    final file = await buildLegacyDatabase(
+      21,
+      seed: (legacy) async {
+        await legacy.customStatement(
+          'INSERT INTO wallets (id, name, balance, opening_balance, currency, '
+          'is_default, is_archived, exclude_from_total, use_decimals, '
+          'sync_status, created_at, updated_at) '
+          "VALUES ('w-keep', 'Current', 4200, 0, 'USD', 1, 0, 0, 1, 0, 1, 1)",
+        );
+      },
+    );
+
+    final upgraded = AppDatabase(NativeDatabase(file));
+    addTearDown(upgraded.close);
+
+    final templates = ImportTemplateService(upgraded);
+    expect(await templates.all(), isEmpty);
+
+    await templates.save(
+      name: 'My bank',
+      document: CsvReader.read(
+        Uint8List.fromList(
+          utf8.encode('Date,Description,Amount\n2026-01-01,X,-1\n'),
+        ),
+      ),
+      mapping: const ColumnMapping(
+        columns: {ImportField.date: 0, ImportField.amount: 2},
+        dateFormat: 'yyyy-MM-dd',
+      ),
+      defaultWalletId: 'w-keep',
+    );
+
+    expect((await templates.all()).single.name, 'My bank');
+    expect(
+      (await upgraded.findWalletById('w-keep'))?.balance,
+      4200,
+      reason: 'an additive migration must not disturb what was already there',
+    );
+    await expectFullyUpgraded(upgraded);
   });
 
   test('schema 14 drops budget references to categories that are gone', () async {

@@ -21,6 +21,7 @@ import 'package:the_accountant/data/models/sync_state.dart';
 import 'package:the_accountant/data/models/exchange_rate.dart';
 import 'package:the_accountant/data/models/local_store_meta.dart';
 import 'package:the_accountant/data/models/category_reconciliation.dart';
+import 'package:the_accountant/data/models/import_template.dart';
 import 'package:the_accountant/data/models/local_id_repair.dart';
 
 part 'app_database.g.dart';
@@ -156,13 +157,14 @@ class SystemCategories {
     LocalStoreMetas,
     CategoryReconciliations,
     LocalIdRepairs,
+    ImportTemplates,
   ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 21;
+  int get schemaVersion => 22;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -300,6 +302,10 @@ class AppDatabase extends _$AppDatabase {
       }
       if (from < 21) {
         await _migrateToV21(m);
+      }
+
+      if (from < 22) {
+        await _migrateToV22(m);
       }
     },
     beforeOpen: (details) async {
@@ -654,6 +660,18 @@ class AppDatabase extends _$AppDatabase {
   /// Purely additive. Every existing account is live and counted, and every
   /// existing transfer was within one currency, which is what null on the two
   /// transaction columns already means.
+  /// Saved column mappings for imported statements.
+  ///
+  /// A new table and nothing else — there is no data to fold in, because
+  /// nothing could describe a bank's export before there was somewhere to keep
+  /// the description.
+  Future<void> _migrateToV22(Migrator m) async {
+    final existing = await _existingSchemaNames();
+    if (!existing.contains(importTemplates.actualTableName)) {
+      await m.createTable(importTemplates);
+    }
+  }
+
   Future<void> _migrateToV21(Migrator m) async {
     await _ensureColumn(m, wallets, wallets.isArchived);
     await _ensureColumn(m, wallets, wallets.excludeFromTotal);

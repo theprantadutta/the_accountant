@@ -12900,6 +12900,641 @@ class LocalIdRepairsCompanion extends UpdateCompanion<LocalIdRepair> {
   }
 }
 
+class $ImportTemplatesTable extends ImportTemplates
+    with TableInfo<$ImportTemplatesTable, ImportTemplate> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ImportTemplatesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _delimiterMeta = const VerificationMeta(
+    'delimiter',
+  );
+  @override
+  late final GeneratedColumn<String> delimiter = GeneratedColumn<String>(
+    'delimiter',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(','),
+  );
+  static const VerificationMeta _hasHeaderMeta = const VerificationMeta(
+    'hasHeader',
+  );
+  @override
+  late final GeneratedColumn<bool> hasHeader = GeneratedColumn<bool>(
+    'has_header',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("has_header" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  static const VerificationMeta _mappingMeta = const VerificationMeta(
+    'mapping',
+  );
+  @override
+  late final GeneratedColumn<String> mapping = GeneratedColumn<String>(
+    'mapping',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _columnSignatureMeta = const VerificationMeta(
+    'columnSignature',
+  );
+  @override
+  late final GeneratedColumn<String> columnSignature = GeneratedColumn<String>(
+    'column_signature',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  );
+  static const VerificationMeta _defaultWalletIdMeta = const VerificationMeta(
+    'defaultWalletId',
+  );
+  @override
+  late final GeneratedColumn<String> defaultWalletId = GeneratedColumn<String>(
+    'default_wallet_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  static const VerificationMeta _lastUsedAtMeta = const VerificationMeta(
+    'lastUsedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> lastUsedAt = GeneratedColumn<DateTime>(
+    'last_used_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    name,
+    delimiter,
+    hasHeader,
+    mapping,
+    columnSignature,
+    defaultWalletId,
+    createdAt,
+    updatedAt,
+    lastUsedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'import_templates';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ImportTemplate> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('delimiter')) {
+      context.handle(
+        _delimiterMeta,
+        delimiter.isAcceptableOrUnknown(data['delimiter']!, _delimiterMeta),
+      );
+    }
+    if (data.containsKey('has_header')) {
+      context.handle(
+        _hasHeaderMeta,
+        hasHeader.isAcceptableOrUnknown(data['has_header']!, _hasHeaderMeta),
+      );
+    }
+    if (data.containsKey('mapping')) {
+      context.handle(
+        _mappingMeta,
+        mapping.isAcceptableOrUnknown(data['mapping']!, _mappingMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_mappingMeta);
+    }
+    if (data.containsKey('column_signature')) {
+      context.handle(
+        _columnSignatureMeta,
+        columnSignature.isAcceptableOrUnknown(
+          data['column_signature']!,
+          _columnSignatureMeta,
+        ),
+      );
+    }
+    if (data.containsKey('default_wallet_id')) {
+      context.handle(
+        _defaultWalletIdMeta,
+        defaultWalletId.isAcceptableOrUnknown(
+          data['default_wallet_id']!,
+          _defaultWalletIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    if (data.containsKey('last_used_at')) {
+      context.handle(
+        _lastUsedAtMeta,
+        lastUsedAt.isAcceptableOrUnknown(
+          data['last_used_at']!,
+          _lastUsedAtMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ImportTemplate map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ImportTemplate(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      delimiter: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}delimiter'],
+      )!,
+      hasHeader: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}has_header'],
+      )!,
+      mapping: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}mapping'],
+      )!,
+      columnSignature: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}column_signature'],
+      )!,
+      defaultWalletId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}default_wallet_id'],
+      ),
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      lastUsedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}last_used_at'],
+      ),
+    );
+  }
+
+  @override
+  $ImportTemplatesTable createAlias(String alias) {
+    return $ImportTemplatesTable(attachedDatabase, alias);
+  }
+}
+
+class ImportTemplate extends DataClass implements Insertable<ImportTemplate> {
+  final String id;
+
+  /// What the user calls it — usually the bank and the account.
+  final String name;
+
+  /// The character that separated the fields when this was saved.
+  final String delimiter;
+  final bool hasHeader;
+
+  /// The mapping itself, as JSON. Stored opaquely so a new import field can be
+  /// added without a migration.
+  final String mapping;
+
+  /// A fingerprint of the column titles this was built against.
+  ///
+  /// This is what lets the right template be offered without the user having to
+  /// remember which one they made: the next file whose headings match is
+  /// recognised on sight.
+  final String columnSignature;
+
+  /// The account rows land in when the file does not name one.
+  final String? defaultWalletId;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+
+  /// Used to offer the most recently useful template first.
+  final DateTime? lastUsedAt;
+  const ImportTemplate({
+    required this.id,
+    required this.name,
+    required this.delimiter,
+    required this.hasHeader,
+    required this.mapping,
+    required this.columnSignature,
+    this.defaultWalletId,
+    required this.createdAt,
+    required this.updatedAt,
+    this.lastUsedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['name'] = Variable<String>(name);
+    map['delimiter'] = Variable<String>(delimiter);
+    map['has_header'] = Variable<bool>(hasHeader);
+    map['mapping'] = Variable<String>(mapping);
+    map['column_signature'] = Variable<String>(columnSignature);
+    if (!nullToAbsent || defaultWalletId != null) {
+      map['default_wallet_id'] = Variable<String>(defaultWalletId);
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || lastUsedAt != null) {
+      map['last_used_at'] = Variable<DateTime>(lastUsedAt);
+    }
+    return map;
+  }
+
+  ImportTemplatesCompanion toCompanion(bool nullToAbsent) {
+    return ImportTemplatesCompanion(
+      id: Value(id),
+      name: Value(name),
+      delimiter: Value(delimiter),
+      hasHeader: Value(hasHeader),
+      mapping: Value(mapping),
+      columnSignature: Value(columnSignature),
+      defaultWalletId: defaultWalletId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(defaultWalletId),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      lastUsedAt: lastUsedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastUsedAt),
+    );
+  }
+
+  factory ImportTemplate.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ImportTemplate(
+      id: serializer.fromJson<String>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+      delimiter: serializer.fromJson<String>(json['delimiter']),
+      hasHeader: serializer.fromJson<bool>(json['hasHeader']),
+      mapping: serializer.fromJson<String>(json['mapping']),
+      columnSignature: serializer.fromJson<String>(json['columnSignature']),
+      defaultWalletId: serializer.fromJson<String?>(json['defaultWalletId']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      lastUsedAt: serializer.fromJson<DateTime?>(json['lastUsedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'name': serializer.toJson<String>(name),
+      'delimiter': serializer.toJson<String>(delimiter),
+      'hasHeader': serializer.toJson<bool>(hasHeader),
+      'mapping': serializer.toJson<String>(mapping),
+      'columnSignature': serializer.toJson<String>(columnSignature),
+      'defaultWalletId': serializer.toJson<String?>(defaultWalletId),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'lastUsedAt': serializer.toJson<DateTime?>(lastUsedAt),
+    };
+  }
+
+  ImportTemplate copyWith({
+    String? id,
+    String? name,
+    String? delimiter,
+    bool? hasHeader,
+    String? mapping,
+    String? columnSignature,
+    Value<String?> defaultWalletId = const Value.absent(),
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    Value<DateTime?> lastUsedAt = const Value.absent(),
+  }) => ImportTemplate(
+    id: id ?? this.id,
+    name: name ?? this.name,
+    delimiter: delimiter ?? this.delimiter,
+    hasHeader: hasHeader ?? this.hasHeader,
+    mapping: mapping ?? this.mapping,
+    columnSignature: columnSignature ?? this.columnSignature,
+    defaultWalletId: defaultWalletId.present
+        ? defaultWalletId.value
+        : this.defaultWalletId,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    lastUsedAt: lastUsedAt.present ? lastUsedAt.value : this.lastUsedAt,
+  );
+  ImportTemplate copyWithCompanion(ImportTemplatesCompanion data) {
+    return ImportTemplate(
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+      delimiter: data.delimiter.present ? data.delimiter.value : this.delimiter,
+      hasHeader: data.hasHeader.present ? data.hasHeader.value : this.hasHeader,
+      mapping: data.mapping.present ? data.mapping.value : this.mapping,
+      columnSignature: data.columnSignature.present
+          ? data.columnSignature.value
+          : this.columnSignature,
+      defaultWalletId: data.defaultWalletId.present
+          ? data.defaultWalletId.value
+          : this.defaultWalletId,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      lastUsedAt: data.lastUsedAt.present
+          ? data.lastUsedAt.value
+          : this.lastUsedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ImportTemplate(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('delimiter: $delimiter, ')
+          ..write('hasHeader: $hasHeader, ')
+          ..write('mapping: $mapping, ')
+          ..write('columnSignature: $columnSignature, ')
+          ..write('defaultWalletId: $defaultWalletId, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('lastUsedAt: $lastUsedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    name,
+    delimiter,
+    hasHeader,
+    mapping,
+    columnSignature,
+    defaultWalletId,
+    createdAt,
+    updatedAt,
+    lastUsedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ImportTemplate &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.delimiter == this.delimiter &&
+          other.hasHeader == this.hasHeader &&
+          other.mapping == this.mapping &&
+          other.columnSignature == this.columnSignature &&
+          other.defaultWalletId == this.defaultWalletId &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.lastUsedAt == this.lastUsedAt);
+}
+
+class ImportTemplatesCompanion extends UpdateCompanion<ImportTemplate> {
+  final Value<String> id;
+  final Value<String> name;
+  final Value<String> delimiter;
+  final Value<bool> hasHeader;
+  final Value<String> mapping;
+  final Value<String> columnSignature;
+  final Value<String?> defaultWalletId;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> lastUsedAt;
+  final Value<int> rowid;
+  const ImportTemplatesCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.delimiter = const Value.absent(),
+    this.hasHeader = const Value.absent(),
+    this.mapping = const Value.absent(),
+    this.columnSignature = const Value.absent(),
+    this.defaultWalletId = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.lastUsedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ImportTemplatesCompanion.insert({
+    required String id,
+    required String name,
+    this.delimiter = const Value.absent(),
+    this.hasHeader = const Value.absent(),
+    required String mapping,
+    this.columnSignature = const Value.absent(),
+    this.defaultWalletId = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.lastUsedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       name = Value(name),
+       mapping = Value(mapping);
+  static Insertable<ImportTemplate> custom({
+    Expression<String>? id,
+    Expression<String>? name,
+    Expression<String>? delimiter,
+    Expression<bool>? hasHeader,
+    Expression<String>? mapping,
+    Expression<String>? columnSignature,
+    Expression<String>? defaultWalletId,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? lastUsedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (delimiter != null) 'delimiter': delimiter,
+      if (hasHeader != null) 'has_header': hasHeader,
+      if (mapping != null) 'mapping': mapping,
+      if (columnSignature != null) 'column_signature': columnSignature,
+      if (defaultWalletId != null) 'default_wallet_id': defaultWalletId,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (lastUsedAt != null) 'last_used_at': lastUsedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ImportTemplatesCompanion copyWith({
+    Value<String>? id,
+    Value<String>? name,
+    Value<String>? delimiter,
+    Value<bool>? hasHeader,
+    Value<String>? mapping,
+    Value<String>? columnSignature,
+    Value<String?>? defaultWalletId,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<DateTime?>? lastUsedAt,
+    Value<int>? rowid,
+  }) {
+    return ImportTemplatesCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      delimiter: delimiter ?? this.delimiter,
+      hasHeader: hasHeader ?? this.hasHeader,
+      mapping: mapping ?? this.mapping,
+      columnSignature: columnSignature ?? this.columnSignature,
+      defaultWalletId: defaultWalletId ?? this.defaultWalletId,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      lastUsedAt: lastUsedAt ?? this.lastUsedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (delimiter.present) {
+      map['delimiter'] = Variable<String>(delimiter.value);
+    }
+    if (hasHeader.present) {
+      map['has_header'] = Variable<bool>(hasHeader.value);
+    }
+    if (mapping.present) {
+      map['mapping'] = Variable<String>(mapping.value);
+    }
+    if (columnSignature.present) {
+      map['column_signature'] = Variable<String>(columnSignature.value);
+    }
+    if (defaultWalletId.present) {
+      map['default_wallet_id'] = Variable<String>(defaultWalletId.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (lastUsedAt.present) {
+      map['last_used_at'] = Variable<DateTime>(lastUsedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ImportTemplatesCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('delimiter: $delimiter, ')
+          ..write('hasHeader: $hasHeader, ')
+          ..write('mapping: $mapping, ')
+          ..write('columnSignature: $columnSignature, ')
+          ..write('defaultWalletId: $defaultWalletId, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('lastUsedAt: $lastUsedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -12930,6 +13565,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $CategoryReconciliationsTable categoryReconciliations =
       $CategoryReconciliationsTable(this);
   late final $LocalIdRepairsTable localIdRepairs = $LocalIdRepairsTable(this);
+  late final $ImportTemplatesTable importTemplates = $ImportTemplatesTable(
+    this,
+  );
   late final Index idxCategoriesDefaultKey = Index(
     'idx_categories_default_key',
     'CREATE UNIQUE INDEX idx_categories_default_key ON categories (default_key)',
@@ -12965,6 +13603,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     localStoreMetas,
     categoryReconciliations,
     localIdRepairs,
+    importTemplates,
     idxCategoriesDefaultKey,
     idxTransactionsOccurrenceKey,
     idxTransactionsPaired,
@@ -20730,6 +21369,313 @@ typedef $$LocalIdRepairsTableProcessedTableManager =
       LocalIdRepair,
       PrefetchHooks Function()
     >;
+typedef $$ImportTemplatesTableCreateCompanionBuilder =
+    ImportTemplatesCompanion Function({
+      required String id,
+      required String name,
+      Value<String> delimiter,
+      Value<bool> hasHeader,
+      required String mapping,
+      Value<String> columnSignature,
+      Value<String?> defaultWalletId,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<DateTime?> lastUsedAt,
+      Value<int> rowid,
+    });
+typedef $$ImportTemplatesTableUpdateCompanionBuilder =
+    ImportTemplatesCompanion Function({
+      Value<String> id,
+      Value<String> name,
+      Value<String> delimiter,
+      Value<bool> hasHeader,
+      Value<String> mapping,
+      Value<String> columnSignature,
+      Value<String?> defaultWalletId,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<DateTime?> lastUsedAt,
+      Value<int> rowid,
+    });
+
+class $$ImportTemplatesTableFilterComposer
+    extends Composer<_$AppDatabase, $ImportTemplatesTable> {
+  $$ImportTemplatesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get delimiter => $composableBuilder(
+    column: $table.delimiter,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get hasHeader => $composableBuilder(
+    column: $table.hasHeader,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get mapping => $composableBuilder(
+    column: $table.mapping,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get columnSignature => $composableBuilder(
+    column: $table.columnSignature,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get defaultWalletId => $composableBuilder(
+    column: $table.defaultWalletId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get lastUsedAt => $composableBuilder(
+    column: $table.lastUsedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$ImportTemplatesTableOrderingComposer
+    extends Composer<_$AppDatabase, $ImportTemplatesTable> {
+  $$ImportTemplatesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get delimiter => $composableBuilder(
+    column: $table.delimiter,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get hasHeader => $composableBuilder(
+    column: $table.hasHeader,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get mapping => $composableBuilder(
+    column: $table.mapping,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get columnSignature => $composableBuilder(
+    column: $table.columnSignature,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get defaultWalletId => $composableBuilder(
+    column: $table.defaultWalletId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get lastUsedAt => $composableBuilder(
+    column: $table.lastUsedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$ImportTemplatesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ImportTemplatesTable> {
+  $$ImportTemplatesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get delimiter =>
+      $composableBuilder(column: $table.delimiter, builder: (column) => column);
+
+  GeneratedColumn<bool> get hasHeader =>
+      $composableBuilder(column: $table.hasHeader, builder: (column) => column);
+
+  GeneratedColumn<String> get mapping =>
+      $composableBuilder(column: $table.mapping, builder: (column) => column);
+
+  GeneratedColumn<String> get columnSignature => $composableBuilder(
+    column: $table.columnSignature,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get defaultWalletId => $composableBuilder(
+    column: $table.defaultWalletId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get lastUsedAt => $composableBuilder(
+    column: $table.lastUsedAt,
+    builder: (column) => column,
+  );
+}
+
+class $$ImportTemplatesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $ImportTemplatesTable,
+          ImportTemplate,
+          $$ImportTemplatesTableFilterComposer,
+          $$ImportTemplatesTableOrderingComposer,
+          $$ImportTemplatesTableAnnotationComposer,
+          $$ImportTemplatesTableCreateCompanionBuilder,
+          $$ImportTemplatesTableUpdateCompanionBuilder,
+          (
+            ImportTemplate,
+            BaseReferences<
+              _$AppDatabase,
+              $ImportTemplatesTable,
+              ImportTemplate
+            >,
+          ),
+          ImportTemplate,
+          PrefetchHooks Function()
+        > {
+  $$ImportTemplatesTableTableManager(
+    _$AppDatabase db,
+    $ImportTemplatesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ImportTemplatesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ImportTemplatesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ImportTemplatesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<String> delimiter = const Value.absent(),
+                Value<bool> hasHeader = const Value.absent(),
+                Value<String> mapping = const Value.absent(),
+                Value<String> columnSignature = const Value.absent(),
+                Value<String?> defaultWalletId = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<DateTime?> lastUsedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ImportTemplatesCompanion(
+                id: id,
+                name: name,
+                delimiter: delimiter,
+                hasHeader: hasHeader,
+                mapping: mapping,
+                columnSignature: columnSignature,
+                defaultWalletId: defaultWalletId,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                lastUsedAt: lastUsedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String name,
+                Value<String> delimiter = const Value.absent(),
+                Value<bool> hasHeader = const Value.absent(),
+                required String mapping,
+                Value<String> columnSignature = const Value.absent(),
+                Value<String?> defaultWalletId = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<DateTime?> lastUsedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ImportTemplatesCompanion.insert(
+                id: id,
+                name: name,
+                delimiter: delimiter,
+                hasHeader: hasHeader,
+                mapping: mapping,
+                columnSignature: columnSignature,
+                defaultWalletId: defaultWalletId,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                lastUsedAt: lastUsedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$ImportTemplatesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $ImportTemplatesTable,
+      ImportTemplate,
+      $$ImportTemplatesTableFilterComposer,
+      $$ImportTemplatesTableOrderingComposer,
+      $$ImportTemplatesTableAnnotationComposer,
+      $$ImportTemplatesTableCreateCompanionBuilder,
+      $$ImportTemplatesTableUpdateCompanionBuilder,
+      (
+        ImportTemplate,
+        BaseReferences<_$AppDatabase, $ImportTemplatesTable, ImportTemplate>,
+      ),
+      ImportTemplate,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -20773,4 +21719,6 @@ class $AppDatabaseManager {
       );
   $$LocalIdRepairsTableTableManager get localIdRepairs =>
       $$LocalIdRepairsTableTableManager(_db, _db.localIdRepairs);
+  $$ImportTemplatesTableTableManager get importTemplates =>
+      $$ImportTemplatesTableTableManager(_db, _db.importTemplates);
 }
