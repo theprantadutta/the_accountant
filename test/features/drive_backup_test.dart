@@ -49,6 +49,12 @@ class _FakeDrive {
   final Map<String, Map<String, Object?>> files = {};
   final List<http.Request> requests = [];
 
+  /// The folder this app made, once it has made one.
+  String? folderId;
+
+  /// How many times a folder was created, so reuse can be told from churn.
+  int foldersCreated = 0;
+
   int _nextId = 1;
   int? failUploadsWith;
   int? failListWith;
@@ -57,6 +63,7 @@ class _FakeDrive {
     required String id,
     required DateTime createdAt,
     int schemaVersion = 21,
+    String? parent,
   }) {
     files[id] = {
       'id': id,
@@ -65,6 +72,7 @@ class _FakeDrive {
       'createdTime': createdAt.toUtc().toIso8601String(),
       'appProperties': {'schemaVersion': '$schemaVersion'},
       'content': '{}',
+      'parents': [parent ?? folderId ?? 'somewhere'],
     };
   }
 
@@ -73,14 +81,55 @@ class _FakeDrive {
     final path = request.url.path;
 
     if (request.method == 'GET' && path.endsWith('/files')) {
+      final query = Uri.decodeQueryComponent(
+        request.url.queryParameters['q'] ?? '',
+      );
+
+      // Looking for our folder, which may not exist yet.
+      if (query.contains('application/vnd.google-apps.folder')) {
+        return http.Response(
+          jsonEncode({
+            'files': [
+              if (folderId != null) {'id': folderId},
+            ],
+          }),
+          200,
+          headers: {'content-type': 'application/json'},
+        );
+      }
+
       if (failListWith != null) {
         return http.Response('{"error":{"message":"nope"}}', failListWith!);
       }
+
+      // Honour a parent clause if the client sends one. It should not — a
+      // backup the user has moved must still be found — and this is what would
+      // catch that decision being quietly reversed.
+      final parentMatch = RegExp(r"'([^']+)' in parents").firstMatch(query);
       final listed = files.values
+          .where(
+            (f) =>
+                parentMatch == null ||
+                (f['parents'] as List).contains(parentMatch.group(1)),
+          )
           .map((f) => {...f}..remove('content'))
           .toList();
       return http.Response(
         jsonEncode({'files': listed}),
+        200,
+        headers: {'content-type': 'application/json'},
+      );
+    }
+
+    // Creating the folder: a plain JSON POST, not an upload. The upload URL
+    // ends in the same path, so it has to be excluded explicitly.
+    if (request.method == 'POST' &&
+        path.endsWith('/drive/v3/files') &&
+        !path.contains('/upload/')) {
+      foldersCreated++;
+      folderId = 'folder-$foldersCreated';
+      return http.Response(
+        jsonEncode({'id': folderId}),
         200,
         headers: {'content-type': 'application/json'},
       );
@@ -166,16 +215,41 @@ void main() {
   tearDown(() => db.close());
 
   group('taking a backup', () {
-    test('it lands in the folder only this app can see', () async {
+    test('it lands in a folder of its own in the user Drive', () async {
       await service.backupNow(device: 'Pixel 8');
 
       expect(drive.files, hasLength(1));
       expect(
         drive.files.values.single['parents'],
-        ['appDataFolder'],
+        [drive.folderId],
         reason:
-            'the alternative scope would let this app read every document the '
-            'person owns, which is far more than a backup needs',
+            'a backup the user cannot find, copy or delete without the app is '
+            'a worse backup — the point is that their records outlive it',
+      );
+    });
+
+    test('the folder is made once and then reused', () async {
+      await service.backupNow();
+      await service.backupNow();
+
+      expect(drive.foldersCreated, 1);
+      expect(drive.files, hasLength(2));
+    });
+
+    test('a backup the user has moved is still listed', () async {
+      drive.seed(
+        id: 'moved',
+        createdAt: DateTime(2026, 1, 1),
+        parent: 'a-folder-of-their-own',
+      );
+
+      expect(
+        (await service.list()).map((f) => f.id),
+        contains('moved'),
+        reason:
+            'this scope only ever exposes files this app made, so there is no '
+            'reason to narrow the search to our own folder and lose the ones '
+            'somebody has tidied away',
       );
     });
 

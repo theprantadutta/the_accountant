@@ -94,15 +94,26 @@ class DriveBackupClient {
   final DriveAuthorization _authorization;
   final http.Client _http;
 
-  /// Access is limited to a folder only this app can see.
+  /// Per-file access: this app can only ever see files it created itself.
   ///
-  /// The user's own Drive is never listed, read, or written. Backups are not
-  /// visible in drive.google.com either, which is a real trade-off — but the
-  /// alternative scope grants this app the ability to read every document the
-  /// person owns, which is far more than a backup needs.
-  static const String scope = 'https://www.googleapis.com/auth/drive.appdata';
+  /// The user's existing documents are invisible to it — `files.list` under
+  /// this scope returns nothing but our own backups, which is why the listing
+  /// below can query broadly without any risk of reading somebody's private
+  /// files.
+  ///
+  /// Chosen over `drive.appdata`, which hides the backups in a folder nobody
+  /// can see. Two reasons. A backup the user cannot find, copy or delete
+  /// without the app is a worse backup — the point of the feature is that
+  /// their records outlive this app. And `drive.appdata` is classified
+  /// sensitive, so shipping it would mean a Google verification review, while
+  /// this scope is non-sensitive and needs none.
+  static const String scope = 'https://www.googleapis.com/auth/drive.file';
 
-  static const String _folder = 'appDataFolder';
+  /// The folder backups are filed under, so they are somewhere obvious rather
+  /// than loose in the root of the user's Drive.
+  static const String folderName = 'The Accountant Backups';
+
+  static const String _folderMimeType = 'application/vnd.google-apps.folder';
   static const String _base = 'https://www.googleapis.com/drive/v3';
   static const String _uploadBase =
       'https://www.googleapis.com/upload/drive/v3';
@@ -127,13 +138,68 @@ class DriveBackupClient {
     return headers;
   }
 
+  /// The id of our folder, made on first use.
+  ///
+  /// Cached for the life of the client so a backup does not cost two extra
+  /// round trips. Under this scope the search only ever sees folders this app
+  /// created, so it cannot latch onto a folder of the user's that happens to
+  /// share the name.
+  String? _folderId;
+
+  Future<String> _folder({required bool interactive}) async {
+    final cached = _folderId;
+    if (cached != null) return cached;
+
+    final query = Uri.encodeQueryComponent(
+      "mimeType = '$_folderMimeType' and name = '$folderName' "
+      'and trashed = false',
+    );
+    final found = await _send(
+      (headers) => _http.get(
+        Uri.parse('$_base/files?q=$query&fields=files(id)&pageSize=1'),
+        headers: headers,
+      ),
+      interactive: interactive,
+    );
+
+    final body = jsonDecode(found.body);
+    final files = body is Map ? body['files'] : null;
+    if (files is List && files.isNotEmpty && files.first is Map) {
+      return _folderId = '${(files.first as Map)['id']}';
+    }
+
+    final created = await _send(
+      (headers) => _http.post(
+        Uri.parse('$_base/files?fields=id'),
+        headers: {...headers, 'Content-Type': 'application/json'},
+        body: jsonEncode({'name': folderName, 'mimeType': _folderMimeType}),
+      ),
+      interactive: interactive,
+    );
+
+    final decoded = jsonDecode(created.body);
+    if (decoded is! Map || decoded['id'] == null) {
+      throw const DriveException(
+        'Google Drive would not make a folder to keep backups in.',
+      );
+    }
+    return _folderId = '${decoded['id']}';
+  }
+
   /// Every backup this app has stored, newest first.
   Future<List<DriveBackupFile>> list({bool interactive = false}) async {
+    // Deliberately not restricted to the folder. This scope only exposes files
+    // this app created, so the query is already narrow — and looking wider means
+    // a backup the user has moved or filed somewhere of their own is still
+    // found rather than silently vanishing from the list.
+    final query = Uri.encodeQueryComponent(
+      "mimeType = 'application/json' and trashed = false",
+    );
     final response = await _send(
       (headers) => _http.get(
         Uri.parse(
           '$_base/files'
-          '?spaces=$_folder'
+          '?q=$query'
           '&orderBy=createdTime desc'
           '&pageSize=100'
           '&fields=files($_fields)',
@@ -162,7 +228,7 @@ class DriveBackupClient {
     const boundary = 'the-accountant-backup-boundary';
     final metadata = jsonEncode({
       'name': name,
-      'parents': [_folder],
+      'parents': [await _folder(interactive: interactive)],
       'mimeType': 'application/json',
       if (properties.isNotEmpty) 'appProperties': properties,
     });
