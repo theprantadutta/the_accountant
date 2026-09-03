@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/features/wallets/services/wallet_maintenance_service.dart';
+import 'package:the_accountant/features/settings/widgets/confirmation_dialog.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/domain/transaction_policy.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
@@ -113,6 +115,23 @@ class _WalletDetailScreenState extends ConsumerState<WalletDetailScreen> {
                         ? 'Offer it again and count it'
                         : 'Keep its history, stop counting it',
                   ),
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'correct',
+                child: ListTile(
+                  leading: Icon(Icons.rule),
+                  title: Text('Correct the balance'),
+                  subtitle: Text('Record the difference from the real figure'),
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'merge',
+                child: ListTile(
+                  leading: Icon(Icons.merge),
+                  title: Text('Merge into another account'),
                   contentPadding: EdgeInsets.zero,
                 ),
               ),
@@ -315,6 +334,102 @@ class _WalletDetailScreenState extends ConsumerState<WalletDetailScreen> {
           wallet.id,
           !wallet.excludeFromTotal,
         );
+      case 'correct':
+        await _correctBalance(wallet);
+      case 'merge':
+        await _merge(wallet);
+    }
+  }
+
+  /// Ask what the account really holds, and record the difference.
+  Future<void> _correctBalance(db.Wallet wallet) async {
+    final entered = await showDialog<int>(
+      context: context,
+      builder: (context) => _CorrectBalanceDialog(wallet: wallet),
+    );
+    if (entered == null || !mounted) return;
+
+    final id = await WalletMaintenanceService(
+      ref.read(databaseProvider),
+    ).correctBalance(walletId: wallet.id, actualBalance: entered);
+
+    await ref.read(walletProvider.notifier).loadWallets();
+    await _load();
+
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          id == null
+              ? 'That is already the balance.'
+              : 'Recorded the difference as a correction.',
+        ),
+      ),
+    );
+  }
+
+  /// Fold this account into another, then close it.
+  Future<void> _merge(db.Wallet wallet) async {
+    final others = ref
+        .read(walletProvider)
+        .wallets
+        .where((w) => w.id != wallet.id && !w.isArchived)
+        .toList();
+
+    if (others.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('There is no other account to merge into.'),
+        ),
+      );
+      return;
+    }
+
+    final targetId = await showDialog<String>(
+      context: context,
+      builder: (context) => SimpleDialog(
+        title: const Text('Merge into'),
+        children: [
+          for (final w in others)
+            SimpleDialogOption(
+              onPressed: () => Navigator.pop(context, w.id),
+              child: Text('${w.name} (${w.currency})'),
+            ),
+        ],
+      ),
+    );
+    if (targetId == null || !mounted) return;
+
+    final target = others.firstWhere((w) => w.id == targetId);
+    final confirmed = await showConfirmationDialog(
+      context: context,
+      title: 'Merge ${wallet.name} into ${target.name}?',
+      message: target.currency == wallet.currency
+          ? 'Everything filed against ${wallet.name} moves across, and '
+                '${wallet.name} is closed. Nothing is deleted.'
+          : 'Amounts are converted from ${wallet.currency} to '
+                '${target.currency} as they move. Nothing is deleted, and '
+                '${wallet.name} is closed rather than removed.',
+      confirmText: 'Merge',
+    );
+    if (confirmed != true || !mounted) return;
+
+    try {
+      final moved = await WalletMaintenanceService(
+        ref.read(databaseProvider),
+      ).mergeInto(sourceId: wallet.id, destinationId: targetId);
+
+      await ref.read(walletProvider.notifier).loadWallets();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Moved $moved into ${target.name}.')),
+      );
+      Navigator.pop(context);
+    } on ArgumentError catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.message.toString())));
     }
   }
 }
@@ -395,6 +510,83 @@ class _CreditSummary extends StatelessWidget {
           style: AppTypography.bodySmall.copyWith(
             color: AppColors.textSecondary,
           ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Asks what an account really holds, in its own currency.
+class _CorrectBalanceDialog extends ConsumerStatefulWidget {
+  final db.Wallet wallet;
+
+  const _CorrectBalanceDialog({required this.wallet});
+
+  @override
+  ConsumerState<_CorrectBalanceDialog> createState() =>
+      _CorrectBalanceDialogState();
+}
+
+class _CorrectBalanceDialogState extends ConsumerState<_CorrectBalanceDialog> {
+  late final TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(
+      text: (widget.wallet.balance / 100).toStringAsFixed(2),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Correct the balance'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Enter what ${widget.wallet.name} really holds. The difference is '
+            'recorded as a transaction, so the account still adds up to its '
+            'own history.',
+            style: AppTypography.bodySmall.copyWith(
+              color: AppColors.textSecondary,
+            ),
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: _controller,
+            autofocus: true,
+            keyboardType: const TextInputType.numberWithOptions(
+              decimal: true,
+              signed: true,
+            ),
+            decoration: InputDecoration(
+              labelText: 'Real balance',
+              prefixText: '${widget.wallet.currency} ',
+            ),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancel'),
+        ),
+        FilledButton(
+          onPressed: () {
+            final cents = _controller.text.toCentsOrNull();
+            if (cents == null) return;
+            Navigator.pop(context, cents);
+          },
+          child: const Text('Correct'),
         ),
       ],
     );
