@@ -1,3 +1,4 @@
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -13,6 +14,9 @@ import 'package:the_accountant/core/services/wallet_balance_service.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/data/models/transaction.dart'
     show TransactionSpecialType;
+import 'package:the_accountant/features/backup/services/drive_backup_service.dart';
+import 'package:the_accountant/features/backup/services/drive_client.dart';
+import 'package:the_accountant/features/backup/services/google_drive_authorization.dart';
 import 'package:the_accountant/features/recurring/services/recurring_service.dart';
 
 /// Core background processing service.
@@ -366,6 +370,46 @@ class BackgroundTaskService {
     } catch (e) {
       debugPrint('BackgroundTaskService: balance check failed: $e');
     }
+
+    // A backup the user asked to happen every week only happens if something
+    // asks. This never prompts — a lapsed Drive permission records why it
+    // skipped and waits to be pressed by hand — so it is safe to run on the way
+    // in, before anything is on screen.
+    try {
+      final drive = DriveBackupService(
+        database: db,
+        client: DriveBackupClient(
+          authorization: const GoogleDriveAuthorization(),
+        ),
+      );
+      if (await drive.runAutomaticIfDue(describeDevice: _deviceLabel)) {
+        debugPrint('BackgroundTaskService: scheduled Drive backup uploaded');
+      }
+    } catch (e) {
+      debugPrint('BackgroundTaskService: scheduled backup failed: $e');
+    }
+  }
+
+  /// How a backup names the machine it came from. Best effort — a device that
+  /// will not identify itself is worth a backup with a blank label far more
+  /// than it is worth a skipped one.
+  static Future<String> _deviceLabel() async {
+    try {
+      final info = DeviceInfoPlugin();
+      if (defaultTargetPlatform == TargetPlatform.android) {
+        final android = await info.androidInfo;
+        return '${android.manufacturer} ${android.model}'.trim();
+      }
+      if (defaultTargetPlatform == TargetPlatform.iOS) {
+        return (await info.iosInfo).name;
+      }
+      if (defaultTargetPlatform == TargetPlatform.windows) {
+        return (await info.windowsInfo).computerName;
+      }
+    } catch (_) {
+      // Not worth failing a backup over.
+    }
+    return '';
   }
 
   static String _formatDate(DateTime date) {

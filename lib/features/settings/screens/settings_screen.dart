@@ -21,6 +21,7 @@ import 'package:the_accountant/features/settings/screens/sync_settings_screen.da
 import 'package:the_accountant/features/settings/screens/about_screen.dart';
 import 'package:the_accountant/features/settings/screens/contact_support_screen.dart';
 import 'package:the_accountant/features/settings/screens/help_screen.dart';
+import 'package:the_accountant/features/backup/screens/backup_screen.dart';
 import 'package:the_accountant/features/settings/screens/export_screen.dart';
 import 'package:the_accountant/features/settings/screens/profile_edit_screen.dart';
 import 'package:the_accountant/features/settings/screens/privacy_security_screen.dart';
@@ -533,6 +534,26 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             MaterialPageRoute(builder: (_) => const SyncSettingsScreenGated()),
           ),
           trailing: premiumState.isPremium ? null : const PremiumBadge(),
+        ),
+      );
+    }
+    if (_matchesSearch('Backup & Restore') ||
+        _matchesKeywords([
+          'backup',
+          'restore',
+          'google drive',
+          'drive',
+          'copy',
+        ])) {
+      dataTiles.add(
+        SettingsNavigationTile(
+          icon: Icons.backup_outlined,
+          title: 'Backup & Restore',
+          subtitle: 'A file you keep, or automatic copies in Google Drive',
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const BackupScreen()),
+          ),
         ),
       );
     }

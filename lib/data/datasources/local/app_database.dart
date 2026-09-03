@@ -3224,6 +3224,18 @@ class AppDatabase extends _$AppDatabase {
     }
   }
 
+  /// Forget where the pull cursor had reached.
+  ///
+  /// After a restore from a file the rows on this device are no longer the ones
+  /// the cursor was describing, so asking the server for "changes since then"
+  /// would skip everything it already held. Clearing it makes the next sync a
+  /// full pull, which is the only honest way to reconcile.
+  Future<void> clearLastSyncTimestamp() async {
+    await (delete(
+      syncStates,
+    )..where((s) => s.syncTableName.equals('_global'))).go();
+  }
+
   // ============================================================
   // Data Management Methods
   // ============================================================
@@ -3246,6 +3258,9 @@ class AppDatabase extends _$AppDatabase {
 
     // Delete objectives
     await delete(objectives).go();
+
+    // Delete per-category budget caps before the budgets they hang off.
+    await delete(categoryBudgetLimits).go();
 
     // Delete budgets
     await delete(budgets).go();
