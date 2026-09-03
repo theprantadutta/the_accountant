@@ -70,6 +70,20 @@ class FakeSyncServer {
   Map<String, dynamic> Function(String table, Map<String, dynamic> data)?
   rewritePulledPayload;
 
+  /// Rewrites the prose on every conflict leaving [push].
+  ///
+  /// The contract says a client branches on `code` and never on `reason`, so a
+  /// test can replace the wording with anything at all and the app must behave
+  /// identically. That is the only way to prove the rule holds rather than
+  /// merely being written down next to it.
+  String Function(String reason)? rewriteConflictReason;
+
+  /// Rewrites the machine-readable code on every conflict leaving [push].
+  ///
+  /// Lets a test play a server newer than the client, raising a conflict this
+  /// build has never heard of.
+  String? Function(String? code)? rewriteConflictCode;
+
   /// Extra buckets to include in the next pull, keyed by table name.
   ///
   /// Lets a test play a server that is newer than the client and sends a table
@@ -223,9 +237,26 @@ class FakeSyncServer {
 
     _linkTransferPairs(userId, conflicts);
 
+    final rewriteReason = rewriteConflictReason;
+    final rewriteCode = rewriteConflictCode;
     return SyncPushResponse(
       appliedCount: applied,
-      conflicts: conflicts,
+      conflicts: rewriteReason == null && rewriteCode == null
+          ? conflicts
+          : [
+              for (final conflict in conflicts)
+                SyncConflict(
+                  tableName: conflict.tableName,
+                  entityId: conflict.entityId,
+                  reason: rewriteReason == null
+                      ? conflict.reason
+                      : rewriteReason(conflict.reason),
+                  code: rewriteCode == null
+                      ? conflict.code
+                      : rewriteCode(conflict.code),
+                  details: conflict.details,
+                ),
+            ],
       categoryResolutions: resolutions,
     );
   }

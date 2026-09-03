@@ -132,6 +132,59 @@ void main() {
     },
   );
 
+  // ------------------------------------------------------------ the contract
+  test(
+    'the reconciliation still happens when the server rewords every conflict',
+    () async {
+      // The DTO says a client branches on `code` and never on `reason`,
+      // because parsing prose makes the app's control flow depend on the
+      // server's wording: a harmless rephrasing, or a server that starts
+      // answering in the user's language, would silently change what the app
+      // does. The rule was written down beside the field; this is what holds
+      // it.
+      server.rewriteConflictReason = (_) => 'সম্পূর্ণ ভিন্ন ভাষায় লেখা কারণ';
+
+      await seedLegacyCloudCategory(transactionCount: 2);
+      await seedProvisionalGroceries(device);
+
+      await syncFor(device).syncAll();
+
+      final questions = await questionsOn(device);
+      expect(
+        questions,
+        hasLength(1),
+        reason: 'the question is raised by the code, not by the wording',
+      );
+      expect(questions.single.defaultKey, 'groceries');
+      expect(questions.single.isAwaitingUser, isTrue);
+      expect(questions.single.candidates.single.id, legacyCategoryId);
+    },
+  );
+
+  test('a conflict code this build has never seen is left alone', () async {
+    // The other half of the same rule. A newer server can raise a conflict
+    // this build knows nothing about, and the right answer is to leave it be:
+    // not to guess from prose that happens to read like something familiar,
+    // and not to fall over.
+    server.rewriteConflictCode = (_) => 'something_invented_later';
+
+    await seedLegacyCloudCategory();
+    await seedProvisionalGroceries(device);
+
+    final result = await syncFor(device).syncAll();
+
+    expect(
+      await questionsOn(device),
+      isEmpty,
+      reason: 'a question can only come from a code this build understands',
+    );
+    expect(
+      result.conflictCount,
+      greaterThan(0),
+      reason: 'it is still reported, so it is not lost in silence',
+    );
+  });
+
   // ---------------------------------------------------------------- scenario 2
   test('an unresolved question does not fail again on every later sync', () async {
     await seedLegacyCloudCategory();
