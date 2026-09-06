@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
@@ -48,11 +49,11 @@ class _TitleRulesScreenState extends ConsumerState<TitleRulesScreen> {
         categories.where((c) => c.id == id).firstOrNull?.name ?? 'Unknown';
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Naming rules')),
+      appBar: AppBar(title: Text(L10n.of(context).rulesTitle)),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _edit(),
         icon: const Icon(Icons.add),
-        label: const Text('Add rule'),
+        label: Text(L10n.of(context).rulesAdd),
       ),
       body: rules == null
           ? const Center(child: CircularProgressIndicator())
@@ -91,7 +92,7 @@ class _TitleRulesScreenState extends ConsumerState<TitleRulesScreen> {
                     ' → ${categoryName(rule.categoryId)}',
                   ),
                   trailing: IconButton(
-                    tooltip: 'Delete',
+                    tooltip: L10n.of(context).actionDelete,
                     icon: const Icon(Icons.delete_outline),
                     onPressed: () => _delete(rule),
                   ),
@@ -169,7 +170,7 @@ class _TitleRulesScreenState extends ConsumerState<TitleRulesScreen> {
     await _load();
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Removed the rule for ${rule.title}')),
+      SnackBar(content: Text(L10n.of(context).rulesRemoved(rule.title))),
     );
   }
 }
@@ -210,16 +211,16 @@ class _RuleDialogState extends State<_RuleDialog> {
           TextField(
             controller: _title,
             autofocus: true,
-            decoration: const InputDecoration(
-              labelText: 'When the title says',
-              hintText: 'Tesco',
+            decoration: InputDecoration(
+              labelText: L10n.of(context).rulesWhenTitleSays,
+              hintText: L10n.of(context).txTesco,
             ),
           ),
           SwitchListTile(
             contentPadding: EdgeInsets.zero,
             value: _exact,
             onChanged: (v) => setState(() => _exact = v),
-            title: const Text('Match exactly'),
+            title: Text(L10n.of(context).rulesMatchExactly),
             subtitle: Text(
               _exact
                   ? 'Only titles that are exactly this'
@@ -231,7 +232,7 @@ class _RuleDialogState extends State<_RuleDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
+          child: Text(L10n.of(context).actionCancel),
         ),
         FilledButton(
           onPressed: () {
@@ -239,7 +240,7 @@ class _RuleDialogState extends State<_RuleDialog> {
             if (title.isEmpty) return;
             Navigator.pop(context, (title: title, exact: _exact));
           },
-          child: const Text('Choose category'),
+          child: Text(L10n.of(context).rulesChooseCategory),
         ),
       ],
     );

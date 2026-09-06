@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -67,19 +68,19 @@ class _PrivacySecurityScreenState extends ConsumerState<PrivacySecurityScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text('Privacy & Security'),
+        title: Text(L10n.of(context).settingsPrivacySecurity),
       ),
       body: ListView(
         padding: EdgeInsets.symmetric(horizontal: AppSpacing.md),
         children: [
           // SECURITY SECTION
           SettingsSection(
-            title: 'SECURITY',
+            title: L10n.of(context).settingsSecurity,
             tiles: [
               SettingsSwitchTile(
                 icon: Icons.fingerprint,
-                title: 'Biometric Lock',
-                subtitle: 'Use fingerprint or face to unlock',
+                title: L10n.of(context).settingsBiometricLock,
+                subtitle: L10n.of(context).settingsUseFingerprintOrFaceTo,
                 value: settingsState.biometricLockEnabled,
                 onChanged: (value) async {
                   if (value) {
@@ -107,7 +108,7 @@ class _PrivacySecurityScreenState extends ConsumerState<PrivacySecurityScreen> {
               if (settingsState.biometricLockEnabled)
                 SettingsNavigationTile(
                   icon: Icons.timer_outlined,
-                  title: 'Auto-lock',
+                  title: L10n.of(context).settingsAutoLock,
                   subtitle: _getAutoLockLabel(
                     settingsState.autoLockTimeoutMinutes,
                   ),
@@ -145,19 +146,21 @@ class _PrivacySecurityScreenState extends ConsumerState<PrivacySecurityScreen> {
 
           // DATA PRIVACY SECTION
           SettingsSection(
-            title: 'DATA PRIVACY',
+            title: L10n.of(context).settingsDataPrivacy,
             tiles: [
               SettingsActionTile(
                 icon: Icons.cached,
-                title: 'Clear Cache',
-                subtitle: 'Clear cached data and force re-sync',
+                title: L10n.of(context).settingsClearCache,
+                subtitle: L10n.of(context).settingsClearCachedDataAndForce,
                 onTap: _isClearingCache ? () {} : _showClearCacheDialog,
               ),
               SettingsActionTile(
                 icon: Icons.delete_forever,
                 iconColor: AppColors.error,
-                title: 'Clear All Data',
-                subtitle: 'Delete all transactions, budgets, and settings',
+                title: L10n.of(context).settingsClearAllData,
+                subtitle: L10n.of(
+                  context,
+                ).settingsDeleteAllTransactionsBudgetsAnd,
                 onTap: _isClearingData ? () {} : _showClearDataDialog,
               ),
             ],
@@ -165,24 +168,26 @@ class _PrivacySecurityScreenState extends ConsumerState<PrivacySecurityScreen> {
 
           // LEGAL SECTION
           SettingsSection(
-            title: 'LEGAL',
+            title: L10n.of(context).settingsLegal,
             tiles: [
               SettingsNavigationTile(
                 icon: Icons.privacy_tip_outlined,
-                title: 'Privacy Policy',
-                subtitle: 'Read our privacy policy',
+                title: L10n.of(context).settingsPrivacyPolicy,
+                subtitle: L10n.of(context).settingsReadOurPrivacyPolicy,
                 onTap: _openPrivacyPolicy,
               ),
               SettingsNavigationTile(
                 icon: Icons.description_outlined,
-                title: 'Terms of Service',
-                subtitle: 'Read our terms of service',
+                title: L10n.of(context).settingsTermsOfService,
+                subtitle: L10n.of(context).settingsReadOurTermsOfService,
                 onTap: _openTermsOfService,
               ),
               SettingsNavigationTile(
                 icon: Icons.receipt_long_outlined,
-                title: 'Refund Policy',
-                subtitle: 'How refunds and cancellations work',
+                title: L10n.of(context).settingsRefundPolicy,
+                subtitle: L10n.of(
+                  context,
+                ).settingsHowRefundsAndCancellationsWork,
                 onTap: _openRefundPolicy,
               ),
             ],
@@ -190,13 +195,15 @@ class _PrivacySecurityScreenState extends ConsumerState<PrivacySecurityScreen> {
 
           // DANGER ZONE
           SettingsSection(
-            title: 'DANGER ZONE',
+            title: L10n.of(context).settingsDangerZone,
             tiles: [
               SettingsActionTile(
                 icon: Icons.person_remove,
                 iconColor: AppColors.error,
-                title: 'Delete Account',
-                subtitle: 'Permanently delete your account and all data',
+                title: L10n.of(context).settingsDeleteAccount,
+                subtitle: L10n.of(
+                  context,
+                ).settingsPermanentlyDeleteYourAccountAnd,
                 onTap: _showDeleteAccountDialog,
               ),
             ],
@@ -228,7 +235,7 @@ class _PrivacySecurityScreenState extends ConsumerState<PrivacySecurityScreen> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) => _buildPickerSheet(
-        title: 'Auto-lock Timeout',
+        title: L10n.of(context).settingsAutoLockTimeout,
         items: timeouts
             .map((t) => {'value': t['value'], 'label': t['label']})
             .toList(),
@@ -308,10 +315,10 @@ class _PrivacySecurityScreenState extends ConsumerState<PrivacySecurityScreen> {
   Future<void> _showClearCacheDialog() async {
     final confirmed = await showConfirmationDialog(
       context: context,
-      title: 'Clear Cache',
+      title: L10n.of(context).settingsClearCache,
       message:
           'This will clear cached data and force a re-sync on next app launch. Your data will not be deleted.',
-      confirmText: 'Clear Cache',
+      confirmText: L10n.of(context).settingsClearCache,
       isDangerous: false,
     );
 
@@ -351,10 +358,10 @@ class _PrivacySecurityScreenState extends ConsumerState<PrivacySecurityScreen> {
   Future<void> _showClearDataDialog() async {
     final confirmed = await showConfirmationDialog(
       context: context,
-      title: 'Clear All Data',
+      title: L10n.of(context).settingsClearAllData,
       message:
           'This will permanently delete ALL your transactions, budgets, wallets, categories, and settings. This action cannot be undone!',
-      confirmText: 'Delete Everything',
+      confirmText: L10n.of(context).settingsDeleteEverything,
       isDangerous: true,
     );
 
@@ -362,10 +369,10 @@ class _PrivacySecurityScreenState extends ConsumerState<PrivacySecurityScreen> {
       // Show second confirmation requiring the user to type DELETE
       final doubleConfirmed = await showDestructiveConfirmationDialog(
         context: context,
-        title: 'Are you absolutely sure?',
+        title: L10n.of(context).settingsAreYouAbsolutelySure,
         message: 'All your financial data will be permanently erased.',
         confirmationWord: 'DELETE',
-        confirmText: 'Yes, Delete All',
+        confirmText: L10n.of(context).settingsYesDeleteAll,
       );
 
       if (doubleConfirmed == true) {
@@ -430,8 +437,8 @@ class _PrivacySecurityScreenState extends ConsumerState<PrivacySecurityScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const LegalDocumentViewer(
-          title: 'Privacy Policy',
+        builder: (context) => LegalDocumentViewer(
+          title: L10n.of(context).settingsPrivacyPolicy,
           assetPath: 'assets/legal/privacy.md',
         ),
       ),
@@ -442,8 +449,8 @@ class _PrivacySecurityScreenState extends ConsumerState<PrivacySecurityScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const LegalDocumentViewer(
-          title: 'Terms of Service',
+        builder: (context) => LegalDocumentViewer(
+          title: L10n.of(context).settingsTermsOfService,
           assetPath: 'assets/legal/terms.md',
         ),
       ),
@@ -454,8 +461,8 @@ class _PrivacySecurityScreenState extends ConsumerState<PrivacySecurityScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const LegalDocumentViewer(
-          title: 'Refund Policy',
+        builder: (context) => LegalDocumentViewer(
+          title: L10n.of(context).settingsRefundPolicy,
           assetPath: 'assets/legal/refund.md',
         ),
       ),
@@ -465,12 +472,12 @@ class _PrivacySecurityScreenState extends ConsumerState<PrivacySecurityScreen> {
   Future<void> _showDeleteAccountDialog() async {
     final confirmed = await showConfirmationDialog(
       context: context,
-      title: 'Delete Account',
+      title: L10n.of(context).settingsDeleteAccount,
       message:
           'You\'ll be taken to a form to request account deletion. '
           'The process takes a few days to complete. '
           'Once processed, all data on the server will be permanently deleted.',
-      confirmText: 'Continue',
+      confirmText: L10n.of(context).settingsContinue,
       isDangerous: true,
     );
 

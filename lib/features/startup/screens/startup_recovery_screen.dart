@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/providers/startup_flow_provider.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
@@ -42,7 +43,7 @@ class _StartupRecoveryScreenState extends ConsumerState<StartupRecoveryScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Continue without checking?'),
+        title: Text(L10n.of(context).startupContinueWithoutChecking),
         content: const Text(
           'Your data stays exactly where it is — nothing on this device or in '
           'the cloud will be deleted.\n\n'
@@ -53,11 +54,11 @@ class _StartupRecoveryScreenState extends ConsumerState<StartupRecoveryScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
+            child: Text(L10n.of(context).actionCancel),
           ),
           FilledButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Continue offline'),
+            child: Text(L10n.of(context).startupContinueOffline),
           ),
         ],
       ),
@@ -141,7 +142,9 @@ class _StartupRecoveryScreenState extends ConsumerState<StartupRecoveryScreen> {
                                 ),
                               ),
                         icon: const Icon(Icons.workspace_premium_rounded),
-                        label: const Text('View subscription options'),
+                        label: Text(
+                          L10n.of(context).startupViewSubscriptionOptions,
+                        ),
                       ),
                     ),
                   ],

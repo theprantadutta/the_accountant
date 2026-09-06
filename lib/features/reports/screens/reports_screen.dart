@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -361,7 +362,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Maybe Later'),
+            child: Text(L10n.of(context).reportMaybeLater),
           ),
           ElevatedButton(
             onPressed: () {
@@ -372,7 +373,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
               backgroundColor: Colors.amber,
               foregroundColor: Colors.black,
             ),
-            child: const Text('Upgrade'),
+            child: Text(L10n.of(context).reportUpgrade),
           ),
         ],
       ),

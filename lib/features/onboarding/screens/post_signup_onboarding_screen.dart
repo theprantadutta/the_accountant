@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/providers/currency_provider.dart';
 import 'package:the_accountant/core/services/currency_service.dart';
@@ -171,7 +172,7 @@ class _PostSignupOnboardingScreenState
                     if (_currentStep > 0)
                       Expanded(
                         child: NeoButton(
-                          label: 'Back',
+                          label: L10n.of(context).onboardBack,
                           style: NeoButtonStyle.secondary,
                           onPressed: _previousStep,
                         ),
@@ -181,7 +182,7 @@ class _PostSignupOnboardingScreenState
                       flex: _currentStep == 0 ? 1 : 1,
                       child: _currentStep == 2
                           ? NeoButton(
-                              label: 'Get Started',
+                              label: L10n.of(context).onboardGetStarted,
                               style: NeoButtonStyle.primary,
                               isLoading: onboardingState.isCompleting,
                               onPressed: onboardingState.isCompleting
@@ -189,7 +190,7 @@ class _PostSignupOnboardingScreenState
                                   : _completeOnboarding,
                             )
                           : NeoButton(
-                              label: 'Continue',
+                              label: L10n.of(context).settingsContinue,
                               style: NeoButtonStyle.primary,
                               onPressed: _nextStep,
                             ),
@@ -250,7 +251,7 @@ class _PostSignupOnboardingScreenState
 
           // Currency picker
           CurrencyPicker(
-            label: 'Default Currency',
+            label: L10n.of(context).settingsDefaultCurrency,
             selectedCurrency: _selectedCurrency,
             onCurrencySelected: (currency) {
               setState(() => _selectedCurrency = currency);
@@ -441,7 +442,7 @@ class _PostSignupOnboardingScreenState
             controller: _walletNameController,
             style: AppTypography.bodyLarge,
             decoration: InputDecoration(
-              hintText: 'Main Account',
+              hintText: L10n.of(context).onboardMainAccount,
               filled: true,
               fillColor: AppColors.glassWhite,
               border: OutlineInputBorder(
@@ -483,7 +484,7 @@ class _PostSignupOnboardingScreenState
                 decimal: true,
               ),
               decoration: InputDecoration(
-                hintText: 'Enter credit limit',
+                hintText: L10n.of(context).walletEnterCreditLimit,
                 prefixText: '${_getCurrencySymbol()} ',
                 filled: true,
                 fillColor: AppColors.glassWhite,
@@ -502,7 +503,7 @@ class _PostSignupOnboardingScreenState
             DropdownButtonFormField<int>(
               initialValue: _billingCycleDay,
               decoration: InputDecoration(
-                hintText: 'Select billing day',
+                hintText: L10n.of(context).walletSelectBillingDay,
                 filled: true,
                 fillColor: AppColors.glassWhite,
                 border: OutlineInputBorder(
@@ -528,7 +529,7 @@ class _PostSignupOnboardingScreenState
             children: [
               Expanded(
                 child: IconPicker(
-                  label: 'Icon',
+                  label: L10n.of(context).walletIcon,
                   selectedIcon: _selectedIcon,
                   selectedColor: WalletColors.parseColor(_selectedColor),
                   onIconSelected: (icon) {
@@ -539,7 +540,7 @@ class _PostSignupOnboardingScreenState
               AppSpacing.gapHMd,
               Expanded(
                 child: ColorPicker(
-                  label: 'Color',
+                  label: L10n.of(context).walletColor,
                   selectedColor: _selectedColor,
                   onColorSelected: (color) {
                     setState(() => _selectedColor = color);

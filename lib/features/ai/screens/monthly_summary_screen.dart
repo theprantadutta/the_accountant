@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/features/ai/providers/monthly_summary_provider.dart';
 import 'package:the_accountant/features/settings/providers/settings_provider.dart';
@@ -103,7 +104,7 @@ class _MonthlySummaryScreenState extends ConsumerState<MonthlySummaryScreen> {
                   children: [
                     Expanded(
                       child: SummaryCard(
-                        title: 'Income',
+                        title: L10n.of(context).moneyIncome,
                         amount: monthlySummaryState.summary!.totalIncome,
                         currency: '\$',
                         icon: Icons.trending_up,
@@ -115,7 +116,7 @@ class _MonthlySummaryScreenState extends ConsumerState<MonthlySummaryScreen> {
                     const SizedBox(width: 16),
                     Expanded(
                       child: SummaryCard(
-                        title: 'Expenses',
+                        title: L10n.of(context).dashExpenses,
                         amount: monthlySummaryState.summary!.totalExpenses,
                         currency: '\$',
                         icon: Icons.trending_down,
@@ -129,7 +130,7 @@ class _MonthlySummaryScreenState extends ConsumerState<MonthlySummaryScreen> {
                 const SizedBox(height: 16),
 
                 SummaryCard(
-                  title: 'Net Savings',
+                  title: L10n.of(context).aiNetSavings,
                   amount: monthlySummaryState.summary!.netSavings,
                   currency: '\$',
                   icon: Icons.account_balance_wallet,
@@ -248,7 +249,7 @@ class _MonthlySummaryScreenState extends ConsumerState<MonthlySummaryScreen> {
                   onPressed: monthlySummaryState.isLoading
                       ? null
                       : _loadMonthlySummary,
-                  child: const Text('Refresh Summary'),
+                  child: Text(L10n.of(context).aiRefreshSummary),
                 ),
               ),
             ],

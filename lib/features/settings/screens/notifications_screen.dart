@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
@@ -38,7 +39,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text('Notifications'),
+        title: Text(L10n.of(context).settingsNotifications),
       ),
       body: prefsState.isLoading
           ? const Padding(
@@ -106,12 +107,12 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
 
                 // DAILY REMINDERS SECTION
                 SettingsSection(
-                  title: 'DAILY REMINDERS',
+                  title: L10n.of(context).settingsDailyReminders,
                   tiles: [
                     SettingsSwitchTile(
                       icon: Icons.notifications_outlined,
-                      title: 'Daily Reminders',
-                      subtitle: 'Get reminded to track your expenses',
+                      title: L10n.of(context).settingsDailyReminders2,
+                      subtitle: L10n.of(context).settingsGetRemindedToTrackYour,
                       value: prefsState.dailyReminderEnabled,
                       onChanged: (value) {
                         HapticFeedback.lightImpact();
@@ -128,12 +129,14 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
 
                 // BUDGET ALERTS SECTION
                 SettingsSection(
-                  title: 'BUDGET ALERTS',
+                  title: L10n.of(context).settingsBudgetAlerts,
                   tiles: [
                     SettingsSwitchTile(
                       icon: Icons.account_balance_wallet_outlined,
-                      title: 'Budget Alerts',
-                      subtitle: 'Notify when approaching budget limit',
+                      title: L10n.of(context).settingsBudgetAlerts2,
+                      subtitle: L10n.of(
+                        context,
+                      ).settingsNotifyWhenApproachingBudgetLimit,
                       value: prefsState.budgetAlertsEnabled,
                       onChanged: (value) async {
                         HapticFeedback.lightImpact();
@@ -146,7 +149,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                       SettingsSliderTile(
                         icon: Icons.warning_amber_outlined,
                         iconColor: AppColors.warning,
-                        title: 'Warning Threshold',
+                        title: L10n.of(context).settingsWarningThreshold,
                         subtitle:
                             '${prefsState.budgetWarningThreshold.toInt()}% of budget',
                         value: prefsState.budgetWarningThreshold,
@@ -164,12 +167,14 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
 
                 // TRANSACTION ALERTS SECTION
                 SettingsSection(
-                  title: 'TRANSACTION ALERTS',
+                  title: L10n.of(context).settingsTransactionAlerts,
                   tiles: [
                     SettingsSwitchTile(
                       icon: Icons.receipt_long_outlined,
-                      title: 'Large Transaction Alerts',
-                      subtitle: 'Notify for transactions above threshold',
+                      title: L10n.of(context).settingsLargeTransactionAlerts,
+                      subtitle: L10n.of(
+                        context,
+                      ).settingsNotifyForTransactionsAboveThreshold,
                       value: prefsState.largeTransactionAlertsEnabled,
                       onChanged: (value) async {
                         HapticFeedback.lightImpact();
@@ -181,15 +186,21 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                     if (prefsState.largeTransactionAlertsEnabled)
                       SettingsNavigationTile(
                         icon: Icons.attach_money,
-                        title: 'Large Transaction Threshold',
+                        title: L10n.of(
+                          context,
+                        ).settingsLargeTransactionThreshold,
                         subtitle:
                             '\$${prefsState.largeTransactionThreshold.toStringAsFixed(0)}',
                         onTap: () => _showThresholdDialog(context),
                       ),
                     SettingsSwitchTile(
                       icon: Icons.repeat,
-                      title: 'Recurring Transaction Reminders',
-                      subtitle: 'Remind about upcoming recurring payments',
+                      title: L10n.of(
+                        context,
+                      ).settingsRecurringTransactionReminders,
+                      subtitle: L10n.of(
+                        context,
+                      ).settingsRemindAboutUpcomingRecurringPayments,
                       value: prefsState.recurringTransactionRemindersEnabled,
                       onChanged: (value) async {
                         HapticFeedback.lightImpact();
@@ -201,7 +212,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                     if (prefsState.recurringTransactionRemindersEnabled)
                       SettingsNavigationTile(
                         icon: Icons.calendar_today,
-                        title: 'Remind Me Before Due Date',
+                        title: L10n.of(context).settingsRemindMeBeforeDueDate,
                         subtitle: BackgroundTaskConstants.offsetLabel(
                           prefsState.reminderOffsetMinutes,
                         ),
@@ -212,12 +223,14 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
 
                 // SUBSCRIPTION & PROMOTIONAL SECTION
                 SettingsSection(
-                  title: 'OTHER NOTIFICATIONS',
+                  title: L10n.of(context).settingsOtherNotifications,
                   tiles: [
                     SettingsSwitchTile(
                       icon: Icons.star_outline,
-                      title: 'Subscription Expiry Alerts',
-                      subtitle: 'Get notified before your premium expires',
+                      title: L10n.of(context).settingsSubscriptionExpiryAlerts,
+                      subtitle: L10n.of(
+                        context,
+                      ).settingsGetNotifiedBeforeYourPremium,
                       value: prefsState.subscriptionExpiryAlertsEnabled,
                       onChanged: (value) async {
                         HapticFeedback.lightImpact();
@@ -228,8 +241,10 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                     ),
                     SettingsSwitchTile(
                       icon: Icons.campaign_outlined,
-                      title: 'Promotional Notifications',
-                      subtitle: 'Receive offers and feature updates',
+                      title: L10n.of(context).settingsPromotionalNotifications,
+                      subtitle: L10n.of(
+                        context,
+                      ).settingsReceiveOffersAndFeatureUpdates,
                       value: prefsState.promotionalNotificationsEnabled,
                       onChanged: (value) async {
                         HapticFeedback.lightImpact();
@@ -260,7 +275,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
       final proceed = await showPermissionPrimingSheet(
         context,
         icon: Icons.notifications_active_outlined,
-        title: 'Turn on daily reminders?',
+        title: L10n.of(context).settingsTurnOnDailyReminders,
         message:
             'The Accountant will send a gentle daily nudge to log your '
             'expenses. To deliver it on time we need permission to show '
@@ -326,20 +341,20 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: AppColors.primarySurface,
-        title: const Text('Large Transaction Threshold'),
+        title: Text(L10n.of(context).settingsLargeTransactionThreshold),
         content: TextField(
           controller: controller,
           keyboardType: TextInputType.number,
-          decoration: const InputDecoration(
+          decoration: InputDecoration(
             prefixText: '\$ ',
-            hintText: 'Enter amount',
+            hintText: L10n.of(context).settingsEnterAmount,
           ),
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(L10n.of(context).actionCancel),
           ),
           TextButton(
             onPressed: () {
@@ -348,7 +363,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                 Navigator.pop(context, value);
               }
             },
-            child: const Text('Save'),
+            child: Text(L10n.of(context).actionSave),
           ),
         ],
       ),
@@ -368,7 +383,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: AppColors.primarySurface,
-        title: const Text('Remind Me Before Due Date'),
+        title: Text(L10n.of(context).settingsRemindMeBeforeDueDate),
         content: RadioGroup<int>(
           groupValue: prefsState.reminderOffsetMinutes,
           onChanged: (value) => Navigator.pop(context, value),
@@ -404,7 +419,7 @@ class _ReminderTimeTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return SettingsNavigationTile(
       icon: Icons.access_time,
-      title: 'Reminder Time',
+      title: L10n.of(context).settingsReminderTime,
       subtitle: _formatTimeOfDay(reminderTime),
       onTap: onTap,
     );
@@ -474,7 +489,7 @@ class _NotificationDebugSectionState extends State<_NotificationDebugSection> {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Test notification sent! Check your notifications.'),
+          content: Text(L10n.of(context).settingsTestNotificationSentCheckYour),
           backgroundColor: AppColors.success,
         ),
       );
@@ -601,7 +616,7 @@ class _NotificationDebugSectionState extends State<_NotificationDebugSection> {
                         vertical: 8,
                       ),
                     ),
-                    child: const Text('Test'),
+                    child: Text(L10n.of(context).settingsTest),
                   ),
                 ),
               ],

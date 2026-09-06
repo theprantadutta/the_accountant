@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/providers/currency_provider.dart';
@@ -362,7 +363,7 @@ class _UpcomingTransactionsScreenState
                       _skipTransaction(transaction);
                     },
                     icon: const Icon(Icons.skip_next, size: 18),
-                    label: const Text('Skip'),
+                    label: Text(L10n.of(context).txSkip),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: AppColors.textSecondary,
                       side: BorderSide(color: AppColors.glassBorder),
@@ -379,7 +380,7 @@ class _UpcomingTransactionsScreenState
                       _markAsPaid(transaction);
                     },
                     icon: const Icon(Icons.check_circle, size: 18),
-                    label: const Text('Mark as Paid'),
+                    label: Text(L10n.of(context).txMarkAsPaid2),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.success,
                       foregroundColor: Colors.white,
@@ -403,7 +404,7 @@ class _UpcomingTransactionsScreenState
           content: Text('Marked "${transaction.title}" as paid'),
           backgroundColor: AppColors.success,
           action: SnackBarAction(
-            label: 'Undo',
+            label: L10n.of(context).txUndo,
             textColor: Colors.white,
             onPressed: () {
               ref.read(upcomingProvider.notifier).markAsUnpaid(transaction.id);

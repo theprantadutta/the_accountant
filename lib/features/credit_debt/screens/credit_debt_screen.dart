@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/providers/currency_provider.dart';
@@ -86,7 +87,7 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
                   children: [
                     Icon(Icons.list_alt, size: 18),
                     const SizedBox(width: 8),
-                    const Text('All'),
+                    Text(L10n.of(context).txAll),
                   ],
                 ),
               ),
@@ -644,7 +645,7 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
                         _showRecordPaymentDialog(transaction, isCredit);
                       },
                       icon: const Icon(Icons.payments_outlined, size: 16),
-                      label: const Text('Record Payment'),
+                      label: Text(L10n.of(context).creditRecordPayment),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: isCredit
                             ? AppColors.success
@@ -751,7 +752,7 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
                 autofocus: true,
                 style: TextStyle(color: AppColors.textPrimary),
                 decoration: InputDecoration(
-                  labelText: 'Payment Amount',
+                  labelText: L10n.of(context).creditPaymentAmount,
                   prefixText: '$symbol ',
                   prefixStyle: TextStyle(color: AppColors.textSecondary),
                   labelStyle: TextStyle(color: AppColors.textSecondary),
@@ -787,7 +788,9 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
                 if (amount == null || amount <= 0) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: const Text('Please enter a valid amount'),
+                      content: Text(
+                        L10n.of(context).creditPleaseEnterAValidAmount,
+                      ),
                       backgroundColor: AppColors.error,
                     ),
                   );
@@ -796,7 +799,9 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
                 if (amount > remaining / 100.0) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: const Text('Amount exceeds remaining balance'),
+                      content: Text(
+                        L10n.of(context).creditAmountExceedsRemainingBalance,
+                      ),
                       backgroundColor: AppColors.error,
                     ),
                   );
@@ -863,7 +868,7 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
           ),
           backgroundColor: AppColors.success,
           action: SnackBarAction(
-            label: 'Undo',
+            label: L10n.of(context).txUndo,
             textColor: Colors.white,
             onPressed: () {
               ref

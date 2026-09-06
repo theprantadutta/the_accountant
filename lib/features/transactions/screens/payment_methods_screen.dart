@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
@@ -29,11 +30,11 @@ class PaymentMethodsScreen extends ConsumerWidget {
     final state = ref.watch(paymentMethodProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Payment methods')),
+      appBar: AppBar(title: Text(L10n.of(context).payTitle)),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _edit(context, ref),
         icon: const Icon(Icons.add),
-        label: const Text('Add'),
+        label: Text(L10n.of(context).actionAdd),
       ),
       body: state.isLoading && state.paymentMethods.isEmpty
           ? const Center(child: CircularProgressIndicator())
@@ -62,8 +63,8 @@ class PaymentMethodsScreen extends ConsumerWidget {
                     ].join(' · '),
                   ),
                   trailing: method.isDefault
-                      ? const Chip(
-                          label: Text('Default'),
+                      ? Chip(
+                          label: Text(L10n.of(context).payDefault),
                           visualDensity: VisualDensity.compact,
                         )
                       : null,
@@ -112,7 +113,7 @@ class PaymentMethodsScreen extends ConsumerWidget {
           FilledButton.icon(
             onPressed: () => _edit(context, ref),
             icon: const Icon(Icons.add),
-            label: const Text('Add one'),
+            label: Text(L10n.of(context).payAddOne),
           ),
         ],
       ),
@@ -164,11 +165,11 @@ class PaymentMethodsScreen extends ConsumerWidget {
   ) async {
     final confirmed = await showConfirmationDialog(
       context: context,
-      title: 'Delete ${method.name}?',
+      title: L10n.of(context).payDeleteTitle(method.name),
       message:
           'Transactions already filed against it keep their record. They '
           'simply stop naming a payment method.',
-      confirmText: 'Delete',
+      confirmText: L10n.of(context).actionDelete,
       isDangerous: true,
     );
     if (confirmed != true || !context.mounted) return;
@@ -239,15 +240,15 @@ class _MethodDialogState extends State<_MethodDialog> {
             TextField(
               controller: _name,
               textCapitalization: TextCapitalization.words,
-              decoration: const InputDecoration(
-                labelText: 'Name',
-                hintText: 'Everyday debit',
+              decoration: InputDecoration(
+                labelText: L10n.of(context).payName,
+                hintText: L10n.of(context).payNameHint,
               ),
             ),
             const SizedBox(height: 12),
             DropdownButtonFormField<String>(
               initialValue: _type,
-              decoration: const InputDecoration(labelText: 'Kind'),
+              decoration: InputDecoration(labelText: L10n.of(context).payKind),
               items: [
                 for (final entry in PaymentMethodsScreen._kinds.entries)
                   DropdownMenuItem(
@@ -262,7 +263,9 @@ class _MethodDialogState extends State<_MethodDialog> {
               TextField(
                 controller: _institution,
                 textCapitalization: TextCapitalization.words,
-                decoration: const InputDecoration(labelText: 'Bank or issuer'),
+                decoration: InputDecoration(
+                  labelText: L10n.of(context).payBankOrIssuer,
+                ),
               ),
             ],
             if (hasCardDetails) ...[
@@ -271,8 +274,8 @@ class _MethodDialogState extends State<_MethodDialog> {
                 controller: _lastFour,
                 keyboardType: TextInputType.number,
                 maxLength: 4,
-                decoration: const InputDecoration(
-                  labelText: 'Last four digits',
+                decoration: InputDecoration(
+                  labelText: L10n.of(context).payLastFour,
                   counterText: '',
                 ),
               ),
@@ -281,7 +284,7 @@ class _MethodDialogState extends State<_MethodDialog> {
               contentPadding: EdgeInsets.zero,
               value: _isDefault,
               onChanged: (v) => setState(() => _isDefault = v),
-              title: const Text('Use by default'),
+              title: Text(L10n.of(context).payUseByDefault),
             ),
           ],
         ),
@@ -289,7 +292,7 @@ class _MethodDialogState extends State<_MethodDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
+          child: Text(L10n.of(context).actionCancel),
         ),
         FilledButton(
           onPressed: () {
@@ -307,7 +310,7 @@ class _MethodDialogState extends State<_MethodDialog> {
               isDefault: _isDefault,
             ));
           },
-          child: const Text('Save'),
+          child: Text(L10n.of(context).actionSave),
         ),
       ],
     );

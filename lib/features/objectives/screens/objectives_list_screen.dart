@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/providers/currency_provider.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
@@ -50,11 +51,11 @@ class _ObjectivesListScreenState extends ConsumerState<ObjectivesListScreen> {
           : FloatingActionButton.extended(
               onPressed: _create,
               icon: const Icon(Icons.add),
-              label: const Text('New goal'),
+              label: Text(L10n.of(context).goalNew),
             ),
       body: switch (all) {
         AsyncData(:final value) => _body(value, currency),
-        AsyncError() => const Center(child: Text('Could not load your goals.')),
+        AsyncError() => Center(child: Text(L10n.of(context).goalLoadFailed)),
         _ => const Padding(
           padding: EdgeInsets.all(16),
           child: Column(
@@ -128,7 +129,7 @@ class _ObjectivesListScreenState extends ConsumerState<ObjectivesListScreen> {
             const SizedBox(height: 12),
             ListTile(
               leading: const Icon(Icons.edit_outlined),
-              title: const Text('Edit'),
+              title: Text(L10n.of(context).actionEdit),
               onTap: () => Navigator.pop(context, 'edit'),
             ),
             ListTile(
@@ -346,7 +347,7 @@ class _Empty extends StatelessWidget {
               FilledButton.icon(
                 onPressed: onCreate,
                 icon: const Icon(Icons.add),
-                label: const Text('Create a goal'),
+                label: Text(L10n.of(context).goalCreate),
               ),
             ],
           ],

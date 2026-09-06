@@ -171,10 +171,10 @@ class _MainNavigationContainerState
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const AuthBrandHeader(
+                AuthBrandHeader(
                   icon: Icons.cloud_download_rounded,
-                  title: 'Welcome back',
-                  subtitle: 'Restoring your data from the cloud…',
+                  title: L10n.of(context).sharedWelcomeBack,
+                  subtitle: L10n.of(context).sharedRestoringYourDataFromThe,
                 ),
                 AppSpacing.gapXxxl,
                 SizedBox(

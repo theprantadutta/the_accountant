@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/features/categories/providers/category_provider.dart'
     as category_provider;
@@ -17,7 +18,7 @@ class CategoryManagementScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Categories'),
+        title: Text(L10n.of(context).settingsCategories),
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
@@ -161,12 +162,12 @@ class CategoryManagementScreen extends ConsumerWidget {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Delete Category'),
+          title: Text(L10n.of(context).catDeleteCategory),
           content: Text('Are you sure you want to delete "${category.name}"?'),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
+              child: Text(L10n.of(context).actionCancel),
             ),
             TextButton(
               onPressed: () {
@@ -175,7 +176,7 @@ class CategoryManagementScreen extends ConsumerWidget {
                     .deleteCategory(category.id);
                 Navigator.pop(context);
               },
-              child: const Text('Delete'),
+              child: Text(L10n.of(context).actionDelete),
             ),
           ],
         );

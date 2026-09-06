@@ -585,7 +585,7 @@ class _CurrencyPickerSheetState extends ConsumerState<_CurrencyPickerSheet> {
               controller: _searchController,
               style: TextStyle(color: AppColors.textPrimary),
               decoration: InputDecoration(
-                hintText: 'Search by code or name...',
+                hintText: L10n.of(context).settingsSearchByCodeOrName,
                 hintStyle: TextStyle(color: AppColors.textMuted),
                 prefixIcon: Icon(Icons.search, color: AppColors.textMuted),
                 suffixIcon: _searchQuery.isNotEmpty
@@ -645,7 +645,7 @@ class _CurrencyPickerSheetState extends ConsumerState<_CurrencyPickerSheet> {
                     ElevatedButton(
                       onPressed: () =>
                           ref.read(currencyProvider.notifier).loadCurrencies(),
-                      child: const Text('Retry'),
+                      child: Text(L10n.of(context).actionRetry),
                     ),
                   ],
                 ),

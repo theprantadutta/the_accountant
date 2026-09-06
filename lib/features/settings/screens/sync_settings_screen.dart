@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/providers/sync_provider.dart';
@@ -46,7 +47,7 @@ class _SyncSettingsScreenState extends ConsumerState<SyncSettingsScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text('Cloud Sync'),
+        title: Text(L10n.of(context).settingsCloudSync),
       ),
       body: ListView(
         padding: EdgeInsets.all(AppSpacing.md),
@@ -349,12 +350,12 @@ class _SyncSettingsScreenState extends ConsumerState<SyncSettingsScreen> {
     HapticFeedback.mediumImpact();
     final confirmed = await showConfirmationDialog(
       context: context,
-      title: 'Restore from Cloud?',
+      title: L10n.of(context).settingsRestoreFromCloud,
       message:
           'This erases ALL data on this device and replaces it with your cloud '
           'data. Any changes on this device that have not synced yet will be '
           'lost. This cannot be undone.',
-      confirmText: 'Erase & Restore',
+      confirmText: L10n.of(context).backupEraseRestore,
       isDangerous: true,
     );
     if (confirmed != true || !mounted) return;
@@ -434,31 +435,31 @@ class _SyncSettingsScreenState extends ConsumerState<SyncSettingsScreen> {
       case SyncOperationState.syncing:
         return _SyncStatusInfo(
           icon: Icons.sync,
-          label: 'Syncing...',
+          label: L10n.of(context).settingsSyncing,
           color: AppColors.primaryAccent,
         );
       case SyncOperationState.success:
         return _SyncStatusInfo(
           icon: Icons.check_circle_outline,
-          label: 'Synced',
+          label: L10n.of(context).settingsSynced,
           color: AppColors.success,
         );
       case SyncOperationState.error:
         return _SyncStatusInfo(
           icon: Icons.error_outline,
-          label: 'Sync Error',
+          label: L10n.of(context).settingsSyncError,
           color: AppColors.error,
         );
       case SyncOperationState.offline:
         return _SyncStatusInfo(
           icon: Icons.cloud_off_outlined,
-          label: 'Offline',
+          label: L10n.of(context).settingsOffline,
           color: AppColors.warning,
         );
       case SyncOperationState.idle:
         return _SyncStatusInfo(
           icon: Icons.cloud_done_outlined,
-          label: 'Ready',
+          label: L10n.of(context).settingsReady,
           color: AppColors.textMuted,
         );
     }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:the_accountant/features/wallets/services/wallet_maintenance_service.dart';
 import 'package:the_accountant/features/settings/widgets/confirmation_dialog.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -59,8 +60,8 @@ class _WalletDetailScreenState extends ConsumerState<WalletDetailScreen> {
 
     if (wallet == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Account')),
-        body: const Center(child: Text('This account no longer exists.')),
+        appBar: AppBar(title: Text(L10n.of(context).entityAccount)),
+        body: Center(child: Text(L10n.of(context).walletGone)),
       );
     }
 
@@ -118,20 +119,20 @@ class _WalletDetailScreenState extends ConsumerState<WalletDetailScreen> {
                   contentPadding: EdgeInsets.zero,
                 ),
               ),
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: 'correct',
                 child: ListTile(
                   leading: Icon(Icons.rule),
-                  title: Text('Correct the balance'),
-                  subtitle: Text('Record the difference from the real figure'),
+                  title: Text(L10n.of(context).walletCorrectBalance),
+                  subtitle: Text(L10n.of(context).walletCorrectBalanceSubtitle),
                   contentPadding: EdgeInsets.zero,
                 ),
               ),
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: 'merge',
                 child: ListTile(
                   leading: Icon(Icons.merge),
-                  title: Text('Merge into another account'),
+                  title: Text(L10n.of(context).walletMergeInto),
                   contentPadding: EdgeInsets.zero,
                 ),
               ),
@@ -225,7 +226,7 @@ class _WalletDetailScreenState extends ConsumerState<WalletDetailScreen> {
               children: [
                 Expanded(
                   child: _MonthStat(
-                    label: 'In this month',
+                    label: L10n.of(context).walletInThisMonth,
                     value: money(inCents),
                     tint: AppColors.success,
                   ),
@@ -233,7 +234,7 @@ class _WalletDetailScreenState extends ConsumerState<WalletDetailScreen> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: _MonthStat(
-                    label: 'Out this month',
+                    label: L10n.of(context).walletOutThisMonth,
                     value: money(outCents),
                     tint: AppColors.error,
                   ),
@@ -247,7 +248,10 @@ class _WalletDetailScreenState extends ConsumerState<WalletDetailScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Recent activity', style: AppTypography.titleSmall),
+                  Text(
+                    L10n.of(context).walletRecentActivity,
+                    style: AppTypography.titleSmall,
+                  ),
                   AppSpacing.gapSm,
                   if (rows == null)
                     const Padding(
@@ -378,9 +382,7 @@ class _WalletDetailScreenState extends ConsumerState<WalletDetailScreen> {
 
     if (others.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('There is no other account to merge into.'),
-        ),
+        SnackBar(content: Text(L10n.of(context).walletNoOtherAccount)),
       );
       return;
     }
@@ -388,7 +390,7 @@ class _WalletDetailScreenState extends ConsumerState<WalletDetailScreen> {
     final targetId = await showDialog<String>(
       context: context,
       builder: (context) => SimpleDialog(
-        title: const Text('Merge into'),
+        title: Text(L10n.of(context).walletMergeIntoTitle),
         children: [
           for (final w in others)
             SimpleDialogOption(
@@ -403,14 +405,14 @@ class _WalletDetailScreenState extends ConsumerState<WalletDetailScreen> {
     final target = others.firstWhere((w) => w.id == targetId);
     final confirmed = await showConfirmationDialog(
       context: context,
-      title: 'Merge ${wallet.name} into ${target.name}?',
+      title: L10n.of(context).walletMergeConfirmTitle(wallet.name, target.name),
       message: target.currency == wallet.currency
           ? 'Everything filed against ${wallet.name} moves across, and '
                 '${wallet.name} is closed. Nothing is deleted.'
           : 'Amounts are converted from ${wallet.currency} to '
                 '${target.currency} as they move. Nothing is deleted, and '
                 '${wallet.name} is closed rather than removed.',
-      confirmText: 'Merge',
+      confirmText: L10n.of(context).walletMergeAction,
     );
     if (confirmed != true || !mounted) return;
 
@@ -422,7 +424,9 @@ class _WalletDetailScreenState extends ConsumerState<WalletDetailScreen> {
       await ref.read(walletProvider.notifier).loadWallets();
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Moved $moved into ${target.name}.')),
+        SnackBar(
+          content: Text(L10n.of(context).walletMerged(moved, target.name)),
+        ),
       );
       Navigator.pop(context);
     } on ArgumentError catch (e) {
@@ -547,7 +551,7 @@ class _CorrectBalanceDialogState extends ConsumerState<_CorrectBalanceDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Correct the balance'),
+      title: Text(L10n.of(context).walletCorrectBalance),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -569,7 +573,7 @@ class _CorrectBalanceDialogState extends ConsumerState<_CorrectBalanceDialog> {
               signed: true,
             ),
             decoration: InputDecoration(
-              labelText: 'Real balance',
+              labelText: L10n.of(context).walletRealBalance,
               prefixText: '${widget.wallet.currency} ',
             ),
           ),
@@ -578,7 +582,7 @@ class _CorrectBalanceDialogState extends ConsumerState<_CorrectBalanceDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
+          child: Text(L10n.of(context).actionCancel),
         ),
         FilledButton(
           onPressed: () {
@@ -586,7 +590,7 @@ class _CorrectBalanceDialogState extends ConsumerState<_CorrectBalanceDialog> {
             if (cents == null) return;
             Navigator.pop(context, cents);
           },
-          child: const Text('Correct'),
+          child: Text(L10n.of(context).walletCorrectAction),
         ),
       ],
     );

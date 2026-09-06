@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/services/api_service.dart';
@@ -76,7 +77,7 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text('Contact Support'),
+        title: Text(L10n.of(context).settingsContactSupport),
       ),
       body: ListView(
         padding: EdgeInsets.all(AppSpacing.md),
@@ -89,7 +90,7 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
           SizedBox(height: AppSpacing.lg),
           NeoTextField(
             controller: _subjectController,
-            label: 'Subject',
+            label: L10n.of(context).settingsSubject,
             hint: "What's this about?",
             prefixIcon: Icons.subject,
             textCapitalization: TextCapitalization.sentences,
@@ -97,7 +98,7 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
           SizedBox(height: AppSpacing.md),
           NeoTextField(
             controller: _messageController,
-            label: 'Message',
+            label: L10n.of(context).settingsMessage,
             hint: 'Describe your question, issue, or feedback…',
             prefixIcon: Icons.chat_bubble_outline,
             maxLines: 6,
@@ -106,7 +107,7 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
           ),
           SizedBox(height: AppSpacing.lg),
           NeoButton(
-            label: 'Send message',
+            label: L10n.of(context).settingsSendMessage,
             leadingIcon: Icons.send_rounded,
             isExpanded: true,
             isLoading: _isSending,

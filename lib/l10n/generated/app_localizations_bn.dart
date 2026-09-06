@@ -230,4 +230,1105 @@ class L10nBn extends L10n {
 
   @override
   String get themeUnlockPremium => 'প্রিমিয়াম থিম আনলক করুন';
+
+  @override
+  String get actionRetry => 'আবার চেষ্টা করুন';
+
+  @override
+  String get dashCreditDebt => 'ধার ও দেনা';
+
+  @override
+  String get dashSubscriptions => 'সাবস্ক্রিপশন';
+
+  @override
+  String get moneyIncome => 'আয়';
+
+  @override
+  String get dashExpenses => 'ব্যয়';
+
+  @override
+  String get dashSpendingOverview => 'খরচের সারসংক্ষেপ';
+
+  @override
+  String get dashRecentTransactions => 'সাম্প্রতিক লেনদেন';
+
+  @override
+  String get dashBudgetProgress => 'বাজেটের অগ্রগতি';
+
+  @override
+  String get actionDelete => 'মুছুন';
+
+  @override
+  String txDeleteManyTitle(int count) {
+    return '$countটি লেনদেন মুছবেন?';
+  }
+
+  @override
+  String get txDeleteManyBody =>
+      'ব্যালেন্স আবার হিসাব করা হবে। এর মধ্যে কোনো স্থানান্তর থাকলে তার অন্য অংশটিও সঙ্গে যাবে।';
+
+  @override
+  String get txMoveToAccount => 'অ্যাকাউন্টে সরান';
+
+  @override
+  String get txDeleted => 'লেনদেন মুছে ফেলা হয়েছে';
+
+  @override
+  String txDeleteFailed(String error) {
+    return 'লেনদেনটি মোছা যায়নি: $error';
+  }
+
+  @override
+  String txSelectedCount(int count) {
+    return '$countটি নির্বাচিত';
+  }
+
+  @override
+  String get txActions => 'কাজ';
+
+  @override
+  String get txChangeCategory => 'ক্যাটাগরি বদলান';
+
+  @override
+  String get txChangeDate => 'তারিখ বদলান';
+
+  @override
+  String get txMarkAsPaid => 'পরিশোধিত হিসেবে চিহ্নিত করুন';
+
+  @override
+  String get txDuplicate => 'নকল তৈরি করুন';
+
+  @override
+  String get filterTitle => 'ফিল্টার';
+
+  @override
+  String get filterClearAll => 'সব মুছুন';
+
+  @override
+  String get filterAny => 'যেকোনো';
+
+  @override
+  String get filterSpent => 'খরচ';
+
+  @override
+  String get filterEarned => 'আয়';
+
+  @override
+  String get filterHidden => 'লুকানো';
+
+  @override
+  String get filterIncluded => 'অন্তর্ভুক্ত';
+
+  @override
+  String get filterOnly => 'কেবল';
+
+  @override
+  String get filterFrom => 'থেকে';
+
+  @override
+  String get filterTo => 'পর্যন্ত';
+
+  @override
+  String get actionApply => 'প্রয়োগ করুন';
+
+  @override
+  String get dashThisMonth => 'এই মাসে';
+
+  @override
+  String get filterPaid => 'পরিশোধিত';
+
+  @override
+  String get filterNotYet => 'এখনও নয়';
+
+  @override
+  String get filterSkipped => 'বাদ দেওয়া';
+
+  @override
+  String get filterAmount => 'পরিমাণ';
+
+  @override
+  String get actionEdit => 'সম্পাদনা';
+
+  @override
+  String get entityBudget => 'বাজেট';
+
+  @override
+  String get budgetGone => 'এই বাজেটটি আর নেই।';
+
+  @override
+  String get budgetEarlier => 'আগের';
+
+  @override
+  String get budgetLater => 'পরের';
+
+  @override
+  String get budgetWhereItWent => 'কোথায় গেল';
+
+  @override
+  String get budgetRecentPeriods => 'সাম্প্রতিক সময়কাল';
+
+  @override
+  String get budgetCaps => 'সীমা';
+
+  @override
+  String get actionAdd => 'যোগ করুন';
+
+  @override
+  String get budgetNoCategoriesToCap =>
+      'এই বাজেটে সীমা দেওয়ার মতো কোনো ক্যাটাগরি এখনও নেই।';
+
+  @override
+  String get budgetCapACategory => 'একটি ক্যাটাগরিতে সীমা দিন';
+
+  @override
+  String get entityCategory => 'ক্যাটাগরি';
+
+  @override
+  String get budgetAsShare => 'বাজেটের অংশ হিসেবে';
+
+  @override
+  String get budgetAsShareHint => 'বাজেট বদলালে এটিও সঙ্গে বদলাবে';
+
+  @override
+  String get actionSet => 'নির্ধারণ করুন';
+
+  @override
+  String get budgetAcrossPeriod => 'পুরো সময়কাল জুড়ে';
+
+  @override
+  String get budgetPreviousPeriod => 'আগের সময়কাল';
+
+  @override
+  String get budgetEvenPace => 'সমান গতি';
+
+  @override
+  String get budgetNew => 'নতুন বাজেট';
+
+  @override
+  String get budgetCreate => 'একটি বাজেট তৈরি করুন';
+
+  @override
+  String budgetDeleteTitle(String name) {
+    return '$name মুছবেন?';
+  }
+
+  @override
+  String get entityAccount => 'অ্যাকাউন্ট';
+
+  @override
+  String get entityTransaction => 'লেনদেন';
+
+  @override
+  String get walletGone => 'এই অ্যাকাউন্টটি আর নেই।';
+
+  @override
+  String get walletCorrectBalance => 'ব্যালেন্স সংশোধন করুন';
+
+  @override
+  String get walletCorrectBalanceSubtitle =>
+      'প্রকৃত অঙ্কের সঙ্গে পার্থক্যটি লিখে রাখুন';
+
+  @override
+  String get walletMergeInto => 'অন্য অ্যাকাউন্টে মেলান';
+
+  @override
+  String get walletInThisMonth => 'এই মাসে এসেছে';
+
+  @override
+  String get walletOutThisMonth => 'এই মাসে গেছে';
+
+  @override
+  String get walletRecentActivity => 'সাম্প্রতিক কার্যকলাপ';
+
+  @override
+  String get walletNoOtherAccount => 'মেলানোর মতো অন্য কোনো অ্যাকাউন্ট নেই।';
+
+  @override
+  String get walletMergeIntoTitle => 'কোথায় মেলাবেন';
+
+  @override
+  String get walletMergeAction => 'মেলান';
+
+  @override
+  String walletMerged(int count, String target) {
+    return '$countটি $target-এ সরানো হয়েছে।';
+  }
+
+  @override
+  String get walletRealBalance => 'প্রকৃত ব্যালেন্স';
+
+  @override
+  String get walletCorrectAction => 'সংশোধন করুন';
+
+  @override
+  String get txGone => 'এই লেনদেনটি আর নেই।';
+
+  @override
+  String get txKind => 'ধরন';
+
+  @override
+  String get txState => 'অবস্থা';
+
+  @override
+  String get txWasDue => 'নির্ধারিত ছিল';
+
+  @override
+  String get txNotes => 'নোট';
+
+  @override
+  String get txDeleteOneTitle => 'এই লেনদেনটি মুছবেন?';
+
+  @override
+  String get rulesTitle => 'নামকরণের নিয়ম';
+
+  @override
+  String get rulesAdd => 'নিয়ম যোগ করুন';
+
+  @override
+  String rulesRemoved(String title) {
+    return '$title-এর নিয়মটি সরানো হয়েছে';
+  }
+
+  @override
+  String get rulesWhenTitleSays => 'শিরোনামে যা থাকলে';
+
+  @override
+  String get rulesMatchExactly => 'হুবহু মিলতে হবে';
+
+  @override
+  String get rulesChooseCategory => 'ক্যাটাগরি বাছুন';
+
+  @override
+  String get actionSave => 'সংরক্ষণ';
+
+  @override
+  String get goalNew => 'নতুন লক্ষ্য';
+
+  @override
+  String get goalLoadFailed => 'আপনার লক্ষ্যগুলি আনা যায়নি।';
+
+  @override
+  String get goalCreate => 'একটি লক্ষ্য তৈরি করুন';
+
+  @override
+  String get trashTitle => 'সম্প্রতি মুছে ফেলা';
+
+  @override
+  String get trashRestore => 'ফিরিয়ে আনুন';
+
+  @override
+  String get trashRestored => 'ফিরিয়ে আনা হয়েছে।';
+
+  @override
+  String get payTitle => 'পেমেন্ট পদ্ধতি';
+
+  @override
+  String get payDefault => 'ডিফল্ট';
+
+  @override
+  String get payAddOne => 'একটি যোগ করুন';
+
+  @override
+  String payDeleteTitle(String name) {
+    return '$name মুছবেন?';
+  }
+
+  @override
+  String get payName => 'নাম';
+
+  @override
+  String get payNameHint => 'প্রতিদিনের ডেবিট';
+
+  @override
+  String get payKind => 'ধরন';
+
+  @override
+  String get payBankOrIssuer => 'ব্যাংক বা ইস্যুকারী';
+
+  @override
+  String get payLastFour => 'শেষ চার অঙ্ক';
+
+  @override
+  String get payUseByDefault => 'ডিফল্ট হিসেবে ব্যবহার করুন';
+
+  @override
+  String get backupChecking => 'দেখা হচ্ছে…';
+
+  @override
+  String get backupLoading => 'আনা হচ্ছে…';
+
+  @override
+  String get backupSaveACopy => 'একটি কপি রাখুন';
+
+  @override
+  String get backupAutomaticBackups => 'স্বয়ংক্রিয় ব্যাকআপ';
+
+  @override
+  String get backupHowManyBackupsToKeep => 'কতগুলি ব্যাকআপ রাখা হবে';
+
+  @override
+  String get backupSaveABackupFile => 'ব্যাকআপ ফাইল সংরক্ষণ করুন';
+
+  @override
+  String get backupShareItToFilesEmail =>
+      'ফাইলস, ইমেল বা আপনার পছন্দমতো জায়গায় পাঠান';
+
+  @override
+  String get backupRestoreFromAFile => 'ফাইল থেকে ফিরিয়ে আনুন';
+
+  @override
+  String get backupReplacesEverythingCurrentlyOnThis =>
+      'এই ডিভাইসে এখন যা আছে সবই বদলে যাবে';
+
+  @override
+  String get backupRestoreThisBackup => 'এই ব্যাকআপটি ফিরিয়ে আনবেন?';
+
+  @override
+  String get backupEraseRestore => 'মুছে ফিরিয়ে আনুন';
+
+  @override
+  String get backupGoogleDriveIsUnavailable => 'Google Drive পাওয়া যাচ্ছে না';
+
+  @override
+  String get backupConnectGoogleDrive => 'Google Drive যুক্ত করুন';
+
+  @override
+  String get backupBackUpNow => 'এখনই ব্যাকআপ নিন';
+
+  @override
+  String get backupKeep => 'রাখুন';
+
+  @override
+  String get backupTheLastAutomaticBackupDid =>
+      'শেষ স্বয়ংক্রিয় ব্যাকআপটি চলেনি';
+
+  @override
+  String get backupDisconnectGoogleDrive => 'Google Drive সংযোগ বিচ্ছিন্ন করুন';
+
+  @override
+  String get backupDisconnectGoogleDrive2 =>
+      'Google Drive সংযোগ বিচ্ছিন্ন করবেন?';
+
+  @override
+  String get backupDisconnect => 'বিচ্ছিন্ন করুন';
+
+  @override
+  String get backupDeleteThisBackup => 'এই ব্যাকআপটি মুছবেন?';
+
+  @override
+  String get importChooseACsvFile => 'একটি CSV ফাইল বাছুন';
+
+  @override
+  String get importRememberTheseSettingsForThis =>
+      'এই ব্যাংকের জন্য এই সেটিংস মনে রাখুন';
+
+  @override
+  String get importChange => 'বদলান';
+
+  @override
+  String get importAuto => 'স্বয়ংক্রিয়';
+
+  @override
+  String get importDone => 'হয়ে গেছে';
+
+  @override
+  String get importRememberThisBank => 'এই ব্যাংকটি মনে রাখুন';
+
+  @override
+  String get importForget => 'ভুলে যান';
+
+  @override
+  String get importImport => 'আমদানি করুন';
+
+  @override
+  String get settingsAbout => 'সম্পর্কে';
+
+  @override
+  String get settingsPrivacyPolicy => 'গোপনীয়তা নীতি';
+
+  @override
+  String get settingsTermsOfService => 'ব্যবহারের শর্তাবলী';
+
+  @override
+  String get settingsRefundPolicy => 'ফেরত নীতি';
+
+  @override
+  String get settingsOpenSourceLicenses => 'ওপেন সোর্স লাইসেন্স';
+
+  @override
+  String get settingsMeetTheDeveloper => 'ডেভেলপারের সঙ্গে পরিচিত হন';
+
+  @override
+  String get settingsContactSupport => 'সহায়তায় যোগাযোগ করুন';
+
+  @override
+  String get settingsSubject => 'বিষয়';
+
+  @override
+  String get settingsMessage => 'বার্তা';
+
+  @override
+  String get settingsSendMessage => 'বার্তা পাঠান';
+
+  @override
+  String get settingsUseApiRate => 'API হার ব্যবহার করুন';
+
+  @override
+  String get settingsRefreshRates => 'হার হালনাগাদ করুন';
+
+  @override
+  String get settingsSearchCurrencies => 'মুদ্রা খুঁজুন...';
+
+  @override
+  String get settingsCustomRate => 'নিজের হার';
+
+  @override
+  String get settingsSetCustomRate => 'নিজের হার নির্ধারণ করুন';
+
+  @override
+  String get settingsNotNow => 'এখন নয়';
+
+  @override
+  String get settingsGoPremium => 'প্রিমিয়াম নিন';
+
+  @override
+  String get settingsCsv => 'CSV';
+
+  @override
+  String get settingsSpreadsheetFormatForExcelGoogle =>
+      'Excel ও Google Sheets-এর জন্য স্প্রেডশিট বিন্যাস';
+
+  @override
+  String get settingsPdfReport => 'PDF রিপোর্ট';
+
+  @override
+  String get settingsFormattedSummaryWithBreakdowns =>
+      'বিভাজনসহ সাজানো সারসংক্ষেপ';
+
+  @override
+  String get settingsAllIncomeAndExpenseRecords => 'সমস্ত আয় ও ব্যয়ের হিসাব';
+
+  @override
+  String get settingsCategories => 'ক্যাটাগরি';
+
+  @override
+  String get settingsCategoryBreakdownAndTotals =>
+      'ক্যাটাগরিভিত্তিক বিভাজন ও মোট';
+
+  @override
+  String get settingsWallets => 'ওয়ালেট';
+
+  @override
+  String get settingsWalletBalancesAndHistory => 'ওয়ালেটের ব্যালেন্স ও ইতিহাস';
+
+  @override
+  String get settingsHelpFaq => 'সহায়তা ও সাধারণ প্রশ্ন';
+
+  @override
+  String get settingsNotifications => 'বিজ্ঞপ্তি';
+
+  @override
+  String get settingsLargeTransactionThreshold => 'বড় লেনদেনের সীমা';
+
+  @override
+  String get settingsRemindMeBeforeDueDate =>
+      'নির্ধারিত তারিখের আগে মনে করিয়ে দিন';
+
+  @override
+  String get settingsTestNotificationSentCheckYour =>
+      'পরীক্ষামূলক বিজ্ঞপ্তি পাঠানো হয়েছে! আপনার বিজ্ঞপ্তি দেখুন।';
+
+  @override
+  String get settingsTest => 'পরীক্ষা';
+
+  @override
+  String get settingsDailyReminders => 'দৈনিক অনুস্মারক';
+
+  @override
+  String get settingsDailyReminders2 => 'দৈনিক অনুস্মারক';
+
+  @override
+  String get settingsGetRemindedToTrackYour =>
+      'খরচ লিখে রাখার কথা মনে করিয়ে দেওয়া হবে';
+
+  @override
+  String get settingsBudgetAlerts => 'বাজেট সতর্কতা';
+
+  @override
+  String get settingsBudgetAlerts2 => 'বাজেট সতর্কতা';
+
+  @override
+  String get settingsNotifyWhenApproachingBudgetLimit =>
+      'বাজেটের সীমার কাছে গেলে জানান';
+
+  @override
+  String get settingsWarningThreshold => 'সতর্কতার সীমা';
+
+  @override
+  String get settingsTransactionAlerts => 'লেনদেন সতর্কতা';
+
+  @override
+  String get settingsLargeTransactionAlerts => 'বড় লেনদেনের সতর্কতা';
+
+  @override
+  String get settingsNotifyForTransactionsAboveThreshold =>
+      'সীমার বেশি লেনদেনে জানান';
+
+  @override
+  String get settingsRecurringTransactionReminders =>
+      'নিয়মিত লেনদেনের অনুস্মারক';
+
+  @override
+  String get settingsRemindAboutUpcomingRecurringPayments =>
+      'আসন্ন নিয়মিত পরিশোধের কথা মনে করিয়ে দিন';
+
+  @override
+  String get settingsOtherNotifications => 'অন্যান্য বিজ্ঞপ্তি';
+
+  @override
+  String get settingsSubscriptionExpiryAlerts =>
+      'সাবস্ক্রিপশন শেষ হওয়ার সতর্কতা';
+
+  @override
+  String get settingsGetNotifiedBeforeYourPremium =>
+      'আপনার প্রিমিয়াম শেষ হওয়ার আগে জানানো হবে';
+
+  @override
+  String get settingsPromotionalNotifications => 'প্রচারমূলক বিজ্ঞপ্তি';
+
+  @override
+  String get settingsReceiveOffersAndFeatureUpdates =>
+      'অফার ও নতুন সুবিধার খবর পান';
+
+  @override
+  String get settingsTurnOnDailyReminders => 'দৈনিক অনুস্মারক চালু করবেন?';
+
+  @override
+  String get settingsEnterAmount => 'পরিমাণ লিখুন';
+
+  @override
+  String get settingsReminderTime => 'অনুস্মারকের সময়';
+
+  @override
+  String get settingsPrivacySecurity => 'গোপনীয়তা ও নিরাপত্তা';
+
+  @override
+  String get settingsSecurity => 'নিরাপত্তা';
+
+  @override
+  String get settingsBiometricLock => 'বায়োমেট্রিক লক';
+
+  @override
+  String get settingsUseFingerprintOrFaceTo => 'আঙুলের ছাপ বা মুখ দিয়ে খুলুন';
+
+  @override
+  String get settingsAutoLock => 'স্বয়ংক্রিয় লক';
+
+  @override
+  String get settingsDataPrivacy => 'ডেটার গোপনীয়তা';
+
+  @override
+  String get settingsClearCache => 'ক্যাশ পরিষ্কার করুন';
+
+  @override
+  String get settingsClearCachedDataAndForce =>
+      'ক্যাশ করা ডেটা মুছে আবার সিঙ্ক করান';
+
+  @override
+  String get settingsClearAllData => 'সমস্ত ডেটা মুছুন';
+
+  @override
+  String get settingsDeleteAllTransactionsBudgetsAnd =>
+      'সমস্ত লেনদেন, বাজেট ও সেটিংস মুছে ফেলুন';
+
+  @override
+  String get settingsLegal => 'আইনি';
+
+  @override
+  String get settingsReadOurPrivacyPolicy => 'আমাদের গোপনীয়তা নীতি পড়ুন';
+
+  @override
+  String get settingsReadOurTermsOfService => 'আমাদের ব্যবহারের শর্তাবলী পড়ুন';
+
+  @override
+  String get settingsHowRefundsAndCancellationsWork =>
+      'ফেরত ও বাতিল কীভাবে কাজ করে';
+
+  @override
+  String get settingsDangerZone => 'বিপজ্জনক অংশ';
+
+  @override
+  String get settingsDeleteAccount => 'অ্যাকাউন্ট মুছুন';
+
+  @override
+  String get settingsPermanentlyDeleteYourAccountAnd =>
+      'আপনার অ্যাকাউন্ট ও সমস্ত ডেটা চিরতরে মুছে ফেলুন';
+
+  @override
+  String get settingsAutoLockTimeout => 'স্বয়ংক্রিয় লকের সময়';
+
+  @override
+  String get settingsDeleteEverything => 'সবকিছু মুছুন';
+
+  @override
+  String get settingsAreYouAbsolutelySure => 'আপনি কি একেবারে নিশ্চিত?';
+
+  @override
+  String get settingsYesDeleteAll => 'হ্যাঁ, সব মুছুন';
+
+  @override
+  String get settingsContinue => 'চালিয়ে যান';
+
+  @override
+  String get settingsEditProfile => 'প্রোফাইল সম্পাদনা';
+
+  @override
+  String get settingsDisplayName => 'প্রদর্শিত নাম';
+
+  @override
+  String get settingsEmailAddress => 'ইমেল ঠিকানা';
+
+  @override
+  String get settingsUnsavedChanges => 'সংরক্ষণ করা হয়নি';
+
+  @override
+  String get settingsStay => 'থাকুন';
+
+  @override
+  String get settingsLeave => 'চলে যান';
+
+  @override
+  String get settingsSearchByCodeOrName => 'কোড বা নাম দিয়ে খুঁজুন...';
+
+  @override
+  String get settingsSearchSettings => 'সেটিংস খুঁজুন...';
+
+  @override
+  String get settingsSubscription => 'সাবস্ক্রিপশন';
+
+  @override
+  String get settingsSignOut => 'সাইন আউট';
+
+  @override
+  String get settingsGoals => 'লক্ষ্য';
+
+  @override
+  String get settingsSaveTowardSomethingAndTrack =>
+      'কোনো কিছুর জন্য জমান এবং কতদূর এগোলেন দেখুন';
+
+  @override
+  String get settingsBudgets => 'বাজেট';
+
+  @override
+  String get settingsSetLimitsAndSeeHow =>
+      'সীমা দিন এবং সময়কালটি কেমন যাচ্ছে দেখুন';
+
+  @override
+  String get settingsUpcomingAndOverdue => 'আসন্ন ও বকেয়া';
+
+  @override
+  String get settingsWhatIsDueAndWhat => 'কী বাকি আছে, আর কী বাদ পড়েছে';
+
+  @override
+  String get settingsRenameRecolourAndGroupThem =>
+      'নাম, রঙ বদলান আর দলবদ্ধ করুন';
+
+  @override
+  String get settingsAccounts => 'অ্যাকাউন্ট';
+
+  @override
+  String get settingsAddReorderAndEditYour =>
+      'আপনার অ্যাকাউন্ট যোগ করুন, সাজান ও সম্পাদনা করুন';
+
+  @override
+  String get settingsTheCardsAndAccountsYou =>
+      'যে কার্ড ও অ্যাকাউন্ট দিয়ে আপনি পরিশোধ করেন';
+
+  @override
+  String get settingsWhereSomethingGoesBasedOn =>
+      'নাম দেখে কোন খাতে যাবে তা ঠিক করুন';
+
+  @override
+  String get settingsNotificationSettings => 'বিজ্ঞপ্তির সেটিংস';
+
+  @override
+  String get settingsDailyRemindersBudgetAlerts =>
+      'দৈনিক অনুস্মারক, বাজেট সতর্কতা';
+
+  @override
+  String get settingsBiometricLockDataManagement =>
+      'বায়োমেট্রিক লক, ডেটা ব্যবস্থাপনা';
+
+  @override
+  String get settingsCloudSync => 'ক্লাউড সিঙ্ক';
+
+  @override
+  String get settingsSyncYourDataAcrossDevices =>
+      'সব ডিভাইসে আপনার ডেটা মিলিয়ে রাখুন';
+
+  @override
+  String get settingsCsvIsFreePdfReport =>
+      'CSV বিনামূল্যে · PDF রিপোর্ট প্রিমিয়াম';
+
+  @override
+  String get settingsGetAnswersToCommonQuestions => 'সাধারণ প্রশ্নের উত্তর পান';
+
+  @override
+  String get settingsQuestionsComplaintsOrFeedback => 'প্রশ্ন, অভিযোগ বা মতামত';
+
+  @override
+  String get settingsRateTheApp => 'অ্যাপটিকে রেটিং দিন';
+
+  @override
+  String get settingsShareWithFriends => 'বন্ধুদের সঙ্গে ভাগ করুন';
+
+  @override
+  String get settingsReplayAppTour => 'অ্যাপ পরিচিতি আবার দেখুন';
+
+  @override
+  String get settingsSeeTheFeatureWalkthroughAgain =>
+      'সুবিধাগুলির পরিচিতি আবার দেখুন';
+
+  @override
+  String get settingsAboutTheAccountant => 'The Accountant সম্পর্কে';
+
+  @override
+  String get settingsVersionLicensesAndMore => 'সংস্করণ, লাইসেন্স ও আরও';
+
+  @override
+  String get settingsTestCrash => 'পরীক্ষামূলক ক্র্যাশ';
+
+  @override
+  String get settingsTriggerATestExceptionFor =>
+      'Crashlytics-এর জন্য একটি পরীক্ষামূলক ত্রুটি ঘটান';
+
+  @override
+  String get settingsDeveloper => 'ডেভেলপার';
+
+  @override
+  String get settingsRestoreFromCloud => 'ক্লাউড থেকে ফিরিয়ে আনবেন?';
+
+  @override
+  String get settingsSyncing => 'সিঙ্ক হচ্ছে...';
+
+  @override
+  String get settingsSynced => 'সিঙ্ক হয়েছে';
+
+  @override
+  String get settingsSyncError => 'সিঙ্কে ত্রুটি';
+
+  @override
+  String get settingsOffline => 'অফলাইন';
+
+  @override
+  String get settingsReady => 'প্রস্তুত';
+
+  @override
+  String get settingsYesUseThis => 'হ্যাঁ, এটিই ব্যবহার করুন';
+
+  @override
+  String get settingsKeepThemSeparate => 'আলাদা রাখবেন?';
+
+  @override
+  String get settingsCurrentPassword => 'বর্তমান পাসওয়ার্ড';
+
+  @override
+  String get settingsNewPassword => 'নতুন পাসওয়ার্ড';
+
+  @override
+  String get settingsConfirmPassword => 'পাসওয়ার্ড নিশ্চিত করুন';
+
+  @override
+  String get walletEGPersonalSavingsBusiness =>
+      'যেমন: ব্যক্তিগত, সঞ্চয়, ব্যবসা';
+
+  @override
+  String get walletEnterCreditLimit => 'ক্রেডিট সীমা লিখুন';
+
+  @override
+  String get walletSelectBillingDay => 'বিলের দিন বাছুন';
+
+  @override
+  String get walletCreateAccount => 'অ্যাকাউন্ট তৈরি করুন';
+
+  @override
+  String get walletWalletCreatedSuccessfully => 'ওয়ালেট তৈরি হয়েছে';
+
+  @override
+  String get walletAccountUpdatedSuccessfully => 'অ্যাকাউন্ট হালনাগাদ হয়েছে';
+
+  @override
+  String get walletEditAccount => 'অ্যাকাউন্ট সম্পাদনা';
+
+  @override
+  String get walletSetAsDefault => 'ডিফল্ট হিসেবে রাখুন';
+
+  @override
+  String get walletUseDecimals => 'দশমিক ব্যবহার করুন';
+
+  @override
+  String get walletSaveWallet => 'ওয়ালেট সংরক্ষণ করুন';
+
+  @override
+  String get walletEnterWalletName => 'ওয়ালেটের নাম লিখুন';
+
+  @override
+  String get walletCurrency => 'মুদ্রা';
+
+  @override
+  String get walletSelectBillingDayOptional => 'বিলের দিন বাছুন (ঐচ্ছিক)';
+
+  @override
+  String get walletIcon => 'আইকন';
+
+  @override
+  String get walletColor => 'রঙ';
+
+  @override
+  String get walletWalletName => 'ওয়ালেটের নাম';
+
+  @override
+  String get walletInitialBalance => 'শুরুর ব্যালেন্স';
+
+  @override
+  String get txScan => 'স্ক্যান';
+
+  @override
+  String get txAddATransferFee => 'স্থানান্তরের ফি যোগ করুন';
+
+  @override
+  String get txRemove => 'সরান';
+
+  @override
+  String get txPaymentMethod => 'পেমেন্ট পদ্ধতি';
+
+  @override
+  String get txObjective => 'লক্ষ্য';
+
+  @override
+  String get txTitle => 'শিরোনাম';
+
+  @override
+  String get txTesco => 'মীনা বাজার';
+
+  @override
+  String get txAll => 'সব';
+
+  @override
+  String get txSkip => 'বাদ দিন';
+
+  @override
+  String get txMarkAsPaid2 => 'পরিশোধিত হিসেবে চিহ্নিত করুন';
+
+  @override
+  String get txUndo => 'ফেরান';
+
+  @override
+  String get txNoLoan => 'কোনো ঋণ নয়';
+
+  @override
+  String get txLentMoney => 'ধার দেওয়া টাকা';
+
+  @override
+  String get txBorrowedMoney => 'ধার নেওয়া টাকা';
+
+  @override
+  String get goalShowOnTheHomeScreen => 'হোম স্ক্রিনে দেখান';
+
+  @override
+  String get goalWhatAreYouSavingFor => 'কীসের জন্য জমাচ্ছেন?';
+
+  @override
+  String get goalNewLaptop => 'নতুন ল্যাপটপ';
+
+  @override
+  String get goalTarget => 'লক্ষ্যমাত্রা';
+
+  @override
+  String get goalColour => 'রঙ';
+
+  @override
+  String get goalClear => 'মুছুন';
+
+  @override
+  String get goalGoal => 'লক্ষ্য';
+
+  @override
+  String get goalThisGoalNoLongerExists => 'এই লক্ষ্যটি আর নেই।';
+
+  @override
+  String get goalAddToGoal => 'লক্ষ্যে যোগ করুন';
+
+  @override
+  String get goalUnlink => 'সংযোগ ছাড়ান';
+
+  @override
+  String get reportMaybeLater => 'পরে দেখা যাবে';
+
+  @override
+  String get reportUpgrade => 'আপগ্রেড করুন';
+
+  @override
+  String get budgetSpending => 'খরচ';
+
+  @override
+  String get budgetEarnings => 'আয়';
+
+  @override
+  String get budgetEvery => 'প্রতি';
+
+  @override
+  String get budgetCarryOverWhatIsLeft => 'যা বাকি থাকে পরের বার নিয়ে যান';
+
+  @override
+  String get budgetGroceries => 'বাজার-সদাই';
+
+  @override
+  String get authLinkYourAccount => 'আপনার অ্যাকাউন্ট যুক্ত করুন';
+
+  @override
+  String get authPassword => 'পাসওয়ার্ড';
+
+  @override
+  String get authLinkAccount => 'অ্যাকাউন্ট যুক্ত করুন';
+
+  @override
+  String get authEmailAddress => 'ইমেল ঠিকানা';
+
+  @override
+  String get authSendResetCode => 'রিসেট কোড পাঠান';
+
+  @override
+  String get authResetCode => 'রিসেট কোড';
+
+  @override
+  String get authResetPassword => 'পাসওয়ার্ড রিসেট করুন';
+
+  @override
+  String get authWelcomeBack => 'আবার স্বাগতম';
+
+  @override
+  String get authSignInToContinueYour =>
+      'আপনার আর্থিক যাত্রা চালিয়ে যেতে সাইন ইন করুন';
+
+  @override
+  String get authSignIn => 'সাইন ইন';
+
+  @override
+  String get authJoinUsToStartYour => 'আপনার আর্থিক যাত্রা শুরু করতে যোগ দিন';
+
+  @override
+  String get authFullName => 'পুরো নাম';
+
+  @override
+  String get premiumPremium => 'প্রিমিয়াম';
+
+  @override
+  String get premiumMonthly => 'মাসিক';
+
+  @override
+  String get premiumYearly => 'বার্ষিক';
+
+  @override
+  String get premiumLifetime => 'আজীবন';
+
+  @override
+  String get premiumNotNow => 'এখন নয়';
+
+  @override
+  String get aiRename => 'নাম বদলান';
+
+  @override
+  String get aiRenameChat => 'চ্যাটের নাম বদলান';
+
+  @override
+  String get aiDeleteChat => 'চ্যাট মুছবেন?';
+
+  @override
+  String get aiChatName => 'চ্যাটের নাম';
+
+  @override
+  String get aiRefreshSummary => 'সারসংক্ষেপ হালনাগাদ করুন';
+
+  @override
+  String get aiNetSavings => 'নিট সঞ্চয়';
+
+  @override
+  String get aiScanReceipt => 'রসিদ স্ক্যান করুন';
+
+  @override
+  String get aiCamera => 'ক্যামেরা';
+
+  @override
+  String get aiGallery => 'গ্যালারি';
+
+  @override
+  String get aiMerchantTitle => 'দোকান / শিরোনাম';
+
+  @override
+  String get aiSaveAsTransaction => 'লেনদেন হিসেবে সংরক্ষণ করুন';
+
+  @override
+  String get onboardBrowseThemes => 'থিম দেখুন';
+
+  @override
+  String get onboardBack => 'পেছনে';
+
+  @override
+  String get onboardGetStarted => 'শুরু করুন';
+
+  @override
+  String get onboardMainAccount => 'প্রধান অ্যাকাউন্ট';
+
+  @override
+  String get creditRecordPayment => 'পরিশোধ লিখে রাখুন';
+
+  @override
+  String get creditPleaseEnterAValidAmount => 'একটি সঠিক পরিমাণ লিখুন';
+
+  @override
+  String get creditAmountExceedsRemainingBalance =>
+      'পরিমাণটি বাকি ব্যালেন্সের চেয়ে বেশি';
+
+  @override
+  String get creditPaymentAmount => 'পরিশোধের পরিমাণ';
+
+  @override
+  String get subSubscriptionName => 'সাবস্ক্রিপশনের নাম';
+
+  @override
+  String get catDeleteCategory => 'ক্যাটাগরি মুছুন';
+
+  @override
+  String get catPleaseEnterACategoryName => 'একটি ক্যাটাগরির নাম লিখুন';
+
+  @override
+  String get catEnterCategoryName => 'ক্যাটাগরির নাম লিখুন';
+
+  @override
+  String get catNothingItsOwnCategory => 'কিছু নয় — এটি নিজেই একটি ক্যাটাগরি';
+
+  @override
+  String get notifEnableNotifications => 'বিজ্ঞপ্তি চালু করুন';
+
+  @override
+  String get startupContinueWithoutChecking => 'না দেখে চালিয়ে যাবেন?';
+
+  @override
+  String get startupContinueOffline => 'অফলাইনে চালিয়ে যান';
+
+  @override
+  String get startupViewSubscriptionOptions => 'সাবস্ক্রিপশনের বিকল্প দেখুন';
+
+  @override
+  String get sharedWelcomeBack => 'আবার স্বাগতম';
+
+  @override
+  String get sharedRestoringYourDataFromThe =>
+      'ক্লাউড থেকে আপনার ডেটা ফেরানো হচ্ছে…';
+
+  @override
+  String walletMergeConfirmTitle(String source, String target) {
+    return '$source কে $target-এ মেলাবেন?';
+  }
 }

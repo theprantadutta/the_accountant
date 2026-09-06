@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:the_accountant/features/dashboard/widgets/pinned_goals_section.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -112,7 +113,7 @@ class _ResponsiveFinancialOverviewState
                 ElevatedButton(
                   onPressed: () =>
                       ref.read(financialDataProvider.notifier).refreshData(),
-                  child: const Text('Retry'),
+                  child: Text(L10n.of(context).actionRetry),
                 ),
               ],
             ),
@@ -326,7 +327,7 @@ class _ResponsiveFinancialOverviewState
       children: [
         Expanded(
           child: StatCard(
-            label: 'Credit & Debt',
+            label: L10n.of(context).dashCreditDebt,
             value: netBalance.abs() / 100.0, // cents -> major-unit dollars
             prefix: '${netBalance >= 0 ? '+' : '-'}$currencySymbol',
             icon: Icons.account_balance_wallet_rounded,
@@ -349,7 +350,7 @@ class _ResponsiveFinancialOverviewState
         const SizedBox(width: 12),
         Expanded(
           child: StatCard(
-            label: 'Subscriptions',
+            label: L10n.of(context).dashSubscriptions,
             value: monthlySubs,
             prefix: currencySymbol,
             icon: Icons.subscriptions_rounded,
@@ -381,14 +382,14 @@ class _ResponsiveFinancialOverviewState
       children: [
         Expanded(
           child: StatCard(
-            label: 'Income',
+            label: L10n.of(context).moneyIncome,
             value: income,
             prefix: currencySymbol,
             icon: Icons.trending_up_rounded,
             iconColor: AppColors.success,
             accentColor: AppColors.success,
             trend: TrendDirection.up,
-            trendValue: 'This month',
+            trendValue: L10n.of(context).dashThisMonth,
             onTap: () {
               HapticFeedback.lightImpact();
               Navigator.push(
@@ -404,14 +405,14 @@ class _ResponsiveFinancialOverviewState
         AppSpacing.gapHMd,
         Expanded(
           child: StatCard(
-            label: 'Expenses',
+            label: L10n.of(context).dashExpenses,
             value: expenses,
             prefix: currencySymbol,
             icon: Icons.trending_down_rounded,
             iconColor: AppColors.error,
             accentColor: AppColors.error,
             trend: TrendDirection.down,
-            trendValue: 'This month',
+            trendValue: L10n.of(context).dashThisMonth,
             onTap: () {
               HapticFeedback.lightImpact();
               Navigator.push(
@@ -559,7 +560,10 @@ class _ResponsiveFinancialOverviewState
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Spending Overview', style: AppTypography.titleMedium),
+          Text(
+            L10n.of(context).dashSpendingOverview,
+            style: AppTypography.titleMedium,
+          ),
           AppSpacing.gapLg,
           SizedBox(
             height: 180,
@@ -681,7 +685,10 @@ class _ResponsiveFinancialOverviewState
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Recent Transactions', style: AppTypography.titleMedium),
+              Text(
+                L10n.of(context).dashRecentTransactions,
+                style: AppTypography.titleMedium,
+              ),
               GestureDetector(
                 onTap: () {
                   HapticFeedback.lightImpact();
@@ -840,7 +847,10 @@ class _ResponsiveFinancialOverviewState
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Budget Progress', style: AppTypography.titleMedium),
+              Text(
+                L10n.of(context).dashBudgetProgress,
+                style: AppTypography.titleMedium,
+              ),
               GestureDetector(
                 onTap: () {
                   HapticFeedback.lightImpact();

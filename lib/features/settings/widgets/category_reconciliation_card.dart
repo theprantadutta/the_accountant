@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/services/category_reconciliation_service.dart';
 import 'package:the_accountant/core/services/sync/sync_models.dart';
@@ -122,7 +123,7 @@ class _ReconciliationTile extends ConsumerWidget {
   Future<void> _keepSeparate(BuildContext context, WidgetRef ref) async {
     final confirmed = await _confirm(
       context,
-      title: 'Keep them separate?',
+      title: L10n.of(context).settingsKeepThemSeparate,
       body:
           'Your existing "${item.catalogName}" '
           '${item.candidates.length == 1 ? "category stays" : "categories stay"} '
@@ -173,7 +174,7 @@ class _CandidateRow extends ConsumerWidget {
           ),
           TextButton(
             onPressed: () => _adopt(context, ref),
-            child: const Text('Yes, use this'),
+            child: Text(L10n.of(context).settingsYesUseThis),
           ),
         ],
       ),
@@ -230,7 +231,7 @@ class _PendingDecision extends ConsumerWidget {
           onPressed: () => ref
               .read(categoryReconciliationServiceProvider)
               .undo(defaultKey: item.defaultKey),
-          child: const Text('Change'),
+          child: Text(L10n.of(context).importChange),
         ),
       ],
     );
@@ -251,7 +252,7 @@ Future<bool> _confirm(
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(false),
-          child: const Text('Cancel'),
+          child: Text(L10n.of(context).actionCancel),
         ),
         FilledButton(
           onPressed: () => Navigator.of(context).pop(true),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/providers/currency_provider.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
@@ -106,7 +107,7 @@ class _AddBudgetScreenState extends ConsumerState<AddBudgetScreen> {
                     height: 16,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : const Text('Save'),
+                : Text(L10n.of(context).actionSave),
           ),
         ],
       ),
@@ -118,9 +119,9 @@ class _AddBudgetScreenState extends ConsumerState<AddBudgetScreen> {
             TextFormField(
               controller: _nameController,
               textCapitalization: TextCapitalization.sentences,
-              decoration: const InputDecoration(
-                labelText: 'Name',
-                hintText: 'Groceries',
+              decoration: InputDecoration(
+                labelText: L10n.of(context).payName,
+                hintText: L10n.of(context).budgetGroceries,
                 border: OutlineInputBorder(),
               ),
               validator: (v) => (v == null || v.trim().isEmpty)
@@ -137,7 +138,7 @@ class _AddBudgetScreenState extends ConsumerState<AddBudgetScreen> {
               decoration: InputDecoration(
                 labelText: _isIncome ? 'Target' : 'Limit',
                 prefixText: '${_currencySymbol(currency)} ',
-                border: const OutlineInputBorder(),
+                border: OutlineInputBorder(),
               ),
               validator: (v) {
                 final cents = (v ?? '').toCentsOrNull();
@@ -152,9 +153,15 @@ class _AddBudgetScreenState extends ConsumerState<AddBudgetScreen> {
               _isIncome ? 'Tracking earnings' : 'Tracking spending',
             ),
             SegmentedButton<bool>(
-              segments: const [
-                ButtonSegment(value: false, label: Text('Spending')),
-                ButtonSegment(value: true, label: Text('Earnings')),
+              segments: [
+                ButtonSegment(
+                  value: false,
+                  label: Text(L10n.of(context).budgetSpending),
+                ),
+                ButtonSegment(
+                  value: true,
+                  label: Text(L10n.of(context).budgetEarnings),
+                ),
               ],
               selected: {_isIncome},
               onSelectionChanged: (s) => setState(() {
@@ -181,7 +188,7 @@ class _AddBudgetScreenState extends ConsumerState<AddBudgetScreen> {
               AppSpacing.gapMd,
               Row(
                 children: [
-                  const Text('Every'),
+                  Text(L10n.of(context).budgetEvery),
                   const SizedBox(width: 12),
                   SizedBox(
                     width: 72,
@@ -304,7 +311,7 @@ class _AddBudgetScreenState extends ConsumerState<AddBudgetScreen> {
               contentPadding: EdgeInsets.zero,
               value: _rollover,
               onChanged: (v) => setState(() => _rollover = v),
-              title: const Text('Carry over what is left'),
+              title: Text(L10n.of(context).budgetCarryOverWhatIsLeft),
               subtitle: const Text(
                 'Anything unspent is added to the next period. Going over does '
                 'not carry a debt forward.',
@@ -458,7 +465,7 @@ class _DateRow extends StatelessWidget {
               IconButton(
                 icon: const Icon(Icons.clear, size: 18),
                 onPressed: onClear,
-                tooltip: 'Clear',
+                tooltip: L10n.of(context).goalClear,
               ),
           ],
         ),

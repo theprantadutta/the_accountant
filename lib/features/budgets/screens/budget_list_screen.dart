@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/providers/currency_provider.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
@@ -48,7 +49,7 @@ class _BudgetListScreenState extends ConsumerState<BudgetListScreen> {
             onPressed: () => setState(() => _showArchived = !_showArchived),
           ),
           IconButton(
-            tooltip: 'New budget',
+            tooltip: L10n.of(context).budgetNew,
             icon: const Icon(Icons.add),
             onPressed: _createBudget,
           ),
@@ -137,7 +138,7 @@ class _BudgetListScreenState extends ConsumerState<BudgetListScreen> {
             const SizedBox(height: 12),
             ListTile(
               leading: const Icon(Icons.edit_outlined),
-              title: const Text('Edit'),
+              title: Text(L10n.of(context).actionEdit),
               onTap: () => Navigator.pop(context, 'edit'),
             ),
             ListTile(
@@ -163,7 +164,10 @@ class _BudgetListScreenState extends ConsumerState<BudgetListScreen> {
             ),
             ListTile(
               leading: Icon(Icons.delete_outline, color: AppColors.error),
-              title: Text('Delete', style: TextStyle(color: AppColors.error)),
+              title: Text(
+                L10n.of(context).actionDelete,
+                style: TextStyle(color: AppColors.error),
+              ),
               onTap: () => Navigator.pop(context, 'delete'),
             ),
             const SizedBox(height: 8),
@@ -185,11 +189,11 @@ class _BudgetListScreenState extends ConsumerState<BudgetListScreen> {
       case 'delete':
         final confirmed = await showConfirmationDialog(
           context: context,
-          title: 'Delete ${budget.name}?',
+          title: L10n.of(context).budgetDeleteTitle(budget.name),
           message:
               'The budget goes, your transactions stay. Nothing you have '
               'recorded is removed.',
-          confirmText: 'Delete',
+          confirmText: L10n.of(context).actionDelete,
           isDangerous: true,
         );
         if (confirmed == true) await notifier.deleteBudget(budget.id);
@@ -281,7 +285,7 @@ class _EmptyBudgets extends StatelessWidget {
               FilledButton.icon(
                 onPressed: onCreate,
                 icon: const Icon(Icons.add),
-                label: const Text('Create a budget'),
+                label: Text(L10n.of(context).budgetCreate),
               ),
             ],
           ],

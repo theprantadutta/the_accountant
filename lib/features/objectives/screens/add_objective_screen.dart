@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/providers/currency_provider.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
@@ -89,7 +90,7 @@ class _AddObjectiveScreenState extends ConsumerState<AddObjectiveScreen> {
                     height: 16,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : const Text('Save'),
+                : Text(L10n.of(context).actionSave),
           ),
         ],
       ),
@@ -101,9 +102,9 @@ class _AddObjectiveScreenState extends ConsumerState<AddObjectiveScreen> {
             TextFormField(
               controller: _nameController,
               textCapitalization: TextCapitalization.sentences,
-              decoration: const InputDecoration(
-                labelText: 'What are you saving for?',
-                hintText: 'New laptop',
+              decoration: InputDecoration(
+                labelText: L10n.of(context).goalWhatAreYouSavingFor,
+                hintText: L10n.of(context).goalNewLaptop,
                 border: OutlineInputBorder(),
               ),
               validator: (v) => (v == null || v.trim().isEmpty)
@@ -118,7 +119,7 @@ class _AddObjectiveScreenState extends ConsumerState<AddObjectiveScreen> {
                 decimal: true,
               ),
               decoration: InputDecoration(
-                labelText: 'Target',
+                labelText: L10n.of(context).goalTarget,
                 prefixText: '$currency ',
                 border: const OutlineInputBorder(),
               ),
@@ -134,13 +135,13 @@ class _AddObjectiveScreenState extends ConsumerState<AddObjectiveScreen> {
             IconPicker(
               selectedIcon: _iconName,
               selectedColor: ColorUtils.hexToColor(_color),
-              label: 'Icon',
+              label: L10n.of(context).walletIcon,
               onIconSelected: (name) => setState(() => _iconName = name),
             ),
             AppSpacing.gapLg,
             ColorPicker(
               selectedColor: _color,
-              label: 'Colour',
+              label: L10n.of(context).goalColour,
               onColorSelected: (hex) => setState(() => _color = hex),
             ),
             AppSpacing.gapXl,
@@ -192,7 +193,7 @@ class _AddObjectiveScreenState extends ConsumerState<AddObjectiveScreen> {
               contentPadding: EdgeInsets.zero,
               value: _isPinned,
               onChanged: (v) => setState(() => _isPinned = v),
-              title: const Text('Show on the home screen'),
+              title: Text(L10n.of(context).goalShowOnTheHomeScreen),
             ),
             AppSpacing.gapXxl,
           ],
@@ -296,7 +297,7 @@ class _DateRow extends StatelessWidget {
               IconButton(
                 icon: const Icon(Icons.clear, size: 18),
                 onPressed: onClear,
-                tooltip: 'Clear',
+                tooltip: L10n.of(context).goalClear,
               ),
           ],
         ),

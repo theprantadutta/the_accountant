@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/domain/transaction_policy.dart';
 import 'package:the_accountant/core/providers/currency_provider.dart';
@@ -65,14 +66,14 @@ class _TransactionDetailScreenState
 
     if (_loading) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Transaction')),
+        appBar: AppBar(title: Text(L10n.of(context).entityTransaction)),
         body: const Center(child: CircularProgressIndicator()),
       );
     }
     if (row == null || row.deletedAt != null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Transaction')),
-        body: const Center(child: Text('This transaction no longer exists.')),
+        appBar: AppBar(title: Text(L10n.of(context).entityTransaction)),
+        body: Center(child: Text(L10n.of(context).txGone)),
       );
     }
 
@@ -103,10 +104,10 @@ class _TransactionDetailScreenState
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Transaction'),
+        title: Text(L10n.of(context).entityTransaction),
         actions: [
           IconButton(
-            tooltip: 'Edit',
+            tooltip: L10n.of(context).actionEdit,
             icon: const Icon(Icons.edit_outlined),
             onPressed: () async {
               await showAddTransactionScreen(context, existingTransaction: row);
@@ -116,20 +117,20 @@ class _TransactionDetailScreenState
           PopupMenuButton<String>(
             onSelected: _onAction,
             itemBuilder: (context) => [
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: 'duplicate',
                 child: ListTile(
                   leading: Icon(Icons.copy_outlined),
-                  title: Text('Duplicate'),
+                  title: Text(L10n.of(context).txDuplicate),
                   contentPadding: EdgeInsets.zero,
                 ),
               ),
               if (!row.isPaid)
-                const PopupMenuItem(
+                PopupMenuItem(
                   value: 'paid',
                   child: ListTile(
                     leading: Icon(Icons.check_circle_outline),
-                    title: Text('Mark as paid'),
+                    title: Text(L10n.of(context).txMarkAsPaid),
                     contentPadding: EdgeInsets.zero,
                   ),
                 ),
@@ -139,7 +140,7 @@ class _TransactionDetailScreenState
                 child: ListTile(
                   leading: Icon(Icons.delete_outline, color: AppColors.error),
                   title: Text(
-                    'Delete',
+                    L10n.of(context).actionDelete,
                     style: TextStyle(color: AppColors.error),
                   ),
                   contentPadding: EdgeInsets.zero,
@@ -232,17 +233,17 @@ class _TransactionDetailScreenState
               children: [
                 _Field(
                   icon: Icons.category_outlined,
-                  label: 'Category',
+                  label: L10n.of(context).entityCategory,
                   value: category?.name ?? 'Uncategorised',
                 ),
                 _Field(
                   icon: Icons.account_balance_wallet_outlined,
-                  label: 'Account',
+                  label: L10n.of(context).entityAccount,
                   value: wallet?.name ?? 'Unknown',
                 ),
                 _Field(
                   icon: Icons.swap_horiz,
-                  label: 'Kind',
+                  label: L10n.of(context).txKind,
                   value: switch (row.transactionType) {
                     'transfer' => 'Transfer between accounts',
                     'recurring_instance' => 'From a repeating entry',
@@ -251,7 +252,7 @@ class _TransactionDetailScreenState
                 ),
                 _Field(
                   icon: Icons.check_circle_outline,
-                  label: 'State',
+                  label: L10n.of(context).txState,
                   value: row.skipPaid
                       ? 'Skipped'
                       : row.isPaid
@@ -261,7 +262,7 @@ class _TransactionDetailScreenState
                 if (row.originalDueDate != null)
                   _Field(
                     icon: Icons.event_outlined,
-                    label: 'Was due',
+                    label: L10n.of(context).txWasDue,
                     value: AppDateFormatter.formatDate(
                       row.originalDueDate!,
                       dateFormat,
@@ -270,13 +271,13 @@ class _TransactionDetailScreenState
                 if (budget != null)
                   _Field(
                     icon: Icons.pie_chart_outline,
-                    label: 'Budget',
+                    label: L10n.of(context).entityBudget,
                     value: budget.name,
                   ),
                 if (row.notes?.isNotEmpty ?? false)
                   _Field(
                     icon: Icons.notes_outlined,
-                    label: 'Notes',
+                    label: L10n.of(context).txNotes,
                     value: row.notes!,
                     last: true,
                   ),
@@ -323,11 +324,11 @@ class _TransactionDetailScreenState
       case 'delete':
         final confirmed = await showConfirmationDialog(
           context: context,
-          title: 'Delete this transaction?',
+          title: L10n.of(context).txDeleteOneTitle,
           message:
               'The account balance is recalculated. If this is one leg of a '
               'transfer, the other half goes with it.',
-          confirmText: 'Delete',
+          confirmText: L10n.of(context).actionDelete,
           isDangerous: true,
         );
         if (confirmed != true || !mounted) return;

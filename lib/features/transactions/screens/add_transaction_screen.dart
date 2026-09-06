@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -296,7 +297,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
               ),
               const SizedBox(height: 24),
               NeoButton(
-                label: 'Go Premium',
+                label: L10n.of(context).settingsGoPremium,
                 leadingIcon: Icons.workspace_premium,
                 isExpanded: true,
                 onPressed: () {
@@ -812,7 +813,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
   Widget _buildPaymentMethodSelector() {
     final methods = ref.watch(paymentMethodProvider).paymentMethods;
     return _optionalLinkSelector(
-      label: 'Payment Method',
+      label: L10n.of(context).txPaymentMethod,
       labelIcon: Icons.credit_card_outlined,
       ids: methods.map((m) => m.id).toList(),
       nameOf: (id) => methods
@@ -829,7 +830,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
   Widget _buildBudgetSelector() {
     final budgets = ref.watch(budgetProvider).budgets;
     return _optionalLinkSelector(
-      label: 'Budget',
+      label: L10n.of(context).entityBudget,
       labelIcon: Icons.pie_chart_outline,
       ids: budgets.map((b) => b.id).toList(),
       nameOf: (id) => budgets
@@ -843,7 +844,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
   Widget _buildObjectiveSelector() {
     final objectives = ref.watch(activeObjectivesProvider).asData?.value ?? [];
     return _optionalLinkSelector(
-      label: 'Objective',
+      label: L10n.of(context).txObjective,
       labelIcon: Icons.flag_outlined,
       ids: objectives.map((o) => o.objective.id).toList(),
       nameOf: (id) => objectives
@@ -940,7 +941,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                 child: TextButton.icon(
                   onPressed: _scanReceipt,
                   icon: const Icon(Icons.document_scanner_outlined, size: 18),
-                  label: const Text('Scan'),
+                  label: Text(L10n.of(context).txScan),
                 ),
               ),
             ),
@@ -1727,7 +1728,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
         child: TextButton.icon(
           onPressed: () => setState(() => _showFeeFields = true),
           icon: const Icon(Icons.add, size: AppSpacing.iconXs),
-          label: const Text('Add a transfer fee'),
+          label: Text(L10n.of(context).txAddATransferFee),
           style: TextButton.styleFrom(
             foregroundColor: AppColors.textSecondary,
             padding: EdgeInsets.zero,
@@ -1777,7 +1778,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                   padding: EdgeInsets.zero,
                   visualDensity: VisualDensity.compact,
                 ),
-                child: const Text('Remove'),
+                child: Text(L10n.of(context).txRemove),
               ),
             ],
           ),
@@ -1905,7 +1906,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
       child: NeoTextField(
         controller: _titleController,
         focusNode: _titleFocusNode,
-        label: 'Title',
+        label: L10n.of(context).txTitle,
         hint: _isTransfer
             ? 'e.g. Move to savings (optional)'
             : 'What was it for?',
@@ -2008,7 +2009,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: NeoTextField(
         controller: _notesController,
-        label: 'Notes',
+        label: L10n.of(context).txNotes,
         hint: 'Add a note (optional)',
         prefixIcon: Icons.notes_outlined,
         maxLines: 3,

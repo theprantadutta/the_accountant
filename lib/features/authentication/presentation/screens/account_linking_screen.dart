@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/themes/app_animations.dart';
@@ -106,9 +107,9 @@ class _AccountLinkingScreenState extends ConsumerState<AccountLinkingScreen>
                       _entrance(
                         start: 0.0,
                         end: 0.6,
-                        child: const AuthBrandHeader(
+                        child: AuthBrandHeader(
                           icon: Icons.link_rounded,
-                          title: 'Link Your Account',
+                          title: L10n.of(context).authLinkYourAccount,
                           subtitle:
                               'An account with this email already exists. '
                               'Enter your password to link your Google account.',
@@ -167,7 +168,7 @@ class _AccountLinkingScreenState extends ConsumerState<AccountLinkingScreen>
           AppSpacing.gapLg,
           NeoTextField(
             controller: _passwordController,
-            label: 'Password',
+            label: L10n.of(context).authPassword,
             hint: 'Enter your password',
             prefixIcon: Icons.lock_outline,
             obscureText: true,
@@ -182,7 +183,7 @@ class _AccountLinkingScreenState extends ConsumerState<AccountLinkingScreen>
           ),
           AppSpacing.gapXl,
           NeoButton(
-            label: 'Link Account',
+            label: L10n.of(context).authLinkAccount,
             onPressed: authState.isLoading ? null : _linkAccount,
             isLoading: authState.isLoading,
             isExpanded: true,

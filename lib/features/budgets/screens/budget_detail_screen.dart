@@ -1,5 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/providers/currency_provider.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
@@ -45,8 +46,8 @@ class _BudgetDetailScreenState extends ConsumerState<BudgetDetailScreen> {
 
     if (budget == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Budget')),
-        body: const Center(child: Text('This budget no longer exists.')),
+        appBar: AppBar(title: Text(L10n.of(context).entityBudget)),
+        body: Center(child: Text(L10n.of(context).budgetGone)),
       );
     }
 
@@ -57,7 +58,7 @@ class _BudgetDetailScreenState extends ConsumerState<BudgetDetailScreen> {
         title: Text(budget.name),
         actions: [
           IconButton(
-            tooltip: 'Edit',
+            tooltip: L10n.of(context).actionEdit,
             icon: const Icon(Icons.edit_outlined),
             onPressed: () => Navigator.push(
               context,
@@ -145,7 +146,7 @@ class _PeriodNavigator extends ConsumerWidget {
     return Row(
       children: [
         IconButton(
-          tooltip: 'Earlier',
+          tooltip: L10n.of(context).budgetEarlier,
           onPressed: atStart ? null : () => onChanged(offset - 1),
           icon: const Icon(Icons.chevron_left),
         ),
@@ -169,7 +170,7 @@ class _PeriodNavigator extends ConsumerWidget {
           ),
         ),
         IconButton(
-          tooltip: 'Later',
+          tooltip: L10n.of(context).budgetLater,
           onPressed: offset >= 0 ? null : () => onChanged(offset + 1),
           icon: const Icon(Icons.chevron_right),
         ),
@@ -299,7 +300,10 @@ class _CategoryBreakdown extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Where it went', style: AppTypography.titleSmall),
+              Text(
+                L10n.of(context).budgetWhereItWent,
+                style: AppTypography.titleSmall,
+              ),
               AppSpacing.gapMd,
               for (final entry in totals.entries)
                 Padding(
@@ -387,7 +391,10 @@ class _PastPeriods extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Recent periods', style: AppTypography.titleSmall),
+              Text(
+                L10n.of(context).budgetRecentPeriods,
+                style: AppTypography.titleSmall,
+              ),
               AppSpacing.gapSm,
               Text(
                 'Averaging ${average.formatCurrency(currency, useDecimals: useDecimals, numberFormat: numberFormat)} a period.',
@@ -547,7 +554,8 @@ class _CategoryCaps extends ConsumerWidget {
     final categories = ref.watch(categoryProvider).categories;
 
     String nameOf(String id) =>
-        categories.where((c) => c.id == id).firstOrNull?.name ?? 'Category';
+        categories.where((c) => c.id == id).firstOrNull?.name ??
+        L10n.of(context).entityCategory;
 
     String money(int cents) => cents.formatCurrency(
       currency,
@@ -568,12 +576,15 @@ class _CategoryCaps extends ConsumerWidget {
               Row(
                 children: [
                   Expanded(
-                    child: Text('Caps', style: AppTypography.titleSmall),
+                    child: Text(
+                      L10n.of(context).budgetCaps,
+                      style: AppTypography.titleSmall,
+                    ),
                   ),
                   TextButton.icon(
                     onPressed: () => _addCap(context, ref),
                     icon: const Icon(Icons.add, size: 18),
-                    label: const Text('Add'),
+                    label: Text(L10n.of(context).actionAdd),
                   ),
                 ],
               ),
@@ -655,9 +666,7 @@ class _CategoryCaps extends ConsumerWidget {
 
     if (choices.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('This budget has no categories to cap yet.'),
-        ),
+        SnackBar(content: Text(L10n.of(context).budgetNoCategoriesToCap)),
       );
       return;
     }
@@ -711,13 +720,15 @@ class _AddCapDialogState extends State<_AddCapDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Cap a category'),
+      title: Text(L10n.of(context).budgetCapACategory),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           DropdownButtonFormField<String>(
             initialValue: _categoryId,
-            decoration: const InputDecoration(labelText: 'Category'),
+            decoration: InputDecoration(
+              labelText: L10n.of(context).entityCategory,
+            ),
             items: [
               for (final c in widget.choices)
                 DropdownMenuItem(value: c.id, child: Text(c.name)),
@@ -737,15 +748,15 @@ class _AddCapDialogState extends State<_AddCapDialog> {
             contentPadding: EdgeInsets.zero,
             value: _isPercent,
             onChanged: (v) => setState(() => _isPercent = v),
-            title: const Text('As a share of the budget'),
-            subtitle: const Text('Moves with the budget when you change it'),
+            title: Text(L10n.of(context).budgetAsShare),
+            subtitle: Text(L10n.of(context).budgetAsShareHint),
           ),
         ],
       ),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
+          child: Text(L10n.of(context).actionCancel),
         ),
         FilledButton(
           onPressed: () {
@@ -761,7 +772,7 @@ class _AddCapDialogState extends State<_AddCapDialog> {
               isPercent: _isPercent,
             ));
           },
-          child: const Text('Set'),
+          child: Text(L10n.of(context).actionSet),
         ),
       ],
     );
@@ -815,7 +826,10 @@ class _SpendGraph extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Across the period', style: AppTypography.titleSmall),
+              Text(
+                L10n.of(context).budgetAcrossPeriod,
+                style: AppTypography.titleSmall,
+              ),
               AppSpacing.gapMd,
               SizedBox(
                 height: 140,
@@ -889,12 +903,12 @@ class _SpendGraph extends ConsumerWidget {
                 children: [
                   _Key(
                     color: AppColors.textMuted.withValues(alpha: 0.4),
-                    label: 'Previous period',
+                    label: L10n.of(context).budgetPreviousPeriod,
                   ),
                   const SizedBox(width: 16),
                   _Key(
                     color: AppColors.textMuted.withValues(alpha: 0.35),
-                    label: 'Even pace',
+                    label: L10n.of(context).budgetEvenPace,
                   ),
                 ],
               ),

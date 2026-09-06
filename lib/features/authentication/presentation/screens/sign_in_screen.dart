@@ -2,6 +2,7 @@ import 'dart:io' show Platform;
 
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/features/authentication/presentation/screens/forgot_password_screen.dart';
@@ -146,9 +147,8 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
                         end: 0.6,
                         child: AuthBrandHeader(
                           icon: Icons.account_balance_wallet_rounded,
-                          title: 'Welcome Back',
-                          subtitle:
-                              'Sign in to continue your financial journey',
+                          title: L10n.of(context).authWelcomeBack,
+                          subtitle: L10n.of(context).authSignInToContinueYour,
                           floatingAnimation: _floatingAnimation,
                         ),
                       ),
@@ -216,7 +216,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
           // Email Field
           NeoTextField(
             controller: _emailController,
-            label: 'Email Address',
+            label: L10n.of(context).authEmailAddress,
             hint: 'Enter your email',
             prefixIcon: Icons.email_outlined,
             keyboardType: TextInputType.emailAddress,
@@ -237,7 +237,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
           // Password Field
           NeoTextField(
             controller: _passwordController,
-            label: 'Password',
+            label: L10n.of(context).authPassword,
             hint: 'Enter your password',
             prefixIcon: Icons.lock_outline,
             obscureText: true,
@@ -291,7 +291,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
 
           // Sign In Button
           NeoButton(
-            label: 'Sign In',
+            label: L10n.of(context).authSignIn,
             onPressed: authState.isLoading ? null : _signIn,
             isLoading: authState.isLoading,
             isExpanded: true,

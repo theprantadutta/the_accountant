@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:the_accountant/core/services/backend_auth_service.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 
@@ -139,7 +140,7 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
               if (widget.hasPassword) ...[
                 _buildPasswordField(
                   controller: _currentPasswordController,
-                  label: 'Current Password',
+                  label: L10n.of(context).settingsCurrentPassword,
                   obscure: _obscureCurrent,
                   onToggle: () =>
                       setState(() => _obscureCurrent = !_obscureCurrent),
@@ -156,7 +157,7 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
               // New password field
               _buildPasswordField(
                 controller: _newPasswordController,
-                label: 'New Password',
+                label: L10n.of(context).settingsNewPassword,
                 obscure: _obscureNew,
                 onToggle: () => setState(() => _obscureNew = !_obscureNew),
                 validator: (value) {
@@ -174,7 +175,7 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
               // Confirm password field
               _buildPasswordField(
                 controller: _confirmPasswordController,
-                label: 'Confirm Password',
+                label: L10n.of(context).settingsConfirmPassword,
                 obscure: _obscureConfirm,
                 onToggle: () =>
                     setState(() => _obscureConfirm = !_obscureConfirm),

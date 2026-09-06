@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/providers/default_wallet_provider.dart';
 import 'package:the_accountant/core/services/currency_service.dart';
@@ -255,7 +256,7 @@ class _CreateFirstWalletScreenState
                   controller: _nameController,
                   style: AppTypography.bodyLarge,
                   decoration: InputDecoration(
-                    hintText: 'e.g., Personal, Savings, Business',
+                    hintText: L10n.of(context).walletEGPersonalSavingsBusiness,
                     filled: true,
                     fillColor: AppColors.primarySurface,
                     border: OutlineInputBorder(
@@ -338,7 +339,7 @@ class _CreateFirstWalletScreenState
                       decimal: true,
                     ),
                     decoration: InputDecoration(
-                      hintText: 'Enter credit limit',
+                      hintText: L10n.of(context).walletEnterCreditLimit,
                       prefixText:
                           '${CurrencyInfo.getSymbol(_selectedCurrency)} ',
                       filled: true,
@@ -380,7 +381,7 @@ class _CreateFirstWalletScreenState
                   DropdownButtonFormField<int>(
                     initialValue: _billingCycleDay,
                     decoration: InputDecoration(
-                      hintText: 'Select billing day',
+                      hintText: L10n.of(context).walletSelectBillingDay,
                       filled: true,
                       fillColor: AppColors.primarySurface,
                       border: OutlineInputBorder(
@@ -452,7 +453,7 @@ class _CreateFirstWalletScreenState
                 SizedBox(
                   width: double.infinity,
                   child: NeoButton(
-                    label: 'Create Account',
+                    label: L10n.of(context).walletCreateAccount,
                     onPressed: _isLoading ? null : _createWallet,
                     isLoading: _isLoading,
                     isExpanded: true,

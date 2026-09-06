@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/providers/currency_provider.dart';
@@ -272,7 +273,7 @@ class TransactionCard extends ConsumerWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Cancel'),
+            child: Text(L10n.of(context).actionCancel),
           ),
           FilledButton(
             style: FilledButton.styleFrom(backgroundColor: AppColors.error),
@@ -280,7 +281,7 @@ class TransactionCard extends ConsumerWidget {
               Navigator.pop(dialogContext);
               onDelete?.call();
             },
-            child: const Text('Delete'),
+            child: Text(L10n.of(context).actionDelete),
           ),
         ],
       ),

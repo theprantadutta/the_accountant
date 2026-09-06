@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:the_accountant/core/services/backend_auth_service.dart';
 import 'package:the_accountant/core/themes/app_animations.dart';
@@ -217,7 +218,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           children: [
             NeoTextField(
               controller: _emailController,
-              label: 'Email Address',
+              label: L10n.of(context).authEmailAddress,
               hint: 'Enter your email',
               prefixIcon: Icons.email_outlined,
               keyboardType: TextInputType.emailAddress,
@@ -235,7 +236,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             ),
             AppSpacing.gapXl,
             NeoButton(
-              label: 'Send Reset Code',
+              label: L10n.of(context).authSendResetCode,
               onPressed: _isLoading ? null : _requestCode,
               isLoading: _isLoading,
               isExpanded: true,
@@ -261,7 +262,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           children: [
             NeoTextField(
               controller: _codeController,
-              label: 'Reset Code',
+              label: L10n.of(context).authResetCode,
               hint: '6-digit code',
               prefixIcon: Icons.pin_outlined,
               keyboardType: TextInputType.number,
@@ -283,7 +284,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             AppSpacing.gapMd,
             NeoTextField(
               controller: _passwordController,
-              label: 'New Password',
+              label: L10n.of(context).settingsNewPassword,
               hint: 'Create a new password',
               prefixIcon: Icons.lock_outline,
               obscureText: true,
@@ -301,7 +302,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             AppSpacing.gapMd,
             NeoTextField(
               controller: _confirmController,
-              label: 'Confirm Password',
+              label: L10n.of(context).settingsConfirmPassword,
               hint: 'Re-enter your new password',
               prefixIcon: Icons.lock_outline,
               obscureText: true,
@@ -319,7 +320,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             ),
             AppSpacing.gapXl,
             NeoButton(
-              label: 'Reset Password',
+              label: L10n.of(context).authResetPassword,
               onPressed: _isLoading ? null : _resetPassword,
               isLoading: _isLoading,
               isExpanded: true,

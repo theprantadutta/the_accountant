@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/providers/currency_provider.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
@@ -36,10 +37,10 @@ class ObjectiveDetailScreen extends ConsumerWidget {
 
     if (objective == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Goal')),
+        appBar: AppBar(title: Text(L10n.of(context).goalGoal)),
         body: all.isLoading
             ? const Center(child: CircularProgressIndicator())
-            : const Center(child: Text('This goal no longer exists.')),
+            : Center(child: Text(L10n.of(context).goalThisGoalNoLongerExists)),
       );
     }
 
@@ -58,7 +59,7 @@ class ObjectiveDetailScreen extends ConsumerWidget {
         title: Text(objective.name),
         actions: [
           IconButton(
-            tooltip: 'Edit',
+            tooltip: L10n.of(context).actionEdit,
             icon: const Icon(Icons.edit_outlined),
             onPressed: () => Navigator.push(
               context,
@@ -68,7 +69,7 @@ class ObjectiveDetailScreen extends ConsumerWidget {
             ),
           ),
           IconButton(
-            tooltip: 'Delete',
+            tooltip: L10n.of(context).actionDelete,
             icon: const Icon(Icons.delete_outline),
             onPressed: () => _delete(context, ref, objective),
           ),
@@ -83,7 +84,7 @@ class ObjectiveDetailScreen extends ConsumerWidget {
           ref.invalidate(allObjectivesProvider);
         },
         icon: const Icon(Icons.add),
-        label: const Text('Add to goal'),
+        label: Text(L10n.of(context).goalAddToGoal),
       ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
@@ -231,7 +232,7 @@ class ObjectiveDetailScreen extends ConsumerWidget {
                             style: AppTypography.bodyMedium,
                           ),
                           IconButton(
-                            tooltip: 'Unlink',
+                            tooltip: L10n.of(context).goalUnlink,
                             icon: const Icon(Icons.link_off, size: 18),
                             onPressed: () async {
                               await ref
@@ -262,7 +263,7 @@ class ObjectiveDetailScreen extends ConsumerWidget {
       message:
           'The goal goes, your transactions stay. They are simply no longer '
           'counted toward it.',
-      confirmText: 'Delete',
+      confirmText: L10n.of(context).actionDelete,
       isDangerous: true,
     );
     if (confirmed != true || !context.mounted) return;

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/providers/currency_provider.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
@@ -41,7 +42,7 @@ class PinnedGoalsSection extends ConsumerWidget {
                     builder: (_) => const ObjectivesListScreen(),
                   ),
                 ),
-                child: const Text('All'),
+                child: Text(L10n.of(context).txAll),
               ),
             ],
           ),

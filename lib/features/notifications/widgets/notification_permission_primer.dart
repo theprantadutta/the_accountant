@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:the_accountant/core/services/notification_service.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
@@ -100,7 +101,7 @@ class _NotificationPrimerContent extends StatelessWidget {
             ),
             AppSpacing.gapXxl,
             NeoButton(
-              label: 'Enable Notifications',
+              label: L10n.of(context).notifEnableNotifications,
               isExpanded: true,
               leadingIcon: Icons.notifications_active_rounded,
               onPressed: () {

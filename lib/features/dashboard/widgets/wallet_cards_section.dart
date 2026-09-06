@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/services/currency_service.dart';
@@ -495,7 +496,9 @@ class _WalletCardState extends ConsumerState<_WalletCard>
                         Navigator.pop(sheetContext);
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: const Text('Account updated successfully'),
+                            content: Text(
+                              L10n.of(context).walletAccountUpdatedSuccessfully,
+                            ),
                             backgroundColor: AppColors.success,
                             behavior: SnackBarBehavior.floating,
                             shape: RoundedRectangleBorder(

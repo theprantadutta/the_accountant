@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_page_transitions.dart';
@@ -238,7 +239,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
               ),
             ),
             icon: const Icon(Icons.brush_outlined, size: 18),
-            label: const Text('Browse themes'),
+            label: Text(L10n.of(context).onboardBrowseThemes),
           ),
         ],
       ],

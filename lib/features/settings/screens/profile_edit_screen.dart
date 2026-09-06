@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
@@ -98,7 +99,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
-          title: const Text('Edit Profile'),
+          title: Text(L10n.of(context).settingsEditProfile),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             onPressed: _handleBack,
@@ -284,7 +285,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
           SizedBox(height: AppSpacing.lg),
           NeoTextField(
             controller: _nameController,
-            label: 'Display name',
+            label: L10n.of(context).settingsDisplayName,
             prefixIcon: Icons.badge_outlined,
             textCapitalization: TextCapitalization.words,
             textInputAction: TextInputAction.done,
@@ -298,7 +299,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
           SizedBox(height: AppSpacing.md),
           NeoTextField(
             controller: _emailController,
-            label: 'Email address',
+            label: L10n.of(context).settingsEmailAddress,
             prefixIcon: Icons.email_outlined,
             enabled: false,
             suffixIcon: Icon(
@@ -461,10 +462,10 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
   Future<void> _showUnsavedChangesDialog() async {
     final confirmed = await showConfirmationDialog(
       context: context,
-      title: 'Unsaved Changes',
+      title: L10n.of(context).settingsUnsavedChanges,
       message: 'You have unsaved changes. Are you sure you want to leave?',
-      cancelText: 'Stay',
-      confirmText: 'Leave',
+      cancelText: L10n.of(context).settingsStay,
+      confirmText: L10n.of(context).settingsLeave,
       isDangerous: true,
     );
 

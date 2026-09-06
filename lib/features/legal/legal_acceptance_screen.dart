@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
@@ -126,7 +127,7 @@ class _LegalAcceptanceScreenState extends State<LegalAcceptanceScreen>
                   // reads as disabled to a sighted user and as nothing at all
                   // to a screen reader.
                   onPressed: _accepted ? _onContinue : null,
-                  child: const Text('Continue'),
+                  child: Text(L10n.of(context).settingsContinue),
                 ),
               ),
               AppSpacing.gapLg,

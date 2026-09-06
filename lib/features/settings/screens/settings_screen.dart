@@ -176,7 +176,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               child: TextField(
                 controller: _searchController,
                 decoration: InputDecoration(
-                  hintText: 'Search settings...',
+                  hintText: L10n.of(context).settingsSearchSettings,
                   hintStyle: TextStyle(color: AppColors.textMuted),
                   prefixIcon: Icon(Icons.search, color: AppColors.textMuted),
                   suffixIcon: _searchQuery.isNotEmpty
@@ -286,7 +286,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           iconColor: premiumState.isPremium
               ? Colors.amber
               : AppColors.textMuted,
-          title: 'Subscription',
+          title: L10n.of(context).settingsSubscription,
           subtitle: premiumState.isPremium
               ? premiumState.tier.displayName
               : 'Upgrade to Premium',
@@ -302,7 +302,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         SettingsActionTile(
           icon: Icons.logout,
           iconColor: AppColors.error,
-          title: 'Sign Out',
+          title: L10n.of(context).settingsSignOut,
           onTap: () => _showSignOutDialog(context, ref),
         ),
       );
@@ -329,8 +329,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       moneyTiles.add(
         SettingsNavigationTile(
           icon: Icons.flag_outlined,
-          title: 'Goals',
-          subtitle: 'Save toward something and track how far along you are',
+          title: L10n.of(context).settingsGoals,
+          subtitle: L10n.of(context).settingsSaveTowardSomethingAndTrack,
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const ObjectivesListScreen()),
@@ -343,8 +343,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       moneyTiles.add(
         SettingsNavigationTile(
           icon: Icons.pie_chart_outline,
-          title: 'Budgets',
-          subtitle: 'Set limits and see how the period is going',
+          title: L10n.of(context).settingsBudgets,
+          subtitle: L10n.of(context).settingsSetLimitsAndSeeHow,
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const BudgetListScreen()),
@@ -357,8 +357,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       moneyTiles.add(
         SettingsNavigationTile(
           icon: Icons.schedule_outlined,
-          title: 'Upcoming and overdue',
-          subtitle: 'What is due, and what was missed',
+          title: L10n.of(context).settingsUpcomingAndOverdue,
+          subtitle: L10n.of(context).settingsWhatIsDueAndWhat,
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(
@@ -379,8 +379,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       moneyTiles.add(
         SettingsNavigationTile(
           icon: Icons.category_outlined,
-          title: 'Categories',
-          subtitle: 'Rename, recolour, and group them',
+          title: L10n.of(context).settingsCategories,
+          subtitle: L10n.of(context).settingsRenameRecolourAndGroupThem,
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const CategoryManagementScreen()),
@@ -393,8 +393,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       moneyTiles.add(
         SettingsNavigationTile(
           icon: Icons.account_balance_wallet_outlined,
-          title: 'Accounts',
-          subtitle: 'Add, reorder, and edit your accounts',
+          title: L10n.of(context).settingsAccounts,
+          subtitle: L10n.of(context).settingsAddReorderAndEditYour,
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const WalletManagementScreen()),
@@ -407,8 +407,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       moneyTiles.add(
         SettingsNavigationTile(
           icon: Icons.credit_card,
-          title: 'Payment methods',
-          subtitle: 'The cards and accounts you pay with',
+          title: L10n.of(context).payTitle,
+          subtitle: L10n.of(context).settingsTheCardsAndAccountsYou,
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const PaymentMethodsScreen()),
@@ -427,8 +427,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       moneyTiles.add(
         SettingsNavigationTile(
           icon: Icons.auto_awesome_outlined,
-          title: 'Naming rules',
-          subtitle: 'Where something goes, based on what it is called',
+          title: L10n.of(context).rulesTitle,
+          subtitle: L10n.of(context).settingsWhereSomethingGoesBasedOn,
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const TitleRulesScreen()),
@@ -452,7 +452,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       regionalTiles.add(
         SettingsNavigationTile(
           icon: Icons.language,
-          title: 'Regional Settings',
+          title: L10n.of(context).settingsRegionalTitle,
           subtitle:
               '${settingsState.currency} - ${_getDateFormatLabel(settingsState.dateFormat, ref)}',
           onTap: () => Navigator.push(
@@ -499,8 +499,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       notificationTiles.add(
         SettingsNavigationTile(
           icon: Icons.notifications_outlined,
-          title: 'Notification Settings',
-          subtitle: 'Daily reminders, budget alerts',
+          title: L10n.of(context).settingsNotificationSettings,
+          subtitle: L10n.of(context).settingsDailyRemindersBudgetAlerts,
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const NotificationsScreen()),
@@ -525,8 +525,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       privacyTiles.add(
         SettingsNavigationTile(
           icon: Icons.security,
-          title: 'Privacy & Security',
-          subtitle: 'Biometric lock, data management',
+          title: L10n.of(context).settingsPrivacySecurity,
+          subtitle: L10n.of(context).settingsBiometricLockDataManagement,
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const PrivacySecurityScreen()),
@@ -550,8 +550,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       dataTiles.add(
         SettingsNavigationTile(
           icon: Icons.sync,
-          title: 'Cloud Sync',
-          subtitle: 'Sync your data across devices',
+          title: L10n.of(context).settingsCloudSync,
+          subtitle: L10n.of(context).settingsSyncYourDataAcrossDevices,
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const SyncSettingsScreenGated()),
@@ -586,7 +586,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         SettingsNavigationTile(
           icon: Icons.download_outlined,
           title: L10n.of(context).settingsExportData,
-          subtitle: 'CSV is free · PDF report is Premium',
+          subtitle: L10n.of(context).settingsCsvIsFreePdfReport,
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const ExportScreen()),
@@ -639,8 +639,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       helpTiles.add(
         SettingsNavigationTile(
           icon: Icons.help_outline,
-          title: 'Help & FAQ',
-          subtitle: 'Get answers to common questions',
+          title: L10n.of(context).settingsHelpFaq,
+          subtitle: L10n.of(context).settingsGetAnswersToCommonQuestions,
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const HelpScreen()),
@@ -654,8 +654,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       helpTiles.add(
         SettingsNavigationTile(
           icon: Icons.email_outlined,
-          title: 'Contact Support',
-          subtitle: 'Questions, complaints, or feedback',
+          title: L10n.of(context).settingsContactSupport,
+          subtitle: L10n.of(context).settingsQuestionsComplaintsOrFeedback,
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const ContactSupportScreen()),
@@ -667,7 +667,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       helpTiles.add(
         SettingsActionTile(
           icon: Icons.star_outline,
-          title: 'Rate the App',
+          title: L10n.of(context).settingsRateTheApp,
           onTap: () => _rateApp(),
         ),
       );
@@ -676,7 +676,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       helpTiles.add(
         SettingsActionTile(
           icon: Icons.share_outlined,
-          title: 'Share with Friends',
+          title: L10n.of(context).settingsShareWithFriends,
           onTap: () => _shareApp(),
         ),
       );
@@ -692,8 +692,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       helpTiles.add(
         SettingsActionTile(
           icon: Icons.play_circle_outline,
-          title: 'Replay App Tour',
-          subtitle: 'See the feature walkthrough again',
+          title: L10n.of(context).settingsReplayAppTour,
+          subtitle: L10n.of(context).settingsSeeTheFeatureWalkthroughAgain,
           onTap: () {
             ref.read(walkthroughProvider.notifier).resetWalkthrough();
             Navigator.pushNamedAndRemoveUntil(
@@ -721,8 +721,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       aboutTiles.add(
         SettingsNavigationTile(
           icon: Icons.info_outline,
-          title: 'About The Accountant',
-          subtitle: 'Version, licenses, and more',
+          title: L10n.of(context).settingsAboutTheAccountant,
+          subtitle: L10n.of(context).settingsVersionLicensesAndMore,
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const AboutScreen()),
@@ -748,8 +748,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           SettingsActionTile(
             icon: Icons.bug_report,
             iconColor: Colors.orange,
-            title: 'Test Crash',
-            subtitle: 'Trigger a test exception for Crashlytics',
+            title: L10n.of(context).settingsTestCrash,
+            subtitle: L10n.of(context).settingsTriggerATestExceptionFor,
             onTap: () async {
               await FirebaseCrashlytics.instance
                   .setCrashlyticsCollectionEnabled(true);
@@ -766,7 +766,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         );
       }
       if (devTiles.isNotEmpty) {
-        sections.add(SettingsSection(title: 'DEVELOPER', tiles: devTiles));
+        sections.add(
+          SettingsSection(
+            title: L10n.of(context).settingsDeveloper,
+            tiles: devTiles,
+          ),
+        );
       }
     }
 
@@ -904,9 +909,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   Future<void> _showSignOutDialog(BuildContext context, WidgetRef ref) async {
     final confirmed = await showConfirmationDialog(
       context: context,
-      title: 'Sign Out',
+      title: L10n.of(context).settingsSignOut,
       message: 'Are you sure you want to sign out of your account?',
-      confirmText: 'Sign Out',
+      confirmText: L10n.of(context).settingsSignOut,
       isDangerous: true,
     );
 

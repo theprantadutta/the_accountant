@@ -1,5 +1,6 @@
 import 'dart:ui' show ImageFilter;
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -295,7 +296,7 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
                       color: AppColors.textSecondary,
                     ),
                     const SizedBox(width: 10),
-                    const Text('Rename'),
+                    Text(L10n.of(context).aiRename),
                   ],
                 ),
               ),
@@ -332,23 +333,23 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
     final newTitle = await showDialog<String>(
       context: sheetContext,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Rename chat'),
+        title: Text(L10n.of(context).aiRenameChat),
         content: TextField(
           controller: controller,
           autofocus: true,
           maxLength: 100,
           textCapitalization: TextCapitalization.sentences,
-          decoration: const InputDecoration(hintText: 'Chat name'),
+          decoration: InputDecoration(hintText: L10n.of(context).aiChatName),
           onSubmitted: (v) => Navigator.pop(dialogContext, v),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Cancel'),
+            child: Text(L10n.of(context).actionCancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, controller.text),
-            child: const Text('Save'),
+            child: Text(L10n.of(context).actionSave),
           ),
         ],
       ),
@@ -368,12 +369,12 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
     final confirmed = await showDialog<bool>(
       context: sheetContext,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Delete chat?'),
+        title: Text(L10n.of(context).aiDeleteChat),
         content: Text('"${conv.title}" will be permanently deleted.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, false),
-            child: const Text('Cancel'),
+            child: Text(L10n.of(context).actionCancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, true),

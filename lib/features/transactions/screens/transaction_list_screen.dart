@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:the_accountant/features/transactions/screens/transaction_detail_screen.dart';
 import 'package:the_accountant/features/transactions/widgets/category_picker_sheet.dart';
 import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
@@ -303,11 +304,9 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
   Future<void> _bulkDelete() async {
     final confirmed = await showConfirmationDialog(
       context: context,
-      title: 'Delete ${_selected.length} transactions?',
-      message:
-          'Balances are recalculated. Any transfer among them takes its other '
-          'half with it.',
-      confirmText: 'Delete',
+      title: L10n.of(context).txDeleteManyTitle(_selected.length),
+      message: L10n.of(context).txDeleteManyBody,
+      confirmText: L10n.of(context).actionDelete,
       isDangerous: true,
     );
     if (confirmed != true) return;
@@ -337,7 +336,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
     final chosen = await showDialog<String>(
       context: context,
       builder: (context) => SimpleDialog(
-        title: const Text('Move to account'),
+        title: Text(L10n.of(context).txMoveToAccount),
         children: [
           for (final w in wallets)
             SimpleDialogOption(
@@ -429,7 +428,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Transaction deleted'),
+            content: Text(L10n.of(context).txDeleted),
             backgroundColor: AppColors.success,
           ),
         );
@@ -438,7 +437,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error deleting transaction: $e'),
+            content: Text(L10n.of(context).txDeleteFailed('$e')),
             backgroundColor: AppColors.error,
           ),
         );
@@ -680,15 +679,18 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
       child: Row(
         children: [
           IconButton(
-            tooltip: 'Cancel',
+            tooltip: L10n.of(context).actionCancel,
             icon: const Icon(Icons.close),
             onPressed: _clearSelection,
           ),
-          Text('${_selected.length} selected', style: AppTypography.titleSmall),
+          Text(
+            L10n.of(context).txSelectedCount(_selected.length),
+            style: AppTypography.titleSmall,
+          ),
           const Spacer(),
           PopupMenuButton<String>(
             icon: const Icon(Icons.more_horiz),
-            tooltip: 'Actions',
+            tooltip: L10n.of(context).txActions,
             onSelected: (value) {
               switch (value) {
                 case 'category':
@@ -710,7 +712,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                 value: 'category',
                 child: ListTile(
                   leading: Icon(Icons.category_outlined),
-                  title: Text('Change category'),
+                  title: Text(L10n.of(context).txChangeCategory),
                   contentPadding: EdgeInsets.zero,
                 ),
               ),
@@ -718,7 +720,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                 value: 'wallet',
                 child: ListTile(
                   leading: Icon(Icons.account_balance_wallet_outlined),
-                  title: Text('Move to account'),
+                  title: Text(L10n.of(context).txMoveToAccount),
                   contentPadding: EdgeInsets.zero,
                 ),
               ),
@@ -726,7 +728,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                 value: 'date',
                 child: ListTile(
                   leading: Icon(Icons.event_outlined),
-                  title: Text('Change date'),
+                  title: Text(L10n.of(context).txChangeDate),
                   contentPadding: EdgeInsets.zero,
                 ),
               ),
@@ -734,7 +736,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                 value: 'paid',
                 child: ListTile(
                   leading: Icon(Icons.check_circle_outline),
-                  title: Text('Mark as paid'),
+                  title: Text(L10n.of(context).txMarkAsPaid),
                   contentPadding: EdgeInsets.zero,
                 ),
               ),
@@ -742,7 +744,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                 value: 'duplicate',
                 child: ListTile(
                   leading: Icon(Icons.copy_outlined),
-                  title: Text('Duplicate'),
+                  title: Text(L10n.of(context).txDuplicate),
                   contentPadding: EdgeInsets.zero,
                 ),
               ),
@@ -784,7 +786,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
       },
       trailing: NeoIconButton(
         icon: Icons.tune,
-        tooltip: 'Filter',
+        tooltip: L10n.of(context).filterTitle,
         size: AppSpacing.inputHeight,
         onPressed: () => _showFilterOptions(context),
         // Coloured only while something is actually filtered out, so the

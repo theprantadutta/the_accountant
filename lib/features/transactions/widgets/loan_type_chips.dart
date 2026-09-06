@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/data/models/transaction.dart';
@@ -66,7 +67,7 @@ class LoanTypeChips extends StatelessWidget {
               children: [
                 // No Loan chip
                 _LoanChip(
-                  label: 'No loan',
+                  label: L10n.of(context).txNoLoan,
                   icon: Icons.money_off_rounded,
                   isSelected: !_isLoanType,
                   color: AppColors.textSecondary,
@@ -79,7 +80,7 @@ class LoanTypeChips extends StatelessWidget {
 
                 // Credit (Lent money)
                 _LoanChip(
-                  label: 'Lent Money',
+                  label: L10n.of(context).txLentMoney,
                   icon: Icons.arrow_upward_rounded,
                   isSelected: selectedType == TransactionSpecialType.credit,
                   color: AppColors.success,
@@ -92,7 +93,7 @@ class LoanTypeChips extends StatelessWidget {
 
                 // Debt (Borrowed money)
                 _LoanChip(
-                  label: 'Borrowed Money',
+                  label: L10n.of(context).txBorrowedMoney,
                   icon: Icons.arrow_downward_rounded,
                   isSelected: selectedType == TransactionSpecialType.debt,
                   color: AppColors.error,

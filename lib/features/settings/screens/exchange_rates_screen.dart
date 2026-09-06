@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/providers/currency_provider.dart';
 import 'package:the_accountant/core/services/currency_service.dart';
@@ -43,7 +44,7 @@ class _ExchangeRatesScreenState extends ConsumerState<ExchangeRatesScreen> {
           actions: [
             IconButton(
               icon: const Icon(Icons.refresh),
-              tooltip: 'Refresh rates',
+              tooltip: L10n.of(context).settingsRefreshRates,
               onPressed: currencyState.isLoading
                   ? null
                   : () => ref.read(currencyProvider.notifier).refreshRates(),
@@ -110,7 +111,7 @@ class _ExchangeRatesScreenState extends ConsumerState<ExchangeRatesScreen> {
               child: TextField(
                 controller: _searchController,
                 decoration: InputDecoration(
-                  hintText: 'Search currencies...',
+                  hintText: L10n.of(context).settingsSearchCurrencies,
                   prefixIcon: const Icon(Icons.search),
                   suffixIcon: _searchQuery.isNotEmpty
                       ? IconButton(
@@ -171,7 +172,7 @@ class _ExchangeRatesScreenState extends ConsumerState<ExchangeRatesScreen> {
             Text(currencyState.error!, style: AppTypography.bodyMedium),
             AppSpacing.gapMd,
             NeoButton(
-              label: 'Retry',
+              label: L10n.of(context).actionRetry,
               style: NeoButtonStyle.primary,
               onPressed: () => ref.read(currencyProvider.notifier).loadRates(),
             ),
@@ -271,7 +272,7 @@ class _ExchangeRatesScreenState extends ConsumerState<ExchangeRatesScreen> {
                 decimal: true,
               ),
               decoration: InputDecoration(
-                labelText: 'Custom rate',
+                labelText: L10n.of(context).settingsCustomRate,
                 filled: true,
                 fillColor: AppColors.glassWhite,
                 border: OutlineInputBorder(
@@ -284,7 +285,7 @@ class _ExchangeRatesScreenState extends ConsumerState<ExchangeRatesScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(L10n.of(context).actionCancel),
           ),
           TextButton(
             onPressed: () async {
@@ -294,7 +295,7 @@ class _ExchangeRatesScreenState extends ConsumerState<ExchangeRatesScreen> {
                   .clearCustomRate(_baseCurrency, currencyCode);
               if (context.mounted) Navigator.pop(context);
             },
-            child: const Text('Use API Rate'),
+            child: Text(L10n.of(context).settingsUseApiRate),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -306,7 +307,7 @@ class _ExchangeRatesScreenState extends ConsumerState<ExchangeRatesScreen> {
                 if (context.mounted) Navigator.pop(context);
               }
             },
-            child: const Text('Save'),
+            child: Text(L10n.of(context).actionSave),
           ),
         ],
       ),
@@ -399,7 +400,7 @@ class _ExchangeRateTile extends StatelessWidget {
                 icon: const Icon(Icons.edit_outlined),
                 color: AppColors.textSecondary,
                 onPressed: onEditRate,
-                tooltip: 'Set custom rate',
+                tooltip: L10n.of(context).settingsSetCustomRate,
               ),
             ],
           ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/providers/currency_provider.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
@@ -72,7 +73,7 @@ class _FilterSheetState extends ConsumerState<_FilterSheet> {
       maxChildSize: 0.95,
       builder: (context, controller) => Column(
         children: [
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           Container(
             width: 40,
             height: 4,
@@ -82,16 +83,19 @@ class _FilterSheetState extends ConsumerState<_FilterSheet> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 8, 4),
+            padding: EdgeInsets.fromLTRB(16, 12, 8, 4),
             child: Row(
               children: [
                 Expanded(
-                  child: Text('Filter', style: AppTypography.titleLarge),
+                  child: Text(
+                    L10n.of(context).filterTitle,
+                    style: AppTypography.titleLarge,
+                  ),
                 ),
                 if (_draft.hasActiveFilters)
                   TextButton(
                     onPressed: () => setState(() => _draft = _draft.cleared()),
-                    child: const Text('Clear all'),
+                    child: Text(L10n.of(context).filterClearAll),
                   ),
               ],
             ),
@@ -99,22 +103,22 @@ class _FilterSheetState extends ConsumerState<_FilterSheet> {
           Expanded(
             child: ListView(
               controller: controller,
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+              padding: EdgeInsets.fromLTRB(16, 8, 16, 24),
               children: [
                 _label('Direction'),
                 SegmentedButton<DirectionFilter>(
-                  segments: const [
+                  segments: [
                     ButtonSegment(
                       value: DirectionFilter.any,
-                      label: Text('Any'),
+                      label: Text(L10n.of(context).filterAny),
                     ),
                     ButtonSegment(
                       value: DirectionFilter.expense,
-                      label: Text('Spent'),
+                      label: Text(L10n.of(context).filterSpent),
                     ),
                     ButtonSegment(
                       value: DirectionFilter.income,
-                      label: Text('Earned'),
+                      label: Text(L10n.of(context).filterEarned),
                     ),
                   ],
                   selected: {_draft.direction},
@@ -130,7 +134,7 @@ class _FilterSheetState extends ConsumerState<_FilterSheet> {
                   children: [
                     for (final option in PaidFilter.values)
                       ChoiceChip(
-                        label: Text(_paidLabel(option)),
+                        label: Text(_paidLabel(option, L10n.of(context))),
                         selected: _draft.paid == option,
                         onSelected: (_) => setState(
                           () => _draft = _draft.copyWith(paid: option),
@@ -165,18 +169,18 @@ class _FilterSheetState extends ConsumerState<_FilterSheet> {
 
                 _label('Transfers'),
                 SegmentedButton<TransferFilter>(
-                  segments: const [
+                  segments: [
                     ButtonSegment(
                       value: TransferFilter.hide,
-                      label: Text('Hidden'),
+                      label: Text(L10n.of(context).filterHidden),
                     ),
                     ButtonSegment(
                       value: TransferFilter.show,
-                      label: Text('Included'),
+                      label: Text(L10n.of(context).filterIncluded),
                     ),
                     ButtonSegment(
                       value: TransferFilter.only,
-                      label: Text('Only'),
+                      label: Text(L10n.of(context).filterOnly),
                     ),
                   ],
                   selected: {_draft.transfers},
@@ -244,12 +248,12 @@ class _FilterSheetState extends ConsumerState<_FilterSheet> {
                   AppSpacing.gapXl,
                 ],
 
-                _label('Amount'),
+                _label(L10n.of(context).filterAmount),
                 Row(
                   children: [
                     Expanded(
                       child: _AmountField(
-                        label: 'From',
+                        label: L10n.of(context).filterFrom,
                         initial: _draft.minAmount,
                         currency: currency,
                         onChanged: (cents) => setState(
@@ -260,7 +264,7 @@ class _FilterSheetState extends ConsumerState<_FilterSheet> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: _AmountField(
-                        label: 'To',
+                        label: L10n.of(context).filterTo,
                         initial: _draft.maxAmount,
                         currency: currency,
                         onChanged: (cents) => setState(
@@ -290,7 +294,7 @@ class _FilterSheetState extends ConsumerState<_FilterSheet> {
                   children: [
                     Expanded(
                       child: _DateField(
-                        label: 'From',
+                        label: L10n.of(context).filterFrom,
                         value: _draft.from,
                         format: dateFormat,
                         onChanged: (d) =>
@@ -300,7 +304,7 @@ class _FilterSheetState extends ConsumerState<_FilterSheet> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: _DateField(
-                        label: 'To',
+                        label: L10n.of(context).filterTo,
                         value: _draft.to,
                         format: dateFormat,
                         onChanged: (d) =>
@@ -320,7 +324,7 @@ class _FilterSheetState extends ConsumerState<_FilterSheet> {
                 width: double.infinity,
                 child: FilledButton(
                   onPressed: () => Navigator.pop(context, _draft),
-                  child: const Text('Apply'),
+                  child: Text(L10n.of(context).actionApply),
                 ),
               ),
             ),
@@ -338,11 +342,11 @@ class _FilterSheetState extends ConsumerState<_FilterSheet> {
     ),
   );
 
-  static String _paidLabel(PaidFilter f) => switch (f) {
-    PaidFilter.any => 'Any',
-    PaidFilter.paid => 'Paid',
-    PaidFilter.unpaid => 'Not yet',
-    PaidFilter.skipped => 'Skipped',
+  static String _paidLabel(PaidFilter f, L10n l10n) => switch (f) {
+    PaidFilter.any => l10n.filterAny,
+    PaidFilter.paid => l10n.filterPaid,
+    PaidFilter.unpaid => l10n.filterNotYet,
+    PaidFilter.skipped => l10n.filterSkipped,
   };
 }
 
@@ -439,7 +443,7 @@ class _DateField extends StatelessWidget {
         ),
         child: Text(
           value == null
-              ? 'Any'
+              ? L10n.of(context).filterAny
               : AppDateFormatter.formatShortDate(value!, format),
         ),
       ),

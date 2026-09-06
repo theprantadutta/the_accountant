@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/core/themes/app_typography.dart';
@@ -472,7 +473,7 @@ class HeroBalanceCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: _IncomeExpenseItem(
-                    label: 'Income',
+                    label: L10n.of(context).moneyIncome,
                     value: income!,
                     currencySymbol: currencySymbol,
                     isIncome: true,
@@ -481,7 +482,7 @@ class HeroBalanceCard extends StatelessWidget {
                 Container(width: 1, height: 40, color: AppColors.glassBorder),
                 Expanded(
                   child: _IncomeExpenseItem(
-                    label: 'Expenses',
+                    label: L10n.of(context).dashExpenses,
                     value: expenses!,
                     currencySymbol: currencySymbol,
                     isIncome: false,

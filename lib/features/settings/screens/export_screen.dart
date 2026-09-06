@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -50,7 +51,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text('Export Data'),
+        title: Text(L10n.of(context).settingsExportData),
       ),
       body: ListView(
         padding: EdgeInsets.all(AppSpacing.md),
@@ -73,15 +74,17 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
           _buildSettingsCard([
             _buildFormatTile(
               icon: Icons.table_chart_outlined,
-              title: 'CSV',
-              subtitle: 'Spreadsheet format for Excel, Google Sheets',
+              title: L10n.of(context).settingsCsv,
+              subtitle: L10n.of(
+                context,
+              ).settingsSpreadsheetFormatForExcelGoogle,
               value: 'csv',
             ),
             _buildDivider(),
             _buildFormatTile(
               icon: Icons.picture_as_pdf_outlined,
-              title: 'PDF Report',
-              subtitle: 'Formatted summary with breakdowns',
+              title: L10n.of(context).settingsPdfReport,
+              subtitle: L10n.of(context).settingsFormattedSummaryWithBreakdowns,
               value: 'pdf',
               locked: !isPremium,
             ),
@@ -92,16 +95,16 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
           _buildSectionHeader('INCLUDE'),
           _buildSettingsCard([
             _buildCheckboxTile(
-              title: 'Transactions',
-              subtitle: 'All income and expense records',
+              title: L10n.of(context).navTransactions,
+              subtitle: L10n.of(context).settingsAllIncomeAndExpenseRecords,
               checked: true,
               enabled: false,
               onChanged: null,
             ),
             _buildDivider(),
             _buildCheckboxTile(
-              title: 'Categories',
-              subtitle: 'Category breakdown and totals',
+              title: L10n.of(context).settingsCategories,
+              subtitle: L10n.of(context).settingsCategoryBreakdownAndTotals,
               checked: _includeCategories,
               enabled: true,
               onChanged: (value) {
@@ -110,8 +113,8 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
             ),
             _buildDivider(),
             _buildCheckboxTile(
-              title: 'Wallets',
-              subtitle: 'Wallet balances and history',
+              title: L10n.of(context).settingsWallets,
+              subtitle: L10n.of(context).settingsWalletBalancesAndHistory,
               checked: _includeWallets,
               enabled: true,
               onChanged: (value) {
@@ -390,7 +393,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Not now'),
+            child: Text(L10n.of(context).settingsNotNow),
           ),
           ElevatedButton(
             onPressed: () {
@@ -401,7 +404,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
               backgroundColor: Colors.amber,
               foregroundColor: Colors.black,
             ),
-            child: const Text('Go Premium'),
+            child: Text(L10n.of(context).settingsGoPremium),
           ),
         ],
       ),

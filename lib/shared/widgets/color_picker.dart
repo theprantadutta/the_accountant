@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/core/themes/app_typography.dart';
@@ -210,7 +211,7 @@ class _ColorPickerSheetState extends State<_ColorPickerSheet> {
                     onPressed: _selectedColor != null
                         ? () => widget.onColorSelected(_selectedColor!)
                         : null,
-                    child: const Text('Apply'),
+                    child: Text(L10n.of(context).actionApply),
                   ),
                 ],
               ),

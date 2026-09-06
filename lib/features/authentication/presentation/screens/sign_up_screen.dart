@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
@@ -203,8 +204,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
                         end: 0.5,
                         child: AuthBrandHeader(
                           icon: Icons.person_add_alt_1_rounded,
-                          title: 'Create Account',
-                          subtitle: 'Join us to start your financial journey',
+                          title: L10n.of(context).walletCreateAccount,
+                          subtitle: L10n.of(context).authJoinUsToStartYour,
                           gradient: AppColors.accentGradient,
                           glowColor: AppColors.neonPurple,
                           floatingAnimation: _floatingAnimation,
@@ -253,7 +254,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
           // Name Field
           NeoTextField(
             controller: _nameController,
-            label: 'Full Name',
+            label: L10n.of(context).authFullName,
             hint: 'Enter your name',
             prefixIcon: Icons.person_outline,
             keyboardType: TextInputType.name,
@@ -275,7 +276,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
           // Email Field
           NeoTextField(
             controller: _emailController,
-            label: 'Email Address',
+            label: L10n.of(context).authEmailAddress,
             hint: 'Enter your email',
             prefixIcon: Icons.email_outlined,
             keyboardType: TextInputType.emailAddress,
@@ -296,7 +297,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
           // Password Field
           NeoTextField(
             controller: _passwordController,
-            label: 'Password',
+            label: L10n.of(context).authPassword,
             hint: 'Create a password',
             prefixIcon: Icons.lock_outline,
             obscureText: true,
@@ -326,7 +327,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
           // Confirm Password Field
           NeoTextField(
             controller: _confirmPasswordController,
-            label: 'Confirm Password',
+            label: L10n.of(context).settingsConfirmPassword,
             hint: 'Re-enter your password',
             prefixIcon: Icons.lock_outline,
             obscureText: true,
@@ -352,7 +353,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
 
           // Sign Up Button
           NeoButton(
-            label: 'Create Account',
+            label: L10n.of(context).walletCreateAccount,
             onPressed: authState.isLoading ? null : _signUp,
             isLoading: authState.isLoading,
             isExpanded: true,

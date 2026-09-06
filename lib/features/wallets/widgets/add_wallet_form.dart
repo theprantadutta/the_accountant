@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/services/currency_service.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
@@ -294,7 +295,7 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
                 controller: widget.nameController,
                 style: AppTypography.bodyLarge,
                 decoration: InputDecoration(
-                  hintText: 'Enter wallet name',
+                  hintText: L10n.of(context).walletEnterWalletName,
                   filled: true,
                   fillColor: AppColors.glassWhite,
                   border: OutlineInputBorder(
@@ -321,7 +322,7 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
 
               // Currency Picker
               CurrencyPicker(
-                label: 'Currency',
+                label: L10n.of(context).walletCurrency,
                 selectedCurrency: _selectedCurrency,
                 onCurrencySelected: (currency) {
                   setState(() => _selectedCurrency = currency);
@@ -379,7 +380,7 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
                     decimal: true,
                   ),
                   decoration: InputDecoration(
-                    hintText: 'Enter credit limit',
+                    hintText: L10n.of(context).walletEnterCreditLimit,
                     prefixText: '${CurrencyInfo.getSymbol(_selectedCurrency)} ',
                     filled: true,
                     fillColor: AppColors.glassWhite,
@@ -415,7 +416,7 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
                 DropdownButtonFormField<int>(
                   initialValue: _billingCycleDay,
                   decoration: InputDecoration(
-                    hintText: 'Select billing day (optional)',
+                    hintText: L10n.of(context).walletSelectBillingDayOptional,
                     filled: true,
                     fillColor: AppColors.glassWhite,
                     border: OutlineInputBorder(
@@ -449,7 +450,7 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
 
               // Icon picker
               _LabeledIconButton(
-                label: 'Icon',
+                label: L10n.of(context).walletIcon,
                 icon: _selectedIcon,
                 color: WalletColors.parseColor(_selectedColor),
                 onTap: () => _showIconPicker(context),
@@ -457,7 +458,7 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
               AppSpacing.gapMd,
               // Color picker
               _LabeledColorButton(
-                label: 'Color',
+                label: L10n.of(context).walletColor,
                 color: _selectedColor,
                 onTap: () => _showColorPicker(context),
               ),
@@ -556,7 +557,7 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
                 children: [
                   Expanded(
                     child: NeoButton(
-                      label: 'Cancel',
+                      label: L10n.of(context).actionCancel,
                       style: NeoButtonStyle.secondary,
                       onPressed: widget.onCancel,
                     ),
@@ -695,8 +696,8 @@ class _CompactWalletFormState extends ConsumerState<CompactWalletForm> {
           // Name field
           TextFormField(
             controller: _nameController,
-            decoration: const InputDecoration(
-              labelText: 'Wallet Name',
+            decoration: InputDecoration(
+              labelText: L10n.of(context).walletWalletName,
               border: OutlineInputBorder(),
             ),
             validator: (v) => v?.isEmpty ?? true ? 'Please enter a name' : null,
@@ -705,7 +706,7 @@ class _CompactWalletFormState extends ConsumerState<CompactWalletForm> {
 
           // Currency picker
           CurrencyPicker(
-            label: 'Currency',
+            label: L10n.of(context).walletCurrency,
             selectedCurrency: _currency,
             onCurrencySelected: (c) => setState(() => _currency = c),
           ),
@@ -714,8 +715,8 @@ class _CompactWalletFormState extends ConsumerState<CompactWalletForm> {
           // Balance
           TextFormField(
             controller: _balanceController,
-            decoration: const InputDecoration(
-              labelText: 'Initial Balance',
+            decoration: InputDecoration(
+              labelText: L10n.of(context).walletInitialBalance,
               border: OutlineInputBorder(),
             ),
             keyboardType: TextInputType.number,
@@ -724,7 +725,7 @@ class _CompactWalletFormState extends ConsumerState<CompactWalletForm> {
 
           // Icon picker
           IconPicker(
-            label: 'Icon',
+            label: L10n.of(context).walletIcon,
             selectedIcon: _icon,
             selectedColor: WalletColors.parseColor(_color),
             onIconSelected: (i) => setState(() => _icon = i),
@@ -732,7 +733,7 @@ class _CompactWalletFormState extends ConsumerState<CompactWalletForm> {
           AppSpacing.gapMd,
           // Color picker
           ColorPicker(
-            label: 'Color',
+            label: L10n.of(context).walletColor,
             selectedColor: _color,
             onColorSelected: (c) => setState(() => _color = c),
           ),
@@ -740,14 +741,14 @@ class _CompactWalletFormState extends ConsumerState<CompactWalletForm> {
 
           // Default toggle
           SwitchListTile(
-            title: const Text('Set as Default'),
+            title: Text(L10n.of(context).walletSetAsDefault),
             value: _isDefault,
             onChanged: (v) => setState(() => _isDefault = v),
           ),
 
           // Use decimals toggle
           SwitchListTile(
-            title: const Text('Use Decimals'),
+            title: Text(L10n.of(context).walletUseDecimals),
             subtitle: Text(
               _useDecimals
                   ? 'Show cents (e.g., \$1,234.56)'
@@ -784,7 +785,7 @@ class _CompactWalletFormState extends ConsumerState<CompactWalletForm> {
                   );
                 }
               },
-              child: const Text('Save Wallet'),
+              child: Text(L10n.of(context).walletSaveWallet),
             ),
           ),
         ],

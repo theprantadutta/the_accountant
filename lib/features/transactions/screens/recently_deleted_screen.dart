@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/providers/currency_provider.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
@@ -57,7 +58,7 @@ class _RecentlyDeletedScreenState extends ConsumerState<RecentlyDeletedScreen> {
     );
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Recently deleted')),
+      appBar: AppBar(title: Text(L10n.of(context).trashTitle)),
       body: rows == null
           ? const Center(child: CircularProgressIndicator())
           : rows.isEmpty
@@ -100,7 +101,7 @@ class _RecentlyDeletedScreenState extends ConsumerState<RecentlyDeletedScreen> {
                   ),
                   trailing: TextButton(
                     onPressed: () => _restore(row),
-                    child: const Text('Restore'),
+                    child: Text(L10n.of(context).trashRestore),
                   ),
                 );
               },
@@ -157,6 +158,6 @@ class _RecentlyDeletedScreenState extends ConsumerState<RecentlyDeletedScreen> {
     if (!mounted) return;
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(const SnackBar(content: Text('Restored.')));
+    ).showSnackBar(SnackBar(content: Text(L10n.of(context).trashRestored)));
   }
 }

@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
@@ -119,7 +120,7 @@ class _AddCategoryFormState extends ConsumerState<AddCategoryForm> {
     if (name.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('Please enter a category name'),
+          content: Text(L10n.of(context).catPleaseEnterACategoryName),
           backgroundColor: AppColors.error,
         ),
       );
@@ -342,7 +343,7 @@ class _AddCategoryFormState extends ConsumerState<AddCategoryForm> {
       style: TextStyle(fontSize: 16, color: AppColors.textPrimary),
       onChanged: (_) => setState(() {}),
       decoration: InputDecoration(
-        hintText: 'Enter category name',
+        hintText: L10n.of(context).catEnterCategoryName,
         hintStyle: TextStyle(color: AppColors.textMuted),
         filled: true,
         fillColor: AppColors.textPrimary.withValues(alpha: 0.05),
@@ -396,7 +397,7 @@ class _AddCategoryFormState extends ConsumerState<AddCategoryForm> {
         scrollDirection: Axis.horizontal,
         children: [
           _parentChip(
-            label: 'Nothing — its own category',
+            label: L10n.of(context).catNothingItsOwnCategory,
             selected: _parentId == null,
             onTap: () => setState(() => _parentId = null),
           ),

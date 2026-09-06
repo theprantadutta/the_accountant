@@ -180,7 +180,9 @@ void main() {
 
       // A handful read the same in both by design, because they are written
       // the same way in Bangla text.
-      const sameByDesign = {'navAi'};
+      // Written the same way in Bangla text: an initialism, and a file
+      // format's name.
+      const sameByDesign = {'navAi', 'settingsCsv'};
 
       final untranslated = [
         for (final key in english.keys)
@@ -200,7 +202,12 @@ void main() {
     // real effort for nothing. Vocabulary arrives with the screen that needs
     // it.
     final direct = RegExp(r'\bl10n[?!]?\.([A-Za-z0-9_]+)');
-    final viaOf = RegExp(r'L10n\.of\([A-Za-z_]+\)\.([A-Za-z0-9_]+)');
+    // dart format may split the call over lines, so allow whitespace and a
+    // trailing comma inside the parentheses.
+    final viaOf = RegExp(
+      r'L10n\.of\(\s*[A-Za-z_]+\s*,?\s*\)\.([A-Za-z0-9_]+)',
+      dotAll: true,
+    );
 
     final used = <String>{};
     for (final entity in Directory('lib').listSync(recursive: true)) {

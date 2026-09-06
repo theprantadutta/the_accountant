@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/providers/currency_provider.dart';
@@ -429,7 +430,7 @@ class _SubscriptionCard extends ConsumerWidget {
                       _showCancelConfirmation(context, ref);
                     },
                     icon: const Icon(Icons.cancel_outlined, size: 16),
-                    label: const Text('Cancel'),
+                    label: Text(L10n.of(context).actionCancel),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: AppColors.error,
                       side: BorderSide(

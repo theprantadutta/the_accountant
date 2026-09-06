@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
@@ -235,7 +236,7 @@ class _HelpScreenState extends State<HelpScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text('Help & FAQ'),
+        title: Text(L10n.of(context).settingsHelpFaq),
       ),
       body: ListView(
         padding: EdgeInsets.all(AppSpacing.md),
@@ -430,7 +431,7 @@ class _HelpScreenState extends State<HelpScreen> {
               MaterialPageRoute(builder: (_) => const ContactSupportScreen()),
             ),
             icon: Icon(Icons.email_outlined),
-            label: Text('Contact Support'),
+            label: Text(L10n.of(context).settingsContactSupport),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primaryAccent,
               foregroundColor: Colors.white,

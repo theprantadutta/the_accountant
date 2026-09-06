@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
@@ -123,7 +124,7 @@ class _ReceiptScannerScreenState extends ConsumerState<ReceiptScannerScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text('Scan Receipt'),
+        title: Text(L10n.of(context).aiScanReceipt),
       ),
       body: ListView(
         padding: EdgeInsets.fromLTRB(
@@ -208,7 +209,7 @@ class _ReceiptScannerScreenState extends ConsumerState<ReceiptScannerScreen> {
             children: [
               Expanded(
                 child: NeoButton(
-                  label: 'Camera',
+                  label: L10n.of(context).aiCamera,
                   leadingIcon: Icons.camera_alt_outlined,
                   isExpanded: true,
                   onPressed: processing
@@ -219,7 +220,7 @@ class _ReceiptScannerScreenState extends ConsumerState<ReceiptScannerScreen> {
               const SizedBox(width: 12),
               Expanded(
                 child: NeoButton(
-                  label: 'Gallery',
+                  label: L10n.of(context).aiGallery,
                   leadingIcon: Icons.photo_library_outlined,
                   style: NeoButtonStyle.secondary,
                   isExpanded: true,
@@ -335,14 +336,14 @@ class _ReceiptScannerScreenState extends ConsumerState<ReceiptScannerScreen> {
           SizedBox(height: AppSpacing.lg),
           NeoTextField(
             controller: _merchantController,
-            label: 'Merchant / title',
+            label: L10n.of(context).aiMerchantTitle,
             prefixIcon: Icons.storefront_outlined,
             textCapitalization: TextCapitalization.words,
           ),
           SizedBox(height: AppSpacing.md),
           NeoTextField(
             controller: _amountController,
-            label: 'Amount',
+            label: L10n.of(context).filterAmount,
             hint: '0.00',
             prefixIcon: Icons.attach_money,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
@@ -352,7 +353,7 @@ class _ReceiptScannerScreenState extends ConsumerState<ReceiptScannerScreen> {
           ),
           SizedBox(height: AppSpacing.lg),
           NeoButton(
-            label: 'Save as transaction',
+            label: L10n.of(context).aiSaveAsTransaction,
             leadingIcon: Icons.check_rounded,
             isExpanded: true,
             onPressed: _save,

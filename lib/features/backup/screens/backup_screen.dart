@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/providers/data_reload.dart';
@@ -41,7 +42,7 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text('Backup & Restore'),
+        title: Text(L10n.of(context).settingsBackupRestore),
       ),
       body: ListView(
         padding: EdgeInsets.all(AppSpacing.md),
@@ -57,15 +58,17 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
           _card([
             _tile(
               icon: Icons.save_alt,
-              title: 'Save a backup file',
-              subtitle: 'Share it to Files, email, or anywhere you like',
+              title: L10n.of(context).backupSaveABackupFile,
+              subtitle: L10n.of(context).backupShareItToFilesEmail,
               onTap: _busy ? null : _saveToFile,
             ),
             _divider(),
             _tile(
               icon: Icons.settings_backup_restore,
-              title: 'Restore from a file',
-              subtitle: 'Replaces everything currently on this device',
+              title: L10n.of(context).backupRestoreFromAFile,
+              subtitle: L10n.of(
+                context,
+              ).backupReplacesEverythingCurrentlyOnThis,
               onTap: _busy ? null : _restoreFromFile,
             ),
           ]),
@@ -181,7 +184,7 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
     if (!mounted) return;
     final confirmed = await showConfirmationDialog(
       context: context,
-      title: 'Restore this backup?',
+      title: L10n.of(context).backupRestoreThisBackup,
       message: [
         'Taken ${AppDateFormatter.formatDate(metadata.createdAt, dateFormat)}'
             '${metadata.device.isEmpty ? '' : ' on ${metadata.device}'}.',
@@ -194,7 +197,7 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
         'Everything currently on this device is erased and replaced. Anything '
             'that has not synced yet is lost. This cannot be undone.',
       ].join('\n'),
-      confirmText: 'Erase & Restore',
+      confirmText: L10n.of(context).backupEraseRestore,
       isDangerous: true,
     );
     if (confirmed != true || !mounted) return;
@@ -226,11 +229,12 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
     final schedule = ref.watch(backupScheduleProvider);
 
     return authorized.when(
-      loading: () => _card([const ListTile(title: Text('Checking…'))]),
+      loading: () =>
+          _card([ListTile(title: Text(L10n.of(context).backupChecking))]),
       error: (e, _) => _card([
         _tile(
           icon: Icons.cloud_off,
-          title: 'Google Drive is unavailable',
+          title: L10n.of(context).backupGoogleDriveIsUnavailable,
           subtitle: '$e',
           onTap: null,
         ),
@@ -240,7 +244,7 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
           return _card([
             _tile(
               icon: Icons.add_to_drive,
-              title: 'Connect Google Drive',
+              title: L10n.of(context).backupConnectGoogleDrive,
               subtitle:
                   'Backups go in a private folder only this app can open. '
                   'Your other files are never read.',
@@ -253,7 +257,7 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
         return _card([
           _tile(
             icon: Icons.backup,
-            title: 'Back up now',
+            title: L10n.of(context).backupBackUpNow,
             subtitle: current.lastBackupAt == null
                 ? 'No backup has gone up from this device yet'
                 : 'Last backed up '
@@ -263,14 +267,14 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
           _divider(),
           _tile(
             icon: Icons.schedule,
-            title: 'Automatic backups',
+            title: L10n.of(context).backupAutomaticBackups,
             subtitle: current.frequency.label,
             onTap: _busy ? null : () => _pickFrequency(current),
           ),
           _divider(),
           _tile(
             icon: Icons.layers,
-            title: 'Keep',
+            title: L10n.of(context).backupKeep,
             subtitle:
                 '${current.keep} backups — older ones are removed after a new '
                 'one lands',
@@ -281,7 +285,7 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
             _tile(
               icon: Icons.warning_amber,
               iconColor: AppColors.warning,
-              title: 'The last automatic backup did not run',
+              title: L10n.of(context).backupTheLastAutomaticBackupDid,
               subtitle: current.lastFailure!,
               onTap: _busy ? null : _backupToDrive,
             ),
@@ -289,7 +293,7 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
           _divider(),
           _tile(
             icon: Icons.link_off,
-            title: 'Disconnect Google Drive',
+            title: L10n.of(context).backupDisconnectGoogleDrive,
             subtitle:
                 'Stops automatic backups. Nothing already saved is '
                 'deleted.',
@@ -304,7 +308,8 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
     final files = ref.watch(driveBackupsProvider);
 
     return files.when(
-      loading: () => _card([const ListTile(title: Text('Loading…'))]),
+      loading: () =>
+          _card([ListTile(title: Text(L10n.of(context).backupLoading))]),
       error: (e, _) => _card([
         ListTile(
           title: Text(
@@ -373,9 +378,18 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
         onSelected: (action) => _driveFileAction(action, file),
         itemBuilder: (_) => [
           if (unusable == null)
-            const PopupMenuItem(value: 'restore', child: Text('Restore')),
-          const PopupMenuItem(value: 'download', child: Text('Save a copy')),
-          const PopupMenuItem(value: 'delete', child: Text('Delete')),
+            PopupMenuItem(
+              value: 'restore',
+              child: Text(L10n.of(context).trashRestore),
+            ),
+          PopupMenuItem(
+            value: 'download',
+            child: Text(L10n.of(context).backupSaveACopy),
+          ),
+          PopupMenuItem(
+            value: 'delete',
+            child: Text(L10n.of(context).actionDelete),
+          ),
         ],
       ),
     );
@@ -414,11 +428,11 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
   Future<void> _disconnectDrive() async {
     final confirmed = await showConfirmationDialog(
       context: context,
-      title: 'Disconnect Google Drive?',
+      title: L10n.of(context).backupDisconnectGoogleDrive2,
       message:
           'Automatic backups stop. The backups already in Drive stay where '
           'they are, and you can reconnect at any time.',
-      confirmText: 'Disconnect',
+      confirmText: L10n.of(context).backupDisconnect,
     );
     if (confirmed != true || !mounted) return;
 
@@ -504,9 +518,9 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
   Future<void> _deleteFromDrive(DriveBackupFile file) async {
     final confirmed = await showConfirmationDialog(
       context: context,
-      title: 'Delete this backup?',
+      title: L10n.of(context).backupDeleteThisBackup,
       message: 'It is removed from Google Drive for good.',
-      confirmText: 'Delete',
+      confirmText: L10n.of(context).actionDelete,
       isDangerous: true,
     );
     if (confirmed != true || !mounted) return;
@@ -524,7 +538,7 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
       context: context,
       builder: (context) => SimpleDialog(
         backgroundColor: AppColors.primarySurface,
-        title: const Text('Automatic backups'),
+        title: Text(L10n.of(context).backupAutomaticBackups),
         children: [
           RadioGroup<BackupFrequency>(
             groupValue: current.frequency,
@@ -558,7 +572,7 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
       context: context,
       builder: (context) => SimpleDialog(
         backgroundColor: AppColors.primarySurface,
-        title: const Text('How many backups to keep'),
+        title: Text(L10n.of(context).backupHowManyBackupsToKeep),
         children: [
           RadioGroup<int>(
             groupValue: current.keep,

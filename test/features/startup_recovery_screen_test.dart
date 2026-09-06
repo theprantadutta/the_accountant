@@ -1,9 +1,9 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:the_accountant/core/providers/startup_flow_provider.dart';
 import 'package:the_accountant/features/startup/screens/startup_recovery_screen.dart';
 import 'package:the_accountant/features/wallets/screens/create_first_wallet_screen.dart';
+import '../helpers/localized_app.dart';
 
 /// A controller pinned to one state.
 class _PinnedFlow extends StartupFlowController {
@@ -20,12 +20,13 @@ class _PinnedFlow extends StartupFlowController {
 /// The screen these replace was "Create your first wallet", reached by a
 /// three-second timeout — so the assertion that matters most in every case here
 /// is the negative one: that screen must not be anywhere near these states.
+
 void main() {
   Future<void> pumpAt(WidgetTester tester, StartupFlowState state) async {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [startupFlowProvider.overrideWith(() => _PinnedFlow(state))],
-        child: const MaterialApp(home: StartupRecoveryScreen()),
+        child: localizedApp(home: const StartupRecoveryScreen()),
       ),
     );
     await tester.pump();

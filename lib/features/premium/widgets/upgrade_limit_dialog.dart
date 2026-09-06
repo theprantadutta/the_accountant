@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/features/premium/exceptions/premium_limit_exception.dart';
 
@@ -118,7 +119,7 @@ class UpgradeLimitDialog extends StatelessWidget {
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: const Text('Not Now'),
+                    child: Text(L10n.of(context).premiumNotNow),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -138,7 +139,7 @@ class UpgradeLimitDialog extends StatelessWidget {
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: const Text('Upgrade'),
+                    child: Text(L10n.of(context).reportUpgrade),
                   ),
                 ),
               ],

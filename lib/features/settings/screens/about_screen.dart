@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
@@ -16,7 +17,7 @@ class AboutScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text('About'),
+        title: Text(L10n.of(context).settingsAbout),
       ),
       body: FutureBuilder<PackageInfo>(
         future: PackageInfo.fromPlatform(),
@@ -43,13 +44,13 @@ class AboutScreen extends StatelessWidget {
               _buildInfoCard([
                 _buildLinkTile(
                   icon: Icons.privacy_tip_outlined,
-                  title: 'Privacy Policy',
+                  title: L10n.of(context).settingsPrivacyPolicy,
                   isExternal: false,
                   onTap: () => Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const LegalDocumentViewer(
-                        title: 'Privacy Policy',
+                      builder: (context) => LegalDocumentViewer(
+                        title: L10n.of(context).settingsPrivacyPolicy,
                         assetPath: 'assets/legal/privacy.md',
                       ),
                     ),
@@ -58,13 +59,13 @@ class AboutScreen extends StatelessWidget {
                 _buildDivider(),
                 _buildLinkTile(
                   icon: Icons.description_outlined,
-                  title: 'Terms of Service',
+                  title: L10n.of(context).settingsTermsOfService,
                   isExternal: false,
                   onTap: () => Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const LegalDocumentViewer(
-                        title: 'Terms of Service',
+                      builder: (context) => LegalDocumentViewer(
+                        title: L10n.of(context).settingsTermsOfService,
                         assetPath: 'assets/legal/terms.md',
                       ),
                     ),
@@ -73,13 +74,13 @@ class AboutScreen extends StatelessWidget {
                 _buildDivider(),
                 _buildLinkTile(
                   icon: Icons.receipt_long_outlined,
-                  title: 'Refund Policy',
+                  title: L10n.of(context).settingsRefundPolicy,
                   isExternal: false,
                   onTap: () => Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const LegalDocumentViewer(
-                        title: 'Refund Policy',
+                      builder: (context) => LegalDocumentViewer(
+                        title: L10n.of(context).settingsRefundPolicy,
                         assetPath: 'assets/legal/refund.md',
                       ),
                     ),
@@ -88,7 +89,7 @@ class AboutScreen extends StatelessWidget {
                 _buildDivider(),
                 _buildLinkTile(
                   icon: Icons.code,
-                  title: 'Open Source Licenses',
+                  title: L10n.of(context).settingsOpenSourceLicenses,
                   isExternal: false,
                   onTap: () => _showLicenses(context, version),
                 ),
@@ -99,7 +100,7 @@ class AboutScreen extends StatelessWidget {
               _buildInfoCard([
                 _buildLinkTile(
                   icon: Icons.person_outline,
-                  title: 'Meet the Developer',
+                  title: L10n.of(context).settingsMeetTheDeveloper,
                   isExternal: false,
                   onTap: () => _showDeveloperDialog(context, version),
                 ),

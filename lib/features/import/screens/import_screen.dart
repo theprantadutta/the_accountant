@@ -1,5 +1,6 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/providers/data_reload.dart';
@@ -54,7 +55,7 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text('Import a statement'),
+        title: Text(L10n.of(context).settingsImportStatement),
       ),
       body: _document == null ? _chooseFile() : _configure(),
     );
@@ -74,7 +75,7 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
       ElevatedButton.icon(
         onPressed: _busy ? null : _pickFile,
         icon: const Icon(Icons.folder_open),
-        label: const Text('Choose a CSV file'),
+        label: Text(L10n.of(context).importChooseACsvFile),
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primaryAccent,
           foregroundColor: Colors.white,
@@ -171,7 +172,7 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
       context: context,
       title: 'Forget ${template.name}?',
       message: 'You will be asked to map the columns again next time.',
-      confirmText: 'Forget',
+      confirmText: L10n.of(context).importForget,
       isDangerous: true,
     );
     if (confirmed != true) return;
@@ -235,7 +236,7 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
         SizedBox(height: AppSpacing.md),
         TextButton(
           onPressed: _busy ? null : _saveTemplate,
-          child: const Text('Remember these settings for this bank'),
+          child: Text(L10n.of(context).importRememberTheseSettingsForThis),
         ),
       ],
     );
@@ -267,7 +268,7 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
                 _document = null;
                 _template = null;
               }),
-        child: const Text('Change'),
+        child: Text(L10n.of(context).importChange),
       ),
     ),
   ]);
@@ -402,9 +403,9 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
         value: separator,
         dropdownColor: AppColors.primarySurface,
         underline: const SizedBox.shrink(),
-        hint: const Text('Auto'),
-        items: const [
-          DropdownMenuItem<String?>(child: Text('Auto')),
+        hint: Text(L10n.of(context).importAuto),
+        items: [
+          DropdownMenuItem<String?>(child: Text(L10n.of(context).importAuto)),
           DropdownMenuItem<String?>(value: '.', child: Text('.')),
           DropdownMenuItem<String?>(value: ',', child: Text(',')),
         ],
@@ -668,7 +669,7 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
           'Anything already here on the same day, for the same amount and '
               'description, is left alone.',
       ].join('\n\n'),
-      confirmText: 'Import',
+      confirmText: L10n.of(context).importImport,
     );
     if (confirmed != true || !mounted) return;
 
@@ -736,7 +737,7 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
               Navigator.pop(context);
               Navigator.pop(context);
             },
-            child: const Text('Done'),
+            child: Text(L10n.of(context).importDone),
           ),
         ],
       ),
@@ -751,7 +752,7 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: AppColors.primarySurface,
-        title: const Text('Remember this bank'),
+        title: Text(L10n.of(context).importRememberThisBank),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -765,18 +766,18 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
             TextField(
               controller: controller,
               autofocus: true,
-              decoration: const InputDecoration(labelText: 'Name'),
+              decoration: InputDecoration(labelText: L10n.of(context).payName),
             ),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(L10n.of(context).actionCancel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, controller.text.trim()),
-            child: const Text('Save'),
+            child: Text(L10n.of(context).actionSave),
           ),
         ],
       ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
@@ -131,7 +132,7 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text('Premium'),
+        title: Text(L10n.of(context).premiumPremium),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios),
           onPressed: () => Navigator.pop(context),
@@ -627,7 +628,7 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
       orElse: () => PremiumProduct(
         ProductDetails(
           id: PremiumProductIds.monthly,
-          title: 'Monthly',
+          title: L10n.of(context).premiumMonthly,
           description: '',
           price: '\$1.49',
           rawPrice: 1.49,
@@ -641,7 +642,7 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
       orElse: () => PremiumProduct(
         ProductDetails(
           id: PremiumProductIds.yearly,
-          title: 'Yearly',
+          title: L10n.of(context).premiumYearly,
           description: '',
           price: '\$9.99',
           rawPrice: 9.99,
@@ -655,7 +656,7 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
       orElse: () => PremiumProduct(
         ProductDetails(
           id: PremiumProductIds.lifetime,
-          title: 'Lifetime',
+          title: L10n.of(context).premiumLifetime,
           description: '',
           price: '\$29.99',
           rawPrice: 29.99,
@@ -680,7 +681,7 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
         // Monthly
         _buildTierCard(
           productId: PremiumProductIds.monthly,
-          title: 'Monthly',
+          title: L10n.of(context).premiumMonthly,
           price: monthlyProduct.price,
           period: '/month',
           description: 'Billed monthly',
@@ -694,7 +695,7 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
         // Yearly (recommended)
         _buildTierCard(
           productId: PremiumProductIds.yearly,
-          title: 'Yearly',
+          title: L10n.of(context).premiumYearly,
           price: yearlyProduct.price,
           period: '/year',
           description: 'Save 44% - Best value!',
@@ -709,7 +710,7 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
         // Lifetime
         _buildTierCard(
           productId: PremiumProductIds.lifetime,
-          title: 'Lifetime',
+          title: L10n.of(context).premiumLifetime,
           price: lifetimeProduct.price,
           period: '',
           description: 'One-time purchase, forever access',

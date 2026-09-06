@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -274,7 +275,7 @@ class _TransactionTypeScreenState extends ConsumerState<TransactionTypeScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Transaction deleted'),
+            content: Text(L10n.of(context).txDeleted),
             backgroundColor: AppColors.success,
           ),
         );
@@ -377,7 +378,7 @@ class _TransactionTypeScreenState extends ConsumerState<TransactionTypeScreen> {
                           return Padding(
                             padding: const EdgeInsets.only(right: 8),
                             child: _buildCategoryChip(
-                              label: 'All',
+                              label: L10n.of(context).txAll,
                               colorCode: '#6366F1',
                               isSelected: _filterCategory == null,
                               onTap: () {

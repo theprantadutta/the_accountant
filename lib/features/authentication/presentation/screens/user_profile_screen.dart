@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -373,7 +374,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
             // Name field
             _buildInputField(
               controller: _nameController,
-              label: 'Full Name',
+              label: L10n.of(context).authFullName,
               icon: Icons.person,
               enabled: true,
             ),
@@ -382,7 +383,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
             // Email field (read-only)
             _buildInputField(
               controller: _emailController,
-              label: 'Email Address',
+              label: L10n.of(context).authEmailAddress,
               icon: Icons.email,
               enabled: false,
             ),

@@ -11,6 +11,7 @@ import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
 import 'package:the_accountant/shared/widgets/neo_button.dart';
 
 import '../helpers/test_database.dart';
+import '../helpers/localized_app.dart';
 
 /// What has to be filled in before a transaction can be saved.
 ///
@@ -52,7 +53,7 @@ void main() {
     await tester.pumpWidget(
       UncontrolledProviderScope(
         container: container,
-        child: MaterialApp(
+        child: localizedApp(
           home: AddTransactionScreen(existingTransaction: existing),
         ),
       ),

@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:the_accountant/features/wallets/screens/wallet_detail_screen.dart';
 import 'package:the_accountant/core/providers/currency_provider.dart';
 import 'package:flutter/services.dart';
@@ -141,7 +142,7 @@ class _WalletManagementScreenState extends ConsumerState<WalletManagementScreen>
       Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('Wallet created successfully'),
+          content: Text(L10n.of(context).walletWalletCreatedSuccessfully),
           backgroundColor: AppColors.success,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
@@ -642,7 +643,9 @@ class _WalletManagementScreenState extends ConsumerState<WalletManagementScreen>
                         Navigator.pop(context);
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: const Text('Account updated successfully'),
+                            content: Text(
+                              L10n.of(context).walletAccountUpdatedSuccessfully,
+                            ),
                             backgroundColor: AppColors.success,
                             behavior: SnackBarBehavior.floating,
                             shape: RoundedRectangleBorder(
@@ -1298,7 +1301,7 @@ class _WalletCardState extends ConsumerState<_WalletCard>
                 // Options
                 _OptionTile(
                   icon: Icons.edit_outlined,
-                  label: 'Edit Account',
+                  label: L10n.of(context).walletEditAccount,
                   onTap: () {
                     Navigator.pop(context);
                     widget.onEdit();
@@ -1307,7 +1310,7 @@ class _WalletCardState extends ConsumerState<_WalletCard>
                 if (widget.wallet.isDefault != true)
                   _OptionTile(
                     icon: Icons.star_outline,
-                    label: 'Set as Default',
+                    label: L10n.of(context).walletSetAsDefault,
                     onTap: () {
                       Navigator.pop(context);
                       widget.onSetDefault();
@@ -1315,7 +1318,7 @@ class _WalletCardState extends ConsumerState<_WalletCard>
                   ),
                 _OptionTile(
                   icon: Icons.delete_outline,
-                  label: 'Delete Account',
+                  label: L10n.of(context).settingsDeleteAccount,
                   isDestructive: true,
                   onTap: () {
                     Navigator.pop(context);
