@@ -280,7 +280,7 @@ Import must be purely client-side. The existing bulk endpoint mutates wallet bal
 
 ## Phase 6 — Presentation
 
-**Status: mostly done.** Client commits `45a512a`, `dadb42c`, `ddf1c5e`, `c4e5dca`. No backend work was needed yet. Flutter analyze clean with 666 tests passing.
+**Status: done, except the long tail of string extraction.** Client commits `45a512a`, `dadb42c`, `ddf1c5e`, `c4e5dca`, `595c1dd`. No backend work was needed yet. Flutter analyze clean with 667 tests passing.
 
 Done: light and system themes, genuinely selectable; the three regional settings that had no home; localisation scaffolding with English and Bangla; and the sync conflict contract pinned by tests rather than by a comment.
 
@@ -292,10 +292,16 @@ Dark stays the default rather than System: every existing install is looking at 
 
 The monthly report's "weeks" were chunks of seven calendar days, so a Saturday could share a bar with the Monday five days later. They are now real weeks starting on the chosen day, which is also what gives that setting something to do.
 
+**The app's chrome is translated**: navigation labels and screen titles, Today/Yesterday/Tomorrow, the theme picker, the confirmation dialog every destructive action goes through, the settings section headers, and Regional Settings entire. Switching language visibly changes the app rather than one screen of it.
+
+Three things stay English deliberately, and each would be a bug otherwise. Analytics screen names are event identifiers — translating them splits one screen's history across as many names as the app has languages. `NavItem.label` is the tab's const identity in code; the reader's word is resolved at draw time. And `BaseThemes` holds the values written to preferences and matched on start-up, so a translated one would make a saved theme unreadable after a language change.
+
+The resource file is held to exactly what the app shows: a test fails on any key nothing reads. A file full of undisplayed strings is clutter a reviewer has to guess about, and every entry costs a translator real effort for nothing.
+
 ### Still open in this phase
 
-- **String extraction.** The scaffolding is complete and Regional Settings is converted as the worked example, since it is where the language is changed. The other hundred-odd screens are still hard-coded English. This is steady mechanical work, not a design problem.
-- **First day of week does not reach Flutter's calendars.** `GlobalMaterialLocalizations.firstDayOfWeekIndex` derives from the locale's own data and has no override hook; the only way in is a hand-written 110-member `MaterialLocalizations` forwarder that would break on every Flutter upgrade. The setting governs the app's own week logic instead. Worth revisiting if Flutter adds a hook.
+- **The rest of the string extraction.** The chrome is done and the pattern is established; the individual feature screens — add-transaction, budgets, reports, wallets, the AI surfaces — are still hard-coded English. Steady mechanical work with a test guarding the resource file, not a design problem.
+- **First day of week does not reach Flutter's calendars.** `GlobalMaterialLocalizations.firstDayOfWeekIndex` derives from the locale's own data and has no override hook; the only way in is a hand-written 110-member `MaterialLocalizations` forwarder that would break on every Flutter upgrade. Judged not worth it: the setting governs the app's own week logic, including the monthly report. Worth revisiting if Flutter adds a hook.
 - **Server-side strings.** Notification bodies, email templates and built-in category names still reach users as English prose. This needs a locale on each request and templates on the server — real backend work, best done alongside the client extraction rather than before it.
 
 ### What it was
@@ -331,7 +337,7 @@ The monthly report's "weeks" were chunks of seven calendar days, so a Saturday c
 | 3 | Associated titles into sync | Server, then client |
 | 4 | Transfer validation, wallet flags, exchange rates into sync | Server, then client |
 | 5 | None | Client only — **done** |
-| 6 | Locale handling, conflict code contract | Either order — **mostly done** |
+| 6 | Locale handling, conflict code contract | Either order — **done bar string extraction** |
 | 7 | Contacts, tags, splits, attachments, storage | Server, then client |
 
 Phases 2 and 5 are client-only and can run in parallel with any backend work.
