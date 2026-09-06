@@ -9,6 +9,7 @@ import 'package:the_accountant/features/categories/providers/category_provider.d
 import 'package:the_accountant/features/transactions/widgets/category_picker_sheet.dart';
 
 import '../helpers/test_database.dart';
+import '../helpers/localized_app.dart';
 
 /// Choosing what a transaction was for.
 ///
@@ -58,7 +59,7 @@ void main() {
     await tester.pumpWidget(
       UncontrolledProviderScope(
         container: container,
-        child: MaterialApp(
+        child: localizedApp(
           home: Consumer(
             builder: (context, ref, _) => Scaffold(
               body: Builder(

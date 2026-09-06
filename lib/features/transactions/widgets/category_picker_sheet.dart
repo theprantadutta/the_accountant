@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
@@ -374,7 +375,7 @@ class _NewCategoryTile extends StatelessWidget {
           AppSpacing.gapXs,
           Expanded(
             child: Text(
-              'New',
+              L10n.of(context).txNew,
               textAlign: TextAlign.center,
               style: AppTypography.labelSmall.copyWith(
                 letterSpacing: 0,

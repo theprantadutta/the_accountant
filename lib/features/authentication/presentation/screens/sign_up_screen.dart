@@ -109,7 +109,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Please accept the terms and conditions',
+              L10n.of(context).authPleaseAcceptTheTermsAnd,
               style: AppTypography.bodyMedium,
             ),
             backgroundColor: AppColors.error,
@@ -374,7 +374,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Password Strength',
+              L10n.of(context).authPasswordStrength,
               style: AppTypography.labelSmall.copyWith(
                 color: AppColors.textMuted,
               ),
@@ -464,7 +464,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          'Already have an account? ',
+          L10n.of(context).authAlreadyHaveAnAccount,
           style: AppTypography.bodyMedium.copyWith(
             color: AppColors.textSecondary,
           ),
@@ -480,7 +480,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
             );
           },
           child: Text(
-            'Sign In',
+            L10n.of(context).authSignIn,
             style: AppTypography.labelLarge.copyWith(
               color: AppColors.primaryAccent,
             ),

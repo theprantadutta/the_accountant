@@ -149,7 +149,10 @@ class _ColorPickerSheetState extends State<_ColorPickerSheet> {
             padding: AppSpacing.horizontalPadding(AppSpacing.md),
             child: Row(
               children: [
-                Text('Select Color', style: AppTypography.titleLarge),
+                Text(
+                  L10n.of(context).walletSelectColor,
+                  style: AppTypography.titleLarge,
+                ),
                 const Spacer(),
                 IconButton(
                   icon: Icon(_showCustomInput ? Icons.palette : Icons.edit),

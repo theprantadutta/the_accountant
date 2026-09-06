@@ -162,10 +162,13 @@ class _LegalAcceptanceScreenState extends State<LegalAcceptanceScreen>
           ),
         ),
         AppSpacing.gapLg,
-        Text('Privacy & Terms', style: AppTypography.headlineSmall),
+        Text(
+          L10n.of(context).legalPrivacyTerms,
+          style: AppTypography.headlineSmall,
+        ),
         AppSpacing.gapSm,
         Text(
-          'Review these before you continue.',
+          L10n.of(context).legalReviewTheseBeforeYouContinue,
           style: AppTypography.bodyMedium.copyWith(
             color: AppColors.textSecondary,
           ),

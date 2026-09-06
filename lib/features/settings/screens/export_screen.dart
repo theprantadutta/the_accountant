@@ -145,7 +145,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
           SizedBox(width: AppSpacing.sm),
           Expanded(
             child: Text(
-              'Export your financial data to analyze in other apps or keep as a backup.',
+              L10n.of(context).settingsExportYourFinancialDataTo,
               style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
             ),
           ),
@@ -212,7 +212,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
         child: Icon(Icons.date_range, color: AppColors.primaryAccent, size: 22),
       ),
       title: Text(
-        'Date Range',
+        L10n.of(context).settingsDateRange,
         style: TextStyle(
           color: AppColors.textPrimary,
           fontWeight: FontWeight.w500,
@@ -359,8 +359,8 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
         borderRadius: BorderRadius.circular(6),
         border: Border.all(color: Colors.amber.withValues(alpha: 0.4)),
       ),
-      child: const Text(
-        'PREMIUM',
+      child: Text(
+        L10n.of(context).settingsPremium,
         style: TextStyle(
           color: Colors.amber,
           fontSize: 10,
@@ -381,7 +381,10 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
           children: [
             const Icon(Icons.picture_as_pdf_outlined, color: Colors.amber),
             const SizedBox(width: 8),
-            Text('PDF Reports', style: TextStyle(color: AppColors.textPrimary)),
+            Text(
+              L10n.of(context).settingsPdfReports,
+              style: TextStyle(color: AppColors.textPrimary),
+            ),
           ],
         ),
         content: Text(

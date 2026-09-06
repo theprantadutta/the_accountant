@@ -252,7 +252,7 @@ class _HelpScreenState extends State<HelpScreen> {
               bottom: AppSpacing.sm,
             ),
             child: Text(
-              'FREQUENTLY ASKED QUESTIONS',
+              L10n.of(context).settingsFrequentlyAskedQuestions,
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
@@ -290,7 +290,7 @@ class _HelpScreenState extends State<HelpScreen> {
           Icon(Icons.lightbulb_outline, size: 40, color: Colors.white),
           SizedBox(height: AppSpacing.sm),
           Text(
-            'Getting Started',
+            L10n.of(context).settingsGettingStarted,
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
@@ -412,7 +412,7 @@ class _HelpScreenState extends State<HelpScreen> {
           Icon(Icons.help_outline, size: 40, color: AppColors.primaryAccent),
           SizedBox(height: AppSpacing.sm),
           Text(
-            'Still need help?',
+            L10n.of(context).settingsStillNeedHelp,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -421,7 +421,7 @@ class _HelpScreenState extends State<HelpScreen> {
           ),
           SizedBox(height: AppSpacing.xs),
           Text(
-            'Our support team is here to help you',
+            L10n.of(context).settingsOurSupportTeamIsHere,
             style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
           ),
           SizedBox(height: AppSpacing.md),

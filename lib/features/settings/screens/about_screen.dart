@@ -120,7 +120,7 @@ class AboutScreen extends StatelessWidget {
               // Made with love
               Center(
                 child: Text(
-                  'Made with love for personal finance',
+                  L10n.of(context).settingsMadeWithLoveForPersonal,
                   style: TextStyle(color: AppColors.textMuted, fontSize: 12),
                 ),
               ),
@@ -304,7 +304,7 @@ class AboutScreen extends StatelessWidget {
                   ),
                   SizedBox(width: AppSpacing.sm),
                   Text(
-                    'About The Accountant',
+                    L10n.of(context).settingsAboutTheAccountant,
                     style: TextStyle(
                       color: AppColors.textPrimary,
                       fontSize: 18,
@@ -355,7 +355,7 @@ class AboutScreen extends StatelessWidget {
 
               // Developer label
               Text(
-                'Developed & Maintained By:',
+                L10n.of(context).settingsDevelopedMaintainedBy,
                 style: TextStyle(
                   color: AppColors.textMuted,
                   fontSize: 13,
@@ -389,7 +389,7 @@ class AboutScreen extends StatelessWidget {
                       Icon(Icons.link, color: Colors.white, size: 18),
                       SizedBox(width: AppSpacing.xs),
                       Text(
-                        'Pranta Dutta',
+                        L10n.of(context).settingsPrantaDutta,
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 15,
@@ -423,8 +423,8 @@ class AboutScreen extends StatelessWidget {
                       side: BorderSide(color: AppColors.glassBorder),
                     ),
                   ),
-                  child: const Text(
-                    'Close',
+                  child: Text(
+                    L10n.of(context).settingsClose,
                     style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
                   ),
                 ),

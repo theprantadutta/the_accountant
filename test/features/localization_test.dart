@@ -180,9 +180,14 @@ void main() {
 
       // A handful read the same in both by design, because they are written
       // the same way in Bangla text.
-      // Written the same way in Bangla text: an initialism, and a file
-      // format's name.
-      const sameByDesign = {'navAi', 'settingsCsv'};
+      // Written the same way in Bangla text: an initialism, a file format's
+      // name, and the app's own name, which is a brand rather than a word.
+      const sameByDesign = {
+        'navAi',
+        'settingsCsv',
+        'settingsTheAccountant',
+        'authTheAccountant',
+      };
 
       final untranslated = [
         for (final key in english.keys)

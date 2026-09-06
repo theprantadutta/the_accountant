@@ -124,7 +124,7 @@ class _TitleRulesScreenState extends ConsumerState<TitleRulesScreen> {
           ),
           AppSpacing.gapXl,
           Text(
-            'No rules yet',
+            L10n.of(context).txNoRulesYet,
             style: AppTypography.titleMedium.copyWith(
               color: AppColors.textSecondary,
             ),

@@ -631,7 +631,10 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
             ? AppBar(
                 backgroundColor: Colors.transparent,
                 elevation: 0,
-                title: Text('Transactions', style: AppTypography.titleLarge),
+                title: Text(
+                  L10n.of(context).navTransactions,
+                  style: AppTypography.titleLarge,
+                ),
               )
             : null,
         body: Column(
@@ -754,7 +757,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                 child: ListTile(
                   leading: Icon(Icons.delete_outline, color: AppColors.error),
                   title: Text(
-                    'Delete',
+                    L10n.of(context).actionDelete,
                     style: TextStyle(color: AppColors.error),
                   ),
                   contentPadding: EdgeInsets.zero,

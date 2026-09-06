@@ -376,7 +376,7 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
           if (premiumState.tier == SubscriptionTier.premiumLifetime) ...[
             SizedBox(height: AppSpacing.xs),
             Text(
-              'Lifetime access - Never expires',
+              L10n.of(context).premiumLifetimeAccessNeverExpires,
               style: TextStyle(
                 fontSize: 14,
                 color: AppColors.textPrimary.withValues(alpha: 0.9),
@@ -393,7 +393,7 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Premium Features',
+          L10n.of(context).premiumPremiumFeatures,
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
@@ -669,7 +669,7 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Choose Your Plan',
+          L10n.of(context).premiumChooseYourPlan,
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,

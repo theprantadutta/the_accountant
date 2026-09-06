@@ -279,7 +279,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),
               child: Text(
-                'Forgot Password?',
+                L10n.of(context).authForgotPassword,
                 style: AppTypography.labelMedium.copyWith(
                   color: AppColors.primaryAccent,
                 ),
@@ -310,7 +310,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
         Padding(
           padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg),
           child: Text(
-            'Or continue with',
+            L10n.of(context).authOrContinueWith,
             style: AppTypography.labelSmall.copyWith(
               color: AppColors.textMuted,
             ),
@@ -340,7 +340,10 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
             child: const GoogleGLogo(size: 20),
           ),
           AppSpacing.gapHMd,
-          Text('Continue with Google', style: AppTypography.titleSmall),
+          Text(
+            L10n.of(context).authContinueWithGoogle,
+            style: AppTypography.titleSmall,
+          ),
         ],
       ),
     );
@@ -358,7 +361,10 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
         children: [
           Icon(Icons.apple, size: 26, color: AppColors.textPrimary),
           AppSpacing.gapHMd,
-          Text('Continue with Apple', style: AppTypography.titleSmall),
+          Text(
+            L10n.of(context).authContinueWithApple,
+            style: AppTypography.titleSmall,
+          ),
         ],
       ),
     );
@@ -385,7 +391,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
             );
           },
           child: Text(
-            'Sign Up',
+            L10n.of(context).authSignUp,
             style: AppTypography.labelLarge.copyWith(
               color: AppColors.primaryAccent,
             ),

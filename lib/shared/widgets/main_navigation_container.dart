@@ -291,7 +291,7 @@ class _MainNavigationContainerState
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    'Quick Add',
+                                    L10n.of(context).sharedQuickAdd,
                                     style: AppTypography.headlineMedium,
                                   ),
                                   TextButton.icon(
@@ -308,7 +308,7 @@ class _MainNavigationContainerState
                                       size: AppSpacing.iconXs,
                                     ),
                                     label: Text(
-                                      'Manage',
+                                      L10n.of(context).dashManage,
                                       style: AppTypography.labelSmall.copyWith(
                                         color: AppColors.textMuted,
                                       ),
@@ -317,7 +317,9 @@ class _MainNavigationContainerState
                                 ],
                               ),
                               Text(
-                                'Record your income or expense',
+                                L10n.of(
+                                  context,
+                                ).sharedRecordYourIncomeOrExpense,
                                 style: AppTypography.bodySmall,
                               ),
                             ],
@@ -390,7 +392,10 @@ class _MainNavigationContainerState
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Categories', style: AppTypography.titleMedium),
+        Text(
+          L10n.of(context).settingsCategories,
+          style: AppTypography.titleMedium,
+        ),
         AppSpacing.gapLg,
         GridView.builder(
           shrinkWrap: true,
@@ -641,7 +646,7 @@ class _MainNavigationContainerState
                 style: AppTypography.titleLarge,
               ),
               Text(
-                'The Accountant',
+                L10n.of(context).settingsTheAccountant,
                 style: AppTypography.labelSmall.copyWith(
                   color: AppColors.textMuted,
                 ),

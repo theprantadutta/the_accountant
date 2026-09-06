@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/core/themes/app_typography.dart';
@@ -144,7 +145,10 @@ class _IconPickerSheet extends StatelessWidget {
             padding: AppSpacing.horizontalPadding(AppSpacing.md),
             child: Row(
               children: [
-                Text('Select Icon', style: AppTypography.titleLarge),
+                Text(
+                  L10n.of(context).walletSelectIcon,
+                  style: AppTypography.titleLarge,
+                ),
                 const Spacer(),
                 IconButton(
                   icon: const Icon(Icons.close),

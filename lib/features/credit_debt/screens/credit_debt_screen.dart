@@ -53,7 +53,10 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
-          title: Text('Credit & Debt', style: AppTypography.headlineSmall),
+          title: Text(
+            L10n.of(context).dashCreditDebt,
+            style: AppTypography.headlineSmall,
+          ),
           leading: IconButton(
             icon: Icon(Icons.arrow_back_ios_new, color: AppColors.textPrimary),
             onPressed: () => Navigator.pop(context),
@@ -490,7 +493,7 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
                                 borderRadius: AppSpacing.borderRadiusSm,
                               ),
                               child: Text(
-                                'Settled',
+                                L10n.of(context).creditSettled,
                                 style: AppTypography.labelSmall.copyWith(
                                   color: AppColors.success,
                                   fontWeight: FontWeight.w600,
@@ -508,7 +511,7 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
                                 borderRadius: AppSpacing.borderRadiusSm,
                               ),
                               child: Text(
-                                'Overdue',
+                                L10n.of(context).creditOverdue,
                                 style: AppTypography.labelSmall.copyWith(
                                   color: AppColors.error,
                                   fontWeight: FontWeight.w600,
@@ -723,7 +726,7 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
               ),
               const SizedBox(width: 12),
               Text(
-                'Record Payment',
+                L10n.of(context).creditRecordPayment,
                 style: TextStyle(color: AppColors.textPrimary, fontSize: 18),
               ),
             ],
@@ -778,7 +781,7 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
               child: Text(
-                'Cancel',
+                L10n.of(context).actionCancel,
                 style: TextStyle(color: AppColors.textSecondary),
               ),
             ),
@@ -818,8 +821,8 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
                   borderRadius: BorderRadius.circular(8),
                 ),
               ),
-              child: const Text(
-                'Record',
+              child: Text(
+                L10n.of(context).creditRecord,
                 style: TextStyle(color: Colors.white),
               ),
             ),

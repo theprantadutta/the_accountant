@@ -1331,4 +1331,600 @@ class L10nEn extends L10n {
   String walletMergeConfirmTitle(String source, String target) {
     return 'Merge $source into $target?';
   }
+
+  @override
+  String get backupNothingHereYet => 'Nothing here yet.';
+
+  @override
+  String get importAppliedAutomaticallyWhenAFile =>
+      'Applied automatically when a file has these columns';
+
+  @override
+  String get importDateFormat => 'Date format';
+
+  @override
+  String get importChooseOne => 'Choose one';
+
+  @override
+  String get importDecimalPoint => 'Decimal point';
+
+  @override
+  String get importFlipTheSigns => 'Flip the signs';
+
+  @override
+  String get importForExportsThatWriteA =>
+      'For exports that write a spend as positive';
+
+  @override
+  String get importWhereRowsGoWhenThe =>
+      'Where rows go when the file does not name an account of yours';
+
+  @override
+  String get importSkipWhatIsAlreadyHere => 'Skip what is already here';
+
+  @override
+  String get importCreateCategoriesTheFileNames =>
+      'Create categories the file names';
+
+  @override
+  String get importOtherwiseThoseRowsArriveUncategorised =>
+      'Otherwise those rows arrive uncategorised';
+
+  @override
+  String get importCategoriesInThisFile => 'Categories in this file';
+
+  @override
+  String get settingsMadeWithLoveForPersonal =>
+      'Made with love for personal finance';
+
+  @override
+  String get settingsTheAccountant => 'The Accountant';
+
+  @override
+  String get settingsDevelopedMaintainedBy => 'Developed & Maintained By:';
+
+  @override
+  String get settingsPrantaDutta => 'Pranta Dutta';
+
+  @override
+  String get settingsClose => 'Close';
+
+  @override
+  String get settingsGetInTouch => 'Get in touch';
+
+  @override
+  String get settingsAsAPremiumMemberYour =>
+      'As a Premium member, your request is flagged for priority.';
+
+  @override
+  String get settingsWhatToInclude => 'What to include';
+
+  @override
+  String get settingsNoCurrenciesFound => 'No currencies found';
+
+  @override
+  String get settingsExportYourFinancialDataTo =>
+      'Export your financial data to analyze in other apps or keep as a backup.';
+
+  @override
+  String get settingsDateRange => 'Date Range';
+
+  @override
+  String get settingsPremium => 'PREMIUM';
+
+  @override
+  String get settingsPdfReports => 'PDF Reports';
+
+  @override
+  String get settingsFrequentlyAskedQuestions => 'FREQUENTLY ASKED QUESTIONS';
+
+  @override
+  String get settingsGettingStarted => 'Getting Started';
+
+  @override
+  String get settingsStillNeedHelp => 'Still need help?';
+
+  @override
+  String get settingsOurSupportTeamIsHere =>
+      'Our support team is here to help you';
+
+  @override
+  String get settingsAppLocked => 'App Locked';
+
+  @override
+  String get settingsUnlockToAccessTheAccountant =>
+      'Unlock to access The Accountant';
+
+  @override
+  String get settingsConfigureWhenAndHowThe =>
+      'Configure when and how The Accountant should remind you to track your expenses.';
+
+  @override
+  String get settingsDebug => 'DEBUG';
+
+  @override
+  String get settingsExactAlarmPermission => 'Exact Alarm Permission';
+
+  @override
+  String get settingsDeviceTimezone => 'Device Timezone';
+
+  @override
+  String get settingsScheduledNotifications => 'Scheduled Notifications';
+
+  @override
+  String get settingsSendTestNotification => 'Send Test Notification';
+
+  @override
+  String get settingsTapToVerifyNotificationsWork =>
+      'Tap to verify notifications work';
+
+  @override
+  String get settingsYourEmailIsUsedTo =>
+      'Your email is used to sign in and can’t be changed here.';
+
+  @override
+  String get settingsYourDataIsOnThis => 'Your data is on this device only';
+
+  @override
+  String get settingsUpgradeForCloudSync => 'Upgrade for cloud sync';
+
+  @override
+  String get settingsNoSettingsFound => 'No settings found';
+
+  @override
+  String get settingsTryADifferentSearchTerm => 'Try a different search term';
+
+  @override
+  String get settingsSyncStatus => 'SYNC STATUS';
+
+  @override
+  String get settingsSyncNow => 'Sync Now';
+
+  @override
+  String get settingsRestoreFromCloud2 => 'Restore from Cloud';
+
+  @override
+  String get settingsPro => 'PRO';
+
+  @override
+  String get settingsNeedsYourConfirmation => 'NEEDS YOUR CONFIRMATION';
+
+  @override
+  String get walletCreateYourFirstAccount => 'Create Your First Account';
+
+  @override
+  String get walletYouNeedAtLeastOne =>
+      'You need at least one account to start tracking your finances';
+
+  @override
+  String get walletAccountType => 'Account Type';
+
+  @override
+  String get walletAccountTypeCannotBeChanged =>
+      'Account type cannot be changed later';
+
+  @override
+  String get walletAccountName => 'Account Name';
+
+  @override
+  String get walletCreditLimit => 'Credit Limit';
+
+  @override
+  String get walletBillingCycleDayOptional => 'Billing Cycle Day (optional)';
+
+  @override
+  String get walletThisWillBeYourDefault => 'This will be your default account';
+
+  @override
+  String get walletNothingRecordedAgainstThisAccount =>
+      'Nothing recorded against this account yet.';
+
+  @override
+  String get walletAddAccount => 'Add Account';
+
+  @override
+  String get walletYourAccounts => 'Your Accounts';
+
+  @override
+  String get walletNoAccountsYet => 'No accounts yet';
+
+  @override
+  String get walletOutstanding => 'Outstanding';
+
+  @override
+  String get walletAvailable => 'Available';
+
+  @override
+  String get walletLimit => 'Limit';
+
+  @override
+  String get walletCreditBalance => 'CREDIT BALANCE';
+
+  @override
+  String get walletBalance => 'Balance';
+
+  @override
+  String get walletOverdrawn => 'OVERDRAWN';
+
+  @override
+  String get walletBillingCycleDay => 'Billing Cycle Day';
+
+  @override
+  String get walletUseThisWalletForNew =>
+      'Use this wallet for new transactions';
+
+  @override
+  String get walletSelectIcon => 'Select Icon';
+
+  @override
+  String get walletSelectColor => 'Select Color';
+
+  @override
+  String get txScanReceipts => 'Scan receipts';
+
+  @override
+  String get txYouNeedAtLeast2 =>
+      'You need at least 2 accounts to make a transfer';
+
+  @override
+  String get txDeleteTransaction => 'Delete Transaction';
+
+  @override
+  String get txAreYouSureYouWant =>
+      'Are you sure you want to delete this transaction?';
+
+  @override
+  String get txTransactionType => 'Transaction Type';
+
+  @override
+  String get txTransferFee => 'Transfer fee';
+
+  @override
+  String get txChargedSeparatelySoTheTransfer =>
+      'Charged separately, so the transfer itself stays balanced.';
+
+  @override
+  String get txDeductedFrom => 'Deducted from';
+
+  @override
+  String get txNoPaymentMethods => 'No payment methods';
+
+  @override
+  String get txNothingDeletedRecently => 'Nothing deleted recently';
+
+  @override
+  String get txAnythingYouDeleteShowsUp =>
+      'Anything you delete shows up here for thirty days.';
+
+  @override
+  String get txNoRulesYet => 'No rules yet';
+
+  @override
+  String get txClearAll => 'Clear All';
+
+  @override
+  String get txApplyFilters => 'Apply Filters';
+
+  @override
+  String get txUpcomingOverdue => 'Upcoming & Overdue';
+
+  @override
+  String get txEnterAmount => 'Enter Amount';
+
+  @override
+  String get txNew => 'New';
+
+  @override
+  String get txLoan => 'Loan';
+
+  @override
+  String get goalStarted => 'Started';
+
+  @override
+  String get goalTargetDate => 'Target date';
+
+  @override
+  String get goalWithADateTheGoal =>
+      'With a date, the goal works out how much to put aside each day.';
+
+  @override
+  String get goalCountedTowardThisGoal => 'Counted toward this goal';
+
+  @override
+  String get goalGettingThere => 'Getting there';
+
+  @override
+  String get goalSetATargetDateAnd =>
+      'Set a target date and this works out what to put aside.';
+
+  @override
+  String get reportSpendingInsights => 'Spending Insights';
+
+  @override
+  String get reportAdvancedReports => 'Advanced Reports';
+
+  @override
+  String get reportNoSpendingDataForThis => 'No spending data for this period';
+
+  @override
+  String get reportNoCategorySpendingData => 'No category spending data';
+
+  @override
+  String get reportFinancialSummary => 'Financial Summary';
+
+  @override
+  String get reportCategoryBreakdown => 'Category Breakdown';
+
+  @override
+  String get reportNoSpendingDataAvailable => 'No spending data available';
+
+  @override
+  String get reportBudgetVsActual => 'Budget vs Actual';
+
+  @override
+  String get reportNoActiveBudgets => 'No active budgets';
+
+  @override
+  String get reportCreateABudgetToTrack =>
+      'Create a budget to track your spending';
+
+  @override
+  String get budgetSpendingFasterThanThePeriod =>
+      'Spending faster than the period is passing.';
+
+  @override
+  String get budgetNothingRecordedInThisPeriod =>
+      'Nothing recorded in this period.';
+
+  @override
+  String get authPasswordResetSuccessfullyPleaseSign =>
+      'Password reset successfully. Please sign in.';
+
+  @override
+  String get authResendCode => 'Resend code';
+
+  @override
+  String get authForgotPassword => 'Forgot Password?';
+
+  @override
+  String get authOrContinueWith => 'Or continue with';
+
+  @override
+  String get authContinueWithGoogle => 'Continue with Google';
+
+  @override
+  String get authContinueWithApple => 'Continue with Apple';
+
+  @override
+  String get authSignUp => 'Sign Up';
+
+  @override
+  String get authPleaseAcceptTheTermsAnd =>
+      'Please accept the terms and conditions';
+
+  @override
+  String get authPasswordStrength => 'Password Strength';
+
+  @override
+  String get authAlreadyHaveAnAccount => 'Already have an account? ';
+
+  @override
+  String get authPersonalInformation => 'Personal Information';
+
+  @override
+  String get authUpgradeToPremium => 'Upgrade to Premium';
+
+  @override
+  String get authUnlockUnlimitedBudgetsAdvancedAnalytics =>
+      'Unlock unlimited budgets, advanced analytics, and more!';
+
+  @override
+  String get authUpgradeNow => 'Upgrade Now';
+
+  @override
+  String get authPremiumMember => 'Premium Member';
+
+  @override
+  String get authEnjoyingAllPremiumFeatures => 'Enjoying all premium features';
+
+  @override
+  String get authSaveChanges => 'Save Changes';
+
+  @override
+  String get authAreYouSureYouWant =>
+      'Are you sure you want to sign out of your account?';
+
+  @override
+  String get authChangeProfilePhoto => 'Change Profile Photo';
+
+  @override
+  String get authTakePhoto => 'Take Photo';
+
+  @override
+  String get authUseYourCamera => 'Use your camera';
+
+  @override
+  String get authChooseFromGallery => 'Choose from Gallery';
+
+  @override
+  String get authSelectAnExistingPhoto => 'Select an existing photo';
+
+  @override
+  String get authPhotoSelectedUploadFeatureComing =>
+      'Photo selected! Upload feature coming soon.';
+
+  @override
+  String get authNameCannotBeEmpty => 'Name cannot be empty';
+
+  @override
+  String get authProfileUpdatedSuccessfully => 'Profile updated successfully!';
+
+  @override
+  String get authTheAccountant => 'THE ACCOUNTANT';
+
+  @override
+  String get authInitializingYourFinancialJourney =>
+      'Initializing your financial journey...';
+
+  @override
+  String get legalPrivacyTerms => 'Privacy & Terms';
+
+  @override
+  String get legalReviewTheseBeforeYouContinue =>
+      'Review these before you continue.';
+
+  @override
+  String get premiumLifetimeAccessNeverExpires =>
+      'Lifetime access - Never expires';
+
+  @override
+  String get premiumPremiumFeatures => 'Premium Features';
+
+  @override
+  String get premiumChooseYourPlan => 'Choose Your Plan';
+
+  @override
+  String get premiumUnlockPremium => 'Unlock Premium';
+
+  @override
+  String get premiumOneTimePurchaseLifetimeAccess =>
+      'One-time purchase • Lifetime access';
+
+  @override
+  String get premiumLimitReached => 'Limit Reached';
+
+  @override
+  String get aiChats => 'Chats';
+
+  @override
+  String get aiNewChat => 'New chat';
+
+  @override
+  String get aiNoConversationsYet => 'No conversations yet';
+
+  @override
+  String get aiStartChattingAndYourThreads =>
+      'Start chatting and your threads show up here.';
+
+  @override
+  String get aiAiFinancialAssistant => 'AI Financial Assistant';
+
+  @override
+  String get aiScanAReceipt => 'Scan a receipt';
+
+  @override
+  String get aiAiIsThinking => 'AI is thinking...';
+
+  @override
+  String get aiSpendingTrend => 'Spending Trend';
+
+  @override
+  String get aiTopSpendingCategories => 'Top Spending Categories';
+
+  @override
+  String get aiReadingYourReceipt => 'Reading your receipt…';
+
+  @override
+  String get aiReviewSave => 'Review & save';
+
+  @override
+  String get aiWeReadThisFromYour =>
+      'We read this from your receipt — check it and edit anything before saving.';
+
+  @override
+  String get dashErrorLoadingFinancialData => 'Error loading financial data';
+
+  @override
+  String get dashReadyToManageYourFinances => 'Ready to manage your finances?';
+
+  @override
+  String get dashNoSpendingDataYet => 'No spending data yet';
+
+  @override
+  String get dashViewAll => 'View All';
+
+  @override
+  String get dashNoTransactionsYet => 'No transactions yet';
+
+  @override
+  String get dashAddYourFirstTransactionTo =>
+      'Add your first transaction to get started';
+
+  @override
+  String get dashManage => 'Manage';
+
+  @override
+  String get dashAvailable => 'Available: ****';
+
+  @override
+  String get onboardWelcome => 'Welcome!';
+
+  @override
+  String get onboardSelectYourDefaultCurrency => 'Select your default currency';
+
+  @override
+  String get onboardLoadingCurrencies => 'Loading currencies...';
+
+  @override
+  String get onboardSetUpYourPrimaryWallet => 'Set up your primary wallet';
+
+  @override
+  String get onboardInitialBalanceOptional => 'Initial Balance (optional)';
+
+  @override
+  String get onboardYourAccountIsReadyTo => 'Your account is ready to use';
+
+  @override
+  String get onboardTipYouCanAddMore =>
+      'Tip: You can add more accounts with different currencies anytime from the Wallets section.';
+
+  @override
+  String get creditSettled => 'Settled';
+
+  @override
+  String get creditOverdue => 'Overdue';
+
+  @override
+  String get creditRecord => 'Record';
+
+  @override
+  String get subRecurring => 'Recurring';
+
+  @override
+  String get subPaused => 'Paused';
+
+  @override
+  String get subFrequency => 'Frequency';
+
+  @override
+  String get notifMarkAllRead => 'Mark all read';
+
+  @override
+  String get notifTryAgain => 'Try again';
+
+  @override
+  String get notifStayOnTopOfYour => 'Stay on top of your money';
+
+  @override
+  String get notifNoNotificationsYet => 'No notifications yet';
+
+  @override
+  String get notifWhenYouReceiveNotificationsThey =>
+      'When you receive notifications, they will appear here.';
+
+  @override
+  String get startupNothingHasBeenChangedOr =>
+      'Nothing has been changed or deleted.';
+
+  @override
+  String get sharedIncludeCryptoCurrencies => 'Include crypto currencies';
+
+  @override
+  String get sharedQuickAdd => 'Quick Add';
+
+  @override
+  String get sharedRecordYourIncomeOrExpense => 'Record your income or expense';
+
+  @override
+  String get sharedTotalBalance => 'Total Balance';
 }

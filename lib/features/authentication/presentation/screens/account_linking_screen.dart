@@ -133,7 +133,7 @@ class _AccountLinkingScreenState extends ConsumerState<AccountLinkingScreen>
                         child: TextButton(
                           onPressed: authState.isLoading ? null : _cancel,
                           child: Text(
-                            'Cancel',
+                            L10n.of(context).actionCancel,
                             style: AppTypography.labelLarge.copyWith(
                               color: AppColors.textSecondary,
                             ),

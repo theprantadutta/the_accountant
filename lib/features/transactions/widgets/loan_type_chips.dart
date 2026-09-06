@@ -48,7 +48,7 @@ class LoanTypeChips extends StatelessWidget {
               ),
               const SizedBox(width: 6),
               Text(
-                'Loan',
+                L10n.of(context).txLoan,
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w500,

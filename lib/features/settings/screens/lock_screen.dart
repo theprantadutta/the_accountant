@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:the_accountant/core/services/biometric_service.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_theme.dart';
@@ -78,8 +79,8 @@ class _LockScreenState extends State<LockScreen> {
                 const SizedBox(height: 32),
 
                 // Title
-                const Text(
-                  'App Locked',
+                Text(
+                  L10n.of(context).settingsAppLocked,
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
@@ -90,7 +91,7 @@ class _LockScreenState extends State<LockScreen> {
                 const SizedBox(height: 12),
 
                 Text(
-                  'Unlock to access The Accountant',
+                  L10n.of(context).settingsUnlockToAccessTheAccountant,
                   style: TextStyle(
                     fontSize: 16,
                     color: AppColors.textPrimary.withValues(alpha: 0.7),

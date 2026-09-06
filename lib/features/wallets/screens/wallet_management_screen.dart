@@ -274,8 +274,8 @@ class _WalletManagementScreenState extends ConsumerState<WalletManagementScreen>
               onPressed: _showAddWalletSheet,
               backgroundColor: AppColors.primaryAccent,
               icon: const Icon(Icons.add, color: Colors.white),
-              label: const Text(
-                'Add Account',
+              label: Text(
+                L10n.of(context).walletAddAccount,
                 style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.w600,
@@ -328,7 +328,7 @@ class _WalletManagementScreenState extends ConsumerState<WalletManagementScreen>
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    'Your Accounts',
+                    L10n.of(context).walletYourAccounts,
                     style: TextStyle(
                       fontSize: 13,
                       color: AppColors.textSecondary,
@@ -428,7 +428,7 @@ class _WalletManagementScreenState extends ConsumerState<WalletManagementScreen>
             ),
             const SizedBox(height: 24),
             Text(
-              'No accounts yet',
+              L10n.of(context).walletNoAccountsYet,
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -450,7 +450,7 @@ class _WalletManagementScreenState extends ConsumerState<WalletManagementScreen>
               onPressed: _showAddWalletSheet,
               icon: Icon(Icons.add, color: AppColors.textPrimary),
               label: Text(
-                'Create Account',
+                L10n.of(context).walletCreateAccount,
                 style: TextStyle(
                   color: AppColors.textPrimary,
                   fontWeight: FontWeight.w600,
@@ -499,7 +499,7 @@ class _WalletManagementScreenState extends ConsumerState<WalletManagementScreen>
               ),
               const SizedBox(width: 12),
               Text(
-                'Delete Account',
+                L10n.of(context).settingsDeleteAccount,
                 style: TextStyle(color: AppColors.textPrimary, fontSize: 18),
               ),
             ],
@@ -512,7 +512,7 @@ class _WalletManagementScreenState extends ConsumerState<WalletManagementScreen>
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
               child: Text(
-                'Cancel',
+                L10n.of(context).actionCancel,
                 style: TextStyle(color: AppColors.textSecondary),
               ),
             ),
@@ -537,8 +537,8 @@ class _WalletManagementScreenState extends ConsumerState<WalletManagementScreen>
                   borderRadius: BorderRadius.circular(8),
                 ),
               ),
-              child: const Text(
-                'Delete',
+              child: Text(
+                L10n.of(context).actionDelete,
                 style: TextStyle(color: Colors.white),
               ),
             ),
@@ -884,7 +884,7 @@ class _WalletCardState extends ConsumerState<_WalletCard>
                                               ),
                                               const SizedBox(width: 4),
                                               Text(
-                                                'Default',
+                                                L10n.of(context).payDefault,
                                                 style: TextStyle(
                                                   fontSize: 10,
                                                   fontWeight: FontWeight.w600,
@@ -989,7 +989,7 @@ class _WalletCardState extends ConsumerState<_WalletCard>
                         if (isCreditCard && creditLimit > 0) ...[
                           // Outstanding
                           Text(
-                            'Outstanding',
+                            L10n.of(context).walletOutstanding,
                             style: TextStyle(
                               fontSize: 12,
                               color: AppColors.textMuted,
@@ -1053,7 +1053,7 @@ class _WalletCardState extends ConsumerState<_WalletCard>
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'Available',
+                                    L10n.of(context).walletAvailable,
                                     style: TextStyle(
                                       fontSize: 10,
                                       color: AppColors.textMuted,
@@ -1075,7 +1075,7 @@ class _WalletCardState extends ConsumerState<_WalletCard>
                                 crossAxisAlignment: CrossAxisAlignment.end,
                                 children: [
                                   Text(
-                                    'Limit',
+                                    L10n.of(context).walletLimit,
                                     style: TextStyle(
                                       fontSize: 10,
                                       color: AppColors.textMuted,
@@ -1109,7 +1109,7 @@ class _WalletCardState extends ConsumerState<_WalletCard>
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                                 child: Text(
-                                  'CREDIT BALANCE',
+                                  L10n.of(context).walletCreditBalance,
                                   style: TextStyle(
                                     fontSize: 9,
                                     fontWeight: FontWeight.bold,
@@ -1122,7 +1122,7 @@ class _WalletCardState extends ConsumerState<_WalletCard>
                         ] else ...[
                           // Standard balance display for non-credit-card wallets
                           Text(
-                            'Balance',
+                            L10n.of(context).walletBalance,
                             style: TextStyle(
                               fontSize: 12,
                               color: AppColors.textMuted,
@@ -1180,7 +1180,7 @@ class _WalletCardState extends ConsumerState<_WalletCard>
                                       borderRadius: BorderRadius.circular(4),
                                     ),
                                     child: Text(
-                                      'OVERDRAWN',
+                                      L10n.of(context).walletOverdrawn,
                                       style: TextStyle(
                                         fontSize: 9,
                                         fontWeight: FontWeight.bold,

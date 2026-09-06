@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 
 /// Shows a destructive confirmation dialog that requires the user to type
@@ -138,7 +139,10 @@ class _DestructiveConfirmationDialogState
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context, false),
-          child: Text('Cancel', style: TextStyle(color: AppColors.textMuted)),
+          child: Text(
+            L10n.of(context).actionCancel,
+            style: TextStyle(color: AppColors.textMuted),
+          ),
         ),
         TextButton(
           onPressed: _isMatch ? () => Navigator.pop(context, true) : null,

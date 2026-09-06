@@ -32,7 +32,10 @@ class SubscriptionDashboardScreen extends ConsumerWidget {
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
-          title: Text('Recurring', style: AppTypography.headlineSmall),
+          title: Text(
+            L10n.of(context).subRecurring,
+            style: AppTypography.headlineSmall,
+          ),
           leading: IconButton(
             icon: Icon(Icons.arrow_back_ios_new, color: AppColors.textPrimary),
             onPressed: () => Navigator.pop(context),
@@ -325,7 +328,7 @@ class _SubscriptionCard extends ConsumerWidget {
                                 borderRadius: AppSpacing.borderRadiusSm,
                               ),
                               child: Text(
-                                'Paused',
+                                L10n.of(context).subPaused,
                                 style: AppTypography.labelSmall.copyWith(
                                   color: AppColors.textMuted,
                                   fontWeight: FontWeight.w600,
@@ -485,7 +488,7 @@ class _SubscriptionCard extends ConsumerWidget {
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
             child: Text(
-              'Keep',
+              L10n.of(context).backupKeep,
               style: TextStyle(color: AppColors.textSecondary),
             ),
           ),

@@ -570,7 +570,7 @@ class _CurrencyPickerSheetState extends ConsumerState<_CurrencyPickerSheet> {
                 TextButton(
                   onPressed: () => Navigator.pop(context),
                   child: Text(
-                    'Cancel',
+                    L10n.of(context).actionCancel,
                     style: TextStyle(color: AppColors.textMuted, fontSize: 16),
                   ),
                 ),

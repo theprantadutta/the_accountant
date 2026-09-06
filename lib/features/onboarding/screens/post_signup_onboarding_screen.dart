@@ -232,7 +232,7 @@ class _PostSignupOnboardingScreenState
           // Title
           Center(
             child: Text(
-              'Welcome!',
+              L10n.of(context).onboardWelcome,
               style: AppTypography.displaySmall,
               textAlign: TextAlign.center,
             ),
@@ -240,7 +240,7 @@ class _PostSignupOnboardingScreenState
           AppSpacing.gapMd,
           Center(
             child: Text(
-              'Select your default currency',
+              L10n.of(context).onboardSelectYourDefaultCurrency,
               style: AppTypography.titleMedium.copyWith(
                 color: AppColors.textSecondary,
               ),
@@ -299,7 +299,7 @@ class _PostSignupOnboardingScreenState
             AppSpacing.gapSm,
             Center(
               child: Text(
-                'Loading currencies...',
+                L10n.of(context).onboardLoadingCurrencies,
                 style: AppTypography.bodySmall.copyWith(
                   color: AppColors.textSecondary,
                 ),
@@ -346,7 +346,7 @@ class _PostSignupOnboardingScreenState
           // Title
           Center(
             child: Text(
-              'Create Your First Account',
+              L10n.of(context).walletCreateYourFirstAccount,
               style: AppTypography.titleLarge,
               textAlign: TextAlign.center,
             ),
@@ -354,7 +354,7 @@ class _PostSignupOnboardingScreenState
           AppSpacing.gapMd,
           Center(
             child: Text(
-              'Set up your primary wallet',
+              L10n.of(context).onboardSetUpYourPrimaryWallet,
               style: AppTypography.bodyMedium.copyWith(
                 color: AppColors.textSecondary,
               ),
@@ -364,7 +364,10 @@ class _PostSignupOnboardingScreenState
           AppSpacing.gapXl,
 
           // Account Type
-          Text('Account Type', style: AppTypography.labelMedium),
+          Text(
+            L10n.of(context).walletAccountType,
+            style: AppTypography.labelMedium,
+          ),
           AppSpacing.gapSm,
           SizedBox(
             height: 40,
@@ -430,13 +433,16 @@ class _PostSignupOnboardingScreenState
           ),
           const SizedBox(height: 6),
           Text(
-            'Account type cannot be changed later',
+            L10n.of(context).walletAccountTypeCannotBeChanged,
             style: AppTypography.bodySmall.copyWith(color: AppColors.textMuted),
           ),
           AppSpacing.gapMd,
 
           // Wallet name
-          Text('Account Name', style: AppTypography.labelMedium),
+          Text(
+            L10n.of(context).walletAccountName,
+            style: AppTypography.labelMedium,
+          ),
           AppSpacing.gapSm,
           TextFormField(
             controller: _walletNameController,
@@ -454,7 +460,10 @@ class _PostSignupOnboardingScreenState
           AppSpacing.gapMd,
 
           // Initial balance
-          Text('Initial Balance (optional)', style: AppTypography.labelMedium),
+          Text(
+            L10n.of(context).onboardInitialBalanceOptional,
+            style: AppTypography.labelMedium,
+          ),
           AppSpacing.gapSm,
           TextFormField(
             controller: _balanceController,
@@ -475,7 +484,10 @@ class _PostSignupOnboardingScreenState
 
           // Credit Card specific fields
           if (_walletType == WalletType.creditCard) ...[
-            Text('Credit Limit', style: AppTypography.labelMedium),
+            Text(
+              L10n.of(context).walletCreditLimit,
+              style: AppTypography.labelMedium,
+            ),
             AppSpacing.gapSm,
             TextFormField(
               controller: _creditLimitController,
@@ -496,7 +508,7 @@ class _PostSignupOnboardingScreenState
             ),
             AppSpacing.gapMd,
             Text(
-              'Billing Cycle Day (optional)',
+              L10n.of(context).walletBillingCycleDayOptional,
               style: AppTypography.labelMedium,
             ),
             AppSpacing.gapSm,
@@ -592,7 +604,7 @@ class _PostSignupOnboardingScreenState
           ),
           AppSpacing.gapMd,
           Text(
-            'Your account is ready to use',
+            L10n.of(context).onboardYourAccountIsReadyTo,
             style: AppTypography.titleMedium.copyWith(
               color: AppColors.textSecondary,
             ),
@@ -658,7 +670,7 @@ class _PostSignupOnboardingScreenState
                         borderRadius: AppSpacing.borderRadiusSm,
                       ),
                       child: Text(
-                        'Default',
+                        L10n.of(context).payDefault,
                         style: AppTypography.labelSmall.copyWith(
                           color: AppColors.primaryAccent,
                         ),
@@ -673,7 +685,7 @@ class _PostSignupOnboardingScreenState
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Initial Balance',
+                      L10n.of(context).walletInitialBalance,
                       style: AppTypography.bodyMedium.copyWith(
                         color: AppColors.textSecondary,
                       ),
@@ -702,7 +714,7 @@ class _PostSignupOnboardingScreenState
                 AppSpacing.gapHMd,
                 Expanded(
                   child: Text(
-                    'Tip: You can add more accounts with different currencies anytime from the Wallets section.',
+                    L10n.of(context).onboardTipYouCanAddMore,
                     style: AppTypography.bodySmall.copyWith(
                       color: AppColors.textSecondary,
                     ),

@@ -155,13 +155,13 @@ class _CreateFirstWalletScreenState
                       ),
                       const SizedBox(height: 24),
                       Text(
-                        'Create Your First Account',
+                        L10n.of(context).walletCreateYourFirstAccount,
                         style: AppTypography.headlineMedium,
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'You need at least one account to start tracking your finances',
+                        L10n.of(context).walletYouNeedAtLeastOne,
                         style: AppTypography.bodyMedium.copyWith(
                           color: AppColors.textSecondary,
                         ),
@@ -174,7 +174,10 @@ class _CreateFirstWalletScreenState
                 const SizedBox(height: 40),
 
                 // Account Type
-                Text('Account Type', style: AppTypography.labelLarge),
+                Text(
+                  L10n.of(context).walletAccountType,
+                  style: AppTypography.labelLarge,
+                ),
                 const SizedBox(height: 8),
                 SizedBox(
                   height: 40,
@@ -241,7 +244,7 @@ class _CreateFirstWalletScreenState
 
                 const SizedBox(height: 6),
                 Text(
-                  'Account type cannot be changed later',
+                  L10n.of(context).walletAccountTypeCannotBeChanged,
                   style: AppTypography.bodySmall.copyWith(
                     color: AppColors.textMuted,
                   ),
@@ -250,7 +253,10 @@ class _CreateFirstWalletScreenState
                 const SizedBox(height: 24),
 
                 // Wallet name
-                Text('Account Name', style: AppTypography.labelLarge),
+                Text(
+                  L10n.of(context).walletAccountName,
+                  style: AppTypography.labelLarge,
+                ),
                 const SizedBox(height: 8),
                 TextFormField(
                   controller: _nameController,
@@ -285,7 +291,10 @@ class _CreateFirstWalletScreenState
                 const SizedBox(height: 24),
 
                 // Currency picker (show currency first, then balance)
-                Text('Currency', style: AppTypography.labelLarge),
+                Text(
+                  L10n.of(context).walletCurrency,
+                  style: AppTypography.labelLarge,
+                ),
                 const SizedBox(height: 8),
                 CurrencyPicker(
                   selectedCurrency: _selectedCurrency,
@@ -297,7 +306,10 @@ class _CreateFirstWalletScreenState
                 const SizedBox(height: 24),
 
                 // Initial balance
-                Text('Initial Balance', style: AppTypography.labelLarge),
+                Text(
+                  L10n.of(context).walletInitialBalance,
+                  style: AppTypography.labelLarge,
+                ),
                 const SizedBox(height: 8),
                 TextFormField(
                   controller: _balanceController,
@@ -330,7 +342,10 @@ class _CreateFirstWalletScreenState
                 // Credit Card specific fields
                 if (_walletType == WalletType.creditCard) ...[
                   const SizedBox(height: 24),
-                  Text('Credit Limit', style: AppTypography.labelLarge),
+                  Text(
+                    L10n.of(context).walletCreditLimit,
+                    style: AppTypography.labelLarge,
+                  ),
                   const SizedBox(height: 8),
                   TextFormField(
                     controller: _creditLimitController,
@@ -374,7 +389,7 @@ class _CreateFirstWalletScreenState
                   ),
                   const SizedBox(height: 24),
                   Text(
-                    'Billing Cycle Day (optional)',
+                    L10n.of(context).walletBillingCycleDayOptional,
                     style: AppTypography.labelLarge,
                   ),
                   const SizedBox(height: 8),
@@ -420,7 +435,10 @@ class _CreateFirstWalletScreenState
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Icon', style: AppTypography.labelLarge),
+                    Text(
+                      L10n.of(context).walletIcon,
+                      style: AppTypography.labelLarge,
+                    ),
                     const SizedBox(height: 8),
                     IconPicker(
                       selectedIcon: _selectedIcon,
@@ -436,7 +454,10 @@ class _CreateFirstWalletScreenState
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Color', style: AppTypography.labelLarge),
+                    Text(
+                      L10n.of(context).walletColor,
+                      style: AppTypography.labelLarge,
+                    ),
                     const SizedBox(height: 8),
                     ColorPicker(
                       selectedColor: _selectedColor,
@@ -465,7 +486,7 @@ class _CreateFirstWalletScreenState
                 // Info text
                 Center(
                   child: Text(
-                    'This will be your default account',
+                    L10n.of(context).walletThisWillBeYourDefault,
                     style: AppTypography.bodySmall.copyWith(
                       color: AppColors.textSecondary,
                     ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/core/themes/app_typography.dart';
@@ -157,14 +158,14 @@ class NotificationEmptyState extends StatelessWidget {
             ),
             AppSpacing.gapXl,
             Text(
-              'No notifications yet',
+              L10n.of(context).notifNoNotificationsYet,
               style: AppTypography.titleMedium.copyWith(
                 color: AppColors.textSecondary,
               ),
             ),
             AppSpacing.gapSm,
             Text(
-              'When you receive notifications, they will appear here.',
+              L10n.of(context).notifWhenYouReceiveNotificationsThey,
               style: AppTypography.bodySmall.copyWith(
                 color: AppColors.textMuted,
               ),

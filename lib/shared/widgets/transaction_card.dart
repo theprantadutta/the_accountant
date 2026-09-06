@@ -227,7 +227,10 @@ class TransactionCard extends ConsumerWidget {
                   Icons.edit_outlined,
                   color: AppColors.textSecondary,
                 ),
-                title: Text('Edit', style: AppTypography.bodyLarge),
+                title: Text(
+                  L10n.of(context).actionEdit,
+                  style: AppTypography.bodyLarge,
+                ),
                 onTap: () {
                   Navigator.pop(sheetContext);
                   onEdit!();
@@ -237,7 +240,7 @@ class TransactionCard extends ConsumerWidget {
               ListTile(
                 leading: Icon(Icons.delete_outline, color: AppColors.error),
                 title: Text(
-                  'Delete',
+                  L10n.of(context).actionDelete,
                   style: AppTypography.bodyLarge.copyWith(
                     color: AppColors.error,
                   ),
@@ -260,7 +263,7 @@ class TransactionCard extends ConsumerWidget {
       builder: (dialogContext) => AlertDialog(
         backgroundColor: AppColors.primarySurface,
         title: Text(
-          'Delete this transaction?',
+          L10n.of(context).txDeleteOneTitle,
           style: AppTypography.titleLarge,
         ),
         content: Text(

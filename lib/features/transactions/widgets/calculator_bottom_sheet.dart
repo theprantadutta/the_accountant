@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 
@@ -121,7 +122,7 @@ class _AmountInputSheetState extends State<_AmountInputSheet> {
                   child: Row(
                     children: [
                       Text(
-                        'Enter Amount',
+                        L10n.of(context).txEnterAmount,
                         style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.w600,
@@ -133,7 +134,7 @@ class _AmountInputSheetState extends State<_AmountInputSheet> {
                       TextButton(
                         onPressed: () => Navigator.pop(context),
                         child: Text(
-                          'Cancel',
+                          L10n.of(context).actionCancel,
                           style: TextStyle(
                             color: AppColors.textMuted,
                             fontSize: 16,
@@ -233,8 +234,8 @@ class _AmountInputSheetState extends State<_AmountInputSheet> {
                         ),
                         elevation: 0,
                       ),
-                      child: const Text(
-                        'Done',
+                      child: Text(
+                        L10n.of(context).importDone,
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,

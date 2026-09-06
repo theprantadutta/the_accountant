@@ -97,7 +97,7 @@ class PaymentMethodsScreen extends ConsumerWidget {
           ),
           AppSpacing.gapXl,
           Text(
-            'No payment methods',
+            L10n.of(context).txNoPaymentMethods,
             style: AppTypography.titleMedium.copyWith(
               color: AppColors.textSecondary,
             ),

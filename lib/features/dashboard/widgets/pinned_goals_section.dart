@@ -34,7 +34,12 @@ class PinnedGoalsSection extends ConsumerWidget {
           padding: const EdgeInsets.symmetric(horizontal: 4),
           child: Row(
             children: [
-              Expanded(child: Text('Goals', style: AppTypography.titleMedium)),
+              Expanded(
+                child: Text(
+                  L10n.of(context).settingsGoals,
+                  style: AppTypography.titleMedium,
+                ),
+              ),
               TextButton(
                 onPressed: () => Navigator.push(
                   context,

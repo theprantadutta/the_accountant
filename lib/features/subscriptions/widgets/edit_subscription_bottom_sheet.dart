@@ -227,7 +227,7 @@ class _EditSubscriptionBottomSheetState
                 children: [
                   // Title
                   Text(
-                    'Title',
+                    L10n.of(context).txTitle,
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
@@ -260,7 +260,7 @@ class _EditSubscriptionBottomSheetState
 
                   // Amount
                   Text(
-                    'Amount',
+                    L10n.of(context).filterAmount,
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
@@ -298,7 +298,7 @@ class _EditSubscriptionBottomSheetState
                       Icon(Icons.autorenew, size: 16, color: accentColor),
                       const SizedBox(width: 6),
                       Text(
-                        'Frequency',
+                        L10n.of(context).subFrequency,
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
@@ -324,7 +324,7 @@ class _EditSubscriptionBottomSheetState
                   Row(
                     children: [
                       Text(
-                        'Every',
+                        L10n.of(context).budgetEvery,
                         style: TextStyle(
                           fontSize: 14,
                           color: AppColors.textSecondary,
@@ -452,7 +452,7 @@ class _EditSubscriptionBottomSheetState
                       ),
                       const SizedBox(width: 6),
                       Text(
-                        'Account',
+                        L10n.of(context).entityAccount,
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
@@ -512,8 +512,8 @@ class _EditSubscriptionBottomSheetState
                             ),
                           ),
                         )
-                      : const Text(
-                          'Save Changes',
+                      : Text(
+                          L10n.of(context).authSaveChanges,
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,

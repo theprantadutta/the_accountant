@@ -211,7 +211,10 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
               AppSpacing.gapLg,
 
               // Wallet Type Selector
-              Text('Account Type', style: AppTypography.labelMedium),
+              Text(
+                L10n.of(context).walletAccountType,
+                style: AppTypography.labelMedium,
+              ),
               AppSpacing.gapSm,
               SizedBox(
                 height: 40,
@@ -280,7 +283,7 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
               if (!widget.isEditing) ...[
                 const SizedBox(height: 6),
                 Text(
-                  'Account type cannot be changed later',
+                  L10n.of(context).walletAccountTypeCannotBeChanged,
                   style: AppTypography.bodySmall.copyWith(
                     color: AppColors.textMuted,
                   ),
@@ -289,7 +292,10 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
               AppSpacing.gapMd,
 
               // Wallet Name
-              Text('Wallet Name', style: AppTypography.labelMedium),
+              Text(
+                L10n.of(context).walletWalletName,
+                style: AppTypography.labelMedium,
+              ),
               AppSpacing.gapSm,
               TextFormField(
                 controller: widget.nameController,
@@ -331,7 +337,10 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
               AppSpacing.gapMd,
 
               // Initial Balance
-              Text('Initial Balance', style: AppTypography.labelMedium),
+              Text(
+                L10n.of(context).walletInitialBalance,
+                style: AppTypography.labelMedium,
+              ),
               AppSpacing.gapSm,
               TextFormField(
                 controller: widget.balanceController,
@@ -371,7 +380,10 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
 
               // Credit Card specific fields
               if (_walletType == WalletType.creditCard) ...[
-                Text('Credit Limit', style: AppTypography.labelMedium),
+                Text(
+                  L10n.of(context).walletCreditLimit,
+                  style: AppTypography.labelMedium,
+                ),
                 AppSpacing.gapSm,
                 TextFormField(
                   controller: _creditLimitController,
@@ -411,7 +423,10 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
                   },
                 ),
                 AppSpacing.gapMd,
-                Text('Billing Cycle Day', style: AppTypography.labelMedium),
+                Text(
+                  L10n.of(context).walletBillingCycleDay,
+                  style: AppTypography.labelMedium,
+                ),
                 AppSpacing.gapSm,
                 DropdownButtonFormField<int>(
                   initialValue: _billingCycleDay,
@@ -486,11 +501,11 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Set as Default',
+                            L10n.of(context).walletSetAsDefault,
                             style: AppTypography.bodyLarge,
                           ),
                           Text(
-                            'Use this wallet for new transactions',
+                            L10n.of(context).walletUseThisWalletForNew,
                             style: AppTypography.bodySmall.copyWith(
                               color: AppColors.textSecondary,
                             ),
@@ -529,7 +544,10 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Use Decimals', style: AppTypography.bodyLarge),
+                          Text(
+                            L10n.of(context).walletUseDecimals,
+                            style: AppTypography.bodyLarge,
+                          ),
                           Text(
                             _useDecimals
                                 ? 'Show cents (e.g., \$1,234.56)'
@@ -947,7 +965,10 @@ class _IconPickerSheet extends StatelessWidget {
             padding: AppSpacing.horizontalPadding(AppSpacing.md),
             child: Row(
               children: [
-                Text('Select Icon', style: AppTypography.titleLarge),
+                Text(
+                  L10n.of(context).walletSelectIcon,
+                  style: AppTypography.titleLarge,
+                ),
                 const Spacer(),
                 IconButton(
                   icon: const Icon(Icons.close),
@@ -1036,7 +1057,10 @@ class _ColorPickerSheet extends StatelessWidget {
             padding: AppSpacing.horizontalPadding(AppSpacing.md),
             child: Row(
               children: [
-                Text('Select Color', style: AppTypography.titleLarge),
+                Text(
+                  L10n.of(context).walletSelectColor,
+                  style: AppTypography.titleLarge,
+                ),
                 const Spacer(),
                 IconButton(
                   icon: const Icon(Icons.close),

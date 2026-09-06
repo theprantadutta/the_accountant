@@ -40,7 +40,10 @@ class _ExchangeRatesScreenState extends ConsumerState<ExchangeRatesScreen> {
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
-          title: Text('Exchange Rates', style: AppTypography.titleLarge),
+          title: Text(
+            L10n.of(context).settingsExchangeRates,
+            style: AppTypography.titleLarge,
+          ),
           actions: [
             IconButton(
               icon: const Icon(Icons.refresh),
@@ -201,7 +204,7 @@ class _ExchangeRatesScreenState extends ConsumerState<ExchangeRatesScreen> {
             Icon(Icons.search_off, size: 48, color: AppColors.textSecondary),
             AppSpacing.gapMd,
             Text(
-              'No currencies found',
+              L10n.of(context).settingsNoCurrenciesFound,
               style: AppTypography.bodyMedium.copyWith(
                 color: AppColors.textSecondary,
               ),

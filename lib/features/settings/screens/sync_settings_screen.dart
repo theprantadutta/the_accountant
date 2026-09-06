@@ -121,7 +121,7 @@ class _SyncSettingsScreenState extends ConsumerState<SyncSettingsScreen> {
           Padding(
             padding: EdgeInsets.only(bottom: AppSpacing.md),
             child: Text(
-              'SYNC STATUS',
+              L10n.of(context).settingsSyncStatus,
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
@@ -273,7 +273,7 @@ class _SyncSettingsScreenState extends ConsumerState<SyncSettingsScreen> {
             : Icon(Icons.sync, color: AppColors.primaryAccent, size: 22),
       ),
       title: Text(
-        'Sync Now',
+        L10n.of(context).settingsSyncNow,
         style: TextStyle(
           color: isSyncing ? AppColors.textMuted : AppColors.textPrimary,
           fontWeight: FontWeight.w500,
@@ -332,7 +332,7 @@ class _SyncSettingsScreenState extends ConsumerState<SyncSettingsScreen> {
         ),
       ),
       title: Text(
-        'Restore from Cloud',
+        L10n.of(context).settingsRestoreFromCloud2,
         style: TextStyle(
           color: isSyncing ? AppColors.textMuted : AppColors.textPrimary,
           fontWeight: FontWeight.w500,

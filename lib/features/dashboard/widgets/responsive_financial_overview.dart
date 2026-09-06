@@ -100,7 +100,7 @@ class _ResponsiveFinancialOverviewState
                 ),
                 AppSpacing.gapLg,
                 Text(
-                  'Error loading financial data',
+                  L10n.of(context).dashErrorLoadingFinancialData,
                   style: AppTypography.titleMedium,
                 ),
                 AppSpacing.gapSm,
@@ -294,7 +294,7 @@ class _ResponsiveFinancialOverviewState
               ),
               AppSpacing.gapXs,
               Text(
-                'Ready to manage your finances?',
+                L10n.of(context).dashReadyToManageYourFinances,
                 style: AppTypography.bodyMedium.copyWith(
                   color: AppColors.textSecondary,
                 ),
@@ -579,7 +579,7 @@ class _ResponsiveFinancialOverviewState
                         ),
                         AppSpacing.gapSm,
                         Text(
-                          'No spending data yet',
+                          L10n.of(context).dashNoSpendingDataYet,
                           style: AppTypography.bodySmall.copyWith(
                             color: AppColors.textMuted,
                           ),
@@ -701,7 +701,7 @@ class _ResponsiveFinancialOverviewState
                   );
                 },
                 child: Text(
-                  'View All',
+                  L10n.of(context).dashViewAll,
                   style: AppTypography.labelMedium.copyWith(
                     color: AppColors.primaryAccent,
                   ),
@@ -723,14 +723,14 @@ class _ResponsiveFinancialOverviewState
                     ),
                     AppSpacing.gapMd,
                     Text(
-                      'No transactions yet',
+                      L10n.of(context).dashNoTransactionsYet,
                       style: AppTypography.titleSmall.copyWith(
                         color: AppColors.textSecondary,
                       ),
                     ),
                     AppSpacing.gapXs,
                     Text(
-                      'Add your first transaction to get started',
+                      L10n.of(context).dashAddYourFirstTransactionTo,
                       style: AppTypography.bodySmall.copyWith(
                         color: AppColors.textMuted,
                       ),
@@ -862,7 +862,7 @@ class _ResponsiveFinancialOverviewState
                   );
                 },
                 child: Text(
-                  'Manage',
+                  L10n.of(context).dashManage,
                   style: AppTypography.labelMedium.copyWith(
                     color: AppColors.primaryAccent,
                   ),
@@ -873,7 +873,7 @@ class _ResponsiveFinancialOverviewState
           AppSpacing.gapLg,
           if (items.isEmpty)
             Text(
-              'No active budgets',
+              L10n.of(context).reportNoActiveBudgets,
               style: AppTypography.bodySmall.copyWith(
                 color: AppColors.textMuted,
               ),

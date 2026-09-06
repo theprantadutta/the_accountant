@@ -349,7 +349,7 @@ class _TransactionTypeScreenState extends ConsumerState<TransactionTypeScreen> {
                             Navigator.of(context).pop();
                           },
                           child: Text(
-                            'Clear All',
+                            L10n.of(context).txClearAll,
                             style: TextStyle(color: AppColors.error),
                           ),
                         ),
@@ -359,7 +359,7 @@ class _TransactionTypeScreenState extends ConsumerState<TransactionTypeScreen> {
 
                   // Categories Section
                   Text(
-                    'Categories',
+                    L10n.of(context).settingsCategories,
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -420,8 +420,8 @@ class _TransactionTypeScreenState extends ConsumerState<TransactionTypeScreen> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: const Text(
-                        'Apply Filters',
+                      child: Text(
+                        L10n.of(context).txApplyFilters,
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,

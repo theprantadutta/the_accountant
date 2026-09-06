@@ -274,7 +274,7 @@ class _ReceiptScannerScreenState extends ConsumerState<ReceiptScannerScreen> {
           ),
           SizedBox(width: AppSpacing.md),
           Text(
-            'Reading your receipt…',
+            L10n.of(context).aiReadingYourReceipt,
             style: TextStyle(color: AppColors.textPrimary, fontSize: 15),
           ),
         ],
@@ -319,7 +319,7 @@ class _ReceiptScannerScreenState extends ConsumerState<ReceiptScannerScreen> {
               ),
               const SizedBox(width: 8),
               Text(
-                'Review & save',
+                L10n.of(context).aiReviewSave,
                 style: TextStyle(
                   color: AppColors.textPrimary,
                   fontSize: 16,
@@ -330,7 +330,7 @@ class _ReceiptScannerScreenState extends ConsumerState<ReceiptScannerScreen> {
           ),
           SizedBox(height: AppSpacing.xs),
           Text(
-            'We read this from your receipt — check it and edit anything before saving.',
+            L10n.of(context).aiWeReadThisFromYour,
             style: TextStyle(color: AppColors.textMuted, fontSize: 12.5),
           ),
           SizedBox(height: AppSpacing.lg),

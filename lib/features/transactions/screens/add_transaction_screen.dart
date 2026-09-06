@@ -270,7 +270,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
               ),
               const SizedBox(height: 16),
               Text(
-                'Scan receipts',
+                L10n.of(context).txScanReceipts,
                 style: TextStyle(
                   color: AppColors.textPrimary,
                   fontSize: 20,
@@ -309,7 +309,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
               TextButton(
                 onPressed: () => Navigator.pop(dialogContext),
                 child: Text(
-                  'Not now',
+                  L10n.of(context).settingsNotNow,
                   style: TextStyle(color: AppColors.textMuted),
                 ),
               ),
@@ -485,9 +485,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
     if (type == TransactionTypeSelection.transfer && wallets.length < 2) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text(
-            'You need at least 2 accounts to make a transfer',
-          ),
+          content: Text(L10n.of(context).txYouNeedAtLeast2),
           backgroundColor: AppColors.warning,
         ),
       );
@@ -866,24 +864,27 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
       builder: (context) => AlertDialog(
         backgroundColor: AppColors.primarySurface,
         title: Text(
-          'Delete Transaction',
+          L10n.of(context).txDeleteTransaction,
           style: TextStyle(color: AppColors.textPrimary),
         ),
         content: Text(
-          'Are you sure you want to delete this transaction?',
+          L10n.of(context).txAreYouSureYouWant,
           style: TextStyle(color: AppColors.textSecondary),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
             child: Text(
-              'Cancel',
+              L10n.of(context).actionCancel,
               style: TextStyle(color: AppColors.textSecondary),
             ),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: Text('Delete', style: TextStyle(color: AppColors.error)),
+            child: Text(
+              L10n.of(context).actionDelete,
+              style: TextStyle(color: AppColors.error),
+            ),
           ),
         ],
       ),
@@ -1337,7 +1338,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
               Icon(Icons.info_outline, size: 16, color: AppColors.textMuted),
               const SizedBox(width: 6),
               Text(
-                'Transaction Type',
+                L10n.of(context).txTransactionType,
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
@@ -1453,7 +1454,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
           Row(
             children: [
               Text(
-                'Every',
+                L10n.of(context).budgetEvery,
                 style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
               ),
               const SizedBox(width: 8),
@@ -1567,7 +1568,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
               ),
               const SizedBox(width: 6),
               Text(
-                'Account',
+                L10n.of(context).entityAccount,
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
@@ -1765,7 +1766,10 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
           Row(
             children: [
               Expanded(
-                child: Text('Transfer fee', style: AppTypography.titleSmall),
+                child: Text(
+                  L10n.of(context).txTransferFee,
+                  style: AppTypography.titleSmall,
+                ),
               ),
               TextButton(
                 onPressed: () => setState(() {
@@ -1783,7 +1787,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
             ],
           ),
           Text(
-            'Charged separately, so the transfer itself stays balanced.',
+            L10n.of(context).txChargedSeparatelySoTheTransfer,
             style: AppTypography.bodySmall.copyWith(color: AppColors.textMuted),
           ),
           AppSpacing.gapMd,
@@ -1806,7 +1810,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                   AppSpacing.gapHMd,
                   Expanded(
                     child: Text(
-                      'Amount',
+                      L10n.of(context).filterAmount,
                       style: AppTypography.bodyMedium.copyWith(
                         color: AppColors.textSecondary,
                       ),
@@ -1827,7 +1831,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
           AppSpacing.gapSm,
 
           Text(
-            'Deducted from',
+            L10n.of(context).txDeductedFrom,
             style: AppTypography.labelSmall.copyWith(
               color: AppColors.textMuted,
             ),

@@ -235,7 +235,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Spending Insights',
+                    L10n.of(context).reportSpendingInsights,
                     style: TextStyle(
                       color: AppColors.textPrimary,
                       fontSize: 15,
@@ -348,7 +348,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
             Icon(Icons.analytics, color: Colors.amber),
             SizedBox(width: 8),
             Text(
-              'Advanced Reports',
+              L10n.of(context).reportAdvancedReports,
               style: TextStyle(color: AppColors.textPrimary),
             ),
           ],
@@ -498,7 +498,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
             ),
             const SizedBox(height: 8),
             Text(
-              'No spending data for this period',
+              L10n.of(context).reportNoSpendingDataForThis,
               style: TextStyle(
                 color: AppColors.textPrimary.withValues(alpha: 0.7),
                 fontSize: 14,
@@ -637,7 +637,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
             ),
             const SizedBox(height: 8),
             Text(
-              'No category spending data',
+              L10n.of(context).reportNoCategorySpendingData,
               style: TextStyle(
                 color: AppColors.textPrimary.withValues(alpha: 0.7),
                 fontSize: 14,
@@ -718,7 +718,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Financial Summary',
+          L10n.of(context).reportFinancialSummary,
           style: TextStyle(
             color: AppColors.textPrimary,
             fontSize: 20,
@@ -859,8 +859,8 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Category Breakdown',
+              Text(
+                L10n.of(context).reportCategoryBreakdown,
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 18,
@@ -878,7 +878,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'No spending data available',
+                      L10n.of(context).reportNoSpendingDataAvailable,
                       style: TextStyle(
                         color: AppColors.textPrimary.withValues(alpha: 0.7),
                         fontSize: 16,
@@ -901,8 +901,8 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Category Breakdown',
+            Text(
+              L10n.of(context).reportCategoryBreakdown,
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 18,
@@ -993,8 +993,8 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Budget vs Actual',
+              Text(
+                L10n.of(context).reportBudgetVsActual,
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 18,
@@ -1012,7 +1012,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'No active budgets',
+                      L10n.of(context).reportNoActiveBudgets,
                       style: TextStyle(
                         color: AppColors.textPrimary.withValues(alpha: 0.7),
                         fontSize: 16,
@@ -1020,7 +1020,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Create a budget to track your spending',
+                      L10n.of(context).reportCreateABudgetToTrack,
                       style: TextStyle(
                         color: AppColors.textPrimary.withValues(alpha: 0.5),
                         fontSize: 14,
@@ -1043,8 +1043,8 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Budget vs Actual',
+            Text(
+              L10n.of(context).reportBudgetVsActual,
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 18,

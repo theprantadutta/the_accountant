@@ -323,7 +323,7 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
           return _card([
             ListTile(
               title: Text(
-                'Nothing here yet.',
+                L10n.of(context).backupNothingHereYet,
                 style: TextStyle(color: AppColors.textSecondary),
               ),
             ),

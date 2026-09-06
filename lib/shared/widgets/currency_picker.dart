@@ -223,7 +223,7 @@ class _CurrencyPickerSheetState extends ConsumerState<_CurrencyPickerSheet> {
                 TextButton(
                   onPressed: () => Navigator.pop(context),
                   child: Text(
-                    'Cancel',
+                    L10n.of(context).actionCancel,
                     style: TextStyle(color: AppColors.textMuted, fontSize: 16),
                   ),
                 ),
@@ -295,7 +295,7 @@ class _CurrencyPickerSheetState extends ConsumerState<_CurrencyPickerSheet> {
                   ),
                   const SizedBox(width: 10),
                   Text(
-                    'Include crypto currencies',
+                    L10n.of(context).sharedIncludeCryptoCurrencies,
                     style: TextStyle(
                       fontSize: 14,
                       color: AppColors.textSecondary,
@@ -446,7 +446,7 @@ class _CurrencyPickerSheetState extends ConsumerState<_CurrencyPickerSheet> {
             Icon(Icons.search_off, size: 48, color: AppColors.textMuted),
             const SizedBox(height: 12),
             Text(
-              'No currencies found',
+              L10n.of(context).settingsNoCurrenciesFound,
               style: AppTypography.bodyLarge,
               textAlign: TextAlign.center,
             ),

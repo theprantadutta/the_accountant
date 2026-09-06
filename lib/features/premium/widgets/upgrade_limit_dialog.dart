@@ -82,7 +82,7 @@ class UpgradeLimitDialog extends StatelessWidget {
 
             // Title
             Text(
-              'Limit Reached',
+              L10n.of(context).premiumLimitReached,
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,

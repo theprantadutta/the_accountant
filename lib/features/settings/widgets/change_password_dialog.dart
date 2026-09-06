@@ -196,7 +196,10 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
       actions: [
         TextButton(
           onPressed: _isLoading ? null : () => Navigator.pop(context, false),
-          child: Text('Cancel', style: TextStyle(color: AppColors.textMuted)),
+          child: Text(
+            L10n.of(context).actionCancel,
+            style: TextStyle(color: AppColors.textMuted),
+          ),
         ),
         TextButton(
           onPressed: _isLoading ? null : _submit,

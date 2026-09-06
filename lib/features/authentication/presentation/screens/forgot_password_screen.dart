@@ -100,7 +100,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Password reset successfully. Please sign in.',
+            L10n.of(context).authPasswordResetSuccessfullyPleaseSign,
             style: AppTypography.bodyMedium,
           ),
           backgroundColor: AppColors.success,
@@ -331,7 +331,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               child: TextButton(
                 onPressed: _isLoading ? null : _requestCode,
                 child: Text(
-                  'Resend code',
+                  L10n.of(context).authResendCode,
                   style: AppTypography.labelMedium.copyWith(
                     color: AppColors.primaryAccent,
                   ),

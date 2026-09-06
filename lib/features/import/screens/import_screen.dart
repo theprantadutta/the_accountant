@@ -106,7 +106,7 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
                 style: TextStyle(color: AppColors.textPrimary),
               ),
               subtitle: Text(
-                'Applied automatically when a file has these columns',
+                L10n.of(context).importAppliedAutomaticallyWhenAFile,
                 style: TextStyle(color: AppColors.textMuted, fontSize: 13),
               ),
               trailing: IconButton(
@@ -343,7 +343,7 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
 
     return ListTile(
       title: Text(
-        'Date format',
+        L10n.of(context).importDateFormat,
         style: TextStyle(color: AppColors.textPrimary),
       ),
       subtitle: Column(
@@ -355,7 +355,7 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
             isExpanded: true,
             dropdownColor: AppColors.primarySurface,
             hint: Text(
-              'Choose one',
+              L10n.of(context).importChooseOne,
               style: TextStyle(color: AppColors.textMuted),
             ),
             items: [
@@ -388,7 +388,7 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
     final separator = _mapping.decimalSeparator;
     return ListTile(
       title: Text(
-        'Decimal point',
+        L10n.of(context).importDecimalPoint,
         style: TextStyle(color: AppColors.textPrimary),
       ),
       subtitle: Text(
@@ -426,11 +426,11 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
     onChanged: (value) =>
         setState(() => _mapping = _mapping.copyWith(negateAmounts: value)),
     title: Text(
-      'Flip the signs',
+      L10n.of(context).importFlipTheSigns,
       style: TextStyle(color: AppColors.textPrimary),
     ),
     subtitle: Text(
-      'For exports that write a spend as positive',
+      L10n.of(context).importForExportsThatWriteA,
       style: TextStyle(color: AppColors.textMuted, fontSize: 13),
     ),
     activeThumbColor: AppColors.primaryAccent,
@@ -439,9 +439,12 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
   Widget _walletTile() {
     final wallets = ref.watch(selectableWalletsProvider);
     return ListTile(
-      title: Text('Account', style: TextStyle(color: AppColors.textPrimary)),
+      title: Text(
+        L10n.of(context).entityAccount,
+        style: TextStyle(color: AppColors.textPrimary),
+      ),
       subtitle: Text(
-        'Where rows go when the file does not name an account of yours',
+        L10n.of(context).importWhereRowsGoWhenThe,
         style: TextStyle(color: AppColors.textMuted, fontSize: 13),
       ),
       trailing: DropdownButton<String>(
@@ -461,7 +464,7 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
     value: _skipDuplicates,
     onChanged: (value) => setState(() => _skipDuplicates = value),
     title: Text(
-      'Skip what is already here',
+      L10n.of(context).importSkipWhatIsAlreadyHere,
       style: TextStyle(color: AppColors.textPrimary),
     ),
     subtitle: Text(
@@ -476,11 +479,11 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
     value: _createMissingCategories,
     onChanged: (value) => setState(() => _createMissingCategories = value),
     title: Text(
-      'Create categories the file names',
+      L10n.of(context).importCreateCategoriesTheFileNames,
       style: TextStyle(color: AppColors.textPrimary),
     ),
     subtitle: Text(
-      'Otherwise those rows arrive uncategorised',
+      L10n.of(context).importOtherwiseThoseRowsArriveUncategorised,
       style: TextStyle(color: AppColors.textMuted, fontSize: 13),
     ),
     activeThumbColor: AppColors.primaryAccent,
@@ -539,7 +542,7 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
         ListTile(
           leading: _leading(Icons.label_outline, AppColors.primaryAccent),
           title: Text(
-            'Categories in this file',
+            L10n.of(context).importCategoriesInThisFile,
             style: TextStyle(color: AppColors.textPrimary),
           ),
           subtitle: Text(

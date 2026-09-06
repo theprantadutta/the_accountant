@@ -68,7 +68,7 @@ class _NotificationPrimerContent extends StatelessWidget {
             ),
             AppSpacing.gapLg,
             Text(
-              'Stay on top of your money',
+              L10n.of(context).notifStayOnTopOfYour,
               textAlign: TextAlign.center,
               style: AppTypography.headlineSmall,
             ),
@@ -116,7 +116,7 @@ class _NotificationPrimerContent extends StatelessWidget {
                 Navigator.of(context).pop(false);
               },
               child: Text(
-                'Not now',
+                L10n.of(context).settingsNotNow,
                 style: AppTypography.titleSmall.copyWith(
                   color: AppColors.textSecondary,
                 ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/features/authentication/providers/auth_provider.dart';
 import 'package:the_accountant/features/authentication/presentation/screens/sign_in_screen.dart';
@@ -355,12 +356,15 @@ class _AuthLoadingScreenState extends State<AuthLoadingScreen>
 
               AppSpacing.gapXxl,
 
-              Text('The Accountant', style: AppTypography.displaySmall),
+              Text(
+                L10n.of(context).settingsTheAccountant,
+                style: AppTypography.displaySmall,
+              ),
 
               AppSpacing.gapSm,
 
               Text(
-                'Initializing your financial journey...',
+                L10n.of(context).authInitializingYourFinancialJourney,
                 style: AppTypography.bodyMedium.copyWith(
                   color: AppColors.textSecondary,
                 ),

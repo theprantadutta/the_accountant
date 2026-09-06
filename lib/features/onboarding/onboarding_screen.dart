@@ -189,7 +189,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                         : TextButton(
                             onPressed: _finish,
                             child: Text(
-                              'Skip',
+                              L10n.of(context).txSkip,
                               style: AppTypography.labelLarge.copyWith(
                                 color: AppColors.textMuted,
                               ),

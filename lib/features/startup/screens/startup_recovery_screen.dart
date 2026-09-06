@@ -108,7 +108,7 @@ class _StartupRecoveryScreenState extends ConsumerState<StartupRecoveryScreen> {
                   ),
                   AppSpacing.gapSm,
                   Text(
-                    'Nothing has been changed or deleted.',
+                    L10n.of(context).startupNothingHasBeenChangedOr,
                     style: AppTypography.bodySmall.copyWith(
                       color: AppColors.textMuted,
                     ),

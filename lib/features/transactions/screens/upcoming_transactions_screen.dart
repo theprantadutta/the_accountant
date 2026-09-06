@@ -53,7 +53,10 @@ class _UpcomingTransactionsScreenState
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
-          title: Text('Upcoming & Overdue', style: AppTypography.headlineSmall),
+          title: Text(
+            L10n.of(context).txUpcomingOverdue,
+            style: AppTypography.headlineSmall,
+          ),
           leading: IconButton(
             icon: Icon(Icons.arrow_back_ios_new, color: AppColors.textPrimary),
             onPressed: () => Navigator.pop(context),

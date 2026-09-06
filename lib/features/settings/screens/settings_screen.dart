@@ -104,7 +104,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Your data is on this device only',
+                    L10n.of(context).settingsYourDataIsOnThis,
                     style: TextStyle(
                       color: AppColors.textPrimary,
                       fontWeight: FontWeight.w600,
@@ -126,7 +126,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   Row(
                     children: [
                       Text(
-                        'Upgrade for cloud sync',
+                        L10n.of(context).settingsUpgradeForCloudSync,
                         style: TextStyle(
                           color: AppColors.warning,
                           fontSize: 13,
@@ -239,14 +239,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             ),
                             SizedBox(height: AppSpacing.md),
                             Text(
-                              'No settings found',
+                              L10n.of(context).settingsNoSettingsFound,
                               style: TextStyle(
                                 color: AppColors.textSecondary,
                                 fontSize: 16,
                               ),
                             ),
                             Text(
-                              'Try a different search term',
+                              L10n.of(context).settingsTryADifferentSearchTerm,
                               style: TextStyle(
                                 color: AppColors.textMuted,
                                 fontSize: 14,

@@ -130,14 +130,14 @@ class _RecentlyDeletedScreenState extends ConsumerState<RecentlyDeletedScreen> {
           ),
           AppSpacing.gapXl,
           Text(
-            'Nothing deleted recently',
+            L10n.of(context).txNothingDeletedRecently,
             style: AppTypography.titleMedium.copyWith(
               color: AppColors.textSecondary,
             ),
           ),
           AppSpacing.gapSm,
           Text(
-            'Anything you delete shows up here for thirty days.',
+            L10n.of(context).txAnythingYouDeleteShowsUp,
             textAlign: TextAlign.center,
             style: AppTypography.bodySmall.copyWith(color: AppColors.textMuted),
           ),

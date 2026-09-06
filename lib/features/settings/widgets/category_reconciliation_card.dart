@@ -34,7 +34,7 @@ class CategoryReconciliationCard extends ConsumerWidget {
         Padding(
           padding: EdgeInsets.only(left: AppSpacing.sm),
           child: Text(
-            'NEEDS YOUR CONFIRMATION',
+            L10n.of(context).settingsNeedsYourConfirmation,
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w600,

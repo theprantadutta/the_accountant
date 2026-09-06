@@ -161,8 +161,8 @@ class _ThemeSelectionScreenState extends ConsumerState<ThemeSelectionScreen>
                         gradient: AppTheme.secondaryGradient,
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Text(
-                        'PRO',
+                      child: Text(
+                        L10n.of(context).settingsPro,
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 12,

@@ -260,7 +260,7 @@ class _WalletDetailScreenState extends ConsumerState<WalletDetailScreen> {
                     )
                   else if (rows.isEmpty)
                     Text(
-                      'Nothing recorded against this account yet.',
+                      L10n.of(context).walletNothingRecordedAgainstThisAccount,
                       style: AppTypography.bodySmall.copyWith(
                         color: AppColors.textMuted,
                       ),

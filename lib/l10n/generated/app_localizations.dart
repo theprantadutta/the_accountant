@@ -2616,6 +2616,1116 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'Merge {source} into {target}?'**
   String walletMergeConfirmTitle(String source, String target);
+
+  /// No description provided for @backupNothingHereYet.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing here yet.'**
+  String get backupNothingHereYet;
+
+  /// No description provided for @importAppliedAutomaticallyWhenAFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Applied automatically when a file has these columns'**
+  String get importAppliedAutomaticallyWhenAFile;
+
+  /// No description provided for @importDateFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'Date format'**
+  String get importDateFormat;
+
+  /// No description provided for @importChooseOne.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose one'**
+  String get importChooseOne;
+
+  /// No description provided for @importDecimalPoint.
+  ///
+  /// In en, this message translates to:
+  /// **'Decimal point'**
+  String get importDecimalPoint;
+
+  /// No description provided for @importFlipTheSigns.
+  ///
+  /// In en, this message translates to:
+  /// **'Flip the signs'**
+  String get importFlipTheSigns;
+
+  /// No description provided for @importForExportsThatWriteA.
+  ///
+  /// In en, this message translates to:
+  /// **'For exports that write a spend as positive'**
+  String get importForExportsThatWriteA;
+
+  /// No description provided for @importWhereRowsGoWhenThe.
+  ///
+  /// In en, this message translates to:
+  /// **'Where rows go when the file does not name an account of yours'**
+  String get importWhereRowsGoWhenThe;
+
+  /// No description provided for @importSkipWhatIsAlreadyHere.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip what is already here'**
+  String get importSkipWhatIsAlreadyHere;
+
+  /// No description provided for @importCreateCategoriesTheFileNames.
+  ///
+  /// In en, this message translates to:
+  /// **'Create categories the file names'**
+  String get importCreateCategoriesTheFileNames;
+
+  /// No description provided for @importOtherwiseThoseRowsArriveUncategorised.
+  ///
+  /// In en, this message translates to:
+  /// **'Otherwise those rows arrive uncategorised'**
+  String get importOtherwiseThoseRowsArriveUncategorised;
+
+  /// No description provided for @importCategoriesInThisFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Categories in this file'**
+  String get importCategoriesInThisFile;
+
+  /// No description provided for @settingsMadeWithLoveForPersonal.
+  ///
+  /// In en, this message translates to:
+  /// **'Made with love for personal finance'**
+  String get settingsMadeWithLoveForPersonal;
+
+  /// No description provided for @settingsTheAccountant.
+  ///
+  /// In en, this message translates to:
+  /// **'The Accountant'**
+  String get settingsTheAccountant;
+
+  /// No description provided for @settingsDevelopedMaintainedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Developed & Maintained By:'**
+  String get settingsDevelopedMaintainedBy;
+
+  /// No description provided for @settingsPrantaDutta.
+  ///
+  /// In en, this message translates to:
+  /// **'Pranta Dutta'**
+  String get settingsPrantaDutta;
+
+  /// No description provided for @settingsClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get settingsClose;
+
+  /// No description provided for @settingsGetInTouch.
+  ///
+  /// In en, this message translates to:
+  /// **'Get in touch'**
+  String get settingsGetInTouch;
+
+  /// No description provided for @settingsAsAPremiumMemberYour.
+  ///
+  /// In en, this message translates to:
+  /// **'As a Premium member, your request is flagged for priority.'**
+  String get settingsAsAPremiumMemberYour;
+
+  /// No description provided for @settingsWhatToInclude.
+  ///
+  /// In en, this message translates to:
+  /// **'What to include'**
+  String get settingsWhatToInclude;
+
+  /// No description provided for @settingsNoCurrenciesFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No currencies found'**
+  String get settingsNoCurrenciesFound;
+
+  /// No description provided for @settingsExportYourFinancialDataTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Export your financial data to analyze in other apps or keep as a backup.'**
+  String get settingsExportYourFinancialDataTo;
+
+  /// No description provided for @settingsDateRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Date Range'**
+  String get settingsDateRange;
+
+  /// No description provided for @settingsPremium.
+  ///
+  /// In en, this message translates to:
+  /// **'PREMIUM'**
+  String get settingsPremium;
+
+  /// No description provided for @settingsPdfReports.
+  ///
+  /// In en, this message translates to:
+  /// **'PDF Reports'**
+  String get settingsPdfReports;
+
+  /// No description provided for @settingsFrequentlyAskedQuestions.
+  ///
+  /// In en, this message translates to:
+  /// **'FREQUENTLY ASKED QUESTIONS'**
+  String get settingsFrequentlyAskedQuestions;
+
+  /// No description provided for @settingsGettingStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Getting Started'**
+  String get settingsGettingStarted;
+
+  /// No description provided for @settingsStillNeedHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Still need help?'**
+  String get settingsStillNeedHelp;
+
+  /// No description provided for @settingsOurSupportTeamIsHere.
+  ///
+  /// In en, this message translates to:
+  /// **'Our support team is here to help you'**
+  String get settingsOurSupportTeamIsHere;
+
+  /// No description provided for @settingsAppLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'App Locked'**
+  String get settingsAppLocked;
+
+  /// No description provided for @settingsUnlockToAccessTheAccountant.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock to access The Accountant'**
+  String get settingsUnlockToAccessTheAccountant;
+
+  /// No description provided for @settingsConfigureWhenAndHowThe.
+  ///
+  /// In en, this message translates to:
+  /// **'Configure when and how The Accountant should remind you to track your expenses.'**
+  String get settingsConfigureWhenAndHowThe;
+
+  /// No description provided for @settingsDebug.
+  ///
+  /// In en, this message translates to:
+  /// **'DEBUG'**
+  String get settingsDebug;
+
+  /// No description provided for @settingsExactAlarmPermission.
+  ///
+  /// In en, this message translates to:
+  /// **'Exact Alarm Permission'**
+  String get settingsExactAlarmPermission;
+
+  /// No description provided for @settingsDeviceTimezone.
+  ///
+  /// In en, this message translates to:
+  /// **'Device Timezone'**
+  String get settingsDeviceTimezone;
+
+  /// No description provided for @settingsScheduledNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Scheduled Notifications'**
+  String get settingsScheduledNotifications;
+
+  /// No description provided for @settingsSendTestNotification.
+  ///
+  /// In en, this message translates to:
+  /// **'Send Test Notification'**
+  String get settingsSendTestNotification;
+
+  /// No description provided for @settingsTapToVerifyNotificationsWork.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to verify notifications work'**
+  String get settingsTapToVerifyNotificationsWork;
+
+  /// No description provided for @settingsYourEmailIsUsedTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Your email is used to sign in and can’t be changed here.'**
+  String get settingsYourEmailIsUsedTo;
+
+  /// No description provided for @settingsYourDataIsOnThis.
+  ///
+  /// In en, this message translates to:
+  /// **'Your data is on this device only'**
+  String get settingsYourDataIsOnThis;
+
+  /// No description provided for @settingsUpgradeForCloudSync.
+  ///
+  /// In en, this message translates to:
+  /// **'Upgrade for cloud sync'**
+  String get settingsUpgradeForCloudSync;
+
+  /// No description provided for @settingsNoSettingsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No settings found'**
+  String get settingsNoSettingsFound;
+
+  /// No description provided for @settingsTryADifferentSearchTerm.
+  ///
+  /// In en, this message translates to:
+  /// **'Try a different search term'**
+  String get settingsTryADifferentSearchTerm;
+
+  /// No description provided for @settingsSyncStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'SYNC STATUS'**
+  String get settingsSyncStatus;
+
+  /// No description provided for @settingsSyncNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync Now'**
+  String get settingsSyncNow;
+
+  /// No description provided for @settingsRestoreFromCloud2.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore from Cloud'**
+  String get settingsRestoreFromCloud2;
+
+  /// No description provided for @settingsPro.
+  ///
+  /// In en, this message translates to:
+  /// **'PRO'**
+  String get settingsPro;
+
+  /// No description provided for @settingsNeedsYourConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'NEEDS YOUR CONFIRMATION'**
+  String get settingsNeedsYourConfirmation;
+
+  /// No description provided for @walletCreateYourFirstAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Your First Account'**
+  String get walletCreateYourFirstAccount;
+
+  /// No description provided for @walletYouNeedAtLeastOne.
+  ///
+  /// In en, this message translates to:
+  /// **'You need at least one account to start tracking your finances'**
+  String get walletYouNeedAtLeastOne;
+
+  /// No description provided for @walletAccountType.
+  ///
+  /// In en, this message translates to:
+  /// **'Account Type'**
+  String get walletAccountType;
+
+  /// No description provided for @walletAccountTypeCannotBeChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Account type cannot be changed later'**
+  String get walletAccountTypeCannotBeChanged;
+
+  /// No description provided for @walletAccountName.
+  ///
+  /// In en, this message translates to:
+  /// **'Account Name'**
+  String get walletAccountName;
+
+  /// No description provided for @walletCreditLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Credit Limit'**
+  String get walletCreditLimit;
+
+  /// No description provided for @walletBillingCycleDayOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Billing Cycle Day (optional)'**
+  String get walletBillingCycleDayOptional;
+
+  /// No description provided for @walletThisWillBeYourDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'This will be your default account'**
+  String get walletThisWillBeYourDefault;
+
+  /// No description provided for @walletNothingRecordedAgainstThisAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing recorded against this account yet.'**
+  String get walletNothingRecordedAgainstThisAccount;
+
+  /// No description provided for @walletAddAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Account'**
+  String get walletAddAccount;
+
+  /// No description provided for @walletYourAccounts.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Accounts'**
+  String get walletYourAccounts;
+
+  /// No description provided for @walletNoAccountsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No accounts yet'**
+  String get walletNoAccountsYet;
+
+  /// No description provided for @walletOutstanding.
+  ///
+  /// In en, this message translates to:
+  /// **'Outstanding'**
+  String get walletOutstanding;
+
+  /// No description provided for @walletAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Available'**
+  String get walletAvailable;
+
+  /// No description provided for @walletLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Limit'**
+  String get walletLimit;
+
+  /// No description provided for @walletCreditBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'CREDIT BALANCE'**
+  String get walletCreditBalance;
+
+  /// No description provided for @walletBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Balance'**
+  String get walletBalance;
+
+  /// No description provided for @walletOverdrawn.
+  ///
+  /// In en, this message translates to:
+  /// **'OVERDRAWN'**
+  String get walletOverdrawn;
+
+  /// No description provided for @walletBillingCycleDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Billing Cycle Day'**
+  String get walletBillingCycleDay;
+
+  /// No description provided for @walletUseThisWalletForNew.
+  ///
+  /// In en, this message translates to:
+  /// **'Use this wallet for new transactions'**
+  String get walletUseThisWalletForNew;
+
+  /// No description provided for @walletSelectIcon.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Icon'**
+  String get walletSelectIcon;
+
+  /// No description provided for @walletSelectColor.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Color'**
+  String get walletSelectColor;
+
+  /// No description provided for @txScanReceipts.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan receipts'**
+  String get txScanReceipts;
+
+  /// No description provided for @txYouNeedAtLeast2.
+  ///
+  /// In en, this message translates to:
+  /// **'You need at least 2 accounts to make a transfer'**
+  String get txYouNeedAtLeast2;
+
+  /// No description provided for @txDeleteTransaction.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Transaction'**
+  String get txDeleteTransaction;
+
+  /// No description provided for @txAreYouSureYouWant.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this transaction?'**
+  String get txAreYouSureYouWant;
+
+  /// No description provided for @txTransactionType.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction Type'**
+  String get txTransactionType;
+
+  /// No description provided for @txTransferFee.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfer fee'**
+  String get txTransferFee;
+
+  /// No description provided for @txChargedSeparatelySoTheTransfer.
+  ///
+  /// In en, this message translates to:
+  /// **'Charged separately, so the transfer itself stays balanced.'**
+  String get txChargedSeparatelySoTheTransfer;
+
+  /// No description provided for @txDeductedFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'Deducted from'**
+  String get txDeductedFrom;
+
+  /// No description provided for @txNoPaymentMethods.
+  ///
+  /// In en, this message translates to:
+  /// **'No payment methods'**
+  String get txNoPaymentMethods;
+
+  /// No description provided for @txNothingDeletedRecently.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing deleted recently'**
+  String get txNothingDeletedRecently;
+
+  /// No description provided for @txAnythingYouDeleteShowsUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Anything you delete shows up here for thirty days.'**
+  String get txAnythingYouDeleteShowsUp;
+
+  /// No description provided for @txNoRulesYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No rules yet'**
+  String get txNoRulesYet;
+
+  /// No description provided for @txClearAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear All'**
+  String get txClearAll;
+
+  /// No description provided for @txApplyFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply Filters'**
+  String get txApplyFilters;
+
+  /// No description provided for @txUpcomingOverdue.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming & Overdue'**
+  String get txUpcomingOverdue;
+
+  /// No description provided for @txEnterAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter Amount'**
+  String get txEnterAmount;
+
+  /// No description provided for @txNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New'**
+  String get txNew;
+
+  /// No description provided for @txLoan.
+  ///
+  /// In en, this message translates to:
+  /// **'Loan'**
+  String get txLoan;
+
+  /// No description provided for @goalStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Started'**
+  String get goalStarted;
+
+  /// No description provided for @goalTargetDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Target date'**
+  String get goalTargetDate;
+
+  /// No description provided for @goalWithADateTheGoal.
+  ///
+  /// In en, this message translates to:
+  /// **'With a date, the goal works out how much to put aside each day.'**
+  String get goalWithADateTheGoal;
+
+  /// No description provided for @goalCountedTowardThisGoal.
+  ///
+  /// In en, this message translates to:
+  /// **'Counted toward this goal'**
+  String get goalCountedTowardThisGoal;
+
+  /// No description provided for @goalGettingThere.
+  ///
+  /// In en, this message translates to:
+  /// **'Getting there'**
+  String get goalGettingThere;
+
+  /// No description provided for @goalSetATargetDateAnd.
+  ///
+  /// In en, this message translates to:
+  /// **'Set a target date and this works out what to put aside.'**
+  String get goalSetATargetDateAnd;
+
+  /// No description provided for @reportSpendingInsights.
+  ///
+  /// In en, this message translates to:
+  /// **'Spending Insights'**
+  String get reportSpendingInsights;
+
+  /// No description provided for @reportAdvancedReports.
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced Reports'**
+  String get reportAdvancedReports;
+
+  /// No description provided for @reportNoSpendingDataForThis.
+  ///
+  /// In en, this message translates to:
+  /// **'No spending data for this period'**
+  String get reportNoSpendingDataForThis;
+
+  /// No description provided for @reportNoCategorySpendingData.
+  ///
+  /// In en, this message translates to:
+  /// **'No category spending data'**
+  String get reportNoCategorySpendingData;
+
+  /// No description provided for @reportFinancialSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Financial Summary'**
+  String get reportFinancialSummary;
+
+  /// No description provided for @reportCategoryBreakdown.
+  ///
+  /// In en, this message translates to:
+  /// **'Category Breakdown'**
+  String get reportCategoryBreakdown;
+
+  /// No description provided for @reportNoSpendingDataAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No spending data available'**
+  String get reportNoSpendingDataAvailable;
+
+  /// No description provided for @reportBudgetVsActual.
+  ///
+  /// In en, this message translates to:
+  /// **'Budget vs Actual'**
+  String get reportBudgetVsActual;
+
+  /// No description provided for @reportNoActiveBudgets.
+  ///
+  /// In en, this message translates to:
+  /// **'No active budgets'**
+  String get reportNoActiveBudgets;
+
+  /// No description provided for @reportCreateABudgetToTrack.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a budget to track your spending'**
+  String get reportCreateABudgetToTrack;
+
+  /// No description provided for @budgetSpendingFasterThanThePeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'Spending faster than the period is passing.'**
+  String get budgetSpendingFasterThanThePeriod;
+
+  /// No description provided for @budgetNothingRecordedInThisPeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing recorded in this period.'**
+  String get budgetNothingRecordedInThisPeriod;
+
+  /// No description provided for @authPasswordResetSuccessfullyPleaseSign.
+  ///
+  /// In en, this message translates to:
+  /// **'Password reset successfully. Please sign in.'**
+  String get authPasswordResetSuccessfullyPleaseSign;
+
+  /// No description provided for @authResendCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend code'**
+  String get authResendCode;
+
+  /// No description provided for @authForgotPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot Password?'**
+  String get authForgotPassword;
+
+  /// No description provided for @authOrContinueWith.
+  ///
+  /// In en, this message translates to:
+  /// **'Or continue with'**
+  String get authOrContinueWith;
+
+  /// No description provided for @authContinueWithGoogle.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue with Google'**
+  String get authContinueWithGoogle;
+
+  /// No description provided for @authContinueWithApple.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue with Apple'**
+  String get authContinueWithApple;
+
+  /// No description provided for @authSignUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign Up'**
+  String get authSignUp;
+
+  /// No description provided for @authPleaseAcceptTheTermsAnd.
+  ///
+  /// In en, this message translates to:
+  /// **'Please accept the terms and conditions'**
+  String get authPleaseAcceptTheTermsAnd;
+
+  /// No description provided for @authPasswordStrength.
+  ///
+  /// In en, this message translates to:
+  /// **'Password Strength'**
+  String get authPasswordStrength;
+
+  /// No description provided for @authAlreadyHaveAnAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Already have an account? '**
+  String get authAlreadyHaveAnAccount;
+
+  /// No description provided for @authPersonalInformation.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal Information'**
+  String get authPersonalInformation;
+
+  /// No description provided for @authUpgradeToPremium.
+  ///
+  /// In en, this message translates to:
+  /// **'Upgrade to Premium'**
+  String get authUpgradeToPremium;
+
+  /// No description provided for @authUnlockUnlimitedBudgetsAdvancedAnalytics.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock unlimited budgets, advanced analytics, and more!'**
+  String get authUnlockUnlimitedBudgetsAdvancedAnalytics;
+
+  /// No description provided for @authUpgradeNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Upgrade Now'**
+  String get authUpgradeNow;
+
+  /// No description provided for @authPremiumMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium Member'**
+  String get authPremiumMember;
+
+  /// No description provided for @authEnjoyingAllPremiumFeatures.
+  ///
+  /// In en, this message translates to:
+  /// **'Enjoying all premium features'**
+  String get authEnjoyingAllPremiumFeatures;
+
+  /// No description provided for @authSaveChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Changes'**
+  String get authSaveChanges;
+
+  /// No description provided for @authAreYouSureYouWant.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to sign out of your account?'**
+  String get authAreYouSureYouWant;
+
+  /// No description provided for @authChangeProfilePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Change Profile Photo'**
+  String get authChangeProfilePhoto;
+
+  /// No description provided for @authTakePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Take Photo'**
+  String get authTakePhoto;
+
+  /// No description provided for @authUseYourCamera.
+  ///
+  /// In en, this message translates to:
+  /// **'Use your camera'**
+  String get authUseYourCamera;
+
+  /// No description provided for @authChooseFromGallery.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose from Gallery'**
+  String get authChooseFromGallery;
+
+  /// No description provided for @authSelectAnExistingPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Select an existing photo'**
+  String get authSelectAnExistingPhoto;
+
+  /// No description provided for @authPhotoSelectedUploadFeatureComing.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo selected! Upload feature coming soon.'**
+  String get authPhotoSelectedUploadFeatureComing;
+
+  /// No description provided for @authNameCannotBeEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Name cannot be empty'**
+  String get authNameCannotBeEmpty;
+
+  /// No description provided for @authProfileUpdatedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile updated successfully!'**
+  String get authProfileUpdatedSuccessfully;
+
+  /// No description provided for @authTheAccountant.
+  ///
+  /// In en, this message translates to:
+  /// **'THE ACCOUNTANT'**
+  String get authTheAccountant;
+
+  /// No description provided for @authInitializingYourFinancialJourney.
+  ///
+  /// In en, this message translates to:
+  /// **'Initializing your financial journey...'**
+  String get authInitializingYourFinancialJourney;
+
+  /// No description provided for @legalPrivacyTerms.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy & Terms'**
+  String get legalPrivacyTerms;
+
+  /// No description provided for @legalReviewTheseBeforeYouContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Review these before you continue.'**
+  String get legalReviewTheseBeforeYouContinue;
+
+  /// No description provided for @premiumLifetimeAccessNeverExpires.
+  ///
+  /// In en, this message translates to:
+  /// **'Lifetime access - Never expires'**
+  String get premiumLifetimeAccessNeverExpires;
+
+  /// No description provided for @premiumPremiumFeatures.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium Features'**
+  String get premiumPremiumFeatures;
+
+  /// No description provided for @premiumChooseYourPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose Your Plan'**
+  String get premiumChooseYourPlan;
+
+  /// No description provided for @premiumUnlockPremium.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock Premium'**
+  String get premiumUnlockPremium;
+
+  /// No description provided for @premiumOneTimePurchaseLifetimeAccess.
+  ///
+  /// In en, this message translates to:
+  /// **'One-time purchase • Lifetime access'**
+  String get premiumOneTimePurchaseLifetimeAccess;
+
+  /// No description provided for @premiumLimitReached.
+  ///
+  /// In en, this message translates to:
+  /// **'Limit Reached'**
+  String get premiumLimitReached;
+
+  /// No description provided for @aiChats.
+  ///
+  /// In en, this message translates to:
+  /// **'Chats'**
+  String get aiChats;
+
+  /// No description provided for @aiNewChat.
+  ///
+  /// In en, this message translates to:
+  /// **'New chat'**
+  String get aiNewChat;
+
+  /// No description provided for @aiNoConversationsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No conversations yet'**
+  String get aiNoConversationsYet;
+
+  /// No description provided for @aiStartChattingAndYourThreads.
+  ///
+  /// In en, this message translates to:
+  /// **'Start chatting and your threads show up here.'**
+  String get aiStartChattingAndYourThreads;
+
+  /// No description provided for @aiAiFinancialAssistant.
+  ///
+  /// In en, this message translates to:
+  /// **'AI Financial Assistant'**
+  String get aiAiFinancialAssistant;
+
+  /// No description provided for @aiScanAReceipt.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan a receipt'**
+  String get aiScanAReceipt;
+
+  /// No description provided for @aiAiIsThinking.
+  ///
+  /// In en, this message translates to:
+  /// **'AI is thinking...'**
+  String get aiAiIsThinking;
+
+  /// No description provided for @aiSpendingTrend.
+  ///
+  /// In en, this message translates to:
+  /// **'Spending Trend'**
+  String get aiSpendingTrend;
+
+  /// No description provided for @aiTopSpendingCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'Top Spending Categories'**
+  String get aiTopSpendingCategories;
+
+  /// No description provided for @aiReadingYourReceipt.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading your receipt…'**
+  String get aiReadingYourReceipt;
+
+  /// No description provided for @aiReviewSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Review & save'**
+  String get aiReviewSave;
+
+  /// No description provided for @aiWeReadThisFromYour.
+  ///
+  /// In en, this message translates to:
+  /// **'We read this from your receipt — check it and edit anything before saving.'**
+  String get aiWeReadThisFromYour;
+
+  /// No description provided for @dashErrorLoadingFinancialData.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading financial data'**
+  String get dashErrorLoadingFinancialData;
+
+  /// No description provided for @dashReadyToManageYourFinances.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready to manage your finances?'**
+  String get dashReadyToManageYourFinances;
+
+  /// No description provided for @dashNoSpendingDataYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No spending data yet'**
+  String get dashNoSpendingDataYet;
+
+  /// No description provided for @dashViewAll.
+  ///
+  /// In en, this message translates to:
+  /// **'View All'**
+  String get dashViewAll;
+
+  /// No description provided for @dashNoTransactionsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No transactions yet'**
+  String get dashNoTransactionsYet;
+
+  /// No description provided for @dashAddYourFirstTransactionTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your first transaction to get started'**
+  String get dashAddYourFirstTransactionTo;
+
+  /// No description provided for @dashManage.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage'**
+  String get dashManage;
+
+  /// No description provided for @dashAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Available: ****'**
+  String get dashAvailable;
+
+  /// No description provided for @onboardWelcome.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome!'**
+  String get onboardWelcome;
+
+  /// No description provided for @onboardSelectYourDefaultCurrency.
+  ///
+  /// In en, this message translates to:
+  /// **'Select your default currency'**
+  String get onboardSelectYourDefaultCurrency;
+
+  /// No description provided for @onboardLoadingCurrencies.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading currencies...'**
+  String get onboardLoadingCurrencies;
+
+  /// No description provided for @onboardSetUpYourPrimaryWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Set up your primary wallet'**
+  String get onboardSetUpYourPrimaryWallet;
+
+  /// No description provided for @onboardInitialBalanceOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Initial Balance (optional)'**
+  String get onboardInitialBalanceOptional;
+
+  /// No description provided for @onboardYourAccountIsReadyTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account is ready to use'**
+  String get onboardYourAccountIsReadyTo;
+
+  /// No description provided for @onboardTipYouCanAddMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Tip: You can add more accounts with different currencies anytime from the Wallets section.'**
+  String get onboardTipYouCanAddMore;
+
+  /// No description provided for @creditSettled.
+  ///
+  /// In en, this message translates to:
+  /// **'Settled'**
+  String get creditSettled;
+
+  /// No description provided for @creditOverdue.
+  ///
+  /// In en, this message translates to:
+  /// **'Overdue'**
+  String get creditOverdue;
+
+  /// No description provided for @creditRecord.
+  ///
+  /// In en, this message translates to:
+  /// **'Record'**
+  String get creditRecord;
+
+  /// No description provided for @subRecurring.
+  ///
+  /// In en, this message translates to:
+  /// **'Recurring'**
+  String get subRecurring;
+
+  /// No description provided for @subPaused.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused'**
+  String get subPaused;
+
+  /// No description provided for @subFrequency.
+  ///
+  /// In en, this message translates to:
+  /// **'Frequency'**
+  String get subFrequency;
+
+  /// No description provided for @notifMarkAllRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark all read'**
+  String get notifMarkAllRead;
+
+  /// No description provided for @notifTryAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get notifTryAgain;
+
+  /// No description provided for @notifStayOnTopOfYour.
+  ///
+  /// In en, this message translates to:
+  /// **'Stay on top of your money'**
+  String get notifStayOnTopOfYour;
+
+  /// No description provided for @notifNoNotificationsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No notifications yet'**
+  String get notifNoNotificationsYet;
+
+  /// No description provided for @notifWhenYouReceiveNotificationsThey.
+  ///
+  /// In en, this message translates to:
+  /// **'When you receive notifications, they will appear here.'**
+  String get notifWhenYouReceiveNotificationsThey;
+
+  /// No description provided for @startupNothingHasBeenChangedOr.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing has been changed or deleted.'**
+  String get startupNothingHasBeenChangedOr;
+
+  /// No description provided for @sharedIncludeCryptoCurrencies.
+  ///
+  /// In en, this message translates to:
+  /// **'Include crypto currencies'**
+  String get sharedIncludeCryptoCurrencies;
+
+  /// No description provided for @sharedQuickAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick Add'**
+  String get sharedQuickAdd;
+
+  /// No description provided for @sharedRecordYourIncomeOrExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Record your income or expense'**
+  String get sharedRecordYourIncomeOrExpense;
+
+  /// No description provided for @sharedTotalBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Balance'**
+  String get sharedTotalBalance;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

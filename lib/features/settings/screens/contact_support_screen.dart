@@ -157,7 +157,7 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
           ),
           SizedBox(height: AppSpacing.sm),
           Text(
-            'Get in touch',
+            L10n.of(context).settingsGetInTouch,
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
@@ -189,7 +189,7 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
           SizedBox(width: AppSpacing.sm),
           Expanded(
             child: Text(
-              'As a Premium member, your request is flagged for priority.',
+              L10n.of(context).settingsAsAPremiumMemberYour,
               style: TextStyle(color: Colors.amber.shade200, fontSize: 13),
             ),
           ),
@@ -210,7 +210,7 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'What to include',
+            L10n.of(context).settingsWhatToInclude,
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,

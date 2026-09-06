@@ -69,7 +69,7 @@ class _NotificationInboxScreenState
                 ref.read(notificationHistoryProvider.notifier).markAllAsRead();
               },
               child: Text(
-                'Mark all read',
+                L10n.of(context).notifMarkAllRead,
                 style: AppTypography.labelMedium.copyWith(
                   color: AppColors.primaryAccent,
                 ),
@@ -138,7 +138,7 @@ class _NotificationInboxScreenState
               onPressed: () =>
                   ref.read(notificationHistoryProvider.notifier).refresh(),
               child: Text(
-                'Try again',
+                L10n.of(context).notifTryAgain,
                 style: AppTypography.labelMedium.copyWith(
                   color: AppColors.primaryAccent,
                 ),

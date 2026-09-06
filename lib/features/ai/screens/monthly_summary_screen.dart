@@ -149,8 +149,8 @@ class _MonthlySummaryScreenState extends ConsumerState<MonthlySummaryScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Spending Trend',
+                        Text(
+                          L10n.of(context).aiSpendingTrend,
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -178,8 +178,8 @@ class _MonthlySummaryScreenState extends ConsumerState<MonthlySummaryScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Spending Insights',
+                          Text(
+                            L10n.of(context).reportSpendingInsights,
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
@@ -205,8 +205,8 @@ class _MonthlySummaryScreenState extends ConsumerState<MonthlySummaryScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Top Spending Categories',
+                          Text(
+                            L10n.of(context).aiTopSpendingCategories,
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,

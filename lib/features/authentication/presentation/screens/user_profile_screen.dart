@@ -362,7 +362,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Personal Information',
+              L10n.of(context).authPersonalInformation,
               style: TextStyle(
                 color: AppColors.textPrimary,
                 fontSize: 18,
@@ -473,7 +473,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Upgrade to Premium',
+                          L10n.of(context).authUpgradeToPremium,
                           style: TextStyle(
                             color: AppColors.textPrimary,
                             fontSize: 18,
@@ -481,7 +481,9 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
                           ),
                         ),
                         Text(
-                          'Unlock unlimited budgets, advanced analytics, and more!',
+                          L10n.of(
+                            context,
+                          ).authUnlockUnlimitedBudgetsAdvancedAnalytics,
                           style: TextStyle(
                             color: AppColors.textPrimary.withValues(alpha: 0.7),
                             fontSize: 14,
@@ -513,8 +515,8 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: const Text(
-                    'Upgrade Now',
+                  child: Text(
+                    L10n.of(context).authUpgradeNow,
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                   ),
                 ),
@@ -568,7 +570,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
                   Row(
                     children: [
                       Text(
-                        'Premium Member',
+                        L10n.of(context).authPremiumMember,
                         style: TextStyle(
                           color: Color(0xFFFFD700),
                           fontSize: 18,
@@ -580,7 +582,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
                     ],
                   ),
                   Text(
-                    'Enjoying all premium features',
+                    L10n.of(context).authEnjoyingAllPremiumFeatures,
                     style: TextStyle(
                       color: AppColors.textPrimary.withValues(alpha: 0.7),
                       fontSize: 14,
@@ -619,8 +621,8 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: const Text(
-                    'Save Changes',
+                  child: Text(
+                    L10n.of(context).authSaveChanges,
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 16,
@@ -670,7 +672,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
                             ),
                             const SizedBox(width: 8),
                             Text(
-                              'Sign Out',
+                              L10n.of(context).settingsSignOut,
                               style: TextStyle(
                                 color: Colors.red.withValues(alpha: 0.8),
                                 fontSize: 16,
@@ -719,7 +721,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        'Sign Out',
+                        L10n.of(context).settingsSignOut,
                         style: TextStyle(
                           color: AppColors.textPrimary,
                           fontSize: 20,
@@ -728,7 +730,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Are you sure you want to sign out of your account?',
+                        L10n.of(context).authAreYouSureYouWant,
                         style: TextStyle(
                           color: AppColors.textPrimary.withValues(alpha: 0.8),
                           fontSize: 16,
@@ -756,8 +758,8 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                 ),
-                                child: const Text(
-                                  'Cancel',
+                                child: Text(
+                                  L10n.of(context).actionCancel,
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.w600,
@@ -850,7 +852,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
                                       ),
                                     )
                                   : Text(
-                                      'Sign Out',
+                                      L10n.of(context).settingsSignOut,
                                       style: TextStyle(
                                         color: AppColors.textPrimary,
                                         fontWeight: FontWeight.bold,
@@ -884,8 +886,8 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text(
-                  'Change Profile Photo',
+                Text(
+                  L10n.of(context).authChangeProfilePhoto,
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 18,
@@ -904,11 +906,11 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
                     child: const Icon(Icons.camera_alt, color: Colors.blue),
                   ),
                   title: Text(
-                    'Take Photo',
+                    L10n.of(context).authTakePhoto,
                     style: TextStyle(color: AppColors.textPrimary),
                   ),
                   subtitle: Text(
-                    'Use your camera',
+                    L10n.of(context).authUseYourCamera,
                     style: TextStyle(
                       color: AppColors.textPrimary.withValues(alpha: 0.7),
                     ),
@@ -933,11 +935,11 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
                     ),
                   ),
                   title: Text(
-                    'Choose from Gallery',
+                    L10n.of(context).authChooseFromGallery,
                     style: TextStyle(color: AppColors.textPrimary),
                   ),
                   subtitle: Text(
-                    'Select an existing photo',
+                    L10n.of(context).authSelectAnExistingPhoto,
                     style: TextStyle(
                       color: AppColors.textPrimary.withValues(alpha: 0.7),
                     ),
@@ -976,7 +978,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
                   Icon(Icons.check_circle, color: AppColors.textPrimary),
                   SizedBox(width: 8),
                   Text(
-                    'Photo selected! Upload feature coming soon.',
+                    L10n.of(context).authPhotoSelectedUploadFeatureComing,
                     style: TextStyle(color: AppColors.textPrimary),
                   ),
                 ],
@@ -1031,7 +1033,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
               Icon(Icons.error_outline, color: AppColors.textPrimary),
               SizedBox(width: 8),
               Text(
-                'Name cannot be empty',
+                L10n.of(context).authNameCannotBeEmpty,
                 style: TextStyle(color: AppColors.textPrimary),
               ),
             ],
@@ -1061,7 +1063,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
                 Icon(Icons.check_circle, color: AppColors.textPrimary),
                 SizedBox(width: 8),
                 Text(
-                  'Profile updated successfully!',
+                  L10n.of(context).authProfileUpdatedSuccessfully,
                   style: TextStyle(color: AppColors.textPrimary),
                 ),
               ],

@@ -310,7 +310,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
           ),
           SizedBox(height: AppSpacing.sm),
           Text(
-            'Your email is used to sign in and can’t be changed here.',
+            L10n.of(context).settingsYourEmailIsUsedTo,
             style: TextStyle(color: AppColors.textMuted, fontSize: 12),
           ),
         ],

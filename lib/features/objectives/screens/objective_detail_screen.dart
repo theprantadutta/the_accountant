@@ -187,7 +187,7 @@ class ObjectiveDetailScreen extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Counted toward this goal',
+                  L10n.of(context).goalCountedTowardThisGoal,
                   style: AppTypography.titleSmall,
                 ),
                 AppSpacing.gapSm,
@@ -316,7 +316,10 @@ class _PlanCardState extends ConsumerState<_PlanCard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Getting there', style: AppTypography.titleSmall),
+            Text(
+              L10n.of(context).goalGettingThere,
+              style: AppTypography.titleSmall,
+            ),
             AppSpacing.gapMd,
             Wrap(
               spacing: 8,
@@ -332,7 +335,7 @@ class _PlanCardState extends ConsumerState<_PlanCard> {
             AppSpacing.gapMd,
             if (plan == null)
               Text(
-                'Set a target date and this works out what to put aside.',
+                L10n.of(context).goalSetATargetDateAnd,
                 style: AppTypography.bodySmall.copyWith(
                   color: AppColors.textMuted,
                 ),

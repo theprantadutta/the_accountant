@@ -242,7 +242,7 @@ class _Headline extends ConsumerWidget {
                 const SizedBox(width: 6),
                 Expanded(
                   child: Text(
-                    'Spending faster than the period is passing.',
+                    L10n.of(context).budgetSpendingFasterThanThePeriod,
                     style: AppTypography.bodySmall.copyWith(
                       color: AppColors.warning,
                     ),
@@ -285,7 +285,7 @@ class _CategoryBreakdown extends ConsumerWidget {
           return GlassCard(
             padding: AppSpacing.paddingLg,
             child: Text(
-              'Nothing recorded in this period.',
+              L10n.of(context).budgetNothingRecordedInThisPeriod,
               style: AppTypography.bodySmall.copyWith(
                 color: AppColors.textMuted,
               ),

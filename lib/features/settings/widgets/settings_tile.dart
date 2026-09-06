@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
@@ -330,8 +331,8 @@ class PremiumBadge extends StatelessWidget {
         gradient: AppColors.primaryGradient,
         borderRadius: BorderRadius.circular(12),
       ),
-      child: const Text(
-        'PRO',
+      child: Text(
+        L10n.of(context).settingsPro,
         style: TextStyle(
           fontSize: 10,
           fontWeight: FontWeight.bold,

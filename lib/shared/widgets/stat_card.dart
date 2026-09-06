@@ -446,7 +446,7 @@ class HeroBalanceCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Total Balance',
+            L10n.of(context).sharedTotalBalance,
             style: AppTypography.secondary(AppTypography.labelMedium),
           ),
           AppSpacing.gapSm,

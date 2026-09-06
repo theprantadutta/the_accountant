@@ -44,7 +44,10 @@ class WalletCardsSection extends ConsumerWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Your Accounts', style: AppTypography.titleMedium),
+              Text(
+                L10n.of(context).walletYourAccounts,
+                style: AppTypography.titleMedium,
+              ),
               GestureDetector(
                 onTap: () {
                   HapticFeedback.lightImpact();
@@ -56,7 +59,7 @@ class WalletCardsSection extends ConsumerWidget {
                   );
                 },
                 child: Text(
-                  'Manage',
+                  L10n.of(context).dashManage,
                   style: AppTypography.labelMedium.copyWith(
                     color: AppColors.primaryAccent,
                   ),
@@ -305,7 +308,7 @@ class _WalletCardState extends ConsumerState<_WalletCard>
                                 )
                               else
                                 Text(
-                                  'Available: ****',
+                                  L10n.of(context).dashAvailable,
                                   style: AppTypography.labelSmall.copyWith(
                                     color: AppColors.textSecondary,
                                     fontSize: 9,

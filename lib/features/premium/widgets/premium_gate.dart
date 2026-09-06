@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
@@ -338,7 +339,7 @@ class _PremiumUpgradeScreen extends StatelessWidget {
                 ),
                 const SizedBox(width: 10),
                 Text(
-                  'Unlock Premium',
+                  L10n.of(context).premiumUnlockPremium,
                   style: TextStyle(
                     fontSize: 17 * scale,
                     fontWeight: FontWeight.bold,
@@ -359,7 +360,7 @@ class _PremiumUpgradeScreen extends StatelessWidget {
             Icon(Icons.check_circle, size: 14, color: AppColors.success),
             const SizedBox(width: 6),
             Text(
-              'One-time purchase • Lifetime access',
+              L10n.of(context).premiumOneTimePurchaseLifetimeAccess,
               style: TextStyle(fontSize: 12, color: AppColors.textMuted),
             ),
           ],
@@ -417,7 +418,7 @@ class PremiumFeatureGate extends ConsumerWidget {
             Icon(Icons.lock, size: 14, color: AppColors.textMuted),
             const SizedBox(width: 4),
             Text(
-              'Premium',
+              L10n.of(context).premiumPremium,
               style: TextStyle(fontSize: 12, color: AppColors.textMuted),
             ),
           ],

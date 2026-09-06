@@ -147,7 +147,7 @@ class _AddObjectiveScreenState extends ConsumerState<AddObjectiveScreen> {
             AppSpacing.gapXl,
 
             Text(
-              'Started',
+              L10n.of(context).goalStarted,
               style: AppTypography.labelMedium.copyWith(
                 color: AppColors.textSecondary,
               ),
@@ -162,7 +162,7 @@ class _AddObjectiveScreenState extends ConsumerState<AddObjectiveScreen> {
             ),
             AppSpacing.gapLg,
             Text(
-              'Target date',
+              L10n.of(context).goalTargetDate,
               style: AppTypography.labelMedium.copyWith(
                 color: AppColors.textSecondary,
               ),
@@ -182,7 +182,7 @@ class _AddObjectiveScreenState extends ConsumerState<AddObjectiveScreen> {
             ),
             AppSpacing.gapSm,
             Text(
-              'With a date, the goal works out how much to put aside each day.',
+              L10n.of(context).goalWithADateTheGoal,
               style: AppTypography.bodySmall.copyWith(
                 color: AppColors.textMuted,
               ),

@@ -121,7 +121,7 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
                 child: Row(
                   children: [
                     Text(
-                      'Chats',
+                      L10n.of(context).aiChats,
                       style: TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.w600,
@@ -143,13 +143,13 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
                           gradient: AppTheme.primaryGradient,
                           borderRadius: BorderRadius.circular(14),
                         ),
-                        child: const Row(
+                        child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(Icons.add, color: Colors.white, size: 18),
                             SizedBox(width: 6),
                             Text(
-                              'New chat',
+                              L10n.of(context).aiNewChat,
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 14,
@@ -181,7 +181,7 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
                             ),
                             const SizedBox(height: 12),
                             Text(
-                              'No conversations yet',
+                              L10n.of(context).aiNoConversationsYet,
                               style: TextStyle(
                                 color: AppColors.textSecondary,
                                 fontSize: 15,
@@ -189,7 +189,7 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              'Start chatting and your threads show up here.',
+                              L10n.of(context).aiStartChattingAndYourThreads,
                               style: TextStyle(
                                 color: AppColors.textMuted,
                                 fontSize: 13,
@@ -310,7 +310,10 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
                       color: AppColors.error,
                     ),
                     const SizedBox(width: 10),
-                    Text('Delete', style: TextStyle(color: AppColors.error)),
+                    Text(
+                      L10n.of(context).actionDelete,
+                      style: TextStyle(color: AppColors.error),
+                    ),
                   ],
                 ),
               ),
@@ -378,7 +381,10 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
           ),
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, true),
-            child: Text('Delete', style: TextStyle(color: AppColors.error)),
+            child: Text(
+              L10n.of(context).actionDelete,
+              style: TextStyle(color: AppColors.error),
+            ),
           ),
         ],
       ),
@@ -608,7 +614,7 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
-                'Retry',
+                L10n.of(context).actionRetry,
                 style: TextStyle(
                   color: Colors.orange.shade200,
                   fontSize: 12,
@@ -652,7 +658,7 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              'AI Financial Assistant',
+              L10n.of(context).aiAiFinancialAssistant,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
@@ -689,7 +695,7 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
                   ),
                   const SizedBox(width: 6),
                   Text(
-                    'New chat',
+                    L10n.of(context).aiNewChat,
                     style: TextStyle(
                       color: AppColors.textPrimary.withValues(alpha: 0.9),
                       fontSize: 13,
@@ -802,7 +808,7 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'AI Financial Assistant',
+                        L10n.of(context).aiAiFinancialAssistant,
                         style: TextStyle(
                           color: AppColors.textPrimary,
                           fontSize: 18,
@@ -910,8 +916,8 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Scan a receipt',
+                    Text(
+                      L10n.of(context).aiScanAReceipt,
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 15,
@@ -1137,7 +1143,7 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
                 ),
                 const SizedBox(width: 10),
                 Text(
-                  'AI is thinking...',
+                  L10n.of(context).aiAiIsThinking,
                   style: TextStyle(
                     color: AppColors.textPrimary.withValues(alpha: 0.8),
                     fontSize: 14,

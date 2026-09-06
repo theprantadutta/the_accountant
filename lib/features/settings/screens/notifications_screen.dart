@@ -76,7 +76,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                       SizedBox(width: AppSpacing.md),
                       Expanded(
                         child: Text(
-                          'Configure when and how The Accountant should remind you to track your expenses.',
+                          L10n.of(context).settingsConfigureWhenAndHowThe,
                           style: TextStyle(
                             color: AppColors.textSecondary,
                             fontSize: 13,
@@ -505,7 +505,7 @@ class _NotificationDebugSectionState extends State<_NotificationDebugSection> {
         Padding(
           padding: EdgeInsets.symmetric(horizontal: AppSpacing.xs),
           child: Text(
-            'DEBUG',
+            L10n.of(context).settingsDebug,
             style: TextStyle(
               color: AppColors.textMuted,
               fontSize: 12,
@@ -538,7 +538,7 @@ class _NotificationDebugSectionState extends State<_NotificationDebugSection> {
                         : AppColors.error,
                   ),
                   title: Text(
-                    'Exact Alarm Permission',
+                    L10n.of(context).settingsExactAlarmPermission,
                     style: TextStyle(color: AppColors.textPrimary),
                   ),
                   subtitle: Text(
@@ -559,7 +559,7 @@ class _NotificationDebugSectionState extends State<_NotificationDebugSection> {
                 ListTile(
                   leading: Icon(Icons.public, color: AppColors.info),
                   title: Text(
-                    'Device Timezone',
+                    L10n.of(context).settingsDeviceTimezone,
                     style: TextStyle(color: AppColors.textPrimary),
                   ),
                   subtitle: Text(
@@ -577,7 +577,7 @@ class _NotificationDebugSectionState extends State<_NotificationDebugSection> {
                         : AppColors.warning,
                   ),
                   title: Text(
-                    'Scheduled Notifications',
+                    L10n.of(context).settingsScheduledNotifications,
                     style: TextStyle(color: AppColors.textPrimary),
                   ),
                   subtitle: Text(
@@ -599,11 +599,11 @@ class _NotificationDebugSectionState extends State<_NotificationDebugSection> {
                     color: AppColors.info,
                   ),
                   title: Text(
-                    'Send Test Notification',
+                    L10n.of(context).settingsSendTestNotification,
                     style: TextStyle(color: AppColors.textPrimary),
                   ),
                   subtitle: Text(
-                    'Tap to verify notifications work',
+                    L10n.of(context).settingsTapToVerifyNotificationsWork,
                     style: TextStyle(color: AppColors.textSecondary),
                   ),
                   trailing: ElevatedButton(
