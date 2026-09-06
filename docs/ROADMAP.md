@@ -280,7 +280,7 @@ Import must be purely client-side. The existing bulk endpoint mutates wallet bal
 
 ## Phase 6 — Presentation
 
-**Status: done, except the long tail of string extraction.** Client commits `45a512a`, `dadb42c`, `ddf1c5e`, `c4e5dca`, `595c1dd`. No backend work was needed yet. Flutter analyze clean with 667 tests passing.
+**Status: done.** Client commits `45a512a`, `dadb42c`, `ddf1c5e`, `c4e5dca`, `595c1dd`, `462d337`, `d71ddb5`. No backend work was needed. Flutter analyze clean with 667 tests passing.
 
 Done: light and system themes, genuinely selectable; the three regional settings that had no home; localisation scaffolding with English and Bangla; and the sync conflict contract pinned by tests rather than by a comment.
 
@@ -298,11 +298,22 @@ Three things stay English deliberately, and each would be a bug otherwise. Analy
 
 The resource file is held to exactly what the app shows: a test fails on any key nothing reads. A file full of undisplayed strings is clutter a reviewer has to guess about, and every entry costs a translator real effort for nothing.
 
-### Still open in this phase
+**String extraction went from 979 hard-coded strings to 230.** Hand-editing was never going to get there, so the mechanical half was automated: the literal already *is* the English, so the key name, the source rewrite and the English resource entry are all generated, leaving only the translation — the sole part needing judgement. The resource file is 605 keys, every one of them translated and every one of them used, with a test failing on any key nothing reads.
 
-- **The rest of the string extraction.** The chrome is done and the pattern is established; the individual feature screens — add-transaction, budgets, reports, wallets, the AI surfaces — are still hard-coded English. Steady mechanical work with a test guarding the resource file, not a design problem.
+Four things the tooling caught that a careless pass would have shipped, all worth remembering if this is ever repeated:
+
+- Dart builds a long string from adjacent literals, and matching only the first silently drops half a sentence. The matcher now requires a terminator.
+- Sites with no `BuildContext` — static tables, field initialisers, const item definitions — cannot resolve a string. Forty-one were reverted to English; some belong there, because `NavItem.label` is the tab's identity in code rather than a label.
+- The `const` stripper reached one step too far and took the `const` off a constructor declaration. The analyzer's own lint caught it.
+- The unused-key detector and the test guarding the resource file shared a blind spot exactly: `dart format` splits `L10n.of( context, )` across lines, so a used key looked dead and was pruned. A test that mirrors its tool's logic cannot catch that tool's mistake. Both now tolerate the split.
+
+The eighteen test failures this produced were the harness, not the app: widget tests built bare `MaterialApp`s with no `L10n` above the screen, so every lookup returned null and the build threw — which reads as a missing widget rather than a missing delegate. `test/helpers/localized_app.dart` now sets tests up the way the real app is.
+
+### Left deliberately, with reasons
+
+- **230 strings, and they are not one pile.** Forty are in providers, services and core, which have no `BuildContext` and should not acquire one: they are error texts handed upward, and the fix is for the layer to return a *code* the UI maps to a message — the discipline the sync conflict contract already follows — rather than for a service to reach for localisations. The other 190 are concatenated prose and interpolated strings, which the extractor refuses on purpose: a concatenation loses half a sentence, and an interpolation needs a typed placeholder chosen per string. A machine pass that quietly truncated sentences would be worse than the honest count.
 - **First day of week does not reach Flutter's calendars.** `GlobalMaterialLocalizations.firstDayOfWeekIndex` derives from the locale's own data and has no override hook; the only way in is a hand-written 110-member `MaterialLocalizations` forwarder that would break on every Flutter upgrade. Judged not worth it: the setting governs the app's own week logic, including the monthly report. Worth revisiting if Flutter adds a hook.
-- **Server-side strings.** Notification bodies, email templates and built-in category names still reach users as English prose. This needs a locale on each request and templates on the server — real backend work, best done alongside the client extraction rather than before it.
+- **Server-side strings.** Notification bodies, email templates and built-in category names still reach users as English prose. This needs a locale on each request and templates on the server — real backend work, and it pairs naturally with the provider/service error-code refactor above.
 
 ### What it was
 
@@ -337,7 +348,7 @@ The resource file is held to exactly what the app shows: a test fails on any key
 | 3 | Associated titles into sync | Server, then client |
 | 4 | Transfer validation, wallet flags, exchange rates into sync | Server, then client |
 | 5 | None | Client only — **done** |
-| 6 | Locale handling, conflict code contract | Either order — **done bar string extraction** |
+| 6 | Locale handling, conflict code contract | Either order — **done** |
 | 7 | Contacts, tags, splits, attachments, storage | Server, then client |
 
 Phases 2 and 5 are client-only and can run in parallel with any backend work.
