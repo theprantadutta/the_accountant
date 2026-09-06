@@ -89,6 +89,8 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   material_ui: ^1.1.1
+  app_links: ^7.2.1
+  quick_actions: ^1.1.0
 
 dev_dependencies:
   flutter_test:

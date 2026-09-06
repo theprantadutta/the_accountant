@@ -1,4 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:quick_actions/quick_actions.dart';
+import 'package:the_accountant/features/transactions/screens/transaction_detail_screen.dart';
+import 'package:the_accountant/features/ai/screens/receipt_scanner_screen.dart';
+import 'package:the_accountant/features/budgets/screens/budget_list_screen.dart';
+import 'package:the_accountant/core/providers/deep_link_provider.dart';
+import 'package:the_accountant/core/domain/app_destination.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -92,6 +98,53 @@ class _MainNavigationContainerState
     l10n.navSettings,
   ];
 
+  /// The tab each destination lives on, for the ones that are tabs.
+  static const Map<AppDestination, int> _tabFor = {
+    AppDestination.dashboard: 0,
+    AppDestination.transactions: 1,
+    AppDestination.reports: 3,
+    AppDestination.settings: 4,
+  };
+
+  /// Act on a link that has been waiting for somewhere safe to go.
+  ///
+  /// This runs only from the main shell, which the auth wrapper reaches only
+  /// once the account is signed in, its store is bound and the startup flow has
+  /// settled. That is the enforcement of the rule that a link may name a place
+  /// but never get past the sign-in wall to it.
+  void _followPendingLink() {
+    final service = ref.read(deepLinkServiceProvider);
+    final link = service.take();
+    if (link == null || !mounted) return;
+
+    final tab = _tabFor[link.destination];
+    if (tab != null) {
+      setState(() => _currentIndex = tab);
+      return;
+    }
+
+    final screen = switch (link.destination) {
+      AppDestination.addExpense => const AddTransactionScreen(),
+      AppDestination.addIncome => const AddTransactionScreen(
+        initialType: TransactionTypeSelection.income,
+      ),
+      AppDestination.addTransfer => const AddTransactionScreen(
+        initialType: TransactionTypeSelection.transfer,
+      ),
+      AppDestination.budgets => const BudgetListScreen(),
+      // Gated by the screen itself, so a link cannot buy anybody premium.
+      AppDestination.scanReceipt => const ReceiptScannerScreenGated(),
+      AppDestination.transactionDetail =>
+        link.entityId == null
+            ? null
+            : TransactionDetailScreen(transactionId: link.entityId!),
+      _ => null,
+    };
+    if (screen == null) return;
+
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => screen));
+  }
+
   @override
   void initState() {
     super.initState();
@@ -121,7 +174,48 @@ class _MainNavigationContainerState
       // Ask about notifications with an in-app priming prompt (never the bare
       // iOS dialog on launch).
       _maybeShowNotificationPrimer();
+
+      // A link that arrived before there was anywhere safe to send it — a cold
+      // start from a launcher shortcut is exactly that — has been waiting.
+      final links = ref.read(deepLinkServiceProvider);
+      links.pending.addListener(_followPendingLink);
+      _followPendingLink();
+
+      // Registered from here rather than from the app widget, which sits above
+      // the MaterialApp and so cannot read the localisations these labels need.
+      final l10n = L10n.of(context);
+      links.registerShortcuts([
+        ShortcutItem(
+          type: DeepLinkParser.shortcutAddExpense,
+          localizedTitle: l10n.shortcutAddExpense,
+          icon: 'ic_shortcut_expense',
+        ),
+        ShortcutItem(
+          type: DeepLinkParser.shortcutAddIncome,
+          localizedTitle: l10n.shortcutAddIncome,
+          icon: 'ic_shortcut_income',
+        ),
+        ShortcutItem(
+          type: DeepLinkParser.shortcutScanReceipt,
+          localizedTitle: l10n.shortcutScanReceipt,
+          icon: 'ic_shortcut_scan',
+        ),
+        ShortcutItem(
+          type: DeepLinkParser.shortcutTransactions,
+          localizedTitle: l10n.shortcutTransactions,
+          icon: 'ic_shortcut_list',
+        ),
+      ]);
     });
+  }
+
+  @override
+  void dispose() {
+    ref
+        .read(deepLinkServiceProvider)
+        .pending
+        .removeListener(_followPendingLink);
+    super.dispose();
   }
 
   /// Shows the notification priming prompt on the home screen — once, and only

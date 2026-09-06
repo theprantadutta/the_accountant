@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/core/providers/deep_link_provider.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:the_accountant/core/providers/locale_provider.dart';
 import 'package:material_ui/material_ui.dart' as material_ui;
@@ -47,12 +48,24 @@ class _MyAppState extends ConsumerState<MyApp> {
     // Check for Play Store updates after the first frame is rendered.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkForAppUpdate();
+      _startDeepLinks();
       // Account-scoped preparation is deliberately NOT started here. This runs
       // before authentication has resolved, so the active store is whatever was
       // persisted last — possibly an account whose session is about to be
       // rejected, or replaced by a different one. `AccountStoreCoordinator`
       // starts it from the auth state instead, once the owner is known.
     });
+  }
+
+  /// Begin receiving links.
+  ///
+  /// Only the listening starts here. This widget sits ABOVE the MaterialApp
+  /// that provides the localisations, so `L10n.of(context)` is null at this
+  /// point — reading it here to label the launcher shortcuts crashed the app on
+  /// every launch. The shortcuts are registered from the shell instead, which
+  /// has a context that can see them.
+  Future<void> _startDeepLinks() async {
+    await ref.read(deepLinkServiceProvider).startListening();
   }
 
   /// Check Google Play for an available update and install it. Prefers the

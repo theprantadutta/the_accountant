@@ -3834,6 +3834,30 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'Pinned goals'**
   String get layoutSectionGoals;
+
+  /// No description provided for @shortcutAddExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Add expense'**
+  String get shortcutAddExpense;
+
+  /// No description provided for @shortcutAddIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'Add income'**
+  String get shortcutAddIncome;
+
+  /// No description provided for @shortcutScanReceipt.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan receipt'**
+  String get shortcutScanReceipt;
+
+  /// No description provided for @shortcutTransactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Transactions'**
+  String get shortcutTransactions;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

@@ -1984,4 +1984,16 @@ class L10nEn extends L10n {
 
   @override
   String get layoutSectionGoals => 'Pinned goals';
+
+  @override
+  String get shortcutAddExpense => 'Add expense';
+
+  @override
+  String get shortcutAddIncome => 'Add income';
+
+  @override
+  String get shortcutScanReceipt => 'Scan receipt';
+
+  @override
+  String get shortcutTransactions => 'Transactions';
 }

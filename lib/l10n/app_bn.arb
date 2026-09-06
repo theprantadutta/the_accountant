@@ -622,5 +622,9 @@
   "layoutSectionSpendingChart": "খরচের সারসংক্ষেপ",
   "layoutSectionRecent": "সাম্প্রতিক লেনদেন",
   "layoutSectionBudgets": "বাজেটের অগ্রগতি",
-  "layoutSectionGoals": "পিন করা লক্ষ্য"
+  "layoutSectionGoals": "পিন করা লক্ষ্য",
+  "shortcutAddExpense": "খরচ যোগ করুন",
+  "shortcutAddIncome": "আয় যোগ করুন",
+  "shortcutScanReceipt": "রসিদ স্ক্যান করুন",
+  "shortcutTransactions": "লেনদেন"
 }

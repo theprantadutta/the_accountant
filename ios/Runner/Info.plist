@@ -90,6 +90,16 @@
 				<string>com.googleusercontent.apps.421951694801-1aroqgl061ihhgvatru7mhm6u7cfv5h0</string>
 			</array>
 		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>dev.pranta.theaccountant</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>theaccountant</string>
+			</array>
+		</dict>
 	</array>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>

@@ -1979,4 +1979,16 @@ class L10nBn extends L10n {
 
   @override
   String get layoutSectionGoals => 'পিন করা লক্ষ্য';
+
+  @override
+  String get shortcutAddExpense => 'খরচ যোগ করুন';
+
+  @override
+  String get shortcutAddIncome => 'আয় যোগ করুন';
+
+  @override
+  String get shortcutScanReceipt => 'রসিদ স্ক্যান করুন';
+
+  @override
+  String get shortcutTransactions => 'লেনদেন';
 }

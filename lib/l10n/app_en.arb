@@ -687,5 +687,9 @@
   "layoutSectionSpendingChart": "Spending overview",
   "layoutSectionRecent": "Recent transactions",
   "layoutSectionBudgets": "Budget progress",
-  "layoutSectionGoals": "Pinned goals"
+  "layoutSectionGoals": "Pinned goals",
+  "shortcutAddExpense": "Add expense",
+  "shortcutAddIncome": "Add income",
+  "shortcutScanReceipt": "Scan receipt",
+  "shortcutTransactions": "Transactions"
 }

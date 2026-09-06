@@ -37,6 +37,29 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+
+            <!-- The app's own scheme: theaccountant://budgets and the like.
+                 Always available, needs no server-side proof, and is what the
+                 in-app links and notifications use. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="theaccountant"/>
+            </intent-filter>
+
+            <!-- Verified https links. autoVerify makes Android check
+                 https://theaccountant.pranta.dev/.well-known/assetlinks.json
+                 before it will open these without a chooser; until that file is
+                 served the links still work, they just prompt. -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data
+                    android:scheme="https"
+                    android:host="theaccountant.pranta.dev"/>
+            </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
