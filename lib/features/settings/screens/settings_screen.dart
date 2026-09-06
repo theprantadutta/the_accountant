@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:the_accountant/features/dashboard/screens/home_layout_screen.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:the_accountant/features/transactions/screens/title_rules_screen.dart';
 import 'package:the_accountant/features/transactions/screens/recently_deleted_screen.dart';
@@ -458,6 +459,26 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const RegionalSettingsScreen()),
+          ),
+        ),
+      );
+    }
+    if (_matchesSearch('Home layout') ||
+        _matchesKeywords([
+          'home',
+          'layout',
+          'sections',
+          'reorder',
+          'arrange',
+        ])) {
+      regionalTiles.add(
+        SettingsNavigationTile(
+          icon: Icons.dashboard_customize_outlined,
+          title: L10n.of(context).layoutTitle,
+          subtitle: L10n.of(context).layoutSubtitle,
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const HomeLayoutScreen()),
           ),
         ),
       );

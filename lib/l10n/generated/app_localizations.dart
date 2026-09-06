@@ -3726,6 +3726,114 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'Total Balance'**
   String get sharedTotalBalance;
+
+  /// No description provided for @heatmapTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily rhythm'**
+  String get heatmapTitle;
+
+  /// No description provided for @heatmapSpentMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Spent more'**
+  String get heatmapSpentMore;
+
+  /// No description provided for @heatmapEarnedMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Earned more'**
+  String get heatmapEarnedMore;
+
+  /// No description provided for @heatmapNothingYet.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing recorded in this period yet.'**
+  String get heatmapNothingYet;
+
+  /// No description provided for @heatmapNetForRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Net over this range'**
+  String get heatmapNetForRange;
+
+  /// No description provided for @layoutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Home layout'**
+  String get layoutTitle;
+
+  /// No description provided for @layoutSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reorder the home screen, or hide what you do not use'**
+  String get layoutSubtitle;
+
+  /// No description provided for @layoutExplain.
+  ///
+  /// In en, this message translates to:
+  /// **'Drag to reorder. Anything switched off keeps its place, so turning it back on puts it where you left it.'**
+  String get layoutExplain;
+
+  /// No description provided for @layoutReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset to default'**
+  String get layoutReset;
+
+  /// No description provided for @layoutAllHidden.
+  ///
+  /// In en, this message translates to:
+  /// **'Every section is hidden. The home screen will be empty.'**
+  String get layoutAllHidden;
+
+  /// No description provided for @layoutSectionGreeting.
+  ///
+  /// In en, this message translates to:
+  /// **'Greeting'**
+  String get layoutSectionGreeting;
+
+  /// No description provided for @layoutSectionAccounts.
+  ///
+  /// In en, this message translates to:
+  /// **'Accounts'**
+  String get layoutSectionAccounts;
+
+  /// No description provided for @layoutSectionQuickStats.
+  ///
+  /// In en, this message translates to:
+  /// **'Income and expenses'**
+  String get layoutSectionQuickStats;
+
+  /// No description provided for @layoutSectionQuickLinks.
+  ///
+  /// In en, this message translates to:
+  /// **'Shortcuts'**
+  String get layoutSectionQuickLinks;
+
+  /// No description provided for @layoutSectionSpendingChart.
+  ///
+  /// In en, this message translates to:
+  /// **'Spending overview'**
+  String get layoutSectionSpendingChart;
+
+  /// No description provided for @layoutSectionRecent.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent transactions'**
+  String get layoutSectionRecent;
+
+  /// No description provided for @layoutSectionBudgets.
+  ///
+  /// In en, this message translates to:
+  /// **'Budget progress'**
+  String get layoutSectionBudgets;
+
+  /// No description provided for @layoutSectionGoals.
+  ///
+  /// In en, this message translates to:
+  /// **'Pinned goals'**
+  String get layoutSectionGoals;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

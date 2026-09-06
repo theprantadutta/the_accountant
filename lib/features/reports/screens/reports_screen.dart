@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/core/utils/currency_formatter.dart';
+import 'package:the_accountant/features/reports/widgets/spending_heatmap.dart';
+import 'package:the_accountant/features/reports/providers/heatmap_provider.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -154,6 +157,14 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
                 ),
                 begin: const Offset(0, 1),
                 child: _buildSummaryCards(),
+              ),
+
+              const SizedBox(height: 24),
+
+              // Daily rhythm
+              AnimationUtils.fadeTransition(
+                animation: _fadeAnimation,
+                child: _buildHeatmap(),
               ),
 
               const SizedBox(height: 24),
@@ -800,6 +811,91 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
           }).toList(),
         ),
       ],
+    );
+  }
+
+  /// A year of days as coloured squares.
+  ///
+  /// It sits below the summary rather than above the chart because it answers a
+  /// slower question than the rest of this screen — not "what did I spend this
+  /// month" but "what does a normal month look like for me".
+  Widget _buildHeatmap() {
+    final l10n = L10n.of(context);
+    final calendar = ref.watch(dailyNetCalendarProvider);
+    final currency = ref.watch(defaultCurrencyProvider);
+    final numberFormat = ref.watch(numberFormatSettingProvider);
+    final dateFormat = ref.watch(dateFormatSettingProvider);
+
+    String money(int cents) =>
+        cents.formatCurrency(currency, numberFormat: numberFormat);
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.primarySurface,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.glassBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                l10n.heatmapTitle,
+                style: TextStyle(
+                  color: AppColors.textPrimary,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              if (calendar.value case final data?)
+                if (!data.isEmpty)
+                  // Labelled rather than bare: a coloured number beside a title
+                  // does not say what it is the total of.
+                  Tooltip(
+                    message: l10n.heatmapNetForRange,
+                    child: Semantics(
+                      label: l10n.heatmapNetForRange,
+                      child: Text(
+                        money(data.totalNetCents),
+                        style: TextStyle(
+                          color: data.totalNetCents < 0
+                              ? AppColors.error
+                              : AppColors.success,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          switch (calendar) {
+            AsyncData(:final value) when value.isEmpty => Padding(
+              padding: const EdgeInsets.symmetric(vertical: 24),
+              child: Text(
+                l10n.heatmapNothingYet,
+                style: TextStyle(color: AppColors.textMuted),
+              ),
+            ),
+            AsyncData(:final value) => SpendingHeatmap(
+              calendar: value,
+              money: money,
+              dateFormat: dateFormat,
+            ),
+            AsyncError() => Text(
+              l10n.reportNoSpendingDataAvailable,
+              style: TextStyle(color: AppColors.textMuted),
+            ),
+            _ => const Padding(
+              padding: EdgeInsets.symmetric(vertical: 24),
+              child: Center(child: CircularProgressIndicator()),
+            ),
+          },
+        ],
+      ),
     );
   }
 

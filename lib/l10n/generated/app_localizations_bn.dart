@@ -1923,4 +1923,60 @@ class L10nBn extends L10n {
 
   @override
   String get sharedTotalBalance => 'মোট ব্যালেন্স';
+
+  @override
+  String get heatmapTitle => 'প্রতিদিনের ছন্দ';
+
+  @override
+  String get heatmapSpentMore => 'বেশি খরচ';
+
+  @override
+  String get heatmapEarnedMore => 'বেশি আয়';
+
+  @override
+  String get heatmapNothingYet => 'এই সময়কালে এখনও কিছু লেখা হয়নি।';
+
+  @override
+  String get heatmapNetForRange => 'এই সময়ে নিট';
+
+  @override
+  String get layoutTitle => 'হোম বিন্যাস';
+
+  @override
+  String get layoutSubtitle =>
+      'হোম স্ক্রিন সাজান, বা যা ব্যবহার করেন না তা লুকান';
+
+  @override
+  String get layoutExplain =>
+      'সাজাতে টেনে নিন। বন্ধ করা অংশ নিজের জায়গা ধরে রাখে, তাই আবার চালু করলে যেখানে ছিল সেখানেই ফিরে আসে।';
+
+  @override
+  String get layoutReset => 'ডিফল্টে ফিরিয়ে আনুন';
+
+  @override
+  String get layoutAllHidden => 'সব অংশ লুকানো আছে। হোম স্ক্রিন খালি থাকবে।';
+
+  @override
+  String get layoutSectionGreeting => 'শুভেচ্ছা';
+
+  @override
+  String get layoutSectionAccounts => 'অ্যাকাউন্ট';
+
+  @override
+  String get layoutSectionQuickStats => 'আয় ও ব্যয়';
+
+  @override
+  String get layoutSectionQuickLinks => 'শর্টকাট';
+
+  @override
+  String get layoutSectionSpendingChart => 'খরচের সারসংক্ষেপ';
+
+  @override
+  String get layoutSectionRecent => 'সাম্প্রতিক লেনদেন';
+
+  @override
+  String get layoutSectionBudgets => 'বাজেটের অগ্রগতি';
+
+  @override
+  String get layoutSectionGoals => 'পিন করা লক্ষ্য';
 }

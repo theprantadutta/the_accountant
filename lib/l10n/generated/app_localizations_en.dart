@@ -1927,4 +1927,61 @@ class L10nEn extends L10n {
 
   @override
   String get sharedTotalBalance => 'Total Balance';
+
+  @override
+  String get heatmapTitle => 'Daily rhythm';
+
+  @override
+  String get heatmapSpentMore => 'Spent more';
+
+  @override
+  String get heatmapEarnedMore => 'Earned more';
+
+  @override
+  String get heatmapNothingYet => 'Nothing recorded in this period yet.';
+
+  @override
+  String get heatmapNetForRange => 'Net over this range';
+
+  @override
+  String get layoutTitle => 'Home layout';
+
+  @override
+  String get layoutSubtitle =>
+      'Reorder the home screen, or hide what you do not use';
+
+  @override
+  String get layoutExplain =>
+      'Drag to reorder. Anything switched off keeps its place, so turning it back on puts it where you left it.';
+
+  @override
+  String get layoutReset => 'Reset to default';
+
+  @override
+  String get layoutAllHidden =>
+      'Every section is hidden. The home screen will be empty.';
+
+  @override
+  String get layoutSectionGreeting => 'Greeting';
+
+  @override
+  String get layoutSectionAccounts => 'Accounts';
+
+  @override
+  String get layoutSectionQuickStats => 'Income and expenses';
+
+  @override
+  String get layoutSectionQuickLinks => 'Shortcuts';
+
+  @override
+  String get layoutSectionSpendingChart => 'Spending overview';
+
+  @override
+  String get layoutSectionRecent => 'Recent transactions';
+
+  @override
+  String get layoutSectionBudgets => 'Budget progress';
+
+  @override
+  String get layoutSectionGoals => 'Pinned goals';
 }

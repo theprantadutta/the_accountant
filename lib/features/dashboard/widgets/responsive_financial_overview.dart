@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/features/dashboard/providers/home_layout_provider.dart';
+import 'package:the_accountant/features/dashboard/domain/home_layout.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:the_accountant/features/dashboard/widgets/pinned_goals_section.dart';
 import 'package:flutter/services.dart';
@@ -157,33 +159,48 @@ class _ResponsiveFinancialOverviewState
     double expenses,
     List<Transaction> recent,
   ) {
+    // Drawn from the user's arrangement rather than a fixed list. The
+    // staggered entrance animation is keyed to the section's *position on
+    // screen*, not to which section it is, so a reordered page still animates
+    // top to bottom.
+    final sections = ref.watch(homeLayoutProvider).visible;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         AppSpacing.gapLg,
-        _buildAnimatedSection(0.0, 0.3, _buildGreetingSection()),
-        AppSpacing.gapXxl,
-        _buildAnimatedSection(
-          0.1,
-          0.4,
-          WalletCardsSection(key: widget.balanceKey),
-        ),
-        AppSpacing.gapXl,
-        _buildAnimatedSection(0.2, 0.5, _buildQuickStats(income, expenses)),
-        AppSpacing.gapXl,
-        _buildAnimatedSection(0.3, 0.6, _buildQuickLinks()),
-        AppSpacing.gapXl,
-        _buildAnimatedSection(0.4, 0.7, _buildSpendingChart()),
-        AppSpacing.gapXl,
-        _buildAnimatedSection(0.5, 0.8, _buildRecentTransactions(recent)),
-        AppSpacing.gapXl,
-        _buildAnimatedSection(0.6, 0.9, _buildBudgetProgress()),
-        AppSpacing.gapXl,
-        _buildAnimatedSection(0.7, 1.0, const PinnedGoalsSection()),
+        for (var i = 0; i < sections.length; i++) ...[
+          _buildAnimatedSection(
+            i / sections.length * 0.7,
+            0.3 + i / sections.length * 0.7,
+            _sectionWidget(sections[i], income, expenses, recent),
+          ),
+          if (i < sections.length - 1)
+            sections[i] == HomeSection.greeting
+                ? AppSpacing.gapXxl
+                : AppSpacing.gapXl,
+        ],
         SizedBox(height: AppSpacing.lg),
       ],
     );
   }
+
+  /// One home-screen block, by name.
+  Widget _sectionWidget(
+    HomeSection section,
+    double income,
+    double expenses,
+    List<Transaction> recent,
+  ) => switch (section) {
+    HomeSection.greeting => _buildGreetingSection(),
+    HomeSection.accounts => WalletCardsSection(key: widget.balanceKey),
+    HomeSection.quickStats => _buildQuickStats(income, expenses),
+    HomeSection.quickLinks => _buildQuickLinks(),
+    HomeSection.spendingChart => _buildSpendingChart(),
+    HomeSection.recentTransactions => _buildRecentTransactions(recent),
+    HomeSection.budgets => _buildBudgetProgress(),
+    HomeSection.goals => const PinnedGoalsSection(),
+  };
 
   /// Tablet: header full-width, then a two-column area so the wide screen reads
   /// as a purposeful dashboard rather than a stretched phone column.
