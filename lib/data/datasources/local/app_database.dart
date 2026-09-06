@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:drift/drift.dart';
 import 'package:uuid/uuid.dart';
 import 'package:the_accountant/core/domain/default_categories.dart';
@@ -326,6 +327,7 @@ class AppDatabase extends _$AppDatabase {
       // The single LocalStoreMeta row must exist before anything reads it.
       await _ensureLocalStoreMetaRow();
       await _installSyncStatusGuards();
+      await _installPartialIndexes();
     },
   );
 
@@ -709,11 +711,7 @@ class AppDatabase extends _$AppDatabase {
   /// same budget and category, which matches the server's filtered index.
   Future<void> _migrateToV19(Migrator m) async {
     await _ensureTable(m, categoryBudgetLimits);
-    await customStatement(
-      'CREATE UNIQUE INDEX IF NOT EXISTS idx_category_budget_limits_pair '
-      'ON category_budget_limits (budget_id, category_id) '
-      'WHERE deleted_at IS NULL',
-    );
+    await _installPartialIndexes();
   }
 
   /// The schema half of the schema-18 migration, run before any data step.
@@ -1146,6 +1144,55 @@ class AppDatabase extends _$AppDatabase {
   ///
   /// Recursive triggers are off by default in SQLite, and the corrective write
   /// would not match the `WHEN` clause anyway, so this cannot loop.
+  /// Indexes Drift cannot declare, installed wherever the database came from.
+  ///
+  /// A *partial* unique index has no `@TableIndex` equivalent, so it is absent
+  /// from `allSchemaEntities` and `onCreate` never builds it. Creating it only
+  /// in the schema-19 migration meant an upgraded store rejected a duplicate
+  /// cap while a store created fresh at the current schema happily kept two —
+  /// two installs of the same build enforcing different rules, with the fresh
+  /// one then breaking the caps screen for good the first time it read them
+  /// back. Running it from `beforeOpen` is the only place that covers both.
+  /// Exposed for the test that proves a store holding duplicates is repaired
+  /// on open rather than left unable to build the index for ever.
+  @visibleForTesting
+  Future<void> installPartialIndexesForTest() => _installPartialIndexes();
+
+  Future<void> _installPartialIndexes() async {
+    // Duplicates first. A store that has already collected a pair would
+    // otherwise fail to create the index on every open, for ever, which is a
+    // worse outcome than the duplicates themselves. The most recently touched
+    // row wins; the rest are tombstoned rather than dropped so a device that
+    // has already pushed them can tell the server they are gone.
+    await customStatement('''
+      UPDATE category_budget_limits SET
+        deleted_at = strftime('%s', 'now'),
+        sync_status = $_markDeletedSql,
+        updated_at = strftime('%s', 'now')
+      WHERE deleted_at IS NULL AND id NOT IN (
+        SELECT id FROM (
+          SELECT id, ROW_NUMBER() OVER (
+            PARTITION BY budget_id, category_id ORDER BY updated_at DESC, id
+          ) AS rank
+          FROM category_budget_limits WHERE deleted_at IS NULL
+        ) WHERE rank = 1
+      )
+    ''');
+
+    await customStatement(
+      'CREATE UNIQUE INDEX IF NOT EXISTS idx_category_budget_limits_pair '
+      'ON category_budget_limits (budget_id, category_id) '
+      'WHERE deleted_at IS NULL',
+    );
+  }
+
+  /// A row being tombstoned locally: still pending its own creation if the
+  /// server has never seen it, otherwise a delete to push.
+  static const String _markDeletedSql =
+      'CASE WHEN sync_status = ${SyncStatus.pendingCreate} '
+      'THEN ${SyncStatus.pendingCreate} '
+      'ELSE ${SyncStatus.pendingDelete} END';
+
   Future<void> _installSyncStatusGuards() async {
     for (final table in _syncedTableNames) {
       await customStatement('''
@@ -1630,14 +1677,26 @@ class AppDatabase extends _$AppDatabase {
     required int amount,
     bool isPercent = false,
   }) async {
-    final existing =
-        await (select(categoryBudgetLimits)..where(
-              (l) =>
-                  l.budgetId.equals(budgetId) &
-                  l.categoryId.equals(categoryId) &
-                  l.deletedAt.isNull(),
-            ))
-            .getSingleOrNull();
+    // `getSingleOrNull` throws when a store holds more than one live row for
+    // the pair, which a database created before the index was installed
+    // everywhere can. Reading the newest instead degrades rather than breaking
+    // the screen; `_installPartialIndexes` removes the duplicates on open.
+    final matches =
+        await (select(categoryBudgetLimits)
+              ..where(
+                (l) =>
+                    l.budgetId.equals(budgetId) &
+                    l.categoryId.equals(categoryId) &
+                    l.deletedAt.isNull(),
+              )
+              ..orderBy([
+                (l) => OrderingTerm(
+                  expression: l.updatedAt,
+                  mode: OrderingMode.desc,
+                ),
+              ]))
+            .get();
+    final existing = matches.isEmpty ? null : matches.first;
 
     if (existing == null) {
       await into(categoryBudgetLimits).insert(
