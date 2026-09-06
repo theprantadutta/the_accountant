@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_typography.dart';
@@ -304,7 +305,7 @@ class _NavItem extends StatelessWidget {
               letterSpacing: isSelected ? 0.1 : 0,
             ),
             child: Text(
-              item.label,
+              NavItems.labelFor(item, L10n.of(context)),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
@@ -361,6 +362,20 @@ class NavItems {
     activeIcon: Icons.settings_rounded,
     label: 'Settings',
   );
+
+  /// The label to draw, in the reader's language.
+  ///
+  /// [NavItem.label] stays English because it is a const identity for the item
+  /// — it is what the code and the analytics call this tab. What the user reads
+  /// is resolved here, at the moment of drawing.
+  static String labelFor(NavItem item, L10n l10n) => switch (item.label) {
+    'Home' => l10n.navHome,
+    'Activity' => l10n.navActivity,
+    'AI' => l10n.navAi,
+    'Insights' => l10n.navInsights,
+    'Settings' => l10n.navSettings,
+    _ => item.label,
+  };
 
   static List<NavItem> get defaultItems => [
     home,

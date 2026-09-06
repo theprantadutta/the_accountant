@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:the_accountant/features/transactions/screens/title_rules_screen.dart';
 import 'package:the_accountant/features/transactions/screens/recently_deleted_screen.dart';
 import 'package:the_accountant/features/transactions/screens/payment_methods_screen.dart';
@@ -307,7 +308,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       );
     }
     if (accountTiles.isNotEmpty) {
-      sections.add(SettingsSection(title: 'ACCOUNT', tiles: accountTiles));
+      sections.add(
+        SettingsSection(
+          title: L10n.of(context).sectionAccount,
+          tiles: accountTiles,
+        ),
+      );
     }
 
     // MONEY SECTION
@@ -431,7 +437,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       );
     }
     if (moneyTiles.isNotEmpty) {
-      sections.add(SettingsSection(title: 'MONEY', tiles: moneyTiles));
+      sections.add(
+        SettingsSection(
+          title: L10n.of(context).sectionMoney,
+          tiles: moneyTiles,
+        ),
+      );
     }
 
     // REGIONAL SECTION
@@ -463,8 +474,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       regionalTiles.add(
         SettingsNavigationTile(
           icon: Icons.palette_outlined,
-          title: 'Appearance',
-          subtitle: 'Theme and accent colour',
+          title: L10n.of(context).settingsAppearance,
+          subtitle: L10n.of(context).settingsAppearanceSubtitle,
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const ThemeSelectionScreen()),
@@ -473,7 +484,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       );
     }
     if (regionalTiles.isNotEmpty) {
-      sections.add(SettingsSection(title: 'REGIONAL', tiles: regionalTiles));
+      sections.add(
+        SettingsSection(
+          title: L10n.of(context).sectionRegional,
+          tiles: regionalTiles,
+        ),
+      );
     }
 
     // NOTIFICATIONS SECTION
@@ -494,7 +510,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     }
     if (notificationTiles.isNotEmpty) {
       sections.add(
-        SettingsSection(title: 'NOTIFICATIONS', tiles: notificationTiles),
+        SettingsSection(
+          title: L10n.of(context).sectionNotifications,
+          tiles: notificationTiles,
+        ),
       );
     }
 
@@ -517,7 +536,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     }
     if (privacyTiles.isNotEmpty) {
       sections.add(
-        SettingsSection(title: 'PRIVACY & SECURITY', tiles: privacyTiles),
+        SettingsSection(
+          title: L10n.of(context).sectionPrivacySecurity,
+          tiles: privacyTiles,
+        ),
       );
     }
 
@@ -549,8 +571,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       dataTiles.add(
         SettingsNavigationTile(
           icon: Icons.backup_outlined,
-          title: 'Backup & Restore',
-          subtitle: 'A file you keep, or automatic copies in Google Drive',
+          title: L10n.of(context).settingsBackupRestore,
+          subtitle: L10n.of(context).settingsBackupRestoreSubtitle,
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const BackupScreen()),
@@ -563,7 +585,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       dataTiles.add(
         SettingsNavigationTile(
           icon: Icons.download_outlined,
-          title: 'Export Data',
+          title: L10n.of(context).settingsExportData,
           subtitle: 'CSV is free · PDF report is Premium',
           onTap: () => Navigator.push(
             context,
@@ -577,8 +599,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       dataTiles.add(
         SettingsNavigationTile(
           icon: Icons.upload_file_outlined,
-          title: 'Import a statement',
-          subtitle: 'Bring in a CSV from your bank, mapped once and remembered',
+          title: L10n.of(context).settingsImportStatement,
+          subtitle: L10n.of(context).settingsImportStatementSubtitle,
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const ImportScreen()),
@@ -591,8 +613,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       dataTiles.add(
         SettingsNavigationTile(
           icon: Icons.restore_from_trash_outlined,
-          title: 'Recently deleted',
-          subtitle: 'Put back something removed in the last thirty days',
+          title: L10n.of(context).settingsRecentlyDeleted,
+          subtitle: L10n.of(context).settingsRecentlyDeletedSubtitle,
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const RecentlyDeletedScreen()),
@@ -601,7 +623,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       );
     }
     if (dataTiles.isNotEmpty) {
-      sections.add(SettingsSection(title: 'DATA MANAGEMENT', tiles: dataTiles));
+      sections.add(
+        SettingsSection(
+          title: L10n.of(context).sectionDataManagement,
+          tiles: dataTiles,
+        ),
+      );
     }
 
     // HELP & SUPPORT SECTION
@@ -679,7 +706,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       );
     }
     if (helpTiles.isNotEmpty) {
-      sections.add(SettingsSection(title: 'HELP & SUPPORT', tiles: helpTiles));
+      sections.add(
+        SettingsSection(
+          title: L10n.of(context).sectionHelpSupport,
+          tiles: helpTiles,
+        ),
+      );
     }
 
     // ABOUT SECTION
@@ -699,7 +731,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       );
     }
     if (aboutTiles.isNotEmpty) {
-      sections.add(SettingsSection(title: 'ABOUT', tiles: aboutTiles));
+      sections.add(
+        SettingsSection(
+          title: L10n.of(context).sectionAbout,
+          tiles: aboutTiles,
+        ),
+      );
     }
 
     // DEVELOPER SECTION (debug mode only)

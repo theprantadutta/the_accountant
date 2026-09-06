@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/providers/theme_provider.dart';
@@ -53,6 +54,7 @@ class _ThemeSelectionScreenState extends ConsumerState<ThemeSelectionScreen>
   Widget build(BuildContext context) {
     final themeState = ref.watch(themeProvider);
     final premiumState = ref.watch(premiumProvider);
+    final l10n = L10n.of(context);
 
     return Container(
       decoration: const BoxDecoration(),
@@ -66,7 +68,7 @@ class _ThemeSelectionScreenState extends ConsumerState<ThemeSelectionScreen>
             onPressed: () => Navigator.pop(context),
           ),
           title: Text(
-            'Choose Your Theme',
+            l10n.themeTitle,
             style: TextStyle(
               color: AppColors.textPrimary,
               fontWeight: FontWeight.w600,
@@ -89,7 +91,7 @@ class _ThemeSelectionScreenState extends ConsumerState<ThemeSelectionScreen>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          '✨ Express Yourself',
+                          '✨ ${l10n.themeExpressYourself}',
                           style: TextStyle(
                             color: AppColors.textPrimary,
                             fontSize: 24,
@@ -98,8 +100,7 @@ class _ThemeSelectionScreenState extends ConsumerState<ThemeSelectionScreen>
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Choose a theme that reflects your style and makes '
-                          'managing finances a joy.',
+                          l10n.themeExpressYourselfBody,
                           style: TextStyle(
                             color: AppColors.textSecondary,
                             fontSize: 16,
@@ -123,8 +124,8 @@ class _ThemeSelectionScreenState extends ConsumerState<ThemeSelectionScreen>
                   children: [
                     for (final name in BaseThemes.all) ...[
                       _buildThemeOption(
-                        name: name,
-                        description: _getThemeDescription(name),
+                        name: _localizedThemeName(name, l10n),
+                        description: _getThemeDescription(name, l10n),
                         colors: _getThemeColors(name),
                         isSelected: themeState.currentTheme == name,
                         onTap: () => _selectTheme(name),
@@ -143,7 +144,7 @@ class _ThemeSelectionScreenState extends ConsumerState<ThemeSelectionScreen>
                 child: Row(
                   children: [
                     Text(
-                      'Premium Themes',
+                      l10n.themePremiumHeading,
                       style: TextStyle(
                         color: AppColors.textPrimary,
                         fontSize: 20,
@@ -190,7 +191,7 @@ class _ThemeSelectionScreenState extends ConsumerState<ThemeSelectionScreen>
                     margin: const EdgeInsets.only(bottom: 16),
                     child: _buildThemeOption(
                       name: themeName,
-                      description: _getThemeDescription(themeName),
+                      description: _getThemeDescription(themeName, l10n),
                       colors: _getThemeColors(themeName),
                       isSelected: themeState.currentTheme == themeName,
                       onTap: () => _selectTheme(themeName),
@@ -216,7 +217,7 @@ class _ThemeSelectionScreenState extends ConsumerState<ThemeSelectionScreen>
                         onTap: () {
                           Navigator.pushNamed(context, '/premium');
                         },
-                        child: const Padding(
+                        child: Padding(
                           padding: EdgeInsets.all(20),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -224,7 +225,7 @@ class _ThemeSelectionScreenState extends ConsumerState<ThemeSelectionScreen>
                               Icon(Icons.star, color: Colors.white),
                               SizedBox(width: 8),
                               Text(
-                                'Unlock Premium Themes',
+                                l10n.themeUnlockPremium,
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 18,
@@ -388,14 +389,26 @@ class _ThemeSelectionScreenState extends ConsumerState<ThemeSelectionScreen>
     HapticFeedback.lightImpact();
   }
 
-  String _getThemeDescription(String themeName) {
+  /// The theme's name as the user reads it.
+  ///
+  /// [BaseThemes] holds the STORED values, which stay English: they go into
+  /// preferences and are matched on start-up, so translating them would make a
+  /// saved choice unreadable the moment somebody changed language.
+  String _localizedThemeName(String stored, L10n l10n) => switch (stored) {
+    BaseThemes.system => l10n.themeSystem,
+    BaseThemes.light => l10n.themeLight,
+    BaseThemes.dark => l10n.themeDark,
+    _ => stored,
+  };
+
+  String _getThemeDescription(String themeName, L10n l10n) {
     switch (themeName) {
       case BaseThemes.system:
-        return 'Match whatever your phone is set to';
+        return l10n.themeSystemDescription;
       case BaseThemes.light:
-        return 'Bright, for daylight and shared screens';
+        return l10n.themeLightDescription;
       case BaseThemes.dark:
-        return 'The original - deep space with indigo accents';
+        return l10n.themeDarkDescription;
       case 'Sapphire':
         return 'Ocean depths with brilliant blue accents';
       case 'Emerald':

@@ -9,37 +9,10 @@ class L10nEn extends L10n {
   L10nEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appTitle => 'The Accountant';
-
-  @override
-  String get actionSave => 'Save';
-
-  @override
   String get actionCancel => 'Cancel';
 
   @override
-  String get actionDelete => 'Delete';
-
-  @override
-  String get actionEdit => 'Edit';
-
-  @override
-  String get actionAdd => 'Add';
-
-  @override
-  String get actionDone => 'Done';
-
-  @override
   String get actionConfirm => 'Confirm';
-
-  @override
-  String get actionRetry => 'Try again';
-
-  @override
-  String get actionClose => 'Close';
-
-  @override
-  String get actionSearch => 'Search';
 
   @override
   String get dateToday => 'Today';
@@ -51,46 +24,16 @@ class L10nEn extends L10n {
   String get dateTomorrow => 'Tomorrow';
 
   @override
-  String get moneyIncome => 'Income';
-
-  @override
-  String get moneyExpense => 'Expense';
-
-  @override
-  String get moneyTransfer => 'Transfer';
-
-  @override
-  String get moneyBalance => 'Balance';
-
-  @override
   String get navDashboard => 'Dashboard';
 
   @override
   String get navTransactions => 'Transactions';
 
   @override
-  String get navBudgets => 'Budgets';
-
-  @override
   String get navReports => 'Reports';
 
   @override
   String get navSettings => 'Settings';
-
-  @override
-  String get entityAccount => 'Account';
-
-  @override
-  String get entityCategory => 'Category';
-
-  @override
-  String get entityBudget => 'Budget';
-
-  @override
-  String get entityGoal => 'Goal';
-
-  @override
-  String get entityTransaction => 'Transaction';
 
   @override
   String get settingsRegionalTitle => 'Regional Settings';
@@ -206,17 +149,84 @@ class L10nEn extends L10n {
   String get languageSystem => 'Match my phone';
 
   @override
-  String get languageEnglish => 'English';
+  String get navHome => 'Home';
 
   @override
-  String get languageBangla => 'Bangla';
+  String get navActivity => 'Activity';
 
   @override
-  String get confirmDeleteTitle => 'Delete this?';
+  String get navAi => 'AI';
 
   @override
-  String get confirmIrreversible => 'This cannot be undone.';
+  String get navInsights => 'Insights';
 
   @override
-  String get emptyNothingHere => 'Nothing here yet.';
+  String get navAiAssistant => 'AI Assistant';
+
+  @override
+  String get sectionAccount => 'ACCOUNT';
+
+  @override
+  String get sectionMoney => 'MONEY';
+
+  @override
+  String get sectionRegional => 'REGIONAL';
+
+  @override
+  String get sectionNotifications => 'NOTIFICATIONS';
+
+  @override
+  String get sectionPrivacySecurity => 'PRIVACY & SECURITY';
+
+  @override
+  String get sectionDataManagement => 'DATA MANAGEMENT';
+
+  @override
+  String get sectionHelpSupport => 'HELP & SUPPORT';
+
+  @override
+  String get sectionAbout => 'ABOUT';
+
+  @override
+  String get settingsAppearance => 'Appearance';
+
+  @override
+  String get settingsAppearanceSubtitle => 'Theme and accent colour';
+
+  @override
+  String get settingsBackupRestore => 'Backup & Restore';
+
+  @override
+  String get settingsBackupRestoreSubtitle =>
+      'A file you keep, or automatic copies in Google Drive';
+
+  @override
+  String get settingsImportStatement => 'Import a statement';
+
+  @override
+  String get settingsImportStatementSubtitle =>
+      'Bring in a CSV from your bank, mapped once and remembered';
+
+  @override
+  String get settingsExportData => 'Export Data';
+
+  @override
+  String get settingsRecentlyDeleted => 'Recently deleted';
+
+  @override
+  String get settingsRecentlyDeletedSubtitle =>
+      'Put back something removed in the last thirty days';
+
+  @override
+  String get themeExpressYourself => 'Express Yourself';
+
+  @override
+  String get themeExpressYourselfBody =>
+      'Choose a theme that reflects your style and makes managing finances a joy.';
+
+  @override
+  String get themePremiumHeading => 'Premium Themes';
+
+  @override
+  String get themeUnlockPremium => 'Unlock Premium Themes';
 }

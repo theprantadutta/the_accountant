@@ -78,15 +78,13 @@ class RegionalSettingsScreen extends ConsumerWidget {
               SettingsNavigationTile(
                 icon: Icons.schedule,
                 title: l10n.settingsTimeFormat,
-                subtitle: settingsState.timeFormat.label,
+                subtitle: _timeFormatLabel(settingsState.timeFormat, l10n),
                 onTap: () => _showTimeFormatPicker(context, ref),
               ),
               SettingsNavigationTile(
                 icon: Icons.view_week_outlined,
                 title: l10n.settingsFirstDayOfWeek,
-                subtitle:
-                    FirstDayOfWeek.labels[settingsState.firstDayOfWeek] ??
-                    l10n.choiceMatchMyPhone,
+                subtitle: _weekdayLabel(settingsState.firstDayOfWeek, l10n),
                 onTap: () => _showFirstDayPicker(context, ref),
               ),
             ],
@@ -99,7 +97,9 @@ class RegionalSettingsScreen extends ConsumerWidget {
               SettingsNavigationTile(
                 icon: Icons.translate,
                 title: l10n.settingsLanguage,
-                subtitle: AppLanguages.labelFor(ref.watch(localeProvider)),
+                subtitle: ref.watch(localeProvider) == null
+                    ? l10n.languageSystem
+                    : AppLanguages.labelFor(ref.watch(localeProvider)),
                 onTap: () => _showLanguagePicker(context, ref),
               ),
             ],
@@ -115,6 +115,7 @@ class RegionalSettingsScreen extends ConsumerWidget {
   }
 
   Widget _buildPreviewCard(BuildContext context, SettingsState settings) {
+    final l10n = L10n.of(context);
     final now = DateTime.now();
     final formattedDate = _formatDate(now, settings.dateFormat);
     // Through the real formatter rather than a local copy of it, so the preview
@@ -144,7 +145,7 @@ class RegionalSettingsScreen extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Preview',
+            l10n.settingsPreview,
             style: TextStyle(
               color: AppColors.textMuted,
               fontSize: 12,
@@ -153,14 +154,14 @@ class RegionalSettingsScreen extends ConsumerWidget {
             ),
           ),
           SizedBox(height: AppSpacing.md),
-          _buildPreviewRow('Date', formattedDate),
+          _buildPreviewRow(l10n.previewDate, formattedDate),
           SizedBox(height: AppSpacing.sm),
-          _buildPreviewRow('Time', formattedTime),
+          _buildPreviewRow(l10n.previewTime, formattedTime),
           SizedBox(height: AppSpacing.sm),
-          _buildPreviewRow('Amount', formattedAmount),
+          _buildPreviewRow(l10n.previewAmount, formattedAmount),
           SizedBox(height: AppSpacing.sm),
           _buildPreviewRow(
-            'This week starts',
+            l10n.previewWeekStarts,
             AppDateFormatter.formatDate(weekStart, settings.dateFormat),
           ),
         ],
@@ -245,7 +246,7 @@ class RegionalSettingsScreen extends ConsumerWidget {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) => _PickerSheet(
-        title: 'Select Date Format',
+        title: L10n.of(context).selectDateFormat,
         items: formats,
         selectedValue: currentFormat,
       ),
@@ -255,6 +256,28 @@ class RegionalSettingsScreen extends ConsumerWidget {
       await ref.read(settingsProvider.notifier).setDateFormat(selected);
     }
   }
+
+  /// The English labels on [SymbolPosition] and friends are the fallback for
+  /// callers with no context; the screen resolves them properly.
+  String _symbolPositionLabel(SymbolPosition position, L10n l10n) =>
+      switch (position) {
+        SymbolPosition.before => l10n.symbolBeforeAmount,
+        SymbolPosition.after => l10n.symbolAfterAmount,
+      };
+
+  String _timeFormatLabel(TimeFormatChoice choice, L10n l10n) =>
+      switch (choice) {
+        TimeFormatChoice.system => l10n.choiceMatchMyPhone,
+        TimeFormatChoice.twelveHour => l10n.time12Hour,
+        TimeFormatChoice.twentyFourHour => l10n.time24Hour,
+      };
+
+  String _weekdayLabel(int day, L10n l10n) => switch (day) {
+    DateTime.monday => l10n.weekdayMonday,
+    DateTime.saturday => l10n.weekdaySaturday,
+    DateTime.sunday => l10n.weekdaySunday,
+    _ => l10n.choiceMatchMyPhone,
+  };
 
   Future<void> _showLanguagePicker(BuildContext context, WidgetRef ref) async {
     // A sentinel, because null already means "follow the phone" and the sheet
@@ -268,7 +291,12 @@ class RegionalSettingsScreen extends ConsumerWidget {
       title: L10n.of(context).settingsLanguage,
       options: [
         for (final locale in AppLanguages.supported)
-          (value: locale ?? followPhone, label: AppLanguages.labelFor(locale)),
+          (
+            value: locale ?? followPhone,
+            label: locale == null
+                ? L10n.of(context).languageSystem
+                : AppLanguages.labelFor(locale),
+          ),
       ],
       current: current,
     );
@@ -284,10 +312,15 @@ class RegionalSettingsScreen extends ConsumerWidget {
   ) async {
     final selected = await _pickOne<SymbolPosition>(
       context: context,
-      title: 'Currency Symbol',
+      title: L10n.of(context).settingsCurrencySymbol,
       options: [
         for (final position in SymbolPosition.values)
-          (value: position, label: '${position.label}  ${position.example}'),
+          (
+            value: position,
+            label:
+                '${_symbolPositionLabel(position, L10n.of(context))}'
+                '  ${position.example}',
+          ),
       ],
       current: ref.read(settingsProvider).symbolPosition,
     );
@@ -302,10 +335,10 @@ class RegionalSettingsScreen extends ConsumerWidget {
   ) async {
     final selected = await _pickOne<TimeFormatChoice>(
       context: context,
-      title: 'Time Format',
+      title: L10n.of(context).settingsTimeFormat,
       options: [
         for (final choice in TimeFormatChoice.values)
-          (value: choice, label: choice.label),
+          (value: choice, label: _timeFormatLabel(choice, L10n.of(context))),
       ],
       current: ref.read(settingsProvider).timeFormat,
     );
@@ -317,10 +350,10 @@ class RegionalSettingsScreen extends ConsumerWidget {
   Future<void> _showFirstDayPicker(BuildContext context, WidgetRef ref) async {
     final selected = await _pickOne<int>(
       context: context,
-      title: 'First Day of the Week',
+      title: L10n.of(context).settingsFirstDayOfWeek,
       options: [
-        for (final entry in FirstDayOfWeek.labels.entries)
-          (value: entry.key, label: entry.value),
+        for (final day in FirstDayOfWeek.labels.keys)
+          (value: day, label: _weekdayLabel(day, L10n.of(context))),
       ],
       current: ref.read(settingsProvider).firstDayOfWeek,
     );
@@ -343,7 +376,7 @@ class RegionalSettingsScreen extends ConsumerWidget {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) => _PickerSheet(
-        title: 'Select Number Format',
+        title: L10n.of(context).selectNumberFormat,
         items: formats,
         selectedValue: currentFormat,
       ),
@@ -525,7 +558,7 @@ class _CurrencyPickerSheetState extends ConsumerState<_CurrencyPickerSheet> {
             child: Row(
               children: [
                 Text(
-                  'Select Currency',
+                  L10n.of(context).selectCurrency,
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.w600,

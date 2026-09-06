@@ -97,71 +97,17 @@ abstract class L10n {
     Locale('en'),
   ];
 
-  /// The name of the app. Not translated.
-  ///
-  /// In en, this message translates to:
-  /// **'The Accountant'**
-  String get appTitle;
-
-  /// Button labels that recur across the whole app.
-  ///
-  /// In en, this message translates to:
-  /// **'Save'**
-  String get actionSave;
-
   /// No description provided for @actionCancel.
   ///
   /// In en, this message translates to:
   /// **'Cancel'**
   String get actionCancel;
 
-  /// No description provided for @actionDelete.
-  ///
-  /// In en, this message translates to:
-  /// **'Delete'**
-  String get actionDelete;
-
-  /// No description provided for @actionEdit.
-  ///
-  /// In en, this message translates to:
-  /// **'Edit'**
-  String get actionEdit;
-
-  /// No description provided for @actionAdd.
-  ///
-  /// In en, this message translates to:
-  /// **'Add'**
-  String get actionAdd;
-
-  /// No description provided for @actionDone.
-  ///
-  /// In en, this message translates to:
-  /// **'Done'**
-  String get actionDone;
-
   /// No description provided for @actionConfirm.
   ///
   /// In en, this message translates to:
   /// **'Confirm'**
   String get actionConfirm;
-
-  /// No description provided for @actionRetry.
-  ///
-  /// In en, this message translates to:
-  /// **'Try again'**
-  String get actionRetry;
-
-  /// No description provided for @actionClose.
-  ///
-  /// In en, this message translates to:
-  /// **'Close'**
-  String get actionClose;
-
-  /// No description provided for @actionSearch.
-  ///
-  /// In en, this message translates to:
-  /// **'Search'**
-  String get actionSearch;
 
   /// No description provided for @dateToday.
   ///
@@ -181,30 +127,6 @@ abstract class L10n {
   /// **'Tomorrow'**
   String get dateTomorrow;
 
-  /// The direction money moved. Used on cards, filters and charts.
-  ///
-  /// In en, this message translates to:
-  /// **'Income'**
-  String get moneyIncome;
-
-  /// No description provided for @moneyExpense.
-  ///
-  /// In en, this message translates to:
-  /// **'Expense'**
-  String get moneyExpense;
-
-  /// No description provided for @moneyTransfer.
-  ///
-  /// In en, this message translates to:
-  /// **'Transfer'**
-  String get moneyTransfer;
-
-  /// No description provided for @moneyBalance.
-  ///
-  /// In en, this message translates to:
-  /// **'Balance'**
-  String get moneyBalance;
-
   /// No description provided for @navDashboard.
   ///
   /// In en, this message translates to:
@@ -217,12 +139,6 @@ abstract class L10n {
   /// **'Transactions'**
   String get navTransactions;
 
-  /// No description provided for @navBudgets.
-  ///
-  /// In en, this message translates to:
-  /// **'Budgets'**
-  String get navBudgets;
-
   /// No description provided for @navReports.
   ///
   /// In en, this message translates to:
@@ -234,36 +150,6 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'Settings'**
   String get navSettings;
-
-  /// No description provided for @entityAccount.
-  ///
-  /// In en, this message translates to:
-  /// **'Account'**
-  String get entityAccount;
-
-  /// No description provided for @entityCategory.
-  ///
-  /// In en, this message translates to:
-  /// **'Category'**
-  String get entityCategory;
-
-  /// No description provided for @entityBudget.
-  ///
-  /// In en, this message translates to:
-  /// **'Budget'**
-  String get entityBudget;
-
-  /// No description provided for @entityGoal.
-  ///
-  /// In en, this message translates to:
-  /// **'Goal'**
-  String get entityGoal;
-
-  /// No description provided for @entityTransaction.
-  ///
-  /// In en, this message translates to:
-  /// **'Transaction'**
-  String get entityTransaction;
 
   /// No description provided for @settingsRegionalTitle.
   ///
@@ -487,35 +373,161 @@ abstract class L10n {
   /// **'Match my phone'**
   String get languageSystem;
 
-  /// No description provided for @languageEnglish.
+  /// No description provided for @navHome.
   ///
   /// In en, this message translates to:
-  /// **'English'**
-  String get languageEnglish;
+  /// **'Home'**
+  String get navHome;
 
-  /// No description provided for @languageBangla.
+  /// No description provided for @navActivity.
   ///
   /// In en, this message translates to:
-  /// **'Bangla'**
-  String get languageBangla;
+  /// **'Activity'**
+  String get navActivity;
 
-  /// No description provided for @confirmDeleteTitle.
+  /// No description provided for @navAi.
   ///
   /// In en, this message translates to:
-  /// **'Delete this?'**
-  String get confirmDeleteTitle;
+  /// **'AI'**
+  String get navAi;
 
-  /// No description provided for @confirmIrreversible.
+  /// No description provided for @navInsights.
   ///
   /// In en, this message translates to:
-  /// **'This cannot be undone.'**
-  String get confirmIrreversible;
+  /// **'Insights'**
+  String get navInsights;
 
-  /// No description provided for @emptyNothingHere.
+  /// No description provided for @navAiAssistant.
   ///
   /// In en, this message translates to:
-  /// **'Nothing here yet.'**
-  String get emptyNothingHere;
+  /// **'AI Assistant'**
+  String get navAiAssistant;
+
+  /// No description provided for @sectionAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'ACCOUNT'**
+  String get sectionAccount;
+
+  /// No description provided for @sectionMoney.
+  ///
+  /// In en, this message translates to:
+  /// **'MONEY'**
+  String get sectionMoney;
+
+  /// No description provided for @sectionRegional.
+  ///
+  /// In en, this message translates to:
+  /// **'REGIONAL'**
+  String get sectionRegional;
+
+  /// No description provided for @sectionNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'NOTIFICATIONS'**
+  String get sectionNotifications;
+
+  /// No description provided for @sectionPrivacySecurity.
+  ///
+  /// In en, this message translates to:
+  /// **'PRIVACY & SECURITY'**
+  String get sectionPrivacySecurity;
+
+  /// No description provided for @sectionDataManagement.
+  ///
+  /// In en, this message translates to:
+  /// **'DATA MANAGEMENT'**
+  String get sectionDataManagement;
+
+  /// No description provided for @sectionHelpSupport.
+  ///
+  /// In en, this message translates to:
+  /// **'HELP & SUPPORT'**
+  String get sectionHelpSupport;
+
+  /// No description provided for @sectionAbout.
+  ///
+  /// In en, this message translates to:
+  /// **'ABOUT'**
+  String get sectionAbout;
+
+  /// No description provided for @settingsAppearance.
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance'**
+  String get settingsAppearance;
+
+  /// No description provided for @settingsAppearanceSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme and accent colour'**
+  String get settingsAppearanceSubtitle;
+
+  /// No description provided for @settingsBackupRestore.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup & Restore'**
+  String get settingsBackupRestore;
+
+  /// No description provided for @settingsBackupRestoreSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'A file you keep, or automatic copies in Google Drive'**
+  String get settingsBackupRestoreSubtitle;
+
+  /// No description provided for @settingsImportStatement.
+  ///
+  /// In en, this message translates to:
+  /// **'Import a statement'**
+  String get settingsImportStatement;
+
+  /// No description provided for @settingsImportStatementSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bring in a CSV from your bank, mapped once and remembered'**
+  String get settingsImportStatementSubtitle;
+
+  /// No description provided for @settingsExportData.
+  ///
+  /// In en, this message translates to:
+  /// **'Export Data'**
+  String get settingsExportData;
+
+  /// No description provided for @settingsRecentlyDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Recently deleted'**
+  String get settingsRecentlyDeleted;
+
+  /// No description provided for @settingsRecentlyDeletedSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Put back something removed in the last thirty days'**
+  String get settingsRecentlyDeletedSubtitle;
+
+  /// No description provided for @themeExpressYourself.
+  ///
+  /// In en, this message translates to:
+  /// **'Express Yourself'**
+  String get themeExpressYourself;
+
+  /// No description provided for @themeExpressYourselfBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a theme that reflects your style and makes managing finances a joy.'**
+  String get themeExpressYourselfBody;
+
+  /// No description provided for @themePremiumHeading.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium Themes'**
+  String get themePremiumHeading;
+
+  /// No description provided for @themeUnlockPremium.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock Premium Themes'**
+  String get themeUnlockPremium;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

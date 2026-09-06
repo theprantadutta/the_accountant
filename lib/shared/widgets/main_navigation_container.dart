@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/services/analytics_service.dart';
@@ -70,12 +71,25 @@ class _MainNavigationContainerState
     const SettingsScreen(), // Settings
   ];
 
+  /// Stable English names, for analytics.
+  ///
+  /// These are event identifiers, not labels: translating them would split one
+  /// screen's history across as many names as the app has languages.
   final List<String> _screenTitles = [
     'Dashboard',
     'Transactions',
     'AI Assistant',
     'Reports',
     'Settings',
+  ];
+
+  /// What the app bar actually shows.
+  List<String> _localizedTitles(L10n l10n) => [
+    l10n.navDashboard,
+    l10n.navTransactions,
+    l10n.navAiAssistant,
+    l10n.navReports,
+    l10n.navSettings,
   ];
 
   @override
@@ -589,7 +603,7 @@ class _MainNavigationContainerState
           NavigationRailDestination(
             icon: Icon(item.icon),
             selectedIcon: Icon(item.activeIcon),
-            label: Text(item.label),
+            label: Text(NavItems.labelFor(item, L10n.of(context))),
           ),
       ],
     );
@@ -623,7 +637,7 @@ class _MainNavigationContainerState
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                _screenTitles[_currentIndex],
+                _localizedTitles(L10n.of(context))[_currentIndex],
                 style: AppTypography.titleLarge,
               ),
               Text(

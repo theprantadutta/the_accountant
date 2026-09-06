@@ -47,8 +47,8 @@ void main() {
         ),
       );
 
-      expect(l10n.actionSave, 'Save');
-      expect(l10n.moneyIncome, 'Income');
+      expect(l10n.actionCancel, 'Cancel');
+      expect(l10n.navSettings, 'Settings');
     });
 
     testWidgets('Bangla', (tester) async {
@@ -65,8 +65,8 @@ void main() {
         ),
       );
 
-      expect(l10n.actionSave, 'সংরক্ষণ');
-      expect(l10n.moneyIncome, 'আয়');
+      expect(l10n.actionCancel, 'বাতিল');
+      expect(l10n.navSettings, 'সেটিংস');
     });
 
     testWidgets('a language we do not ship falls back to English', (
@@ -86,8 +86,8 @@ void main() {
       );
 
       expect(
-        l10n.actionSave,
-        'Save',
+        l10n.actionCancel,
+        'Cancel',
         reason: 'showing resource keys would be worse than showing English',
       );
     });
@@ -178,14 +178,9 @@ void main() {
       final english = readArb('app_en.arb');
       final bangla = readArb('app_bn.arb');
 
-      // A handful are the same in both by design: a brand name, and the two
-      // language names, which are always written in their own language.
-      const sameByDesign = {
-        'appTitle',
-        'languageEnglish',
-        'entityBudget',
-        'entityTransaction',
-      };
+      // A handful read the same in both by design, because they are written
+      // the same way in Bangla text.
+      const sameByDesign = {'navAi'};
 
       final untranslated = [
         for (final key in english.keys)
@@ -197,6 +192,36 @@ void main() {
 
       expect(untranslated, isEmpty);
     });
+  });
+
+  test('no string is shipped that nothing shows', () {
+    // A resource file full of strings no screen uses is not preparation, it is
+    // clutter a reviewer has to guess about — and every one costs a translator
+    // real effort for nothing. Vocabulary arrives with the screen that needs
+    // it.
+    final direct = RegExp(r'\bl10n[?!]?\.([A-Za-z0-9_]+)');
+    final viaOf = RegExp(r'L10n\.of\([A-Za-z_]+\)\.([A-Za-z0-9_]+)');
+
+    final used = <String>{};
+    for (final entity in Directory('lib').listSync(recursive: true)) {
+      if (entity is! File || !entity.path.endsWith('.dart')) continue;
+      if (entity.path.contains('generated')) continue;
+      final text = entity.readAsStringSync();
+      for (final m in direct.allMatches(text)) {
+        used.add(m.group(1)!);
+      }
+      for (final m in viaOf.allMatches(text)) {
+        used.add(m.group(1)!);
+      }
+    }
+
+    final declared =
+        (jsonDecode(File('lib/l10n/app_en.arb').readAsStringSync())
+                as Map<String, dynamic>)
+            .keys
+            .where((k) => !k.startsWith('@'));
+
+    expect(declared.where((k) => !used.contains(k)), isEmpty);
   });
 
   group('remembering the language', () {

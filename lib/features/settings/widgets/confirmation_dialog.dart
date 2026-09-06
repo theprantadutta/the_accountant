@@ -1,23 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 
 /// Shows a confirmation dialog for destructive actions
+/// [cancelText] and [confirmText] default to the reader's language.
+///
+/// Nullable rather than defaulted to a literal: a default value has to be a
+/// compile-time constant, so an English word was the only thing that could go
+/// there. Resolved here instead, where there is a context to resolve it from.
 Future<bool?> showConfirmationDialog({
   required BuildContext context,
   required String title,
   required String message,
-  String cancelText = 'Cancel',
-  String confirmText = 'Confirm',
+  String? cancelText,
+  String? confirmText,
   Color? confirmColor,
   bool isDangerous = false,
 }) {
+  final l10n = L10n.of(context);
   return showDialog<bool>(
     context: context,
     builder: (context) => ConfirmationDialog(
       title: title,
       message: message,
-      cancelText: cancelText,
-      confirmText: confirmText,
+      cancelText: cancelText ?? l10n.actionCancel,
+      confirmText: confirmText ?? l10n.actionConfirm,
       confirmColor:
           confirmColor ??
           (isDangerous ? AppColors.error : AppColors.primaryAccent),

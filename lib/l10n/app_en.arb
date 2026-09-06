@@ -1,54 +1,18 @@
 {
   "@@locale": "en",
-
-  "appTitle": "The Accountant",
-  "@appTitle": {
-    "description": "The name of the app. Not translated."
-  },
-
-  "actionSave": "Save",
   "actionCancel": "Cancel",
-  "actionDelete": "Delete",
-  "actionEdit": "Edit",
-  "actionAdd": "Add",
-  "actionDone": "Done",
   "actionConfirm": "Confirm",
-  "actionRetry": "Try again",
-  "actionClose": "Close",
-  "actionSearch": "Search",
-  "@actionSave": {
-    "description": "Button labels that recur across the whole app."
-  },
-
   "dateToday": "Today",
   "dateYesterday": "Yesterday",
   "dateTomorrow": "Tomorrow",
-
-  "moneyIncome": "Income",
-  "moneyExpense": "Expense",
-  "moneyTransfer": "Transfer",
-  "moneyBalance": "Balance",
-  "@moneyIncome": {
-    "description": "The direction money moved. Used on cards, filters and charts."
-  },
-
   "navDashboard": "Dashboard",
   "navTransactions": "Transactions",
-  "navBudgets": "Budgets",
   "navReports": "Reports",
   "navSettings": "Settings",
-
-  "entityAccount": "Account",
-  "entityCategory": "Category",
-  "entityBudget": "Budget",
-  "entityGoal": "Goal",
-  "entityTransaction": "Transaction",
-
   "settingsRegionalTitle": "Regional Settings",
   "settingsSectionCurrency": "CURRENCY",
   "settingsSectionDisplayFormat": "DISPLAY FORMAT",
   "settingsSectionLanguage": "LANGUAGE",
-
   "settingsDefaultCurrency": "Default Currency",
   "settingsExchangeRates": "Exchange Rates",
   "settingsExchangeRatesSubtitle": "Manage currency conversion rates",
@@ -58,31 +22,25 @@
   "settingsTimeFormat": "Time Format",
   "settingsFirstDayOfWeek": "First Day of the Week",
   "settingsLanguage": "Language",
-
   "settingsPreview": "Preview",
   "previewDate": "Date",
   "previewTime": "Time",
   "previewAmount": "Amount",
   "previewWeekStarts": "This week starts",
-
   "choiceMatchMyPhone": "Match my phone",
   "@choiceMatchMyPhone": {
     "description": "Follow the device setting rather than choosing explicitly."
   },
-
   "symbolBeforeAmount": "Before the amount",
   "symbolAfterAmount": "After the amount",
   "time12Hour": "12-hour (1:30 PM)",
   "time24Hour": "24-hour (13:30)",
-
   "weekdayMonday": "Monday",
   "weekdaySaturday": "Saturday",
   "weekdaySunday": "Sunday",
-
   "selectDateFormat": "Select Date Format",
   "selectNumberFormat": "Select Number Format",
   "selectCurrency": "Select Currency",
-
   "themeTitle": "Choose Your Theme",
   "themeSystem": "System",
   "themeLight": "Light",
@@ -90,13 +48,31 @@
   "themeSystemDescription": "Match whatever your phone is set to",
   "themeLightDescription": "Bright, for daylight and shared screens",
   "themeDarkDescription": "The original - deep space with indigo accents",
-
   "languageSystem": "Match my phone",
-  "languageEnglish": "English",
-  "languageBangla": "Bangla",
-
-  "confirmDeleteTitle": "Delete this?",
-  "confirmIrreversible": "This cannot be undone.",
-
-  "emptyNothingHere": "Nothing here yet."
+  "navHome": "Home",
+  "navActivity": "Activity",
+  "navAi": "AI",
+  "navInsights": "Insights",
+  "navAiAssistant": "AI Assistant",
+  "sectionAccount": "ACCOUNT",
+  "sectionMoney": "MONEY",
+  "sectionRegional": "REGIONAL",
+  "sectionNotifications": "NOTIFICATIONS",
+  "sectionPrivacySecurity": "PRIVACY & SECURITY",
+  "sectionDataManagement": "DATA MANAGEMENT",
+  "sectionHelpSupport": "HELP & SUPPORT",
+  "sectionAbout": "ABOUT",
+  "settingsAppearance": "Appearance",
+  "settingsAppearanceSubtitle": "Theme and accent colour",
+  "settingsBackupRestore": "Backup & Restore",
+  "settingsBackupRestoreSubtitle": "A file you keep, or automatic copies in Google Drive",
+  "settingsImportStatement": "Import a statement",
+  "settingsImportStatementSubtitle": "Bring in a CSV from your bank, mapped once and remembered",
+  "settingsExportData": "Export Data",
+  "settingsRecentlyDeleted": "Recently deleted",
+  "settingsRecentlyDeletedSubtitle": "Put back something removed in the last thirty days",
+  "themeExpressYourself": "Express Yourself",
+  "themeExpressYourselfBody": "Choose a theme that reflects your style and makes managing finances a joy.",
+  "themePremiumHeading": "Premium Themes",
+  "themeUnlockPremium": "Unlock Premium Themes"
 }

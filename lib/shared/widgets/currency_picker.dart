@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/providers/currency_provider.dart';
 import 'package:the_accountant/core/services/currency_service.dart';
@@ -210,7 +211,7 @@ class _CurrencyPickerSheetState extends ConsumerState<_CurrencyPickerSheet> {
             child: Row(
               children: [
                 Text(
-                  'Select Currency',
+                  L10n.of(context).selectCurrency,
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.w600,

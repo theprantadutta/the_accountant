@@ -9,37 +9,10 @@ class L10nBn extends L10n {
   L10nBn([String locale = 'bn']) : super(locale);
 
   @override
-  String get appTitle => 'The Accountant';
-
-  @override
-  String get actionSave => 'সংরক্ষণ';
-
-  @override
   String get actionCancel => 'বাতিল';
 
   @override
-  String get actionDelete => 'মুছুন';
-
-  @override
-  String get actionEdit => 'সম্পাদনা';
-
-  @override
-  String get actionAdd => 'যোগ করুন';
-
-  @override
-  String get actionDone => 'হয়ে গেছে';
-
-  @override
   String get actionConfirm => 'নিশ্চিত করুন';
-
-  @override
-  String get actionRetry => 'আবার চেষ্টা করুন';
-
-  @override
-  String get actionClose => 'বন্ধ করুন';
-
-  @override
-  String get actionSearch => 'খুঁজুন';
 
   @override
   String get dateToday => 'আজ';
@@ -51,46 +24,16 @@ class L10nBn extends L10n {
   String get dateTomorrow => 'আগামীকাল';
 
   @override
-  String get moneyIncome => 'আয়';
-
-  @override
-  String get moneyExpense => 'ব্যয়';
-
-  @override
-  String get moneyTransfer => 'স্থানান্তর';
-
-  @override
-  String get moneyBalance => 'ব্যালেন্স';
-
-  @override
   String get navDashboard => 'ড্যাশবোর্ড';
 
   @override
   String get navTransactions => 'লেনদেন';
 
   @override
-  String get navBudgets => 'বাজেট';
-
-  @override
   String get navReports => 'রিপোর্ট';
 
   @override
   String get navSettings => 'সেটিংস';
-
-  @override
-  String get entityAccount => 'অ্যাকাউন্ট';
-
-  @override
-  String get entityCategory => 'ক্যাটাগরি';
-
-  @override
-  String get entityBudget => 'বাজেট';
-
-  @override
-  String get entityGoal => 'লক্ষ্য';
-
-  @override
-  String get entityTransaction => 'লেনদেন';
 
   @override
   String get settingsRegionalTitle => 'আঞ্চলিক সেটিংস';
@@ -207,17 +150,84 @@ class L10nBn extends L10n {
   String get languageSystem => 'ফোনের ভাষা অনুসরণ করুন';
 
   @override
-  String get languageEnglish => 'English';
+  String get navHome => 'হোম';
 
   @override
-  String get languageBangla => 'বাংলা';
+  String get navActivity => 'কার্যকলাপ';
 
   @override
-  String get confirmDeleteTitle => 'এটি মুছে ফেলবেন?';
+  String get navAi => 'AI';
 
   @override
-  String get confirmIrreversible => 'এটি আর ফেরানো যাবে না।';
+  String get navInsights => 'বিশ্লেষণ';
 
   @override
-  String get emptyNothingHere => 'এখানে এখনও কিছু নেই।';
+  String get navAiAssistant => 'AI সহকারী';
+
+  @override
+  String get sectionAccount => 'অ্যাকাউন্ট';
+
+  @override
+  String get sectionMoney => 'অর্থ';
+
+  @override
+  String get sectionRegional => 'আঞ্চলিক';
+
+  @override
+  String get sectionNotifications => 'বিজ্ঞপ্তি';
+
+  @override
+  String get sectionPrivacySecurity => 'গোপনীয়তা ও নিরাপত্তা';
+
+  @override
+  String get sectionDataManagement => 'ডেটা ব্যবস্থাপনা';
+
+  @override
+  String get sectionHelpSupport => 'সহায়তা';
+
+  @override
+  String get sectionAbout => 'সম্পর্কে';
+
+  @override
+  String get settingsAppearance => 'চেহারা';
+
+  @override
+  String get settingsAppearanceSubtitle => 'থিম ও অ্যাকসেন্ট রঙ';
+
+  @override
+  String get settingsBackupRestore => 'ব্যাকআপ ও পুনরুদ্ধার';
+
+  @override
+  String get settingsBackupRestoreSubtitle =>
+      'আপনার রাখা একটি ফাইল, বা Google Drive-এ স্বয়ংক্রিয় কপি';
+
+  @override
+  String get settingsImportStatement => 'স্টেটমেন্ট আমদানি করুন';
+
+  @override
+  String get settingsImportStatementSubtitle =>
+      'ব্যাংকের CSV আনুন — একবার মিলিয়ে দিন, মনে রাখা হবে';
+
+  @override
+  String get settingsExportData => 'ডেটা রপ্তানি';
+
+  @override
+  String get settingsRecentlyDeleted => 'সম্প্রতি মুছে ফেলা';
+
+  @override
+  String get settingsRecentlyDeletedSubtitle =>
+      'গত ত্রিশ দিনে সরানো কিছু ফিরিয়ে আনুন';
+
+  @override
+  String get themeExpressYourself => 'নিজেকে প্রকাশ করুন';
+
+  @override
+  String get themeExpressYourselfBody =>
+      'এমন একটি থিম বাছুন যা আপনার রুচির সঙ্গে মেলে এবং হিসাব রাখাকে আনন্দের করে তোলে।';
+
+  @override
+  String get themePremiumHeading => 'প্রিমিয়াম থিম';
+
+  @override
+  String get themeUnlockPremium => 'প্রিমিয়াম থিম আনলক করুন';
 }

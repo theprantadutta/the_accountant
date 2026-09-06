@@ -1,4 +1,5 @@
 import 'package:intl/intl.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 
 class AppDateFormatter {
   /// Full date using the user's setting string (all 5 are valid DateFormat patterns)
@@ -20,16 +21,26 @@ class AppDateFormatter {
     }
   }
 
-  /// Relative: Today/Yesterday/Tomorrow, else short (same year) or full (different year)
-  static String formatRelativeDate(DateTime date, String dateFormat) {
+  /// Relative: Today/Yesterday/Tomorrow, else short (same year) or full
+  /// (different year).
+  ///
+  /// [l10n] is optional so the formatter stays usable from places that have no
+  /// BuildContext — a background task writing a notification, say. Without it
+  /// the words come out in English, which is the same answer this gave before
+  /// there was a choice.
+  static String formatRelativeDate(
+    DateTime date,
+    String dateFormat, {
+    L10n? l10n,
+  }) {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final target = DateTime(date.year, date.month, date.day);
     final diff = target.difference(today).inDays;
 
-    if (diff == 0) return 'Today';
-    if (diff == -1) return 'Yesterday';
-    if (diff == 1) return 'Tomorrow';
+    if (diff == 0) return l10n?.dateToday ?? 'Today';
+    if (diff == -1) return l10n?.dateYesterday ?? 'Yesterday';
+    if (diff == 1) return l10n?.dateTomorrow ?? 'Tomorrow';
 
     if (date.year == now.year) {
       return formatShortDate(date, dateFormat);
