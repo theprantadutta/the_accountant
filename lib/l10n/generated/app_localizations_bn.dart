@@ -1991,4 +1991,8 @@ class L10nBn extends L10n {
 
   @override
   String get shortcutTransactions => 'লেনদেন';
+
+  @override
+  String get backupBusySyncing =>
+      'একটি সিঙ্ক চলছে। ফিরিয়ে আনার আগে সেটি শেষ হতে দিন।';
 }

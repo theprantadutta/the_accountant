@@ -160,6 +160,11 @@ class BackupService {
     // device are no longer part of. Cleared, so the next sync pulls in full and
     // reconciles against what was just restored rather than asking for changes
     // since a moment that no longer means anything.
+    //
+    // This only works because SyncService reads the cursor from the database
+    // at the point of use. It used to hold its own copy, so clearing the row
+    // here changed nothing a running service could see, and the next sync
+    // quietly skipped everything the server held from before the restore.
     await _db.clearLastSyncTimestamp();
 
     return RestoreSummary(

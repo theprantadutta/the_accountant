@@ -626,5 +626,6 @@
   "shortcutAddExpense": "খরচ যোগ করুন",
   "shortcutAddIncome": "আয় যোগ করুন",
   "shortcutScanReceipt": "রসিদ স্ক্যান করুন",
-  "shortcutTransactions": "লেনদেন"
+  "shortcutTransactions": "লেনদেন",
+  "backupBusySyncing": "একটি সিঙ্ক চলছে। ফিরিয়ে আনার আগে সেটি শেষ হতে দিন।"
 }

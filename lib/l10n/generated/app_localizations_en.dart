@@ -1996,4 +1996,8 @@ class L10nEn extends L10n {
 
   @override
   String get shortcutTransactions => 'Transactions';
+
+  @override
+  String get backupBusySyncing =>
+      'A sync is running. Wait for it to finish before restoring.';
 }

@@ -691,5 +691,6 @@
   "shortcutAddExpense": "Add expense",
   "shortcutAddIncome": "Add income",
   "shortcutScanReceipt": "Scan receipt",
-  "shortcutTransactions": "Transactions"
+  "shortcutTransactions": "Transactions",
+  "backupBusySyncing": "A sync is running. Wait for it to finish before restoring."
 }

@@ -57,8 +57,11 @@ class SyncService {
   SyncResult? get lastResult => _lastResult;
 
   // Last sync timestamp
-  DateTime? _lastSyncAt;
-  bool _lastSyncLoaded = false;
+  /// Whether a sync or a restore is running.
+  ///
+  /// Also read from outside, so a backup restore can refuse to replace the
+  /// database underneath a sync that is halfway through applying to it.
+  bool get isBusy => _syncInProgress;
 
   // Synchronous re-entrancy guard for syncAll (set before any await).
   bool _syncInProgress = false;
@@ -143,13 +146,9 @@ class SyncService {
     }
 
     try {
-      // Force a FULL pull (server omits `since` and returns everything) by
-      // clearing the cursor.
-      _lastSyncAt = null;
-      _lastSyncLoaded = true;
-
       // Fetch everything from the server FIRST, before touching local data.
-      final pull = await _pullAllChanges();
+      // `since: null` is what makes the server send the lot.
+      final pull = await _pullAllChanges(since: null);
       if (pull == null) {
         _setState(SyncOperationState.error);
         return SyncResult.failure(
@@ -184,8 +183,7 @@ class SyncService {
       });
 
       // Advance the cursor so subsequent normal syncs are deltas again.
-      _lastSyncAt = pull.serverTime ?? DateTime.now();
-      await _saveLastSyncTimestamp(_lastSyncAt!);
+      await _saveLastSyncTimestamp(pull.serverTime ?? DateTime.now());
 
       _setState(SyncOperationState.success);
       _logger.i('Restore from cloud complete: restored=$restored records');
@@ -224,11 +222,6 @@ class SyncService {
       }
     }
 
-    // Load persisted timestamp on first sync
-    if (!_lastSyncLoaded) {
-      await _loadLastSyncTimestamp();
-    }
-
     final startTime = DateTime.now();
     _setState(SyncOperationState.syncing);
 
@@ -265,8 +258,13 @@ class SyncService {
       totalPushed = push.appliedCount;
       conflicts.addAll(push.conflicts);
 
-      // Step 2: Pull all remote changes
-      final pullResult = await _pullAllChanges();
+      // Step 2: Pull the remote changes since the stored cursor.
+      //
+      // Read here, not cached: see _pullAllChanges. Read AFTER the push, so a
+      // row this device just uploaded is not pulled straight back.
+      final pullResult = await _pullAllChanges(
+        since: await _database.getLastSyncTimestamp(),
+      );
       if (pullResult != null) {
         totalPulled = pullResult.totalChanges;
 
@@ -318,8 +316,7 @@ class SyncService {
           // Advance the cursor using the SERVER's timestamp (falling back to
           // local time only if absent), so client clock skew can't skip
           // server-side changes on the next pull.
-          _lastSyncAt = pullResult.serverTime ?? DateTime.now();
-          await _saveLastSyncTimestamp(_lastSyncAt!);
+          await _saveLastSyncTimestamp(pullResult.serverTime ?? DateTime.now());
         } else {
           // Leave the cursor exactly where it was. The unapplied records are
           // returned by the next pull and retried; advancing here is what used
@@ -436,11 +433,6 @@ class SyncService {
   }
 
   /// Load persisted last sync timestamp from DB
-  Future<void> _loadLastSyncTimestamp() async {
-    _lastSyncAt = await _database.getLastSyncTimestamp();
-    _lastSyncLoaded = true;
-    _logger.d('Loaded persisted lastSyncAt: $_lastSyncAt');
-  }
 
   /// Save last sync timestamp to DB
   Future<void> _saveLastSyncTimestamp(DateTime timestamp) async {
@@ -772,10 +764,24 @@ class SyncService {
     return null;
   }
 
-  /// Pull all changes from server since last sync
-  Future<SyncPullResponse?> _pullAllChanges() async {
+  /// Pull the changes since [since], or everything when it is null.
+  ///
+  /// The cursor is read from the database at the moment of use rather than
+  /// held in a field. It used to be cached, loaded once and kept for the life
+  /// of the service — which meant anything that changed the stored cursor
+  /// without going through this class was silently ignored. Restoring a backup
+  /// did exactly that: it cleared the stored cursor, the running service kept
+  /// its own, and the next sync asked for changes since a moment the restored
+  /// rows had never been part of. Everything the server held from before that
+  /// point was never pulled, the sync reported success, and it wrote a fresh
+  /// cursor on the way out so restarting did not repair it.
+  ///
+  /// Re-reading costs one indexed local query per sync, against a network
+  /// round trip. Making the desync impossible is worth more than that, and it
+  /// is worth more than a `reset()` somebody has to remember to call.
+  Future<SyncPullResponse?> _pullAllChanges({DateTime? since}) async {
     try {
-      return await _transport.pull(_lastSyncAt);
+      return await _transport.pull(since);
     } catch (e) {
       _logger.e('Pull failed: $e');
       rethrow;

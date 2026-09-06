@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:the_accountant/core/providers/sync_provider.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -174,6 +175,15 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
     BackupMetadata metadata,
     Future<RestoreSummary> Function() run,
   ) async {
+    // Never replace the database underneath a sync that is halfway through
+    // applying to it. The restore runs in one transaction and the sync runs in
+    // another; whichever committed second would win, and the loser's work would
+    // be gone with nothing to say so.
+    if (ref.read(syncServiceProvider).isBusy) {
+      _say(L10n.of(context).backupBusySyncing, bad: true);
+      return;
+    }
+
     final dateFormat = ref.read(dateFormatSettingProvider);
     final owner = await ref.read(databaseProvider).getLocalStoreMeta();
     final differentAccount =

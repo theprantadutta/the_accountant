@@ -503,7 +503,17 @@ class FakeSyncServer {
     }
   }
 
+  /// The cursor the client asked with on the most recent pull.
+  ///
+  /// Lets a test assert that an ordinary sync still requests a delta — removing
+  /// the client's cursor cache could otherwise turn every sync into a full
+  /// download without anything failing.
+  DateTime? lastPullSince;
+  bool sawFullPull = false;
+
   SyncPullResponse pull(String userId, DateTime? since) {
+    lastPullSince = since;
+    if (since == null) sawFullPull = true;
     pullCount++;
     final cutoff = since ?? DateTime.utc(1970);
     final changes = <String, List<SyncChange>>{};

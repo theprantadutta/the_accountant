@@ -3858,6 +3858,12 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'Transactions'**
   String get shortcutTransactions;
+
+  /// No description provided for @backupBusySyncing.
+  ///
+  /// In en, this message translates to:
+  /// **'A sync is running. Wait for it to finish before restoring.'**
+  String get backupBusySyncing;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {
