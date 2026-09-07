@@ -149,8 +149,18 @@ void main() {
       expect(await db.getAllTransactions(), hasLength(3));
     });
 
+    /// Two coffees are two coffees.
+    ///
+    /// Duplicate checking used to ask whether a signature had been seen, and
+    /// seeded that question with the file's own rows as it read them. So a real
+    /// statement holding two identical payments on one day imported one — even
+    /// into an empty ledger, where there was nothing for the second to be a
+    /// duplicate of. This test asserted that behaviour while its own name said
+    /// the opposite, which was the signal that the reasoning was wrong.
+    ///
+    /// It counts multiplicities now: import the difference between how many the
+    /// file says happened and how many are already recorded.
     test('two identical rows in one file are not both dropped', () async {
-      // A real statement can hold two identical payments on the same day.
       final result = await service.import(
         preview: previewOf(
           'Date,Description,Amount\n'
@@ -162,12 +172,58 @@ void main() {
 
       expect(
         result.imported,
-        1,
-        reason:
-            'the second is indistinguishable from the first, so it is skipped '
-            'for the same reason a re-import is — the alternative is doubling '
-            'every genuinely repeated statement',
+        2,
+        reason: 'nothing was on file, so neither row can be a duplicate of '
+            'anything — two real purchases were being collapsed into one',
       );
+      expect(result.skippedAsDuplicates, 0);
+    });
+
+    test('re-importing that same file adds nothing', () async {
+      const twoCoffees =
+          'Date,Description,Amount\n'
+          '2026-01-01,Coffee,-3.50\n'
+          '2026-01-01,Coffee,-3.50\n';
+      await service.import(preview: previewOf(twoCoffees), walletId: wallet);
+
+      final second = await service.import(
+        preview: previewOf(twoCoffees),
+        walletId: wallet,
+      );
+
+      expect(second.imported, 0);
+      expect(
+        second.skippedAsDuplicates,
+        2,
+        reason: 'two on file and two in the file is an overlap, not a pair of '
+            'new purchases — which is what the check exists for',
+      );
+      expect(await db.getAllTransactions(), hasLength(2));
+    });
+
+    test('a third repeat is the one that is new', () async {
+      await service.import(
+        preview: previewOf(
+          'Date,Description,Amount\n'
+          '2026-01-01,Coffee,-3.50\n'
+          '2026-01-01,Coffee,-3.50\n',
+        ),
+        walletId: wallet,
+      );
+
+      final result = await service.import(
+        preview: previewOf(
+          'Date,Description,Amount\n'
+          '2026-01-01,Coffee,-3.50\n'
+          '2026-01-01,Coffee,-3.50\n'
+          '2026-01-01,Coffee,-3.50\n',
+        ),
+        walletId: wallet,
+      );
+
+      expect(result.imported, 1);
+      expect(result.skippedAsDuplicates, 2);
+      expect(await db.getAllTransactions(), hasLength(3));
     });
 
     test('duplicate checking can be turned off', () async {

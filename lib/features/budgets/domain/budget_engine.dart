@@ -396,43 +396,99 @@ class BudgetEngine {
   /// Only looks back at windows that have actually closed, and never lets the
   /// carry go negative: an overspent month reduces the next month's headroom to
   /// its own limit, it does not create a debt that compounds.
+  ///
+  /// Every closed window is walked, however many there are. This used to stop
+  /// after twenty-four, which was reasoned about as cost and not as correctness:
+  /// a daily budget began quietly losing earned headroom after twenty-four days,
+  /// and the user saw a smaller allowance with nothing to explain it. The cost
+  /// was one spend query per window; the rows are fetched once from the budget's
+  /// start and bucketed by window index instead, which is a single query however
+  /// long the budget has been running. There is nothing left for a limit to
+  /// protect.
   Future<int> _carriedInto(
     BudgetView budget,
     BudgetWindow window,
     DateTime now,
     AmountConverter converter,
   ) async {
-    var carried = 0;
     final windows = BudgetWindows.indexOf(
       start: budget.startDate,
       period: budget.period,
       periodLength: budget.periodLength,
       moment: window.start,
     );
+    if (windows <= 0) return 0;
 
-    // Bounded so a budget started years ago cannot make this unbounded work.
-    final first = windows > _maxRolloverLookback
-        ? windows - _maxRolloverLookback
-        : 0;
+    // Every boundary up front, from the anchor, so a row can be placed by
+    // searching rather than by asking the database once per window.
+    final boundaries = [
+      for (var i = 0; i <= windows; i++)
+        BudgetWindows.startOfIndex(
+          budget.startDate,
+          budget.period,
+          budget.periodLength,
+          i,
+        ),
+    ];
 
-    for (var i = first; i < windows; i++) {
-      final past = BudgetWindows.relative(
-        start: budget.startDate,
-        period: budget.period,
-        periodLength: budget.periodLength,
-        moment: budget.startDate,
-        offset: i,
-        explicitEnd: budget.endDate,
-      );
-      if (!past.end.isBefore(now)) break;
-      final spent = await _spentIn(budget, past, converter);
+    final scope = await _scopeFor(budget);
+    final rows = await _db.getTransactionsByDateRange(
+      boundaries.first,
+      boundaries.last,
+    );
+
+    final spentPerWindow = List<int>.filled(windows, 0);
+    for (final t in rows) {
+      final index = _windowIndexOf(boundaries, t.date);
+      if (index == null) continue;
+      if (!_counts(
+        t,
+        budget,
+        scope,
+        BudgetWindow(boundaries[index], boundaries[index + 1]),
+      )) {
+        continue;
+      }
+      final amount = converter.convert(t.amount, t.walletId);
+      if (amount == null) continue;
+      spentPerWindow[index] += amount;
+    }
+
+    var carried = 0;
+    for (var i = 0; i < windows; i++) {
+      // A window still open has not left anything over yet.
+      if (!boundaries[i + 1].isBefore(now)) break;
       // That window's allowance was its own limit plus whatever reached it.
-      final leftOver = budget.amount + carried - spent.total;
+      final leftOver = budget.amount + carried - spentPerWindow[i];
       // An overspend costs the carry but does not become a debt that compounds:
       // the next window still gets its own full limit.
       carried = leftOver < 0 ? 0 : leftOver;
     }
     return carried;
+  }
+
+  /// Which of [boundaries] the [moment] falls in, or null when it falls outside.
+  ///
+  /// Binary search, because a daily budget running for years has as many
+  /// boundaries as it has days and a scan per transaction would put the cost
+  /// straight back where removing the lookback limit took it from.
+  static int? _windowIndexOf(List<DateTime> boundaries, DateTime moment) {
+    if (moment.isBefore(boundaries.first)) return null;
+    if (!moment.isBefore(boundaries.last)) return null;
+
+    var low = 0;
+    var high = boundaries.length - 2;
+    while (low <= high) {
+      final mid = (low + high) ~/ 2;
+      if (moment.isBefore(boundaries[mid])) {
+        high = mid - 1;
+      } else if (!moment.isBefore(boundaries[mid + 1])) {
+        low = mid + 1;
+      } else {
+        return mid;
+      }
+    }
+    return null;
   }
 
   /// The category ids this budget counts, with subcategories folded in.
@@ -465,8 +521,6 @@ class BudgetEngine {
       budgetCategoryIds: categoryScope,
     );
   }
-
-  static const int _maxRolloverLookback = 24;
 
   /// How much of a window must have passed before a run rate is projected.
   ///

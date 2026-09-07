@@ -158,6 +158,9 @@ class _TitleRulesScreenState extends ConsumerState<TitleRulesScreen> {
     await ref
         .read(databaseProvider)
         .setAssociatedTitle(
+          // By id when editing. Without it, changing a rule's title matched
+          // nothing and wrote a second rule beside the first.
+          id: existing?.id,
           title: result.title,
           categoryId: category.id,
           isExactMatch: result.exact,

@@ -69,9 +69,11 @@ class CsvImportService {
         if (!wallet.isArchived) _key(wallet.name): wallet.id,
     };
 
-    final existing = skipDuplicates
+    // How many rows already on file carry each signature. Counts, not a set:
+    // see `_existingFingerprints`.
+    final onFile = skipDuplicates
         ? await _existingFingerprints()
-        : <String>{};
+        : <String, int>{};
 
     final createdCategories = <String>[];
     final unmatchedAccounts = <String>{};
@@ -95,9 +97,18 @@ class CsvImportService {
           amountCents: row.amountCents!,
           title: row.title,
         );
-        if (skipDuplicates && !existing.add(fingerprint)) {
-          duplicates++;
-          continue;
+        // Import the difference between what the file says happened and what
+        // is already recorded, rather than one row per distinct signature.
+        // Membership alone treated two real coffees of the same price on the
+        // same day as one purchase — even on a first import into an empty
+        // ledger, where there was nothing to be a duplicate of.
+        if (skipDuplicates) {
+          final remaining = onFile[fingerprint] ?? 0;
+          if (remaining > 0) {
+            onFile[fingerprint] = remaining - 1;
+            duplicates++;
+            continue;
+          }
         }
 
         final categoryId = await _resolveCategory(
@@ -198,24 +209,34 @@ class CsvImportService {
     return id;
   }
 
-  /// Everything already on file, in the shape a row would take.
+  /// How many rows already on file carry each signature.
   ///
   /// Re-importing last month's statement alongside this month's is the normal
   /// way to use a feature like this, and the overlap between the two is
   /// entirely predictable. Doubling those transactions — and so the balance —
   /// is worth going to some trouble to avoid.
-  Future<Set<String>> _existingFingerprints() async {
+  ///
+  /// A count rather than a set, because the question is how many of a thing
+  /// happened, not whether it happened at all. Two coffees at the same price on
+  /// the same day are two purchases; a set said one of them was a duplicate of
+  /// the other and dropped it, even importing into an empty ledger where there
+  /// was nothing for it to duplicate. Matching multiplicities keeps a re-import
+  /// safe — two on file and two in the file imports none — which was the actual
+  /// goal all along.
+  Future<Map<String, int>> _existingFingerprints() async {
     final rows = await _db.getAllTransactions();
-    return {
-      for (final row in rows)
-        if (row.deletedAt == null)
-          _fingerprint(
-            walletId: row.walletId,
-            date: row.date,
-            amountCents: row.isIncome ? row.amount : -row.amount,
-            title: row.title,
-          ),
-    };
+    final counts = <String, int>{};
+    for (final row in rows) {
+      if (row.deletedAt != null) continue;
+      final key = _fingerprint(
+        walletId: row.walletId,
+        date: row.date,
+        amountCents: row.isIncome ? row.amount : -row.amount,
+        title: row.title,
+      );
+      counts[key] = (counts[key] ?? 0) + 1;
+    }
+    return counts;
   }
 
   /// What makes two rows the same transaction.

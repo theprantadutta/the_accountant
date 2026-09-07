@@ -1663,6 +1663,12 @@ class SyncService {
       name: Value(data['Name'] ?? ''),
       iconName: Value(data['IconName'] ?? data['Icon'] ?? 'credit_card'),
       isDefault: Value(data['IsDefault'] ?? false),
+      type: Value(data['Type'] ?? 'card'),
+      // Written through even when absent: a user clearing the digits from a
+      // card means it, and keeping the old value would make that edit
+      // impossible to make from another device.
+      lastFourDigits: Value(data['LastFourDigits'] as String?),
+      institution: Value(data['Institution'] as String?),
       syncStatus: const Value(SyncStatus.synced),
       updatedAt: Value(DateTime.now()),
     );
@@ -1981,6 +1987,13 @@ class SyncService {
     'Name': p.name,
     'IconName': p.iconName,
     'IsDefault': p.isDefault,
+    // The form has asked for these three since the feature shipped and none of
+    // them was ever sent, so a second device — or a restore from the cloud —
+    // came back with a payment method stripped of everything that said which
+    // card it was.
+    'Type': p.type,
+    'LastFourDigits': p.lastFourDigits,
+    'Institution': p.institution,
     'UpdatedAt': p.updatedAt.toUtc().toIso8601String(),
   };
 

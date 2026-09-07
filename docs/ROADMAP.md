@@ -8,6 +8,16 @@ Written 2 September 2026. Flutter app at 3.0.0+21, Drift schema 17. Backend on .
 
 ---
 
+## What the audit changed about these labels
+
+An external audit (`AUDIT-2026-09-06.md`, remediated in `AUDIT-REMEDIATION.md`) found sixteen defects across phases these notes called done. The labels were written by the same hand that wrote the code and were never checked against the feature list, so several read as finished when a feature was built but unreachable, or built and quietly wrong for anyone not using one currency.
+
+The status lines below have been revised against that audit. Where something is still not done it is now said plainly rather than in a parenthesis, and where a phase shipped something broken the phase says so instead of the defect living only in a fix commit.
+
+The pattern worth carrying forward: nearly every serious finding was an *interaction* between two features that were each well tested on their own — restore against sync, merge against transfers, budgets against multi-currency. Testing a feature in isolation says nothing about the seam it shares with the next one.
+
+---
+
 ## The rule that governs every phase
 
 The sync protocol has **no version negotiation**. There is no version field, header, or handshake anywhere. That creates a hard, asymmetric constraint:
@@ -77,8 +87,8 @@ These columns exist on the client, are never sent, and silently vanish on reinst
 
 | Column | Verdict |
 |---|---|
-| Payment method `type`, `lastFourDigits`, `institution` | **Add to the server.** A user's card last-4 and bank should survive a reinstall. |
-| Wallet `useDecimals` | **Add to the server.** It is a per-wallet display choice the user set deliberately. |
+| Payment method `type`, `lastFourDigits`, `institution` | **Done, late.** Listed here in Phase 0 and not actually built until the audit remediation; the form asked for all three the whole time and sent none of them. Additive columns, both DTOs and both mappers, with a two-device round trip pinning it. |
+| Wallet `useDecimals` | **Done.** It is a per-wallet display choice the user set deliberately. |
 | Budget `categoryId`, `limit` | **Do not add.** Both are legacy and are deleted in Phase 1. |
 | Transaction `type`, `paymentMethod`, `isRecurring`, `recurrencePattern`; category `type` | **Do not add.** All deprecated; drop them in Phase 1. |
 
@@ -204,7 +214,7 @@ Build the list, detail, and create/edit screens. Add the goal to the navigation 
 
 ### 2.3 Payment methods
 
-The table, provider and free-tier limit all exist, but nothing can create one, so the chip row is always hidden. Either build a small management screen or remove the feature. Given the backend already stores them, build the screen.
+**Status: done.** The screen was built here. What it collected did not reach the cloud until the audit remediation, because item 0.3 above was marked as planned and never carried out — the form asked for a type, the last four digits and the institution, and the push mapper sent none of them.
 
 ---
 
@@ -213,6 +223,8 @@ The table, provider and free-tier limit all exist, but nothing can create one, s
 **Status: done**, except windowed loading. Client commits `5879904`, `caf1f15`, `ef71cbf`, `3fcdd22`, `f1dab17`; backend commit `482dbde`. Flutter analyze clean with 447 tests passing; backend clean with 45.
 
 Done: filters on accounts, several categories, direction, paid state, kind, amount range, date range and transfer visibility; search that reads amounts and month names; multi-select with bulk delete, recategorise, move account, re-date, mark paid and duplicate; a transaction detail screen; recently deleted with restore; and a naming-rules editor whose rules now sync.
+
+**Three things in that list were not finished, and the audit found them.** The naming rules were stored, edited, listed and synced, and nothing ever read one — the form suggested categories from transaction history alone, so a rule the user wrote could not change anything the app did. Bulk "move account" offered every account and forwarded only an id, so a dollar expense re-filed under a taka account became a taka expense. And restoring from Recently Deleted cleared one tombstone and nothing else: the wallet balance stayed short by the restored amount, half a transfer could come back without its partner, and a row that had never reached the server came back asking the server to update something it had never seen. All three are fixed; see `AUDIT-REMEDIATION.md`.
 
 **Deferred: windowed loading.** The list still loads the whole table into memory. It is a scaling concern rather than a correctness one, and it wants its own change with its own measurements rather than being bolted onto a set of behaviour changes.
 
@@ -236,6 +248,8 @@ The daily-use surface, and the widest everyday gap against Cashew.
 ## Phase 4 — Wallets and multi-currency
 
 **Status: done**, except exchange-rate sync. Client commits `796876f`, `8a63207`, `d2041d2`, `69fbac7`; backend commit `cb63764`. Flutter analyze clean with 479 tests passing; backend clean with 50.
+
+**Cross-currency transfers were built and could not be reached.** The service and the server both accepted them; both account pickers in the form still filtered to a single currency and there was nowhere to enter what landed, so the feature existed and no user could use it. Worse, the widget tests asserted the exclusion and passed the whole time. Merging accounts had a matching gap: it moved each row on its own, so a transfer between the two accounts being merged ended with both legs on one wallet — refused by the server while the wallet edits synced — and a converted leg left its partner describing the old figure. Editing a transfer's note re-priced it at today's rate. All fixed in the audit remediation.
 
 Done: cross-currency transfers, with each leg carrying its own amount, what the other side received, and the rate; a wallet detail screen; the total across accounts converted rather than added raw; archive and exclude-from-total; correct-balance recorded as a transaction; merge one account into another; and the blind-delta balance path replaced by a recompute plus a startup drift check.
 
@@ -261,6 +275,8 @@ The rest of this section is the original plan, kept for the detail.
 **Status: done.** Client commits `56e2346`, `9782bb5`. No backend work was needed. Flutter analyze clean with 605 tests passing.
 
 Done: a backup is one JSON file holding every row, dumped at the column level with plain SQL so a file written today survives later schema versions — an unknown column is dropped and a new one takes its default. The sync cursor and the store's owner binding stay behind, so a file cannot claim a device it does not own or tell a fresh phone it had already pulled changes it was never present for. Restoring runs in one transaction and refuses a file from a newer build outright. Drive backups sit in a folder of their own in the user's Drive, on an interval with a retained count, pruned only after a new copy lands; the scheduled run never prompts, so a lapsed permission records why it skipped. CSV import guesses the encoding, the delimiter, the header, the date format and the decimal separator, shows every guess against the user's own rows before writing anything, reports unreadable lines by line number rather than dropping them, skips rows already on file so an overlapping statement cannot double a balance, and saves the mapping under the bank's name for next time.
+
+**The duplicate check was wrong when it shipped.** It asked whether a signature had been seen and seeded that question with the file's own rows as it read them, so two identical payments on one day imported as one — even into an empty ledger, where there was nothing for the second to be a duplicate of. A test asserted that behaviour while its own name said the opposite, which was the signal the reasoning was wrong. It counts multiplicities now: import the difference between how many the file says happened and how many are on record, which keeps a re-import safe without eating genuine repeats.
 
 Three decisions worth recording. Restored live rows are queued as `pendingCreate`, never `pendingUpdate` — the server treats a create for a row it already holds as an accepted no-op, whereas an update for a row it has never seen is answered "not found" for ever and the record is stranded on the device; the cost is that a restore does not undo a cloud-side edit to a row the server still has, for which "Restore from cloud" is the tool. Drive is reached through its REST endpoints rather than the generated `googleapis` package, because five calls are needed and the generated client would add megabytes describing the rest of Drive. The scope is `drive.file`, not `drive.appdata`: per-file access exposes only files this app made, so the listing can search broadly with no risk of reading the user's own documents, the backups stay somewhere the user can find and copy without the app, and — unlike `drive.appdata`, which Google classifies as sensitive — it needs no verification review to publish. And an account named in an imported file is matched but never created: an account has a currency and an opening balance a CSV does not know.
 
@@ -326,9 +342,13 @@ The eighteen test failures this produced were the harness, not the app: widget t
 
 ## Phase 7 — Reach
 
-- **Heatmap** calendar of daily net.
-- **Home layout editor**, with section order and visibility. Cashew has fourteen reorderable sections; we have seven fixed.
-- **App shortcuts and deep links.** Cheap, high daily value.
+**Status: partly done.** The heatmap, the home layout editor and app shortcuts with deep links are built. Everything below them — home screen widgets, contacts, the bill splitter, loan schedules, tags, split transactions and attachments — is not started.
+
+The heatmap shipped with no currency awareness at all: it summed raw minor units across every account and labelled the total in the default currency, so for anyone holding money in two currencies the net, the busiest day and every square's shading were wrong. Budgets had the same defect, older. Both convert first now, and say how many rows they could not convert rather than adding them as though they were the same money.
+
+- **Heatmap** calendar of daily net. *Done.*
+- **Home layout editor**, with section order and visibility. Cashew has fourteen reorderable sections; we have seven fixed. *Done.*
+- **App shortcuts and deep links.** Cheap, high daily value. *Done.*
 - **Home screen widgets** for Android and iOS. Cashew has Android only, so iOS is a clear differentiator.
 - **Contacts**, giving loans a counterparty and unlocking a people view with per-person running balances. This is how we beat Cashew's "difference only" loans, which are keyed by a sentinel amount of −1 behind a disabled feature flag.
 - **Bill splitter** that generates a tracked loan per person.

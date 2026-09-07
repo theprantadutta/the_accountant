@@ -1965,6 +1965,43 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
 
   void _onTitleFocusChanged() {
     if (mounted) setState(() {});
+    if (!_titleFocusNode.hasFocus) _applyNamingRule();
+  }
+
+  /// Let a naming rule file the transaction, once the title is settled.
+  ///
+  /// Rules were stored, edited, listed and synced, and nothing read one. A user
+  /// who wrote "anything called Tesco is Groceries" saw it change nothing,
+  /// because the form only ever suggested categories from transaction history.
+  ///
+  /// Applied on losing focus rather than on every keystroke: a rule matching a
+  /// prefix of what is still being typed would file the row under something the
+  /// user has not finished naming. Only when nothing has been chosen yet — a
+  /// rule is a default, and overruling a category the user picked by hand would
+  /// be the app arguing with them.
+  Future<void> _applyNamingRule() async {
+    if (_isTransfer || _selectedCategoryId != null) return;
+
+    final title = _titleController.text.trim();
+    if (title.isEmpty) return;
+
+    final categoryId = await ref
+        .read(databaseProvider)
+        .categoryForTitle(title);
+    if (categoryId == null || !mounted) return;
+    if (_selectedCategoryId != null) return;
+
+    final category = ref
+        .read(categoryProvider)
+        .categories
+        .where((c) => c.id == categoryId)
+        .firstOrNull;
+    if (category == null) return;
+
+    setState(() {
+      _selectedCategoryId = category.id;
+      _selectedCategory = category;
+    });
   }
 
   /// Fill in a whole transaction's worth of decisions from one tap.

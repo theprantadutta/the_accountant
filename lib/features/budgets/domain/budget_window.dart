@@ -37,8 +37,33 @@ class BudgetWindow {
 /// The server runs the same arithmetic in `BudgetPeriodResolver`, and the two
 /// have to agree or the scheduled alert fires against a different window than
 /// the one the app is showing.
+///
+/// Every boundary is derived from the anchor and a period index — `anchor + n ×
+/// period` — never from the previous window's value. Stepping one window at a
+/// time looks equivalent and is not, because a month-end date has to be clamped:
+/// 31 January became 28 February, and the step after that was taken *from* the
+/// 28th, so the anchor day was lost and every later window drifted. Stepping
+/// back had the mirror problem — 28 February went to 28 January, which precedes
+/// a budget that started on the 31st, so the history navigator refused to move
+/// at all. Indexing from the anchor makes clamping a display detail of one
+/// window instead of an accumulating error, and makes the operation reversible
+/// because an index is.
 class BudgetWindows {
   const BudgetWindows._();
+
+  /// The start of the [index]th window, counting from the budget's own start.
+  ///
+  /// Always measured from [anchor], which is what stops month-end clamping
+  /// compounding.
+  static DateTime startOfIndex(
+    DateTime anchor,
+    BudgetPeriod period,
+    int periodLength,
+    int index,
+  ) {
+    final step = periodLength < 1 ? 1 : periodLength;
+    return _shift(anchor, period, step * index);
+  }
 
   /// The window containing [moment].
   ///
@@ -65,15 +90,16 @@ class BudgetWindows {
       return BudgetWindow(start, advance(start, period, step));
     }
 
-    var windowStart = start;
+    var index = 0;
     while (true) {
-      final next = advance(windowStart, period, step);
+      final windowStart = startOfIndex(start, period, step, index);
+      final next = startOfIndex(start, period, step, index + 1);
       // A step that failed to move would spin here for ever.
       if (!next.isAfter(windowStart)) {
         return BudgetWindow(windowStart, _farFuture);
       }
       if (moment.isBefore(next)) return BudgetWindow(windowStart, next);
-      windowStart = next;
+      index++;
     }
   }
 
@@ -89,31 +115,32 @@ class BudgetWindows {
     required int offset,
     DateTime? explicitEnd,
   }) {
-    final current = containing(
+    if (offset == 0 || period == BudgetPeriod.custom) {
+      return containing(
+        start: start,
+        period: period,
+        periodLength: periodLength,
+        moment: moment,
+        explicitEnd: explicitEnd,
+      );
+    }
+
+    final step = periodLength < 1 ? 1 : periodLength;
+    final here = indexOf(
       start: start,
       period: period,
       periodLength: periodLength,
       moment: moment,
-      explicitEnd: explicitEnd,
     );
-    if (offset == 0 || period == BudgetPeriod.custom) return current;
+    // Never before the budget itself. Walking back from the first window has
+    // nowhere to go, and returning a span that precedes the start would report
+    // spending against a limit that did not exist yet.
+    final target = here + offset < 0 ? 0 : here + offset;
 
-    final step = periodLength < 1 ? 1 : periodLength;
-    var windowStart = current.start;
-
-    if (offset > 0) {
-      for (var i = 0; i < offset; i++) {
-        windowStart = advance(windowStart, period, step);
-      }
-    } else {
-      for (var i = 0; i < -offset; i++) {
-        final previous = retreat(windowStart, period, step);
-        if (previous.isBefore(start)) break;
-        windowStart = previous;
-      }
-    }
-
-    return BudgetWindow(windowStart, advance(windowStart, period, step));
+    return BudgetWindow(
+      startOfIndex(start, period, step, target),
+      startOfIndex(start, period, step, target + 1),
+    );
   }
 
   /// How many whole windows separate [start] from the one containing [moment].
@@ -125,58 +152,47 @@ class BudgetWindows {
   }) {
     if (period == BudgetPeriod.custom || !moment.isAfter(start)) return 0;
     final step = periodLength < 1 ? 1 : periodLength;
-    var windowStart = start;
     var index = 0;
     while (true) {
-      final next = advance(windowStart, period, step);
+      final windowStart = startOfIndex(start, period, step, index);
+      final next = startOfIndex(start, period, step, index + 1);
       if (!next.isAfter(windowStart)) return index;
       if (moment.isBefore(next)) return index;
-      windowStart = next;
       index++;
     }
   }
 
   /// The start of the window after the one opening at [from].
+  ///
+  /// A single step. Prefer [startOfIndex] for anything further than one window
+  /// away: repeated steps compound month-end clamping, which is the whole
+  /// reason boundaries are indexed from the anchor.
   static DateTime advance(
     DateTime from,
     BudgetPeriod period,
     int periodLength,
-  ) {
-    final n = periodLength < 1 ? 1 : periodLength;
-    switch (period) {
-      case BudgetPeriod.daily:
-        return from.add(Duration(days: n));
-      case BudgetPeriod.weekly:
-        return from.add(Duration(days: 7 * n));
-      case BudgetPeriod.biweekly:
-        return from.add(Duration(days: 14 * n));
-      case BudgetPeriod.monthly:
-        return _addMonths(from, n);
-      case BudgetPeriod.yearly:
-        return _addMonths(from, 12 * n);
-      case BudgetPeriod.custom:
-        return from;
-    }
-  }
+  ) => _shift(from, period, periodLength < 1 ? 1 : periodLength);
 
   /// The start of the window before the one opening at [from].
   static DateTime retreat(
     DateTime from,
     BudgetPeriod period,
     int periodLength,
-  ) {
-    final n = periodLength < 1 ? 1 : periodLength;
+  ) => _shift(from, period, -(periodLength < 1 ? 1 : periodLength));
+
+  /// [from] moved by [units] of [period]. Negative goes back.
+  static DateTime _shift(DateTime from, BudgetPeriod period, int units) {
     switch (period) {
       case BudgetPeriod.daily:
-        return from.subtract(Duration(days: n));
+        return from.add(Duration(days: units));
       case BudgetPeriod.weekly:
-        return from.subtract(Duration(days: 7 * n));
+        return from.add(Duration(days: 7 * units));
       case BudgetPeriod.biweekly:
-        return from.subtract(Duration(days: 14 * n));
+        return from.add(Duration(days: 14 * units));
       case BudgetPeriod.monthly:
-        return _addMonths(from, -n);
+        return _addMonths(from, units);
       case BudgetPeriod.yearly:
-        return _addMonths(from, -12 * n);
+        return _addMonths(from, 12 * units);
       case BudgetPeriod.custom:
         return from;
     }

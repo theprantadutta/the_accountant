@@ -3198,6 +3198,38 @@ class AppDatabase extends _$AppDatabase {
         .toList();
   }
 
+  /// The category a naming rule gives [title], or null when none applies.
+  ///
+  /// Rules were stored, edited, listed and synced, and nothing ever read one.
+  /// The form suggested categories from transaction history alone, so a rule
+  /// the user wrote could not change anything the app did — which is the whole
+  /// of what a rule is for.
+  ///
+  /// An exact rule wins over a containing one, and a longer containing match
+  /// wins over a shorter: "Tesco Petrol" is more specific than "Tesco", and the
+  /// more specific statement of intent is the one the user meant.
+  Future<String?> categoryForTitle(String title) async {
+    final normalized = title.trim().toLowerCase();
+    if (normalized.isEmpty) return null;
+
+    final rules = await getAllAssociatedTitles();
+
+    for (final rule in rules) {
+      if (rule.title.trim().toLowerCase() == normalized) return rule.categoryId;
+    }
+
+    AssociatedTitle? best;
+    for (final rule in rules) {
+      if (rule.isExactMatch) continue;
+      final needle = rule.title.trim().toLowerCase();
+      if (needle.isEmpty || !normalized.contains(needle)) continue;
+      if (best == null || needle.length > best.title.trim().length) {
+        best = rule;
+      }
+    }
+    return best?.categoryId;
+  }
+
   Future<List<AssociatedTitle>> getAllAssociatedTitles() =>
       (select(associatedTitles)..where((a) => a.deletedAt.isNull())).get();
 
@@ -3227,21 +3259,28 @@ class AppDatabase extends _$AppDatabase {
   /// Upserts on the title rather than the id, because the title is what the
   /// user is choosing: teaching the app about Tesco twice is a correction, not
   /// a second rule that contradicts the first.
+  ///
+  /// [id] names a rule being *edited*, and takes precedence over that lookup.
+  /// Without it, changing a rule's title matched nothing and wrote a second
+  /// rule — leaving the old one in place, contradicting the new one, and
+  /// looking to the user as though the edit had simply not saved.
   Future<void> setAssociatedTitle({
     required String title,
     required String categoryId,
     bool isExactMatch = false,
+    String? id,
   }) async {
     final normalized = title.trim();
     if (normalized.isEmpty) return;
 
-    final existing =
-        await (select(associatedTitles)..where(
-              (a) =>
-                  a.title.lower().equals(normalized.toLowerCase()) &
-                  a.deletedAt.isNull(),
-            ))
-            .getSingleOrNull();
+    final existing = id != null
+        ? await findAssociatedTitleById(id)
+        : await (select(associatedTitles)..where(
+                (a) =>
+                    a.title.lower().equals(normalized.toLowerCase()) &
+                    a.deletedAt.isNull(),
+              ))
+              .getSingleOrNull();
 
     if (existing == null) {
       await into(associatedTitles).insert(

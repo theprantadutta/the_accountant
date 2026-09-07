@@ -8,6 +8,11 @@ Seven findings were independently re-confirmed by direct inspection before this
 plan was written; the rest are taken on the auditor's reproductions, which were
 detailed enough to locate the defect in the source in every case checked.
 
+**All seventeen are done.** Every fix below carries a test that crosses the
+boundary it slipped through, and both suites are green: Flutter analyze clean
+with the full suite passing, backend clean with its unit and Postgres
+integration suites passing.
+
 **The pattern worth naming.** Almost every P1 is an *interaction* between two
 features that are each well covered on their own: restore × sync, merge ×
 transfers, edit × currency, reconciliation × caps, bulk-move × currency. The
@@ -21,23 +26,23 @@ inside one feature.
 
 | # | Finding | Severity | Status |
 |---|---|---|---|
-| 1 | [Fresh installs lack the cap uniqueness index](#15) | P2 → done first | ☐ |
-| 2 | [Restore leaves the cached sync cursor](#1) | P1 | ☐ |
-| 3 | [Restore through sync strands or re-deletes rows](#2) | P1 | ☐ |
-| 4 | [Local restore: stale balances, half a transfer](#3) | P1 | ☐ |
-| 5 | [Wallet merge breaks transfers](#4) | P1 | ☐ |
-| 6 | [Editing a transfer rewrites its amount](#5) | P1 | ☐ |
-| 7 | [Bulk move across currencies](#8) | P1 | ☐ |
-| 8 | [Budget engine and heatmap mix currencies](#9) | P1 | ☐ |
-| 9 | [Category caps cannot converge](#6) | P1 | ☐ |
-| 10 | [Reconciliation orphans caps](#7) | P1 | ☐ |
-| 11 | [Cross-currency transfer unreachable in the form](#10) | P2 | ☐ |
-| 12 | [Naming rules never consulted](#11) | P2 | ☐ |
-| 13 | [CSV dedupe eats real repeats](#12) | P2 | ☐ |
-| 14 | [Rollover discards carry beyond 24 periods](#13) | P2 | ☐ |
-| 15 | [Month-end window arithmetic drifts](#14) | P2 | ☐ |
-| 16 | [Payment-method details do not sync](#16) | P2 | ☐ |
-| 17 | Correct the roadmap's completion labels | — | ☐ |
+| 1 | [Fresh installs lack the cap uniqueness index](#15) | P2 → done first | ☑ |
+| 2 | [Restore leaves the cached sync cursor](#1) | P1 | ☑ |
+| 3 | [Restore through sync strands or re-deletes rows](#2) | P1 | ☑ |
+| 4 | [Local restore: stale balances, half a transfer](#3) | P1 | ☑ |
+| 5 | [Wallet merge breaks transfers](#4) | P1 | ☑ |
+| 6 | [Editing a transfer rewrites its amount](#5) | P1 | ☑ |
+| 7 | [Bulk move across currencies](#8) | P1 | ☑ |
+| 8 | [Budget engine and heatmap mix currencies](#9) | P1 | ☑ |
+| 9 | [Category caps cannot converge](#6) | P1 | ☑ |
+| 10 | [Reconciliation orphans caps](#7) | P1 | ☑ |
+| 11 | [Cross-currency transfer unreachable in the form](#10) | P2 | ☑ |
+| 12 | [Naming rules never consulted](#11) | P2 | ☑ |
+| 13 | [CSV dedupe eats real repeats](#12) | P2 | ☑ |
+| 14 | [Rollover discards carry beyond 24 periods](#13) | P2 | ☑ |
+| 15 | [Month-end window arithmetic drifts](#14) | P2 | ☑ |
+| 16 | [Payment-method details do not sync](#16) | P2 | ☑ |
+| 17 | Correct the roadmap's completion labels | — | ☑ |
 
 `#15` is pulled to the front: a fresh install can already hold duplicate caps,
 and fixing cap convergence or reconciliation on top of two different schemas

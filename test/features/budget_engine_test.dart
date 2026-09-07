@@ -474,6 +474,64 @@ void main() {
       );
     });
 
+    /// The carry used to stop after twenty-four windows.
+    ///
+    /// The bound was reasoned about as cost and not as correctness: a daily
+    /// budget began quietly losing earned headroom after twenty-four days, and
+    /// the user saw a smaller allowance with nothing on screen to explain it.
+    test('a daily budget still carries beyond twenty-four days', () async {
+      final view = await budget(
+        amount: 1000,
+        period: BudgetPeriod.daily,
+        categoryIds: [food],
+        rollover: true,
+        startDate: DateTime(2026, 1, 1),
+      );
+
+      // Forty closed days, none of them spent. Midday so the fortieth window
+      // is unambiguously behind us rather than closing at this instant.
+      final progress = await BudgetEngine(
+        db,
+      ).progressFor(view, moment: DateTime(2026, 2, 10, 12));
+
+      expect(
+        progress.carriedIn,
+        40000,
+        reason: 'forty closed days at 1000 each, all unspent — cutting the '
+            'lookback at twenty-four would report 24000 and silently lose the '
+            'rest',
+      );
+    });
+
+    test('a spent day still costs its carry however long ago it was', () async {
+      final view = await budget(
+        amount: 1000,
+        period: BudgetPeriod.daily,
+        categoryIds: [food],
+        rollover: true,
+        startDate: DateTime(2026, 1, 1),
+      );
+      // Day one, long outside the old twenty-four-window window.
+      await seedTransaction(
+        db,
+        walletId: walletId,
+        categoryId: food,
+        amount: 1000,
+        date: DateTime(2026, 1, 1, 12),
+      );
+
+      final progress = await BudgetEngine(
+        db,
+      ).progressFor(view, moment: DateTime(2026, 2, 10, 12));
+
+      expect(
+        progress.carriedIn,
+        39000,
+        reason: 'the day was spent, so it left nothing over — a lookback that '
+            'could not see it would credit the user for a day they used',
+      );
+    });
+
     test('without rollover each period starts fresh', () async {
       await seedTransaction(
         db,
