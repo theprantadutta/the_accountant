@@ -1377,14 +1377,51 @@ class AppDatabase extends _$AppDatabase {
       (delete(transactions)..where((t) => t.id.equals(id))).go();
 
   /// Soft delete a transaction (sets deletedAt and marks for sync)
+  /// Tombstone a transaction, leaving it recoverable from Recently Deleted.
+  ///
+  /// A row the server has never seen is marked as having nothing to push rather
+  /// than as a pending delete. Asking the server to delete something it does
+  /// not hold is answered "not found" on every retry, so the row would sit in
+  /// the push queue for ever, conflicting each time and never clearing.
+  /// There is genuinely nothing to tell the server about a record it was never
+  /// told about in the first place.
   Future<void> softDeleteTransaction(String id) async {
+    final row = await findTransactionById(id);
+    if (row == null) return;
+
+    final nothingToPush = row.syncStatus == SyncStatus.pendingCreate;
     await (update(transactions)..where((t) => t.id.equals(id))).write(
       TransactionsCompanion(
         deletedAt: Value(DateTime.now()),
-        syncStatus: const Value(SyncStatus.pendingDelete),
+        syncStatus: Value(
+          nothingToPush ? SyncStatus.synced : SyncStatus.pendingDelete,
+        ),
         updatedAt: Value(DateTime.now()),
       ),
     );
+  }
+
+  /// How long a tombstoned row stays recoverable.
+  ///
+  /// Matches the server's own cleanup sweep and the wording on the Recently
+  /// Deleted screen; all three have to agree or the screen promises something
+  /// one of the other two takes away.
+  static const Duration tombstoneRetention = Duration(days: 30);
+
+  /// Remove tombstones past the retention window.
+  ///
+  /// Only rows with nothing left to say to the server: one still carrying a
+  /// pending delete has not been acknowledged, and dropping it would leave the
+  /// cloud copy alive with no local record that it should not be.
+  Future<int> purgeExpiredTombstones({DateTime? now}) async {
+    final cutoff = (now ?? DateTime.now()).subtract(tombstoneRetention);
+    return (delete(transactions)..where(
+          (t) =>
+              t.deletedAt.isNotNull() &
+              t.deletedAt.isSmallerThanValue(cutoff) &
+              t.syncStatus.equals(SyncStatus.synced),
+        ))
+        .go();
   }
 
   /// Transactions deleted within the last [within], newest first.
@@ -1418,11 +1455,17 @@ class AppDatabase extends _$AppDatabase {
       TransactionsCompanion(
         deletedAt: const Value(null),
         updatedAt: Value(DateTime.now()),
-        syncStatus: Value(
-          row.syncStatus == SyncStatus.pendingDelete
-              ? SyncStatus.pendingUpdate
-              : SyncStatus.markEdited(row.syncStatus),
-        ),
+        // Always pendingCreate, never pendingUpdate.
+        //
+        // `softDeleteTransaction` writes pendingDelete over whatever the row
+        // held, so by the time it can be restored there is no longer any
+        // evidence of whether the server ever saw it. Guessing "update"
+        // strands a never-uploaded row for ever: the server answers "not
+        // found" to every retry, and the record can never leave the device.
+        // A create for a row the server does hold is an accepted no-op that
+        // also lifts the tombstone, so the asymmetry decides it — this is the
+        // same reasoning written down for restoring a backup.
+        syncStatus: const Value(SyncStatus.pendingCreate),
       ),
     );
   }
@@ -1983,12 +2026,21 @@ class AppDatabase extends _$AppDatabase {
   }
 
   /// The live fee recorded against [transferTransactionId], if any.
-  Future<Transaction?> findFeeForTransfer(String transferTransactionId) =>
-      (select(transactions)
-            ..where((t) => t.feeForTransactionId.equals(transferTransactionId))
-            ..where((t) => t.deletedAt.isNull())
-            ..limit(1))
-          .getSingleOrNull();
+  /// The charge recorded for making a transfer, if there was one.
+  ///
+  /// [includeDeleted] is for putting a transfer back: the fee was tombstoned
+  /// alongside the legs, so the restore has to be able to see it. Everywhere
+  /// else only live rows are wanted, which is why that is the default.
+  Future<Transaction?> findFeeForTransfer(
+    String transferTransactionId, {
+    bool includeDeleted = false,
+  }) {
+    final q = select(transactions)
+      ..where((t) => t.feeForTransactionId.equals(transferTransactionId))
+      ..limit(1);
+    if (!includeDeleted) q.where((t) => t.deletedAt.isNull());
+    return q.getSingleOrNull();
+  }
 
   /// Collapse duplicate built-in categories down to one row per slug.
   ///

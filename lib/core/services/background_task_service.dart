@@ -371,6 +371,21 @@ class BackgroundTaskService {
       debugPrint('BackgroundTaskService: balance check failed: $e');
     }
 
+    // Recently Deleted keeps a row for thirty days. Nothing was removing them
+    // once that passed, now that an accepted delete no longer takes the local
+    // tombstone with it.
+    try {
+      final purged = await db.purgeExpiredTombstones();
+      if (purged > 0) {
+        debugPrint(
+          'BackgroundTaskService: removed $purged tombstone(s) past the '
+          'thirty-day window',
+        );
+      }
+    } catch (e) {
+      debugPrint('BackgroundTaskService: tombstone sweep failed: $e');
+    }
+
     // A backup the user asked to happen every week only happens if something
     // asks. This never prompts — a lapsed Drive permission records why it
     // skipped and waits to be pressed by hand — so it is safe to run on the way

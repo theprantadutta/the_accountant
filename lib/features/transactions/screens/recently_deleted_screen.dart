@@ -11,6 +11,7 @@ import 'package:the_accountant/data/datasources/local/app_database.dart' as db;
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
 import 'package:the_accountant/features/settings/providers/settings_provider.dart';
 import 'package:the_accountant/features/transactions/providers/transaction_provider.dart';
+import 'package:the_accountant/features/transactions/providers/transfer_provider.dart';
 import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
 
 /// Transactions deleted in the last month, and a way to put them back.
@@ -147,10 +148,12 @@ class _RecentlyDeletedScreenState extends ConsumerState<RecentlyDeletedScreen> {
   );
 
   Future<void> _restore(db.Transaction row) async {
-    final database = ref.read(databaseProvider);
-    await database.restoreTransaction(row.id);
-    // The balance has to be recomputed rather than adjusted: the row may have
-    // been deleted long enough ago for other things to have moved since.
+    // Not the raw database method: that clears one tombstone and nothing else,
+    // leaving the wallet balance short by the restored amount and bringing back
+    // one leg of a transfer without its partner. The service restores the whole
+    // group and recomputes what it touched, which is what the reload below then
+    // has something correct to read.
+    await ref.read(transferServiceProvider).restoreTransaction(row.id);
     await ref.read(transactionProvider.notifier).loadTransactions(silent: true);
     await ref.read(walletProvider.notifier).loadWallets();
     await _load();

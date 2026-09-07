@@ -1237,6 +1237,11 @@ class SyncService {
 
     final companion = TransactionsCompanion(
       id: Value(change.entityId),
+      // A pulled row that is not a delete is the server saying this record is
+      // live. Leaving a local tombstone in place would keep it hidden here
+      // while every other device showed it — which is what happened when
+      // another device restored something this one had already seen deleted.
+      deletedAt: const Value(null),
       amount: Value((data['Amount'] as num?)?.toInt() ?? 0),
       title: Value(data['Title'] ?? ''),
       notes: Value(data['Notes']),
@@ -2012,13 +2017,26 @@ class SyncService {
     }
   }
 
-  /// Mark exactly the accepted pushed records as synced. For accepted deletes the local
-  /// (already soft-deleted) row is hard-deleted so tombstones don't accumulate forever.
-  /// Records NOT in [applied] (i.e. server conflicts) are intentionally left pending.
+  /// Mark exactly the accepted pushed records as synced.
+  ///
+  /// An accepted delete leaves the local tombstone in place. It used to be
+  /// hard-deleted here so tombstones would not accumulate — which quietly
+  /// emptied Recently Deleted for everybody who syncs: the row vanished on the
+  /// very next sync after the deletion, so the thirty-day window the screen
+  /// promises lasted until the next push. Tombstones are bounded by age
+  /// instead, in `purgeExpiredTombstones`, which is the same thirty days the
+  /// server's own cleanup sweep uses and the same figure the screen states.
+  ///
+  /// Records NOT in [applied] (i.e. server conflicts) are intentionally left
+  /// pending.
   Future<void> _markChangesSynced(List<SyncChange> applied) async {
     for (final c in applied) {
       if (c.operation == 'delete') {
-        await _hardDeleteLocal(c.tableName, c.entityId);
+        // Clear the pending flag, keep the row. The compare-and-set below
+        // applies here too: a row resurrected while the delete was in flight
+        // has a different `updatedAt` and stays pending, so the restore is not
+        // silently undone.
+        await _setRecordSynced(c.tableName, c.entityId, expected: c.sourceUpdatedAt);
       } else {
         // Compare-and-set: only clear the pending flag if the row hasn't been
         // edited since it was collected for push. If the user edited it while the
@@ -2138,68 +2156,6 @@ class SyncService {
                 syncStatus: Value(SyncStatus.synced),
               ),
             );
-        break;
-    }
-  }
-
-  Future<void> _hardDeleteLocal(String table, String id) async {
-    // Only remove the local tombstone if the row is still pending-delete. If the
-    // user resurrected/edited it while the delete push was in flight, its status
-    // changed and we leave it alone to re-sync (so the resurrect isn't lost).
-    const pendingDelete = SyncStatus.pendingDelete;
-    switch (table) {
-      case 'transactions':
-        await (_database.delete(_database.transactions)..where(
-              (t) => t.id.equals(id) & t.syncStatus.equals(pendingDelete),
-            ))
-            .go();
-        break;
-      case 'wallets':
-        await (_database.delete(_database.wallets)..where(
-              (w) => w.id.equals(id) & w.syncStatus.equals(pendingDelete),
-            ))
-            .go();
-        break;
-      case 'categories':
-        await (_database.delete(_database.categories)..where(
-              (c) => c.id.equals(id) & c.syncStatus.equals(pendingDelete),
-            ))
-            .go();
-        break;
-      case 'budgets':
-        await (_database.delete(_database.budgets)..where(
-              (b) => b.id.equals(id) & b.syncStatus.equals(pendingDelete),
-            ))
-            .go();
-        break;
-      case 'category_budget_limits':
-        await (_database.delete(_database.categoryBudgetLimits)..where(
-              (l) => l.id.equals(id) & l.syncStatus.equals(pendingDelete),
-            ))
-            .go();
-        break;
-      case 'associated_titles':
-        await (_database.delete(_database.associatedTitles)..where(
-              (a) => a.id.equals(id) & a.syncStatus.equals(pendingDelete),
-            ))
-            .go();
-        break;
-      case 'objectives':
-        await (_database.delete(_database.objectives)..where(
-              (o) => o.id.equals(id) & o.syncStatus.equals(pendingDelete),
-            ))
-            .go();
-        break;
-      case 'payment_methods':
-        await (_database.delete(_database.paymentMethods)..where(
-              (p) => p.id.equals(id) & p.syncStatus.equals(pendingDelete),
-            ))
-            .go();
-        break;
-      case 'recurring_configs':
-        // Recurring configs have no soft-delete column; the server keeps the row inactive,
-        // so we just clear the pending flag rather than removing it locally.
-        await _setRecordSynced(table, id);
         break;
     }
   }

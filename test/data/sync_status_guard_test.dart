@@ -90,16 +90,25 @@ void main() {
       );
     });
 
-    test('a create can still be tombstoned', () async {
+    test('a create is tombstoned with nothing left to push', () async {
       final walletId = await seedWallet(db);
       final id = await seedTransaction(db, walletId: walletId);
 
       await db.softDeleteTransaction(id);
 
+      final row = (await db.findTransactionById(id))!;
       expect(
-        (await db.findTransactionById(id))!.syncStatus,
-        SyncStatus.pendingDelete,
+        row.deletedAt,
+        isNotNull,
         reason: 'deleting is not the downgrade the guard exists to stop',
+      );
+      expect(
+        row.syncStatus,
+        SyncStatus.synced,
+        reason:
+            'the server was never told this row exists, so asking it to '
+            'delete it is answered "not found" on every retry and the record '
+            'sits in the push queue for ever',
       );
     });
 

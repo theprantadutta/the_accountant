@@ -687,6 +687,62 @@ class TransferService {
     });
   }
 
+  /// Put a deleted transaction back, along with everything deleted with it.
+  ///
+  /// The mirror of [deleteTransfer], and the only correct way to undo it.
+  /// Restoring through the database method alone left two things wrong.
+  ///
+  /// **Balances went stale.** Deleting decremented the stored wallet balance;
+  /// clearing the tombstone put the row back without putting the money back, so
+  /// every screen that reads a stored balance — which is all of them — was
+  /// understated by the amount of the restored transaction until something else
+  /// happened to trigger a recalculation. The balance is recomputed here from
+  /// the surviving rows rather than adjusted by a delta, so it is right however
+  /// long the row spent deleted and whatever else moved meanwhile.
+  ///
+  /// **Half a transfer came back.** A transfer is two rows, plus the fee when
+  /// one was charged, and the user restores whichever of them they happened to
+  /// tap. Bringing back one leg on its own contradicts what a transfer is:
+  /// money left a wallet and arrived nowhere. `TransferIntegrity` rejects it and
+  /// so does the server, so the row could not sync either. The whole group comes
+  /// back together or not at all.
+  ///
+  /// Restoring a transaction that is not part of a transfer is the ordinary
+  /// case and goes through the same path — it is a group of one.
+  Future<void> restoreTransaction(String transactionId) async {
+    await _db.transaction(() async {
+      final transaction = await _db.findTransactionById(transactionId);
+      if (transaction == null) return;
+
+      final affectedWallets = <String>{transaction.walletId};
+      final legIds = <String>{transactionId};
+
+      if (transaction.pairedTransactionId != null) {
+        final partner = await _db.findTransactionById(
+          transaction.pairedTransactionId!,
+        );
+        if (partner != null) {
+          legIds.add(partner.id);
+          affectedWallets.add(partner.walletId);
+          await _db.restoreTransaction(partner.id);
+        }
+      }
+
+      // Either leg may carry the fee, so both are asked. Deleted rows are
+      // included: the fee was tombstoned with the transfer and is exactly what
+      // needs finding.
+      for (final legId in legIds) {
+        final fee = await _db.findFeeForTransfer(legId, includeDeleted: true);
+        if (fee == null) continue;
+        affectedWallets.add(fee.walletId);
+        await _db.restoreTransaction(fee.id);
+      }
+
+      await _db.restoreTransaction(transactionId);
+      await _recalculate(affectedWallets);
+    });
+  }
+
   /// Recompute and persist the balance of every wallet in [walletIds].
   ///
   /// Deriving the balance from the surviving transactions (rather than applying

@@ -218,6 +218,110 @@ void main() {
     );
   });
 
+  /// Undoing a delete, which used to undo less than the delete did.
+  ///
+  /// Clearing one tombstone put the row back on the screen without putting the
+  /// money back in the wallet, and put back whichever leg of a transfer the
+  /// user tapped without its partner.
+  group('restore', () {
+    test('puts the money back in the wallet', () async {
+      final id = await seedTransaction(
+        db,
+        walletId: sourceId,
+        amount: 7500,
+        isIncome: false,
+      );
+      await balances.updateWalletBalance(sourceId);
+      final before = (await db.findWalletById(sourceId))!.balance;
+
+      await transfers.deleteTransfer(id);
+      await transfers.restoreTransaction(id);
+
+      expect(
+        (await db.findWalletById(sourceId))!.balance,
+        before,
+        reason:
+            'every screen reads the stored balance, so a restore that only '
+            'clears the tombstone understates the wallet by the restored '
+            'amount until something unrelated happens to recalculate it',
+      );
+    });
+
+    test('brings back both legs of a transfer, not just the one tapped', () async {
+      final (expenseId, incomeId) = await transfers.createTransfer(
+        sourceWalletId: sourceId,
+        destinationWalletId: destId,
+        amount: 7500,
+        date: DateTime(2026, 3, 1),
+      );
+      await transfers.deleteTransfer(expenseId);
+
+      // The user restores the incoming side; the outgoing side has to follow.
+      await transfers.restoreTransaction(incomeId);
+
+      expect((await db.findTransactionById(expenseId))!.deletedAt, isNull);
+      expect((await db.findTransactionById(incomeId))!.deletedAt, isNull);
+
+      final expense = await db.findTransactionById(expenseId);
+      final income = await db.findTransactionById(incomeId);
+      expect(
+        TransferIntegrity.validatePair(expense!, income),
+        isEmpty,
+        reason:
+            'one leg alone is money that left a wallet and arrived nowhere; '
+            'the server rejects it, so it could not sync either',
+      );
+
+      expect(await balances.calculateWalletBalance(sourceId), 50000 - 7500);
+      expect(await balances.calculateWalletBalance(destId), 10000 + 7500);
+      expect((await db.findWalletById(sourceId))!.balance, 50000 - 7500);
+      expect((await db.findWalletById(destId))!.balance, 10000 + 7500);
+    });
+
+    test('brings the fee back with the transfer that incurred it', () async {
+      final (expenseId, _) = await transfers.createTransfer(
+        sourceWalletId: sourceId,
+        destinationWalletId: destId,
+        amount: 7500,
+        date: DateTime(2026, 3, 1),
+        feeAmount: 250,
+        feeWalletId: sourceId,
+      );
+      final fee = await db.findFeeForTransfer(expenseId);
+      expect(fee, isNotNull);
+
+      await transfers.deleteTransfer(expenseId);
+      await transfers.restoreTransaction(expenseId);
+
+      expect(
+        (await db.findTransactionById(fee!.id))!.deletedAt,
+        isNull,
+        reason:
+            'the charge and the transfer were one action; leaving the fee '
+            'deleted loses money the user really paid',
+      );
+      expect(await balances.calculateWalletBalance(sourceId), 50000 - 7500 - 250);
+    });
+
+    test('restoring an ordinary transaction is a group of one', () async {
+      final id = await seedTransaction(db, walletId: destId, amount: 1200);
+      await transfers.deleteTransfer(id);
+
+      await transfers.restoreTransaction(id);
+
+      expect((await db.findTransactionById(id))!.deletedAt, isNull);
+      expect(
+        (await db.findWalletById(destId))!.balance,
+        await balances.calculateWalletBalance(destId),
+      );
+    });
+
+    test('restoring something already gone does nothing', () async {
+      await transfers.restoreTransaction('no-such-row');
+      expect(await db.getRecentlyDeletedTransactions(), isEmpty);
+    });
+  });
+
   group('delete', () {
     test('tombstones both legs and restores both balances', () async {
       final (expenseId, incomeId) = await transfers.createTransfer(
@@ -233,8 +337,10 @@ void main() {
       final income = await db.findTransactionById(incomeId);
       expect(expense!.deletedAt, isNotNull);
       expect(income!.deletedAt, isNotNull);
-      expect(expense.syncStatus, SyncStatus.pendingDelete);
-      expect(income.syncStatus, SyncStatus.pendingDelete);
+      // Neither leg ever reached the server, so neither has a deletion to
+      // push; the tombstones above are the whole of the local record.
+      expect(expense.syncStatus, SyncStatus.synced);
+      expect(income.syncStatus, SyncStatus.synced);
 
       expect(await balances.calculateWalletBalance(sourceId), 50000);
       expect(await balances.calculateWalletBalance(destId), 10000);

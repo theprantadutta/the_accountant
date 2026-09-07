@@ -111,6 +111,18 @@ class FakeSyncServer {
   int countIn(String userId, String table) =>
       _table(userId, table).values.where((r) => !r.deleted).length;
 
+  /// Whether the server holds [id] as tombstoned.
+  ///
+  /// Distinct from absence: a row that was never pushed and a row that was
+  /// pushed and then deleted are different states, and a restore has to tell
+  /// them apart.
+  bool isTombstoned(String userId, String table, String id) =>
+      _table(userId, table)[id]?.deleted ?? false;
+
+  /// Whether the server has ever been told about [id] at all.
+  bool holds(String userId, String table, String id) =>
+      _table(userId, table).containsKey(id);
+
   SyncPushResponse push(String userId, List<SyncChange> changes) {
     receivedBatchSizes.add(changes.length);
     if (changes.length > maxChangesPerRequest) {
@@ -227,10 +239,47 @@ class FakeSyncServer {
       }
 
       data['Id'] = change.entityId;
+      final incomingAt =
+          DateTime.tryParse('${data['UpdatedAt']}') ?? DateTime(1970);
+      final held = table[change.entityId];
+
+      if (held != null) {
+        // Last-write-wins, the same comparison the production handler makes.
+        // An older edit arriving late does not overwrite a newer one.
+        if (held.clientUpdatedAt.isAfter(incomingAt)) {
+          conflicts.add(
+            SyncConflict(
+              tableName: change.tableName,
+              entityId: change.entityId,
+              reason:
+                  'The server copy of ${change.entityId} is newer than the '
+                  'one pushed.',
+            ),
+          );
+          continue;
+        }
+
+        // A push that says the row is live lifts a tombstone. This used to be
+        // implicit here — the fake replaced the whole record, so `deleted`
+        // silently reset to false and a create appeared to resurrect anything.
+        // The real server did not do that, so the fake was hiding exactly the
+        // defect it existed to catch.
+        held.deleted = false;
+
+        // A create for a row the server already holds is an accepted no-op in
+        // production, not an overwrite; only an update rewrites the fields.
+        if (change.operation == 'update') held.data = data;
+        held.clientUpdatedAt = incomingAt;
+        held.updatedAt = _tick();
+        applied++;
+        continue;
+      }
+
       table[change.entityId] = _Record(
         data: data,
         updatedAt: _tick(),
-        createdAt: table[change.entityId]?.createdAt ?? _clock,
+        createdAt: _clock,
+        clientUpdatedAt: incomingAt,
       );
       applied++;
     }
@@ -575,11 +624,19 @@ class _Record {
   DateTime createdAt;
   bool deleted;
 
+  /// The `UpdatedAt` the client sent, which is what last-write-wins compares.
+  ///
+  /// Distinct from [updatedAt], which is the fake's own clock and stands in for
+  /// the server-assigned time a pull cursor is measured against.
+  DateTime clientUpdatedAt;
+
   _Record({
     required this.data,
     required this.updatedAt,
     required this.createdAt,
-  }) : deleted = false;
+    DateTime? clientUpdatedAt,
+  }) : deleted = false,
+       clientUpdatedAt = clientUpdatedAt ?? DateTime(1970);
 }
 
 /// A [SyncTransport] wired to a [FakeSyncServer] as a specific user.
