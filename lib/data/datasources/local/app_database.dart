@@ -2929,43 +2929,69 @@ class AppDatabase extends _$AppDatabase {
   // ============================================================
   // Wallet DAO methods
   // ============================================================
-  /// Make the saved preference visible to everything that reads the database.
+  /// Seed the default-account flag from the saved preference, once.
   ///
   /// The chosen account is kept in shared preferences, where the entry form can
   /// see it and a report cannot. Sharing a resolver between the two did not make
   /// them agree, because they could not be given the same inputs: with no
   /// account flagged, the form followed the preference and anything reading the
   /// database took the first account instead, so a figure meant one currency
-  /// where it was typed and another where it was counted.
+  /// where it was typed and another where it was counted. Writing the
+  /// preference onto the row settles it in the one field both sides read.
   ///
-  /// Writing the preference onto the row settles it in the one field both sides
-  /// already read. The flag is synced, which is right — the user's default
-  /// account is a choice, not a detail of this device — and marking the row
-  /// edited is what carries it.
+  /// **Only when no live account is flagged.** This is a migration, not an
+  /// opinion. Reasserting it on every read made the preference outrank the
+  /// database, which is backwards in both directions that matter: choosing a
+  /// different default in account management writes the flag and not the
+  /// preference, so the next reload put the old one back; and another device's
+  /// choice, arriving through a pull, was reverted the same way and pushed back
+  /// as an edit. A stale preference could undo a settled decision indefinitely.
   ///
-  /// Does nothing when the preference names an account that is gone or
-  /// archived, or when it already holds the flag.
+  /// After this the database is authoritative and the preference is only a seed
+  /// for a store that has never had one — which is why nothing needs to retire
+  /// it. It is consulted again only if every flagged account is archived or
+  /// removed, where falling back to a still-live earlier choice is the better
+  /// of the answers available.
+  ///
+  /// The flag is synced, which is right: a user's default account is a choice,
+  /// not a detail of this device.
   Future<void> reconcileDefaultWallet(String? preferredId) async {
     if (preferredId == null) return;
 
     final wallets = await getAllWallets();
-    final preferred = wallets
-        .where((w) => w.id == preferredId && !w.isArchived)
-        .firstOrNull;
-    if (preferred == null || preferred.isDefault) return;
+    final live = wallets.where((w) => !w.isArchived);
+
+    // The database already has an answer. It is the newer one by construction:
+    // it is what the last selection or the last pull left behind.
+    if (live.any((w) => w.isDefault)) return;
+
+    final preferred = live.where((w) => w.id == preferredId).firstOrNull;
+    if (preferred == null) return;
+
+    await setDefaultWallet(preferred.id);
+  }
+
+  /// Make [walletId] the default account, and no other.
+  ///
+  /// The single place the flag is written, so every path that lets a user pick
+  /// a default leaves the same state behind — the previous arrangement had the
+  /// settings screen and the accounts screen writing different things, which is
+  /// how a preference and a flag came to disagree at all.
+  Future<void> setDefaultWallet(String walletId) async {
+    final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
 
     await transaction(() async {
       await customStatement(
         'UPDATE wallets SET is_default = 0, '
         'sync_status = ${SyncStatus.markEditedSql}, updated_at = ? '
         'WHERE is_default = 1 AND id <> ?',
-        [DateTime.now().millisecondsSinceEpoch ~/ 1000, preferredId],
+        [now, walletId],
       );
       await customStatement(
         'UPDATE wallets SET is_default = 1, '
         'sync_status = ${SyncStatus.markEditedSql}, updated_at = ? '
-        'WHERE id = ?',
-        [DateTime.now().millisecondsSinceEpoch ~/ 1000, preferredId],
+        'WHERE id = ? AND is_default = 0',
+        [now, walletId],
       );
     });
   }

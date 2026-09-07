@@ -96,23 +96,45 @@ void main() {
       expect(resolveDisplayCurrency(await db.getAllWallets()), 'EUR');
     });
 
-    test('it takes the flag off whatever held it', () async {
+    test('it leaves an established choice alone', () async {
+      final established = await seedWallet(db, name: 'Cash', currency: 'USD');
+      final stalePreference = await seedWallet(db, name: 'Bank', currency: 'EUR');
+      await db.customStatement(
+        'UPDATE wallets SET is_default = 1 WHERE id = ?',
+        [established],
+      );
+
+      await db.reconcileDefaultWallet(stalePreference);
+
+      final wallets = await db.getAllWallets();
+      expect(
+        wallets.where((w) => w.isDefault).map((w) => w.id),
+        [established],
+        reason: 'this is a migration, not an opinion. Reasserting the '
+            'preference on every read made it outrank the database — undoing '
+            'a choice made in account management, and undoing another '
+            "device's choice arriving through a pull",
+      );
+    });
+
+    test('choosing a default does move the flag', () async {
       final old = await seedWallet(db, name: 'Cash', currency: 'USD');
-      final preferred = await seedWallet(db, name: 'Bank', currency: 'EUR');
+      final chosen = await seedWallet(db, name: 'Bank', currency: 'EUR');
       await db.customStatement(
         'UPDATE wallets SET is_default = 1 WHERE id = ?',
         [old],
       );
 
-      await db.reconcileDefaultWallet(preferred);
+      await db.setDefaultWallet(chosen);
 
       final wallets = await db.getAllWallets();
-      expect(wallets.where((w) => w.isDefault).map((w) => w.id), [preferred]);
+      expect(wallets.where((w) => w.isDefault).map((w) => w.id), [chosen]);
     });
 
     test('the change is queued for the other devices', () async {
       await seedWallet(db, name: 'Cash', currency: 'USD');
       final preferred = await seedWallet(db, name: 'Bank', currency: 'EUR');
+      await db.customStatement('UPDATE wallets SET is_default = 0');
       await db.customStatement('UPDATE wallets SET sync_status = 0');
 
       await db.reconcileDefaultWallet(preferred);

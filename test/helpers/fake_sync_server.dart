@@ -158,13 +158,12 @@ class FakeSyncServer {
       if (change.operation == 'delete') {
         final existing = table[change.entityId];
         if (existing == null) {
-          conflicts.add(
-            SyncConflict(
-              tableName: change.tableName,
-              entityId: change.entityId,
-              reason: 'Entity not found or access denied',
-            ),
-          );
+          // A delete for a row the server does not hold has already achieved
+          // what it asked for, and the handler answers it as satisfied. A
+          // client cannot tell an unacknowledged create from a lost response,
+          // so it has to be free to push the delete either way — reporting a
+          // conflict here is what used to leave it retrying for ever.
+          applied++;
           continue;
         }
         existing.deleted = true;
@@ -284,9 +283,14 @@ class FakeSyncServer {
       }
 
       if (held != null) {
-        // Last-write-wins, the same comparison the production handler makes.
-        // An older edit arriving late does not overwrite a newer one.
-        if (held.clientUpdatedAt.isAfter(incomingAt)) {
+        final stale = held.clientUpdatedAt.isAfter(incomingAt);
+
+        // An update that lost last-write-wins is a conflict the client is told
+        // about. A *create* is never one: it is idempotent by contract, and
+        // answering a retried create with a conflict would leave that row
+        // pending on the device for ever. The handler acknowledges it and lets
+        // the next pull carry the winning copy down.
+        if (stale && change.operation == 'update') {
           conflicts.add(
             SyncConflict(
               tableName: change.tableName,
@@ -299,6 +303,12 @@ class FakeSyncServer {
           continue;
         }
 
+        if (stale) {
+          // Acknowledged, and nothing written.
+          applied++;
+          continue;
+        }
+
         // A push that says the row is live lifts a tombstone. This used to be
         // implicit here — the fake replaced the whole record, so `deleted`
         // silently reset to false and a create appeared to resurrect anything.
@@ -306,14 +316,19 @@ class FakeSyncServer {
         // defect it existed to catch.
         held.deleted = false;
 
-        // A create for a row the server already holds is idempotent but not
-        // inert: restoring a row is pushed as a create, and the row can have
-        // been edited between the restore and the upload. The real handler
-        // applies that content through the same path an update takes, so this
-        // does too — it modelled the older behaviour for a while after the
-        // server had stopped behaving that way, which hid the very thing it
-        // exists to catch.
-        held.data = data;
+        // Whether a create rewrites the row it finds depends on the table, and
+        // the fake has been wrong in both directions about it. Transactions
+        // apply the content, because restoring one is pushed as a create and
+        // the row can be edited between the restore and the upload — dropping
+        // that content lost the edit. Every other table treats a create for a
+        // row it already holds as inert: the handler lifts the tombstone and
+        // acknowledges, and nothing else. Extending the transaction rule to all
+        // of them let tests certify a replay-with-changes that the server would
+        // quietly ignore.
+        if (change.operation == 'update' || change.tableName == 'transactions') {
+          held.data = data;
+        }
+
         held.clientUpdatedAt = incomingAt;
         held.updatedAt = _tick();
         applied++;

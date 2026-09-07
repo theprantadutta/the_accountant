@@ -61,11 +61,11 @@ class WalletNotifier extends StateNotifier<WalletState> {
   Future<void> loadWallets({bool silent = false}) async {
     if (!silent) state = state.copyWith(isLoading: true);
     try {
-      // Settle the saved default onto the wallet row before anything reads it.
-      // The preference lives where only this side of the app can see it, and a
-      // report has to reach the same answer — so it is written onto the row
-      // rather than consulted separately. Cheap and idempotent: it does nothing
-      // once the flag already agrees.
+      // Seed the default-account flag from the saved preference if nothing has
+      // ever set it. A migration, run here because it has to happen before
+      // anything reads the flag; it does nothing once the database has an
+      // answer of its own, so a choice made here or arriving from another
+      // device is not undone by an older preference.
       await _database.reconcileDefaultWallet(_ref.read(defaultWalletIdProvider));
 
       final wallets = await _database.getAllWallets();
@@ -125,15 +125,7 @@ class WalletNotifier extends StateNotifier<WalletState> {
 
   /// Set a wallet as the default
   Future<void> setDefaultWallet(String walletId) async {
-    await _clearOtherDefaults(walletId);
-    await _database.updateWallet(
-      WalletsCompanion(
-        id: Value(walletId),
-        isDefault: const Value(true),
-        syncStatus: const Value(SyncStatus.pendingUpdate),
-        updatedAt: Value(DateTime.now()),
-      ),
-    );
+    await _database.setDefaultWallet(walletId);
     await loadWallets();
   }
 
@@ -230,9 +222,10 @@ class WalletNotifier extends StateNotifier<WalletState> {
     bool? excludeFromTotal,
   }) async {
     try {
-      // If setting as default, clear other defaults first
+      // Through the one operation that owns the flag, so picking a default
+      // here leaves the same state as picking one in settings.
       if (isDefault == true) {
-        await _clearOtherDefaults(id);
+        await _database.setDefaultWallet(id);
       }
 
       final wallet = WalletsCompanion(
