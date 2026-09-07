@@ -187,12 +187,14 @@ class _Headline extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final currency = ref.watch(defaultCurrencyProvider);
     final useDecimals = ref.watch(defaultDecimalProvider);
     final numberFormat = ref.watch(numberFormatSettingProvider);
 
+    // The budget's own currency, not the app default. A budget scoped to taka
+    // accounts is counted in taka, and labelling that total with a dollar sign
+    // would misstate it by a factor of a hundred.
     String money(int cents) => cents.formatCurrency(
-      currency,
+      progress.currency,
       useDecimals: useDecimals,
       numberFormat: numberFormat,
     );
@@ -234,6 +236,20 @@ class _Headline extends ConsumerWidget {
               '${money(progress.remaining)} left, about ${money(p)} a day.',
             _ => '${money(progress.remaining)} left.',
           }, style: AppTypography.bodyMedium),
+          // A budget quietly dropping what it could not convert reads as a
+          // budget being kept to, which is the most misleading thing it could
+          // do.
+          if (progress.excluded > 0) ...[
+            AppSpacing.gapSm,
+            Text(
+              L10n.of(
+                context,
+              ).amountsLeftOutNoRate(progress.excluded, progress.currency),
+              style: AppTypography.bodySmall.copyWith(
+                color: AppColors.textMuted,
+              ),
+            ),
+          ],
           if (isCurrent && progress.isAheadOfPace(now)) ...[
             AppSpacing.gapSm,
             Row(

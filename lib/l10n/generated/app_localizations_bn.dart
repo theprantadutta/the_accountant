@@ -1943,6 +1943,11 @@ class L10nBn extends L10n {
   String get heatmapEarnedMore => 'বেশি আয়';
 
   @override
+  String amountsLeftOutNoRate(int count, String currency) {
+    return '$countটি লেনদেন দেখানো হয়নি: সেগুলোর অ্যাকাউন্টের মুদ্রা ও $currency-এর মধ্যে কোনো বিনিময় হার জানা নেই।';
+  }
+
+  @override
   String get heatmapNothingYet => 'এই সময়কালে এখনও কিছু লেখা হয়নি।';
 
   @override

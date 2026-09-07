@@ -17,9 +17,14 @@ import '../helpers/localized_app.dart';
 /// The transfer half of the add-transaction form.
 ///
 /// These assertions are about what the form *offers*, which is a different
-/// question from what the service accepts. `TransferService` refuses a transfer
-/// between wallets counting in different currencies; the form's job is to never
-/// put the user in front of that refusal in the first place.
+/// question from what the service accepts.
+///
+/// The form used to filter both account pickers down to a single currency,
+/// which was right while `TransferService` refused a crossing outright. It has
+/// not been right since: each leg carries its own currency's amount, what the
+/// other side received, and the rate between them, and the server accepts the
+/// pair. The filters stayed, so a supported feature was unreachable — and the
+/// tests below passed the whole time, pinning the old behaviour in place.
 void main() {
   late AppDatabase db;
   late SharedPreferences prefs;
@@ -88,21 +93,29 @@ void main() {
       expect(typeChip('Transfer'), findsOneWidget);
     });
 
-    testWidgets('a lone wallet in its currency is not offered', (tester) async {
-      // Two wallets, but nothing to transfer between: each is alone in its own
-      // currency, so neither has a valid destination.
+    testWidgets('two wallets in different currencies can transfer', (
+      tester,
+    ) async {
       await seedWallet(db, name: 'Everyday', currency: 'USD');
       await seedWallet(db, name: 'bKash', currency: 'BDT');
       await pump(tester);
 
       expect(
         typeChip('Transfer'),
-        findsNothing,
-        reason: 'offering it would lead only to a refusal',
+        findsOneWidget,
+        reason: 'the service and the server both accept this pair; hiding it '
+            'made a supported feature unreachable',
       );
     });
 
-    testWidgets('the destination list holds only the source currency', (
+    testWidgets('one wallet still cannot transfer to itself', (tester) async {
+      await seedWallet(db, name: 'Everyday', currency: 'USD');
+      await pump(tester);
+
+      expect(typeChip('Transfer'), findsNothing);
+    });
+
+    testWidgets('a wallet in another currency is offered as a destination', (
       tester,
     ) async {
       await seedWallet(db, name: 'Everyday', currency: 'USD');
@@ -111,42 +124,43 @@ void main() {
       await pump(tester);
       await chooseTransfer(tester);
 
-      // "From" defaults to the first wallet, which is in USD.
       expect(find.text('Everyday (USD)'), findsWidgets);
       expect(find.text('Bank (USD)'), findsWidgets);
       expect(
         find.text('bKash (BDT)'),
-        findsNothing,
-        reason: 'a taka wallet is not a destination for dollars',
+        findsWidgets,
+        reason: 'a taka account is a perfectly good destination for dollars '
+            'now, at a rate the transfer records',
       );
     });
+  });
 
-    testWidgets('a third wallet in another currency cannot be reached', (
-      tester,
-    ) async {
-      // The one that matters: the form must not let the two ends disagree,
-      // because both legs of a transfer carry the same figure.
+  /// A crossing needs one more figure than a transfer within a currency.
+  ///
+  /// Both legs of a same-currency transfer carry the same number, so asking
+  /// twice would only invite them to disagree. Across currencies they cannot,
+  /// and the honest number is what actually landed — a bank's rate and its
+  /// charges are not the mid-market figure.
+  group('what landed on the other side', () {
+    testWidgets('is asked for when the two accounts differ', (tester) async {
       await seedWallet(db, name: 'Everyday', currency: 'USD');
-      await seedWallet(db, name: 'Bank', currency: 'USD');
       await seedWallet(db, name: 'bKash', currency: 'BDT');
-      await seedWallet(db, name: 'Nagad', currency: 'BDT');
       await pump(tester);
       await chooseTransfer(tester);
 
-      // Both currencies have a partner, so both appear as sources...
-      expect(find.text('bKash (BDT)'), findsWidgets);
-      // ...but the destinations on offer are only the ones in USD, which is
-      // what the source is.
-      final labels = tester
-          .widgetList<Text>(find.byType(Text))
-          .map((t) => t.data)
-          .whereType<String>()
-          .where((d) => d.contains('(BDT)'))
-          .toList();
+      expect(find.text('Amount received'), findsOneWidget);
+    });
+
+    testWidgets('is not asked for within one currency', (tester) async {
+      await seedWallet(db, name: 'Everyday', currency: 'USD');
+      await seedWallet(db, name: 'Bank', currency: 'USD');
+      await pump(tester);
+      await chooseTransfer(tester);
+
       expect(
-        labels.length,
-        lessThan(4),
-        reason: 'BDT wallets should appear as sources only, not destinations',
+        find.text('Amount received'),
+        findsNothing,
+        reason: 'one movement of one sum, seen from both ends',
       );
     });
   });

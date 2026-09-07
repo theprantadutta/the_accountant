@@ -59,6 +59,135 @@ void main() {
     return BudgetView.fromRow((await db.findBudgetById(id))!);
   }
 
+  /// A budget covers accounts, and accounts need not agree on a currency.
+  ///
+  /// Every total added raw minor units and labelled the result in the default
+  /// currency, so a taka expense counted the same as a dollar one and a budget
+  /// could read as blown by a factor of a hundred — or, the other way round, as
+  /// comfortably kept.
+  group('accounts in different currencies', () {
+    test('spending is converted into the budget currency', () async {
+      final taka = await seedWallet(db, name: 'bKash', currency: 'BDT');
+      await db.setCustomRate('BDT', 'USD', 0.01);
+      await seedTransaction(
+        db,
+        walletId: walletId,
+        categoryId: food,
+        amount: 25000,
+        date: DateTime(2026, 1, 10),
+      );
+      await seedTransaction(
+        db,
+        walletId: taka,
+        categoryId: food,
+        amount: 100000,
+        date: DateTime(2026, 1, 10),
+      );
+
+      final progress = await BudgetEngine(db).progressFor(
+        await budget(),
+        moment: DateTime(2026, 1, 15),
+      );
+
+      expect(progress.currency, 'USD');
+      expect(
+        progress.spent,
+        26000,
+        reason: 'a hundred thousand taka is a thousand dollars',
+      );
+      expect(progress.excluded, 0);
+    });
+
+    test('an amount with no known rate is excluded and counted', () async {
+      final taka = await seedWallet(db, name: 'bKash', currency: 'BDT');
+      await seedTransaction(
+        db,
+        walletId: walletId,
+        categoryId: food,
+        amount: 25000,
+        date: DateTime(2026, 1, 10),
+      );
+      await seedTransaction(
+        db,
+        walletId: taka,
+        categoryId: food,
+        amount: 100000,
+        date: DateTime(2026, 1, 10),
+      );
+
+      final progress = await BudgetEngine(db).progressFor(
+        await budget(),
+        moment: DateTime(2026, 1, 15),
+      );
+
+      expect(progress.spent, 25000);
+      expect(
+        progress.excluded,
+        1,
+        reason: 'a budget that quietly drops half its spending reads as one '
+            'being kept to',
+      );
+    });
+
+    test('a budget scoped to one currency is counted in it', () async {
+      final taka = await seedWallet(db, name: 'bKash', currency: 'BDT');
+      await seedTransaction(
+        db,
+        walletId: taka,
+        categoryId: food,
+        amount: 100000,
+        date: DateTime(2026, 1, 10),
+      );
+
+      final progress = await BudgetEngine(db).progressFor(
+        await budget(walletIds: [taka]),
+        moment: DateTime(2026, 1, 15),
+      );
+
+      expect(
+        progress.currency,
+        'BDT',
+        reason: 'the cap was set in the money the accounts are held in, which '
+            'is what the user was thinking in',
+      );
+      expect(progress.spent, 100000, reason: 'no conversion needed at all');
+    });
+
+    test('a budget spanning currencies falls back to the display one',
+        () async {
+      final taka = await seedWallet(db, name: 'bKash', currency: 'BDT');
+
+      final progress = await BudgetEngine(db).progressFor(
+        await budget(walletIds: [walletId, taka]),
+        moment: DateTime(2026, 1, 15),
+      );
+
+      expect(progress.currency, 'USD');
+    });
+
+    test('per-category totals are converted too', () async {
+      final taka = await seedWallet(db, name: 'bKash', currency: 'BDT');
+      await db.setCustomRate('BDT', 'USD', 0.01);
+      await seedTransaction(
+        db,
+        walletId: taka,
+        categoryId: food,
+        amount: 100000,
+        date: DateTime(2026, 1, 10),
+      );
+
+      final view = await budget();
+      final engine = BudgetEngine(db);
+      final progress = await engine.progressFor(
+        view,
+        moment: DateTime(2026, 1, 15),
+      );
+      final byCategory = await engine.byCategory(view, progress.window);
+
+      expect(byCategory[food], 1000);
+    });
+  });
+
   group('what counts toward a budget', () {
     test('an ordinary expense in the window counts', () async {
       await seedTransaction(

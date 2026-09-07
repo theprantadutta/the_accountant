@@ -3755,6 +3755,12 @@ abstract class L10n {
   /// **'Earned more'**
   String get heatmapEarnedMore;
 
+  /// No description provided for @amountsLeftOutNoRate.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{One transaction is not shown: no rate is known between its account\'s currency and {currency}} other{{count} transactions are not shown: no rate is known between their accounts\' currencies and {currency}}}.'**
+  String amountsLeftOutNoRate(int count, String currency);
+
   /// No description provided for @heatmapNothingYet.
   ///
   /// In en, this message translates to:

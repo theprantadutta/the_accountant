@@ -1714,6 +1714,48 @@ class AppDatabase extends _$AppDatabase {
   /// Upserts on the pair rather than the id, because that pair is what the user
   /// is choosing: setting a limit on a category that already has one is an
   /// edit, not a second limit.
+  /// Adopt the server's id for a cap this device created under its own.
+  ///
+  /// A cap is one row per (budget, category); its id is an implementation
+  /// detail. Two offline devices setting the same cap generate two ids for one
+  /// logical row, and the server resolves that by natural key and reports which
+  /// id won. The loser is dropped rather than tombstoned: it never existed
+  /// anywhere but here, so there is nothing to tell the server about, and a
+  /// tombstone would push a delete for an id the server has never held.
+  ///
+  /// When the winning row is not here yet — the usual case, since the next pull
+  /// brings it — the local row is simply re-keyed, so the cap the user set does
+  /// not vanish from the screen in the meantime.
+  Future<void> adoptCategoryLimitId({
+    required String localId,
+    required String canonicalId,
+  }) async {
+    if (localId == canonicalId) return;
+
+    await transaction(() async {
+      final canonical =
+          await (select(categoryBudgetLimits)
+                ..where((l) => l.id.equals(canonicalId)))
+              .getSingleOrNull();
+
+      if (canonical != null) {
+        await (delete(
+          categoryBudgetLimits,
+        )..where((l) => l.id.equals(localId))).go();
+        return;
+      }
+
+      await (update(
+        categoryBudgetLimits,
+      )..where((l) => l.id.equals(localId))).write(
+        CategoryBudgetLimitsCompanion(
+          id: Value(canonicalId),
+          syncStatus: const Value(SyncStatus.synced),
+        ),
+      );
+    });
+  }
+
   Future<void> setCategoryLimit({
     required String budgetId,
     required String categoryId,
@@ -2595,6 +2637,16 @@ class AppDatabase extends _$AppDatabase {
     await (update(associatedTitles)
           ..where((a) => a.categoryId.equals(loser.id)))
         .write(AssociatedTitlesCompanion(categoryId: Value(survivorId)));
+    // Associated titles sync now; this code predates that and only rewrote the
+    // id, so the repointing never left the device and the server kept filing
+    // those titles under a category that no longer exists.
+    await customStatement(
+      'UPDATE associated_titles SET sync_status = ${SyncStatus.markEditedSql}, '
+      'updated_at = ? WHERE category_id = ?',
+      [now.millisecondsSinceEpoch ~/ 1000, survivorId],
+    );
+
+    await _repointCategoryLimits(fromId: loser.id, toId: survivorId, now: now);
 
     if (loser.syncStatus == SyncStatus.pendingCreate) {
       // The server has never seen this row, so there is nothing to tombstone —
@@ -2615,9 +2667,124 @@ class AppDatabase extends _$AppDatabase {
     );
   }
 
+  /// Move the losing category's budget caps onto the survivor.
+  ///
+  /// Absorption used to leave them behind entirely: the losing category row was
+  /// removed and every cap pointing at it was orphaned — pointing at an id that
+  /// no longer exists, rejected by the server's reference check on every push,
+  /// and therefore pending for ever.
+  ///
+  /// When both categories cap the same budget the two rows cannot both survive,
+  /// because a budget holds one cap per category. The survivor's row is kept and
+  /// the larger of the two limits is taken: a merge is not the place to quietly
+  /// tighten a cap the user set, and a cap that shrinks on its own reads as the
+  /// budget being broken rather than as the merge having done it.
+  Future<void> _repointCategoryLimits({
+    required String fromId,
+    required String toId,
+    required DateTime now,
+  }) async {
+    final moving =
+        await (select(categoryBudgetLimits)..where(
+              (l) => l.categoryId.equals(fromId) & l.deletedAt.isNull(),
+            ))
+            .get();
+    if (moving.isEmpty) return;
+
+    for (final limit in moving) {
+      final clash =
+          await (select(categoryBudgetLimits)..where(
+                (l) =>
+                    l.budgetId.equals(limit.budgetId) &
+                    l.categoryId.equals(toId) &
+                    l.deletedAt.isNull(),
+              ))
+              .getSingleOrNull();
+
+      if (clash == null) {
+        await (update(
+          categoryBudgetLimits,
+        )..where((l) => l.id.equals(limit.id))).write(
+          CategoryBudgetLimitsCompanion(
+            categoryId: Value(toId),
+            updatedAt: Value(now),
+          ),
+        );
+        await customStatement(
+          'UPDATE category_budget_limits SET '
+          'sync_status = ${SyncStatus.markEditedSql} WHERE id = ?',
+          [limit.id],
+        );
+        continue;
+      }
+
+      // A percentage and a flat amount are not comparable, so the survivor's
+      // own expression is kept rather than guessed between.
+      final keepsBigger =
+          clash.isPercent != limit.isPercent || clash.amount >= limit.amount;
+      if (!keepsBigger) {
+        await (update(
+          categoryBudgetLimits,
+        )..where((l) => l.id.equals(clash.id))).write(
+          CategoryBudgetLimitsCompanion(
+            amount: Value(limit.amount),
+            updatedAt: Value(now),
+          ),
+        );
+        await customStatement(
+          'UPDATE category_budget_limits SET '
+          'sync_status = ${SyncStatus.markEditedSql} WHERE id = ?',
+          [clash.id],
+        );
+      }
+
+      await _retireCategoryLimit(limit, now);
+    }
+  }
+
+  /// Remove a cap that lost a merge, saying so to the server only if it needs
+  /// telling.
+  Future<void> _retireCategoryLimit(
+    CategoryBudgetLimit limit,
+    DateTime now,
+  ) async {
+    if (limit.syncStatus == SyncStatus.pendingCreate) {
+      // Never uploaded, so there is nothing to tombstone — and a tombstone
+      // would push a delete for an id the server has never held.
+      await (delete(
+        categoryBudgetLimits,
+      )..where((l) => l.id.equals(limit.id))).go();
+      return;
+    }
+
+    await (update(
+      categoryBudgetLimits,
+    )..where((l) => l.id.equals(limit.id))).write(
+      CategoryBudgetLimitsCompanion(
+        deletedAt: Value(now),
+        syncStatus: const Value(SyncStatus.pendingDelete),
+        updatedAt: Value(now),
+      ),
+    );
+  }
+
   // ============================================================
   // Wallet DAO methods
   // ============================================================
+  /// The currency totals are shown in.
+  ///
+  /// The default account's, which is what every screen already labels its
+  /// figures with — resolved here so anything that has to *add* amounts up can
+  /// agree with what is printed beside them without reaching for a provider.
+  Future<String> displayCurrency() async {
+    final all = await getAllWallets();
+    final live = all.where((w) => !w.isArchived);
+    if (live.isEmpty) return all.isEmpty ? 'USD' : all.first.currency;
+    return live
+        .firstWhere((w) => w.isDefault, orElse: () => live.first)
+        .currency;
+  }
+
   Future<List<Wallet>> getAllWallets() =>
       (select(wallets)
             ..where((w) => w.deletedAt.isNull())

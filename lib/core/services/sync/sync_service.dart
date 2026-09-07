@@ -549,6 +549,14 @@ class SyncService {
       );
       resolutionsApplied += response.categoryResolutions.length;
 
+      // Rows the server matched by natural key rather than by id. Applied
+      // before marking anything synced, for the same reason as above: the
+      // losing row must be dropped while it is still a pending create, or it
+      // would be tombstoned and pushed as a delete for an id the server has
+      // never held.
+      final remappedIds = await _applyIdRemaps(response.idRemaps);
+      resolutionsApplied += response.idRemaps.length;
+
       final conflictKeys = response.conflicts
           .map((c) => '${c.tableName}:${c.entityId}')
           .toSet();
@@ -575,8 +583,9 @@ class SyncService {
         accepted
             .where(
               (c) =>
-                  c.tableName != 'categories' ||
-                  !resolvedProvisionalIds.contains(c.entityId),
+                  (c.tableName != 'categories' ||
+                      !resolvedProvisionalIds.contains(c.entityId)) &&
+                  !remappedIds.contains('${c.tableName}:${c.entityId}'),
             )
             .toList(),
       );
@@ -2015,6 +2024,41 @@ class SyncService {
       default:
         return 0;
     }
+  }
+
+  /// Adopt the ids the server resolved by natural key.
+  ///
+  /// Returns `table:id` for every row that was re-keyed, so the caller does not
+  /// then try to mark a record synced under an id that is no longer there.
+  ///
+  /// Only category caps are unique on something other than their id today, so
+  /// only they can be remapped. An unknown table is logged rather than guessed
+  /// at: re-keying the wrong row is worse than leaving one change pending.
+  Future<Set<String>> _applyIdRemaps(List<SyncIdRemap> remaps) async {
+    final handled = <String>{};
+
+    for (final remap in remaps) {
+      if (remap.requestedEntityId.isEmpty || remap.canonicalEntityId.isEmpty) {
+        continue;
+      }
+
+      switch (remap.tableName) {
+        case 'category_budget_limits':
+          await _database.adoptCategoryLimitId(
+            localId: remap.requestedEntityId,
+            canonicalId: remap.canonicalEntityId,
+          );
+          handled.add('${remap.tableName}:${remap.requestedEntityId}');
+        default:
+          _logger.w(
+            'Server remapped ${remap.tableName}:${remap.requestedEntityId} to '
+            '${remap.canonicalEntityId}, which this client does not know how '
+            'to adopt.',
+          );
+      }
+    }
+
+    return handled;
   }
 
   /// Mark exactly the accepted pushed records as synced.

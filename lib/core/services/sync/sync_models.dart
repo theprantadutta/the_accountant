@@ -174,10 +174,22 @@ class SyncPushResponse {
   /// device that is about to go offline still ends up consistent.
   final List<SyncCategoryResolutionResult> categoryResolutions;
 
+  /// Rows the server matched to an existing one by natural key rather than by
+  /// the id this device sent.
+  ///
+  /// Some rows are unique on something other than their id — a category cap is
+  /// one row per (budget, category) — so two offline devices adding the same
+  /// one generate two ids for what is logically a single row. Without this the
+  /// loser's create hit the uniqueness constraint on every retry, stayed
+  /// pending, and stopped the cursor advancing: one duplicated cap wedged the
+  /// whole account's sync.
+  final List<SyncIdRemap> idRemaps;
+
   SyncPushResponse({
     required this.appliedCount,
     required this.conflicts,
     this.categoryResolutions = const [],
+    this.idRemaps = const [],
   });
 
   factory SyncPushResponse.fromJson(Map<String, dynamic> json) {
@@ -186,6 +198,8 @@ class SyncPushResponse {
         json['category_resolutions'] ??
         json['categoryResolutions'] ??
         json['CategoryResolutions'];
+    final remapsList =
+        json['id_remaps'] ?? json['idRemaps'] ?? json['IdRemaps'];
     return SyncPushResponse(
       appliedCount:
           json['applied_count'] ??
@@ -206,8 +220,48 @@ class SyncPushResponse {
               )
               .toList() ??
           const <SyncCategoryResolutionResult>[],
+      idRemaps:
+          (remapsList as List?)
+              ?.map((r) => SyncIdRemap.fromJson(r as Map<String, dynamic>))
+              .toList() ??
+          const <SyncIdRemap>[],
     );
   }
+}
+
+/// A row the server resolved by its natural key instead of by the id sent.
+class SyncIdRemap {
+  final String tableName;
+
+  /// The id this device pushed.
+  final String requestedEntityId;
+
+  /// The id that actually owns the row, and which this device must adopt.
+  final String canonicalEntityId;
+
+  const SyncIdRemap({
+    required this.tableName,
+    required this.requestedEntityId,
+    required this.canonicalEntityId,
+  });
+
+  factory SyncIdRemap.fromJson(Map<String, dynamic> json) => SyncIdRemap(
+    tableName:
+        (json['table_name'] ?? json['tableName'] ?? json['TableName'] ?? '')
+            as String,
+    requestedEntityId:
+        (json['requested_entity_id'] ??
+                json['requestedEntityId'] ??
+                json['RequestedEntityId'] ??
+                '')
+            as String,
+    canonicalEntityId:
+        (json['canonical_entity_id'] ??
+                json['canonicalEntityId'] ??
+                json['CanonicalEntityId'] ??
+                '')
+            as String,
+  );
 }
 
 /// What became of a category the client asked the server to resolve.

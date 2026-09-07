@@ -1,3 +1,4 @@
+import 'package:the_accountant/core/domain/amount_converter.dart';
 import 'package:the_accountant/core/domain/transaction_policy.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 
@@ -35,7 +36,19 @@ class DailyNetCalendar {
     required this.days,
     required this.busiestSpend,
     required this.busiestEarn,
+    this.currency = 'USD',
+    this.excluded = 0,
   });
+
+  /// The currency every figure here is expressed in.
+  final String currency;
+
+  /// How many transactions were left out because no rate was known for the
+  /// account they sit in.
+  ///
+  /// Surfaced rather than swallowed: a calendar quietly missing a month of taka
+  /// spending looks exactly like a quiet month.
+  final int excluded;
 
   /// Inclusive, both at midnight.
   final DateTime from;
@@ -79,24 +92,45 @@ class DailyNetCalendar {
   /// reports ask, answered by the same policy. Moving your own money between
   /// your own accounts is neither, and a bill that has not been paid did not
   /// happen on the day it is dated.
+  /// Amounts are put into [converter]'s currency before being added up. They
+  /// used to be summed raw and the total labelled in the default currency, so a
+  /// taka expense and a dollar expense counted as the same size of thing — the
+  /// shading, the busiest day and the net were all wrong for anyone holding
+  /// accounts in two currencies. A row whose account has no known rate is
+  /// counted in [excluded] instead of being added as though it were the same
+  /// money.
   static DailyNetCalendar build({
     required Iterable<Transaction> transactions,
     required DateTime from,
     required DateTime to,
+    required AmountConverter converter,
   }) {
     final start = DateTime(from.year, from.month, from.day);
     final end = DateTime(to.year, to.month, to.day);
 
     final income = <DateTime, int>{};
     final expense = <DateTime, int>{};
+    var excluded = 0;
 
     for (final t in transactions) {
       final day = DateTime(t.date.year, t.date.month, t.date.day);
       if (day.isBefore(start) || day.isAfter(end)) continue;
+
+      final counts =
+          TransactionPolicy.countsAsIncome(t) ||
+          TransactionPolicy.countsAsExpense(t);
+      if (!counts) continue;
+
+      final amount = converter.convert(t.amount.abs(), t.walletId);
+      if (amount == null) {
+        excluded++;
+        continue;
+      }
+
       if (TransactionPolicy.countsAsIncome(t)) {
-        income[day] = (income[day] ?? 0) + t.amount.abs();
-      } else if (TransactionPolicy.countsAsExpense(t)) {
-        expense[day] = (expense[day] ?? 0) + t.amount.abs();
+        income[day] = (income[day] ?? 0) + amount;
+      } else {
+        expense[day] = (expense[day] ?? 0) + amount;
       }
     }
 
@@ -127,6 +161,8 @@ class DailyNetCalendar {
       days: days,
       busiestSpend: busiestSpend,
       busiestEarn: busiestEarn,
+      currency: converter.target,
+      excluded: excluded,
     );
   }
 }

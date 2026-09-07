@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:the_accountant/core/domain/amount_converter.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/data/models/transaction.dart'
     show TransactionSpecialType;
@@ -29,7 +30,84 @@ void main() {
         transactions: await db.getAllTransactions(),
         from: from,
         to: to,
+        converter: await AmountConverter.forDatabase(db),
       );
+
+  /// A calendar reads a year of transactions across every account, and those
+  /// accounts need not agree on a currency. Amounts were summed raw and the
+  /// total labelled in the default currency, so a taka expense counted the same
+  /// as a dollar one — the net, the busiest day and every square's shading were
+  /// all wrong for anyone holding money in two places.
+  group('accounts in different currencies', () {
+    test('amounts are converted before they are added', () async {
+      final taka = await seedWallet(db, name: 'bKash', currency: 'BDT');
+      await db.setCustomRate('BDT', 'USD', 0.01);
+      await seedTransaction(
+        db,
+        walletId: wallet,
+        amount: 10000,
+        date: DateTime(2026, 3, 2),
+      );
+      await seedTransaction(
+        db,
+        walletId: taka,
+        amount: 10000,
+        date: DateTime(2026, 3, 2),
+      );
+
+      final calendar = await calendarFor(
+        DateTime(2026, 3, 1),
+        DateTime(2026, 3, 3),
+      );
+
+      expect(calendar.currency, 'USD');
+      expect(
+        calendar.days
+            .firstWhere((d) => d.day == DateTime(2026, 3, 2))
+            .expenseCents,
+        10100,
+        reason: 'ten thousand taka is a hundred dollars, not ten thousand',
+      );
+      expect(calendar.excluded, 0);
+    });
+
+    test('a row with no known rate is left out and counted', () async {
+      final taka = await seedWallet(db, name: 'bKash', currency: 'BDT');
+      await seedTransaction(
+        db,
+        walletId: wallet,
+        amount: 10000,
+        date: DateTime(2026, 3, 2),
+      );
+      await seedTransaction(
+        db,
+        walletId: taka,
+        amount: 10000,
+        date: DateTime(2026, 3, 2),
+      );
+
+      final calendar = await calendarFor(
+        DateTime(2026, 3, 1),
+        DateTime(2026, 3, 3),
+      );
+
+      expect(
+        calendar.days
+            .firstWhere((d) => d.day == DateTime(2026, 3, 2))
+            .expenseCents,
+        10000,
+        reason: 'adding an unconvertible amount as though it were dollars is '
+            'wrong by a factor of a hundred and looks exactly as settled as a '
+            'correct figure',
+      );
+      expect(
+        calendar.excluded,
+        1,
+        reason: 'a calendar quietly missing a month of spending looks like a '
+            'quiet month',
+      );
+    });
+  });
 
   group('what a square counts', () {
     test('earning and spending on the same day net off', () async {

@@ -134,6 +134,7 @@ class FakeSyncServer {
 
     var applied = 0;
     final conflicts = <SyncConflict>[];
+    final remaps = <SyncIdRemap>[];
     final resolutions = <SyncCategoryResolutionResult>[];
 
     for (final change in changes) {
@@ -243,6 +244,40 @@ class FakeSyncServer {
           DateTime.tryParse('${data['UpdatedAt']}') ?? DateTime(1970);
       final held = table[change.entityId];
 
+      // A category cap is one row per (budget, category), not per id, so two
+      // offline devices adding the same cap arrive with different ids for one
+      // logical row. The server resolves that by the natural key and says which
+      // id won, rather than letting the loser's create fail for ever against
+      // the uniqueness constraint.
+      if (change.tableName == 'category_budget_limits' && held == null) {
+        final winner = table.entries
+            .where(
+              (e) =>
+                  !e.value.deleted &&
+                  e.value.data['BudgetId'] == data['BudgetId'] &&
+                  e.value.data['CategoryId'] == data['CategoryId'],
+            )
+            .firstOrNull;
+
+        if (winner != null) {
+          if (!winner.value.clientUpdatedAt.isAfter(incomingAt)) {
+            winner.value.data['Amount'] = data['Amount'];
+            winner.value.data['IsPercent'] = data['IsPercent'];
+            winner.value.clientUpdatedAt = incomingAt;
+            winner.value.updatedAt = _tick();
+          }
+          remaps.add(
+            SyncIdRemap(
+              tableName: change.tableName,
+              requestedEntityId: change.entityId,
+              canonicalEntityId: winner.key,
+            ),
+          );
+          applied++;
+          continue;
+        }
+      }
+
       if (held != null) {
         // Last-write-wins, the same comparison the production handler makes.
         // An older edit arriving late does not overwrite a newer one.
@@ -289,6 +324,7 @@ class FakeSyncServer {
     final rewriteReason = rewriteConflictReason;
     final rewriteCode = rewriteConflictCode;
     return SyncPushResponse(
+      idRemaps: remaps,
       appliedCount: applied,
       conflicts: rewriteReason == null && rewriteCode == null
           ? conflicts

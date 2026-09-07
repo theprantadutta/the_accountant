@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:the_accountant/core/domain/amount_converter.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
 import 'package:the_accountant/features/reports/domain/daily_net.dart';
 
@@ -26,5 +27,6 @@ final dailyNetCalendarProvider = FutureProvider.autoDispose<DailyNetCalendar>((
     transactions: await db.getAllTransactions(),
     from: from,
     to: to,
+    converter: await AmountConverter.forDatabase(db),
   );
 });

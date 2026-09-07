@@ -687,6 +687,17 @@
   "heatmapTitle": "Daily rhythm",
   "heatmapSpentMore": "Spent more",
   "heatmapEarnedMore": "Earned more",
+  "amountsLeftOutNoRate": "{count, plural, =1{One transaction is not shown: no rate is known between its account's currency and {currency}} other{{count} transactions are not shown: no rate is known between their accounts' currencies and {currency}}}.",
+  "@amountsLeftOutNoRate": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "currency": {
+        "type": "String"
+      }
+    }
+  },
   "heatmapNothingYet": "Nothing recorded in this period yet.",
   "heatmapNetForRange": "Net over this range",
   "layoutTitle": "Home layout",

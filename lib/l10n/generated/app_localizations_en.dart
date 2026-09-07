@@ -1953,6 +1953,19 @@ class L10nEn extends L10n {
   String get heatmapEarnedMore => 'Earned more';
 
   @override
+  String amountsLeftOutNoRate(int count, String currency) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count transactions are not shown: no rate is known between their accounts\' currencies and $currency',
+      one:
+          'One transaction is not shown: no rate is known between its account\'s currency and $currency',
+    );
+    return '$_temp0.';
+  }
+
+  @override
   String get heatmapNothingYet => 'Nothing recorded in this period yet.';
 
   @override

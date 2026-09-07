@@ -1,3 +1,4 @@
+import 'package:the_accountant/core/domain/amount_converter.dart';
 import 'package:the_accountant/core/domain/transaction_policy.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/features/budgets/domain/budget_window.dart';
@@ -74,12 +75,24 @@ class BudgetProgress {
   /// Unspent amount carried in from earlier windows, in cents.
   final int carriedIn;
 
+  /// The currency [spent] and [limit] are expressed in.
+  final String currency;
+
+  /// How many transactions were left out because no rate was known for the
+  /// account they sit in.
+  ///
+  /// A budget that quietly drops half its spending reads as a budget being kept
+  /// to, which is the most misleading thing it could do.
+  final int excluded;
+
   const BudgetProgress({
     required this.budget,
     required this.window,
     required this.spent,
     required this.limit,
     this.carriedIn = 0,
+    this.currency = 'USD',
+    this.excluded = 0,
   });
 
   /// Share of the limit used, from 0 upward. Can exceed 1.
@@ -115,10 +128,38 @@ class BudgetProgress {
 /// budget list and the alert checker both reported zero spent no matter what
 /// the user did. A third summed cents against a limit held in dollars. Only the
 /// dashboard's went through the shared eligibility policy.
+/// A budget's spending is summed across whatever accounts it covers, and those
+/// accounts need not agree on a currency. Every total here used to add raw minor
+/// units and label the result in the default currency, so a taka expense counted
+/// the same as a dollar one. Amounts are converted first, and a row whose
+/// account has no known rate is excluded and counted rather than added as though
+/// it were the same money.
 class BudgetEngine {
   final AppDatabase _db;
 
   const BudgetEngine(this._db);
+
+  /// The currency [budget] is counted in.
+  ///
+  /// The currency of the accounts it covers when they agree on one, because
+  /// that is the money the user was thinking in when they set the cap. The
+  /// display currency otherwise — a budget spanning currencies has no native
+  /// one, so it takes the app's.
+  Future<String> currencyFor(BudgetView budget) async {
+    if (budget.walletIds.isEmpty) return _db.displayCurrency();
+
+    final currencies = <String>{};
+    for (final id in budget.walletIds) {
+      final wallet = await _db.findWalletById(id);
+      if (wallet != null) currencies.add(wallet.currency);
+    }
+
+    if (currencies.length == 1) return currencies.single;
+    return _db.displayCurrency();
+  }
+
+  Future<AmountConverter> _converterFor(BudgetView budget) async =>
+      AmountConverter.forDatabase(_db, target: await currencyFor(budget));
 
   /// Progress for [budget] over the window containing [moment].
   ///
@@ -139,17 +180,20 @@ class BudgetEngine {
       explicitEnd: budget.endDate,
     );
 
-    final spent = await _spentIn(budget, window);
+    final converter = await _converterFor(budget);
+    final spent = await _spentIn(budget, window, converter);
     final carriedIn = budget.rollover
-        ? await _carriedInto(budget, window, now)
+        ? await _carriedInto(budget, window, now, converter)
         : 0;
 
     return BudgetProgress(
       budget: budget,
       window: window,
-      spent: spent,
+      spent: spent.total,
       limit: budget.amount + carriedIn,
       carriedIn: carriedIn,
+      currency: converter.target,
+      excluded: spent.excluded,
     );
   }
 
@@ -176,13 +220,16 @@ class BudgetEngine {
     BudgetWindow window,
   ) async {
     final scope = await _scopeFor(budget);
+    final converter = await _converterFor(budget);
     final rows = await _db.getTransactionsByDateRange(window.start, window.end);
 
     final totals = <String, int>{};
     for (final t in rows) {
       if (!_counts(t, budget, scope, window)) continue;
+      final amount = converter.convert(t.amount, t.walletId);
+      if (amount == null) continue;
       final key = t.categoryId ?? '';
-      totals[key] = (totals[key] ?? 0) + t.amount;
+      totals[key] = (totals[key] ?? 0) + amount;
     }
 
     final sorted = totals.entries.toList()
@@ -197,6 +244,7 @@ class BudgetEngine {
     bool cumulative = false,
   }) async {
     final scope = await _scopeFor(budget);
+    final converter = await _converterFor(budget);
     final rows = await _db.getTransactionsByDateRange(window.start, window.end);
 
     final days = window.end.difference(window.start).inDays.clamp(1, 3660);
@@ -206,7 +254,9 @@ class BudgetEngine {
       if (!_counts(t, budget, scope, window)) continue;
       final index = t.date.difference(window.start).inDays;
       if (index < 0 || index >= days) continue;
-      perDay[index] += t.amount;
+      final amount = converter.convert(t.amount, t.walletId);
+      if (amount == null) continue;
+      perDay[index] += amount;
     }
 
     if (!cumulative) return perDay;
@@ -226,6 +276,7 @@ class BudgetEngine {
     final limits = await _db.getCategoryLimitsForBudget(budget.id);
     if (limits.isEmpty) return const [];
 
+    final converter = await _converterFor(budget);
     final rows = await _db.getTransactionsByDateRange(
       progress.window.start,
       progress.window.end,
@@ -240,7 +291,9 @@ class BudgetEngine {
       var spent = 0;
       for (final t in rows) {
         if (!_counts(t, budget, family, progress.window)) continue;
-        spent += t.amount;
+        final amount = converter.convert(t.amount, t.walletId);
+        if (amount == null) continue;
+        spent += amount;
       }
 
       out.add(
@@ -277,6 +330,7 @@ class BudgetEngine {
     if (!progress.window.contains(now)) return null;
 
     final scope = await _scopeFor(budget);
+    final converter = await _converterFor(budget);
     final rows = await _db.getTransactionsByDateRange(now, progress.window.end);
 
     // Already dated, not yet counted: an upcoming bill inside this window is
@@ -295,7 +349,9 @@ class BudgetEngine {
           (t.categoryId == null || !scope.contains(t.categoryId))) {
         continue;
       }
-      scheduled += t.amount;
+      final amount = converter.convert(t.amount, t.walletId);
+      if (amount == null) continue;
+      scheduled += amount;
     }
 
     final elapsed = progress.window.elapsedFraction(now);
@@ -313,15 +369,26 @@ class BudgetEngine {
     );
   }
 
-  Future<int> _spentIn(BudgetView budget, BudgetWindow window) async {
+  Future<_Spent> _spentIn(
+    BudgetView budget,
+    BudgetWindow window,
+    AmountConverter converter,
+  ) async {
     final scope = await _scopeFor(budget);
     final rows = await _db.getTransactionsByDateRange(window.start, window.end);
 
     var total = 0;
+    var excluded = 0;
     for (final t in rows) {
-      if (_counts(t, budget, scope, window)) total += t.amount;
+      if (!_counts(t, budget, scope, window)) continue;
+      final amount = converter.convert(t.amount, t.walletId);
+      if (amount == null) {
+        excluded++;
+        continue;
+      }
+      total += amount;
     }
-    return total;
+    return _Spent(total, excluded);
   }
 
   /// What earlier windows left unspent, when the budget rolls over.
@@ -333,6 +400,7 @@ class BudgetEngine {
     BudgetView budget,
     BudgetWindow window,
     DateTime now,
+    AmountConverter converter,
   ) async {
     var carried = 0;
     final windows = BudgetWindows.indexOf(
@@ -357,9 +425,9 @@ class BudgetEngine {
         explicitEnd: budget.endDate,
       );
       if (!past.end.isBefore(now)) break;
-      final spent = await _spentIn(budget, past);
+      final spent = await _spentIn(budget, past, converter);
       // That window's allowance was its own limit plus whatever reached it.
-      final leftOver = budget.amount + carried - spent;
+      final leftOver = budget.amount + carried - spent.total;
       // An overspend costs the carry but does not become a debt that compounds:
       // the next window still gets its own full limit.
       carried = leftOver < 0 ? 0 : leftOver;
@@ -405,4 +473,12 @@ class BudgetEngine {
   /// Early on, one large purchase extrapolates to an absurd total and the
   /// warning would be noise on the first of every month.
   static const double _minElapsedToProject = 0.15;
+}
+
+/// A window's consumption, and what could not be counted into it.
+class _Spent {
+  final int total;
+  final int excluded;
+
+  const _Spent(this.total, this.excluded);
 }

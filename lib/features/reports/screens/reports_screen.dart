@@ -880,10 +880,28 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
                 style: TextStyle(color: AppColors.textMuted),
               ),
             ),
-            AsyncData(:final value) => SpendingHeatmap(
-              calendar: value,
-              money: money,
-              dateFormat: dateFormat,
+            AsyncData(:final value) => Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SpendingHeatmap(
+                  calendar: value,
+                  money: money,
+                  dateFormat: dateFormat,
+                ),
+                // Said out loud rather than swallowed: a calendar quietly
+                // missing a currency's worth of spending looks exactly like a
+                // quiet year.
+                if (value.excluded > 0) ...[
+                  const SizedBox(height: 12),
+                  Text(
+                    l10n.amountsLeftOutNoRate(value.excluded, value.currency),
+                    style: TextStyle(
+                      color: AppColors.textMuted,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ],
             ),
             AsyncError() => Text(
               l10n.reportNoSpendingDataAvailable,
