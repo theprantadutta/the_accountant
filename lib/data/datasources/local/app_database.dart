@@ -1115,7 +1115,10 @@ class AppDatabase extends _$AppDatabase {
 
   /// Every table whose rows are synchronized, and which therefore must never
   /// have a pending create downgraded into a pending update.
-  static const List<String> _syncedTableNames = [
+  ///
+  /// Also the allow-list for anything that has to name one of these tables in
+  /// SQL, so a table name never reaches a statement unchecked.
+  static const List<String> syncedTableNames = [
     'transactions',
     'categories',
     'wallets',
@@ -1162,21 +1165,40 @@ class AppDatabase extends _$AppDatabase {
     // Duplicates first. A store that has already collected a pair would
     // otherwise fail to create the index on every open, for ever, which is a
     // worse outcome than the duplicates themselves. The most recently touched
-    // row wins; the rest are tombstoned rather than dropped so a device that
-    // has already pushed them can tell the server they are gone.
+    // row wins.
+    const losers = '''
+      SELECT id FROM category_budget_limits
+       WHERE deleted_at IS NULL AND id NOT IN (
+         SELECT id FROM (
+           SELECT id, ROW_NUMBER() OVER (
+             PARTITION BY budget_id, category_id ORDER BY updated_at DESC, id
+           ) AS rank
+           FROM category_budget_limits WHERE deleted_at IS NULL
+         ) WHERE rank = 1
+       )
+    ''';
+
+    // A loser the server has never been told about is dropped outright. It used
+    // to be tombstoned like the rest, keeping a pending create as a pending
+    // create so nothing was told to the server twice — so the row stayed as a
+    // *create*, whose payload carries no deleted flag, and the very next sync
+    // asked the server to create the cap this repair had just discarded.
+    await customStatement(
+      'DELETE FROM category_budget_limits '
+      'WHERE sync_status = ${SyncStatus.pendingCreate} AND id IN ($losers)',
+    );
+
+    // The rest have reached the server and need it told they are gone.
+    //
+    // `updated_at` is deliberately left alone. A delete carries no last-write
+    // comparison, so bumping it buys nothing — and the cap's timestamp is what
+    // decides which of two devices' caps wins, so moving it to the moment of a
+    // local repair would let housekeeping outrank a real edit.
     await customStatement('''
       UPDATE category_budget_limits SET
         deleted_at = strftime('%s', 'now'),
-        sync_status = $_markDeletedSql,
-        updated_at = strftime('%s', 'now')
-      WHERE deleted_at IS NULL AND id NOT IN (
-        SELECT id FROM (
-          SELECT id, ROW_NUMBER() OVER (
-            PARTITION BY budget_id, category_id ORDER BY updated_at DESC, id
-          ) AS rank
-          FROM category_budget_limits WHERE deleted_at IS NULL
-        ) WHERE rank = 1
-      )
+        sync_status = ${SyncStatus.pendingDelete}
+      WHERE id IN ($losers)
     ''');
 
     await customStatement(
@@ -1186,15 +1208,8 @@ class AppDatabase extends _$AppDatabase {
     );
   }
 
-  /// A row being tombstoned locally: still pending its own creation if the
-  /// server has never seen it, otherwise a delete to push.
-  static const String _markDeletedSql =
-      'CASE WHEN sync_status = ${SyncStatus.pendingCreate} '
-      'THEN ${SyncStatus.pendingCreate} '
-      'ELSE ${SyncStatus.pendingDelete} END';
-
   Future<void> _installSyncStatusGuards() async {
-    for (final table in _syncedTableNames) {
+    for (final table in syncedTableNames) {
       await customStatement('''
         CREATE TRIGGER IF NOT EXISTS trg_${table}_keep_pending_create
         AFTER UPDATE OF sync_status ON $table
@@ -1379,23 +1394,28 @@ class AppDatabase extends _$AppDatabase {
   /// Soft delete a transaction (sets deletedAt and marks for sync)
   /// Tombstone a transaction, leaving it recoverable from Recently Deleted.
   ///
-  /// A row the server has never seen is marked as having nothing to push rather
-  /// than as a pending delete. Asking the server to delete something it does
-  /// not hold is answered "not found" on every retry, so the row would sit in
-  /// the push queue for ever, conflicting each time and never clearing.
-  /// There is genuinely nothing to tell the server about a record it was never
-  /// told about in the first place.
+  /// The deletion is always queued for the server, whatever the row's sync
+  /// status was.
+  ///
+  /// It briefly was not: a row still marked pending-create was treated as one
+  /// the server had never seen, and marked as having nothing to push. That
+  /// reads `pendingCreate` as "the server does not have this", when it only
+  /// means "the create has not been acknowledged" — which are different things
+  /// exactly when it matters. Delete a transaction while its create is in
+  /// flight, or while the response to that create is lost, and the row lives on
+  /// in the cloud with nothing left on the device to say it should not.
+  ///
+  /// Queuing a delete the server may not need is safe now: a delete for a row
+  /// it does not hold is answered as satisfied rather than as a conflict, so
+  /// the change clears on the next sync instead of retrying for ever.
   Future<void> softDeleteTransaction(String id) async {
     final row = await findTransactionById(id);
     if (row == null) return;
 
-    final nothingToPush = row.syncStatus == SyncStatus.pendingCreate;
     await (update(transactions)..where((t) => t.id.equals(id))).write(
       TransactionsCompanion(
         deletedAt: Value(DateTime.now()),
-        syncStatus: Value(
-          nothingToPush ? SyncStatus.synced : SyncStatus.pendingDelete,
-        ),
+        syncStatus: const Value(SyncStatus.pendingDelete),
         updatedAt: Value(DateTime.now()),
       ),
     );
@@ -3478,8 +3498,14 @@ class AppDatabase extends _$AppDatabase {
         ),
       );
     } else {
-      // Insert new
-      final id = DateTime.now().millisecondsSinceEpoch.toString();
+      // Insert new.
+      //
+      // A UUID, not a timestamp. The id used to be the current millisecond, and
+      // storing a downloaded rate table writes one row per currency in a tight
+      // loop — so two of them landing in the same millisecond collided on the
+      // primary key and the refresh threw partway through, leaving some
+      // currencies stored and the rest not.
+      final id = const Uuid().v4();
       await into(exchangeRates).insert(
         ExchangeRatesCompanion(
           id: Value(id),

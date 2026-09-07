@@ -8,10 +8,13 @@ Seven findings were independently re-confirmed by direct inspection before this
 plan was written; the rest are taken on the auditor's reproductions, which were
 detailed enough to locate the defect in the source in every case checked.
 
-**All seventeen are done.** Every fix below carries a test that crosses the
-boundary it slipped through, and both suites are green: Flutter analyze clean
-with the full suite passing, backend clean with its unit and Postgres
-integration suites passing.
+**All seventeen were addressed, and a follow-up review found ten more.** Six of
+the original fixes were incomplete or introduced a new defect; those are
+recorded in `AUDIT-REMEDIATION-2026-09-07.md` at the repository root and are now
+themselves fixed and pinned by tests. Read that document alongside this one — a
+green suite here was not the same thing as a correct one, which is the lesson
+the second review taught and the reason this paragraph no longer claims
+completion on its own authority.
 
 **The pattern worth naming.** Almost every P1 is an *interaction* between two
 features that are each well covered on their own: restore × sync, merge ×
@@ -174,8 +177,12 @@ crossed.
   converted, the partner's `counterAmount` and the shared `fxRate` are rewritten
   to match.
 
-Recurring configurations that name the source wallet are repointed in the same
-operation.
+~~Recurring configurations that name the source wallet are repointed in the same
+operation.~~ **Not done, because there is nothing to do:** a recurring config
+names a base transaction, not a wallet, and that transaction moves with
+everything else. The instruction was written from a wrong assumption about the
+schema and is struck through rather than deleted, so the next reader does not
+re-derive it.
 
 ---
 

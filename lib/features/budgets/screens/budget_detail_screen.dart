@@ -287,7 +287,11 @@ class _CategoryBreakdown extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final currency = ref.watch(defaultCurrencyProvider);
+    // The budget's own currency rather than the app default. They agree today,
+    // because a budget is counted in the display currency — but reading it from
+    // the progress is what stops a figure and its label drifting apart again if
+    // that ever stops being true.
+    final currency = progress.currency;
     final useDecimals = ref.watch(defaultDecimalProvider);
     final numberFormat = ref.watch(numberFormatSettingProvider);
     final categories = ref.watch(categoryProvider).categories;
@@ -385,6 +389,9 @@ class _PastPeriods extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     if (budget.period == BudgetPeriod.custom) return const SizedBox.shrink();
 
+    // Every window of one budget is counted the same way, so the first one
+    // speaks for all of them; the app default is only the fallback for an empty
+    // history, which shows no figures anyway.
     final currency = ref.watch(defaultCurrencyProvider);
     final useDecimals = ref.watch(defaultDecimalProvider);
     final numberFormat = ref.watch(numberFormatSettingProvider);
@@ -484,7 +491,11 @@ class _Forecast extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final currency = ref.watch(defaultCurrencyProvider);
+    // The budget's own currency rather than the app default. They agree today,
+    // because a budget is counted in the display currency — but reading it from
+    // the progress is what stops a figure and its label drifting apart again if
+    // that ever stops being true.
+    final currency = progress.currency;
     final useDecimals = ref.watch(defaultDecimalProvider);
     final numberFormat = ref.watch(numberFormatSettingProvider);
 
@@ -564,7 +575,11 @@ class _CategoryCaps extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final currency = ref.watch(defaultCurrencyProvider);
+    // The budget's own currency rather than the app default. They agree today,
+    // because a budget is counted in the display currency — but reading it from
+    // the progress is what stops a figure and its label drifting apart again if
+    // that ever stops being true.
+    final currency = progress.currency;
     final useDecimals = ref.watch(defaultDecimalProvider);
     final numberFormat = ref.watch(numberFormatSettingProvider);
     final categories = ref.watch(categoryProvider).categories;

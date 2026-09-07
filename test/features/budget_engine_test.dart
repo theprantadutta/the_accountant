@@ -129,8 +129,10 @@ void main() {
       );
     });
 
-    test('a budget scoped to one currency is counted in it', () async {
+    test('a budget scoped to a foreign account is still counted in the '
+        'currency its amount was typed in', () async {
       final taka = await seedWallet(db, name: 'bKash', currency: 'BDT');
+      await db.setCustomRate('BDT', 'USD', 0.01);
       await seedTransaction(
         db,
         walletId: taka,
@@ -144,13 +146,19 @@ void main() {
         moment: DateTime(2026, 1, 15),
       );
 
+      // This briefly read the amount in the scoped accounts' currency, on the
+      // reasoning that this is the money the user was thinking in. But the
+      // number was *entered* under a dollar sign and stored as a bare count of
+      // minor units, so that reinterpreted a hundred dollars as a hundred taka
+      // — and changing which accounts a budget covered changed what its stored
+      // amount meant, without the figure on screen moving.
+      expect(progress.currency, 'USD');
       expect(
-        progress.currency,
-        'BDT',
-        reason: 'the cap was set in the money the accounts are held in, which '
-            'is what the user was thinking in',
+        progress.spent,
+        1000,
+        reason: 'a hundred thousand taka is a thousand dollars, and the limit '
+            'it is measured against is in dollars',
       );
-      expect(progress.spent, 100000, reason: 'no conversion needed at all');
     });
 
     test('a budget spanning currencies falls back to the display one',
@@ -163,6 +171,34 @@ void main() {
       );
 
       expect(progress.currency, 'USD');
+    });
+
+    /// The contract, stated once: a budget's amount is in the display currency.
+    ///
+    /// The form asks for it there and labels it there; the engine has to read
+    /// it the same way or the number on screen means one thing when it is typed
+    /// and another when it is measured.
+    test('the engine reads the amount in the currency the form offers', () async {
+      final taka = await seedWallet(db, name: 'bKash', currency: 'BDT');
+
+      // What `defaultCurrencyProvider` resolves to, and so what the create form
+      // puts beside the amount field.
+      final formCurrency = await db.displayCurrency();
+
+      for (final scope in [<String>[], [walletId], [taka], [walletId, taka]]) {
+        final progress = await BudgetEngine(db).progressFor(
+          await budget(walletIds: scope),
+          moment: DateTime(2026, 1, 15),
+        );
+
+        expect(
+          progress.currency,
+          formCurrency,
+          reason: 'whichever accounts the budget covers, the stored amount is '
+              'the one the user typed under that symbol — so changing the '
+              'scope must not change what the number means',
+        );
+      }
     });
 
     test('per-category totals are converted too', () async {

@@ -178,7 +178,7 @@ void main() {
         );
       });
 
-      test('the fee for a removed transfer goes with it', () async {
+      test('the fee for a removed transfer is kept, not refunded', () async {
         final from = await seedWallet(db, name: 'Old', openingBalance: 30000);
         final to = await seedWallet(db, name: 'New', openingBalance: 20000);
         final (out, _) = await TransferService(db).createTransfer(
@@ -193,7 +193,26 @@ void main() {
 
         await service.mergeInto(sourceId: from, destinationId: to);
 
-        expect((await db.findTransactionById(fee!.id))!.deletedAt, isNotNull);
+        final kept = (await db.findTransactionById(fee!.id))!;
+        expect(
+          kept.deletedAt,
+          isNull,
+          reason: 'the two legs offset each other inside one account and the '
+              'fee does not: it is money that left and did not come back. '
+              'Deleting it with them handed the user their fee back',
+        );
+        expect(kept.walletId, to);
+        expect(
+          kept.feeForTransactionId,
+          isNull,
+          reason: 'detached, so nothing takes it down with a transfer that no '
+              'longer exists — the server cascades on this link too',
+        );
+        expect(
+          (await db.findWalletById(to))!.balance,
+          50000 - 100,
+          reason: 'the combined balance is what it was before the merge',
+        );
       });
 
       test('one to a third account keeps its partner', () async {
@@ -310,6 +329,172 @@ void main() {
         expect(partner.counterAmount, isNull);
         expect(TransferIntegrity.validatePair(moved, partner), isEmpty);
       });
+    });
+
+    /// A merge restates every amount at one rate. Normalising the transfers
+    /// inside it must not create or destroy value while doing so.
+    group('what the accounts are worth between them', () {
+      /// The two accounts' combined value, expressed in [inCurrency].
+      Future<int> combined(
+        String a,
+        String b, {
+        required double aRate,
+      }) async {
+        final one = (await db.findWalletById(a))!.balance;
+        final two = (await db.findWalletById(b))!.balance;
+        return (one * aRate).round() + two;
+      }
+
+      test('a cross-currency transfer between them keeps the total', () async {
+        final from = await seedWallet(
+          db,
+          name: 'Old',
+          currency: 'USD',
+          openingBalance: 20000,
+        );
+        final to = await seedWallet(db, name: 'New', currency: 'EUR');
+        await db.setCustomRate('USD', 'EUR', 0.8);
+        await TransferService(db).createTransfer(
+          sourceWalletId: from,
+          destinationWalletId: to,
+          amount: 10000,
+          receivedAmount: 9000,
+          date: DateTime(2026, 3, 1),
+        );
+        final before = await combined(from, to, aRate: 0.8);
+
+        await service.mergeInto(sourceId: from, destinationId: to);
+
+        expect(
+          (await db.findWalletById(to))!.balance,
+          before,
+          reason: 'a hundred dollars that arrived as ninety euros is not the '
+              'same as a hundred dollars converted at the merge rate. Deleting '
+              'both legs dropped the difference silently — ten euros the user '
+              'really had',
+        );
+      });
+
+      test('the difference is recorded, not written onto the balance', () async {
+        final from = await seedWallet(
+          db,
+          name: 'Old',
+          currency: 'USD',
+          openingBalance: 20000,
+        );
+        final to = await seedWallet(db, name: 'New', currency: 'EUR');
+        await db.setCustomRate('USD', 'EUR', 0.8);
+        await TransferService(db).createTransfer(
+          sourceWalletId: from,
+          destinationWalletId: to,
+          amount: 10000,
+          receivedAmount: 9000,
+          date: DateTime(2026, 3, 1),
+        );
+
+        await service.mergeInto(sourceId: from, destinationId: to);
+
+        expect(
+          (await db.findWalletById(to))!.balance,
+          await WalletBalanceService(db).calculateWalletBalance(to),
+          reason: 'a balance is the sum of what happened; an adjustment written '
+              'straight onto it would be undone by the next recalculation',
+        );
+        final adjustment = (await db.getAllTransactions()).where(
+          (t) => t.title == 'Merge adjustment',
+        );
+        expect(adjustment, hasLength(1));
+        expect(adjustment.single.amount, 1000);
+        expect(adjustment.single.isIncome, isTrue);
+      });
+
+      test('a same-currency transfer between them needs no adjustment', () async {
+        final from = await seedWallet(db, name: 'Old', openingBalance: 30000);
+        final to = await seedWallet(db, name: 'New', openingBalance: 20000);
+        await TransferService(db).createTransfer(
+          sourceWalletId: from,
+          destinationWalletId: to,
+          amount: 5000,
+          date: DateTime(2026, 3, 1),
+        );
+
+        await service.mergeInto(sourceId: from, destinationId: to);
+
+        expect((await db.findWalletById(to))!.balance, 50000);
+        expect(
+          (await db.getAllTransactions()).where(
+            (t) => t.title == 'Merge adjustment',
+          ),
+          isEmpty,
+          reason: 'the two legs really do cancel within one currency',
+        );
+      });
+
+      test('a leg that stops crossing keeps the total too', () async {
+        final from = await seedWallet(
+          db,
+          name: 'Old',
+          currency: 'USD',
+          openingBalance: 20000,
+        );
+        final to = await seedWallet(db, name: 'New', currency: 'EUR');
+        final third = await seedWallet(db, name: 'Other', currency: 'EUR');
+        await db.setCustomRate('USD', 'EUR', 0.8);
+        await TransferService(db).createTransfer(
+          sourceWalletId: from,
+          destinationWalletId: third,
+          amount: 10000,
+          receivedAmount: 9000,
+          date: DateTime(2026, 3, 1),
+        );
+        final before =
+            await combined(from, to, aRate: 0.8) +
+            (await db.findWalletById(third))!.balance;
+
+        await service.mergeInto(sourceId: from, destinationId: to);
+
+        final after =
+            (await db.findWalletById(to))!.balance +
+            (await db.findWalletById(third))!.balance;
+        expect(
+          after,
+          before,
+          reason: 'the moved leg takes the untouched account\'s figure, which '
+              'is a different number from the one it was converted to',
+        );
+      });
+    });
+
+    /// Two currencies can sit at parity. Deciding on the multiplier rather than
+    /// on the currencies meant a merge at 1:1 skipped the repair entirely.
+    test('a merge at parity still writes the crossing metadata', () async {
+      final from = await seedWallet(
+        db,
+        name: 'Old',
+        currency: 'USD',
+        openingBalance: 20000,
+      );
+      final to = await seedWallet(db, name: 'New', currency: 'EUR');
+      final third = await seedWallet(db, name: 'Other', currency: 'USD');
+      await db.setCustomRate('USD', 'EUR', 1);
+      final (out, _) = await TransferService(db).createTransfer(
+        sourceWalletId: from,
+        destinationWalletId: third,
+        amount: 10000,
+        date: DateTime(2026, 3, 1),
+      );
+
+      await service.mergeInto(sourceId: from, destinationId: to);
+
+      final leg = (await db.findTransactionById(out))!;
+      expect(
+        leg.counterAmount,
+        10000,
+        reason: 'the leg is euros and its partner is dollars now, and the '
+            'server refuses a crossing that carries neither a rate nor a '
+            'counter amount',
+      );
+      expect(leg.fxRate, 1);
     });
 
     test('merging an account into itself is refused', () async {

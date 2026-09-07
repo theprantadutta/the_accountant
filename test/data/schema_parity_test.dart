@@ -172,4 +172,77 @@ void main() {
           'duplicate comes straight back on the next pull',
     );
   });
+
+  /// What the repair leaves for the sync to say.
+  ///
+  /// The cleanup tombstoned duplicate caps but kept an unsynced loser's status
+  /// as a pending create — and a create payload has nowhere to say "and it is
+  /// deleted", so the very next sync asked the server to create the cap the
+  /// repair had just discarded.
+  group('after the duplicates are collapsed', () {
+    test('a never-uploaded loser is dropped, not left queued', () async {
+      final db = openTestDatabase();
+      addTearDown(db.close);
+      final budget = await seedBudget(db);
+      final category = await seedCategory(db);
+      await db.customStatement('DROP INDEX idx_category_budget_limits_pair');
+
+      for (final (id, amount, updated) in [
+        ('older', 5000, 100),
+        ('newer', 8000, 200),
+      ]) {
+        await db.customStatement(
+          'INSERT INTO category_budget_limits (id, budget_id, category_id, '
+          'amount, is_percent, sync_status, created_at, updated_at) '
+          'VALUES (?, ?, ?, ?, 0, ?, 1, ?)',
+          [id, budget, category, amount, SyncStatus.pendingCreate, updated],
+        );
+      }
+
+      await db.installPartialIndexesForTest();
+
+      expect((await db.getCategoryLimitsForBudget(budget)).single.amount, 8000);
+      final all = await db.select(db.categoryBudgetLimits).get();
+      expect(
+        all.map((l) => l.id),
+        ['newer'],
+        reason: 'the server was never told about the loser, so there is '
+            'nothing to tell it — and a tombstone still carrying a pending '
+            'create is a request to create it',
+      );
+    });
+
+    test('a loser the server holds is tombstoned for pushing', () async {
+      final db = openTestDatabase();
+      addTearDown(db.close);
+      final budget = await seedBudget(db);
+      final category = await seedCategory(db);
+      await db.customStatement('DROP INDEX idx_category_budget_limits_pair');
+
+      for (final (id, amount, updated) in [
+        ('older', 5000, 100),
+        ('newer', 8000, 200),
+      ]) {
+        await db.customStatement(
+          'INSERT INTO category_budget_limits (id, budget_id, category_id, '
+          'amount, is_percent, sync_status, created_at, updated_at) '
+          'VALUES (?, ?, ?, ?, 0, ?, 1, ?)',
+          [id, budget, category, amount, SyncStatus.synced, updated],
+        );
+      }
+
+      await db.installPartialIndexesForTest();
+
+      final loser = (await db.select(db.categoryBudgetLimits).get())
+          .firstWhere((l) => l.id == 'older');
+      expect(loser.deletedAt, isNotNull);
+      expect(loser.syncStatus, SyncStatus.pendingDelete);
+      expect(
+        loser.updatedAt.millisecondsSinceEpoch ~/ 1000,
+        100,
+        reason: 'housekeeping does not get to outrank a real edit; the '
+            'timestamp is what decides which of two devices\' caps wins',
+      );
+    });
+  });
 }

@@ -111,10 +111,17 @@ class WalletMaintenanceService {
         .where((t) => t.walletId == sourceId)
         .toList();
 
+    // Whether the accounts count in different money, which is a different
+    // question from whether the multiplier is 1. Two currencies can sit at
+    // parity, and deciding on the multiplier meant a merge at 1:1 skipped the
+    // transfer repair entirely — leaving a leg whose two ends were in different
+    // currencies with no rate and no counter amount, which the server refuses.
+    final crossesCurrency = source.currency != destination.currency;
+
     // Worked out once, outside the write, so every row moves at the same rate
     // and the merged total is the one the user was shown.
     double rate = 1;
-    if (source.currency != destination.currency) {
+    if (crossesCurrency) {
       rate = await _currency.convert(1, source.currency, destination.currency);
       if (rate <= 0) {
         throw ArgumentError(
@@ -126,6 +133,10 @@ class WalletMaintenanceService {
 
     var moved = 0;
     var transfersRemoved = 0;
+    // Value that normalising the transfers would otherwise create or destroy,
+    // in the destination's currency. Positive means the merge would have lost
+    // money without it.
+    var adjustment = 0;
     final touchedWallets = <String>{sourceId, destinationId};
 
     await _db.transaction(() async {
@@ -140,19 +151,39 @@ class WalletMaintenanceService {
         final partner = await _db.findTransactionById(partnerId);
         if (partner == null || partner.walletId != destinationId) continue;
 
-        // Both ends land in one account. The two legs cancel each other out
-        // within it, so removing the pair moves no balance — and a transfer
-        // from an account to itself has nothing left to mean.
+        // Both ends land in one account, and a transfer from an account to
+        // itself has nothing left to mean, so the pair goes.
         collapsing
           ..add(row.id)
           ..add(partnerId);
         transfersRemoved++;
 
+        // What the pair was worth to the merged total, in the destination's
+        // money. Within one currency the two legs cancel and this is zero.
+        // Across currencies they do not: the outgoing leg is converted at
+        // today's merge rate and the incoming one was recorded at the rate the
+        // transfer actually happened at, and the gap between those two is real
+        // money. Deleting both legs used to drop it silently — a hundred
+        // dollars sent as ninety euros, merged at 0.8, quietly cost ten euros.
+        adjustment +=
+            _signed(row, (row.amount * rate).round()) +
+            _signed(partner, partner.amount);
+
         for (final legId in [row.id, partnerId]) {
+          // The charge for making the transfer is not part of what cancels.
+          // The two legs offset each other; a fee is money that left the user's
+          // hands and did not come back, and it stays an expense whether or not
+          // the transfer that incurred it still means anything. It used to be
+          // deleted with the legs, which quietly handed the user their fee back.
           final fee = await _db.findFeeForTransfer(legId);
           if (fee != null) {
             touchedWallets.add(fee.walletId);
-            await _db.softDeleteTransaction(fee.id);
+            // Detached, so nothing later takes it down with a transfer that no
+            // longer exists — including the server's own cascade.
+            await _rewrite(
+              fee.id,
+              const TransactionsCompanion(feeForTransactionId: Value(null)),
+            );
           }
           await _db.softDeleteTransaction(legId);
         }
@@ -177,9 +208,27 @@ class WalletMaintenanceService {
         );
         moved++;
 
-        if (rate != 1 && row.pairedTransactionId != null) {
-          await _realignTransferPair(row.id, row.pairedTransactionId!);
+        // Currency identity, not the multiplier: a pair whose two ends have
+        // stopped agreeing needs its metadata repaired even at parity.
+        if (crossesCurrency && row.pairedTransactionId != null) {
+          adjustment += await _realignTransferPair(
+            row.id,
+            row.pairedTransactionId!,
+          );
         }
+      }
+
+      // One correction for everything the normalisation could not express,
+      // recorded as a transaction rather than written onto the balance: a
+      // balance here is the sum of what happened, and setting it directly would
+      // make the account disagree with its own rows the next time anything
+      // recalculated. As a row it survives, and it says what it was.
+      if (adjustment != 0) {
+        await _recordMergeAdjustment(
+          walletId: destinationId,
+          amount: adjustment,
+          sourceName: source.name,
+        );
       }
 
       // The source keeps whatever it opened with, converted, so the destination
@@ -226,20 +275,32 @@ class WalletMaintenanceService {
   /// Called after the leg's amount has been converted into the destination's
   /// currency. The two legs of a transfer are one movement described twice, so
   /// changing what one of them says obliges the other to say the same thing.
-  Future<void> _realignTransferPair(String legId, String partnerId) async {
+  ///
+  /// Returns what the repair took out of the destination account, so the caller
+  /// can put it back. Normalising a pair can change a figure, and a figure
+  /// changing is money appearing or disappearing.
+  Future<int> _realignTransferPair(String legId, String partnerId) async {
     final leg = await _db.findTransactionById(legId);
     final partner = await _db.findTransactionById(partnerId);
-    if (leg == null || partner == null) return;
+    if (leg == null || partner == null) return 0;
 
     final legWallet = await _db.findWalletById(leg.walletId);
     final partnerWallet = await _db.findWalletById(partner.walletId);
-    if (legWallet == null || partnerWallet == null) return;
+    if (legWallet == null || partnerWallet == null) return 0;
 
     if (legWallet.currency == partnerWallet.currency) {
       // The move landed the leg in the partner's own currency, so the transfer
       // is no longer a crossing and carries one figure again. The partner's is
       // the one to keep: it is what that account actually saw, and rewriting it
       // instead would restate the history of a wallet this merge never touched.
+      //
+      // That is not free. The leg had already been converted, and replacing the
+      // converted figure with the partner's changes the destination's balance
+      // by the difference — so the difference is handed back to the caller
+      // rather than quietly absorbed.
+      final replaced = _signed(leg, leg.amount);
+      final becomes = _signed(leg, partner.amount);
+
       await _rewrite(
         legId,
         TransactionsCompanion(
@@ -255,7 +316,7 @@ class WalletMaintenanceService {
           counterAmount: Value(null),
         ),
       );
-      return;
+      return replaced - becomes;
     }
 
     // Still a crossing, at the rate the two amounts now imply. Derived from the
@@ -277,6 +338,49 @@ class WalletMaintenanceService {
       TransactionsCompanion(
         fxRate: Value(fxRate),
         counterAmount: Value(leg.amount),
+      ),
+    );
+    // Only the description changed; both accounts still hold what they held.
+    return 0;
+  }
+
+  /// What [transaction] does to its account's balance, at [amount].
+  ///
+  /// Amounts are stored unsigned with the direction in `isIncome`, so anything
+  /// adding them up has to put the sign back first.
+  static int _signed(Transaction transaction, int amount) =>
+      transaction.isIncome ? amount : -amount;
+
+  /// Record what normalising the transfers would otherwise have silently
+  /// created or destroyed.
+  Future<void> _recordMergeAdjustment({
+    required String walletId,
+    required int amount,
+    required String sourceName,
+  }) async {
+    final categoryId = await _db.requireSystemCategoryId(
+      SystemCategories.balanceCorrectionKey,
+    );
+    final now = DateTime.now();
+
+    await _db.addTransaction(
+      TransactionsCompanion.insert(
+        id: const Uuid().v4(),
+        amount: amount.abs(),
+        title: const Value('Merge adjustment'),
+        notes: Value(
+          'The rate a transfer between these accounts was made at differs '
+          'from the rate $sourceName was merged at. This records the '
+          'difference so the total is unchanged.',
+        ),
+        date: now,
+        isIncome: Value(amount > 0),
+        categoryId: Value(categoryId),
+        walletId: walletId,
+        isPaid: const Value(true),
+        syncStatus: const Value(SyncStatus.pendingCreate),
+        createdAt: Value(now),
+        updatedAt: Value(now),
       ),
     );
   }

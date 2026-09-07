@@ -1,3 +1,4 @@
+import 'package:the_accountant/core/domain/exchange_rate_table.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 
 /// Puts amounts from different accounts into one currency before they are added.
@@ -38,19 +39,28 @@ class AmountConverter {
   ///
   /// Rates come from the stored table rather than [target]-relative arithmetic
   /// on a live API: a report has to give the same answer twice, and rates move.
+  ///
+  /// Resolution goes through [ExchangeRateTable], which is what makes an
+  /// ordinary rate refresh usable here at all. This used to look for a direct
+  /// `from -> target` row, and the downloader writes only `USD -> X` rows — so
+  /// a euro expense was excluded from a dollar budget even with a perfectly
+  /// successful refresh behind it, and for a non-dollar target almost
+  /// everything was excluded. The tests seeded direct custom rates and so
+  /// never met the shape production actually stores.
   static Future<AmountConverter> forDatabase(
     AppDatabase db, {
     String? target,
   }) async {
     final display = target ?? await db.displayCurrency();
     final wallets = await db.getAllWallets();
+    final table = await ExchangeRateTable.load(db);
 
     final walletCurrency = {for (final w in wallets) w.id: w.currency};
     final rates = <String, double>{display: 1};
 
     for (final currency in walletCurrency.values.toSet()) {
       if (rates.containsKey(currency)) continue;
-      final rate = await _rate(db, from: currency, to: display);
+      final rate = table.rate(from: currency, to: display);
       if (rate != null) rates[currency] = rate;
     }
 
@@ -59,23 +69,6 @@ class AmountConverter {
       walletCurrency: walletCurrency,
       rates: rates,
     );
-  }
-
-  static Future<double?> _rate(
-    AppDatabase db, {
-    required String from,
-    required String to,
-  }) async {
-    try {
-      final row = await db.getExchangeRate(from, to);
-      final effective = row?.useCustomRate == true
-          ? row?.customRate
-          : row?.apiRate;
-      if (effective == null || effective <= 0) return null;
-      return effective;
-    } catch (_) {
-      return null;
-    }
   }
 
   /// Whether an amount from [walletId] can be expressed in [target] at all.

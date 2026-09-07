@@ -12,6 +12,13 @@ Written 2 September 2026. Flutter app at 3.0.0+21, Drift schema 17. Backend on .
 
 An external audit (`AUDIT-2026-09-06.md`, remediated in `AUDIT-REMEDIATION.md`) found sixteen defects across phases these notes called done. The labels were written by the same hand that wrote the code and were never checked against the feature list, so several read as finished when a feature was built but unreachable, or built and quietly wrong for anyone not using one currency.
 
+A second review, a day later, found ten more issues in the remediation itself:
+six of those fixes were incomplete, and two introduced defects that had not been
+there before. It is recorded in `AUDIT-REMEDIATION-2026-09-07.md`. The habit
+worth keeping from it is that a passing suite says only that the cases someone
+thought of still hold — the findings that mattered came from testing in the
+shape production actually runs in, not from more tests of the same shape.
+
 The status lines below have been revised against that audit. Where something is still not done it is now said plainly rather than in a parenthesis, and where a phase shipped something broken the phase says so instead of the defect living only in a fix commit.
 
 The pattern worth carrying forward: nearly every serious finding was an *interaction* between two features that were each well tested on their own — restore against sync, merge against transfers, budgets against multi-currency. Testing a feature in isolation says nothing about the seam it shares with the next one.

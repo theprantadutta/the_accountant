@@ -337,10 +337,12 @@ void main() {
       final income = await db.findTransactionById(incomeId);
       expect(expense!.deletedAt, isNotNull);
       expect(income!.deletedAt, isNotNull);
-      // Neither leg ever reached the server, so neither has a deletion to
-      // push; the tombstones above are the whole of the local record.
-      expect(expense.syncStatus, SyncStatus.synced);
-      expect(income.syncStatus, SyncStatus.synced);
+      // Both deletions are queued whatever the legs' previous status was: a
+      // create that has not been acknowledged is not a create the server never
+      // received, and guessing otherwise loses the deletion exactly when the
+      // two races.
+      expect(expense.syncStatus, SyncStatus.pendingDelete);
+      expect(income.syncStatus, SyncStatus.pendingDelete);
 
       expect(await balances.calculateWalletBalance(sourceId), 50000);
       expect(await balances.calculateWalletBalance(destId), 10000);

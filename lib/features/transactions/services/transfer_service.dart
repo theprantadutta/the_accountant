@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart' show Value;
 import 'package:the_accountant/core/domain/default_categories.dart';
+import 'package:the_accountant/core/domain/exchange_rate_table.dart';
 import 'package:the_accountant/core/domain/transaction_policy.dart';
 import 'package:the_accountant/core/services/wallet_balance_service.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
@@ -402,16 +403,16 @@ class TransferService {
     required String from,
     required String to,
   }) async {
-    try {
-      final rate = await _db.getExchangeRate(from, to);
-      final effective = rate?.useCustomRate == true
-          ? rate?.customRate
-          : rate?.apiRate;
-      if (effective == null || effective <= 0) return null;
-      return (amount * effective).round();
-    } catch (_) {
-      return null;
-    }
+    // The same resolution the rest of the app uses. Looking for a direct row
+    // only found one when the source happened to be dollars, because that is
+    // all the downloader stores — so a transfer out of a euro account demanded
+    // a hand-entered figure even with today's rates sitting in the table. The
+    // two paths have to agree about what a known rate is, or the app refuses in
+    // one place what it silently converts in another.
+    final table = await ExchangeRateTable.load(_db);
+    final rate = table.rate(from: from, to: to);
+    if (rate == null || rate <= 0) return null;
+    return (amount * rate).round();
   }
 
   /// Writes the charge for a transfer as an ordinary expense.

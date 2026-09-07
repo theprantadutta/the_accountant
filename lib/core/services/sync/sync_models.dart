@@ -75,10 +75,14 @@ class SyncChange {
   final String operation; // 'create', 'update', 'delete'
   final Map<String, dynamic>? data;
 
-  /// Transient, client-only: the row's `updatedAt` at the moment this change was
-  /// collected for push. Used for compare-and-set when marking the record synced,
-  /// so an edit made while the push was in flight isn't silently cleared. NOT sent
-  /// to the server (excluded from [toJson]).
+  /// Transient, client-only: the row's `updatedAt` when this change was
+  /// collected. Never sent to the server (excluded from [toJson]).
+  ///
+  /// Not used to decide whether the row changed while the push was in flight —
+  /// it cannot. Drift stores it at one-second resolution and a push is
+  /// assembled in milliseconds, so a change made during one compares equal to
+  /// one made before it. `_markChangesSynced` compares the row's actual content
+  /// instead, which has no resolution to run out of.
   final DateTime? sourceUpdatedAt;
 
   /// A decision the user made about a question the server asked earlier.

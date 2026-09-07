@@ -123,6 +123,11 @@ class FakeSyncServer {
   bool holds(String userId, String table, String id) =>
       _table(userId, table).containsKey(id);
 
+  /// What the server currently stores for [id], for asserting on content
+  /// rather than only on existence.
+  Map<String, dynamic>? recordData(String userId, String table, String id) =>
+      _table(userId, table)[id]?.data;
+
   SyncPushResponse push(String userId, List<SyncChange> changes) {
     receivedBatchSizes.add(changes.length);
     if (changes.length > maxChangesPerRequest) {

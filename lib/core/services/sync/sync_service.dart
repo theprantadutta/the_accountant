@@ -100,6 +100,29 @@ class SyncService {
     }
   }
 
+  /// Run [action] holding the sync lock, or return null if a sync is running.
+  ///
+  /// For work that replaces the database without going through this service —
+  /// restoring a backup file, which reads from local storage or Drive rather
+  /// than from the server.
+  ///
+  /// Such a restore used to only *check* [isBusy], and it checked before asking
+  /// the user to confirm. A sync starting while that dialog sat open was
+  /// invisible to it, and the two then wrote in separate transactions: whichever
+  /// committed second won, and the loser's work was gone with nothing to say so.
+  /// A question asked before the fact is not a lock.
+  Future<T?> runExclusively<T>(Future<T> Function() action) async {
+    // Set before any await, like the guards above, so two callers cannot both
+    // see it clear.
+    if (_syncInProgress) return null;
+    _syncInProgress = true;
+    try {
+      return await action();
+    } finally {
+      _syncInProgress = false;
+    }
+  }
+
   /// Hard-mirror restore: replace ALL local data with the cloud copy (Premium).
   ///
   /// Fetches the full server dataset FIRST (into memory); only once that
@@ -479,24 +502,31 @@ class SyncService {
     );
   }
 
+  /// Every row with something to say to the server, grouped by table.
+  ///
+  /// Collected as a whole so it can be taken twice: once to push, and once
+  /// afterwards to find out whether anything changed underneath the push. See
+  /// [_markChangesSynced].
+  Future<Map<String, List<SyncChange>>> _collectPendingChanges() async => {
+    'wallets': await _getPendingWalletChanges(),
+    'categories': await _getPendingCategoryChanges(),
+    'associated_titles': await _getPendingAssociatedTitleChanges(),
+    'payment_methods': await _getPendingPaymentMethodChanges(),
+    'budgets': await _getPendingBudgetChanges(),
+    'category_budget_limits': await _getPendingCategoryLimitChanges(),
+    'objectives': await _getPendingObjectiveChanges(),
+    'transactions': await _getPendingTransactionChanges(),
+    'recurring_configs': await _getPendingRecurringConfigChanges(),
+  };
+
   Future<
     ({int appliedCount, List<SyncConflict> conflicts, int resolutionsApplied})
   >
+  // Collects pending changes grouped by table, then flattens them in the shared
+  // dependency order so a chunk boundary can never place a child ahead of the
+  // parent it needs.
   _pushPendingChanges() async {
-    // Collect pending changes grouped by table, then flatten in the shared
-    // dependency order so a chunk boundary can never place a child ahead of the
-    // parent it needs.
-    final byTable = <String, List<SyncChange>>{
-      'wallets': await _getPendingWalletChanges(),
-      'categories': await _getPendingCategoryChanges(),
-      'associated_titles': await _getPendingAssociatedTitleChanges(),
-      'payment_methods': await _getPendingPaymentMethodChanges(),
-      'budgets': await _getPendingBudgetChanges(),
-      'category_budget_limits': await _getPendingCategoryLimitChanges(),
-      'objectives': await _getPendingObjectiveChanges(),
-      'transactions': await _getPendingTransactionChanges(),
-      'recurring_configs': await _getPendingRecurringConfigChanges(),
-    };
+    final byTable = await _collectPendingChanges();
 
     final allChanges = <SyncChange>[];
     for (final table in SyncEntityOrder.applyOrder) {
@@ -938,7 +968,6 @@ class SyncService {
           tableName: 'transactions',
           entityId: r.id,
           operation: _getOperationFromStatus(r.syncStatus),
-          sourceUpdatedAt: r.updatedAt,
           data: _transactionToMap(r),
         ),
       );
@@ -958,7 +987,6 @@ class SyncService {
           tableName: 'wallets',
           entityId: r.id,
           operation: _getOperationFromStatus(r.syncStatus),
-          sourceUpdatedAt: r.updatedAt,
           data: _walletToMap(r),
         ),
       );
@@ -1015,7 +1043,6 @@ class SyncService {
           tableName: 'categories',
           entityId: r.id,
           operation: _getOperationFromStatus(r.syncStatus),
-          sourceUpdatedAt: r.updatedAt,
           data: _categoryToMap(r),
           resolution: pending?.resolutionKind == null
               ? null
@@ -1057,7 +1084,6 @@ class SyncService {
           tableName: 'budgets',
           entityId: r.id,
           operation: _getOperationFromStatus(r.syncStatus),
-          sourceUpdatedAt: r.updatedAt,
           data: _budgetToMap(r),
         ),
       );
@@ -1084,7 +1110,6 @@ class SyncService {
             tableName: 'associated_titles',
             entityId: r.id,
             operation: _getOperationFromStatus(r.syncStatus),
-            sourceUpdatedAt: r.updatedAt,
             data: _associatedTitleToMap(r),
           ),
     ];
@@ -1108,8 +1133,10 @@ class SyncService {
           SyncChange(
             tableName: 'category_budget_limits',
             entityId: r.id,
-            operation: _getOperationFromStatus(r.syncStatus),
-            sourceUpdatedAt: r.updatedAt,
+            operation: _getOperationFromStatus(
+              r.syncStatus,
+              deletedAt: r.deletedAt,
+            ),
             data: _categoryLimitToMap(r),
           ),
     ];
@@ -1127,7 +1154,6 @@ class SyncService {
           tableName: 'objectives',
           entityId: r.id,
           operation: _getOperationFromStatus(r.syncStatus),
-          sourceUpdatedAt: r.updatedAt,
           data: _objectiveToMap(r),
         ),
       );
@@ -1147,7 +1173,6 @@ class SyncService {
           tableName: 'payment_methods',
           entityId: r.id,
           operation: _getOperationFromStatus(r.syncStatus),
-          sourceUpdatedAt: r.updatedAt,
           data: _paymentMethodToMap(r),
         ),
       );
@@ -1167,7 +1192,6 @@ class SyncService {
           tableName: 'recurring_configs',
           entityId: r.id,
           operation: _getOperationFromStatus(r.syncStatus),
-          sourceUpdatedAt: r.updatedAt,
           data: _recurringConfigToMap(r),
         ),
       );
@@ -1289,6 +1313,20 @@ class SyncService {
     );
 
     if (existing != null) {
+      // A local row with something still to say is left alone.
+      //
+      // The pull ran straight over it, so a change made while its own push was
+      // in flight was simply discarded: delete a transaction during the upload
+      // of its create and the server's copy — live, because the create landed —
+      // came back and erased the tombstone, leaving the row alive in the cloud
+      // with nothing left on the device to say otherwise. An unpushed edit went
+      // the same way.
+      //
+      // The pending change is pushed on the next sync and last-write-wins
+      // settles which copy is right. That is the server's decision to make, and
+      // it cannot make it if the device throws the change away first.
+      if (existing.syncStatus != SyncStatus.synced) return;
+
       await (_database.update(
         _database.transactions,
       )..where((t) => t.id.equals(change.entityId))).write(companion);
@@ -1757,7 +1795,14 @@ class SyncService {
     });
   }
 
-  String _getOperationFromStatus(int status) {
+  String _getOperationFromStatus(int status, {DateTime? deletedAt}) {
+    // A tombstoned row is a deletion whatever its status says. The two can
+    // disagree — local housekeeping tombstones a row that is still queued as a
+    // create — and believing the status there asks the server to create the
+    // very row the device has just discarded, because a create payload has
+    // nowhere to say "and it is deleted".
+    if (deletedAt != null) return 'delete';
+
     switch (status) {
       case SyncStatus.pendingCreate:
         return 'create';
@@ -2087,134 +2132,64 @@ class SyncService {
   /// Records NOT in [applied] (i.e. server conflicts) are intentionally left
   /// pending.
   Future<void> _markChangesSynced(List<SyncChange> applied) async {
+    if (applied.isEmpty) return;
+
+    // What every pending row would say if it were collected now. A row that has
+    // not been touched since the push began produces exactly the change that
+    // was pushed; one that has been touched produces something else, or drops
+    // out of the pending set entirely.
+    //
+    // This replaces comparing timestamps, which could not do the job: Drift
+    // stores `updatedAt` at one-second resolution and a push is assembled in
+    // milliseconds, so a change made during one almost always carried the same
+    // timestamp and compared equal. The guard existed for precisely that case
+    // and was blind to it — deleting a transaction while its create was
+    // uploading, or correcting an amount, was cleared as though nothing had
+    // happened, and the pull then wrote the server's copy back over it.
+    //
+    // Comparing what the row actually says has no resolution to run out of.
+    final pendingNow = await _collectPendingChanges();
+    final current = <String, SyncChange>{
+      for (final entry in pendingNow.entries)
+        for (final change in entry.value)
+          '${entry.key}:${change.entityId}': change,
+    };
+
     for (final c in applied) {
-      if (c.operation == 'delete') {
-        // Clear the pending flag, keep the row. The compare-and-set below
-        // applies here too: a row resurrected while the delete was in flight
-        // has a different `updatedAt` and stays pending, so the restore is not
-        // silently undone.
-        await _setRecordSynced(c.tableName, c.entityId, expected: c.sourceUpdatedAt);
-      } else {
-        // Compare-and-set: only clear the pending flag if the row hasn't been
-        // edited since it was collected for push. If the user edited it while the
-        // push was in flight, `updatedAt` changed, the guard misses, and the row
-        // stays pending to be re-pushed next sync — so the in-flight edit isn't
-        // silently lost. When no source timestamp is available we fall back to an
-        // unconditional clear (prior behaviour) to avoid ever getting stuck.
-        await _setRecordSynced(
-          c.tableName,
-          c.entityId,
-          expected: c.sourceUpdatedAt,
-        );
-      }
+      final now = current['${c.tableName}:${c.entityId}'];
+      // Gone from the pending set: nothing left to clear, and nothing to lose.
+      if (now == null) continue;
+      // Changed underneath the push. It keeps its pending flag and goes out
+      // again next sync, where last-write-wins settles it.
+      if (now.operation != c.operation) continue;
+      if (jsonEncode(now.data) != jsonEncode(c.data)) continue;
+
+      // A tombstone is kept either way; only the pending flag is cleared.
+      await _setRecordSynced(c.tableName, c.entityId);
     }
   }
 
-  Future<void> _setRecordSynced(
-    String table,
-    String id, {
-    DateTime? expected,
-  }) async {
-    switch (table) {
-      case 'transactions':
-        await (_database.update(_database.transactions)..where(
-              (t) => expected == null
-                  ? t.id.equals(id)
-                  : t.id.equals(id) & t.updatedAt.equals(expected),
-            ))
-            .write(
-              const TransactionsCompanion(syncStatus: Value(SyncStatus.synced)),
-            );
-        break;
-      case 'wallets':
-        await (_database.update(_database.wallets)..where(
-              (w) => expected == null
-                  ? w.id.equals(id)
-                  : w.id.equals(id) & w.updatedAt.equals(expected),
-            ))
-            .write(
-              const WalletsCompanion(syncStatus: Value(SyncStatus.synced)),
-            );
-        break;
-      case 'categories':
-        await (_database.update(_database.categories)..where(
-              (c) => expected == null
-                  ? c.id.equals(id)
-                  : c.id.equals(id) & c.updatedAt.equals(expected),
-            ))
-            .write(
-              const CategoriesCompanion(syncStatus: Value(SyncStatus.synced)),
-            );
-        break;
-      case 'budgets':
-        await (_database.update(_database.budgets)..where(
-              (b) => expected == null
-                  ? b.id.equals(id)
-                  : b.id.equals(id) & b.updatedAt.equals(expected),
-            ))
-            .write(
-              const BudgetsCompanion(syncStatus: Value(SyncStatus.synced)),
-            );
-        break;
-      case 'category_budget_limits':
-        await (_database.update(_database.categoryBudgetLimits)..where(
-              (l) => expected == null
-                  ? l.id.equals(id)
-                  : l.id.equals(id) & l.updatedAt.equals(expected),
-            ))
-            .write(
-              const CategoryBudgetLimitsCompanion(
-                syncStatus: Value(SyncStatus.synced),
-              ),
-            );
-        break;
-      case 'associated_titles':
-        await (_database.update(_database.associatedTitles)..where(
-              (a) => expected == null
-                  ? a.id.equals(id)
-                  : a.id.equals(id) & a.updatedAt.equals(expected),
-            ))
-            .write(
-              const AssociatedTitlesCompanion(
-                syncStatus: Value(SyncStatus.synced),
-              ),
-            );
-        break;
-      case 'objectives':
-        await (_database.update(_database.objectives)..where(
-              (o) => expected == null
-                  ? o.id.equals(id)
-                  : o.id.equals(id) & o.updatedAt.equals(expected),
-            ))
-            .write(
-              const ObjectivesCompanion(syncStatus: Value(SyncStatus.synced)),
-            );
-        break;
-      case 'payment_methods':
-        await (_database.update(_database.paymentMethods)..where(
-              (p) => expected == null
-                  ? p.id.equals(id)
-                  : p.id.equals(id) & p.updatedAt.equals(expected),
-            ))
-            .write(
-              const PaymentMethodsCompanion(
-                syncStatus: Value(SyncStatus.synced),
-              ),
-            );
-        break;
-      case 'recurring_configs':
-        await (_database.update(_database.recurringConfigs)..where(
-              (r) => expected == null
-                  ? r.id.equals(id)
-                  : r.id.equals(id) & r.updatedAt.equals(expected),
-            ))
-            .write(
-              const RecurringConfigsCompanion(
-                syncStatus: Value(SyncStatus.synced),
-              ),
-            );
-        break;
+  /// Clear a record's pending flag.
+  ///
+  /// Whether it *should* be cleared is decided by [_markChangesSynced], which
+  /// compares what the row says now against what was actually pushed. This only
+  /// carries it out.
+  ///
+  /// Written as one statement rather than a branch per table because every
+  /// synced table has the same columns, and nine copies of an update is nine
+  /// chances for one of them to drift.
+  Future<void> _setRecordSynced(String table, String id) async {
+    // The table name is interpolated, so it is checked against the known set
+    // rather than trusted.
+    if (!AppDatabase.syncedTableNames.contains(table)) {
+      _logger.w('Refusing to mark a record synced in unknown table "$table".');
+      return;
     }
+
+    await _database.customStatement(
+      'UPDATE $table SET sync_status = ${SyncStatus.synced} WHERE id = ?',
+      [id],
+    );
   }
 
   /// Update sync state

@@ -179,6 +179,10 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
     // applying to it. The restore runs in one transaction and the sync runs in
     // another; whichever committed second would win, and the loser's work would
     // be gone with nothing to say so.
+    //
+    // This is the early, courteous half: say so now rather than after the user
+    // has read a page of warnings. It is not the guarantee — a sync can start
+    // while the dialog below is open, so the restore itself takes the lock.
     if (ref.read(syncServiceProvider).isBusy) {
       _say(L10n.of(context).backupBusySyncing, bad: true);
       return;
@@ -214,8 +218,16 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
 
     setState(() => _busy = true);
     try {
-      final summary = await run();
+      // Under the lock, so a sync cannot be applying to the database while it
+      // is being replaced. Null means one already is.
+      final summary = await ref
+          .read(syncServiceProvider)
+          .runExclusively(run);
       if (!mounted) return;
+      if (summary == null) {
+        _say(L10n.of(context).backupBusySyncing, bad: true);
+        return;
+      }
       reloadAllData(ref);
       _say(
         summary.isComplete

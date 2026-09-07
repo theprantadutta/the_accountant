@@ -139,24 +139,27 @@ class BudgetEngine {
 
   const BudgetEngine(this._db);
 
-  /// The currency [budget] is counted in.
+  /// The currency [budget] is counted in: the display currency, always.
   ///
-  /// The currency of the accounts it covers when they agree on one, because
-  /// that is the money the user was thinking in when they set the cap. The
-  /// display currency otherwise — a budget spanning currencies has no native
-  /// one, so it takes the app's.
-  Future<String> currencyFor(BudgetView budget) async {
-    if (budget.walletIds.isEmpty) return _db.displayCurrency();
-
-    final currencies = <String>{};
-    for (final id in budget.walletIds) {
-      final wallet = await _db.findWalletById(id);
-      if (wallet != null) currencies.add(wallet.currency);
-    }
-
-    if (currencies.length == 1) return currencies.single;
-    return _db.displayCurrency();
-  }
+  /// A budget's amount is a bare number of minor units with nothing beside it
+  /// saying what kind of money it is, so the only thing that can settle the
+  /// question is the rule the form and the engine both follow. The form asks
+  /// for the amount in the display currency and labels it so; the engine reads
+  /// it the same way.
+  ///
+  /// It briefly read the amount in the scoped accounts' currency when they
+  /// agreed on one, on the reasoning that this is the money the user was
+  /// thinking in. That was wrong, and quietly: the number had been *entered*
+  /// under a dollar sign, so scoping a budget to a taka account reinterpreted a
+  /// hundred dollars as a hundred taka without the figure on screen changing.
+  /// Worse, changing which accounts a budget covers changed what its stored
+  /// amount meant. One rule, stated in one place, is the whole fix — and it is
+  /// the rule the entry form was already using.
+  ///
+  /// Storing a currency per budget would allow the other answer, and would need
+  /// a column, a migration and a server that ships first. If that is ever
+  /// wanted, this is the method that changes.
+  Future<String> currencyFor(BudgetView budget) => _db.displayCurrency();
 
   Future<AmountConverter> _converterFor(BudgetView budget) async =>
       AmountConverter.forDatabase(_db, target: await currencyFor(budget));

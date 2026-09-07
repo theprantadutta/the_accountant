@@ -90,7 +90,7 @@ void main() {
       );
     });
 
-    test('a create is tombstoned with nothing left to push', () async {
+    test('a create is tombstoned and the deletion is still queued', () async {
       final walletId = await seedWallet(db);
       final id = await seedTransaction(db, walletId: walletId);
 
@@ -104,11 +104,14 @@ void main() {
       );
       expect(
         row.syncStatus,
-        SyncStatus.synced,
+        SyncStatus.pendingDelete,
         reason:
-            'the server was never told this row exists, so asking it to '
-            'delete it is answered "not found" on every retry and the record '
-            'sits in the push queue for ever',
+            'pending-create means the create has not been acknowledged, not '
+            'that the server never received it. Treating it as the latter lost '
+            'the deletion whenever the create was in flight or its response '
+            'was lost, leaving the row alive in the cloud. The server answers '
+            'a delete it does not need as satisfied, so queuing one costs '
+            'nothing',
       );
     });
 
