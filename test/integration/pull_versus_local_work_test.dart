@@ -200,6 +200,54 @@ void main() {
     });
   });
 
+  /// The whole lifecycle, end to end: what was collected, what the server
+  /// decided, what got acknowledged, what was held back, and what happens on
+  /// the retry. Each step was correct on its own at some point while the
+  /// others were not.
+  test('a conflict settles after the edit that caused it loses', () async {
+    final id = await seedTransaction(db, walletId: wallet, amount: 1000);
+    await sync.syncAll();
+
+    // A newer edit exists on the server.
+    server.push(userId, [
+      SyncChange(
+        tableName: 'transactions',
+        entityId: id,
+        operation: 'update',
+        data: {
+          ...server.recordData(userId, 'transactions', id)!,
+          'Amount': 9000,
+          'UpdatedAt': DateTime.utc(2030).toIso8601String(),
+        },
+      ),
+    ]);
+
+    // This device edits with an older stamp, then edits again mid-push.
+    await editAmount(id, 4000, DateTime.utc(2025));
+    transport.duringPush = () => editAmount(id, 9900, DateTime.utc(2025, 2));
+    await sync.syncAll();
+
+    expect(
+      (await db.findTransactionById(id))!.amount,
+      9900,
+      reason: 'the second edit was never offered to the server, so nothing has '
+          'judged it yet',
+    );
+
+    await sync.syncAll();
+    await sync.syncAll();
+
+    final row = (await db.findTransactionById(id))!;
+    expect(
+      row.amount,
+      9000,
+      reason: 'once the held-back edit has been pushed and lost, the server '
+          'copy is the answer — and it is only reachable because the cursor '
+          'did not move past it while the edit was being protected',
+    );
+    expect(row.syncStatus, SyncStatus.synced);
+  });
+
   test('an ordinary sync still settles', () async {
     final id = await seedTransaction(db, walletId: wallet, amount: 1000);
 

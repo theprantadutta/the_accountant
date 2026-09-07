@@ -306,9 +306,14 @@ class FakeSyncServer {
         // defect it existed to catch.
         held.deleted = false;
 
-        // A create for a row the server already holds is an accepted no-op in
-        // production, not an overwrite; only an update rewrites the fields.
-        if (change.operation == 'update') held.data = data;
+        // A create for a row the server already holds is idempotent but not
+        // inert: restoring a row is pushed as a create, and the row can have
+        // been edited between the restore and the upload. The real handler
+        // applies that content through the same path an update takes, so this
+        // does too — it modelled the older behaviour for a while after the
+        // server had stopped behaving that way, which hid the very thing it
+        // exists to catch.
+        held.data = data;
         held.clientUpdatedAt = incomingAt;
         held.updatedAt = _tick();
         applied++;

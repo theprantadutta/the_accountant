@@ -36,45 +36,34 @@ void main() {
       final dollars = await seedWallet(db, name: 'Old', currency: 'USD');
       await seedWallet(db, name: 'New', currency: 'EUR');
       await db.customStatement(
-        'UPDATE wallets SET is_archived = 1 WHERE id = ?',
+        'UPDATE wallets SET is_default = 1, is_archived = 1 WHERE id = ?',
         [dollars],
       );
 
-      final wallets = await db.getAllWallets();
-
       expect(
-        resolveDisplayCurrency(wallets, preferredId: dollars),
+        resolveDisplayCurrency(await db.getAllWallets()),
         'EUR',
         reason: 'the user has put that account away; reading their money in a '
             'currency they have retired is not what a default is for',
       );
     });
 
-    test('the database flag outranks the saved preference', () async {
-      final preferred = await seedWallet(db, name: 'Cash', currency: 'USD');
+    test('the flagged account wins over the first one', () async {
+      await seedWallet(db, name: 'Cash', currency: 'USD');
       final flagged = await seedWallet(db, name: 'Bank', currency: 'EUR');
       await db.customStatement(
         'UPDATE wallets SET is_default = 1 WHERE id = ?',
         [flagged],
       );
 
-      final wallets = await db.getAllWallets();
-
-      expect(
-        resolveDisplayCurrency(wallets, preferredId: preferred),
-        'EUR',
-        reason: 'the flag is the only part of this a report can see, so it has '
-            'to be the part that decides',
-      );
+      expect(resolveDisplayCurrency(await db.getAllWallets()), 'EUR');
     });
 
-    test('the preference is used when no account carries the flag', () async {
+    test('with nothing flagged it takes the first usable account', () async {
       await seedWallet(db, name: 'Cash', currency: 'USD');
-      final preferred = await seedWallet(db, name: 'Bank', currency: 'EUR');
+      await seedWallet(db, name: 'Bank', currency: 'EUR');
 
-      final wallets = await db.getAllWallets();
-
-      expect(resolveDisplayCurrency(wallets, preferredId: preferred), 'EUR');
+      expect(resolveDisplayCurrency(await db.getAllWallets()), 'USD');
     });
 
     test('with nothing to choose from it says dollars', () {
@@ -90,6 +79,98 @@ void main() {
 
       expect(resolveDisplayCurrency(await db.getAllWallets()), 'BDT');
     });
+  });
+
+  /// The saved choice lives where only the UI can see it, so it is written onto
+  /// the row before anything counts money. Sharing a resolver was not enough:
+  /// the two sides could not be given the same inputs, and with no account
+  /// flagged the form followed the preference while the engine took the first
+  /// account.
+  group('reconciling the saved choice', () {
+    test('the preference becomes the flag', () async {
+      await seedWallet(db, name: 'Cash', currency: 'USD');
+      final preferred = await seedWallet(db, name: 'Bank', currency: 'EUR');
+
+      await db.reconcileDefaultWallet(preferred);
+
+      expect(resolveDisplayCurrency(await db.getAllWallets()), 'EUR');
+    });
+
+    test('it takes the flag off whatever held it', () async {
+      final old = await seedWallet(db, name: 'Cash', currency: 'USD');
+      final preferred = await seedWallet(db, name: 'Bank', currency: 'EUR');
+      await db.customStatement(
+        'UPDATE wallets SET is_default = 1 WHERE id = ?',
+        [old],
+      );
+
+      await db.reconcileDefaultWallet(preferred);
+
+      final wallets = await db.getAllWallets();
+      expect(wallets.where((w) => w.isDefault).map((w) => w.id), [preferred]);
+    });
+
+    test('the change is queued for the other devices', () async {
+      await seedWallet(db, name: 'Cash', currency: 'USD');
+      final preferred = await seedWallet(db, name: 'Bank', currency: 'EUR');
+      await db.customStatement('UPDATE wallets SET sync_status = 0');
+
+      await db.reconcileDefaultWallet(preferred);
+
+      final row = (await db.findWalletById(preferred))!;
+      expect(
+        row.syncStatus,
+        isNot(SyncStatus.synced),
+        reason: 'which account is the default is a choice, not a detail of '
+            'this device',
+      );
+    });
+
+    test('an archived preference is ignored', () async {
+      await seedWallet(db, name: 'Cash', currency: 'USD');
+      final preferred = await seedWallet(db, name: 'Bank', currency: 'EUR');
+      await db.customStatement(
+        'UPDATE wallets SET is_archived = 1 WHERE id = ?',
+        [preferred],
+      );
+
+      await db.reconcileDefaultWallet(preferred);
+
+      expect(resolveDisplayCurrency(await db.getAllWallets()), 'USD');
+    });
+
+    test('no preference changes nothing', () async {
+      final only = await seedWallet(db, name: 'Cash', currency: 'USD');
+      await db.customStatement('UPDATE wallets SET sync_status = 0');
+
+      await db.reconcileDefaultWallet(null);
+
+      expect((await db.findWalletById(only))!.syncStatus, SyncStatus.synced);
+    });
+  });
+
+  test('the form and the engine agree with nothing flagged', () async {
+    await seedWallet(db, name: 'First', currency: 'USD');
+    final preferred = await seedWallet(db, name: 'Second', currency: 'EUR');
+
+    final container = ProviderContainer(
+      overrides: [
+        databaseProvider.overrideWithValue(db),
+        defaultWalletIdProvider.overrideWithValue(preferred),
+      ],
+    );
+    addTearDown(container.dispose);
+    await container.read(walletProvider.notifier).loadWallets();
+
+    final budgetId = await seedBudget(db, amount: 10000);
+    final view = BudgetView.fromRow((await db.findBudgetById(budgetId))!);
+
+    expect(
+      await BudgetEngine(db).currencyFor(view),
+      container.read(defaultCurrencyProvider),
+      reason: 'sharing a function does not make two answers agree when the two '
+          'callers cannot be given the same inputs',
+    );
   });
 
   test('the form and the engine agree after the default is merged away', () async {

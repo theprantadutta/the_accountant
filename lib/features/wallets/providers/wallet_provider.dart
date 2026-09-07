@@ -61,6 +61,13 @@ class WalletNotifier extends StateNotifier<WalletState> {
   Future<void> loadWallets({bool silent = false}) async {
     if (!silent) state = state.copyWith(isLoading: true);
     try {
+      // Settle the saved default onto the wallet row before anything reads it.
+      // The preference lives where only this side of the app can see it, and a
+      // report has to reach the same answer — so it is written onto the row
+      // rather than consulted separately. Cheap and idempotent: it does nothing
+      // once the flag already agrees.
+      await _database.reconcileDefaultWallet(_ref.read(defaultWalletIdProvider));
+
       final wallets = await _database.getAllWallets();
 
       // Get wallet balances from stored values (kept in sync by balance service)
@@ -356,13 +363,13 @@ final walletsLoadingProvider = Provider<bool>((ref) {
 /// archived, which is what merging does to it — so the form and the budget
 /// engine could name different currencies for the same figure.
 final effectiveDefaultWalletIdProvider = Provider<String?>((ref) {
-  final persistedDefault = ref.watch(defaultWalletIdProvider);
+  // Deliberately not consulting the saved preference. It is reconciled onto the
+  // wallet row instead — see `AppDatabase.reconcileDefaultWallet` — because a
+  // preference only this side can read cannot take part in a decision the
+  // reporting side has to make too, and sharing a resolver while feeding it
+  // different inputs is not sharing an answer.
   final walletState = ref.watch(walletProvider);
-
-  return resolveDefaultWallet(
-    walletState.wallets,
-    preferredId: persistedDefault,
-  )?.id;
+  return resolveDefaultWallet(walletState.wallets)?.id;
 });
 
 /// Accounts that can still be chosen on a transaction.

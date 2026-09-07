@@ -281,6 +281,9 @@ class SyncService {
     int totalPulled = 0;
     final conflicts = <SyncConflict>[];
     final applyFailures = <SyncApplyFailure>[];
+    // Pulled records held back because this device still has unsent work on
+    // them. They keep the cursor where it is; see the cursor decision below.
+    final deferredPulls = <String>[];
 
     try {
       // Step 1: Push all local changes (chunked; see [_pushAllChanges]).
@@ -316,6 +319,7 @@ class SyncService {
           return result;
         });
         applyFailures.addAll(outcome.failures);
+        deferredPulls.addAll(outcome.deferred);
 
         // Reconcile transfer pairs where one leg was deleted on another device,
         // so a half-transfer can never sit in the ledger skewing one wallet's
@@ -342,11 +346,21 @@ class SyncService {
           ).initializeDefaultCategories();
         }
 
-        if (applyFailures.isEmpty) {
+        if (applyFailures.isEmpty && deferredPulls.isEmpty) {
           // Advance the cursor using the SERVER's timestamp (falling back to
           // local time only if absent), so client clock skew can't skip
           // server-side changes on the next pull.
           await _saveLastSyncTimestamp(pullResult.serverTime ?? DateTime.now());
+        } else if (applyFailures.isEmpty) {
+          // Records were held back because this device still has unsent work on
+          // them. The cursor stays put so the server's copies come back: they
+          // are the other half of a disagreement that has not been settled yet,
+          // and once the local edit loses, that copy is the only thing left to
+          // converge on. Not an error — the sync did everything it could.
+          _logger.d(
+            'Sync deferred ${deferredPulls.length} record(s) with unsent local '
+            'changes; cursor held so they are offered again: $deferredPulls',
+          );
         } else {
           // Leave the cursor exactly where it was. The unapplied records are
           // returned by the next pull and retried; advancing here is what used
@@ -515,6 +529,36 @@ class SyncService {
   /// afterwards to find out whether anything changed underneath the push. See
   /// [_markChangesSynced].
   Future<Map<String, List<SyncChange>>> _collectPendingChanges() async {
+    const tables = [
+      'wallets',
+      'categories',
+      'associated_titles',
+      'payment_methods',
+      'budgets',
+      'category_budget_limits',
+      'objectives',
+      'transactions',
+      'recurring_configs',
+    ];
+
+    // Anything with something to say gets a version first, so a row that
+    // predates versions — which is every row on an install that has just
+    // upgraded — has one by the time it is read.
+    await _database.ensureRowVersionsForPending();
+
+    // Versions BEFORE payloads, and the order is the whole argument.
+    //
+    // An edit landing between the two reads then produces a payload that is
+    // newer than its stamped version, and the acknowledgement's compare-and-set
+    // refuses it: the row stays pending and goes out again. Read the other way
+    // round — which is how this was written — the same edit produces an *old*
+    // payload carrying the *new* version, the acknowledgement matches, and the
+    // edit is marked as sent when what actually went was the figure before it.
+    //
+    // One of those orders is safe under every interleaving and the other is
+    // safe under none, and they cost the same.
+    final revisions = await _database.rowRevisionsFor(tables);
+
     final byTable = <String, List<SyncChange>>{
       'wallets': await _getPendingWalletChanges(),
       'categories': await _getPendingCategoryChanges(),
@@ -527,10 +571,6 @@ class SyncService {
       'recurring_configs': await _getPendingRecurringConfigChanges(),
     };
 
-    // Stamp each change with the row version it was built from, in one read.
-    // Everything downstream — acknowledging it, and deciding whether a pulled
-    // row may overwrite it — turns on whether the row still holds that version.
-    final revisions = await _database.rowRevisionsFor(byTable.keys);
     return {
       for (final entry in byTable.entries)
         entry.key: [
@@ -665,11 +705,13 @@ class SyncService {
   /// rejected *before* it is written when a parent it references is missing, so
   /// the failure carries an actionable reason instead of surfacing later as an
   /// orphaned row that silently breaks joins and balances.
-  Future<({int applied, List<SyncApplyFailure> failures})> _applyOrderedChanges(
-    SyncPullResponse pull,
-  ) async {
+  Future<
+    ({int applied, List<SyncApplyFailure> failures, List<String> deferred})
+  >
+  _applyOrderedChanges(SyncPullResponse pull) async {
     var applied = 0;
     final failures = <SyncApplyFailure>[];
+    final deferred = <String>[];
 
     for (final entry in pull.orderedChanges) {
       final table = entry.table;
@@ -687,6 +729,17 @@ class SyncService {
           );
           continue;
         }
+        if (!await _acceptsPulledChange(table, change.entityId)) {
+          // Held back rather than dropped. This device has work the server has
+          // not seen, so its copy stands for now — but the server's version is
+          // the only copy of the other side of that disagreement, and once the
+          // local edit loses last-write-wins there is nothing to converge on if
+          // the cursor has moved past it. It is not a failure: nothing is
+          // wrong, the two simply have not met yet.
+          deferred.add('$table:${change.entityId}');
+          continue;
+        }
+
         await _applyPulledChange(table, change);
         applied++;
       } catch (e, s) {
@@ -705,7 +758,7 @@ class SyncService {
       }
     }
 
-    return (applied: applied, failures: failures);
+    return (applied: applied, failures: failures, deferred: deferred);
   }
 
   /// Describe the first missing parent for [change], or null when every
@@ -1277,12 +1330,7 @@ class SyncService {
     }
   }
 
-  Future<void> _applyTransactionChange(SyncChange change) async {
-    // A pulled change never overwrites unsent local work; see
-    // [_acceptsPulledChange] for how that is told apart from a conflict the
-    // server has already settled.
-    if (!await _acceptsPulledChange('transactions', change.entityId)) return;
-    final rawData = change.data;
+  Future<void> _applyTransactionChange(SyncChange change) async {    final rawData = change.data;
     if (change.operation == 'delete') {
       await (_database.update(
         _database.transactions,
@@ -1378,12 +1426,7 @@ class SyncService {
     await _database.into(_database.transactions).insert(companion);
   }
 
-  Future<void> _applyWalletChange(SyncChange change) async {
-    // A pulled change never overwrites unsent local work; see
-    // [_acceptsPulledChange] for how that is told apart from a conflict the
-    // server has already settled.
-    if (!await _acceptsPulledChange('wallets', change.entityId)) return;
-    final rawData = change.data;
+  Future<void> _applyWalletChange(SyncChange change) async {    final rawData = change.data;
     if (change.operation == 'delete') {
       await (_database.update(
         _database.wallets,
@@ -1435,12 +1478,7 @@ class SyncService {
     }
   }
 
-  Future<void> _applyCategoryChange(SyncChange change) async {
-    // A pulled change never overwrites unsent local work; see
-    // [_acceptsPulledChange] for how that is told apart from a conflict the
-    // server has already settled.
-    if (!await _acceptsPulledChange('categories', change.entityId)) return;
-    final rawData = change.data;
+  Future<void> _applyCategoryChange(SyncChange change) async {    final rawData = change.data;
     if (change.operation == 'delete') {
       await (_database.update(
         _database.categories,
@@ -1514,12 +1552,7 @@ class SyncService {
     await _database.into(_database.categories).insert(companion);
   }
 
-  Future<void> _applyBudgetChange(SyncChange change) async {
-    // A pulled change never overwrites unsent local work; see
-    // [_acceptsPulledChange] for how that is told apart from a conflict the
-    // server has already settled.
-    if (!await _acceptsPulledChange('budgets', change.entityId)) return;
-    final rawData = change.data;
+  Future<void> _applyBudgetChange(SyncChange change) async {    final rawData = change.data;
     if (change.operation == 'delete') {
       await (_database.update(
         _database.budgets,
@@ -1580,12 +1613,7 @@ class SyncService {
     }
   }
 
-  Future<void> _applyAssociatedTitleChange(SyncChange change) async {
-    // A pulled change never overwrites unsent local work; see
-    // [_acceptsPulledChange] for how that is told apart from a conflict the
-    // server has already settled.
-    if (!await _acceptsPulledChange('associated_titles', change.entityId)) return;
-    if (change.operation == 'delete') {
+  Future<void> _applyAssociatedTitleChange(SyncChange change) async {    if (change.operation == 'delete') {
       await (_database.update(
         _database.associatedTitles,
       )..where((a) => a.id.equals(change.entityId))).write(
@@ -1622,12 +1650,7 @@ class SyncService {
     }
   }
 
-  Future<void> _applyCategoryLimitChange(SyncChange change) async {
-    // A pulled change never overwrites unsent local work; see
-    // [_acceptsPulledChange] for how that is told apart from a conflict the
-    // server has already settled.
-    if (!await _acceptsPulledChange('category_budget_limits', change.entityId)) return;
-    if (change.operation == 'delete') {
+  Future<void> _applyCategoryLimitChange(SyncChange change) async {    if (change.operation == 'delete') {
       await (_database.update(
         _database.categoryBudgetLimits,
       )..where((l) => l.id.equals(change.entityId))).write(
@@ -1664,12 +1687,7 @@ class SyncService {
     }
   }
 
-  Future<void> _applyObjectiveChange(SyncChange change) async {
-    // A pulled change never overwrites unsent local work; see
-    // [_acceptsPulledChange] for how that is told apart from a conflict the
-    // server has already settled.
-    if (!await _acceptsPulledChange('objectives', change.entityId)) return;
-    final rawData = change.data;
+  Future<void> _applyObjectiveChange(SyncChange change) async {    final rawData = change.data;
     if (change.operation == 'delete') {
       await (_database.update(
         _database.objectives,
@@ -1720,12 +1738,7 @@ class SyncService {
     }
   }
 
-  Future<void> _applyPaymentMethodChange(SyncChange change) async {
-    // A pulled change never overwrites unsent local work; see
-    // [_acceptsPulledChange] for how that is told apart from a conflict the
-    // server has already settled.
-    if (!await _acceptsPulledChange('payment_methods', change.entityId)) return;
-    final rawData = change.data;
+  Future<void> _applyPaymentMethodChange(SyncChange change) async {    final rawData = change.data;
     if (change.operation == 'delete') {
       await (_database.update(
         _database.paymentMethods,
@@ -1769,12 +1782,7 @@ class SyncService {
     }
   }
 
-  Future<void> _applyRecurringConfigChange(SyncChange change) async {
-    // A pulled change never overwrites unsent local work; see
-    // [_acceptsPulledChange] for how that is told apart from a conflict the
-    // server has already settled.
-    if (!await _acceptsPulledChange('recurring_configs', change.entityId)) return;
-    final rawData = change.data;
+  Future<void> _applyRecurringConfigChange(SyncChange change) async {    final rawData = change.data;
     // RecurringConfig has no deletedAt - uses isActive flag
     if (change.operation == 'delete') {
       await (_database.update(
@@ -2188,12 +2196,17 @@ class SyncService {
     for (final c in applied) {
       final revision = c.sourceRevision;
 
-      // No version to compare against — a row written before versions existed
-      // and not touched since. Clearing the flag unconditionally is the old
-      // behaviour and the only option; the alternative is a row that can never
-      // be marked synced.
+      // No version means the row was not seen by the collection that produced
+      // this change, so there is nothing to compare and no way to know whether
+      // it has moved since. Leaving the flag set costs one repeated push;
+      // clearing it blindly costs whatever edit arrived during this one, which
+      // is the trade the old code got backwards. Collection establishes a
+      // version for every pending row, so this should not be reachable.
       if (revision == null) {
-        await _setRecordSynced(c.tableName, c.entityId);
+        _logger.w(
+          'No local version for ${c.tableName}:${c.entityId}; leaving it '
+          'pending rather than acknowledging a version nothing identifies.',
+        );
         continue;
       }
 
@@ -2265,28 +2278,6 @@ class SyncService {
     return await _database.rowRevision(table, id) == submitted;
   }
 
-  /// Clear a record's pending flag.
-  ///
-  /// Whether it *should* be cleared is decided by [_markChangesSynced], which
-  /// compares what the row says now against what was actually pushed. This only
-  /// carries it out.
-  ///
-  /// Written as one statement rather than a branch per table because every
-  /// synced table has the same columns, and nine copies of an update is nine
-  /// chances for one of them to drift.
-  Future<void> _setRecordSynced(String table, String id) async {
-    // The table name is interpolated, so it is checked against the known set
-    // rather than trusted.
-    if (!AppDatabase.syncedTableNames.contains(table)) {
-      _logger.w('Refusing to mark a record synced in unknown table "$table".');
-      return;
-    }
-
-    await _database.customStatement(
-      'UPDATE $table SET sync_status = ${SyncStatus.synced} WHERE id = ?',
-      [id],
-    );
-  }
 
   /// Update sync state
   void _setState(SyncOperationState newState) {

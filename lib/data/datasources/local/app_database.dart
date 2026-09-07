@@ -398,6 +398,26 @@ class AppDatabase extends _$AppDatabase {
     return row?.read<int>('sync_status');
   }
 
+  /// Give every row that has something to push a version, if it has not got one.
+  ///
+  /// Rows that existed before schema 24 have no version until they are next
+  /// written, and a row that was already pending at the moment of the upgrade
+  /// reaches its first upload in exactly that state. Without a version there is
+  /// nothing for the acknowledgement to compare against, and the only options
+  /// left are to clear the flag blindly — which loses any edit made during that
+  /// upload — or never to clear it at all.
+  ///
+  /// Establishing the version *before* the payload is read is what makes it
+  /// usable: from that point on the pair moves together.
+  Future<void> ensureRowVersionsForPending() async {
+    for (final table in syncedTableNames) {
+      await customStatement(
+        'INSERT OR IGNORE INTO local_row_versions (sync_table, entity_id, revision) '
+        "SELECT '$table', id, 1 FROM $table WHERE sync_status > 0",
+      );
+    }
+  }
+
   /// The current local version of one row, or null if it has never been written
   /// since versions were introduced.
   Future<int?> rowRevision(String table, String id) async {
@@ -2909,6 +2929,47 @@ class AppDatabase extends _$AppDatabase {
   // ============================================================
   // Wallet DAO methods
   // ============================================================
+  /// Make the saved preference visible to everything that reads the database.
+  ///
+  /// The chosen account is kept in shared preferences, where the entry form can
+  /// see it and a report cannot. Sharing a resolver between the two did not make
+  /// them agree, because they could not be given the same inputs: with no
+  /// account flagged, the form followed the preference and anything reading the
+  /// database took the first account instead, so a figure meant one currency
+  /// where it was typed and another where it was counted.
+  ///
+  /// Writing the preference onto the row settles it in the one field both sides
+  /// already read. The flag is synced, which is right — the user's default
+  /// account is a choice, not a detail of this device — and marking the row
+  /// edited is what carries it.
+  ///
+  /// Does nothing when the preference names an account that is gone or
+  /// archived, or when it already holds the flag.
+  Future<void> reconcileDefaultWallet(String? preferredId) async {
+    if (preferredId == null) return;
+
+    final wallets = await getAllWallets();
+    final preferred = wallets
+        .where((w) => w.id == preferredId && !w.isArchived)
+        .firstOrNull;
+    if (preferred == null || preferred.isDefault) return;
+
+    await transaction(() async {
+      await customStatement(
+        'UPDATE wallets SET is_default = 0, '
+        'sync_status = ${SyncStatus.markEditedSql}, updated_at = ? '
+        'WHERE is_default = 1 AND id <> ?',
+        [DateTime.now().millisecondsSinceEpoch ~/ 1000, preferredId],
+      );
+      await customStatement(
+        'UPDATE wallets SET is_default = 1, '
+        'sync_status = ${SyncStatus.markEditedSql}, updated_at = ? '
+        'WHERE id = ?',
+        [DateTime.now().millisecondsSinceEpoch ~/ 1000, preferredId],
+      );
+    });
+  }
+
   /// The currency totals are shown in.
   ///
   /// Resolved by the one shared rule, so a figure means the same thing wherever
