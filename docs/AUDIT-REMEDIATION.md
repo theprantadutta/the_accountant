@@ -8,13 +8,20 @@ Seven findings were independently re-confirmed by direct inspection before this
 plan was written; the rest are taken on the auditor's reproductions, which were
 detailed enough to locate the defect in the source in every case checked.
 
-**All seventeen were addressed, and a follow-up review found ten more.** Six of
+**All seventeen were addressed; two follow-up reviews then found ten and five
+more.** Six of
 the original fixes were incomplete or introduced a new defect; those are
-recorded in `AUDIT-REMEDIATION-2026-09-07.md` at the repository root and are now
-themselves fixed and pinned by tests. Read that document alongside this one — a
-green suite here was not the same thing as a correct one, which is the lesson
-the second review taught and the reason this paragraph no longer claims
-completion on its own authority.
+recorded in `AUDIT-REMEDIATION-2026-09-07.md` at the repository root, and the
+five the review after that found are in `AUDIT-SECOND-REMEDIATION-2026-09-07.md`.
+All are now fixed and pinned by tests.
+
+Read those documents alongside this one. A green suite here was not the same
+thing as a correct one, and twice a fix of mine was itself the next defect —
+the pending-row pull guard added for one review's finding is what the next
+review found wedging every conflict. The habit that actually caught things was
+testing in the shape production runs in: the rate table as the downloader
+writes it, a push interrupted where a user would interrupt it, a batch split
+across chunks.
 
 **The pattern worth naming.** Almost every P1 is an *interaction* between two
 features that are each well covered on their own: restore × sync, merge ×

@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:drift/drift.dart';
 import 'package:uuid/uuid.dart';
 import 'package:the_accountant/core/domain/default_categories.dart';
+import 'package:the_accountant/core/domain/default_wallet.dart';
 import 'package:the_accountant/core/domain/transaction_policy.dart';
 import 'package:the_accountant/data/models/category.dart';
 import 'package:the_accountant/data/models/transaction.dart';
@@ -20,6 +21,7 @@ import 'package:the_accountant/data/models/objective_transaction.dart';
 import 'package:the_accountant/data/models/associated_title.dart';
 import 'package:the_accountant/data/models/sync_state.dart';
 import 'package:the_accountant/data/models/exchange_rate.dart';
+import 'package:the_accountant/data/models/local_row_version.dart';
 import 'package:the_accountant/data/models/local_store_meta.dart';
 import 'package:the_accountant/data/models/category_reconciliation.dart';
 import 'package:the_accountant/data/models/import_template.dart';
@@ -159,13 +161,14 @@ class SystemCategories {
     CategoryReconciliations,
     LocalIdRepairs,
     ImportTemplates,
+    LocalRowVersions,
   ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 23;
+  int get schemaVersion => 24;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -312,6 +315,10 @@ class AppDatabase extends _$AppDatabase {
       if (from < 23) {
         await _migrateToV23(m);
       }
+
+      if (from < 24) {
+        await _migrateToV24(m);
+      }
     },
     beforeOpen: (details) async {
       // NOTE on foreign keys: SQLite leaves FK enforcement off by default and we
@@ -327,9 +334,120 @@ class AppDatabase extends _$AppDatabase {
       // The single LocalStoreMeta row must exist before anything reads it.
       await _ensureLocalStoreMetaRow();
       await _installSyncStatusGuards();
+      await _installRowVersionTriggers();
       await _installPartialIndexes();
     },
   );
+
+  /// Schema 24 adds the local row-version counter.
+  ///
+  /// Additive and local-only: a new table, no existing row touched, nothing new
+  /// sent anywhere. Existing rows have no version until they are next written,
+  /// and an absent version reads as "unknown", which every caller already has to
+  /// handle — a row whose version cannot be established is treated as one this
+  /// device may still have something to say about, which is the safe direction.
+  Future<void> _migrateToV24(Migrator m) async {
+    await _ensureTable(m, localRowVersions);
+  }
+
+  /// Keep [localRowVersions] up to date without trusting the call sites.
+  ///
+  /// A trigger per synced table, because the alternative is remembering to bump
+  /// a counter in every write path in the app — and the one that gets forgotten
+  /// is exactly the one that then loses an edit. Installed on open rather than
+  /// in a migration so a store that has been through any upgrade path ends up
+  /// with the same set.
+  Future<void> _installRowVersionTriggers() async {
+    for (final table in syncedTableNames) {
+      await customStatement('''
+        CREATE TRIGGER IF NOT EXISTS trg_${table}_row_version_insert
+        AFTER INSERT ON $table
+        BEGIN
+          INSERT INTO local_row_versions (sync_table, entity_id, revision)
+          VALUES ('$table', NEW.id, 1)
+          ON CONFLICT(sync_table, entity_id)
+          DO UPDATE SET revision = revision + 1;
+        END;
+      ''');
+
+      await customStatement('''
+        CREATE TRIGGER IF NOT EXISTS trg_${table}_row_version_update
+        AFTER UPDATE ON $table
+        BEGIN
+          INSERT INTO local_row_versions (sync_table, entity_id, revision)
+          VALUES ('$table', NEW.id, 1)
+          ON CONFLICT(sync_table, entity_id)
+          DO UPDATE SET revision = revision + 1;
+        END;
+      ''');
+    }
+  }
+
+  /// A row's sync status, or null when the row is not here.
+  ///
+  /// One statement over a table name from the known set, rather than nine
+  /// typed selects that would all say the same thing.
+  Future<int?> rowSyncStatus(String table, String id) async {
+    if (!syncedTableNames.contains(table)) return null;
+
+    final row = await customSelect(
+      'SELECT sync_status FROM $table WHERE id = ?',
+      variables: [Variable<String>(id)],
+    ).getSingleOrNull();
+
+    return row?.read<int>('sync_status');
+  }
+
+  /// The current local version of one row, or null if it has never been written
+  /// since versions were introduced.
+  Future<int?> rowRevision(String table, String id) async {
+    final row =
+        await (select(localRowVersions)..where(
+              (v) => v.syncTable.equals(table) & v.entityId.equals(id),
+            ))
+            .getSingleOrNull();
+    return row?.revision;
+  }
+
+  /// Every version in one read, for callers settling a whole batch.
+  Future<Map<String, int>> rowRevisionsFor(Iterable<String> tables) async {
+    final wanted = tables.toSet();
+    if (wanted.isEmpty) return const {};
+
+    final rows = await (select(
+      localRowVersions,
+    )..where((v) => v.syncTable.isIn(wanted))).get();
+
+    return {for (final r in rows) '${r.syncTable}:${r.entityId}': r.revision};
+  }
+
+  /// Clear a row's pending flag, but only if it is still the version [revision]
+  /// names.
+  ///
+  /// One statement, so there is no gap between deciding and writing. Reading the
+  /// row, comparing it in Dart and then writing unconditionally leaves an
+  /// interval in which an edit lands and is then marked as already sent — which
+  /// is the shape of the bug this replaces, only narrower.
+  ///
+  /// Does nothing when the row has moved on, which is the point.
+  Future<void> markSyncedIfUnchanged({
+    required String table,
+    required String id,
+    required int revision,
+  }) async {
+    if (!syncedTableNames.contains(table)) return;
+
+    await customStatement(
+      'UPDATE $table SET sync_status = ${SyncStatus.synced} WHERE id = ? '
+      'AND EXISTS (SELECT 1 FROM local_row_versions v '
+      'WHERE v.sync_table = ? AND v.entity_id = ? AND v.revision = ?)',
+      [id, table, id, revision],
+    );
+  }
+
+  @visibleForTesting
+  Future<void> installRowVersionTriggersForTest() =>
+      _installRowVersionTriggers();
 
   /// Schema 12 does four things, all of them designed to leave existing rows
   /// recoverable:
@@ -2793,17 +2911,14 @@ class AppDatabase extends _$AppDatabase {
   // ============================================================
   /// The currency totals are shown in.
   ///
-  /// The default account's, which is what every screen already labels its
-  /// figures with — resolved here so anything that has to *add* amounts up can
-  /// agree with what is printed beside them without reaching for a provider.
-  Future<String> displayCurrency() async {
-    final all = await getAllWallets();
-    final live = all.where((w) => !w.isArchived);
-    if (live.isEmpty) return all.isEmpty ? 'USD' : all.first.currency;
-    return live
-        .firstWhere((w) => w.isDefault, orElse: () => live.first)
-        .currency;
-  }
+  /// Resolved by the one shared rule, so a figure means the same thing wherever
+  /// it is read. This used to have its own copy of the rule that skipped
+  /// archived accounts, while the entry form's provider had another that did
+  /// not — and merging an account archives it, so after merging the default
+  /// account into one held in another currency the form asked for dollars while
+  /// this said euros.
+  Future<String> displayCurrency() async =>
+      resolveDisplayCurrency(await getAllWallets());
 
   Future<List<Wallet>> getAllWallets() =>
       (select(wallets)

@@ -77,13 +77,22 @@ class SyncChange {
 
   /// Transient, client-only: the row's `updatedAt` when this change was
   /// collected. Never sent to the server (excluded from [toJson]).
-  ///
-  /// Not used to decide whether the row changed while the push was in flight —
-  /// it cannot. Drift stores it at one-second resolution and a push is
-  /// assembled in milliseconds, so a change made during one compares equal to
-  /// one made before it. `_markChangesSynced` compares the row's actual content
-  /// instead, which has no resolution to run out of.
   final DateTime? sourceUpdatedAt;
+
+  /// Transient, client-only: the local row version this change was built from.
+  ///
+  /// The one thing that says whether the row still holds the version that was
+  /// handed to the server. Timestamps cannot: Drift stores `updatedAt` at
+  /// one-second resolution and a push is assembled in milliseconds, so an edit
+  /// made during one carries the same second as the version being pushed.
+  ///
+  /// Two decisions hang off it. An acknowledgement clears the pending flag only
+  /// while the version still matches, in one statement, so an edit that lands
+  /// mid-push is not marked as already sent. And a pulled row is accepted over
+  /// a *pending* local one only when the versions match — meaning the server has
+  /// already seen and judged exactly this version, so its answer is the
+  /// authoritative one rather than a race to be protected from.
+  final int? sourceRevision;
 
   /// A decision the user made about a question the server asked earlier.
   ///
@@ -97,6 +106,7 @@ class SyncChange {
     required this.operation,
     this.data,
     this.sourceUpdatedAt,
+    this.sourceRevision,
     this.resolution,
   });
 
@@ -106,7 +116,19 @@ class SyncChange {
     operation: operation,
     data: data,
     sourceUpdatedAt: sourceUpdatedAt,
+    sourceRevision: sourceRevision,
     resolution: value,
+  );
+
+  /// A copy carrying the local row version it was built from.
+  SyncChange withRevision(int? value) => SyncChange(
+    tableName: tableName,
+    entityId: entityId,
+    operation: operation,
+    data: data,
+    sourceUpdatedAt: sourceUpdatedAt,
+    sourceRevision: value,
+    resolution: resolution,
   );
 
   Map<String, dynamic> toJson() => {

@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:the_accountant/core/domain/default_wallet.dart';
 import 'package:the_accountant/core/providers/currency_provider.dart';
 import 'package:the_accountant/core/services/financial_calculation_service.dart';
 import 'package:flutter_riverpod/legacy.dart';
@@ -347,29 +348,21 @@ final walletsLoadingProvider = Provider<bool>((ref) {
   return walletState.isLoading;
 });
 
-/// Provider to get the effective default wallet ID
-/// Uses SharedPreferences persisted value, falls back to database isDefault flag
+/// The account the app treats as the default.
+///
+/// Resolved by the shared rule rather than here, so this and anything reading
+/// the database reach the same answer. The old logic accepted the saved
+/// preference whenever that account still existed — including once it had been
+/// archived, which is what merging does to it — so the form and the budget
+/// engine could name different currencies for the same figure.
 final effectiveDefaultWalletIdProvider = Provider<String?>((ref) {
   final persistedDefault = ref.watch(defaultWalletIdProvider);
   final walletState = ref.watch(walletProvider);
 
-  // If we have a persisted default and it exists in current wallets, use it
-  if (persistedDefault != null) {
-    final exists = walletState.wallets.any((w) => w.id == persistedDefault);
-    if (exists) return persistedDefault;
-  }
-
-  // Fallback to database isDefault flag or first wallet
-  if (walletState.wallets.isEmpty) return null;
-
-  try {
-    final defaultWallet = walletState.wallets.firstWhere(
-      (w) => w.isDefault == true,
-    );
-    return defaultWallet.id;
-  } catch (_) {
-    return walletState.wallets.first.id;
-  }
+  return resolveDefaultWallet(
+    walletState.wallets,
+    preferredId: persistedDefault,
+  )?.id;
 });
 
 /// Accounts that can still be chosen on a transaction.

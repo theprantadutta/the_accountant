@@ -13698,6 +13698,281 @@ class ImportTemplatesCompanion extends UpdateCompanion<ImportTemplate> {
   }
 }
 
+class $LocalRowVersionsTable extends LocalRowVersions
+    with TableInfo<$LocalRowVersionsTable, LocalRowVersion> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $LocalRowVersionsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _syncTableMeta = const VerificationMeta(
+    'syncTable',
+  );
+  @override
+  late final GeneratedColumn<String> syncTable = GeneratedColumn<String>(
+    'sync_table',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _entityIdMeta = const VerificationMeta(
+    'entityId',
+  );
+  @override
+  late final GeneratedColumn<String> entityId = GeneratedColumn<String>(
+    'entity_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _revisionMeta = const VerificationMeta(
+    'revision',
+  );
+  @override
+  late final GeneratedColumn<int> revision = GeneratedColumn<int>(
+    'revision',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(1),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [syncTable, entityId, revision];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'local_row_versions';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<LocalRowVersion> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('sync_table')) {
+      context.handle(
+        _syncTableMeta,
+        syncTable.isAcceptableOrUnknown(data['sync_table']!, _syncTableMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_syncTableMeta);
+    }
+    if (data.containsKey('entity_id')) {
+      context.handle(
+        _entityIdMeta,
+        entityId.isAcceptableOrUnknown(data['entity_id']!, _entityIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_entityIdMeta);
+    }
+    if (data.containsKey('revision')) {
+      context.handle(
+        _revisionMeta,
+        revision.isAcceptableOrUnknown(data['revision']!, _revisionMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {syncTable, entityId};
+  @override
+  LocalRowVersion map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return LocalRowVersion(
+      syncTable: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}sync_table'],
+      )!,
+      entityId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}entity_id'],
+      )!,
+      revision: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}revision'],
+      )!,
+    );
+  }
+
+  @override
+  $LocalRowVersionsTable createAlias(String alias) {
+    return $LocalRowVersionsTable(attachedDatabase, alias);
+  }
+}
+
+class LocalRowVersion extends DataClass implements Insertable<LocalRowVersion> {
+  /// The synced table the row lives in — one of `AppDatabase.syncedTableNames`.
+  ///
+  /// Not called `tableName`: Drift's own `Table` already has a member by that
+  /// name and a column would silently override it.
+  final String syncTable;
+
+  /// The row's id within that table.
+  final String entityId;
+
+  /// Bumped on every insert and update of that row.
+  final int revision;
+  const LocalRowVersion({
+    required this.syncTable,
+    required this.entityId,
+    required this.revision,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['sync_table'] = Variable<String>(syncTable);
+    map['entity_id'] = Variable<String>(entityId);
+    map['revision'] = Variable<int>(revision);
+    return map;
+  }
+
+  LocalRowVersionsCompanion toCompanion(bool nullToAbsent) {
+    return LocalRowVersionsCompanion(
+      syncTable: Value(syncTable),
+      entityId: Value(entityId),
+      revision: Value(revision),
+    );
+  }
+
+  factory LocalRowVersion.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return LocalRowVersion(
+      syncTable: serializer.fromJson<String>(json['syncTable']),
+      entityId: serializer.fromJson<String>(json['entityId']),
+      revision: serializer.fromJson<int>(json['revision']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'syncTable': serializer.toJson<String>(syncTable),
+      'entityId': serializer.toJson<String>(entityId),
+      'revision': serializer.toJson<int>(revision),
+    };
+  }
+
+  LocalRowVersion copyWith({
+    String? syncTable,
+    String? entityId,
+    int? revision,
+  }) => LocalRowVersion(
+    syncTable: syncTable ?? this.syncTable,
+    entityId: entityId ?? this.entityId,
+    revision: revision ?? this.revision,
+  );
+  LocalRowVersion copyWithCompanion(LocalRowVersionsCompanion data) {
+    return LocalRowVersion(
+      syncTable: data.syncTable.present ? data.syncTable.value : this.syncTable,
+      entityId: data.entityId.present ? data.entityId.value : this.entityId,
+      revision: data.revision.present ? data.revision.value : this.revision,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocalRowVersion(')
+          ..write('syncTable: $syncTable, ')
+          ..write('entityId: $entityId, ')
+          ..write('revision: $revision')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(syncTable, entityId, revision);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is LocalRowVersion &&
+          other.syncTable == this.syncTable &&
+          other.entityId == this.entityId &&
+          other.revision == this.revision);
+}
+
+class LocalRowVersionsCompanion extends UpdateCompanion<LocalRowVersion> {
+  final Value<String> syncTable;
+  final Value<String> entityId;
+  final Value<int> revision;
+  final Value<int> rowid;
+  const LocalRowVersionsCompanion({
+    this.syncTable = const Value.absent(),
+    this.entityId = const Value.absent(),
+    this.revision = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  LocalRowVersionsCompanion.insert({
+    required String syncTable,
+    required String entityId,
+    this.revision = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : syncTable = Value(syncTable),
+       entityId = Value(entityId);
+  static Insertable<LocalRowVersion> custom({
+    Expression<String>? syncTable,
+    Expression<String>? entityId,
+    Expression<int>? revision,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (syncTable != null) 'sync_table': syncTable,
+      if (entityId != null) 'entity_id': entityId,
+      if (revision != null) 'revision': revision,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  LocalRowVersionsCompanion copyWith({
+    Value<String>? syncTable,
+    Value<String>? entityId,
+    Value<int>? revision,
+    Value<int>? rowid,
+  }) {
+    return LocalRowVersionsCompanion(
+      syncTable: syncTable ?? this.syncTable,
+      entityId: entityId ?? this.entityId,
+      revision: revision ?? this.revision,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (syncTable.present) {
+      map['sync_table'] = Variable<String>(syncTable.value);
+    }
+    if (entityId.present) {
+      map['entity_id'] = Variable<String>(entityId.value);
+    }
+    if (revision.present) {
+      map['revision'] = Variable<int>(revision.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocalRowVersionsCompanion(')
+          ..write('syncTable: $syncTable, ')
+          ..write('entityId: $entityId, ')
+          ..write('revision: $revision, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -13729,6 +14004,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $CategoryReconciliationsTable(this);
   late final $LocalIdRepairsTable localIdRepairs = $LocalIdRepairsTable(this);
   late final $ImportTemplatesTable importTemplates = $ImportTemplatesTable(
+    this,
+  );
+  late final $LocalRowVersionsTable localRowVersions = $LocalRowVersionsTable(
     this,
   );
   late final Index idxCategoriesDefaultKey = Index(
@@ -13767,6 +14045,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     categoryReconciliations,
     localIdRepairs,
     importTemplates,
+    localRowVersions,
     idxCategoriesDefaultKey,
     idxTransactionsOccurrenceKey,
     idxTransactionsPaired,
@@ -21902,6 +22181,174 @@ typedef $$ImportTemplatesTableProcessedTableManager =
       ImportTemplate,
       PrefetchHooks Function()
     >;
+typedef $$LocalRowVersionsTableCreateCompanionBuilder =
+    LocalRowVersionsCompanion Function({
+      required String syncTable,
+      required String entityId,
+      Value<int> revision,
+      Value<int> rowid,
+    });
+typedef $$LocalRowVersionsTableUpdateCompanionBuilder =
+    LocalRowVersionsCompanion Function({
+      Value<String> syncTable,
+      Value<String> entityId,
+      Value<int> revision,
+      Value<int> rowid,
+    });
+
+class $$LocalRowVersionsTableFilterComposer
+    extends Composer<_$AppDatabase, $LocalRowVersionsTable> {
+  $$LocalRowVersionsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get syncTable => $composableBuilder(
+    column: $table.syncTable,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get entityId => $composableBuilder(
+    column: $table.entityId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get revision => $composableBuilder(
+    column: $table.revision,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$LocalRowVersionsTableOrderingComposer
+    extends Composer<_$AppDatabase, $LocalRowVersionsTable> {
+  $$LocalRowVersionsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get syncTable => $composableBuilder(
+    column: $table.syncTable,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get entityId => $composableBuilder(
+    column: $table.entityId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get revision => $composableBuilder(
+    column: $table.revision,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$LocalRowVersionsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $LocalRowVersionsTable> {
+  $$LocalRowVersionsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get syncTable =>
+      $composableBuilder(column: $table.syncTable, builder: (column) => column);
+
+  GeneratedColumn<String> get entityId =>
+      $composableBuilder(column: $table.entityId, builder: (column) => column);
+
+  GeneratedColumn<int> get revision =>
+      $composableBuilder(column: $table.revision, builder: (column) => column);
+}
+
+class $$LocalRowVersionsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $LocalRowVersionsTable,
+          LocalRowVersion,
+          $$LocalRowVersionsTableFilterComposer,
+          $$LocalRowVersionsTableOrderingComposer,
+          $$LocalRowVersionsTableAnnotationComposer,
+          $$LocalRowVersionsTableCreateCompanionBuilder,
+          $$LocalRowVersionsTableUpdateCompanionBuilder,
+          (
+            LocalRowVersion,
+            BaseReferences<
+              _$AppDatabase,
+              $LocalRowVersionsTable,
+              LocalRowVersion
+            >,
+          ),
+          LocalRowVersion,
+          PrefetchHooks Function()
+        > {
+  $$LocalRowVersionsTableTableManager(
+    _$AppDatabase db,
+    $LocalRowVersionsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$LocalRowVersionsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$LocalRowVersionsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$LocalRowVersionsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> syncTable = const Value.absent(),
+                Value<String> entityId = const Value.absent(),
+                Value<int> revision = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => LocalRowVersionsCompanion(
+                syncTable: syncTable,
+                entityId: entityId,
+                revision: revision,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String syncTable,
+                required String entityId,
+                Value<int> revision = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => LocalRowVersionsCompanion.insert(
+                syncTable: syncTable,
+                entityId: entityId,
+                revision: revision,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$LocalRowVersionsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $LocalRowVersionsTable,
+      LocalRowVersion,
+      $$LocalRowVersionsTableFilterComposer,
+      $$LocalRowVersionsTableOrderingComposer,
+      $$LocalRowVersionsTableAnnotationComposer,
+      $$LocalRowVersionsTableCreateCompanionBuilder,
+      $$LocalRowVersionsTableUpdateCompanionBuilder,
+      (
+        LocalRowVersion,
+        BaseReferences<_$AppDatabase, $LocalRowVersionsTable, LocalRowVersion>,
+      ),
+      LocalRowVersion,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -21947,4 +22394,6 @@ class $AppDatabaseManager {
       $$LocalIdRepairsTableTableManager(_db, _db.localIdRepairs);
   $$ImportTemplatesTableTableManager get importTemplates =>
       $$ImportTemplatesTableTableManager(_db, _db.importTemplates);
+  $$LocalRowVersionsTableTableManager get localRowVersions =>
+      $$LocalRowVersionsTableTableManager(_db, _db.localRowVersions);
 }
