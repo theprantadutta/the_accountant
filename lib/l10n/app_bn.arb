@@ -142,6 +142,7 @@
   "walletMergeIntoTitle": "কোথায় মেলাবেন",
   "walletMergeAction": "মেলান",
   "walletMerged": "{count}টি {target}-এ সরানো হয়েছে।",
+  "walletMergedWithTransfersRemoved": "{count}টি {target}-এ সরানো হয়েছে। দুই অ্যাকাউন্টের মধ্যেকার {removed}টি ট্রান্সফার সরিয়ে ফেলা হয়েছে, কারণ সেগুলোর আর দুটি প্রান্ত ছিল না।",
   "walletRealBalance": "প্রকৃত ব্যালেন্স",
   "walletCorrectAction": "সংশোধন করুন",
   "txGone": "এই লেনদেনটি আর নেই।",

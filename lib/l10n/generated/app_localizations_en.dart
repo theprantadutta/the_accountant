@@ -454,6 +454,21 @@ class L10nEn extends L10n {
   }
 
   @override
+  String walletMergedWithTransfersRemoved(
+    int count,
+    String target,
+    int removed,
+  ) {
+    String _temp0 = intl.Intl.pluralLogic(
+      removed,
+      locale: localeName,
+      other: '$removed transfers between the two accounts were removed',
+      one: 'One transfer between the two accounts was removed',
+    );
+    return 'Moved $count into $target. $_temp0, as it no longer had two ends.';
+  }
+
+  @override
   String get walletRealBalance => 'Real balance';
 
   @override

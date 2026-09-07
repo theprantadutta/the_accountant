@@ -58,6 +58,122 @@ void main() {
     return (out!, into!);
   }
 
+  /// Editing a transfer must not re-price it.
+  ///
+  /// `updateTransfer` used to re-resolve the conversion on every call, and with
+  /// no explicit received figure that meant looking up *today's* rate. Fixing a
+  /// typo in the note of a transfer made months ago quietly restated what it had
+  /// cost. A stored rate is a record of what happened.
+  group('editing without re-pricing', () {
+    test('changing the note leaves both legs exactly as they were', () async {
+      final ids = await service.createTransfer(
+        sourceWalletId: dollars,
+        destinationWalletId: euros,
+        amount: 10000,
+        date: DateTime(2026, 3, 1),
+        receivedAmount: 9200,
+      );
+      final (outBefore, intoBefore) = await legsOf(ids);
+
+      // A rate the app would find today, quite different from the one the
+      // transfer actually happened at.
+      await db.setCustomRate('USD', 'EUR', 0.4);
+
+      await service.updateTransfer(
+        transactionId: ids.$1,
+        notes: 'Paid the deposit',
+      );
+
+      final (out, into) = await legsOf(ids);
+      expect(out.amount, outBefore.amount);
+      expect(into.amount, intoBefore.amount);
+      expect(out.fxRate, outBefore.fxRate);
+      expect(into.fxRate, intoBefore.fxRate);
+      expect(out.counterAmount, outBefore.counterAmount);
+      expect(into.counterAmount, intoBefore.counterAmount);
+      expect(out.notes, 'Paid the deposit');
+    });
+
+    test('changing the date leaves the figures alone too', () async {
+      final ids = await service.createTransfer(
+        sourceWalletId: dollars,
+        destinationWalletId: euros,
+        amount: 10000,
+        date: DateTime(2026, 3, 1),
+        receivedAmount: 9200,
+      );
+      await db.setCustomRate('USD', 'EUR', 0.4);
+
+      await service.updateTransfer(
+        transactionId: ids.$1,
+        date: DateTime(2026, 3, 2),
+      );
+
+      final (out, into) = await legsOf(ids);
+      expect(out.amount, 10000);
+      expect(into.amount, 9200);
+    });
+
+    test('changing the amount does re-price it', () async {
+      final ids = await service.createTransfer(
+        sourceWalletId: dollars,
+        destinationWalletId: euros,
+        amount: 10000,
+        date: DateTime(2026, 3, 1),
+        receivedAmount: 9200,
+      );
+      await db.setCustomRate('USD', 'EUR', 0.4);
+
+      await service.updateTransfer(transactionId: ids.$1, amount: 20000);
+
+      final (out, into) = await legsOf(ids);
+      expect(out.amount, 20000);
+      expect(
+        into.amount,
+        8000,
+        reason: 'a new amount has no recorded counterpart, so the rate has to '
+            'come from somewhere — today\'s is the only figure there is',
+      );
+    });
+
+    test('moving a leg to another currency re-prices it', () async {
+      final ids = await service.createTransfer(
+        sourceWalletId: dollars,
+        destinationWalletId: moreDollars,
+        amount: 10000,
+        date: DateTime(2026, 3, 1),
+      );
+      await db.setCustomRate('USD', 'EUR', 0.4);
+
+      await service.updateTransfer(
+        transactionId: ids.$1,
+        destinationWalletId: euros,
+      );
+
+      final (out, into) = await legsOf(ids);
+      expect(out.amount, 10000);
+      expect(into.amount, 4000);
+      expect(into.walletId, euros);
+    });
+
+    test('a same-currency transfer keeps carrying one figure', () async {
+      final ids = await service.createTransfer(
+        sourceWalletId: dollars,
+        destinationWalletId: moreDollars,
+        amount: 10000,
+        date: DateTime(2026, 3, 1),
+      );
+
+      await service.updateTransfer(transactionId: ids.$1, notes: 'Rent');
+
+      final (out, into) = await legsOf(ids);
+      expect(out.amount, into.amount);
+      expect(out.fxRate, isNull);
+      expect(out.counterAmount, isNull);
+      expect(into.counterAmount, isNull);
+    });
+  });
+
   test('each leg keeps its own currency amount', () async {
     final ids = await service.createTransfer(
       sourceWalletId: dollars,

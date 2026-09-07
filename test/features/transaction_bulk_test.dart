@@ -160,6 +160,84 @@ void main() {
       );
     });
 
+    /// An amount is a number of minor units of whatever account it sits in.
+    ///
+    /// The picker offered every account and forwarded only an id, so a $100
+    /// expense re-filed under a taka account became 100 taka — and the balance
+    /// recalculation then applied that figure faithfully. Converting is not the
+    /// answer either: the amount is what the user recorded.
+    group('across currencies', () {
+      test('a row is not moved into another currency', () async {
+        final taka = await seedWallet(db, name: 'bKash', currency: 'BDT');
+        final id = await seedTransaction(db, walletId: walletA, amount: 10000);
+
+        final changed = await notifier.setWalletForMany([id], taka);
+
+        expect(changed, 0);
+        expect((await db.findTransactionById(id))!.walletId, walletA);
+      });
+
+      test('only same-currency accounts are offered', () async {
+        await seedWallet(db, name: 'bKash', currency: 'BDT');
+        final id = await seedTransaction(db, walletId: walletA, amount: 10000);
+
+        final targets = await notifier.accountsForMoving([id]);
+
+        expect(targets.spansCurrencies, isFalse);
+        expect(targets.currency, 'USD');
+        expect(targets.wallets.map((w) => w.name), isNot(contains('bKash')));
+        expect(targets.wallets.map((w) => w.id), contains(walletB));
+      });
+
+      test('a selection spanning currencies is offered nothing', () async {
+        final taka = await seedWallet(db, name: 'bKash', currency: 'BDT');
+        final dollars = await seedTransaction(
+          db,
+          walletId: walletA,
+          amount: 10000,
+        );
+        final takaRow = await seedTransaction(db, walletId: taka, amount: 500);
+
+        final targets = await notifier.accountsForMoving([dollars, takaRow]);
+
+        expect(targets.spansCurrencies, isTrue);
+        expect(
+          targets.wallets,
+          isEmpty,
+          reason: 'there is no single account all of these can move to, and '
+              'picking one of the two currencies would restate the others',
+        );
+      });
+
+      test('transfer legs do not colour the currency of a selection', () async {
+        final taka = await seedWallet(db, name: 'bKash', currency: 'BDT');
+        await TransferService(db).createTransfer(
+          sourceWalletId: taka,
+          destinationWalletId: await seedWallet(
+            db,
+            name: 'Nagad',
+            currency: 'BDT',
+          ),
+          amount: 5000,
+          date: DateTime(2026, 1, 5),
+        );
+        final leg = (await db.getAllTransactions()).firstWhere(
+          (t) => t.transactionType == 'transfer',
+        );
+        final id = await seedTransaction(db, walletId: walletA, amount: 10000);
+
+        final targets = await notifier.accountsForMoving([id, leg.id]);
+
+        expect(
+          targets.spansCurrencies,
+          isFalse,
+          reason: 'a transfer leg is never moved, so its currency has no say '
+              'in where the rest can go',
+        );
+        expect(targets.currency, 'USD');
+      });
+    });
+
     test('re-dates every selected row', () async {
       final ids = await seedThree();
       final when = DateTime(2026, 6, 30);

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:the_accountant/features/transactions/screens/transaction_detail_screen.dart';
 import 'package:the_accountant/features/transactions/widgets/category_picker_sheet.dart';
-import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
 import 'package:the_accountant/features/settings/widgets/confirmation_dialog.dart';
 import 'package:the_accountant/features/transactions/widgets/transaction_filter_sheet.dart';
 import 'package:the_accountant/features/transactions/domain/transaction_filters.dart';
@@ -330,15 +329,35 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
   }
 
   Future<void> _bulkWallet() async {
-    final wallets = ref.read(walletProvider).wallets;
-    if (wallets.isEmpty) return;
+    final ids = _selected.toList();
+    // Only accounts in the currency these rows are already held in. An amount
+    // is a number of minor units of its account's currency, so offering a taka
+    // account for a dollar expense reinterprets the figure rather than
+    // converting it.
+    final targets = await ref
+        .read(transactionProvider.notifier)
+        .accountsForMoving(ids);
+    if (!mounted) return;
+
+    if (targets.spansCurrencies) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'These are held in different currencies, so there is no one '
+            'account they can all move to. Select rows from one currency.',
+          ),
+        ),
+      );
+      return;
+    }
+    if (targets.wallets.isEmpty) return;
 
     final chosen = await showDialog<String>(
       context: context,
       builder: (context) => SimpleDialog(
         title: Text(L10n.of(context).txMoveToAccount),
         children: [
-          for (final w in wallets)
+          for (final w in targets.wallets)
             SimpleDialogOption(
               onPressed: () => Navigator.pop(context, w.id),
               child: Text(w.name),
@@ -348,7 +367,6 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
     );
     if (chosen == null) return;
 
-    final ids = _selected.toList();
     await _runBulk(
       () =>
           ref.read(transactionProvider.notifier).setWalletForMany(ids, chosen),

@@ -173,6 +173,20 @@
   "walletMergeIntoTitle": "Merge into",
   "walletMergeAction": "Merge",
   "walletMerged": "Moved {count} into {target}.",
+  "walletMergedWithTransfersRemoved": "Moved {count} into {target}. {removed, plural, =1{One transfer between the two accounts was removed} other{{removed} transfers between the two accounts were removed}}, as it no longer had two ends.",
+  "@walletMergedWithTransfersRemoved": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "target": {
+        "type": "String"
+      },
+      "removed": {
+        "type": "int"
+      }
+    }
+  },
   "@walletMerged": {
     "placeholders": {
       "count": {

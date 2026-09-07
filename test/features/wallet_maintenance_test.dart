@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:the_accountant/core/domain/default_categories.dart';
 import 'package:the_accountant/core/services/wallet_balance_service.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
+import 'package:the_accountant/features/transactions/services/transfer_service.dart';
 import 'package:the_accountant/features/wallets/services/wallet_maintenance_service.dart';
 
 import '../helpers/test_database.dart';
@@ -91,7 +92,7 @@ void main() {
 
       final moved = await service.mergeInto(sourceId: from, destinationId: to);
 
-      expect(moved, 1);
+      expect(moved.moved, 1);
       expect((await db.findTransactionById(txn))!.walletId, to);
     });
 
@@ -136,6 +137,179 @@ void main() {
         0,
         reason: 'otherwise the same money is counted in two places',
       );
+    });
+
+    /// Transfers are pairs, and moving each row on its own broke them.
+    ///
+    /// A transfer between the two accounts being merged ended with both legs
+    /// on one wallet, which is not a transfer and which the server refuses —
+    /// the wallet edits synced, the transaction edits did not, and the two
+    /// copies disagreed from then on. A converted leg of a cross-currency
+    /// transfer left its partner still describing the old figure.
+    group('transfers', () {
+      test('one between the two accounts is removed, not doubled up', () async {
+        final from = await seedWallet(db, name: 'Old', openingBalance: 30000);
+        final to = await seedWallet(db, name: 'New', openingBalance: 20000);
+        final (out, into) = await TransferService(db).createTransfer(
+          sourceWalletId: from,
+          destinationWalletId: to,
+          amount: 5000,
+          date: DateTime(2026, 3, 1),
+        );
+
+        final result = await service.mergeInto(
+          sourceId: from,
+          destinationId: to,
+        );
+
+        expect(result.transfersRemoved, 1);
+        expect((await db.findTransactionById(out))!.deletedAt, isNotNull);
+        expect((await db.findTransactionById(into))!.deletedAt, isNotNull);
+        expect(
+          result.moved,
+          0,
+          reason: 'the collapsed leg is deleted, not moved',
+        );
+        expect(
+          (await db.findWalletById(to))!.balance,
+          50000,
+          reason: 'the two legs cancelled out within one account already, so '
+              'removing them moves no money',
+        );
+      });
+
+      test('the fee for a removed transfer goes with it', () async {
+        final from = await seedWallet(db, name: 'Old', openingBalance: 30000);
+        final to = await seedWallet(db, name: 'New', openingBalance: 20000);
+        final (out, _) = await TransferService(db).createTransfer(
+          sourceWalletId: from,
+          destinationWalletId: to,
+          amount: 5000,
+          date: DateTime(2026, 3, 1),
+          feeAmount: 100,
+          feeWalletId: from,
+        );
+        final fee = await db.findFeeForTransfer(out);
+
+        await service.mergeInto(sourceId: from, destinationId: to);
+
+        expect((await db.findTransactionById(fee!.id))!.deletedAt, isNotNull);
+      });
+
+      test('one to a third account keeps its partner', () async {
+        final from = await seedWallet(db, name: 'Old', openingBalance: 30000);
+        final to = await seedWallet(db, name: 'New', openingBalance: 0);
+        final third = await seedWallet(db, name: 'Other', openingBalance: 0);
+        final (out, into) = await TransferService(db).createTransfer(
+          sourceWalletId: from,
+          destinationWalletId: third,
+          amount: 5000,
+          date: DateTime(2026, 3, 1),
+        );
+
+        final result = await service.mergeInto(
+          sourceId: from,
+          destinationId: to,
+        );
+
+        expect(result.transfersRemoved, 0);
+        final moved = await db.findTransactionById(out);
+        final partner = await db.findTransactionById(into);
+        expect(moved!.walletId, to);
+        expect(partner!.walletId, third);
+        expect(TransferIntegrity.validatePair(moved, partner), isEmpty);
+      });
+
+      test('a converted leg and its partner still agree on the crossing',
+          () async {
+        final from = await seedWallet(
+          db,
+          name: 'Old',
+          currency: 'USD',
+          openingBalance: 100000,
+        );
+        final to = await seedWallet(
+          db,
+          name: 'New',
+          currency: 'EUR',
+          openingBalance: 0,
+        );
+        final third = await seedWallet(
+          db,
+          name: 'Other',
+          currency: 'GBP',
+          openingBalance: 0,
+        );
+        await db.setCustomRate('USD', 'EUR', 0.5);
+        final (out, into) = await TransferService(db).createTransfer(
+          sourceWalletId: from,
+          destinationWalletId: third,
+          amount: 10000,
+          date: DateTime(2026, 3, 1),
+          receivedAmount: 8000,
+        );
+
+        await service.mergeInto(sourceId: from, destinationId: to);
+
+        final moved = (await db.findTransactionById(out))!;
+        final partner = (await db.findTransactionById(into))!;
+        expect(moved.amount, 5000, reason: 'converted into euros at 0.5');
+        expect(
+          partner.counterAmount,
+          5000,
+          reason: 'the partner still said 10000 crossed, which is no longer '
+              'what the row beside it says',
+        );
+        expect(moved.counterAmount, partner.amount);
+        expect(moved.fxRate, closeTo(8000 / 5000, 1e-9));
+        expect(moved.fxRate, partner.fxRate);
+      });
+
+      test('a crossing that stops crossing carries one figure again', () async {
+        final from = await seedWallet(
+          db,
+          name: 'Old',
+          currency: 'USD',
+          openingBalance: 100000,
+        );
+        final to = await seedWallet(
+          db,
+          name: 'New',
+          currency: 'EUR',
+          openingBalance: 0,
+        );
+        final third = await seedWallet(
+          db,
+          name: 'Other',
+          currency: 'EUR',
+          openingBalance: 0,
+        );
+        await db.setCustomRate('USD', 'EUR', 0.5);
+        final (out, into) = await TransferService(db).createTransfer(
+          sourceWalletId: from,
+          destinationWalletId: third,
+          amount: 10000,
+          date: DateTime(2026, 3, 1),
+          receivedAmount: 8000,
+        );
+
+        await service.mergeInto(sourceId: from, destinationId: to);
+
+        final moved = (await db.findTransactionById(out))!;
+        final partner = (await db.findTransactionById(into))!;
+        expect(
+          moved.amount,
+          8000,
+          reason: 'both legs are in euros now, so the transfer carries the '
+              'figure the untouched account actually saw',
+        );
+        expect(moved.amount, partner.amount);
+        expect(moved.fxRate, isNull);
+        expect(moved.counterAmount, isNull);
+        expect(partner.fxRate, isNull);
+        expect(partner.counterAmount, isNull);
+        expect(TransferIntegrity.validatePair(moved, partner), isEmpty);
+      });
     });
 
     test('merging an account into itself is refused', () async {

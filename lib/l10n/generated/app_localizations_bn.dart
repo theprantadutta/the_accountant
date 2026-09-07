@@ -455,6 +455,15 @@ class L10nBn extends L10n {
   }
 
   @override
+  String walletMergedWithTransfersRemoved(
+    int count,
+    String target,
+    int removed,
+  ) {
+    return '$countটি $target-এ সরানো হয়েছে। দুই অ্যাকাউন্টের মধ্যেকার $removedটি ট্রান্সফার সরিয়ে ফেলা হয়েছে, কারণ সেগুলোর আর দুটি প্রান্ত ছিল না।';
+  }
+
+  @override
   String get walletRealBalance => 'প্রকৃত ব্যালেন্স';
 
   @override

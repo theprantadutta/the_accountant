@@ -949,6 +949,16 @@ abstract class L10n {
   /// **'Moved {count} into {target}.'**
   String walletMerged(int count, String target);
 
+  /// No description provided for @walletMergedWithTransfersRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Moved {count} into {target}. {removed, plural, =1{One transfer between the two accounts was removed} other{{removed} transfers between the two accounts were removed}}, as it no longer had two ends.'**
+  String walletMergedWithTransfersRemoved(
+    int count,
+    String target,
+    int removed,
+  );
+
   /// No description provided for @walletRealBalance.
   ///
   /// In en, this message translates to:

@@ -81,8 +81,19 @@ class WalletMaintenanceService {
   /// would take the rows that have just been moved, and archiving leaves a
   /// visible trace of what happened.
   ///
-  /// Returns how many transactions moved.
-  Future<int> mergeInto({
+  /// Transfers are moved as pairs, not as rows. Moving each row on its own
+  /// broke them two ways. A transfer *between* the two accounts being merged
+  /// ended with both of its legs on one wallet — money leaving an account and
+  /// arriving in the same account, which is not a transfer and which the server
+  /// refuses; the wallet edits synced and the transaction edits did not, so the
+  /// two copies disagreed from then on. And converting one leg of a
+  /// cross-currency transfer rewrote its amount while leaving the partner's
+  /// `counterAmount` and the shared `fxRate` describing the old figure, so the
+  /// pair no longer agreed on how much had crossed.
+  ///
+  /// Recurring configurations need no repointing: they name a base transaction
+  /// rather than a wallet, and that transaction moves with everything else.
+  Future<WalletMergeResult> mergeInto({
     required String sourceId,
     required String destinationId,
   }) async {
@@ -113,8 +124,43 @@ class WalletMaintenanceService {
       }
     }
 
+    var moved = 0;
+    var transfersRemoved = 0;
+    final touchedWallets = <String>{sourceId, destinationId};
+
     await _db.transaction(() async {
+      // Legs of transfers that collapse, so the move below skips rows it is
+      // about to delete.
+      final collapsing = <String>{};
+
       for (final row in rows) {
+        final partnerId = row.pairedTransactionId;
+        if (partnerId == null || collapsing.contains(row.id)) continue;
+
+        final partner = await _db.findTransactionById(partnerId);
+        if (partner == null || partner.walletId != destinationId) continue;
+
+        // Both ends land in one account. The two legs cancel each other out
+        // within it, so removing the pair moves no balance — and a transfer
+        // from an account to itself has nothing left to mean.
+        collapsing
+          ..add(row.id)
+          ..add(partnerId);
+        transfersRemoved++;
+
+        for (final legId in [row.id, partnerId]) {
+          final fee = await _db.findFeeForTransfer(legId);
+          if (fee != null) {
+            touchedWallets.add(fee.walletId);
+            await _db.softDeleteTransaction(fee.id);
+          }
+          await _db.softDeleteTransaction(legId);
+        }
+      }
+
+      for (final row in rows) {
+        if (collapsing.contains(row.id)) continue;
+
         await (_db.update(
           _db.transactions,
         )..where((t) => t.id.equals(row.id))).write(
@@ -129,6 +175,11 @@ class WalletMaintenanceService {
           'WHERE id = ?',
           [row.id],
         );
+        moved++;
+
+        if (rate != 1 && row.pairedTransactionId != null) {
+          await _realignTransferPair(row.id, row.pairedTransactionId!);
+        }
       }
 
       // The source keeps whatever it opened with, converted, so the destination
@@ -164,8 +215,97 @@ class WalletMaintenanceService {
       );
     });
 
-    await _balances.updateWalletBalance(sourceId);
-    await _balances.updateWalletBalance(destinationId);
-    return rows.length;
+    for (final walletId in touchedWallets) {
+      await _balances.updateWalletBalance(walletId);
+    }
+    return WalletMergeResult(moved: moved, transfersRemoved: transfersRemoved);
   }
+
+  /// Make a moved transfer leg and its partner agree again.
+  ///
+  /// Called after the leg's amount has been converted into the destination's
+  /// currency. The two legs of a transfer are one movement described twice, so
+  /// changing what one of them says obliges the other to say the same thing.
+  Future<void> _realignTransferPair(String legId, String partnerId) async {
+    final leg = await _db.findTransactionById(legId);
+    final partner = await _db.findTransactionById(partnerId);
+    if (leg == null || partner == null) return;
+
+    final legWallet = await _db.findWalletById(leg.walletId);
+    final partnerWallet = await _db.findWalletById(partner.walletId);
+    if (legWallet == null || partnerWallet == null) return;
+
+    if (legWallet.currency == partnerWallet.currency) {
+      // The move landed the leg in the partner's own currency, so the transfer
+      // is no longer a crossing and carries one figure again. The partner's is
+      // the one to keep: it is what that account actually saw, and rewriting it
+      // instead would restate the history of a wallet this merge never touched.
+      await _rewrite(
+        legId,
+        TransactionsCompanion(
+          amount: Value(partner.amount),
+          fxRate: const Value(null),
+          counterAmount: const Value(null),
+        ),
+      );
+      await _rewrite(
+        partnerId,
+        const TransactionsCompanion(
+          fxRate: Value(null),
+          counterAmount: Value(null),
+        ),
+      );
+      return;
+    }
+
+    // Still a crossing, at the rate the two amounts now imply. Derived from the
+    // pair rather than looked up, so the stored rate always explains the two
+    // figures beside it exactly — the rule `TransferService` follows too.
+    final sent = leg.isIncome ? partner.amount : leg.amount;
+    final received = leg.isIncome ? leg.amount : partner.amount;
+    final fxRate = sent == 0 ? null : received / sent;
+
+    await _rewrite(
+      legId,
+      TransactionsCompanion(
+        fxRate: Value(fxRate),
+        counterAmount: Value(partner.amount),
+      ),
+    );
+    await _rewrite(
+      partnerId,
+      TransactionsCompanion(
+        fxRate: Value(fxRate),
+        counterAmount: Value(leg.amount),
+      ),
+    );
+  }
+
+  Future<void> _rewrite(String id, TransactionsCompanion changes) async {
+    await (_db.update(_db.transactions)..where((t) => t.id.equals(id))).write(
+      changes.copyWith(updatedAt: Value(DateTime.now())),
+    );
+    await _db.customStatement(
+      'UPDATE transactions SET sync_status = ${SyncStatus.markEditedSql} '
+      'WHERE id = ?',
+      [id],
+    );
+  }
+}
+
+/// What a merge did, beyond closing one account.
+class WalletMergeResult {
+  /// How many transactions were re-filed against the destination.
+  final int moved;
+
+  /// How many transfers between the two accounts were removed.
+  ///
+  /// Reported rather than done quietly: those rows leave the ledger, and
+  /// someone who is not told will read that as the merge having lost them.
+  final int transfersRemoved;
+
+  const WalletMergeResult({
+    required this.moved,
+    required this.transfersRemoved,
+  });
 }

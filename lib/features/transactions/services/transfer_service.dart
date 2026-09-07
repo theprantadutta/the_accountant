@@ -554,14 +554,31 @@ class TransferService {
         SystemCategories.transferKey,
       );
       final newAmount = amount ?? expenseTxn.amount;
-      // An edit can move a leg onto an account held in another currency, so
-      // the pair is re-resolved rather than assumed to still balance.
-      final conversion = await _resolveConversion(
-        newSourceWalletId,
-        newDestinationWalletId,
-        newAmount,
-        receivedAmount,
-      );
+
+      // Only re-price the transfer when the edit can actually have changed
+      // what crossed: the amount, an explicit received figure, or either
+      // account. Re-resolving unconditionally looked up *today's* rate and
+      // rewrote the income leg, so correcting a typo in the note of a transfer
+      // made months ago restated what it had cost. A stored rate is a record
+      // of what happened, not a value derived from the present.
+      final repriced =
+          amount != null ||
+          receivedAmount != null ||
+          newSourceWalletId != expenseTxn.walletId ||
+          newDestinationWalletId != incomeTxn.walletId;
+
+      final conversion = repriced
+          ? await _resolveConversion(
+              newSourceWalletId,
+              newDestinationWalletId,
+              newAmount,
+              receivedAmount,
+            )
+          : _Conversion(
+              received: incomeTxn.amount,
+              rate: expenseTxn.fxRate,
+              crossesCurrency: expenseTxn.counterAmount != null,
+            );
       final newDate = date ?? expenseTxn.date;
       final newTitle = title ?? expenseTxn.title;
       final newNotes = notes ?? expenseTxn.notes;

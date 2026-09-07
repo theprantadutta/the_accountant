@@ -417,15 +417,27 @@ class _WalletDetailScreenState extends ConsumerState<WalletDetailScreen> {
     if (confirmed != true || !mounted) return;
 
     try {
-      final moved = await WalletMaintenanceService(
+      final result = await WalletMaintenanceService(
         ref.read(databaseProvider),
       ).mergeInto(sourceId: wallet.id, destinationId: targetId);
 
       await ref.read(walletProvider.notifier).loadWallets();
       if (!mounted) return;
+      // A transfer between the two accounts being merged has both ends in one
+      // place afterwards, so it is removed. Said out loud, because otherwise
+      // the rows just disappear and the merge looks like it lost them.
+      final l10n = L10n.of(context);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(L10n.of(context).walletMerged(moved, target.name)),
+          content: Text(
+            result.transfersRemoved == 0
+                ? l10n.walletMerged(result.moved, target.name)
+                : l10n.walletMergedWithTransfersRemoved(
+                    result.moved,
+                    target.name,
+                    result.transfersRemoved,
+                  ),
+          ),
         ),
       );
       Navigator.pop(context);

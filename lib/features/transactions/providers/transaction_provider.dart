@@ -694,13 +694,62 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
   /// Transfer legs are skipped: moving one leg to the account the other leg is
   /// already on would make a transfer that goes nowhere, and silently changing
   /// both legs is not what the user asked for either.
+  ///
+  /// A row held in a different currency from [walletId] is skipped too. An
+  /// amount is a number of minor units of whatever its account is held in, so
+  /// re-filing a $100 expense under a taka account silently turned it into 100
+  /// taka — and the balance recalculation then applied that wrong figure
+  /// faithfully. Converting instead is not an option here: the amount is what
+  /// the user recorded, and a bulk move is not the place to restate it.
   Future<int> setWalletForMany(Iterable<String> ids, String walletId) async {
+    final destination = await _db.findWalletById(walletId);
+    if (destination == null) return 0;
+
     return _bulk(ids, (id) async {
       final row = await _db.findTransactionById(id);
       if (row == null || TransactionPolicy.isTransfer(row)) return false;
+
+      final source = await _db.findWalletById(row.walletId);
+      if (source != null && source.currency != destination.currency) {
+        return false;
+      }
+
       await updateTransaction(id: id, walletId: walletId);
       return true;
     });
+  }
+
+  /// Where the rows in [ids] could be moved to.
+  ///
+  /// The picker used to offer every account and forward only an id, so moving a
+  /// dollar expense to a taka account reinterpreted the amount rather than
+  /// converting it. Only accounts in the currency the selection already sits in
+  /// are offered, and a selection spanning currencies is offered nothing —
+  /// there is no single right answer to give it.
+  Future<BulkWalletTargets> accountsForMoving(Iterable<String> ids) async {
+    final currencies = <String>{};
+    for (final id in ids) {
+      final row = await _db.findTransactionById(id);
+      if (row == null || TransactionPolicy.isTransfer(row)) continue;
+      final wallet = await _db.findWalletById(row.walletId);
+      if (wallet != null) currencies.add(wallet.currency);
+    }
+
+    if (currencies.length > 1) {
+      return const BulkWalletTargets(wallets: [], spansCurrencies: true);
+    }
+
+    final all = await _db.getAllWallets();
+    if (currencies.isEmpty) {
+      return BulkWalletTargets(wallets: all, spansCurrencies: false);
+    }
+
+    final currency = currencies.single;
+    return BulkWalletTargets(
+      wallets: all.where((w) => w.currency == currency).toList(),
+      spansCurrencies: false,
+      currency: currency,
+    );
   }
 
   /// Re-date every transaction in [ids].
@@ -1231,3 +1280,25 @@ final transactionProvider =
       final settings = ref.watch(settingsProvider);
       return TransactionNotifier(db, ref, settings);
     });
+
+/// The accounts a bulk move may offer, and why it might offer none.
+class BulkWalletTargets {
+  /// Accounts held in the same currency as the selected rows.
+  final List<db.Wallet> wallets;
+
+  /// True when the selection spans more than one currency.
+  ///
+  /// Distinct from an empty list: there is a difference between "nowhere to
+  /// move these" and "these do not all mean the same kind of money", and the
+  /// user needs to be told which.
+  final bool spansCurrencies;
+
+  /// The currency the selection is held in, when they agree on one.
+  final String? currency;
+
+  const BulkWalletTargets({
+    required this.wallets,
+    required this.spansCurrencies,
+    this.currency,
+  });
+}
