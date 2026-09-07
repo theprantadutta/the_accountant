@@ -2939,36 +2939,64 @@ class AppDatabase extends _$AppDatabase {
   /// where it was typed and another where it was counted. Writing the
   /// preference onto the row settles it in the one field both sides read.
   ///
-  /// **Only when no live account is flagged.** This is a migration, not an
-  /// opinion. Reasserting it on every read made the preference outrank the
-  /// database, which is backwards in both directions that matter: choosing a
-  /// different default in account management writes the flag and not the
-  /// preference, so the next reload put the old one back; and another device's
-  /// choice, arriving through a pull, was reverted the same way and pushed back
-  /// as an edit. A stale preference could undo a settled decision indefinitely.
+  /// **Only when no live account is flagged.** Seeding, not an opinion.
+  /// Reasserting the preference on every read made it outrank the database,
+  /// which is backwards in both directions that matter: choosing a different
+  /// default in account management writes the flag and not the preference, so
+  /// the next reload put the old one back; and another device's choice,
+  /// arriving through a pull, was reverted the same way and pushed back as an
+  /// edit. A stale preference could undo a settled decision indefinitely.
   ///
-  /// After this the database is authoritative and the preference is only a seed
-  /// for a store that has never had one — which is why nothing needs to retire
-  /// it. It is consulted again only if every flagged account is archived or
-  /// removed, where falling back to a still-live earlier choice is the better
-  /// of the answers available.
+  /// Not a once-ever migration, despite how it was described: it runs again
+  /// whenever nothing live holds the flag, which archiving or removing the
+  /// default account brings about. That is deliberate — a still-live earlier
+  /// choice is a better answer there than whichever account happens to be
+  /// first — and it is why the preference is kept rather than retired.
+  ///
+  /// The condition is part of the write, not a decision taken before it. A
+  /// read, a check in Dart and then a transaction protects the writes and not
+  /// the reasoning that led to them: a choice established in between was still
+  /// cleared and the older preference installed over it, which is the same
+  /// regression the early return was added to stop, under a narrower race.
   ///
   /// The flag is synced, which is right: a user's default account is a choice,
   /// not a detail of this device.
   Future<void> reconcileDefaultWallet(String? preferredId) async {
     if (preferredId == null) return;
 
+    // Only to establish that the preference names an account worth seeding.
+    // Whether it is *needed* is settled by the statement below, not here.
     final wallets = await getAllWallets();
-    final live = wallets.where((w) => !w.isArchived);
+    if (!wallets.any((w) => w.id == preferredId && !w.isArchived)) return;
 
-    // The database already has an answer. It is the newer one by construction:
-    // it is what the last selection or the last pull left behind.
-    if (live.any((w) => w.isDefault)) return;
+    final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
 
-    final preferred = live.where((w) => w.id == preferredId).firstOrNull;
-    if (preferred == null) return;
+    await transaction(() async {
+      // Flags the preference only while nothing live holds the flag, decided
+      // and written in one statement. Zero rows means someone got there first,
+      // and their answer is the newer one.
+      final seeded = await customUpdate(
+        'UPDATE wallets SET is_default = 1, '
+        'sync_status = ${SyncStatus.markEditedSql}, updated_at = ? '
+        'WHERE id = ? AND is_archived = 0 AND is_default = 0 '
+        'AND NOT EXISTS ('
+        '  SELECT 1 FROM wallets other '
+        '  WHERE other.is_default = 1 AND other.is_archived = 0'
+        ')',
+        variables: [Variable<int>(now), Variable<String>(preferredId)],
+        updates: {},
+      );
+      if (seeded == 0) return;
 
-    await setDefaultWallet(preferred.id);
+      // Nothing live could have held the flag, so this only tidies up an
+      // archived account still carrying it.
+      await customStatement(
+        'UPDATE wallets SET is_default = 0, '
+        'sync_status = ${SyncStatus.markEditedSql}, updated_at = ? '
+        'WHERE is_default = 1 AND id <> ?',
+        [now, preferredId],
+      );
+    });
   }
 
   /// Make [walletId] the default account, and no other.

@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
+import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
 
 /// Key for storing default wallet ID in SharedPreferences
 const String _defaultWalletKey = 'default_wallet_id';
@@ -39,11 +40,21 @@ class DefaultWalletNotifier extends Notifier<DefaultWalletState> {
   /// Written onto the wallet row as well. The preference alone is invisible to
   /// anything that works from the database — a budget's currency, a report's
   /// totals — and a choice those cannot see is a choice they will contradict.
+  ///
+  /// Through the same operation the accounts screen uses. It briefly called the
+  /// seeding path instead, which by then refused to touch an account that
+  /// already held the flag — so this setter saved the new preference and then
+  /// changed nothing, and the old default stayed in force while every provider
+  /// reported the new one. Seeding is for a store with no answer; this is a
+  /// person choosing.
   Future<void> setDefaultWallet(String walletId) async {
     final prefs = ref.read(sharedPreferencesProvider);
     await prefs.setString(_defaultWalletKey, walletId);
     state = state.copyWith(walletId: walletId);
-    await ref.read(databaseProvider).reconcileDefaultWallet(walletId);
+    await ref.read(databaseProvider).setDefaultWallet(walletId);
+    // The wallet list holds the flag too, and a screen reading it would go on
+    // showing the old default until something else happened to reload.
+    await ref.read(walletProvider.notifier).loadWallets();
   }
 
   /// Clear the default wallet (e.g., when wallet is deleted)

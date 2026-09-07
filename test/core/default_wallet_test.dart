@@ -1,5 +1,7 @@
+import 'package:drift/native.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:the_accountant/core/domain/default_wallet.dart';
 import 'package:the_accountant/core/providers/currency_provider.dart';
 import 'package:the_accountant/core/providers/default_wallet_provider.dart';
@@ -11,6 +13,22 @@ import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
 import 'package:the_accountant/features/wallets/services/wallet_maintenance_service.dart';
 
 import '../helpers/test_database.dart';
+
+/// Lets a competing write land between the seed's snapshot and its statement.
+class _RacingDatabase extends AppDatabase {
+  _RacingDatabase() : super(NativeDatabase.memory());
+
+  Future<void> Function()? afterWalletSnapshot;
+
+  @override
+  Future<List<Wallet>> getAllWallets() async {
+    final rows = await super.getAllWallets();
+    final act = afterWalletSnapshot;
+    afterWalletSnapshot = null;
+    if (act != null) await act();
+    return rows;
+  }
+}
 
 /// Which account is the default, and therefore what a figure means.
 ///
@@ -161,6 +179,43 @@ void main() {
       expect(resolveDisplayCurrency(await db.getAllWallets()), 'USD');
     });
 
+    test('it does not overrule a choice made after its own read', () async {
+      // The seed read an unflagged snapshot, decided in Dart that nothing held
+      // the flag, and only then wrote — so a choice established in between was
+      // cleared and the older preference installed over it. A transaction round
+      // the writes does not protect the reasoning that led to them.
+      final raced = _RacingDatabase();
+      addTearDown(raced.close);
+      final preference = await seedWallet(raced, name: 'Old preference');
+      final newer = await seedWallet(raced, name: 'Newer selection');
+
+      raced.afterWalletSnapshot = () => raced.setDefaultWallet(newer);
+      await raced.reconcileDefaultWallet(preference);
+
+      expect((await raced.findWalletById(newer))!.isDefault, isTrue);
+      expect((await raced.findWalletById(preference))!.isDefault, isFalse);
+    });
+
+    test('it seeds again once nothing live holds the flag', () async {
+      final archived = await seedWallet(db, name: 'Archived', currency: 'USD');
+      final fallback = await seedWallet(db, name: 'Fallback', currency: 'EUR');
+      await db.setDefaultWallet(archived);
+      await db.customStatement(
+        'UPDATE wallets SET is_archived = 1 WHERE id = ?',
+        [archived],
+      );
+
+      await db.reconcileDefaultWallet(fallback);
+
+      expect(
+        (await db.findWalletById(fallback))!.isDefault,
+        isTrue,
+        reason: 'a still-live earlier choice is a better answer than whichever '
+            'account happens to be first',
+      );
+      expect((await db.findWalletById(archived))!.isDefault, isFalse);
+    });
+
     test('no preference changes nothing', () async {
       final only = await seedWallet(db, name: 'Cash', currency: 'USD');
       await db.customStatement('UPDATE wallets SET sync_status = 0');
@@ -168,6 +223,66 @@ void main() {
       await db.reconcileDefaultWallet(null);
 
       expect((await db.findWalletById(only))!.syncStatus, SyncStatus.synced);
+    });
+  });
+
+  /// Choosing a default, from either of the two screens that offer it.
+  ///
+  /// They wrote different things for a while: the accounts screen set the flag,
+  /// and the settings path saved a preference and then called the seeding
+  /// operation — which by then refused to touch an account that already held
+  /// the flag. So the setter saved the new choice and changed nothing, and
+  /// every provider reported a default the database disagreed with.
+  group('choosing a default', () {
+    test('the preference notifier changes the database too', () async {
+      final old = await seedWallet(db, name: 'Current', currency: 'USD');
+      final chosen = await seedWallet(db, name: 'Chosen', currency: 'EUR');
+      await db.setDefaultWallet(old);
+
+      SharedPreferences.setMockInitialValues({'default_wallet_id': old});
+      final prefs = await SharedPreferences.getInstance();
+      final container = ProviderContainer(
+        overrides: [
+          databaseProvider.overrideWithValue(db),
+          sharedPreferencesProvider.overrideWithValue(prefs),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      await container
+          .read(defaultWalletProvider.notifier)
+          .setDefaultWallet(chosen);
+
+      expect(container.read(defaultWalletIdProvider), chosen);
+      expect(prefs.getString('default_wallet_id'), chosen);
+      expect((await db.findWalletById(chosen))!.isDefault, isTrue);
+      expect((await db.findWalletById(old))!.isDefault, isFalse);
+      expect(
+        resolveDisplayCurrency(await db.getAllWallets()),
+        'EUR',
+        reason: 'the choice has to reach what counts the money, not only what '
+            'displays it',
+      );
+    });
+
+    test('the accounts screen path leaves the same state behind', () async {
+      final old = await seedWallet(db, name: 'Current', currency: 'USD');
+      final chosen = await seedWallet(db, name: 'Chosen', currency: 'EUR');
+      await db.setDefaultWallet(old);
+
+      final container = ProviderContainer(
+        overrides: [databaseProvider.overrideWithValue(db)],
+      );
+      addTearDown(container.dispose);
+      final notifier = container.read(walletProvider.notifier);
+      await notifier.loadWallets();
+
+      // Exactly what wallet management calls.
+      await notifier.updateWallet(id: chosen, isDefault: true);
+      await notifier.loadWallets();
+
+      expect((await db.findWalletById(chosen))!.isDefault, isTrue);
+      expect((await db.findWalletById(old))!.isDefault, isFalse);
     });
   });
 
