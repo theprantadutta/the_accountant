@@ -19,6 +19,11 @@ dependencies:
   
   # Database
   drift: ^2.32.0
+  # Direct because `constructDbForFile` sets a busy timeout through drift's
+  # `setup:` callback, which hands over a `CommonDatabase` from this package.
+  # It was already here transitively; naming it stops a drift upgrade quietly
+  # taking the type away.
+  sqlite3: ^3.5.2
   drift_flutter: ^0.3.0
   
   # Firebase

@@ -165,7 +165,12 @@ class AccountStoreCoordinator extends Notifier<AccountStoreState> {
       // recurrences — and a half-done store that the session refuses to touch
       // again is worse than one that has not been touched at all.
       debugPrint('[AccountStoreCoordinator] preparation failed for $file: $e');
-      debugPrintStack(stackTrace: stack);
+      // Printed as text rather than through `debugPrintStack`, which asserts on
+      // a trace that carries `package:stack_trace`'s asynchronous-gap markers —
+      // and every trace from this async path does. The assertion then replaced
+      // the real failure with a complaint about stack frames, which is the
+      // worst possible moment to lose the diagnosis.
+      debugPrint(stack.toString());
       // The state message carries the failure type only. The exception text can
       // quote SQL, and SQL here quotes the user's own financial records.
       state = state.copyWith(

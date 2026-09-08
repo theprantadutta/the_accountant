@@ -394,7 +394,14 @@ class AppDatabase extends _$AppDatabase {
   /// in a migration so a store that has been through any upgrade path ends up
   /// with the same set.
   Future<void> _installRowVersionTriggers() async {
+    final existing = await _existingObjectNames('trigger');
+
     for (final table in syncedTableNames) {
+      if (existing.contains('trg_${table}_row_version_insert') &&
+          existing.contains('trg_${table}_row_version_update')) {
+        continue;
+      }
+
       await customStatement('''
         CREATE TRIGGER IF NOT EXISTS trg_${table}_row_version_insert
         AFTER INSERT ON $table
@@ -1344,6 +1351,14 @@ class AppDatabase extends _$AppDatabase {
   Future<void> installPartialIndexesForTest() => _installPartialIndexes();
 
   Future<void> _installPartialIndexes() async {
+    // Nothing below is needed once a store is in order, and finding that out
+    // is a read. This used to delete, update and create on every single open —
+    // three write locks taken to discover there was nothing to do, on a file
+    // three isolates are writing to.
+    final indexes = await _existingObjectNames('index');
+    final hasIndex = indexes.contains('idx_category_budget_limits_pair');
+    if (hasIndex && !await _hasDuplicateCategoryLimits()) return;
+
     // Duplicates first. A store that has already collected a pair would
     // otherwise fail to create the index on every open, for ever, which is a
     // worse outcome than the duplicates themselves. The most recently touched
@@ -1383,6 +1398,8 @@ class AppDatabase extends _$AppDatabase {
       WHERE id IN ($losers)
     ''');
 
+    if (hasIndex) return;
+
     await customStatement(
       'CREATE UNIQUE INDEX IF NOT EXISTS idx_category_budget_limits_pair '
       'ON category_budget_limits (budget_id, category_id) '
@@ -1390,8 +1407,40 @@ class AppDatabase extends _$AppDatabase {
     );
   }
 
+  /// Whether any budget holds two live caps on one category.
+  ///
+  /// A read, so the common case of a store that is already in order costs no
+  /// write lock at all.
+  Future<bool> _hasDuplicateCategoryLimits() async {
+    final rows = await customSelect(
+      'SELECT 1 FROM category_budget_limits WHERE deleted_at IS NULL '
+      'GROUP BY budget_id, category_id HAVING COUNT(*) > 1 LIMIT 1',
+    ).get();
+    return rows.isNotEmpty;
+  }
+
+  /// The names of everything this store already has, of one `sqlite_master`
+  /// kind — triggers or indexes.
+  ///
+  /// Read once so the installers below can write only what is missing. Opening
+  /// a database should not take a write lock to re-assert three dozen objects
+  /// that are already there: three isolates open these files, and a writer that
+  /// finds one locked does not wait unless it is told to. Re-running
+  /// `CREATE ... IF NOT EXISTS` looks free and is not — it still takes the lock
+  /// to decide it has nothing to do.
+  Future<Set<String>> _existingObjectNames(String kind) async {
+    final rows = await customSelect(
+      'SELECT name FROM sqlite_master WHERE type = ?',
+      variables: [Variable<String>(kind)],
+    ).get();
+    return {for (final row in rows) row.read<String>('name')};
+  }
+
   Future<void> _installSyncStatusGuards() async {
+    final existing = await _existingObjectNames('trigger');
+
     for (final table in syncedTableNames) {
+      if (existing.contains('trg_${table}_keep_pending_create')) continue;
       await customStatement('''
         CREATE TRIGGER IF NOT EXISTS trg_${table}_keep_pending_create
         AFTER UPDATE OF sync_status ON $table

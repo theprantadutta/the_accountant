@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
+import 'package:sqlite3/common.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
@@ -32,9 +33,32 @@ AppDatabase constructDbForFile(String fileName, {bool logStatements = false}) {
       return NativeDatabase.createInBackground(
         File(path),
         logStatements: logStatements,
+        setup: applyStorePragmas,
       );
     }),
   );
+}
+
+/// Settings every connection to a store needs, whichever isolate opened it.
+///
+/// **Three isolates open the same file.** The app holds one; the WorkManager
+/// periodic task opens its own, because a background callback has no Riverpod
+/// state to borrow one from; and the notification action handler opens a third.
+/// That is by design — they must all write to the account's real store — but it
+/// means an ordinary SQLite lock conflict is not a rare event, it is a Tuesday.
+///
+/// SQLite's default busy handler does not wait at all: a writer that finds the
+/// database locked fails immediately with `SqliteException(5): database is
+/// locked`. With three writers and no timeout, the app could fail to open
+/// simply because a background task happened to be a few milliseconds ahead of
+/// it — which is exactly what a user saw, as a startup error screen with their
+/// data perfectly intact behind it.
+///
+/// Five seconds is far longer than any write here takes (the background work is
+/// a handful of statements) and far shorter than a user would wait before
+/// deciding the app has hung.
+void applyStorePragmas(CommonDatabase database) {
+  database.execute('PRAGMA busy_timeout = 5000;');
 }
 
 AppDatabase constructDb({bool logStatements = false}) =>
