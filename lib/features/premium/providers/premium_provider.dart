@@ -230,8 +230,8 @@ class PremiumNotifier extends StateNotifier<PremiumState> {
     switch (entityType) {
       case 'wallet':
         return currentCount < FreeTierLimits.maxWallets;
-      case 'category':
-        return currentCount < FreeTierLimits.maxCustomCategories;
+      // 'category' is not listed: categories are never limited. It falls
+      // through to the default below, which allows them.
       case 'budget':
         return currentCount < FreeTierLimits.maxActiveBudgets;
       case 'objective':
@@ -254,9 +254,6 @@ class PremiumNotifier extends StateNotifier<PremiumState> {
     switch (entityType) {
       case 'wallet':
         limit = FreeTierLimits.maxWallets;
-        break;
-      case 'category':
-        limit = FreeTierLimits.maxCustomCategories;
         break;
       case 'budget':
         limit = FreeTierLimits.maxActiveBudgets;

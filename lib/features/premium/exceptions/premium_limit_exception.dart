@@ -25,8 +25,6 @@ class PremiumLimitException implements Exception {
     switch (entityType) {
       case 'wallet':
         return FreeTierLimits.maxWallets;
-      case 'category':
-        return FreeTierLimits.maxCustomCategories;
       case 'budget':
         return FreeTierLimits.maxActiveBudgets;
       case 'objective':

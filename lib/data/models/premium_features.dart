@@ -89,9 +89,20 @@ class PremiumFeatureIds {
 }
 
 /// Free tier limits
+/// What the free tier caps.
+///
+/// **Categories are deliberately absent.** They used to be capped at ten, and
+/// that was the wrong thing to charge for: a category is how a person describes
+/// their own spending, not a feature of the app. The cap also bit at the worst
+/// possible moment — part-way through recording a transaction, which is when
+/// somebody reaches for a name that does not exist yet — and it degraded every
+/// report they would ever run afterwards, because the spending still had to go
+/// somewhere and ended up under whatever they picked instead.
+///
+/// Creating, renaming and deleting categories are free and unlimited, from the
+/// category screen and from inside a transaction alike.
 class FreeTierLimits {
   static const int maxWallets = 3;
-  static const int maxCustomCategories = 10;
   static const int maxActiveBudgets = 3;
   static const int maxActiveObjectives = 2;
   static const int maxPaymentMethods = 5;
