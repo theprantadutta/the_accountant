@@ -33,8 +33,33 @@ class BackupScreen extends ConsumerStatefulWidget {
   ConsumerState<BackupScreen> createState() => _BackupScreenState();
 }
 
-class _BackupScreenState extends ConsumerState<BackupScreen> {
+class _BackupScreenState extends ConsumerState<BackupScreen>
+    with WidgetsBindingObserver {
   bool _busy = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  /// Re-read the Drive listing whenever the app comes back to the foreground.
+  ///
+  /// Saving a backup opens the system's own file dialog, and on Android one of
+  /// the places it offers is Drive itself — so a file can land in the folder
+  /// this screen lists without the app ever being told. Coming back is the one
+  /// moment we know something might have changed underneath us.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state != AppLifecycleState.resumed || !mounted) return;
+    ref.invalidate(driveBackupsProvider);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -79,7 +104,10 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
           _driveSection(),
           SizedBox(height: AppSpacing.lg),
 
-          _header('BACKUPS IN DRIVE'),
+          _header(
+            'BACKUPS IN DRIVE',
+            action: _refreshDriveButton(),
+          ),
           _driveList(),
           SizedBox(height: AppSpacing.xl),
         ],
@@ -109,7 +137,12 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
         ),
         contents: document.encode(),
       );
-      if (saved) _say('Backed up ${document.rowCount} records.');
+      if (saved) {
+        _say('Backed up ${document.rowCount} records.');
+        // The system dialog can write into Drive itself, and if it did then the
+        // list below is already out of date.
+        await _refreshDriveBackups();
+      }
     } catch (e) {
       _say('The backup could not be taken: $e', bad: true);
     } finally {
@@ -277,6 +310,30 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
 
         final current = schedule.value ?? const BackupSchedule();
         return _card([
+          // Says so plainly. Connecting used to change nothing on screen except
+          // the last row turning into "Disconnect", which asks the user to work
+          // out that it must have succeeded from the absence of the button they
+          // pressed.
+          ListTile(
+            key: const ValueKey('drive-connected'),
+            leading: _leading(Icons.check_circle, AppColors.success),
+            title: Text(
+              'Google Drive connected',
+              style: TextStyle(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            subtitle: Text(
+              current.lastBackupAt == null
+                  ? 'Backups from this device will go to a folder called '
+                        '"${DriveBackupClient.folderName}" in your Drive.'
+                  : 'Backups go to "${DriveBackupClient.folderName}" in your '
+                        'Drive.',
+              style: TextStyle(color: AppColors.textMuted, fontSize: 13),
+            ),
+          ),
+          _divider(),
           _tile(
             icon: Icons.backup,
             title: L10n.of(context).backupBackUpNow,
@@ -440,6 +497,7 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
       }
       ref.invalidate(driveAuthorizedProvider);
       ref.invalidate(driveBackupsProvider);
+      _say('Google Drive connected.');
     } catch (e) {
       _say('Google Drive could not be connected: $e', bad: true);
     } finally {
@@ -482,8 +540,12 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
             appVersion: await ref.read(appVersionLabelProvider.future),
           );
       _say('Saved ${file.name} to Google Drive.');
-      ref.invalidate(driveBackupsProvider);
       ref.invalidate(backupScheduleProvider);
+      // Awaited, not just invalidated. A rebuild triggered by an invalidation
+      // is not a guarantee that the new listing has arrived, and a backup that
+      // does not appear until the app is restarted reads as one that was not
+      // taken.
+      await _refreshDriveBackups();
     } on DriveException catch (e) {
       _say(e.message, bad: true);
     } catch (e) {
@@ -637,18 +699,70 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
     return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
   }
 
-  Widget _header(String title) => Padding(
+  Widget _header(String title, {Widget? action}) => Padding(
     padding: EdgeInsets.only(left: AppSpacing.sm, bottom: AppSpacing.sm),
-    child: Text(
-      title,
-      style: TextStyle(
-        fontSize: 12,
-        fontWeight: FontWeight.w600,
-        color: AppColors.textMuted,
-        letterSpacing: 1.2,
-      ),
+    child: Row(
+      children: [
+        Expanded(
+          child: Text(
+            title,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textMuted,
+              letterSpacing: 1.2,
+            ),
+          ),
+        ),
+        ?action,
+      ],
     ),
   );
+
+  /// Ask Drive again, by hand.
+  ///
+  /// Drive does not always list a file the instant it is written, and a backup
+  /// can arrive from somewhere this screen never saw — another device, or the
+  /// system save dialog writing straight into the folder. Waiting for the app
+  /// to be restarted is not an answer to either.
+  Widget _refreshDriveButton() {
+    final files = ref.watch(driveBackupsProvider);
+    final authorized = ref.watch(driveAuthorizedProvider).value ?? false;
+    if (!authorized) return const SizedBox.shrink();
+
+    if (files.isLoading) {
+      return const Padding(
+        padding: EdgeInsets.all(8),
+        child: SizedBox(
+          height: 16,
+          width: 16,
+          child: CircularProgressIndicator(strokeWidth: 2),
+        ),
+      );
+    }
+
+    return IconButton(
+      key: const ValueKey('refresh-drive-backups'),
+      onPressed: _refreshDriveBackups,
+      icon: Icon(Icons.refresh, size: 20, color: AppColors.textMuted),
+      tooltip: 'Refresh',
+      visualDensity: VisualDensity.compact,
+      constraints: const BoxConstraints(),
+      padding: const EdgeInsets.all(8),
+    );
+  }
+
+  /// Re-read the listing and wait for it, so the button's spinner lasts exactly
+  /// as long as the work does.
+  Future<void> _refreshDriveBackups() async {
+    ref.invalidate(driveBackupsProvider);
+    try {
+      await ref.read(driveBackupsProvider.future);
+    } catch (_) {
+      // Whatever went wrong is already on screen: the list itself renders the
+      // error. Throwing here would only add an unhandled one.
+    }
+  }
 
   Widget _card(List<Widget> children) => Container(
     decoration: BoxDecoration(
