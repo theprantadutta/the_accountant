@@ -9,9 +9,6 @@ import 'package:the_accountant/core/services/wallet_balance_service.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/data/models/wallet.dart' show WalletType;
-import 'package:the_accountant/data/models/premium_features.dart';
-import 'package:the_accountant/features/premium/exceptions/premium_limit_exception.dart';
-import 'package:the_accountant/features/premium/providers/premium_provider.dart';
 import 'package:drift/drift.dart' show Value;
 import 'package:uuid/uuid.dart';
 
@@ -143,18 +140,10 @@ class WalletNotifier extends StateNotifier<WalletState> {
     int? billingCycleDay,
   }) async {
     try {
-      // Check premium limit for wallets
-      final premiumState = _ref.read(premiumProvider);
-      if (!premiumState.isPremium) {
-        final currentCount = state.wallets.length;
-        if (currentCount >= FreeTierLimits.maxWallets) {
-          throw PremiumLimitException(
-            entityType: 'wallet',
-            currentCount: currentCount,
-            limit: FreeTierLimits.maxWallets,
-          );
-        }
-      }
+      // No limit on accounts. Most people have a bank account, a wallet and a
+      // mobile-money account before they have done anything unusual, and being
+      // asked for money at that point is being asked before the app has been
+      // any use. See `FreeTierLimits`.
 
       // If setting as default, clear other defaults first
       if (isDefault) {

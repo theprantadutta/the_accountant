@@ -89,23 +89,29 @@ class PremiumFeatureIds {
 }
 
 /// Free tier limits
-/// What the free tier caps.
+/// What the free tier caps: **nothing**.
 ///
-/// **Categories are deliberately absent.** They used to be capped at ten, and
-/// that was the wrong thing to charge for: a category is how a person describes
-/// their own spending, not a feature of the app. The cap also bit at the worst
-/// possible moment — part-way through recording a transaction, which is when
-/// somebody reaches for a name that does not exist yet — and it degraded every
-/// report they would ever run afterwards, because the spending still had to go
-/// somewhere and ended up under whatever they picked instead.
+/// Accounts, categories, budgets, goals and payment methods were all capped
+/// once. Every one of those caps charged for describing your own money, which
+/// is not a feature — it is the thing the app is for. They also all failed the
+/// same way: the limit was reached mid-task, so the first time somebody met the
+/// paywall was part-way through recording a transaction or setting up the
+/// account they had just opened.
 ///
-/// Creating, renaming and deleting categories are free and unlimited, from the
-/// category screen and from inside a transaction alike.
+/// What is charged for instead is what actually costs money to provide:
+///
+/// * the AI features — receipt scanning, insights, the assistant — which are
+///   real per-use calls to a paid API;
+/// * cloud sync, which is a server somebody has to keep running.
+///
+/// Everything else, including every backup and restore path, is free. A person
+/// deciding whether to trust an app with their entire financial history should
+/// not have to pay to find out whether they can get it back out again.
+///
+/// The class is kept, empty, as the place that answer lives. A future limit
+/// should have to be added here on purpose.
 class FreeTierLimits {
-  static const int maxWallets = 3;
-  static const int maxActiveBudgets = 3;
-  static const int maxActiveObjectives = 2;
-  static const int maxPaymentMethods = 5;
+  const FreeTierLimits._();
 }
 
 class PremiumFeatures extends Equatable {

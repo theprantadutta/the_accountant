@@ -223,53 +223,19 @@ class PremiumNotifier extends StateNotifier<PremiumState> {
         state.features.features.contains(featureId);
   }
 
-  /// Check if user can add more of an entity (respects free tier limits)
-  bool canAddMore({required String entityType, required int currentCount}) {
-    if (state.isPremium) return true;
+  /// Whether the user may add another of something.
+  ///
+  /// Always yes. Nothing is capped by tier any more — see [FreeTierLimits] for
+  /// what is charged for instead. Kept so the call sites read as a question
+  /// being asked rather than one nobody thought to ask.
+  bool canAddMore({required String entityType, required int currentCount}) =>
+      true;
 
-    switch (entityType) {
-      case 'wallet':
-        return currentCount < FreeTierLimits.maxWallets;
-      // 'category' is not listed: categories are never limited. It falls
-      // through to the default below, which allows them.
-      case 'budget':
-        return currentCount < FreeTierLimits.maxActiveBudgets;
-      case 'objective':
-        return currentCount < FreeTierLimits.maxActiveObjectives;
-      case 'payment_method':
-        return currentCount < FreeTierLimits.maxPaymentMethods;
-      default:
-        return true;
-    }
-  }
-
-  /// Get remaining count for an entity type
+  /// How many more of something the user may add. -1 means no limit.
   int getRemainingCount({
     required String entityType,
     required int currentCount,
-  }) {
-    if (state.isPremium) return -1; // -1 means unlimited
-
-    int limit;
-    switch (entityType) {
-      case 'wallet':
-        limit = FreeTierLimits.maxWallets;
-        break;
-      case 'budget':
-        limit = FreeTierLimits.maxActiveBudgets;
-        break;
-      case 'objective':
-        limit = FreeTierLimits.maxActiveObjectives;
-        break;
-      case 'payment_method':
-        limit = FreeTierLimits.maxPaymentMethods;
-        break;
-      default:
-        return -1;
-    }
-
-    return limit - currentCount;
-  }
+  }) => -1;
 }
 
 final premiumProvider = StateNotifierProvider<PremiumNotifier, PremiumState>((

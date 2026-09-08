@@ -1178,9 +1178,6 @@ class L10nEn extends L10n {
   String get goalUnlink => 'Unlink';
 
   @override
-  String get reportMaybeLater => 'Maybe Later';
-
-  @override
   String get reportUpgrade => 'Upgrade';
 
   @override
@@ -1654,9 +1651,6 @@ class L10nEn extends L10n {
 
   @override
   String get reportSpendingInsights => 'Spending Insights';
-
-  @override
-  String get reportAdvancedReports => 'Advanced Reports';
 
   @override
   String get reportNoSpendingDataForThis => 'No spending data for this period';

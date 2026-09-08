@@ -1,10 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
-import 'package:the_accountant/data/models/premium_features.dart';
 import 'package:the_accountant/features/objectives/services/objectives_service.dart';
-import 'package:the_accountant/features/premium/exceptions/premium_limit_exception.dart';
-import 'package:the_accountant/features/premium/providers/premium_provider.dart';
 
 part 'objectives_provider.g.dart';
 
@@ -73,18 +70,7 @@ class ObjectivesNotifier extends _$ObjectivesNotifier {
     String? walletId,
     bool isPinned = false,
   }) async {
-    // Check premium limit for active objectives
-    final premiumState = ref.read(premiumProvider);
-    if (!premiumState.isPremium) {
-      final currentObjectives = await ref.read(activeObjectivesProvider.future);
-      if (currentObjectives.length >= FreeTierLimits.maxActiveObjectives) {
-        throw PremiumLimitException(
-          entityType: 'objective',
-          currentCount: currentObjectives.length,
-          limit: FreeTierLimits.maxActiveObjectives,
-        );
-      }
-    }
+    // No limit on goals. See `FreeTierLimits`.
 
     final service = ref.read(objectivesServiceProvider);
 

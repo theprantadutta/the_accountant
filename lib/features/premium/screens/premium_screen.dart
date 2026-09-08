@@ -426,21 +426,9 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
           isPremium,
         ),
         _buildFeatureRow(
-          Icons.analytics,
-          'Advanced Reports',
-          'Monthly & yearly analytics',
-          isPremium,
-        ),
-        _buildFeatureRow(
           Icons.palette,
           'Premium Themes',
           '5 exclusive color themes',
-          isPremium,
-        ),
-        _buildFeatureRow(
-          Icons.all_inclusive,
-          'Unlimited Everything',
-          'No limits on wallets, budgets, etc.',
           isPremium,
         ),
         _buildFeatureRow(

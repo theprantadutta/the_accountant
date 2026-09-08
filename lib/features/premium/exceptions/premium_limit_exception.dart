@@ -16,25 +16,22 @@ class PremiumLimitException implements Exception {
            message ??
            'You\'ve reached the free tier limit of $limit ${entityType}s. '
                'Upgrade to Premium for unlimited ${entityType}s.';
+  // Nothing raises this any more — see `FreeTierLimits`. Kept because it is
+  // the shape a future limit would be reported in, and deleting it would take
+  // the upgrade dialog with it.
 
   @override
   String toString() => message;
 
-  /// Get the appropriate limit for an entity type
-  static int getLimitForEntity(String entityType) {
-    switch (entityType) {
-      case 'wallet':
-        return FreeTierLimits.maxWallets;
-      case 'budget':
-        return FreeTierLimits.maxActiveBudgets;
-      case 'objective':
-        return FreeTierLimits.maxActiveObjectives;
-      case 'payment_method':
-        return FreeTierLimits.maxPaymentMethods;
-      default:
-        return 999; // No limit
-    }
-  }
+  /// Get the appropriate limit for an entity type.
+  ///
+  /// Nothing is capped any more — see [FreeTierLimits] — so this answers "no
+  /// limit" for everything. Kept because the exception type is still the shape
+  /// a future limit would be reported in.
+  static int getLimitForEntity(String entityType) => noLimit;
+
+  /// The answer when there is no cap.
+  static const int noLimit = 999;
 
   /// Get a user-friendly entity name
   static String getEntityDisplayName(String entityType) {

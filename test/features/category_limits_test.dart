@@ -81,15 +81,21 @@ void main() {
     );
   });
 
-  test('nothing asks what a category limit is any more', () {
-    // Every other capped entity still answers with its own number; a category
-    // falls through to "no limit", which is what the default means here.
-    expect(PremiumLimitException.getLimitForEntity('wallet'), 3);
-    expect(
-      PremiumLimitException.getLimitForEntity('category'),
-      999,
-      reason: 'the switch no longer has a case for it, and the default is the '
-          'no-limit answer',
-    );
+  test('nothing is capped by tier at all', () {
+    // Not categories, and not the four things that used to be. What is charged
+    // for is what costs money to provide — the AI calls and the sync server.
+    for (final entity in const [
+      'category',
+      'wallet',
+      'budget',
+      'objective',
+      'payment_method',
+    ]) {
+      expect(
+        PremiumLimitException.getLimitForEntity(entity),
+        PremiumLimitException.noLimit,
+        reason: 'a $entity describes money the user already has, not a feature of the app',
+      );
+    }
   });
 }

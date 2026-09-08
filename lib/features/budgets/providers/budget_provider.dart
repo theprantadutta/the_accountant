@@ -1,15 +1,12 @@
 import 'dart:convert';
 
 import 'package:drift/drift.dart' show Value;
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:the_accountant/core/services/analytics_service.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
 import 'package:the_accountant/data/models/budget.dart' show BudgetPeriod;
-import 'package:the_accountant/data/models/premium_features.dart';
 import 'package:the_accountant/features/premium/exceptions/premium_limit_exception.dart';
-import 'package:the_accountant/features/premium/providers/premium_provider.dart';
 import 'package:uuid/uuid.dart';
 
 /// One budget, as the UI needs it.
@@ -129,9 +126,8 @@ class BudgetState {
 
 class BudgetNotifier extends StateNotifier<BudgetState> {
   final AppDatabase _db;
-  final Ref _ref;
 
-  BudgetNotifier(this._db, this._ref)
+  BudgetNotifier(this._db)
     : super(const BudgetState(budgets: [], isLoading: false)) {
     loadBudgets();
   }
@@ -189,17 +185,9 @@ class BudgetNotifier extends StateNotifier<BudgetState> {
     state = state.copyWith(isLoading: true);
 
     try {
-      final premiumState = _ref.read(premiumProvider);
-      if (!premiumState.isPremium) {
-        final active = activeBudgets();
-        if (active.length >= FreeTierLimits.maxActiveBudgets) {
-          throw PremiumLimitException(
-            entityType: 'budget',
-            currentCount: active.length,
-            limit: FreeTierLimits.maxActiveBudgets,
-          );
-        }
-      }
+      // No limit on budgets. Somebody who wants a fourth has already made the
+      // app part of how they manage their money, and that is the worst moment
+      // to interrupt them for it. See `FreeTierLimits`.
 
       final id = const Uuid().v4();
       final now = DateTime.now();
@@ -356,5 +344,5 @@ final budgetProvider = StateNotifierProvider<BudgetNotifier, BudgetState>((
   ref,
 ) {
   final db = ref.watch(databaseProvider);
-  return BudgetNotifier(db, ref);
+  return BudgetNotifier(db);
 });

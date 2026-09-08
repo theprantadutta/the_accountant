@@ -1172,9 +1172,6 @@ class L10nBn extends L10n {
   String get goalUnlink => 'সংযোগ ছাড়ান';
 
   @override
-  String get reportMaybeLater => 'পরে দেখা যাবে';
-
-  @override
   String get reportUpgrade => 'আপগ্রেড করুন';
 
   @override
@@ -1645,9 +1642,6 @@ class L10nBn extends L10n {
 
   @override
   String get reportSpendingInsights => 'খরচের বিশ্লেষণ';
-
-  @override
-  String get reportAdvancedReports => 'উন্নত প্রতিবেদন';
 
   @override
   String get reportNoSpendingDataForThis => 'এই সময়কালে খরচের কোনো তথ্য নেই';

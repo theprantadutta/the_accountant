@@ -2297,12 +2297,6 @@ abstract class L10n {
   /// **'Unlink'**
   String get goalUnlink;
 
-  /// No description provided for @reportMaybeLater.
-  ///
-  /// In en, this message translates to:
-  /// **'Maybe Later'**
-  String get reportMaybeLater;
-
   /// No description provided for @reportUpgrade.
   ///
   /// In en, this message translates to:
@@ -3196,12 +3190,6 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'Spending Insights'**
   String get reportSpendingInsights;
-
-  /// No description provided for @reportAdvancedReports.
-  ///
-  /// In en, this message translates to:
-  /// **'Advanced Reports'**
-  String get reportAdvancedReports;
 
   /// No description provided for @reportNoSpendingDataForThis.
   ///

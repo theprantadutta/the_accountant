@@ -18,7 +18,6 @@ import 'package:the_accountant/features/categories/providers/category_provider.d
 import 'package:the_accountant/features/reports/providers/reports_provider.dart';
 import 'package:the_accountant/features/settings/providers/settings_provider.dart';
 import 'package:the_accountant/core/utils/number_formatter.dart';
-import 'package:the_accountant/features/premium/providers/premium_provider.dart';
 import 'package:the_accountant/features/ai/screens/monthly_summary_screen.dart';
 import 'package:the_accountant/shared/widgets/shimmer_loading.dart';
 
@@ -271,10 +270,13 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
     );
   }
 
+  /// Week, month and year, all of them free.
+  ///
+  /// Month and year used to be paid, which charged the user to look at their
+  /// own history — and the longer the view, the more the app was actually
+  /// worth to them. Nothing about serving it costs anything either: the rows
+  /// are already on the device.
   Widget _buildTimeFrameSelector() {
-    final premiumState = ref.watch(premiumProvider);
-    final isPremium = premiumState.isPremium;
-
     return AppTheme.glassmorphicContainer(
       gradient: AppColors.accentCardGradient,
       borderColor: AppColors.primaryAccent.withValues(alpha: 0.3),
@@ -283,18 +285,10 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
         child: Row(
           children: List.generate(_timeFrames.length, (index) {
             final isSelected = _selectedTimeFrame == index;
-            // Month (1) and Year (2) are premium-only
-            final isPremiumTimeframe = index > 0;
-            final isLocked = isPremiumTimeframe && !isPremium;
 
             return Expanded(
               child: GestureDetector(
                 onTap: () {
-                  if (isLocked) {
-                    // Show upgrade prompt
-                    _showAdvancedReportsUpgradeDialog();
-                    return;
-                  }
                   setState(() {
                     _selectedTimeFrame = index;
                   });
@@ -309,9 +303,6 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
                   decoration: BoxDecoration(
                     gradient: isSelected ? AppTheme.primaryGradient : null,
                     borderRadius: BorderRadius.circular(12),
-                    color: isLocked
-                        ? Colors.white.withValues(alpha: 0.05)
-                        : null,
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -320,23 +311,13 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
                         _timeFrames[index],
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          color: isLocked
-                              ? Colors.white38
-                              : (isSelected ? Colors.white : Colors.white70),
+                          color: isSelected ? Colors.white : Colors.white70,
                           fontWeight: isSelected
                               ? FontWeight.bold
                               : FontWeight.w500,
                           fontSize: 14,
                         ),
                       ),
-                      if (isLocked) ...[
-                        const SizedBox(width: 4),
-                        Icon(
-                          Icons.lock,
-                          size: 12,
-                          color: AppColors.textPrimary.withValues(alpha: 0.38),
-                        ),
-                      ],
                     ],
                   ),
                 ),
@@ -344,49 +325,6 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen>
             );
           }),
         ),
-      ),
-    );
-  }
-
-  void _showAdvancedReportsUpgradeDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF1a1a2e),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Row(
-          children: [
-            Icon(Icons.analytics, color: Colors.amber),
-            SizedBox(width: 8),
-            Text(
-              L10n.of(context).reportAdvancedReports,
-              style: TextStyle(color: AppColors.textPrimary),
-            ),
-          ],
-        ),
-        content: Text(
-          'Monthly and yearly reports are available with Premium.\n\n'
-          'Upgrade to unlock the month & year timeframes, longer-term spending '
-          'trends, and detailed Spending Insights.',
-          style: TextStyle(color: AppColors.textPrimary.withValues(alpha: 0.7)),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(L10n.of(context).reportMaybeLater),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              Navigator.pushNamed(context, '/premium');
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.amber,
-              foregroundColor: Colors.black,
-            ),
-            child: Text(L10n.of(context).reportUpgrade),
-          ),
-        ],
       ),
     );
   }
