@@ -376,6 +376,8 @@ class _AddBudgetScreenState extends ConsumerState<AddBudgetScreen> {
     setState(() => _saving = true);
     final notifier = ref.read(budgetProvider.notifier);
     final interval = int.tryParse(_intervalController.text) ?? 1;
+    // The same value the field was labelled with while the user typed into it.
+    final currency = ref.read(defaultCurrencyProvider);
 
     try {
       if (widget.isEditing) {
@@ -396,6 +398,10 @@ class _AddBudgetScreenState extends ConsumerState<AddBudgetScreen> {
         await notifier.addBudget(
           name: _nameController.text.trim(),
           amount: cents,
+          // The symbol this form put beside the field. Recorded with the
+          // figure, because a number without it means whatever the reader
+          // assumes — and what the reader assumed used to change.
+          currency: currency,
           period: _period,
           periodLength: interval,
           startDate: _startDate,

@@ -139,27 +139,23 @@ class BudgetEngine {
 
   const BudgetEngine(this._db);
 
-  /// The currency [budget] is counted in: the display currency, always.
+  /// The currency [budget] is counted in: its own, recorded when it was made.
   ///
   /// A budget's amount is a bare number of minor units with nothing beside it
-  /// saying what kind of money it is, so the only thing that can settle the
-  /// question is the rule the form and the engine both follow. The form asks
-  /// for the amount in the display currency and labels it so; the engine reads
-  /// it the same way.
+  /// saying what kind of money it counts. This used to answer with the display
+  /// currency at the moment of reading, which meant the answer moved: opening a
+  /// euro account and making it the default turned a $100 budget into a €100
+  /// budget, with the figure on screen never changing. A number that changes
+  /// meaning without changing is the worst way for this to be wrong, because
+  /// there is nothing for the user to notice.
   ///
-  /// It briefly read the amount in the scoped accounts' currency when they
-  /// agreed on one, on the reasoning that this is the money the user was
-  /// thinking in. That was wrong, and quietly: the number had been *entered*
-  /// under a dollar sign, so scoping a budget to a taka account reinterpreted a
-  /// hundred dollars as a hundred taka without the figure on screen changing.
-  /// Worse, changing which accounts a budget covers changed what its stored
-  /// amount meant. One rule, stated in one place, is the whole fix — and it is
-  /// the rule the entry form was already using.
-  ///
-  /// Storing a currency per budget would allow the other answer, and would need
-  /// a column, a migration and a server that ships first. If that is ever
-  /// wanted, this is the method that changes.
-  Future<String> currencyFor(BudgetView budget) => _db.displayCurrency();
+  /// The fallback is the old behaviour, and applies to exactly two cases: a
+  /// budget written before budgets carried a currency — the upgrade stamps
+  /// those with what they were already being read as, so this is only reached
+  /// if there were no accounts at the time — and one pulled from a server that
+  /// predates the field.
+  Future<String> currencyFor(BudgetView budget) async =>
+      budget.currency ?? await _db.displayCurrency();
 
   Future<AmountConverter> _converterFor(BudgetView budget) async =>
       AmountConverter.forDatabase(_db, target: await currencyFor(budget));

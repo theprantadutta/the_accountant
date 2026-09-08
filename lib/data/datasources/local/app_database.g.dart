@@ -5689,6 +5689,17 @@ class $BudgetsTable extends Budgets with TableInfo<$BudgetsTable, Budget> {
     type: DriftSqlType.int,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _currencyMeta = const VerificationMeta(
+    'currency',
+  );
+  @override
+  late final GeneratedColumn<String> currency = GeneratedColumn<String>(
+    'currency',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _periodMeta = const VerificationMeta('period');
   @override
   late final GeneratedColumn<String> period = GeneratedColumn<String>(
@@ -5880,6 +5891,7 @@ class $BudgetsTable extends Budgets with TableInfo<$BudgetsTable, Budget> {
     id,
     name,
     amount,
+    currency,
     period,
     periodLength,
     startDate,
@@ -5928,6 +5940,12 @@ class $BudgetsTable extends Budgets with TableInfo<$BudgetsTable, Budget> {
       );
     } else if (isInserting) {
       context.missing(_amountMeta);
+    }
+    if (data.containsKey('currency')) {
+      context.handle(
+        _currencyMeta,
+        currency.isAcceptableOrUnknown(data['currency']!, _currencyMeta),
+      );
     }
     if (data.containsKey('period')) {
       context.handle(
@@ -6048,6 +6066,10 @@ class $BudgetsTable extends Budgets with TableInfo<$BudgetsTable, Budget> {
         DriftSqlType.int,
         data['${effectivePrefix}amount'],
       )!,
+      currency: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}currency'],
+      ),
       period: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}period'],
@@ -6126,6 +6148,21 @@ class Budget extends DataClass implements Insertable<Budget> {
   /// Named `amount` rather than `limit` because the latter is reserved in SQL.
   final int amount;
 
+  /// The currency [amount] is stated in, as an ISO code.
+  ///
+  /// An amount is a bare count of minor units, and nothing else on the row says
+  /// what kind of money it counts. That used to be answered with whatever the
+  /// user's default account happened to be at the moment of reading — so
+  /// opening a euro account and making it the default turned a $100 budget into
+  /// a €100 budget, with the figure on screen never changing. Recorded here, a
+  /// budget entered in dollars stays a budget in dollars however the accounts
+  /// around it change.
+  ///
+  /// Null on a budget written before this existed, and on one pulled from a
+  /// server that predates it. Readers treat null as "not stated" and fall back
+  /// to the display currency, which is exactly the old behaviour.
+  final String? currency;
+
   /// One of [BudgetPeriod]'s names.
   final String period;
 
@@ -6158,6 +6195,7 @@ class Budget extends DataClass implements Insertable<Budget> {
     required this.id,
     required this.name,
     required this.amount,
+    this.currency,
     required this.period,
     required this.periodLength,
     required this.startDate,
@@ -6180,6 +6218,9 @@ class Budget extends DataClass implements Insertable<Budget> {
     map['id'] = Variable<String>(id);
     map['name'] = Variable<String>(name);
     map['amount'] = Variable<int>(amount);
+    if (!nullToAbsent || currency != null) {
+      map['currency'] = Variable<String>(currency);
+    }
     map['period'] = Variable<String>(period);
     map['period_length'] = Variable<int>(periodLength);
     map['start_date'] = Variable<DateTime>(startDate);
@@ -6209,6 +6250,9 @@ class Budget extends DataClass implements Insertable<Budget> {
       id: Value(id),
       name: Value(name),
       amount: Value(amount),
+      currency: currency == null && nullToAbsent
+          ? const Value.absent()
+          : Value(currency),
       period: Value(period),
       periodLength: Value(periodLength),
       startDate: Value(startDate),
@@ -6242,6 +6286,7 @@ class Budget extends DataClass implements Insertable<Budget> {
       id: serializer.fromJson<String>(json['id']),
       name: serializer.fromJson<String>(json['name']),
       amount: serializer.fromJson<int>(json['amount']),
+      currency: serializer.fromJson<String?>(json['currency']),
       period: serializer.fromJson<String>(json['period']),
       periodLength: serializer.fromJson<int>(json['periodLength']),
       startDate: serializer.fromJson<DateTime>(json['startDate']),
@@ -6266,6 +6311,7 @@ class Budget extends DataClass implements Insertable<Budget> {
       'id': serializer.toJson<String>(id),
       'name': serializer.toJson<String>(name),
       'amount': serializer.toJson<int>(amount),
+      'currency': serializer.toJson<String?>(currency),
       'period': serializer.toJson<String>(period),
       'periodLength': serializer.toJson<int>(periodLength),
       'startDate': serializer.toJson<DateTime>(startDate),
@@ -6288,6 +6334,7 @@ class Budget extends DataClass implements Insertable<Budget> {
     String? id,
     String? name,
     int? amount,
+    Value<String?> currency = const Value.absent(),
     String? period,
     int? periodLength,
     DateTime? startDate,
@@ -6307,6 +6354,7 @@ class Budget extends DataClass implements Insertable<Budget> {
     id: id ?? this.id,
     name: name ?? this.name,
     amount: amount ?? this.amount,
+    currency: currency.present ? currency.value : this.currency,
     period: period ?? this.period,
     periodLength: periodLength ?? this.periodLength,
     startDate: startDate ?? this.startDate,
@@ -6328,6 +6376,7 @@ class Budget extends DataClass implements Insertable<Budget> {
       id: data.id.present ? data.id.value : this.id,
       name: data.name.present ? data.name.value : this.name,
       amount: data.amount.present ? data.amount.value : this.amount,
+      currency: data.currency.present ? data.currency.value : this.currency,
       period: data.period.present ? data.period.value : this.period,
       periodLength: data.periodLength.present
           ? data.periodLength.value
@@ -6360,6 +6409,7 @@ class Budget extends DataClass implements Insertable<Budget> {
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('amount: $amount, ')
+          ..write('currency: $currency, ')
           ..write('period: $period, ')
           ..write('periodLength: $periodLength, ')
           ..write('startDate: $startDate, ')
@@ -6384,6 +6434,7 @@ class Budget extends DataClass implements Insertable<Budget> {
     id,
     name,
     amount,
+    currency,
     period,
     periodLength,
     startDate,
@@ -6407,6 +6458,7 @@ class Budget extends DataClass implements Insertable<Budget> {
           other.id == this.id &&
           other.name == this.name &&
           other.amount == this.amount &&
+          other.currency == this.currency &&
           other.period == this.period &&
           other.periodLength == this.periodLength &&
           other.startDate == this.startDate &&
@@ -6428,6 +6480,7 @@ class BudgetsCompanion extends UpdateCompanion<Budget> {
   final Value<String> id;
   final Value<String> name;
   final Value<int> amount;
+  final Value<String?> currency;
   final Value<String> period;
   final Value<int> periodLength;
   final Value<DateTime> startDate;
@@ -6448,6 +6501,7 @@ class BudgetsCompanion extends UpdateCompanion<Budget> {
     this.id = const Value.absent(),
     this.name = const Value.absent(),
     this.amount = const Value.absent(),
+    this.currency = const Value.absent(),
     this.period = const Value.absent(),
     this.periodLength = const Value.absent(),
     this.startDate = const Value.absent(),
@@ -6469,6 +6523,7 @@ class BudgetsCompanion extends UpdateCompanion<Budget> {
     required String id,
     required String name,
     required int amount,
+    this.currency = const Value.absent(),
     this.period = const Value.absent(),
     this.periodLength = const Value.absent(),
     required DateTime startDate,
@@ -6493,6 +6548,7 @@ class BudgetsCompanion extends UpdateCompanion<Budget> {
     Expression<String>? id,
     Expression<String>? name,
     Expression<int>? amount,
+    Expression<String>? currency,
     Expression<String>? period,
     Expression<int>? periodLength,
     Expression<DateTime>? startDate,
@@ -6514,6 +6570,7 @@ class BudgetsCompanion extends UpdateCompanion<Budget> {
       if (id != null) 'id': id,
       if (name != null) 'name': name,
       if (amount != null) 'amount': amount,
+      if (currency != null) 'currency': currency,
       if (period != null) 'period': period,
       if (periodLength != null) 'period_length': periodLength,
       if (startDate != null) 'start_date': startDate,
@@ -6537,6 +6594,7 @@ class BudgetsCompanion extends UpdateCompanion<Budget> {
     Value<String>? id,
     Value<String>? name,
     Value<int>? amount,
+    Value<String?>? currency,
     Value<String>? period,
     Value<int>? periodLength,
     Value<DateTime>? startDate,
@@ -6558,6 +6616,7 @@ class BudgetsCompanion extends UpdateCompanion<Budget> {
       id: id ?? this.id,
       name: name ?? this.name,
       amount: amount ?? this.amount,
+      currency: currency ?? this.currency,
       period: period ?? this.period,
       periodLength: periodLength ?? this.periodLength,
       startDate: startDate ?? this.startDate,
@@ -6588,6 +6647,9 @@ class BudgetsCompanion extends UpdateCompanion<Budget> {
     }
     if (amount.present) {
       map['amount'] = Variable<int>(amount.value);
+    }
+    if (currency.present) {
+      map['currency'] = Variable<String>(currency.value);
     }
     if (period.present) {
       map['period'] = Variable<String>(period.value);
@@ -6646,6 +6708,7 @@ class BudgetsCompanion extends UpdateCompanion<Budget> {
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('amount: $amount, ')
+          ..write('currency: $currency, ')
           ..write('period: $period, ')
           ..write('periodLength: $periodLength, ')
           ..write('startDate: $startDate, ')
@@ -17724,6 +17787,7 @@ typedef $$BudgetsTableCreateCompanionBuilder =
       required String id,
       required String name,
       required int amount,
+      Value<String?> currency,
       Value<String> period,
       Value<int> periodLength,
       required DateTime startDate,
@@ -17746,6 +17810,7 @@ typedef $$BudgetsTableUpdateCompanionBuilder =
       Value<String> id,
       Value<String> name,
       Value<int> amount,
+      Value<String?> currency,
       Value<String> period,
       Value<int> periodLength,
       Value<DateTime> startDate,
@@ -17785,6 +17850,11 @@ class $$BudgetsTableFilterComposer
 
   ColumnFilters<int> get amount => $composableBuilder(
     column: $table.amount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get currency => $composableBuilder(
+    column: $table.currency,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -17888,6 +17958,11 @@ class $$BudgetsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get currency => $composableBuilder(
+    column: $table.currency,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get period => $composableBuilder(
     column: $table.period,
     builder: (column) => ColumnOrderings(column),
@@ -17982,6 +18057,9 @@ class $$BudgetsTableAnnotationComposer
   GeneratedColumn<int> get amount =>
       $composableBuilder(column: $table.amount, builder: (column) => column);
 
+  GeneratedColumn<String> get currency =>
+      $composableBuilder(column: $table.currency, builder: (column) => column);
+
   GeneratedColumn<String> get period =>
       $composableBuilder(column: $table.period, builder: (column) => column);
 
@@ -18067,6 +18145,7 @@ class $$BudgetsTableTableManager
                 Value<String> id = const Value.absent(),
                 Value<String> name = const Value.absent(),
                 Value<int> amount = const Value.absent(),
+                Value<String?> currency = const Value.absent(),
                 Value<String> period = const Value.absent(),
                 Value<int> periodLength = const Value.absent(),
                 Value<DateTime> startDate = const Value.absent(),
@@ -18087,6 +18166,7 @@ class $$BudgetsTableTableManager
                 id: id,
                 name: name,
                 amount: amount,
+                currency: currency,
                 period: period,
                 periodLength: periodLength,
                 startDate: startDate,
@@ -18109,6 +18189,7 @@ class $$BudgetsTableTableManager
                 required String id,
                 required String name,
                 required int amount,
+                Value<String?> currency = const Value.absent(),
                 Value<String> period = const Value.absent(),
                 Value<int> periodLength = const Value.absent(),
                 required DateTime startDate,
@@ -18129,6 +18210,7 @@ class $$BudgetsTableTableManager
                 id: id,
                 name: name,
                 amount: amount,
+                currency: currency,
                 period: period,
                 periodLength: periodLength,
                 startDate: startDate,

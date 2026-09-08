@@ -168,7 +168,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 24;
+  int get schemaVersion => 25;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -202,6 +202,7 @@ class AppDatabase extends _$AppDatabase {
       // Adding a column is independent of everything else, so it is safe to do
       // all of them up front, and it keeps that trap from being re-set.
       if (from < 18) await _addV18Columns(m);
+      if (from < 25) await _addV25Columns(m);
 
       if (from < 10) {
         // Fix credit/debt isIncome values and recalculate wallet balances
@@ -319,6 +320,10 @@ class AppDatabase extends _$AppDatabase {
       if (from < 24) {
         await _migrateToV24(m);
       }
+
+      if (from < 25) {
+        await _migrateToV25(m);
+      }
     },
     beforeOpen: (details) async {
       // NOTE on foreign keys: SQLite leaves FK enforcement off by default and we
@@ -338,6 +343,37 @@ class AppDatabase extends _$AppDatabase {
       await _installPartialIndexes();
     },
   );
+
+  /// Schema 25 gives every existing budget the currency it was already being
+  /// read in, so nothing changes meaning at the upgrade.
+  ///
+  /// The column itself is added earlier, with the other columns. This step is
+  /// only the backfill, and it is deliberately the *current* display currency:
+  /// that is what the app has been interpreting these amounts as, so writing it
+  /// down changes nothing today and stops it drifting tomorrow. Leaving them
+  /// null would have been simpler and would have kept the defect — the whole
+  /// point is that an existing $100 budget must not silently become €100 the
+  /// first time the default account changes.
+  ///
+  /// Raw SQL rather than the wallet DAO, because a migration must not read rows
+  /// through the generated mapper. The ordering mirrors `resolveDefaultWallet`:
+  /// the live flagged account, else the first live one. With no accounts at all
+  /// the subquery yields null, the budgets stay unstated, and they fall back at
+  /// read time exactly as before.
+  Future<void> _migrateToV25(Migrator m) async {
+    if (!await _tableExists('budgets')) return;
+    if (!await _tableExists('wallets')) return;
+
+    await customStatement('''
+      UPDATE budgets SET currency = (
+        SELECT currency FROM wallets
+         WHERE is_archived = 0 AND deleted_at IS NULL
+         ORDER BY is_default DESC, order_index ASC, created_at ASC
+         LIMIT 1
+      )
+      WHERE currency IS NULL
+    ''');
+  }
 
   /// Schema 24 adds the local row-version counter.
   ///
@@ -853,6 +889,14 @@ class AppDatabase extends _$AppDatabase {
   }
 
   /// The schema half of the schema-18 migration, run before any data step.
+  /// The budget currency column, added with the other columns rather than in
+  /// its own step: everything below reads rows through the current generated
+  /// mapper, which expects every column this build knows about.
+  Future<void> _addV25Columns(Migrator m) async {
+    if (!await _tableExists('budgets')) return;
+    await _ensureColumn(m, budgets, budgets.currency);
+  }
+
   Future<void> _addV18Columns(Migrator m) async {
     if (!await _tableExists('budgets')) return;
     await _ensureColumn(m, budgets, budgets.periodLength);

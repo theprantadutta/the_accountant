@@ -25,6 +25,10 @@ class BudgetView {
   /// The limit, in cents.
   final int amount;
 
+  /// The currency [amount] is stated in, or null on a budget written before
+  /// budgets carried one. See `BudgetEngine.currencyFor` for the fallback.
+  final String? currency;
+
   /// Category ids this budget is scoped to. Empty means every category.
   final List<String> categoryIds;
 
@@ -67,6 +71,7 @@ class BudgetView {
     this.isPinned = false,
     this.isArchived = false,
     this.rollover = false,
+    this.currency,
   });
 
   factory BudgetView.fromRow(Budget row) => BudgetView(
@@ -84,6 +89,7 @@ class BudgetView {
     isArchived: row.isArchived,
     rollover: row.rollover,
     createdAt: row.createdAt,
+    currency: row.currency,
   );
 
   /// The stored period name as an enum, defaulting to monthly for anything
@@ -159,11 +165,19 @@ class BudgetNotifier extends StateNotifier<BudgetState> {
   /// [amount] is in cents. Creating one used to throw outright: the insert
   /// never wrote `amount`, which the column requires, so nothing reached the
   /// database and the screen reported a generic failure.
+  /// Create a budget.
+  ///
+  /// [currency] is what the amount was entered in, and it is recorded rather
+  /// than inferred later: a bare count of minor units means nothing on its own,
+  /// and answering "which money?" at read time meant the answer moved when the
+  /// user's default account did. Defaults to the display currency, which is
+  /// what the form labels the field with.
   Future<String> addBudget({
     required String name,
     required int amount,
     required BudgetPeriod period,
     required DateTime startDate,
+    String? currency,
     int periodLength = 1,
     DateTime? endDate,
     List<String> categoryIds = const [],
@@ -189,11 +203,15 @@ class BudgetNotifier extends StateNotifier<BudgetState> {
 
       final id = const Uuid().v4();
       final now = DateTime.now();
+      // Resolved here rather than trusted from the caller alone, so a budget
+      // created by any path still records what its figure means.
+      final statedIn = currency ?? await _db.displayCurrency();
       await _db.addBudget(
         BudgetsCompanion.insert(
           id: id,
           name: name,
           amount: amount,
+          currency: Value(statedIn),
           startDate: startDate,
           period: Value(period.name),
           periodLength: Value(periodLength < 1 ? 1 : periodLength),

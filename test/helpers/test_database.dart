@@ -198,6 +198,7 @@ Future<String> seedBudget(
   DateTime? startDate,
   DateTime? endDate,
   bool rollover = false,
+  String? currency,
   int syncStatus = SyncStatus.pendingCreate,
 }) async {
   final budgetId = id ?? const Uuid().v4();
@@ -206,6 +207,7 @@ Future<String> seedBudget(
       .insert(
         BudgetsCompanion.insert(
           id: budgetId,
+          currency: Value(currency),
           name: name,
           amount: amount,
           startDate: startDate ?? DateTime.utc(2026, 1, 1),

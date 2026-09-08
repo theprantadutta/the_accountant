@@ -22,6 +22,21 @@ class Budgets extends Table {
   /// Named `amount` rather than `limit` because the latter is reserved in SQL.
   IntColumn get amount => integer()();
 
+  /// The currency [amount] is stated in, as an ISO code.
+  ///
+  /// An amount is a bare count of minor units, and nothing else on the row says
+  /// what kind of money it counts. That used to be answered with whatever the
+  /// user's default account happened to be at the moment of reading — so
+  /// opening a euro account and making it the default turned a $100 budget into
+  /// a €100 budget, with the figure on screen never changing. Recorded here, a
+  /// budget entered in dollars stays a budget in dollars however the accounts
+  /// around it change.
+  ///
+  /// Null on a budget written before this existed, and on one pulled from a
+  /// server that predates it. Readers treat null as "not stated" and fall back
+  /// to the display currency, which is exactly the old behaviour.
+  TextColumn get currency => text().nullable()();
+
   /// One of [BudgetPeriod]'s names.
   TextColumn get period => text().withDefault(const Constant('monthly'))();
 

@@ -1576,6 +1576,10 @@ class SyncService {
       id: Value(change.entityId),
       name: Value(data['Name'] ?? ''),
       amount: Value((data['Amount'] as num?)?.toInt() ?? 0),
+      // Absent from a server that predates the field, which is not the same as
+      // a budget stating it has no currency — both read as null here, and the
+      // engine falls back to the display currency for either.
+      currency: Value(data['Currency'] as String?),
       period: Value(_parseBudgetPeriod(data['Period'])),
       startDate: Value(
         data['StartDate'] != null
@@ -2047,6 +2051,9 @@ class SyncService {
   Map<String, dynamic> _budgetToMap(Budget b) => {
     'Name': b.name,
     'Amount': b.amount,
+    // What kind of money the amount counts. Without it the other device reads
+    // the figure in whatever its own default account happens to be.
+    'Currency': b.currency,
     'StartDate': b.startDate.toUtc().toIso8601String(),
     'EndDate': b.endDate?.toUtc().toIso8601String(),
     'Period': _budgetPeriodToInt(b.period),
