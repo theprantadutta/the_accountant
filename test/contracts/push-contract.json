@@ -1,0 +1,329 @@
+{
+  "version": 1,
+  "about": [
+    "What the push endpoint promises, as data rather than as prose.",
+    "",
+    "The client's tests run against a fake server standing in for this handler, and the fake",
+    "has drifted from it four times: applying nothing on a create for a row it already held",
+    "after the handler had learned to apply content; applying content for every table after",
+    "the handler had learned to do it only for transactions; conflicting on a stale create",
+    "where the handler acknowledges; and conflicting on a delete for a row it does not hold.",
+    "Every one of those was found by a person reading both, never by a test, and each time a",
+    "fully green client suite meant nothing.",
+    "",
+    "This file is run against BOTH: the real handler by PushContractTests, and the fake by",
+    "push_contract_test.dart. A copy lives in each repository because they are separate",
+    "repositories; `version` is asserted against a constant compiled into each side, so",
+    "changing the contract means bumping it here, which fails the other side until its copy",
+    "and its constant are updated too. That is the forcing function two prose documents did",
+    "not have.",
+    "",
+    "Cases run in order against a fresh store with one seeded user. `given` is applied first",
+    "through the same push path, so no separate seeding language is needed; `push` is the",
+    "change under test; `expect` is what the response and the stored row must say.",
+    "",
+    "Timestamps are deliberately far apart — 2020 for anything meant to be stale, 2030 for",
+    "anything meant to be newer — rather than a few months either side of the set-up row.",
+    "The two implementations do not agree on what a create stores as its own timestamp: the",
+    "handler stamps server time and discards the client's, while the fake keeps what it was",
+    "sent. Dates near the set-up row would therefore compare differently on each side, and",
+    "the fixture would be asserting that difference instead of the behaviour it is about."
+  ],
+  "cases": [
+    {
+      "name": "create for a row the server has never held is stored",
+      "given": [
+        {
+          "table": "wallets",
+          "id": "11111111-1111-4111-8111-111111111111",
+          "operation": "create",
+          "data": { "Name": "Everyday", "Currency": "USD", "UpdatedAt": "2026-01-01T00:00:00Z" }
+        }
+      ],
+      "push": {
+        "table": "transactions",
+        "id": "22222222-2222-4222-8222-222222222222",
+        "operation": "create",
+        "data": {
+          "WalletId": "11111111-1111-4111-8111-111111111111",
+          "Amount": 1000,
+          "Title": "Coffee",
+          "Date": "2026-05-01T00:00:00Z",
+          "IsPaid": true,
+          "UpdatedAt": "2026-01-01T00:00:00Z"
+        }
+      },
+      "expect": { "conflicts": 0, "applied": 1, "stored": { "Amount": 1000 } }
+    },
+    {
+      "name": "create for an existing transaction applies newer content",
+      "why": "Restoring a row is pushed as a create, and it can carry an edit made between the restore and the upload.",
+      "given": [
+        {
+          "table": "wallets",
+          "id": "11111111-1111-4111-8111-111111111111",
+          "operation": "create",
+          "data": { "Name": "Everyday", "Currency": "USD", "UpdatedAt": "2026-01-01T00:00:00Z" }
+        },
+        {
+          "table": "transactions",
+          "id": "22222222-2222-4222-8222-222222222222",
+          "operation": "create",
+          "data": {
+            "WalletId": "11111111-1111-4111-8111-111111111111",
+            "Amount": 1000,
+            "Title": "Coffee",
+            "Date": "2026-05-01T00:00:00Z",
+            "IsPaid": true,
+            "UpdatedAt": "2026-01-01T00:00:00Z"
+          }
+        }
+      ],
+      "push": {
+        "table": "transactions",
+        "id": "22222222-2222-4222-8222-222222222222",
+        "operation": "create",
+        "data": {
+          "WalletId": "11111111-1111-4111-8111-111111111111",
+          "Amount": 2500,
+          "Title": "Coffee",
+          "Date": "2026-05-01T00:00:00Z",
+          "IsPaid": true,
+          "UpdatedAt": "2030-01-01T00:00:00Z"
+        }
+      },
+      "expect": { "conflicts": 0, "applied": 1, "stored": { "Amount": 2500 } }
+    },
+    {
+      "name": "stale create for an existing transaction is acknowledged, not conflicted",
+      "why": "A create is idempotent by contract; a conflict would leave the row pending on that device for ever.",
+      "given": [
+        {
+          "table": "wallets",
+          "id": "11111111-1111-4111-8111-111111111111",
+          "operation": "create",
+          "data": { "Name": "Everyday", "Currency": "USD", "UpdatedAt": "2026-01-01T00:00:00Z" }
+        },
+        {
+          "table": "transactions",
+          "id": "22222222-2222-4222-8222-222222222222",
+          "operation": "create",
+          "data": {
+            "WalletId": "11111111-1111-4111-8111-111111111111",
+            "Amount": 1000,
+            "Title": "Coffee",
+            "Date": "2026-05-01T00:00:00Z",
+            "IsPaid": true,
+            "UpdatedAt": "2030-01-01T00:00:00Z"
+          }
+        }
+      ],
+      "push": {
+        "table": "transactions",
+        "id": "22222222-2222-4222-8222-222222222222",
+        "operation": "create",
+        "data": {
+          "WalletId": "11111111-1111-4111-8111-111111111111",
+          "Amount": 2500,
+          "Title": "Coffee",
+          "Date": "2026-05-01T00:00:00Z",
+          "IsPaid": true,
+          "UpdatedAt": "2020-01-01T00:00:00Z"
+        }
+      },
+      "expect": { "conflicts": 0, "applied": 1, "stored": { "Amount": 1000 } }
+    },
+    {
+      "name": "create for an existing wallet is inert",
+      "why": "Only transactions apply content on a create for a row already held. Nothing else has that need.",
+      "given": [
+        {
+          "table": "wallets",
+          "id": "11111111-1111-4111-8111-111111111111",
+          "operation": "create",
+          "data": { "Name": "Original", "Currency": "USD", "UpdatedAt": "2026-01-01T00:00:00Z" }
+        }
+      ],
+      "push": {
+        "table": "wallets",
+        "id": "11111111-1111-4111-8111-111111111111",
+        "operation": "create",
+        "data": { "Name": "Later create", "Currency": "USD", "UpdatedAt": "2030-01-01T00:00:00Z" }
+      },
+      "expect": { "conflicts": 0, "applied": 1, "stored": { "Name": "Original" } }
+    },
+    {
+      "name": "stale update is a conflict",
+      "given": [
+        {
+          "table": "wallets",
+          "id": "11111111-1111-4111-8111-111111111111",
+          "operation": "create",
+          "data": { "Name": "Everyday", "Currency": "USD", "UpdatedAt": "2026-01-01T00:00:00Z" }
+        },
+        {
+          "table": "transactions",
+          "id": "22222222-2222-4222-8222-222222222222",
+          "operation": "create",
+          "data": {
+            "WalletId": "11111111-1111-4111-8111-111111111111",
+            "Amount": 1000,
+            "Title": "Coffee",
+            "Date": "2026-05-01T00:00:00Z",
+            "IsPaid": true,
+            "UpdatedAt": "2030-01-01T00:00:00Z"
+          }
+        }
+      ],
+      "push": {
+        "table": "transactions",
+        "id": "22222222-2222-4222-8222-222222222222",
+        "operation": "update",
+        "data": {
+          "WalletId": "11111111-1111-4111-8111-111111111111",
+          "Amount": 2500,
+          "Title": "Coffee",
+          "Date": "2026-05-01T00:00:00Z",
+          "IsPaid": true,
+          "UpdatedAt": "2020-01-01T00:00:00Z"
+        }
+      },
+      "expect": { "conflicts": 1, "applied": 0, "stored": { "Amount": 1000 } }
+    },
+    {
+      "name": "delete for a row the server does not hold is satisfied",
+      "why": "A client cannot tell an unacknowledged create from a lost response, so it must be free to push the delete either way.",
+      "given": [],
+      "push": {
+        "table": "transactions",
+        "id": "33333333-3333-4333-8333-333333333333",
+        "operation": "delete"
+      },
+      "expect": { "conflicts": 0, "applied": 1 }
+    },
+    {
+      "name": "newer create lifts a tombstone",
+      "given": [
+        {
+          "table": "wallets",
+          "id": "11111111-1111-4111-8111-111111111111",
+          "operation": "create",
+          "data": { "Name": "Everyday", "Currency": "USD", "UpdatedAt": "2026-01-01T00:00:00Z" }
+        },
+        {
+          "table": "transactions",
+          "id": "22222222-2222-4222-8222-222222222222",
+          "operation": "create",
+          "data": {
+            "WalletId": "11111111-1111-4111-8111-111111111111",
+            "Amount": 1000,
+            "Title": "Coffee",
+            "Date": "2026-05-01T00:00:00Z",
+            "IsPaid": true,
+            "UpdatedAt": "2026-01-01T00:00:00Z"
+          }
+        },
+        {
+          "table": "transactions",
+          "id": "22222222-2222-4222-8222-222222222222",
+          "operation": "delete"
+        }
+      ],
+      "push": {
+        "table": "transactions",
+        "id": "22222222-2222-4222-8222-222222222222",
+        "operation": "create",
+        "data": {
+          "WalletId": "11111111-1111-4111-8111-111111111111",
+          "Amount": 1000,
+          "Title": "Coffee",
+          "Date": "2026-05-01T00:00:00Z",
+          "IsPaid": true,
+          "UpdatedAt": "2030-01-01T00:00:00Z"
+        }
+      },
+      "expect": { "conflicts": 0, "applied": 1, "deleted": false }
+    },
+    {
+      "name": "a stale create does not resurrect a deleted row",
+      "why": "Last-write-wins still decides: a device replaying an old create must not undo a deletion made after it.",
+      "given": [
+        {
+          "table": "wallets",
+          "id": "11111111-1111-4111-8111-111111111111",
+          "operation": "create",
+          "data": { "Name": "Everyday", "Currency": "USD", "UpdatedAt": "2026-01-01T00:00:00Z" }
+        },
+        {
+          "table": "transactions",
+          "id": "22222222-2222-4222-8222-222222222222",
+          "operation": "create",
+          "data": {
+            "WalletId": "11111111-1111-4111-8111-111111111111",
+            "Amount": 1000,
+            "Title": "Coffee",
+            "Date": "2026-05-01T00:00:00Z",
+            "IsPaid": true,
+            "UpdatedAt": "2030-01-01T00:00:00Z"
+          }
+        },
+        {
+          "table": "transactions",
+          "id": "22222222-2222-4222-8222-222222222222",
+          "operation": "delete"
+        }
+      ],
+      "push": {
+        "table": "transactions",
+        "id": "22222222-2222-4222-8222-222222222222",
+        "operation": "create",
+        "data": {
+          "WalletId": "11111111-1111-4111-8111-111111111111",
+          "Amount": 1000,
+          "Title": "Coffee",
+          "Date": "2026-05-01T00:00:00Z",
+          "IsPaid": true,
+          "UpdatedAt": "2020-01-01T00:00:00Z"
+        }
+      },
+      "expect": { "conflicts": 0, "applied": 1, "deleted": true }
+    },
+    {
+      "name": "update for a row the server does not hold is a conflict",
+      "why": "An update names a row the server is expected to have; a create is the change that brings one into being.",
+      "given": [],
+      "push": {
+        "table": "wallets",
+        "id": "44444444-4444-4444-8444-444444444444",
+        "operation": "update",
+        "data": { "Name": "Ghost", "Currency": "USD", "UpdatedAt": "2030-01-01T00:00:00Z" }
+      },
+      "expect": { "conflicts": 1, "applied": 0 }
+    },
+    {
+      "name": "a budget's currency survives the round trip",
+      "why": "An amount is a bare count of minor units; without this the other device reads it in its own default currency.",
+      "given": [],
+      "push": {
+        "table": "budgets",
+        "id": "55555555-5555-4555-8555-555555555555",
+        "operation": "create",
+        "data": {
+          "Name": "Food",
+          "Amount": 100000,
+          "Currency": "USD",
+          "StartDate": "2026-01-01T00:00:00Z",
+          "Period": 2,
+          "PeriodLength": 1,
+          "WalletIds": "[]",
+          "CategoryIds": "[]",
+          "IsIncome": false,
+          "IsPinned": false,
+          "IsArchived": false,
+          "UpdatedAt": "2026-01-01T00:00:00Z"
+        }
+      },
+      "expect": { "conflicts": 0, "applied": 1, "stored": { "Currency": "USD" } }
+    }
+  ]
+}
