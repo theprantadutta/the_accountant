@@ -26,7 +26,13 @@ import 'package:the_accountant/data/datasources/local/app_database.dart';
 /// [AppDatabase.reconcileDefaultWallet], so that the user's choice reaches
 /// everything through the one field both sides can read.
 Wallet? resolveDefaultWallet(Iterable<Wallet> wallets) {
-  final live = wallets.where((w) => !w.isArchived).toList();
+  // Live means not archived and not deleted. Both halves, stated here rather
+  // than relied on from the caller: this is the shared authority on what the
+  // default account is, and the last time "live" was written down twice the two
+  // copies disagreed about tombstones.
+  final live = wallets
+      .where((w) => !w.isArchived && w.deletedAt == null)
+      .toList();
   if (live.isEmpty) {
     // Everything is archived, or there are no accounts at all. The first row is
     // still a better answer than none, so the app shows *a* currency rather

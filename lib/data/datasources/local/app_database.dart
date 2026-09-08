@@ -2929,7 +2929,7 @@ class AppDatabase extends _$AppDatabase {
   // ============================================================
   // Wallet DAO methods
   // ============================================================
-  /// Seed the default-account flag from the saved preference, once.
+  /// Seed the default-account flag from the saved preference.
   ///
   /// The chosen account is kept in shared preferences, where the entry form can
   /// see it and a report cannot. Sharing a resolver between the two did not make
@@ -2965,7 +2965,8 @@ class AppDatabase extends _$AppDatabase {
     if (preferredId == null) return;
 
     // Only to establish that the preference names an account worth seeding.
-    // Whether it is *needed* is settled by the statement below, not here.
+    // Whether it is *needed*, and whether that account is still eligible when
+    // the write happens, are both settled by the statement below.
     final wallets = await getAllWallets();
     if (!wallets.any((w) => w.id == preferredId && !w.isArchived)) return;
 
@@ -2975,13 +2976,24 @@ class AppDatabase extends _$AppDatabase {
       // Flags the preference only while nothing live holds the flag, decided
       // and written in one statement. Zero rows means someone got there first,
       // and their answer is the newer one.
+      //
+      // Live means not archived *and* not deleted, on both sides. Moving this
+      // decision out of Dart and into SQL lost the second half: the read it
+      // replaced went through `getAllWallets`, which excludes tombstones, while
+      // the statement did not. Deleting the default account leaves the row and
+      // its flag in place for the deletion to be pushed, so that tombstone went
+      // on satisfying the check and blocking the saved fallback — an ordinary
+      // deletion, not a race. The same omission on the target let a row deleted
+      // between the snapshot and the write be flagged as the default.
       final seeded = await customUpdate(
         'UPDATE wallets SET is_default = 1, '
         'sync_status = ${SyncStatus.markEditedSql}, updated_at = ? '
-        'WHERE id = ? AND is_archived = 0 AND is_default = 0 '
+        'WHERE id = ? AND is_archived = 0 AND deleted_at IS NULL '
+        'AND is_default = 0 '
         'AND NOT EXISTS ('
         '  SELECT 1 FROM wallets other '
-        '  WHERE other.is_default = 1 AND other.is_archived = 0'
+        '  WHERE other.is_default = 1 AND other.is_archived = 0 '
+        '    AND other.deleted_at IS NULL'
         ')',
         variables: [Variable<int>(now), Variable<String>(preferredId)],
         updates: {},

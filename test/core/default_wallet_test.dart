@@ -88,6 +88,23 @@ void main() {
       expect(resolveDisplayCurrency(const []), 'USD');
     });
 
+    test('a deleted account is never the default either', () async {
+      final deleted = await seedWallet(db, name: 'Gone', currency: 'USD');
+      await seedWallet(db, name: 'Kept', currency: 'EUR');
+      await db.customStatement(
+        'UPDATE wallets SET is_default = 1 WHERE id = ?',
+        [deleted],
+      );
+      await db.softDeleteWallet(deleted);
+
+      expect(
+        resolveDisplayCurrency(await db.select(db.wallets).get()),
+        'EUR',
+        reason: 'a deleted account keeps its row and its flag so the deletion '
+            'can be pushed; that is not the same as it still being the default',
+      );
+    });
+
     test('everything archived still names a currency', () async {
       final only = await seedWallet(db, name: 'Old', currency: 'BDT');
       await db.customStatement(
@@ -214,6 +231,48 @@ void main() {
             'account happens to be first',
       );
       expect((await db.findWalletById(archived))!.isDefault, isFalse);
+    });
+
+    /// Deleting the default account leaves the row and its flag in place, so
+    /// the deletion can be pushed. The seed's SQL checked only `is_archived`,
+    /// so that tombstone went on counting as a live default and blocked the
+    /// saved fallback — an ordinary deletion, not a race.
+    test('a deleted default does not block the fallback', () async {
+      final deleted = await seedWallet(db, name: 'Gone', currency: 'GBP');
+      await seedWallet(db, name: 'First remaining', currency: 'USD');
+      final fallback = await seedWallet(db, name: 'Saved', currency: 'EUR');
+      await db.setDefaultWallet(deleted);
+      await db.softDeleteWallet(deleted);
+
+      await db.reconcileDefaultWallet(fallback);
+
+      expect((await db.findWalletById(fallback))!.isDefault, isTrue);
+      expect(
+        await db.displayCurrency(),
+        'EUR',
+        reason: 'without it the resolver falls through to whichever account '
+            'happens to be first, which is not the saved choice',
+      );
+    });
+
+    test('a target deleted after the snapshot is not flagged', () async {
+      final raced = _RacingDatabase();
+      addTearDown(raced.close);
+      await seedWallet(raced, name: 'Remaining', currency: 'USD');
+      final preference = await seedWallet(raced, name: 'Doomed', currency: 'EUR');
+
+      raced.afterWalletSnapshot = () => raced.softDeleteWallet(preference);
+      await raced.reconcileDefaultWallet(preference);
+
+      final row = (await raced.findWalletById(preference))!;
+      expect(
+        row.isDefault,
+        isFalse,
+        reason: 'eligibility has to be settled by the statement that writes, '
+            'not by the read that preceded it',
+      );
+      expect(row.deletedAt, isNotNull);
+      expect(row.syncStatus, SyncStatus.pendingDelete);
     });
 
     test('no preference changes nothing', () async {

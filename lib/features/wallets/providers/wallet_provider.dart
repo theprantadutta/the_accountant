@@ -61,11 +61,12 @@ class WalletNotifier extends StateNotifier<WalletState> {
   Future<void> loadWallets({bool silent = false}) async {
     if (!silent) state = state.copyWith(isLoading: true);
     try {
-      // Seed the default-account flag from the saved preference if nothing has
-      // ever set it. A migration, run here because it has to happen before
-      // anything reads the flag; it does nothing once the database has an
+      // Seed the default-account flag from the saved preference whenever no
+      // live account holds it. Run here because it has to happen before
+      // anything reads the flag; it does nothing while the database has an
       // answer of its own, so a choice made here or arriving from another
-      // device is not undone by an older preference.
+      // device is not undone by an older preference. It can run more than once
+      // — archiving or deleting the default account brings the condition back.
       await _database.reconcileDefaultWallet(_ref.read(defaultWalletIdProvider));
 
       final wallets = await _database.getAllWallets();
