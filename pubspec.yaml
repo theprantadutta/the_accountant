@@ -3,7 +3,7 @@ description: "A personal finance management application with a focus on privacy,
 
 publish_to: 'none'
 
-version: 3.0.0+21
+version: 3.1.0+22
 
 environment:
   sdk: ^3.12.0
