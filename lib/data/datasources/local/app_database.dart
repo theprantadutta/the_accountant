@@ -1539,11 +1539,37 @@ class AppDatabase extends _$AppDatabase {
   // ============================================================
   Future<Setting?> getSettings() => select(settings).getSingleOrNull();
 
+  /// Write the present columns of [entry] onto the row [statement] selects.
+  ///
+  /// Every `updateX(XCompanion)` below goes through here rather than through
+  /// drift's `replace`, which was what they all used to call. `replace` writes
+  /// the *whole* row: a column left `Value.absent()` is not skipped, it is set
+  /// back to the column's declared default. Almost every caller builds a
+  /// partial companion — the fields it means to change, plus whatever it
+  /// happened to think of — so `replace` quietly undid the rest.
+  ///
+  /// It cost real data. Renaming an account reset its opening balance to zero,
+  /// its position in the list, its exclude-from-total flag, and un-archived it;
+  /// editing a credit or debt reset `paidAmount`, which is the record of how
+  /// much of it had been settled. Worse, `replace` *throws* when a column that
+  /// is required and has no default is absent, and the wallet notifier caught
+  /// that into a field nothing reads — so closing an account did nothing at
+  /// all, silently, and the UI said it had worked.
+  ///
+  /// `write` sets only what is present, which is what every caller already
+  /// meant. Returns whether a row matched.
+  Future<bool> _writeRow<T extends Table, D>(
+    UpdateStatement<T, D> statement,
+    Insertable<D> entry,
+  ) async => await statement.write(entry) > 0;
+
   Future<int> insertSettings(SettingsCompanion entry) =>
       into(settings).insert(entry);
 
-  Future<bool> updateSettings(SettingsCompanion entry) =>
-      update(settings).replace(entry);
+  Future<bool> updateSettings(SettingsCompanion entry) => _writeRow(
+    update(settings)..where((t) => t.id.equals(entry.id.value)),
+    entry,
+  );
 
   // ============================================================
   // Transaction DAO methods
@@ -1616,8 +1642,10 @@ class AppDatabase extends _$AppDatabase {
   Future<int> addTransaction(TransactionsCompanion entry) =>
       into(transactions).insert(entry);
 
-  Future<bool> updateTransaction(TransactionsCompanion entry) =>
-      update(transactions).replace(entry);
+  Future<bool> updateTransaction(TransactionsCompanion entry) => _writeRow(
+    update(transactions)..where((t) => t.id.equals(entry.id.value)),
+    entry,
+  );
 
   Future<int> deleteTransaction(String id) =>
       (delete(transactions)..where((t) => t.id.equals(id))).go();
@@ -1912,8 +1940,10 @@ class AppDatabase extends _$AppDatabase {
   Future<int> addPaymentMethod(PaymentMethodsCompanion entry) =>
       into(paymentMethods).insert(entry);
 
-  Future<bool> updatePaymentMethod(PaymentMethodsCompanion entry) =>
-      update(paymentMethods).replace(entry);
+  Future<bool> updatePaymentMethod(PaymentMethodsCompanion entry) => _writeRow(
+    update(paymentMethods)..where((t) => t.id.equals(entry.id.value)),
+    entry,
+  );
 
   Future<int> deletePaymentMethod(String id) =>
       (delete(paymentMethods)..where((p) => p.id.equals(id))).go();
@@ -1946,8 +1976,10 @@ class AppDatabase extends _$AppDatabase {
 
   Future<int> addBudget(BudgetsCompanion entry) => into(budgets).insert(entry);
 
-  Future<bool> updateBudget(BudgetsCompanion entry) =>
-      update(budgets).replace(entry);
+  Future<bool> updateBudget(BudgetsCompanion entry) => _writeRow(
+    update(budgets)..where((t) => t.id.equals(entry.id.value)),
+    entry,
+  );
 
   // ============================================================
   // Category budget limit DAO methods
@@ -2168,8 +2200,10 @@ class AppDatabase extends _$AppDatabase {
   Future<int> addCategory(CategoriesCompanion entry) =>
       into(categories).insert(entry);
 
-  Future<bool> updateCategory(CategoriesCompanion entry) =>
-      update(categories).replace(entry);
+  Future<bool> updateCategory(CategoriesCompanion entry) => _writeRow(
+    update(categories)..where((t) => t.id.equals(entry.id.value)),
+    entry,
+  );
 
   Future<int> deleteCategory(String id) =>
       (delete(categories)..where((c) => c.id.equals(id))).go();
@@ -3169,8 +3203,10 @@ class AppDatabase extends _$AppDatabase {
     }
   }
 
-  Future<bool> updateWallet(WalletsCompanion entry) =>
-      update(wallets).replace(entry);
+  Future<bool> updateWallet(WalletsCompanion entry) => _writeRow(
+    update(wallets)..where((t) => t.id.equals(entry.id.value)),
+    entry,
+  );
 
   Future<int> deleteWallet(String id) =>
       (delete(wallets)..where((w) => w.id.equals(id))).go();
@@ -3254,8 +3290,10 @@ class AppDatabase extends _$AppDatabase {
   Future<int> addUserProfile(UserProfilesCompanion entry) =>
       into(userProfiles).insert(entry);
 
-  Future<bool> updateUserProfile(UserProfilesCompanion entry) =>
-      update(userProfiles).replace(entry);
+  Future<bool> updateUserProfile(UserProfilesCompanion entry) => _writeRow(
+    update(userProfiles)..where((t) => t.userId.equals(entry.userId.value)),
+    entry,
+  );
 
   Future<int> deleteUserProfile(String userId) =>
       (delete(userProfiles)..where((u) => u.userId.equals(userId))).go();
@@ -3285,7 +3323,10 @@ class AppDatabase extends _$AppDatabase {
       into(recurringConfigs).insert(entry);
 
   Future<bool> updateRecurringConfig(RecurringConfigsCompanion entry) =>
-      update(recurringConfigs).replace(entry);
+      _writeRow(
+        update(recurringConfigs)..where((t) => t.id.equals(entry.id.value)),
+        entry,
+      );
 
   Future<int> deleteRecurringConfig(String id) =>
       (delete(recurringConfigs)..where((r) => r.id.equals(id))).go();
@@ -3333,8 +3374,10 @@ class AppDatabase extends _$AppDatabase {
   Future<int> addObjective(ObjectivesCompanion entry) =>
       into(objectives).insert(entry);
 
-  Future<bool> updateObjective(ObjectivesCompanion entry) =>
-      update(objectives).replace(entry);
+  Future<bool> updateObjective(ObjectivesCompanion entry) => _writeRow(
+    update(objectives)..where((t) => t.id.equals(entry.id.value)),
+    entry,
+  );
 
   Future<int> deleteObjective(String id) =>
       (delete(objectives)..where((o) => o.id.equals(id))).go();
@@ -3596,7 +3639,10 @@ class AppDatabase extends _$AppDatabase {
       into(associatedTitles).insert(entry);
 
   Future<bool> updateAssociatedTitle(AssociatedTitlesCompanion entry) =>
-      update(associatedTitles).replace(entry);
+      _writeRow(
+        update(associatedTitles)..where((t) => t.id.equals(entry.id.value)),
+        entry,
+      );
 
   /// Tombstone a rule so the deletion reaches the other devices.
   Future<void> deleteAssociatedTitle(String id) async {
@@ -3794,8 +3840,10 @@ class AppDatabase extends _$AppDatabase {
   Future<int> addExchangeRate(ExchangeRatesCompanion entry) =>
       into(exchangeRates).insert(entry);
 
-  Future<bool> updateExchangeRate(ExchangeRatesCompanion entry) =>
-      update(exchangeRates).replace(entry);
+  Future<bool> updateExchangeRate(ExchangeRatesCompanion entry) => _writeRow(
+    update(exchangeRates)..where((t) => t.id.equals(entry.id.value)),
+    entry,
+  );
 
   Future<int> deleteExchangeRate(String id) =>
       (delete(exchangeRates)..where((e) => e.id.equals(id))).go();
