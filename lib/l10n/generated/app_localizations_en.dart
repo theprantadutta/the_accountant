@@ -1579,6 +1579,16 @@ class L10nEn extends L10n {
       'You need at least 2 accounts to make a transfer';
 
   @override
+  String get txNoAccountTitle => 'No account to record this against';
+
+  @override
+  String get txNoAccountBody =>
+      'Add an account, or reopen a closed one, and this form is ready to use.';
+
+  @override
+  String get txNoAccountAction => 'Manage accounts';
+
+  @override
   String get txDeleteTransaction => 'Delete Transaction';
 
   @override

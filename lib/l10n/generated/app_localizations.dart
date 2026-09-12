@@ -3053,6 +3053,24 @@ abstract class L10n {
   /// **'You need at least 2 accounts to make a transfer'**
   String get txYouNeedAtLeast2;
 
+  /// No description provided for @txNoAccountTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No account to record this against'**
+  String get txNoAccountTitle;
+
+  /// No description provided for @txNoAccountBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Add an account, or reopen a closed one, and this form is ready to use.'**
+  String get txNoAccountBody;
+
+  /// No description provided for @txNoAccountAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage accounts'**
+  String get txNoAccountAction;
+
   /// No description provided for @txDeleteTransaction.
   ///
   /// In en, this message translates to:

@@ -1571,6 +1571,16 @@ class L10nBn extends L10n {
   String get txYouNeedAtLeast2 => 'স্থানান্তর করতে অন্তত ২টি অ্যাকাউন্ট দরকার';
 
   @override
+  String get txNoAccountTitle => 'এটি রেকর্ড করার মতো কোনো অ্যাকাউন্ট নেই';
+
+  @override
+  String get txNoAccountBody =>
+      'একটি অ্যাকাউন্ট যোগ করুন, বা বন্ধ করা অ্যাকাউন্ট আবার চালু করুন — তাহলেই এই ফরমটি ব্যবহার করা যাবে।';
+
+  @override
+  String get txNoAccountAction => 'অ্যাকাউন্ট পরিচালনা';
+
+  @override
   String get txDeleteTransaction => 'লেনদেন মুছুন';
 
   @override

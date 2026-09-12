@@ -35,6 +35,7 @@ import 'package:the_accountant/features/transactions/widgets/transaction_type_he
 import 'package:the_accountant/features/recurring/providers/recurring_provider.dart';
 import 'package:the_accountant/features/subscriptions/providers/subscription_dashboard_provider.dart';
 import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
+import 'package:the_accountant/features/wallets/screens/wallet_management_screen.dart';
 import 'package:the_accountant/features/budgets/providers/budget_provider.dart';
 import 'package:the_accountant/features/objectives/providers/objectives_provider.dart';
 import 'package:the_accountant/features/transactions/providers/payment_method_provider.dart';
@@ -438,12 +439,24 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
     });
   }
 
-  /// The currency of [walletId], or the first wallet's if it cannot be found.
+  /// The currency of [walletId], or the first account's if it cannot be found.
+  ///
+  /// Falls back to the chosen display currency when there is no account at all,
+  /// rather than reaching for `first` on an empty list.
   String _currencyOf(List<Wallet> wallets, String? walletId) {
-    return wallets
-        .firstWhere((w) => w.id == walletId, orElse: () => wallets.first)
-        .currency;
+    final match = wallets.where((w) => w.id == walletId).firstOrNull;
+    return (match ?? wallets.firstOrNull)?.currency ??
+        ref.read(settingsProvider).currency;
   }
+
+  /// The account [id] names, or the first one, on a list known to be non-empty.
+  ///
+  /// Every caller sits below the `wallets.isEmpty` guard in [build], so the
+  /// fallback is safe rather than hopeful. It is written as one helper so that
+  /// the assumption is stated once instead of at each picker, which is how the
+  /// empty list got past three of them.
+  Wallet _pick(List<Wallet> wallets, String? id) =>
+      wallets.where((w) => w.id == id).firstOrNull ?? wallets.first;
 
   /// The first wallet that is not [origin].
   ///
@@ -470,10 +483,9 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
   void _loadCategoryDetails() {
     if (_selectedCategoryId != null) {
       final categories = ref.read(categoryProvider).categories;
-      final category = categories.firstWhere(
-        (c) => c.id == _selectedCategoryId,
-        orElse: () => categories.first,
-      );
+      final category = categories
+          .where((c) => c.id == _selectedCategoryId)
+          .firstOrNull;
       setState(() {
         _selectedCategory = category;
       });
@@ -533,14 +545,16 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
 
   Future<void> _showCalculator() async {
     final walletId = _isTransfer ? _fromWalletId : _selectedWalletId;
-    final wallet = ref
-        .read(walletProvider)
-        .wallets
-        .firstWhere(
-          (w) => w.id == walletId,
-          orElse: () => ref.read(selectableWalletsProvider).first,
-        );
-    final currencySymbol = CurrencyInfo.getSymbol(wallet.currency);
+    final wallet =
+        ref
+            .read(walletProvider)
+            .wallets
+            .where((w) => w.id == walletId)
+            .firstOrNull ??
+        ref.read(selectableWalletsProvider).firstOrNull;
+    final currencySymbol = CurrencyInfo.getSymbol(
+      wallet?.currency ?? ref.read(settingsProvider).currency,
+    );
 
     final amount = await showCalculatorBottomSheet(
       context: context,
@@ -917,6 +931,25 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
   @override
   Widget build(BuildContext context) {
     final wallets = ref.watch(selectableWalletsProvider);
+
+    // Nothing on this form can be saved without an account to file it against,
+    // and every picker below assumes there is at least one. Two things make the
+    // empty case reachable. The screen can open before the accounts have been
+    // read back — from a home-screen shortcut on a cold start, say, which does
+    // not go through the navigation container's wallet gate. And a closed
+    // account still counts for `hasWalletsProvider`, so the app keeps showing
+    // the dashboard, while `selectableWalletsProvider` leaves it out, which is
+    // the whole point of archiving. Either way this screen used to throw
+    // `Bad state: No element` out of `build`.
+    //
+    // The two need different answers: one is a wait, the other is a dead end.
+    // Telling somebody they have no accounts for the frame before their
+    // accounts arrive would be a lie with a button on it.
+    if (wallets.isEmpty) {
+      return ref.watch(walletsLoadingProvider)
+          ? _buildLoadingAccounts()
+          : _buildNoAccounts();
+    }
     // Any two accounts. Each leg of a transfer carries its own currency's
     // amount now, plus what the other side saw and the rate between them, so a
     // dollar account and a taka account are a perfectly good pair.
@@ -1566,6 +1599,82 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
     );
   }
 
+  /// The form's shell while the accounts are still being read.
+  Widget _buildLoadingAccounts() => Scaffold(
+    backgroundColor: Colors.transparent,
+    appBar: AppBar(
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      leading: IconButton(
+        icon: const Icon(Icons.close),
+        onPressed: () => Navigator.of(context).pop(),
+      ),
+      title: Text(_isEditing ? 'Edit Transaction' : 'New Transaction'),
+    ),
+    body: const Center(child: CircularProgressIndicator()),
+  );
+
+  /// What the form shows when there is no account it could write to.
+  ///
+  /// Reached either by a user who has none yet or - far more likely, since the
+  /// app routes that case to the create-first-account screen - by one who has
+  /// closed every account they had. Both are fixed in the same place, so both
+  /// get sent there.
+  Widget _buildNoAccounts() {
+    final l10n = L10n.of(context);
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.close),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        title: Text(_isEditing ? 'Edit Transaction' : 'New Transaction'),
+      ),
+      body: Center(
+        child: Padding(
+          padding: AppSpacing.paddingXl,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.account_balance_wallet_outlined,
+                size: 48,
+                color: AppColors.textMuted,
+              ),
+              AppSpacing.gapLg,
+              Text(
+                l10n.txNoAccountTitle,
+                textAlign: TextAlign.center,
+                style: AppTypography.titleMedium.copyWith(
+                  color: AppColors.textPrimary,
+                ),
+              ),
+              AppSpacing.gapSm,
+              Text(
+                l10n.txNoAccountBody,
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 14, color: AppColors.textMuted),
+              ),
+              AppSpacing.gapXl,
+              NeoButton(
+                label: l10n.txNoAccountAction,
+                leadingIcon: Icons.account_balance_wallet_outlined,
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => const WalletManagementScreen(),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildWalletChips(List<Wallet> wallets) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -1593,10 +1702,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
           const SizedBox(height: 8),
           HorizontalChipSelector<Wallet>(
             items: wallets,
-            selectedItem: wallets.firstWhere(
-              (w) => w.id == _selectedWalletId,
-              orElse: () => wallets.first,
-            ),
+            selectedItem: _pick(wallets, _selectedWalletId),
             labelBuilder: (wallet) => '${wallet.name} (${wallet.currency})',
             onSelected: (wallet) {
               setState(() => _selectedWalletId = wallet.id);
@@ -1630,10 +1736,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
           AppSpacing.gapSm,
           HorizontalChipSelector<Wallet>(
             items: wallets.where((w) => w.id != _toWalletId).toList(),
-            selectedItem: wallets.firstWhere(
-              (w) => w.id == _fromWalletId,
-              orElse: () => wallets.first,
-            ),
+            selectedItem: _pick(wallets, _fromWalletId),
             labelBuilder: (wallet) => '${wallet.name} (${wallet.currency})',
             onSelected: (wallet) {
               setState(() {
@@ -1732,10 +1835,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Amount received',
-            style: AppTypography.titleSmall,
-          ),
+          Text('Amount received', style: AppTypography.titleSmall),
           Text(
             'These accounts count in different currencies. Enter what actually '
             'landed in ${destination.name}, or leave it blank to use the '
@@ -1839,10 +1939,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
 
     // Where the charge lands. Usually the wallet the money left, but a provider
     // can bill it somewhere else entirely, so it is asked for separately.
-    final chargedTo = wallets.firstWhere(
-      (w) => w.id == (_feeWalletId ?? _fromWalletId),
-      orElse: () => wallets.first,
-    );
+    final chargedTo = _pick(wallets, _feeWalletId ?? _fromWalletId);
 
     // The fee is its own expense on that wallet, so it is counted in that
     // wallet's money — not the transfer's. Those are the same currency when the
@@ -1985,9 +2082,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
     final title = _titleController.text.trim();
     if (title.isEmpty) return;
 
-    final categoryId = await ref
-        .read(databaseProvider)
-        .categoryForTitle(title);
+    final categoryId = await ref.read(databaseProvider).categoryForTitle(title);
     if (categoryId == null || !mounted) return;
     if (_selectedCategoryId != null) return;
 
