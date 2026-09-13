@@ -179,37 +179,80 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
     loadTransactions();
   }
 
+  /// Build the UI model from a row of the transaction/category join.
+  ///
+  /// One function so the whole-table read and the single-row refresh below
+  /// cannot drift apart in what they produce.
+  static Transaction _fromJoinedRow(Map<String, dynamic> result) {
+    final t = result['transaction'] as db.Transaction;
+    return Transaction(
+      id: t.id,
+      amount: t.amount,
+      // Use isIncome to determine type (new approach)
+      type: t.isIncome ? 'income' : 'expense',
+      category: result['categoryName'] as String, // Resolved from the JOIN
+      categoryId: t.categoryId ?? '',
+      walletId: t.walletId,
+      date: t.date,
+      title: t.title,
+      notes: t.notes ?? '',
+      paymentMethod: t.paymentMethodId ?? '',
+      isRecurring: false, // Deprecated - use RecurringConfigs
+      recurrencePattern: null, // Deprecated - use RecurringConfigs
+      transactionType: t.transactionType,
+      isPaid: t.isPaid,
+      specialType: t.specialType ?? TransactionSpecialType.none,
+      skipPaid: t.skipPaid,
+      paidAmount: t.paidAmount,
+      budgetId: t.budgetId,
+      objectiveId: t.objectiveId,
+    );
+  }
+
+  /// Put one transaction into the list without re-reading the table.
+  ///
+  /// Recording a transaction used to run the whole join again and rebuild every
+  /// row, so the cost of adding one grew with how many the user already had.
+  /// This reads the single row that changed and splices it in.
+  ///
+  /// Only for operations that touch exactly one row. A transfer moves two legs
+  /// and possibly a fee, and a cascade delete takes a family with it; those
+  /// still reload, because nothing here would know what else moved.
+  Future<void> _refreshOne(String id) async {
+    final row = await _db.getTransactionWithCategoryName(id);
+
+    // Gone, or soft-deleted. Dropping it is the same answer a reload gives.
+    if (row == null) {
+      _removeOne(id);
+      return;
+    }
+
+    final updated = _fromJoinedRow(row);
+    final next = state.transactions.where((t) => t.id != id).toList();
+
+    // The list is ordered by date descending, as the query orders it. Inserting
+    // at the first row that is not newer keeps that order and leaves the
+    // relative order of everything else alone.
+    final at = next.indexWhere((t) => !t.date.isAfter(updated.date));
+    next.insert(at == -1 ? next.length : at, updated);
+
+    state = state.copyWith(transactions: next, isLoading: false);
+  }
+
+  /// Drop one transaction from the list without re-reading the table.
+  void _removeOne(String id) {
+    state = state.copyWith(
+      transactions: state.transactions.where((t) => t.id != id).toList(),
+      isLoading: false,
+    );
+  }
+
   Future<void> loadTransactions({bool silent = false}) async {
     if (!silent) state = state.copyWith(isLoading: true);
     try {
       // Use JOIN query to get transactions with category names
       final dbResults = await _db.getAllTransactionsWithCategoryName();
-      final transactions = dbResults.map((result) {
-        final t = result['transaction'] as db.Transaction;
-        final categoryName = result['categoryName'] as String;
-        return Transaction(
-          id: t.id,
-          amount: t.amount,
-          // Use isIncome to determine type (new approach)
-          type: t.isIncome ? 'income' : 'expense',
-          category: categoryName, // Now resolved from JOIN query
-          categoryId: t.categoryId ?? '',
-          walletId: t.walletId,
-          date: t.date,
-          title: t.title,
-          notes: t.notes ?? '',
-          paymentMethod: t.paymentMethodId ?? '',
-          isRecurring: false, // Deprecated - use RecurringConfigs
-          recurrencePattern: null, // Deprecated - use RecurringConfigs
-          transactionType: t.transactionType,
-          isPaid: t.isPaid,
-          specialType: t.specialType ?? TransactionSpecialType.none,
-          skipPaid: t.skipPaid,
-          paidAmount: t.paidAmount,
-          budgetId: t.budgetId,
-          objectiveId: t.objectiveId,
-        );
-      }).toList();
+      final transactions = dbResults.map(_fromJoinedRow).toList();
 
       state = state.copyWith(transactions: transactions, isLoading: false);
     } catch (e) {
@@ -262,8 +305,9 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
       }
 
       final now = DateTime.now();
+      final newId = const Uuid().v4();
       final newTransaction = TransactionsCompanion(
-        id: Value(const Uuid().v4()),
+        id: Value(newId),
         amount: Value(amount),
         isIncome: Value(transactionIsIncome), // Use isIncome field
         title: Value(title ?? ''),
@@ -286,8 +330,8 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
       await _walletBalanceService.updateWalletBalance(walletId);
       await _ref.read(walletProvider.notifier).loadWallets();
 
-      // Reload transactions to get the new one
-      await loadTransactions();
+      // One row changed, so read back one row.
+      await _refreshOne(newId);
 
       // Refresh dashboard and reports data for real-time updates
       _ref.read(financialDataProvider.notifier).refreshData();
@@ -375,8 +419,8 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
         await _ref.read(walletProvider.notifier).loadWallets();
       }
 
-      // Reload transactions to get the new one
-      await loadTransactions();
+      // One row changed, so read back one row.
+      await _refreshOne(id);
 
       AnalyticsService().logTransactionCreate();
 
@@ -583,8 +627,8 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
         // Non-critical — don't fail the update
       }
 
-      // Reload transactions to get the updated one
-      await loadTransactions();
+      // One row changed, so read back one row.
+      await _refreshOne(id);
 
       AnalyticsService().logTransactionUpdate();
 
@@ -913,8 +957,9 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
 
       AnalyticsService().logTransactionDelete();
 
-      // Reload transactions to reflect the deletion
-      await loadTransactions();
+      // One row went; the transfer case returned above, taking both legs and
+      // a full reload with it.
+      _removeOne(id);
 
       // Refresh dashboard and reports data for real-time updates
       _ref.read(financialDataProvider.notifier).refreshData();

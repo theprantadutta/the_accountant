@@ -465,9 +465,8 @@ class AppDatabase extends _$AppDatabase {
   /// since versions were introduced.
   Future<int?> rowRevision(String table, String id) async {
     final row =
-        await (select(localRowVersions)..where(
-              (v) => v.syncTable.equals(table) & v.entityId.equals(id),
-            ))
+        await (select(localRowVersions)
+              ..where((v) => v.syncTable.equals(table) & v.entityId.equals(id)))
             .getSingleOrNull();
     return row?.revision;
   }
@@ -1604,6 +1603,34 @@ class AppDatabase extends _$AppDatabase {
     }).toList();
   }
 
+  /// One transaction with its category resolved, shaped like a row of
+  /// [getAllTransactionsWithCategoryName]. Null when it is gone or deleted.
+  ///
+  /// Recording a single transaction used to re-read and re-map every
+  /// transaction the user has ever had, because that was the only query that
+  /// resolved category names.
+  Future<Map<String, dynamic>?> getTransactionWithCategoryName(
+    String id,
+  ) async {
+    final query = select(transactions).join([
+      leftOuterJoin(
+        categories,
+        categories.id.equalsExp(transactions.categoryId),
+      ),
+    ])..where(transactions.id.equals(id) & transactions.deletedAt.isNull());
+
+    final row = await query.getSingleOrNull();
+    if (row == null) return null;
+
+    final cat = row.readTableOrNull(categories);
+    return {
+      'transaction': row.readTable(transactions),
+      'categoryName': cat?.name ?? 'Uncategorized',
+      'categoryColor': cat?.color ?? '#808080',
+      'categoryIconName': cat?.iconName ?? 'category',
+    };
+  }
+
   /// Get transactions for export with resolved category and wallet names via JOIN
   Future<List<ExportTransaction>> getTransactionsForExport({
     DateTime? start,
@@ -2016,10 +2043,9 @@ class AppDatabase extends _$AppDatabase {
     if (localId == canonicalId) return;
 
     await transaction(() async {
-      final canonical =
-          await (select(categoryBudgetLimits)
-                ..where((l) => l.id.equals(canonicalId)))
-              .getSingleOrNull();
+      final canonical = await (select(
+        categoryBudgetLimits,
+      )..where((l) => l.id.equals(canonicalId))).getSingleOrNull();
 
       if (canonical != null) {
         await (delete(
@@ -2969,11 +2995,9 @@ class AppDatabase extends _$AppDatabase {
     required String toId,
     required DateTime now,
   }) async {
-    final moving =
-        await (select(categoryBudgetLimits)..where(
-              (l) => l.categoryId.equals(fromId) & l.deletedAt.isNull(),
-            ))
-            .get();
+    final moving = await (select(
+      categoryBudgetLimits,
+    )..where((l) => l.categoryId.equals(fromId) & l.deletedAt.isNull())).get();
     if (moving.isEmpty) return;
 
     for (final limit in moving) {
