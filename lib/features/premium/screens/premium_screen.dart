@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:the_accountant/core/services/analytics_service.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
@@ -83,20 +82,20 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
       if (!statusChanged) return;
 
       switch (next.lastPurchaseStatus) {
-        case PurchaseStatus.canceled:
+        case PurchaseFlowStatus.canceled:
           AnalyticsService().logPaywallPurchaseCanceled(
             productId: _selectedProductId ?? 'unknown',
           );
           break;
-        case PurchaseStatus.error:
+        case PurchaseFlowStatus.error:
           AnalyticsService().logPaywallPurchaseError(
             productId: _selectedProductId ?? 'unknown',
             stage: 'purchase_status_error',
             error: next.error,
           );
           break;
-        case PurchaseStatus.purchased:
-        case PurchaseStatus.restored:
+        case PurchaseFlowStatus.purchased:
+        case PurchaseFlowStatus.restored:
           AnalyticsService().logPremiumPurchase(productId: _selectedProductId);
 
           // IAPNotifier already calls _loadState() after purchase; no manual
@@ -108,7 +107,7 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                next.lastPurchaseStatus == PurchaseStatus.restored
+                next.lastPurchaseStatus == PurchaseFlowStatus.restored
                     ? 'Purchases restored successfully!'
                     : 'Purchase completed successfully!',
               ),
@@ -610,48 +609,15 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
     // surface a "Product not found" snackbar.
     if (iapState.products.isEmpty) return const SizedBox.shrink();
 
-    // Get prices from IAP products if available
-    final monthlyProduct = iapState.products.firstWhere(
-      (p) => p.id == PremiumProductIds.monthly,
-      orElse: () => PremiumProduct(
-        ProductDetails(
-          id: PremiumProductIds.monthly,
-          title: L10n.of(context).premiumMonthly,
-          description: '',
-          price: '\$1.49',
-          rawPrice: 1.49,
-          currencyCode: 'USD',
-        ),
-      ),
-    );
+    // Prices come from the store, never from us. A plan the store did not
+    // return is one it will refuse to sell, so it is left off the list rather
+    // than shown at a made-up price that tapping cannot honour.
+    PremiumProduct? productFor(String id) =>
+        iapState.products.where((p) => p.id == id).firstOrNull;
 
-    final yearlyProduct = iapState.products.firstWhere(
-      (p) => p.id == PremiumProductIds.yearly,
-      orElse: () => PremiumProduct(
-        ProductDetails(
-          id: PremiumProductIds.yearly,
-          title: L10n.of(context).premiumYearly,
-          description: '',
-          price: '\$9.99',
-          rawPrice: 9.99,
-          currencyCode: 'USD',
-        ),
-      ),
-    );
-
-    final lifetimeProduct = iapState.products.firstWhere(
-      (p) => p.id == PremiumProductIds.lifetime,
-      orElse: () => PremiumProduct(
-        ProductDetails(
-          id: PremiumProductIds.lifetime,
-          title: L10n.of(context).premiumLifetime,
-          description: '',
-          price: '\$29.99',
-          rawPrice: 29.99,
-          currencyCode: 'USD',
-        ),
-      ),
-    );
+    final monthlyProduct = productFor(PremiumProductIds.monthly);
+    final yearlyProduct = productFor(PremiumProductIds.yearly);
+    final lifetimeProduct = productFor(PremiumProductIds.lifetime);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -667,49 +633,63 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
         SizedBox(height: AppSpacing.md),
 
         // Monthly
-        _buildTierCard(
-          productId: PremiumProductIds.monthly,
-          title: L10n.of(context).premiumMonthly,
-          price: monthlyProduct.price,
-          period: '/month',
-          description: 'Billed monthly',
-          isRecommended: false,
-          isLoading:
-              iapState.isLoading &&
-              _selectedProductId == PremiumProductIds.monthly,
-        ),
-        SizedBox(height: AppSpacing.sm),
+        if (monthlyProduct != null) ...[
+          _buildTierCard(
+            productId: PremiumProductIds.monthly,
+            title: L10n.of(context).premiumMonthly,
+            price: monthlyProduct.price,
+            period: '/month',
+            description: _withTrial('Billed monthly', monthlyProduct),
+            isRecommended: false,
+            isLoading:
+                iapState.isLoading &&
+                _selectedProductId == PremiumProductIds.monthly,
+          ),
+          SizedBox(height: AppSpacing.sm),
+        ],
 
         // Yearly (recommended)
-        _buildTierCard(
-          productId: PremiumProductIds.yearly,
-          title: L10n.of(context).premiumYearly,
-          price: yearlyProduct.price,
-          period: '/year',
-          description: 'Save 44% - Best value!',
-          isRecommended: true,
-          badge: 'BEST VALUE',
-          isLoading:
-              iapState.isLoading &&
-              _selectedProductId == PremiumProductIds.yearly,
-        ),
-        SizedBox(height: AppSpacing.sm),
+        if (yearlyProduct != null) ...[
+          _buildTierCard(
+            productId: PremiumProductIds.yearly,
+            title: L10n.of(context).premiumYearly,
+            price: yearlyProduct.price,
+            period: '/year',
+            description: _withTrial('Save 44% - Best value!', yearlyProduct),
+            isRecommended: true,
+            badge: 'BEST VALUE',
+            isLoading:
+                iapState.isLoading &&
+                _selectedProductId == PremiumProductIds.yearly,
+          ),
+          SizedBox(height: AppSpacing.sm),
+        ],
 
         // Lifetime
-        _buildTierCard(
-          productId: PremiumProductIds.lifetime,
-          title: L10n.of(context).premiumLifetime,
-          price: lifetimeProduct.price,
-          period: '',
-          description: 'One-time purchase, forever access',
-          isRecommended: false,
-          badge: 'FOREVER',
-          isLoading:
-              iapState.isLoading &&
-              _selectedProductId == PremiumProductIds.lifetime,
-        ),
+        if (lifetimeProduct != null)
+          _buildTierCard(
+            productId: PremiumProductIds.lifetime,
+            title: L10n.of(context).premiumLifetime,
+            price: lifetimeProduct.price,
+            period: '',
+            description: 'One-time purchase, forever access',
+            isRecommended: false,
+            badge: 'FOREVER',
+            isLoading:
+                iapState.isLoading &&
+                _selectedProductId == PremiumProductIds.lifetime,
+          ),
       ],
     );
+  }
+
+  /// Lead with the trial when the store says this plan has one.
+  ///
+  /// Play only offers a trial to somebody eligible for it, so this says nothing
+  /// to a returning subscriber that it would not honour.
+  String _withTrial(String description, PremiumProduct product) {
+    final trial = product.freeTrial;
+    return trial == null ? description : '$trial free, then $description';
   }
 
   Widget _buildTierCard({

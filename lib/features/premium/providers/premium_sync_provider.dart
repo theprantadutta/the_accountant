@@ -20,7 +20,10 @@ final premiumIapSyncProvider = Provider<void>((ref) {
     final justAuthenticated =
         next.isAuthenticated && previous?.isAuthenticated != true;
     if (justAuthenticated) {
-      ref.read(iapNotifierProvider.notifier).refresh();
+      // Hands the store the account tag and reconciles what it already owns,
+      // then re-asks the backend. A returning subscriber signing in on a new
+      // device gets their plan back from this path alone.
+      ref.read(iapNotifierProvider.notifier).onSignedIn(next.userId);
     }
   });
 

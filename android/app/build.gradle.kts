@@ -42,6 +42,11 @@ android {
         // minSdk = flutter.minSdkVersion
         minSdk = 24
         targetSdk = flutter.targetSdkVersion
+        // flutter_inapp_purchase ships one Android module per store (play /
+        // amazon / horizon) behind a "platform" product flavour dimension the
+        // app itself does not declare. Without this the build cannot resolve
+        // which one to link.
+        missingDimensionStrategy("platform", "play")
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }

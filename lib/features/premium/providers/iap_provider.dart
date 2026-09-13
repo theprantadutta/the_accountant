@@ -1,7 +1,8 @@
 import 'dart:async';
+
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
-import 'package:in_app_purchase/in_app_purchase.dart';
 
 import 'package:the_accountant/core/services/api_service.dart';
 import 'package:the_accountant/features/premium/services/iap_service.dart';
@@ -27,7 +28,7 @@ class IAPState {
   final DateTime? expiresAt;
   final List<PremiumProduct> products;
   final String? error;
-  final PurchaseStatus? lastPurchaseStatus;
+  final PurchaseFlowStatus? lastPurchaseStatus;
   final DateTime? gracePeriodEndsAt;
   final bool isInGracePeriod;
 
@@ -56,7 +57,7 @@ class IAPState {
     DateTime? expiresAt,
     List<PremiumProduct>? products,
     String? error,
-    PurchaseStatus? lastPurchaseStatus,
+    PurchaseFlowStatus? lastPurchaseStatus,
     DateTime? gracePeriodEndsAt,
     bool? isInGracePeriod,
     bool? backendConfirmed,
@@ -77,7 +78,7 @@ class IAPState {
 }
 
 /// Notifier for IAP operations
-class IAPNotifier extends StateNotifier<IAPState> {
+class IAPNotifier extends StateNotifier<IAPState> with WidgetsBindingObserver {
   final Ref _ref;
   IAPService? _service;
 
@@ -88,8 +89,42 @@ class IAPNotifier extends StateNotifier<IAPState> {
     _service?.onPurchaseUpdate = _onPurchaseUpdate;
     _service?.onSubscriptionUpdate = _onSubscriptionUpdate;
 
+    // A purchase that completed while the app was backgrounded, a deferred
+    // payment that cleared overnight, a verification that failed offline — all
+    // of them surface only when the store is asked again. The billing sheet
+    // closing is itself a resume, so this also catches the ordinary case where
+    // the stream event never arrived.
+    WidgetsBinding.instance.addObserver(this);
+
     // Load initial state
     _loadState();
+  }
+
+  // Deliberately not called `state`, which is what the override declares:
+  // `state` on a StateNotifier is the IAP state, and shadowing it inside a
+  // lifecycle callback is a trap waiting for the next person to edit this.
+  @override
+  // ignore: avoid_renaming_method_parameters
+  void didChangeAppLifecycleState(AppLifecycleState lifecycle) {
+    if (lifecycle == AppLifecycleState.resumed) {
+      unawaited(_service?.reconcileStoreState());
+    }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  /// Tell the store who is buying, and pick up anything they already own.
+  ///
+  /// Play echoes the account tag back in its server notifications, which is
+  /// what lets a payment that clears days later be traced to a user.
+  Future<void> onSignedIn(String? userId) async {
+    _service?.accountId = userId;
+    await _service?.reconcileStoreState();
+    await refresh();
   }
 
   Future<void> _loadState() async {
@@ -132,16 +167,16 @@ class IAPNotifier extends StateNotifier<IAPState> {
     }
   }
 
-  void _onPurchaseUpdate(PurchaseStatus status, String? error) {
+  void _onPurchaseUpdate(PurchaseFlowStatus status, String? error) {
     state = state.copyWith(
-      isLoading: status == PurchaseStatus.pending,
+      isLoading: status == PurchaseFlowStatus.pending,
       lastPurchaseStatus: status,
       error: error,
     );
 
     // Refresh state after purchase
-    if (status == PurchaseStatus.purchased ||
-        status == PurchaseStatus.restored) {
+    if (status == PurchaseFlowStatus.purchased ||
+        status == PurchaseFlowStatus.restored) {
       _loadState();
     }
   }
