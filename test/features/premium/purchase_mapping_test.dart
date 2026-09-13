@@ -141,6 +141,64 @@ void main() {
       expect(classifyVerifyResponse(threw: true), VerifyOutcome.transient);
     });
 
+    test('"could not ask the store" is transient, not a rejection', () {
+      // The exact case a dev server with no Google credentials produces, and
+      // the one that costs money if read as a refusal: an unverified Android
+      // purchase is deliberately left unfinished, and Play refunds anything
+      // unfinished for three days. A server having a bad minute would quietly
+      // refund every sale it took.
+      expect(
+        classifyVerifyResponse(
+          threw: false,
+          body: {
+            'success': false,
+            'error':
+                'PURCHASE_VERIFICATION_UNAVAILABLE: '
+                'Google Play credentials are not configured',
+          },
+        ),
+        VerifyOutcome.transient,
+      );
+    });
+
+    test('an unpaid purchase is pending, which grants and finishes nothing', () {
+      expect(
+        classifyVerifyResponse(
+          threw: false,
+          body: {
+            'success': false,
+            'error': 'PURCHASE_PENDING: Payment has not completed',
+          },
+        ),
+        VerifyOutcome.pending,
+      );
+    });
+
+    test('a real refusal is still a refusal', () {
+      // Nothing prefixed, so the backend is answering about the receipt.
+      for (final error in [
+        'Invalid product ID',
+        'Subscription not found',
+        'Subscription expired or payment pending',
+      ]) {
+        expect(
+          classifyVerifyResponse(
+            threw: false,
+            body: {'success': false, 'error': error},
+          ),
+          VerifyOutcome.rejected,
+          reason: error,
+        );
+      }
+    });
+
+    test('a refusal with no error text at all is a refusal', () {
+      expect(
+        classifyVerifyResponse(threw: false, body: {'success': false}),
+        VerifyOutcome.rejected,
+      );
+    });
+
     test('a 200 with a body we cannot read is transient', () {
       expect(
         classifyVerifyResponse(threw: false, body: null),

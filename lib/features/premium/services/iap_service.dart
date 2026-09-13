@@ -66,6 +66,18 @@ class IAPService {
   /// verify it.
   final Set<String> _fulfilling = {};
 
+  /// Purchases the store completed that the backend could not check.
+  ///
+  /// The money has moved and the transaction is acknowledged, so the user owns
+  /// this whatever our server thinks. Premium is granted on the strength of
+  /// that until verification succeeds (which clears the entry) or the backend
+  /// looks at the receipt and says no (which also clears it). Empty is the
+  /// normal state.
+  final Set<String> _provisional = {};
+
+  /// Whether anything is being honoured ahead of verification.
+  bool get hasProvisionalGrant => _provisional.isNotEmpty;
+
   /// Set while the user is explicitly restoring, so fulfilment can report
   /// [PurchaseFlowStatus.restored] rather than a fresh purchase.
   bool _restoring = false;
@@ -384,6 +396,7 @@ class IAPService {
       switch (outcome) {
         case VerifyOutcome.rejected:
           _logger.w('Purchase rejected by backend: ${purchase.productId}');
+          if (identity != null) _provisional.remove(identity);
           onPurchaseUpdate?.call(
             PurchaseFlowStatus.error,
             'Verification failed',
@@ -394,15 +407,29 @@ class IAPService {
           if (Platform.isIOS) await _finish(purchase);
           return;
 
+        case VerifyOutcome.pending:
+          // The store has it, the money has not moved. Nothing to grant, and
+          // nothing to finish: finishing says "delivered" for something unpaid.
+          _logger.i('Purchase of ${purchase.productId} is awaiting payment');
+          onPurchaseUpdate?.call(PurchaseFlowStatus.pending, null);
+          return;
+
         case VerifyOutcome.transient:
           // Grant and finish, but do not record it as delivered: the next
           // reconcile verifies it again, and keeps doing so until an answer
-          // arrives.
+          // arrives. Until then this grant is ours, not the server's — the
+          // server will go on reporting the user as free, and something has to
+          // stop that answer taking away a plan they have paid for.
           _logger.w('Verification unavailable; granting ${purchase.productId}');
+          if (identity != null) _provisional.add(identity);
+          onSubscriptionUpdate?.call(true, purchase.productId, null);
           onPurchaseUpdate?.call(_completionStatus, null);
 
         case VerifyOutcome.granted:
-          if (identity != null) _delivered.add(identity);
+          if (identity != null) {
+            _delivered.add(identity);
+            _provisional.remove(identity);
+          }
           onPurchaseUpdate?.call(_completionStatus, null);
       }
 

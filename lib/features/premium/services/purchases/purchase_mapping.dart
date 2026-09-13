@@ -29,6 +29,12 @@ enum VerifyOutcome {
 
   /// The backend verified it and says no. Grant nothing.
   rejected,
+
+  /// The store has the purchase but the money has not moved yet — a deferred
+  /// payment method, or Play's slow test card. Grant nothing and finish
+  /// nothing: finishing would tell Play the item was delivered, and it has not
+  /// been paid for. It comes back on a later reconcile, cleared or gone.
+  pending,
 }
 
 /// Whether [productId] is consumed on purchase rather than owned.
@@ -74,19 +80,46 @@ Map<String, dynamic>? backendPayloadFor(Purchase purchase) {
   };
 }
 
+/// Errors the backend prefixes when the failure is about *it*, not the receipt.
+///
+/// Must match `IapVerificationErrors` on the server. A mismatch here is not a
+/// compile error anywhere — it is a silent refund three days later — so the
+/// strings are named rather than inlined at the comparison.
+const verificationUnavailablePrefix = 'PURCHASE_VERIFICATION_UNAVAILABLE';
+const purchasePendingPrefix = 'PURCHASE_PENDING';
+
 /// Read the verdict out of a `/iap/verify` response body.
 ///
-/// The endpoint answers 200 for both outcomes — `success: false` carries the
-/// reason in `error` — so a thrown request (offline, 401, 5xx) is the only
-/// transient signal, and callers pass [threw] for it.
+/// The endpoint answers 200 for both outcomes, with the reason in `error`, so
+/// there are three cases and not two:
+///
+/// * the request never completed — offline, 401, 5xx — which callers signal
+///   with [threw];
+/// * it completed and the backend said no;
+/// * it completed and the backend said it could not ask the store.
+///
+/// The third looks exactly like the second on the wire, and getting it wrong
+/// costs real money in a way that is easy to miss. The client leaves an
+/// unverified Android purchase unfinished on purpose, and Play refunds anything
+/// left unfinished for three days — so a server that cannot reach Google, or
+/// has no credentials loaded, would silently refund every sale it took while
+/// the buyer saw "verification failed". Hence the prefix.
 VerifyOutcome classifyVerifyResponse({
   required bool threw,
   Map<String, dynamic>? body,
 }) {
   if (threw || body == null) return VerifyOutcome.transient;
-  return body['success'] == true
-      ? VerifyOutcome.granted
-      : VerifyOutcome.rejected;
+  if (body['success'] == true) return VerifyOutcome.granted;
+
+  final error = body['error']?.toString() ?? '';
+  if (error.startsWith(verificationUnavailablePrefix)) {
+    return VerifyOutcome.transient;
+  }
+  // A payment that has not cleared is not a refusal either, but it must not
+  // grant anything or be finished, so it is its own outcome.
+  if (error.startsWith(purchasePendingPrefix)) return VerifyOutcome.pending;
+
+  return VerifyOutcome.rejected;
 }
 
 /// The offer to buy an Android subscription with.

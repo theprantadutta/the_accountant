@@ -37,6 +37,11 @@ class IAPState {
   /// only reconciles the persisted premium cache when this is true.
   final bool backendConfirmed;
 
+  /// True while premium is being honoured on the strength of a completed
+  /// purchase the backend has not managed to verify. It outranks a confirmed
+  /// "you are free", because the store has already taken the money.
+  final bool provisionalPremium;
+
   const IAPState({
     this.isLoading = false,
     this.isPremium = false,
@@ -48,6 +53,7 @@ class IAPState {
     this.gracePeriodEndsAt,
     this.isInGracePeriod = false,
     this.backendConfirmed = false,
+    this.provisionalPremium = false,
   });
 
   IAPState copyWith({
@@ -61,6 +67,7 @@ class IAPState {
     DateTime? gracePeriodEndsAt,
     bool? isInGracePeriod,
     bool? backendConfirmed,
+    bool? provisionalPremium,
   }) {
     return IAPState(
       isLoading: isLoading ?? this.isLoading,
@@ -73,6 +80,7 @@ class IAPState {
       gracePeriodEndsAt: gracePeriodEndsAt ?? this.gracePeriodEndsAt,
       isInGracePeriod: isInGracePeriod ?? this.isInGracePeriod,
       backendConfirmed: backendConfirmed ?? this.backendConfirmed,
+      provisionalPremium: provisionalPremium ?? this.provisionalPremium,
     );
   }
 }
@@ -127,7 +135,21 @@ class IAPNotifier extends StateNotifier<IAPState> with WidgetsBindingObserver {
     await refresh();
   }
 
-  Future<void> _loadState() async {
+  /// The in-flight [_loadState], if any.
+  Future<void>? _loading;
+
+  /// Read the backend's view of this user's subscription.
+  ///
+  /// Coalesced, because two callers fire together on every launch and both
+  /// live in `premiumIapSyncProvider`: building it reads `iapNotifierProvider`,
+  /// which constructs this notifier and runs a load from the constructor, and
+  /// its auth listener then calls `onSignedIn` the moment auth resolves. That
+  /// is two `/iap/subscription-status` requests milliseconds apart asking the
+  /// same question. Purchases and resumes can collide the same way.
+  Future<void> _loadState() =>
+      _loading ??= _doLoadState().whenComplete(() => _loading = null);
+
+  Future<void> _doLoadState() async {
     try {
       // Check subscription status
       final status = await _service?.checkSubscriptionStatus();
@@ -135,6 +157,8 @@ class IAPNotifier extends StateNotifier<IAPState> with WidgetsBindingObserver {
       // Get products
       final productDetails = _service?.products ?? [];
       final products = productDetails.map((p) => PremiumProduct(p)).toList();
+
+      final provisional = _service?.hasProvisionalGrant ?? false;
 
       // Request failed (or returned an unconfirmed fallback): don't overwrite
       // the premium fields — leave whatever we had and mark it unconfirmed so
@@ -144,6 +168,22 @@ class IAPNotifier extends StateNotifier<IAPState> with WidgetsBindingObserver {
           isLoading: false,
           products: products,
           backendConfirmed: false,
+          provisionalPremium: provisional,
+        );
+        return;
+      }
+
+      // The backend answered, and said free, while the store has a purchase it
+      // could not check. That answer is not wrong so much as uninformed: it
+      // describes a receipt our server never managed to process. Taking premium
+      // away on it would bill somebody and give them nothing.
+      if (!status.isPremium && provisional) {
+        state = state.copyWith(
+          isLoading: false,
+          products: products,
+          isPremium: true,
+          backendConfirmed: false,
+          provisionalPremium: true,
         );
         return;
       }
@@ -157,6 +197,7 @@ class IAPNotifier extends StateNotifier<IAPState> with WidgetsBindingObserver {
         gracePeriodEndsAt: status.gracePeriodEndsAt,
         isInGracePeriod: status.isInGracePeriod,
         backendConfirmed: true,
+        provisionalPremium: false,
       );
     } catch (e) {
       state = state.copyWith(

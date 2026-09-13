@@ -38,10 +38,29 @@ final premiumIapSyncProvider = Provider<void>((ref) {
     // (startup defaults, failed requests). A failed sync must never downgrade a
     // cached-premium user.
     if (next.isLoading) return;
-    if (!next.backendConfirmed) return;
 
     final premiumNotifier = ref.read(premiumProvider.notifier);
     final cached = ref.read(premiumProvider);
+
+    // A purchase the store completed and our backend could not verify. The
+    // money has moved and the transaction is acknowledged, so it is honoured
+    // here rather than waiting for a server that may be hours from agreeing.
+    // Verification keeps retrying on every resume; when it lands, this becomes
+    // an ordinary confirmed grant, and if the receipt is ever rejected the flag
+    // clears and the next answer downgrades as usual.
+    if (next.provisionalPremium && next.isPremium) {
+      final tier = _mapProductIdToTier(next.currentTier);
+      if (!cached.isPremium || cached.tier != tier) {
+        premiumNotifier.updateSubscription(
+          tier: tier,
+          expiresAt: next.expiresAt,
+          purchaseId: next.currentTier,
+        );
+      }
+      return;
+    }
+
+    if (!next.backendConfirmed) return;
 
     if (!next.isPremium) {
       // Backend confirms free — reconcile the cache down (only if it currently
