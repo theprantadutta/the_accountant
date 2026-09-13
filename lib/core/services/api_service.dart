@@ -488,9 +488,29 @@ class ApiService {
     }
   }
 
+  /// The `/auth/me` request currently in the air, if any.
+  Future<Map<String, dynamic>>? _currentUserInFlight;
+
   /// Get current user
   /// [timeout] overrides the default Dio timeout for this request.
-  Future<Map<String, dynamic>> getCurrentUser({Duration? timeout}) async {
+  ///
+  /// Callers that ask while a request is already out get that request's result
+  /// rather than a second one. Three separate services want this payload on
+  /// every launch and none of them knows about the others: the auth service
+  /// reconciles the cached profile, the startup flow asks whether the account
+  /// exists at all, and the onboarding provider re-checks `onboarding_completed`.
+  /// They all fire within the same second, so the app asked who the user was
+  /// three times on every cold start.
+  ///
+  /// A joiner inherits the in-flight request's timeout, which can be shorter
+  /// than its own — every caller already treats a failure here as non-fatal.
+  Future<Map<String, dynamic>> getCurrentUser({Duration? timeout}) {
+    return _currentUserInFlight ??= _fetchCurrentUser(
+      timeout,
+    ).whenComplete(() => _currentUserInFlight = null);
+  }
+
+  Future<Map<String, dynamic>> _fetchCurrentUser(Duration? timeout) async {
     try {
       final response = await _dio.get(
         '/auth/me',

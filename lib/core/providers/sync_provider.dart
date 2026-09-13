@@ -57,7 +57,7 @@ class SyncNotifier extends Notifier<SyncOperationState> {
         debugPrint(
           '[SyncNotifier] Connectivity restored, triggering auto-sync',
         );
-        triggerAutoSync();
+        triggerAutoSync(force: true);
       }
     });
 
@@ -78,7 +78,13 @@ class SyncNotifier extends Notifier<SyncOperationState> {
     // success == false (so the user is told about the records that failed), but
     // the records that DID apply are already in the database and the UI must
     // show them.
-    if (result.pulledCount > 0 || result.pushedCount > 0) {
+    //
+    // Pulling is the only half that changes what there is to show. Pushing
+    // sends rows the user is already looking at and marks them synced, which no
+    // screen renders — re-reading every table afterwards showed them exactly
+    // what they were already seeing. The first sync after recording a few
+    // transactions is push-only, so this was the common case.
+    if (result.pulledCount > 0) {
       _refreshDataProviders();
     }
 
@@ -109,10 +115,43 @@ class SyncNotifier extends Notifier<SyncOperationState> {
     ref.read(financialDataProvider.notifier).loadFinancialData(silent: true);
   }
 
+  /// When the last automatic sync finished successfully.
+  DateTime? _lastAutoSyncAt;
+
+  /// How soon after a successful automatic sync another one is worth starting.
+  ///
+  /// Launch fires three of them from places that do not know about each other:
+  /// the startup flow's restore step, the first `resumed` lifecycle event, and
+  /// the post-frame startup checks. `SyncService` refuses to run two at once,
+  /// but that only staggers them — the second waited for the first and then did
+  /// the whole push and pull again against a server that had nothing left to
+  /// say.
+  static const _autoSyncCooldown = Duration(seconds: 30);
+
   /// Trigger auto-sync silently (catches errors)
-  Future<void> triggerAutoSync() async {
+  ///
+  /// [force] runs one regardless of how recently the last succeeded. For
+  /// triggers that carry real news — connectivity coming back, say — rather
+  /// than the launch sequence saying the same thing three times.
+  Future<void> triggerAutoSync({bool force = false}) async {
+    final since = _lastAutoSyncAt;
+    if (!force &&
+        since != null &&
+        DateTime.now().difference(since) < _autoSyncCooldown) {
+      debugPrint(
+        '[SyncNotifier] Skipping auto-sync; one finished '
+        '${DateTime.now().difference(since).inSeconds}s ago',
+      );
+      return;
+    }
+
     try {
       final result = await syncAll();
+
+      // Only a sync that actually ran starts the clock. One that bounced off
+      // the in-progress guard, or failed offline, has said nothing about
+      // whether the server is up to date, and must not suppress the next try.
+      if (result.success) _lastAutoSyncAt = DateTime.now();
       // Background recurrence generation runs in a WorkManager isolate that
       // cannot sync on its own; it leaves a flag instead. Clear it once a
       // foreground sync has actually pushed, so the generated occurrences are
