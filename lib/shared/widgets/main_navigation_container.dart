@@ -4,6 +4,7 @@ import 'package:the_accountant/features/transactions/screens/transaction_detail_
 import 'package:the_accountant/features/ai/screens/receipt_scanner_screen.dart';
 import 'package:the_accountant/features/budgets/screens/budget_list_screen.dart';
 import 'package:the_accountant/core/providers/deep_link_provider.dart';
+import 'package:the_accountant/core/services/deep_link_service.dart';
 import 'package:the_accountant/core/domain/app_destination.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart';
@@ -178,6 +179,7 @@ class _MainNavigationContainerState
       // A link that arrived before there was anywhere safe to send it — a cold
       // start from a launcher shortcut is exactly that — has been waiting.
       final links = ref.read(deepLinkServiceProvider);
+      _deepLinks = links;
       links.pending.addListener(_followPendingLink);
       _followPendingLink();
 
@@ -209,12 +211,21 @@ class _MainNavigationContainerState
     });
   }
 
+  /// The service this widget's pending-link listener is attached to.
+  ///
+  /// Held rather than looked up again in [dispose], where `ref` cannot be used:
+  /// Riverpod throws a plain `StateError` there, in release as well as debug,
+  /// so tearing this shell down — signing out is the ordinary way — crashed the
+  /// app outright rather than merely warning.
+  ///
+  /// Keeping the instance is also the only way to be sure the listener comes
+  /// off the same object it went on. Re-reading the provider could hand back a
+  /// different one, and the old listener would simply stay attached.
+  DeepLinkService? _deepLinks;
+
   @override
   void dispose() {
-    ref
-        .read(deepLinkServiceProvider)
-        .pending
-        .removeListener(_followPendingLink);
+    _deepLinks?.pending.removeListener(_followPendingLink);
     super.dispose();
   }
 
