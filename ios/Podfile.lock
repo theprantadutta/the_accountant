@@ -146,7 +146,7 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/workmanager_apple/ios"
 
 SPEC CHECKSUMS:
-  Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
+  Flutter: 71a624a5bc0c04062bf19101d501e466baf2fb47
   google_mlkit_barcode_scanning: f69335a73c797a582d5effc61175d1721020d770
   google_mlkit_commons: b4dfe2f6ae4cbf24010dc6640a28984d01343c86
   google_mlkit_image_labeling: 16690f4e44478c86a2864b5072483e4c5d0cc95c
