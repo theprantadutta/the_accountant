@@ -163,11 +163,6 @@ class _AmountInputSheetState extends State<_AmountInputSheet> {
     _set('');
   }
 
-  void _equals() {
-    HapticFeedback.lightImpact();
-    _set(_amount == 0 ? '' : _plain(_amount));
-  }
-
   void _done() {
     HapticFeedback.mediumImpact();
     Navigator.pop(context, _amount);
@@ -272,8 +267,6 @@ class _AmountInputSheetState extends State<_AmountInputSheet> {
             onKey: _press,
             onBackspace: _backspace,
             onClear: _clear,
-            onEquals: _equals,
-            showEquals: _hasOperator,
           ),
           const SizedBox(height: 14),
           SunriseButton(label: l10n.importDone, height: 56, onPressed: _done),
@@ -284,20 +277,17 @@ class _AmountInputSheetState extends State<_AmountInputSheet> {
 }
 
 /// Digits on the left, operators down the right; long-press ⌫ clears.
+/// Done evaluates whatever sum is on the display.
 class _Keypad extends StatelessWidget {
   const _Keypad({
     required this.onKey,
     required this.onBackspace,
     required this.onClear,
-    required this.onEquals,
-    required this.showEquals,
   });
 
   final ValueChanged<String> onKey;
   final VoidCallback onBackspace;
   final VoidCallback onClear;
-  final VoidCallback onEquals;
-  final bool showEquals;
 
   @override
   Widget build(BuildContext context) {
@@ -315,7 +305,7 @@ class _Keypad extends StatelessWidget {
             children: [
               for (var i = 0; i < 4; i++) ...[
                 if (i > 0) const SizedBox(width: 8),
-                Expanded(child: _key(context, rows[r][i], r == 3 && i == 3)),
+                Expanded(child: _key(context, rows[r][i])),
               ],
             ],
           ),
@@ -324,23 +314,9 @@ class _Keypad extends StatelessWidget {
     );
   }
 
-  Widget _key(BuildContext context, String k, bool plusSlot) {
+  Widget _key(BuildContext context, String k) {
     final c = context.sunrise;
     final isOp = '÷×−+'.contains(k);
-    if (plusSlot && showEquals) {
-      return _KeyTile(
-        background: c.chipActiveBg,
-        onTap: onEquals,
-        semanticLabel: '=',
-        child: Text(
-          '=',
-          style: SunriseType.pushTitle.copyWith(
-            color: c.chipActiveFg,
-            fontSize: 26,
-          ),
-        ),
-      );
-    }
     if (k == '⌫') {
       return _KeyTile(
         background: c.surface,

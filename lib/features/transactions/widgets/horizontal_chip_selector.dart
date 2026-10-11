@@ -147,7 +147,7 @@ class LabeledChipSection<T> extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: EdgeInsets.zero,
           child: Row(
             children: [
               if (labelIcon != null) ...[
@@ -175,6 +175,7 @@ class LabeledChipSection<T> extends StatelessWidget {
           iconBuilder: iconBuilder,
           onSelected: onSelected,
           trailing: trailing,
+          padding: EdgeInsets.zero,
         ),
       ],
     );
