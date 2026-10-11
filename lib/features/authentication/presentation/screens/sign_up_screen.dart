@@ -172,6 +172,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
           backgroundColor: Colors.transparent,
           elevation: 0,
           leading: IconButton(
+            tooltip: MaterialLocalizations.of(context).backButtonTooltip,
             icon: const BackButtonIcon(),
             onPressed: () => Navigator.pop(context),
           ),

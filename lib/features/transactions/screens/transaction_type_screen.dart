@@ -740,6 +740,7 @@ class _TransactionTypeScreenState extends ConsumerState<TransactionTypeScreen> {
           elevation: 0,
           title: Text(_title, style: AppTypography.titleMedium),
           leading: IconButton(
+            tooltip: MaterialLocalizations.of(context).backButtonTooltip,
             icon: const BackButtonIcon(),
             onPressed: () => Navigator.pop(context),
           ),

@@ -58,6 +58,7 @@ class _NotificationInboxScreenState
         elevation: 0,
         title: Text(L10n.of(context).settingsNotifications),
         leading: IconButton(
+          tooltip: MaterialLocalizations.of(context).backButtonTooltip,
           icon: const BackButtonIcon(),
           onPressed: () => Navigator.of(context).pop(),
         ),

@@ -1598,6 +1598,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
       backgroundColor: Colors.transparent,
       elevation: 0,
       leading: IconButton(
+        tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
         icon: const CloseButtonIcon(),
         onPressed: () => Navigator.of(context).pop(),
       ),
@@ -1620,6 +1621,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
+          tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
           icon: const CloseButtonIcon(),
           onPressed: () => Navigator.of(context).pop(),
         ),

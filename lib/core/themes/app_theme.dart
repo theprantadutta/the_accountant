@@ -297,6 +297,29 @@ class AppTheme {
           shape: const WidgetStatePropertyAll(menuShape),
         ),
       ),
+      segmentedButtonTheme: SegmentedButtonThemeData(
+        style: ButtonStyle(
+          backgroundColor: WidgetStateProperty.resolveWith(
+            (s) => s.contains(WidgetState.selected)
+                ? c.chipActiveBg
+                : c.surface,
+          ),
+          foregroundColor: WidgetStateProperty.resolveWith(
+            (s) => s.contains(WidgetState.selected)
+                ? c.chipActiveFg
+                : c.body,
+          ),
+          iconColor: WidgetStateProperty.resolveWith(
+            (s) => s.contains(WidgetState.selected)
+                ? c.chipActiveFg
+                : c.body,
+          ),
+          side: WidgetStatePropertyAll(BorderSide(color: c.divider)),
+          textStyle: WidgetStatePropertyAll(SunriseType.label),
+          shape: const WidgetStatePropertyAll(StadiumBorder()),
+          minimumSize: const WidgetStatePropertyAll(Size(0, 44)),
+        ),
+      ),
       chipTheme: ChipThemeData(
         backgroundColor: c.surface,
         selectedColor: c.chipActiveBg,

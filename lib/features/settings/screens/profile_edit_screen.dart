@@ -101,6 +101,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
           elevation: 0,
           title: Text(L10n.of(context).settingsEditProfile),
           leading: IconButton(
+            tooltip: MaterialLocalizations.of(context).backButtonTooltip,
             icon: const BackButtonIcon(),
             onPressed: _handleBack,
           ),
