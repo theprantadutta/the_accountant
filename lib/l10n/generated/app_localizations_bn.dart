@@ -2663,4 +2663,152 @@ class L10nBn extends L10n {
 
   @override
   String get aiErrorTitle => 'কোচ উত্তর দিতে পারেনি';
+
+  @override
+  String get paywallTitle => 'অ্যাকাউন্ট্যান্ট প্রিমিয়াম';
+
+  @override
+  String get paywallTagline => 'অ্যাপের সবকিছু, আপনার জন্য।';
+
+  @override
+  String get paywallActiveTitle => 'প্রিমিয়াম চালু আছে';
+
+  @override
+  String get paywallActiveTagline => 'আপনার সমর্থনের জন্য ধন্যবাদ!';
+
+  @override
+  String get paywallRestore => 'রিস্টোর';
+
+  @override
+  String get paywallProcessing => 'প্রক্রিয়াকরণ…';
+
+  @override
+  String paywallTriggered(String feature) {
+    return '$feature একটি প্রিমিয়াম ফিচার';
+  }
+
+  @override
+  String paywallDaysRemaining(int days) {
+    return 'আর $days দিন বাকি';
+  }
+
+  @override
+  String get paywallFeatSync => 'ক্লাউড সিঙ্ক';
+
+  @override
+  String get paywallFeatSyncSub => 'সব ডিভাইসে';
+
+  @override
+  String get paywallFeatAi => 'এআই সহকারী';
+
+  @override
+  String get paywallFeatAiSub => 'জেমিনি চালিত';
+
+  @override
+  String get paywallFeatOcr => 'রসিদ স্ক্যান';
+
+  @override
+  String get paywallFeatOcrSub => 'এআই দিয়ে ওসিআর';
+
+  @override
+  String get paywallFeatInsights => 'খরচের বিশ্লেষণ';
+
+  @override
+  String get paywallFeatInsightsSub => 'মাসিক প্রবণতা';
+
+  @override
+  String get paywallFeatThemes => '৫টি থিম';
+
+  @override
+  String get paywallFeatThemesSub => 'এক্সক্লুসিভ';
+
+  @override
+  String get paywallFeatPdf => 'পিডিএফ রিপোর্ট';
+
+  @override
+  String get paywallFeatPdfSub => 'সিএসভি ফ্রি থাকছে';
+
+  @override
+  String get paywallFeatUnlimited => 'আনলিমিটেড';
+
+  @override
+  String get paywallFeatUnlimitedSub => 'ওয়ালেট, বাজেট';
+
+  @override
+  String get paywallFeatSupport => 'অগ্রাধিকার সহায়তা';
+
+  @override
+  String get paywallFeatSupportSub => 'দ্রুত উত্তর';
+
+  @override
+  String get paywallPerMonth => '/মাস';
+
+  @override
+  String get paywallPerYear => '/বছর';
+
+  @override
+  String get paywallOnce => 'একবার';
+
+  @override
+  String get paywallBestValue => 'সেরা মূল্য';
+
+  @override
+  String get paywallForever => 'চিরকাল';
+
+  @override
+  String get paywallMonthlyDesc => 'মাসিক বিল';
+
+  @override
+  String get paywallYearlyDesc => 'বার্ষিক বিল';
+
+  @override
+  String get paywallLifetimeDesc => 'একবার দিন, চিরকাল রাখুন';
+
+  @override
+  String paywallTrial(String trial, String rest) {
+    return '$trial ফ্রি, তারপর $rest';
+  }
+
+  @override
+  String get paywallCtaLifetime => 'লাইফটাইম অ্যাক্সেস নিন';
+
+  @override
+  String get paywallCtaYearly => 'বার্ষিক প্ল্যান শুরু করুন';
+
+  @override
+  String get paywallCtaMonthly => 'মাসিক প্ল্যান শুরু করুন';
+
+  @override
+  String get paywallFootLifetime => 'এককালীন কেনা · কোনো সাবস্ক্রিপশন নেই';
+
+  @override
+  String get paywallFootSubscription =>
+      'স্বয়ংক্রিয়ভাবে নবায়ন · স্টোরে যেকোনো সময় বাতিল';
+
+  @override
+  String get paywallTerms =>
+      'সাবস্ক্রিপশনের চার্জ আপনার অ্যাপ স্টোর বা গুগল প্লে অ্যাকাউন্টে হবে এবং বর্তমান মেয়াদ শেষ হওয়ার অন্তত ২৪ ঘণ্টা আগে বাতিল না করলে স্বয়ংক্রিয়ভাবে নবায়ন হবে।';
+
+  @override
+  String get paywallIapUnavailable =>
+      'এই ডিভাইসে ইন-অ্যাপ কেনাকাটা পাওয়া যাচ্ছে না। গুগল প্লে সার্ভিস আছে এবং অ্যাপটি প্লে স্টোর থেকে নেওয়া কিনা দেখুন।';
+
+  @override
+  String get paywallLoadingPlans => 'প্ল্যান লোড হচ্ছে…';
+
+  @override
+  String get paywallPlansFailed =>
+      'প্ল্যান লোড হয়নি। সংযোগ দেখে আবার চেষ্টা করুন।';
+
+  @override
+  String get paywallTryAgain => 'আবার চেষ্টা';
+
+  @override
+  String get paywallRestored => 'কেনাকাটা রিস্টোর হয়েছে';
+
+  @override
+  String get paywallPurchased => 'প্রিমিয়ামে স্বাগতম!';
+
+  @override
+  String get paywallLifetimeNever => 'লাইফটাইম অ্যাক্সেসের মেয়াদ শেষ হয় না';
 }

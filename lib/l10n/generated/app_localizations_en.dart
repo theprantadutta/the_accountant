@@ -2690,4 +2690,152 @@ class L10nEn extends L10n {
 
   @override
   String get aiErrorTitle => 'The coach couldn’t answer';
+
+  @override
+  String get paywallTitle => 'Accountant Premium';
+
+  @override
+  String get paywallTagline => 'Everything the app can do, for you.';
+
+  @override
+  String get paywallActiveTitle => 'Premium is active';
+
+  @override
+  String get paywallActiveTagline => 'Thank you for your support!';
+
+  @override
+  String get paywallRestore => 'Restore';
+
+  @override
+  String get paywallProcessing => 'Processing…';
+
+  @override
+  String paywallTriggered(String feature) {
+    return '$feature is a Premium feature';
+  }
+
+  @override
+  String paywallDaysRemaining(int days) {
+    return '$days days remaining';
+  }
+
+  @override
+  String get paywallFeatSync => 'Cloud sync';
+
+  @override
+  String get paywallFeatSyncSub => 'All devices';
+
+  @override
+  String get paywallFeatAi => 'AI assistant';
+
+  @override
+  String get paywallFeatAiSub => 'Gemini-powered';
+
+  @override
+  String get paywallFeatOcr => 'Receipt scan';
+
+  @override
+  String get paywallFeatOcrSub => 'OCR with AI';
+
+  @override
+  String get paywallFeatInsights => 'Spending insights';
+
+  @override
+  String get paywallFeatInsightsSub => 'Monthly trends';
+
+  @override
+  String get paywallFeatThemes => '5 themes';
+
+  @override
+  String get paywallFeatThemesSub => 'Exclusive';
+
+  @override
+  String get paywallFeatPdf => 'PDF reports';
+
+  @override
+  String get paywallFeatPdfSub => 'CSV stays free';
+
+  @override
+  String get paywallFeatUnlimited => 'Unlimited';
+
+  @override
+  String get paywallFeatUnlimitedSub => 'Wallets, budgets';
+
+  @override
+  String get paywallFeatSupport => 'Priority help';
+
+  @override
+  String get paywallFeatSupportSub => 'Faster replies';
+
+  @override
+  String get paywallPerMonth => '/month';
+
+  @override
+  String get paywallPerYear => '/year';
+
+  @override
+  String get paywallOnce => 'once';
+
+  @override
+  String get paywallBestValue => 'BEST VALUE';
+
+  @override
+  String get paywallForever => 'FOREVER';
+
+  @override
+  String get paywallMonthlyDesc => 'Billed monthly';
+
+  @override
+  String get paywallYearlyDesc => 'Billed yearly';
+
+  @override
+  String get paywallLifetimeDesc => 'Pay once, keep it forever';
+
+  @override
+  String paywallTrial(String trial, String rest) {
+    return '$trial free, then $rest';
+  }
+
+  @override
+  String get paywallCtaLifetime => 'Get lifetime access';
+
+  @override
+  String get paywallCtaYearly => 'Start yearly plan';
+
+  @override
+  String get paywallCtaMonthly => 'Start monthly plan';
+
+  @override
+  String get paywallFootLifetime => 'One-time purchase · No subscription';
+
+  @override
+  String get paywallFootSubscription =>
+      'Renews automatically · Cancel anytime in the store';
+
+  @override
+  String get paywallTerms =>
+      'Subscriptions are charged to your App Store or Google Play account and renew automatically unless canceled at least 24 hours before the end of the current period.';
+
+  @override
+  String get paywallIapUnavailable =>
+      'In-app purchases are unavailable on this device. Make sure Google Play Services is installed and the app came from the Play Store.';
+
+  @override
+  String get paywallLoadingPlans => 'Loading plans…';
+
+  @override
+  String get paywallPlansFailed =>
+      'Couldn’t load plans. Check your connection and try again.';
+
+  @override
+  String get paywallTryAgain => 'Try again';
+
+  @override
+  String get paywallRestored => 'Purchases restored';
+
+  @override
+  String get paywallPurchased => 'Welcome to Premium!';
+
+  @override
+  String get paywallLifetimeNever => 'Lifetime access never expires';
 }

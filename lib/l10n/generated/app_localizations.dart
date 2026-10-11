@@ -5044,6 +5044,282 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'The coach couldn’t answer'**
   String get aiErrorTitle;
+
+  /// No description provided for @paywallTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Accountant Premium'**
+  String get paywallTitle;
+
+  /// No description provided for @paywallTagline.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything the app can do, for you.'**
+  String get paywallTagline;
+
+  /// No description provided for @paywallActiveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium is active'**
+  String get paywallActiveTitle;
+
+  /// No description provided for @paywallActiveTagline.
+  ///
+  /// In en, this message translates to:
+  /// **'Thank you for your support!'**
+  String get paywallActiveTagline;
+
+  /// No description provided for @paywallRestore.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore'**
+  String get paywallRestore;
+
+  /// No description provided for @paywallProcessing.
+  ///
+  /// In en, this message translates to:
+  /// **'Processing…'**
+  String get paywallProcessing;
+
+  /// No description provided for @paywallTriggered.
+  ///
+  /// In en, this message translates to:
+  /// **'{feature} is a Premium feature'**
+  String paywallTriggered(String feature);
+
+  /// No description provided for @paywallDaysRemaining.
+  ///
+  /// In en, this message translates to:
+  /// **'{days} days remaining'**
+  String paywallDaysRemaining(int days);
+
+  /// No description provided for @paywallFeatSync.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud sync'**
+  String get paywallFeatSync;
+
+  /// No description provided for @paywallFeatSyncSub.
+  ///
+  /// In en, this message translates to:
+  /// **'All devices'**
+  String get paywallFeatSyncSub;
+
+  /// No description provided for @paywallFeatAi.
+  ///
+  /// In en, this message translates to:
+  /// **'AI assistant'**
+  String get paywallFeatAi;
+
+  /// No description provided for @paywallFeatAiSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Gemini-powered'**
+  String get paywallFeatAiSub;
+
+  /// No description provided for @paywallFeatOcr.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipt scan'**
+  String get paywallFeatOcr;
+
+  /// No description provided for @paywallFeatOcrSub.
+  ///
+  /// In en, this message translates to:
+  /// **'OCR with AI'**
+  String get paywallFeatOcrSub;
+
+  /// No description provided for @paywallFeatInsights.
+  ///
+  /// In en, this message translates to:
+  /// **'Spending insights'**
+  String get paywallFeatInsights;
+
+  /// No description provided for @paywallFeatInsightsSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly trends'**
+  String get paywallFeatInsightsSub;
+
+  /// No description provided for @paywallFeatThemes.
+  ///
+  /// In en, this message translates to:
+  /// **'5 themes'**
+  String get paywallFeatThemes;
+
+  /// No description provided for @paywallFeatThemesSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Exclusive'**
+  String get paywallFeatThemesSub;
+
+  /// No description provided for @paywallFeatPdf.
+  ///
+  /// In en, this message translates to:
+  /// **'PDF reports'**
+  String get paywallFeatPdf;
+
+  /// No description provided for @paywallFeatPdfSub.
+  ///
+  /// In en, this message translates to:
+  /// **'CSV stays free'**
+  String get paywallFeatPdfSub;
+
+  /// No description provided for @paywallFeatUnlimited.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlimited'**
+  String get paywallFeatUnlimited;
+
+  /// No description provided for @paywallFeatUnlimitedSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallets, budgets'**
+  String get paywallFeatUnlimitedSub;
+
+  /// No description provided for @paywallFeatSupport.
+  ///
+  /// In en, this message translates to:
+  /// **'Priority help'**
+  String get paywallFeatSupport;
+
+  /// No description provided for @paywallFeatSupportSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Faster replies'**
+  String get paywallFeatSupportSub;
+
+  /// No description provided for @paywallPerMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'/month'**
+  String get paywallPerMonth;
+
+  /// No description provided for @paywallPerYear.
+  ///
+  /// In en, this message translates to:
+  /// **'/year'**
+  String get paywallPerYear;
+
+  /// No description provided for @paywallOnce.
+  ///
+  /// In en, this message translates to:
+  /// **'once'**
+  String get paywallOnce;
+
+  /// No description provided for @paywallBestValue.
+  ///
+  /// In en, this message translates to:
+  /// **'BEST VALUE'**
+  String get paywallBestValue;
+
+  /// No description provided for @paywallForever.
+  ///
+  /// In en, this message translates to:
+  /// **'FOREVER'**
+  String get paywallForever;
+
+  /// No description provided for @paywallMonthlyDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Billed monthly'**
+  String get paywallMonthlyDesc;
+
+  /// No description provided for @paywallYearlyDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Billed yearly'**
+  String get paywallYearlyDesc;
+
+  /// No description provided for @paywallLifetimeDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay once, keep it forever'**
+  String get paywallLifetimeDesc;
+
+  /// No description provided for @paywallTrial.
+  ///
+  /// In en, this message translates to:
+  /// **'{trial} free, then {rest}'**
+  String paywallTrial(String trial, String rest);
+
+  /// No description provided for @paywallCtaLifetime.
+  ///
+  /// In en, this message translates to:
+  /// **'Get lifetime access'**
+  String get paywallCtaLifetime;
+
+  /// No description provided for @paywallCtaYearly.
+  ///
+  /// In en, this message translates to:
+  /// **'Start yearly plan'**
+  String get paywallCtaYearly;
+
+  /// No description provided for @paywallCtaMonthly.
+  ///
+  /// In en, this message translates to:
+  /// **'Start monthly plan'**
+  String get paywallCtaMonthly;
+
+  /// No description provided for @paywallFootLifetime.
+  ///
+  /// In en, this message translates to:
+  /// **'One-time purchase · No subscription'**
+  String get paywallFootLifetime;
+
+  /// No description provided for @paywallFootSubscription.
+  ///
+  /// In en, this message translates to:
+  /// **'Renews automatically · Cancel anytime in the store'**
+  String get paywallFootSubscription;
+
+  /// No description provided for @paywallTerms.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscriptions are charged to your App Store or Google Play account and renew automatically unless canceled at least 24 hours before the end of the current period.'**
+  String get paywallTerms;
+
+  /// No description provided for @paywallIapUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'In-app purchases are unavailable on this device. Make sure Google Play Services is installed and the app came from the Play Store.'**
+  String get paywallIapUnavailable;
+
+  /// No description provided for @paywallLoadingPlans.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading plans…'**
+  String get paywallLoadingPlans;
+
+  /// No description provided for @paywallPlansFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn’t load plans. Check your connection and try again.'**
+  String get paywallPlansFailed;
+
+  /// No description provided for @paywallTryAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get paywallTryAgain;
+
+  /// No description provided for @paywallRestored.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchases restored'**
+  String get paywallRestored;
+
+  /// No description provided for @paywallPurchased.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to Premium!'**
+  String get paywallPurchased;
+
+  /// No description provided for @paywallLifetimeNever.
+  ///
+  /// In en, this message translates to:
+  /// **'Lifetime access never expires'**
+  String get paywallLifetimeNever;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

@@ -1130,5 +1130,75 @@
     }
   },
   "aiJustNow": "Just now",
-  "aiErrorTitle": "The coach couldn’t answer"
+  "aiErrorTitle": "The coach couldn’t answer",
+  "paywallTitle": "Accountant Premium",
+  "paywallTagline": "Everything the app can do, for you.",
+  "paywallActiveTitle": "Premium is active",
+  "paywallActiveTagline": "Thank you for your support!",
+  "paywallRestore": "Restore",
+  "paywallProcessing": "Processing…",
+  "paywallTriggered": "{feature} is a Premium feature",
+  "@paywallTriggered": {
+    "placeholders": {
+      "feature": {
+        "type": "String"
+      }
+    }
+  },
+  "paywallDaysRemaining": "{days} days remaining",
+  "@paywallDaysRemaining": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "paywallFeatSync": "Cloud sync",
+  "paywallFeatSyncSub": "All devices",
+  "paywallFeatAi": "AI assistant",
+  "paywallFeatAiSub": "Gemini-powered",
+  "paywallFeatOcr": "Receipt scan",
+  "paywallFeatOcrSub": "OCR with AI",
+  "paywallFeatInsights": "Spending insights",
+  "paywallFeatInsightsSub": "Monthly trends",
+  "paywallFeatThemes": "5 themes",
+  "paywallFeatThemesSub": "Exclusive",
+  "paywallFeatPdf": "PDF reports",
+  "paywallFeatPdfSub": "CSV stays free",
+  "paywallFeatUnlimited": "Unlimited",
+  "paywallFeatUnlimitedSub": "Wallets, budgets",
+  "paywallFeatSupport": "Priority help",
+  "paywallFeatSupportSub": "Faster replies",
+  "paywallPerMonth": "/month",
+  "paywallPerYear": "/year",
+  "paywallOnce": "once",
+  "paywallBestValue": "BEST VALUE",
+  "paywallForever": "FOREVER",
+  "paywallMonthlyDesc": "Billed monthly",
+  "paywallYearlyDesc": "Billed yearly",
+  "paywallLifetimeDesc": "Pay once, keep it forever",
+  "paywallTrial": "{trial} free, then {rest}",
+  "@paywallTrial": {
+    "placeholders": {
+      "trial": {
+        "type": "String"
+      },
+      "rest": {
+        "type": "String"
+      }
+    }
+  },
+  "paywallCtaLifetime": "Get lifetime access",
+  "paywallCtaYearly": "Start yearly plan",
+  "paywallCtaMonthly": "Start monthly plan",
+  "paywallFootLifetime": "One-time purchase · No subscription",
+  "paywallFootSubscription": "Renews automatically · Cancel anytime in the store",
+  "paywallTerms": "Subscriptions are charged to your App Store or Google Play account and renew automatically unless canceled at least 24 hours before the end of the current period.",
+  "paywallIapUnavailable": "In-app purchases are unavailable on this device. Make sure Google Play Services is installed and the app came from the Play Store.",
+  "paywallLoadingPlans": "Loading plans…",
+  "paywallPlansFailed": "Couldn’t load plans. Check your connection and try again.",
+  "paywallTryAgain": "Try again",
+  "paywallRestored": "Purchases restored",
+  "paywallPurchased": "Welcome to Premium!",
+  "paywallLifetimeNever": "Lifetime access never expires"
 }
