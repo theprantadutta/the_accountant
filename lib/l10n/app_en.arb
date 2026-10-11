@@ -1200,5 +1200,9 @@
   "paywallTryAgain": "Try again",
   "paywallRestored": "Purchases restored",
   "paywallPurchased": "Welcome to Premium!",
-  "paywallLifetimeNever": "Lifetime access never expires"
+  "paywallLifetimeNever": "Lifetime access never expires",
+  "helpSearchQuestions": "Search questions",
+  "helpStepWallets": "Add wallets",
+  "helpStepCategories": "Pick categories",
+  "helpStepTrack": "Track daily"
 }

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart';
-import 'package:the_accountant/core/themes/app_colors.dart';
-import 'package:the_accountant/core/themes/app_spacing.dart';
+import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
 import 'package:the_accountant/features/settings/screens/contact_support_screen.dart';
 
 class HelpScreen extends StatefulWidget {
@@ -229,216 +228,238 @@ class _HelpScreenState extends State<HelpScreen> {
     }
   }
 
+  String _query = '';
+
+  bool _matches(Map<String, String> item) {
+    if (_query.isEmpty) return true;
+    final q = _query.toLowerCase();
+    return item['question']!.toLowerCase().contains(q) ||
+        item['answer']!.toLowerCase().contains(q);
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        title: Text(L10n.of(context).settingsHelpFaq),
-      ),
-      body: ListView(
-        padding: EdgeInsets.all(AppSpacing.md),
-        children: [
-          // Quick help section
+    final l10n = L10n.of(context);
+    final sections = <Widget>[];
+    for (final section in _sectionOrder) {
+      final indices = _sectionIndices[section]!
+          .where((i) => _matches(_faqItems[i]))
+          .toList();
+      if (indices.isEmpty) continue;
+      sections
+        ..add(SectionLabel(section))
+        ..add(_buildSectionCard(indices))
+        ..add(const SizedBox(height: SunriseSpace.section));
+    }
+
+    return SunrisePushPage(
+      title: l10n.settingsHelpFaq,
+      children: [
+        if (_query.isEmpty) ...[
           _buildQuickHelpSection(),
-          SizedBox(height: AppSpacing.lg),
-
-          // FAQ header
-          Padding(
-            padding: EdgeInsets.only(
-              left: AppSpacing.sm,
-              bottom: AppSpacing.sm,
-            ),
-            child: Text(
-              L10n.of(context).settingsFrequentlyAskedQuestions,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: AppColors.textMuted,
-                letterSpacing: 1.2,
-              ),
-            ),
-          ),
-
-          // FAQ sections
-          for (final section in _sectionOrder) ...[
-            _buildSectionHeader(section),
-            _buildSectionCard(_sectionIndices[section]!),
-            SizedBox(height: AppSpacing.md),
-          ],
-
-          SizedBox(height: AppSpacing.sm),
-
-          // Still need help section
-          _buildStillNeedHelpSection(),
+          const SizedBox(height: SunriseSpace.sectionTight),
         ],
-      ),
+        SunriseSearchField(
+          hint: l10n.helpSearchQuestions,
+          onChanged: (v) => setState(() => _query = v.trim()),
+        ),
+        const SizedBox(height: SunriseSpace.section),
+        ...sections,
+        if (sections.isEmpty)
+          EmptyState(
+            compact: true,
+            icon: Symbols.search_off_rounded,
+            title: l10n.settingsNoSettingsFound,
+            message: l10n.settingsTryADifferentSearchTerm,
+          ),
+        _buildStillNeedHelpSection(),
+      ],
     );
   }
 
   Widget _buildQuickHelpSection() {
-    return Container(
-      padding: EdgeInsets.all(AppSpacing.md),
-      decoration: BoxDecoration(
-        gradient: AppColors.primaryGradient,
-        borderRadius: AppSpacing.borderRadiusLg,
-      ),
+    final l10n = L10n.of(context);
+    final c = context.sunrise;
+    final steps = [l10n.helpStepWallets, l10n.helpStepCategories, l10n.helpStepTrack];
+    return GradientCard(
+      radius: SunriseRadius.hero,
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.lightbulb_outline, size: 40, color: Colors.white),
-          SizedBox(height: AppSpacing.sm),
-          Text(
-            L10n.of(context).settingsGettingStarted,
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
+          Row(
+            children: [
+              Icon(Symbols.tips_and_updates_rounded, color: c.onFill, size: 28),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  l10n.settingsGettingStarted,
+                  style: SunriseType.section.copyWith(
+                    color: c.onFill,
+                    fontSize: 20,
+                  ),
+                ),
+              ),
+            ],
           ),
-          SizedBox(height: AppSpacing.xs),
-          Text(
-            'Start by adding your wallets, then create categories for your spending. After that, you can start tracking transactions!',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 14,
-              color: AppColors.textPrimary.withValues(alpha: 0.9),
-            ),
+          const SizedBox(height: 16),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              for (var i = 0; i < steps.length; i++) ...[
+                if (i > 0) const SizedBox(width: 10),
+                Expanded(
+                  child: Container(
+                    constraints: const BoxConstraints(minHeight: 84),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 12,
+                    ),
+                    decoration: BoxDecoration(
+                      color: c.onFill.withValues(alpha: .18),
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                    child: Column(
+                      children: [
+                        Text(
+                          '${i + 1}',
+                          style: SunriseType.section.copyWith(
+                            color: c.onFill,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          steps[i],
+                          textAlign: TextAlign.center,
+                          style: SunriseType.label.copyWith(color: c.onFill),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ],
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildSectionHeader(String title) {
-    return Padding(
-      padding: EdgeInsets.only(
-        left: AppSpacing.sm,
-        bottom: AppSpacing.sm,
-        top: AppSpacing.xs,
-      ),
-      child: Text(
-        title.toUpperCase(),
-        style: TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
-          color: AppColors.textMuted,
-          letterSpacing: 1.2,
-        ),
       ),
     );
   }
 
   Widget _buildSectionCard(List<int> indices) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.primarySurface,
-        borderRadius: AppSpacing.borderRadiusLg,
-        border: Border.all(color: AppColors.glassBorder),
-      ),
+    final c = context.sunrise;
+    return SunriseCard(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
-        children: List.generate(indices.length * 2 - 1, (i) {
-          if (i.isOdd) {
-            return Divider(height: 1, thickness: 1, color: AppColors.divider);
-          }
-          final itemIndex = indices[i ~/ 2];
-          return _buildFaqItem(itemIndex, _faqItems[itemIndex]);
-        }),
-      ),
-    );
-  }
-
-  Widget _buildFaqItem(int index, Map<String, String> item) {
-    final isExpanded = _expandedItems.contains(index);
-
-    return Theme(
-      data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-      child: ExpansionTile(
-        title: Text(
-          item['question']!,
-          style: TextStyle(
-            color: AppColors.textPrimary,
-            fontWeight: FontWeight.w500,
-            fontSize: 15,
-          ),
-        ),
-        trailing: AnimatedRotation(
-          turns: isExpanded ? 0.5 : 0,
-          duration: const Duration(milliseconds: 200),
-          child: Icon(Icons.expand_more, color: AppColors.textMuted),
-        ),
-        onExpansionChanged: (expanded) {
-          HapticFeedback.selectionClick();
-          setState(() {
-            if (expanded) {
-              _expandedItems.add(index);
-            } else {
-              _expandedItems.remove(index);
-            }
-          });
-        },
         children: [
-          Padding(
-            padding: EdgeInsets.only(
-              left: AppSpacing.md,
-              right: AppSpacing.md,
-              bottom: AppSpacing.md,
-            ),
-            child: Text(
-              item['answer']!,
-              style: TextStyle(
-                color: AppColors.textSecondary,
-                fontSize: 14,
-                height: 1.5,
-              ),
-            ),
-          ),
+          for (var i = 0; i < indices.length; i++) ...[
+            if (i > 0) Divider(height: 1, thickness: 1, color: c.divider),
+            _buildFaqItem(indices[i], _faqItems[indices[i]]),
+          ],
         ],
       ),
     );
   }
 
-  Widget _buildStillNeedHelpSection() {
-    return Container(
-      padding: EdgeInsets.all(AppSpacing.md),
-      decoration: BoxDecoration(
-        color: AppColors.primarySurface,
-        borderRadius: AppSpacing.borderRadiusLg,
-        border: Border.all(color: AppColors.glassBorder),
+  Widget _buildFaqItem(int index, Map<String, String> item) {
+    final c = context.sunrise;
+    final isExpanded = _expandedItems.contains(index);
+
+    return Semantics(
+      expanded: isExpanded,
+      child: Pressable(
+        scale: .99,
+        onTap: () {
+          HapticFeedback.selectionClick();
+          setState(() {
+            if (!_expandedItems.remove(index)) _expandedItems.add(index);
+          });
+        },
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Text(
+                      item['question']!,
+                      style: SunriseType.rowTitle.copyWith(color: c.ink),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  AnimatedSwitcher(
+                    duration: SunriseMotion.accordion,
+                    transitionBuilder: (child, a) =>
+                        RotationTransition(turns: a, child: child),
+                    child: Icon(
+                      isExpanded ? Symbols.remove_rounded : Symbols.add_rounded,
+                      key: ValueKey(isExpanded),
+                      color: isExpanded ? c.accent : c.chevron,
+                      size: 22,
+                    ),
+                  ),
+                ],
+              ),
+              AnimatedSize(
+                duration: SunriseMotion.accordion,
+                curve: Curves.easeOut,
+                alignment: Alignment.topCenter,
+                child: isExpanded
+                    ? Padding(
+                        padding: const EdgeInsets.only(top: 10),
+                        child: Text(
+                          item['answer']!,
+                          style: SunriseType.body.copyWith(
+                            color: c.muted,
+                            fontSize: 13,
+                            height: 1.5,
+                          ),
+                        ),
+                      )
+                    : const SizedBox(width: double.infinity),
+              ),
+            ],
+          ),
+        ),
       ),
+    );
+  }
+
+  Widget _buildStillNeedHelpSection() {
+    final l10n = L10n.of(context);
+    final c = context.sunrise;
+    return SunriseCard(
+      padding: const EdgeInsets.all(SunriseSpace.hero),
       child: Column(
         children: [
-          Icon(Icons.help_outline, size: 40, color: AppColors.primaryAccent),
-          SizedBox(height: AppSpacing.sm),
-          Text(
-            L10n.of(context).settingsStillNeedHelp,
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
-            ),
+          IconTile(
+            icon: Symbols.support_agent_rounded,
+            color: c.accent,
+            background: c.tintOrange,
+            size: 52,
+            radius: 16,
+            iconSize: 26,
           ),
-          SizedBox(height: AppSpacing.xs),
+          const SizedBox(height: 12),
           Text(
-            L10n.of(context).settingsOurSupportTeamIsHere,
-            style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
+            l10n.settingsStillNeedHelp,
+            style: SunriseType.section.copyWith(color: c.ink),
           ),
-          SizedBox(height: AppSpacing.md),
-          ElevatedButton.icon(
+          const SizedBox(height: 4),
+          Text(
+            l10n.settingsOurSupportTeamIsHere,
+            textAlign: TextAlign.center,
+            style: SunriseType.body.copyWith(color: c.muted, fontSize: 14),
+          ),
+          const SizedBox(height: 16),
+          SunriseButton(
+            label: l10n.settingsContactSupport,
+            icon: Symbols.mail_rounded,
+            height: 52,
             onPressed: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const ContactSupportScreen()),
-            ),
-            icon: Icon(Icons.email_outlined),
-            label: Text(L10n.of(context).settingsContactSupport),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primaryAccent,
-              foregroundColor: Colors.white,
-              padding: EdgeInsets.symmetric(
-                horizontal: AppSpacing.lg,
-                vertical: AppSpacing.sm,
-              ),
             ),
           ),
         ],

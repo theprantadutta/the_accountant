@@ -2838,4 +2838,16 @@ class L10nEn extends L10n {
 
   @override
   String get paywallLifetimeNever => 'Lifetime access never expires';
+
+  @override
+  String get helpSearchQuestions => 'Search questions';
+
+  @override
+  String get helpStepWallets => 'Add wallets';
+
+  @override
+  String get helpStepCategories => 'Pick categories';
+
+  @override
+  String get helpStepTrack => 'Track daily';
 }

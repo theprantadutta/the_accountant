@@ -2811,4 +2811,16 @@ class L10nBn extends L10n {
 
   @override
   String get paywallLifetimeNever => 'লাইফটাইম অ্যাক্সেসের মেয়াদ শেষ হয় না';
+
+  @override
+  String get helpSearchQuestions => 'প্রশ্ন খুঁজুন';
+
+  @override
+  String get helpStepWallets => 'ওয়ালেট যোগ করুন';
+
+  @override
+  String get helpStepCategories => 'ক্যাটাগরি বাছুন';
+
+  @override
+  String get helpStepTrack => 'প্রতিদিন লিখুন';
 }

@@ -5320,6 +5320,30 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'Lifetime access never expires'**
   String get paywallLifetimeNever;
+
+  /// No description provided for @helpSearchQuestions.
+  ///
+  /// In en, this message translates to:
+  /// **'Search questions'**
+  String get helpSearchQuestions;
+
+  /// No description provided for @helpStepWallets.
+  ///
+  /// In en, this message translates to:
+  /// **'Add wallets'**
+  String get helpStepWallets;
+
+  /// No description provided for @helpStepCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick categories'**
+  String get helpStepCategories;
+
+  /// No description provided for @helpStepTrack.
+  ///
+  /// In en, this message translates to:
+  /// **'Track daily'**
+  String get helpStepTrack;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {
