@@ -174,7 +174,7 @@ flutter_native_splash:
     image: assets/launcher/android12-splash-glyph-white-288.png
     icon_background_color: "#F97316"
     color_dark: "#140D0A"
-    image_dark: assets/launcher/glyph-gradient-512.png
+    image_dark: assets/launcher/android12-splash-glyph-gradient-288.png
     icon_background_color_dark: "#140D0A"
   ios: true
   android: true
