@@ -1,3 +1,4 @@
+import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
 import 'package:flutter/material.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart';
@@ -122,38 +123,14 @@ class SubscriptionDashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.subscriptions_outlined,
-            size: 80,
-            color: AppColors.textMuted,
-          ),
-          AppSpacing.gapLg,
-          Text(
-            'No subscriptions or bills',
-            style: AppTypography.titleMedium.copyWith(
-              color: AppColors.textSecondary,
-            ),
-          ),
-          AppSpacing.gapSm,
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 32),
-            child: Text(
-              'Add subscription or recurring bill transactions to track them here',
-              style: AppTypography.bodyMedium.copyWith(
-                color: AppColors.textMuted,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  Widget _buildEmptyState() => const Center(
+    child: EmptyState(
+      icon: Symbols.autorenew_rounded,
+      title: 'No subscriptions or bills',
+      message:
+          'Add subscription or recurring bill transactions to track them here',
+    ),
+  );
 
   Widget _buildSummaryCard(SubscriptionDashboardState state, WidgetRef ref) {
     final monthlyFormat = AppNumberFormatter.currency(

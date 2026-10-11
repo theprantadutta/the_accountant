@@ -155,7 +155,7 @@ class AppTypography {
     fontSize: 14,
     fontWeight: FontWeight.w600,
     height: 1.4,
-    letterSpacing: 0.5,
+    letterSpacing: 0.1,
     color: AppColors.textPrimary,
   );
 
@@ -165,7 +165,7 @@ class AppTypography {
     fontSize: 12,
     fontWeight: FontWeight.w500,
     height: 1.4,
-    letterSpacing: 0.5,
+    letterSpacing: 0.1,
     color: AppColors.textPrimary,
   );
 
@@ -175,7 +175,7 @@ class AppTypography {
     fontSize: 10,
     fontWeight: FontWeight.w500,
     height: 1.4,
-    letterSpacing: 0.8,
+    letterSpacing: 0.1,
     color: AppColors.textSecondary,
   );
 

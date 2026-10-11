@@ -1,3 +1,4 @@
+import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
 import 'package:flutter/material.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart';
@@ -307,10 +308,14 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
           children: [
             Icon(icon, color: color, size: 16),
             const SizedBox(width: 4),
-            Text(
-              label,
-              style: AppTypography.labelSmall.copyWith(
-                color: AppColors.textSecondary,
+            Flexible(
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppTypography.labelSmall.copyWith(
+                  color: AppColors.textSecondary,
+                ),
               ),
             ),
           ],
@@ -369,43 +374,18 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
   }
 
   Widget _buildEmptyState(bool? isCredit) {
-    String message;
-    IconData icon;
-
-    if (isCredit == null) {
-      message = 'No credit or debt transactions';
-      icon = Icons.account_balance_wallet_outlined;
-    } else if (isCredit) {
-      message = 'No credit transactions';
-      icon = Icons.arrow_upward;
-    } else {
-      message = 'No debt transactions';
-      icon = Icons.arrow_downward;
-    }
-
+    final (String message, IconData icon) = switch (isCredit) {
+      null => ('No credit or debt transactions', Symbols.handshake_rounded),
+      true => ('No credit transactions', Symbols.north_east_rounded),
+      false => ('No debt transactions', Symbols.south_west_rounded),
+    };
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, size: 80, color: AppColors.textMuted),
-          AppSpacing.gapLg,
-          Text(
-            message,
-            style: AppTypography.titleMedium.copyWith(
-              color: AppColors.textSecondary,
-            ),
-          ),
-          AppSpacing.gapSm,
-          Text(
-            _showOnlyUnpaid
-                ? 'All transactions are settled!'
-                : 'Add credit or debt transactions to track who owes you and who you owe',
-            style: AppTypography.bodyMedium.copyWith(
-              color: AppColors.textMuted,
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ],
+      child: EmptyState(
+        icon: icon,
+        title: message,
+        message: _showOnlyUnpaid
+            ? 'All transactions are settled!'
+            : 'Add credit or debt transactions to track who owes you and who you owe',
       ),
     );
   }

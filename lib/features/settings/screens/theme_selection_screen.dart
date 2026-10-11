@@ -34,7 +34,12 @@ class ThemeSelectionScreen extends ConsumerWidget {
           children: [
             Expanded(
               child: _ModeCard(
-                label: l10n.themeSunriseLight,
+                label: theme.accent == SunriseAccent.sunrise
+                    ? l10n.themeSunriseLight
+                    : l10n.themeAppearanceValue(
+                        accentLabel(theme.accent, l10n),
+                        l10n.themeLight,
+                      ),
                 preview: theme.colorsFor(Brightness.light),
                 selected: effective == Brightness.light,
                 onTap: () => notifier.setMode(ThemeMode.light),
@@ -43,7 +48,12 @@ class ThemeSelectionScreen extends ConsumerWidget {
             const SizedBox(width: 12),
             Expanded(
               child: _ModeCard(
-                label: l10n.themeSunriseDark,
+                label: theme.accent == SunriseAccent.sunrise
+                    ? l10n.themeSunriseDark
+                    : l10n.themeAppearanceValue(
+                        accentLabel(theme.accent, l10n),
+                        l10n.themeDark,
+                      ),
                 preview: theme.colorsFor(Brightness.dark),
                 selected: effective == Brightness.dark,
                 onTap: () => notifier.setMode(ThemeMode.dark),
