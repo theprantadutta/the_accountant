@@ -1086,5 +1086,49 @@
   "addDelete": "Delete transaction",
   "addTypeExpense": "Expense",
   "addTypeIncome": "Income",
-  "addTypeTransfer": "Transfer"
+  "addTypeTransfer": "Transfer",
+  "gatePremium": "Premium",
+  "gateUnlock": "Unlock with Premium",
+  "gateFootnote": "Lifetime or subscription · Restore anytime",
+  "aiCoachTitle": "Meet your money coach",
+  "aiCoachBody": "Ask in plain words. Get answers, nudges and plans built from your own spending.",
+  "aiSampleQuestion": "Can I afford a weekend trip this month?",
+  "aiSampleAnswer": "Yes. You’d still have room in your budget, but skip extra shopping until the 31st.",
+  "aiChipInsights": "Spending insights",
+  "aiChipReceipt": "Receipt scan",
+  "aiChipBudgets": "Smart budgets",
+  "gateChipSync": "All devices",
+  "gateChipBackup": "Encrypted",
+  "gateChipThemes": "5 themes",
+  "aiAssistantTitle": "AI assistant",
+  "aiAskAnything": "Ask about your money…",
+  "aiSend": "Send",
+  "aiCopy": "Copy",
+  "aiCopied": "Copied",
+  "aiRetry": "Retry",
+  "aiDismiss": "Dismiss",
+  "aiTyping": "Coach is typing",
+  "aiStarterCategory": "Where did my {category} money go?",
+  "@aiStarterCategory": {
+    "placeholders": {
+      "category": {
+        "type": "String"
+      }
+    }
+  },
+  "aiStarterBudgets": "Am I on track with my budgets?",
+  "aiStarterUpcoming": "What bills are coming up?",
+  "aiStarterAnalyze": "Analyze my recent spending patterns",
+  "aiStarterBudgetTips": "Give me tips for better budgeting",
+  "aiStarterSave": "How can I save more money?",
+  "aiDeleteChatBody": "“{title}” will be permanently deleted.",
+  "@aiDeleteChatBody": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "aiJustNow": "Just now",
+  "aiErrorTitle": "The coach couldn’t answer"
 }

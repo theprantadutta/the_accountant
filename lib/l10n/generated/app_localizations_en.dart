@@ -2594,4 +2594,100 @@ class L10nEn extends L10n {
 
   @override
   String get addTypeTransfer => 'Transfer';
+
+  @override
+  String get gatePremium => 'Premium';
+
+  @override
+  String get gateUnlock => 'Unlock with Premium';
+
+  @override
+  String get gateFootnote => 'Lifetime or subscription · Restore anytime';
+
+  @override
+  String get aiCoachTitle => 'Meet your money coach';
+
+  @override
+  String get aiCoachBody =>
+      'Ask in plain words. Get answers, nudges and plans built from your own spending.';
+
+  @override
+  String get aiSampleQuestion => 'Can I afford a weekend trip this month?';
+
+  @override
+  String get aiSampleAnswer =>
+      'Yes. You’d still have room in your budget, but skip extra shopping until the 31st.';
+
+  @override
+  String get aiChipInsights => 'Spending insights';
+
+  @override
+  String get aiChipReceipt => 'Receipt scan';
+
+  @override
+  String get aiChipBudgets => 'Smart budgets';
+
+  @override
+  String get gateChipSync => 'All devices';
+
+  @override
+  String get gateChipBackup => 'Encrypted';
+
+  @override
+  String get gateChipThemes => '5 themes';
+
+  @override
+  String get aiAssistantTitle => 'AI assistant';
+
+  @override
+  String get aiAskAnything => 'Ask about your money…';
+
+  @override
+  String get aiSend => 'Send';
+
+  @override
+  String get aiCopy => 'Copy';
+
+  @override
+  String get aiCopied => 'Copied';
+
+  @override
+  String get aiRetry => 'Retry';
+
+  @override
+  String get aiDismiss => 'Dismiss';
+
+  @override
+  String get aiTyping => 'Coach is typing';
+
+  @override
+  String aiStarterCategory(String category) {
+    return 'Where did my $category money go?';
+  }
+
+  @override
+  String get aiStarterBudgets => 'Am I on track with my budgets?';
+
+  @override
+  String get aiStarterUpcoming => 'What bills are coming up?';
+
+  @override
+  String get aiStarterAnalyze => 'Analyze my recent spending patterns';
+
+  @override
+  String get aiStarterBudgetTips => 'Give me tips for better budgeting';
+
+  @override
+  String get aiStarterSave => 'How can I save more money?';
+
+  @override
+  String aiDeleteChatBody(String title) {
+    return '“$title” will be permanently deleted.';
+  }
+
+  @override
+  String get aiJustNow => 'Just now';
+
+  @override
+  String get aiErrorTitle => 'The coach couldn’t answer';
 }

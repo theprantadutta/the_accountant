@@ -4864,6 +4864,186 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'Transfer'**
   String get addTypeTransfer;
+
+  /// No description provided for @gatePremium.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium'**
+  String get gatePremium;
+
+  /// No description provided for @gateUnlock.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock with Premium'**
+  String get gateUnlock;
+
+  /// No description provided for @gateFootnote.
+  ///
+  /// In en, this message translates to:
+  /// **'Lifetime or subscription · Restore anytime'**
+  String get gateFootnote;
+
+  /// No description provided for @aiCoachTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Meet your money coach'**
+  String get aiCoachTitle;
+
+  /// No description provided for @aiCoachBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask in plain words. Get answers, nudges and plans built from your own spending.'**
+  String get aiCoachBody;
+
+  /// No description provided for @aiSampleQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Can I afford a weekend trip this month?'**
+  String get aiSampleQuestion;
+
+  /// No description provided for @aiSampleAnswer.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes. You’d still have room in your budget, but skip extra shopping until the 31st.'**
+  String get aiSampleAnswer;
+
+  /// No description provided for @aiChipInsights.
+  ///
+  /// In en, this message translates to:
+  /// **'Spending insights'**
+  String get aiChipInsights;
+
+  /// No description provided for @aiChipReceipt.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipt scan'**
+  String get aiChipReceipt;
+
+  /// No description provided for @aiChipBudgets.
+  ///
+  /// In en, this message translates to:
+  /// **'Smart budgets'**
+  String get aiChipBudgets;
+
+  /// No description provided for @gateChipSync.
+  ///
+  /// In en, this message translates to:
+  /// **'All devices'**
+  String get gateChipSync;
+
+  /// No description provided for @gateChipBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'Encrypted'**
+  String get gateChipBackup;
+
+  /// No description provided for @gateChipThemes.
+  ///
+  /// In en, this message translates to:
+  /// **'5 themes'**
+  String get gateChipThemes;
+
+  /// No description provided for @aiAssistantTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'AI assistant'**
+  String get aiAssistantTitle;
+
+  /// No description provided for @aiAskAnything.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask about your money…'**
+  String get aiAskAnything;
+
+  /// No description provided for @aiSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get aiSend;
+
+  /// No description provided for @aiCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get aiCopy;
+
+  /// No description provided for @aiCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied'**
+  String get aiCopied;
+
+  /// No description provided for @aiRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get aiRetry;
+
+  /// No description provided for @aiDismiss.
+  ///
+  /// In en, this message translates to:
+  /// **'Dismiss'**
+  String get aiDismiss;
+
+  /// No description provided for @aiTyping.
+  ///
+  /// In en, this message translates to:
+  /// **'Coach is typing'**
+  String get aiTyping;
+
+  /// No description provided for @aiStarterCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Where did my {category} money go?'**
+  String aiStarterCategory(String category);
+
+  /// No description provided for @aiStarterBudgets.
+  ///
+  /// In en, this message translates to:
+  /// **'Am I on track with my budgets?'**
+  String get aiStarterBudgets;
+
+  /// No description provided for @aiStarterUpcoming.
+  ///
+  /// In en, this message translates to:
+  /// **'What bills are coming up?'**
+  String get aiStarterUpcoming;
+
+  /// No description provided for @aiStarterAnalyze.
+  ///
+  /// In en, this message translates to:
+  /// **'Analyze my recent spending patterns'**
+  String get aiStarterAnalyze;
+
+  /// No description provided for @aiStarterBudgetTips.
+  ///
+  /// In en, this message translates to:
+  /// **'Give me tips for better budgeting'**
+  String get aiStarterBudgetTips;
+
+  /// No description provided for @aiStarterSave.
+  ///
+  /// In en, this message translates to:
+  /// **'How can I save more money?'**
+  String get aiStarterSave;
+
+  /// No description provided for @aiDeleteChatBody.
+  ///
+  /// In en, this message translates to:
+  /// **'“{title}” will be permanently deleted.'**
+  String aiDeleteChatBody(String title);
+
+  /// No description provided for @aiJustNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Just now'**
+  String get aiJustNow;
+
+  /// No description provided for @aiErrorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The coach couldn’t answer'**
+  String get aiErrorTitle;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

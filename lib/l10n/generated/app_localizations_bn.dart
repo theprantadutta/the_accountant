@@ -2567,4 +2567,100 @@ class L10nBn extends L10n {
 
   @override
   String get addTypeTransfer => 'ট্রান্সফার';
+
+  @override
+  String get gatePremium => 'প্রিমিয়াম';
+
+  @override
+  String get gateUnlock => 'প্রিমিয়াম দিয়ে আনলক করুন';
+
+  @override
+  String get gateFootnote => 'লাইফটাইম বা সাবস্ক্রিপশন · যেকোনো সময় রিস্টোর';
+
+  @override
+  String get aiCoachTitle => 'আপনার মানি কোচের সাথে পরিচিত হোন';
+
+  @override
+  String get aiCoachBody =>
+      'সহজ ভাষায় জিজ্ঞেস করুন। নিজের খরচ থেকে উত্তর, পরামর্শ আর পরিকল্পনা পান।';
+
+  @override
+  String get aiSampleQuestion => 'এই মাসে কি একটা উইকেন্ড ট্রিপ সম্ভব?';
+
+  @override
+  String get aiSampleAnswer =>
+      'হ্যাঁ। বাজেটে জায়গা থাকবে, তবে ৩১ তারিখ পর্যন্ত বাড়তি কেনাকাটা এড়িয়ে চলুন।';
+
+  @override
+  String get aiChipInsights => 'খরচের বিশ্লেষণ';
+
+  @override
+  String get aiChipReceipt => 'রসিদ স্ক্যান';
+
+  @override
+  String get aiChipBudgets => 'স্মার্ট বাজেট';
+
+  @override
+  String get gateChipSync => 'সব ডিভাইসে';
+
+  @override
+  String get gateChipBackup => 'এনক্রিপ্টেড';
+
+  @override
+  String get gateChipThemes => '৫টি থিম';
+
+  @override
+  String get aiAssistantTitle => 'এআই সহকারী';
+
+  @override
+  String get aiAskAnything => 'আপনার টাকা নিয়ে জিজ্ঞেস করুন…';
+
+  @override
+  String get aiSend => 'পাঠান';
+
+  @override
+  String get aiCopy => 'কপি';
+
+  @override
+  String get aiCopied => 'কপি হয়েছে';
+
+  @override
+  String get aiRetry => 'আবার চেষ্টা';
+
+  @override
+  String get aiDismiss => 'বন্ধ করুন';
+
+  @override
+  String get aiTyping => 'কোচ লিখছে';
+
+  @override
+  String aiStarterCategory(String category) {
+    return 'আমার $category খরচ কোথায় গেল?';
+  }
+
+  @override
+  String get aiStarterBudgets => 'আমার বাজেট কি ঠিকঠাক চলছে?';
+
+  @override
+  String get aiStarterUpcoming => 'কোন বিলগুলো আসছে?';
+
+  @override
+  String get aiStarterAnalyze => 'আমার সাম্প্রতিক খরচের ধরন বিশ্লেষণ করুন';
+
+  @override
+  String get aiStarterBudgetTips => 'ভালো বাজেটের জন্য টিপস দিন';
+
+  @override
+  String get aiStarterSave => 'কীভাবে আরও টাকা সঞ্চয় করতে পারি?';
+
+  @override
+  String aiDeleteChatBody(String title) {
+    return '“$title” স্থায়ীভাবে মুছে যাবে।';
+  }
+
+  @override
+  String get aiJustNow => 'এইমাত্র';
+
+  @override
+  String get aiErrorTitle => 'কোচ উত্তর দিতে পারেনি';
 }
