@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
-import 'package:the_accountant/core/themes/app_spacing.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
+import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
 
-/// Icon container used in all settings tiles
+/// The settings tiles, now thin adapters over the Sunrise [SettingsRow] and
+/// [SettingsGroup] so every settings-style screen shares one look.
+
+/// Icon tile used in settings rows.
 class SettingsIconBox extends StatelessWidget {
   const SettingsIconBox({super.key, required this.icon, this.color});
 
@@ -12,21 +15,16 @@ class SettingsIconBox extends StatelessWidget {
   final Color? color;
 
   @override
-  Widget build(BuildContext context) {
-    final effectiveColor = color ?? AppColors.primaryAccent;
-    return Container(
-      width: 40,
-      height: 40,
-      decoration: BoxDecoration(
-        color: effectiveColor.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Icon(icon, color: effectiveColor, size: 22),
-    );
-  }
+  Widget build(BuildContext context) => IconTile(
+    icon: icon,
+    color: color ?? context.sunrise.accent,
+    size: 36,
+    radius: SunriseRadius.iconTileSm,
+    iconSize: 20,
+  );
 }
 
-/// A navigation tile that opens another screen
+/// A row that opens another screen.
 class SettingsNavigationTile extends StatelessWidget {
   const SettingsNavigationTile({
     super.key,
@@ -48,36 +46,22 @@ class SettingsNavigationTile extends StatelessWidget {
   final bool showChevron;
 
   @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      leading: SettingsIconBox(icon: icon, color: iconColor),
-      title: Text(
-        title,
-        style: TextStyle(
-          color: AppColors.textPrimary,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
-      subtitle: subtitle != null
-          ? Text(
-              subtitle!,
-              style: TextStyle(color: AppColors.textMuted, fontSize: 13),
-            )
-          : null,
-      trailing:
-          trailing ??
-          (showChevron
-              ? Icon(Icons.chevron_right, color: AppColors.textMuted)
-              : null),
-      onTap: () {
-        HapticFeedback.selectionClick();
-        onTap();
-      },
-    );
-  }
+  Widget build(BuildContext context) => SettingsRow(
+    icon: icon,
+    iconColor: iconColor,
+    title: title,
+    subtitle: subtitle,
+    trailing: showChevron ? SettingsTrailing.chevron : SettingsTrailing.none,
+    trailingWidget: trailing,
+    onTap: () {
+      HapticFeedback.selectionClick();
+      onTap();
+    },
+  );
 }
 
-/// An action tile that performs an action (no navigation indicator)
+/// A row that performs an action in place. A negative [iconColor] reads as
+/// destructive.
 class SettingsActionTile extends StatelessWidget {
   const SettingsActionTile({
     super.key,
@@ -96,21 +80,15 @@ class SettingsActionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      leading: SettingsIconBox(icon: icon, color: iconColor),
-      title: Text(
-        title,
-        style: TextStyle(
-          color: iconColor ?? AppColors.textPrimary,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
-      subtitle: subtitle != null
-          ? Text(
-              subtitle!,
-              style: TextStyle(color: AppColors.textMuted, fontSize: 13),
-            )
-          : null,
+    final c = context.sunrise;
+    final destructive = iconColor != null && iconColor == AppColors.error;
+    return SettingsRow(
+      icon: icon,
+      iconColor: destructive ? c.negative : iconColor,
+      title: title,
+      subtitle: subtitle,
+      destructive: destructive,
+      trailing: SettingsTrailing.none,
       onTap: () {
         HapticFeedback.selectionClick();
         onTap();
@@ -119,7 +97,7 @@ class SettingsActionTile extends StatelessWidget {
   }
 }
 
-/// A tile with a toggle switch
+/// A row with a toggle.
 class SettingsSwitchTile extends StatelessWidget {
   const SettingsSwitchTile({
     super.key,
@@ -139,41 +117,17 @@ class SettingsSwitchTile extends StatelessWidget {
   final ValueChanged<bool> onChanged;
 
   @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      leading: SettingsIconBox(icon: icon, color: iconColor),
-      title: Text(
-        title,
-        style: TextStyle(
-          color: AppColors.textPrimary,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
-      subtitle: subtitle != null
-          ? Text(
-              subtitle!,
-              style: TextStyle(color: AppColors.textMuted, fontSize: 13),
-            )
-          : null,
-      trailing: Switch(
-        value: value,
-        onChanged: (newValue) {
-          HapticFeedback.lightImpact();
-          onChanged(newValue);
-        },
-        activeTrackColor: AppColors.primaryAccent.withValues(alpha: 0.5),
-        thumbColor: WidgetStateProperty.resolveWith((states) {
-          if (states.contains(WidgetState.selected)) {
-            return AppColors.primaryAccent;
-          }
-          return AppColors.textMuted;
-        }),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => SettingsRow.toggle(
+    icon: icon,
+    iconColor: iconColor,
+    title: title,
+    subtitle: subtitle,
+    value: value,
+    onChanged: onChanged,
+  );
 }
 
-/// A tile with a slider control
+/// A row with a slider underneath.
 class SettingsSliderTile extends StatelessWidget {
   const SettingsSliderTile({
     super.key,
@@ -199,51 +153,30 @@ class SettingsSliderTile extends StatelessWidget {
   final ValueChanged<double> onChanged;
 
   @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        ListTile(
-          leading: SettingsIconBox(icon: icon, color: iconColor),
-          title: Text(
-            title,
-            style: TextStyle(
-              color: AppColors.textPrimary,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          subtitle: Text(
-            subtitle,
-            style: TextStyle(color: AppColors.textMuted, fontSize: 13),
-          ),
+  Widget build(BuildContext context) => Column(
+    children: [
+      SettingsRow(
+        icon: icon,
+        iconColor: iconColor,
+        title: title,
+        subtitle: subtitle,
+        trailing: SettingsTrailing.none,
+      ),
+      Padding(
+        padding: const EdgeInsetsDirectional.only(start: 40, bottom: 6),
+        child: Slider(
+          value: value,
+          min: min,
+          max: max,
+          divisions: divisions,
+          onChanged: onChanged,
         ),
-        Padding(
-          padding: EdgeInsets.only(
-            left: 56,
-            right: AppSpacing.md,
-            bottom: AppSpacing.sm,
-          ),
-          child: SliderTheme(
-            data: SliderThemeData(
-              activeTrackColor: AppColors.primaryAccent,
-              inactiveTrackColor: AppColors.glassWhite,
-              thumbColor: AppColors.primaryAccent,
-              overlayColor: AppColors.primaryAccent.withValues(alpha: 0.2),
-            ),
-            child: Slider(
-              value: value,
-              min: min,
-              max: max,
-              divisions: divisions,
-              onChanged: onChanged,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
+      ),
+    ],
+  );
 }
 
-/// A card that groups settings tiles with a header
+/// A labelled card of settings rows.
 class SettingsSection extends StatelessWidget {
   const SettingsSection({super.key, required this.title, required this.tiles});
 
@@ -251,94 +184,34 @@ class SettingsSection extends StatelessWidget {
   final List<Widget> tiles;
 
   @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: EdgeInsets.only(
-            left: AppSpacing.sm,
-            top: AppSpacing.lg,
-            bottom: AppSpacing.sm,
-          ),
-          child: Text(
-            title,
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: AppColors.textMuted,
-              letterSpacing: 1.2,
-            ),
-          ),
-        ),
-        Container(
-          decoration: BoxDecoration(
-            // Translucent so the ambient gradient shows through the card.
-            color: AppColors.primarySurface.withValues(alpha: 0.45),
-            borderRadius: AppSpacing.borderRadiusLg,
-            border: Border.all(color: AppColors.glassBorder),
-          ),
-          // Transparent Material in front of the decorated background so the
-          // ListTiles' ink splashes are visible (and clipped to the rounded
-          // corners) instead of being hidden by the Container's color.
-          child: Material(
-            type: MaterialType.transparency,
-            borderRadius: AppSpacing.borderRadiusLg,
-            clipBehavior: Clip.antiAlias,
-            child: Column(children: _buildTilesWithDividers()),
-          ),
-        ),
-      ],
-    );
-  }
-
-  List<Widget> _buildTilesWithDividers() {
-    final result = <Widget>[];
-    for (var i = 0; i < tiles.length; i++) {
-      result.add(tiles[i]);
-      if (i < tiles.length - 1) {
-        result.add(const SettingsDivider());
-      }
-    }
-    return result;
-  }
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.only(top: SunriseSpace.section),
+    child: SettingsGroup(
+      label: title,
+      // The group draws its own hairlines.
+      children: tiles.where((t) => t is! SettingsDivider).toList(),
+    ),
+  );
 }
 
-/// Divider used between settings tiles
+/// A hairline between settings rows.
 class SettingsDivider extends StatelessWidget {
   const SettingsDivider({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return Divider(
-      height: 1,
-      thickness: 1,
-      color: AppColors.divider,
-      indent: 56,
-    );
-  }
+  Widget build(BuildContext context) =>
+      Divider(height: 1, thickness: 1, color: context.sunrise.divider);
 }
 
-/// Premium badge shown on premium-only features
+/// "PRO" on premium-only entries.
 class PremiumBadge extends StatelessWidget {
   const PremiumBadge({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        gradient: AppColors.primaryGradient,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Text(
-        L10n.of(context).settingsPro,
-        style: TextStyle(
-          fontSize: 10,
-          fontWeight: FontWeight.bold,
-          color: Colors.white,
-        ),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => SunrisePill(
+    label: L10n.of(context).settingsPro,
+    gradient: context.sunrise.gradient,
+    fontSize: 10,
+    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+  );
 }

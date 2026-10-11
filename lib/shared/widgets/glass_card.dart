@@ -2,29 +2,29 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
-import 'package:the_accountant/core/themes/app_animations.dart';
+import 'package:the_accountant/core/themes/sunrise/sunrise_colors.dart';
+import 'package:the_accountant/core/themes/sunrise/sunrise_tokens.dart';
+import 'package:the_accountant/shared/widgets/sunrise/pressable.dart';
 
-/// Card color variants for easy theming
+/// Tints a [GlassCard] can take.
 enum GlassCardVariant {
-  standard, // Default indigo tint
-  accent, // Stronger indigo
+  standard, // Plain surface card
+  accent, // Accent tint
   success, // Green (income)
-  error, // Red (expense)
-  info, // Blue
+  error, // Rose (expense)
+  info, // Sky
   warning, // Amber
-  cyan, // Cyan
-  purple, // Purple
+  cyan, // Peach → rose
+  purple, // Violet
 }
 
-/// A modern glassmorphic card with optional blur, glow, and press animations.
+/// The original card primitive, now drawn as a Sunrise card.
 ///
-/// Features:
-/// - Frosted glass effect with BackdropFilter
-/// - Gradient border with customizable colors
-/// - Glow effect for highlighted states
-/// - Scale animation on press
-/// - Customizable border radius and padding
-class GlassCard extends StatefulWidget {
+/// The API is unchanged so its 40-odd call sites restyle without edits:
+/// standard is a white (or dark-surface) card at radius 22 with the warm lift;
+/// the variants are soft tinted fills; `enableBlur` makes it frosted. Borders
+/// only appear when a caller asks for one explicitly.
+class GlassCard extends StatelessWidget {
   const GlassCard({
     super.key,
     required this.child,
@@ -68,7 +68,7 @@ class GlassCard extends StatefulWidget {
   final Color? backgroundColor;
   final GlassCardVariant variant;
 
-  /// Get gradient for variant
+  /// The fill for a variant.
   static Gradient getVariantGradient(GlassCardVariant variant) {
     switch (variant) {
       case GlassCardVariant.standard:
@@ -90,7 +90,7 @@ class GlassCard extends StatefulWidget {
     }
   }
 
-  /// Get border color for variant
+  /// Kept for callers that draw their own outline in a variant's colour.
   static Color getVariantBorderColor(GlassCardVariant variant) {
     switch (variant) {
       case GlassCardVariant.standard:
@@ -113,133 +113,68 @@ class GlassCard extends StatefulWidget {
   }
 
   @override
-  State<GlassCard> createState() => _GlassCardState();
-}
-
-class _GlassCardState extends State<GlassCard>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _scaleAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: AppAnimations.quick,
-    );
-    _scaleAnimation = Tween<double>(begin: 1.0, end: AppAnimations.tappedScale)
-        .animate(
-          CurvedAnimation(parent: _controller, curve: AppAnimations.easeOut),
-        );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  void _handleTapDown(TapDownDetails details) {
-    if (widget.enablePressAnimation && widget.onTap != null) {
-      _controller.forward();
-    }
-  }
-
-  void _handleTapUp(TapUpDetails details) {
-    if (widget.enablePressAnimation && widget.onTap != null) {
-      _controller.reverse();
-    }
-  }
-
-  void _handleTapCancel() {
-    if (widget.enablePressAnimation && widget.onTap != null) {
-      _controller.reverse();
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final borderRadius = widget.borderRadius ?? AppSpacing.borderRadiusXl;
-    final effectiveGlowColor = widget.glowColor ?? AppColors.primaryGlow;
-    final effectiveGradient =
-        widget.gradient ?? GlassCard.getVariantGradient(widget.variant);
-    final effectiveBorderColor =
-        widget.borderColor ?? GlassCard.getVariantBorderColor(widget.variant);
+    final c = context.sunrise;
+    final radius = borderRadius ?? SunriseRadius.cardAll;
+    final standard = variant == GlassCardVariant.standard;
+    final Color? fill =
+        backgroundColor ??
+        (gradient == null && standard
+            ? (enableBlur ? c.glass : c.surface)
+            : null);
+    final Gradient? fillGradient =
+        gradient ?? (standard ? null : getVariantGradient(variant));
 
     Widget card = Container(
-      width: widget.width,
-      height: widget.height,
-      padding: widget.padding ?? AppSpacing.paddingCard,
-      margin: widget.margin,
+      width: width,
+      height: height,
+      padding: padding ?? const EdgeInsets.all(SunriseSpace.card),
       decoration: BoxDecoration(
-        gradient: effectiveGradient,
-        color: widget.backgroundColor,
-        borderRadius: borderRadius,
-        border: Border.all(
-          color: effectiveBorderColor,
-          width: widget.borderWidth,
-        ),
+        color: fill,
+        gradient: fill == null ? fillGradient : null,
+        borderRadius: radius,
+        border: borderColor == null || borderWidth == 0
+            ? null
+            : Border.all(color: borderColor!, width: borderWidth),
         boxShadow: [
-          // Base shadow
-          BoxShadow(
-            color: AppColors.glassShadow,
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-          ),
-          // Glow effect
-          if (widget.enableGlow)
+          if (standard && !enableBlur) ...c.cardShadow,
+          if (enableGlow)
             BoxShadow(
-              color: effectiveGlowColor.withValues(alpha: 0.3),
-              blurRadius: widget.glowSpread,
-              spreadRadius: 0,
+              color: (glowColor ?? c.glow).withValues(alpha: 0.35),
+              blurRadius: glowSpread,
+              spreadRadius: -6,
+              offset: const Offset(0, 10),
             ),
         ],
       ),
-      child: widget.child,
+      child: child,
     );
 
-    // Apply blur effect
-    if (widget.enableBlur) {
+    if (enableBlur) {
       card = ClipRRect(
-        borderRadius: borderRadius,
+        borderRadius: radius,
         child: BackdropFilter(
-          filter: ImageFilter.blur(
-            sigmaX: widget.blurAmount,
-            sigmaY: widget.blurAmount,
-          ),
+          filter: ImageFilter.blur(sigmaX: blurAmount, sigmaY: blurAmount),
           child: card,
         ),
       );
     }
 
-    // Apply press animation
-    if (widget.enablePressAnimation && widget.onTap != null) {
-      card = AnimatedBuilder(
-        animation: _scaleAnimation,
-        builder: (context, child) =>
-            Transform.scale(scale: _scaleAnimation.value, child: child),
+    if (margin != null) card = Padding(padding: margin!, child: card);
+
+    if (onTap != null || onLongPress != null) {
+      return Pressable(
+        onTap: onTap,
+        onLongPress: onLongPress,
+        scale: enablePressAnimation ? .97 : 1,
         child: card,
       );
     }
-
-    // Wrap with gesture detector if interactive
-    if (widget.onTap != null || widget.onLongPress != null) {
-      return GestureDetector(
-        onTap: widget.onTap,
-        onLongPress: widget.onLongPress,
-        onTapDown: _handleTapDown,
-        onTapUp: _handleTapUp,
-        onTapCancel: _handleTapCancel,
-        child: card,
-      );
-    }
-
     return card;
   }
 }
 
-/// A compact variant of GlassCard for list items
+/// A [GlassCard] laid out as a list row.
 class GlassListTile extends StatelessWidget {
   const GlassListTile({
     super.key,
@@ -289,7 +224,7 @@ class GlassListTile extends StatelessWidget {
   }
 }
 
-/// A glass card with a gradient accent border
+/// A card with a thin gradient rim (used for highlighted items).
 class AccentGlassCard extends StatelessWidget {
   const AccentGlassCard({
     super.key,
@@ -310,17 +245,20 @@ class AccentGlassCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.sunrise;
     return Container(
       width: width,
       height: height,
       decoration: BoxDecoration(
-        gradient: accentGradient ?? AppColors.primaryGradient,
-        borderRadius: AppSpacing.borderRadiusXl,
+        gradient: accentGradient ?? c.gradient,
+        borderRadius: SunriseRadius.cardAll,
+        boxShadow: c.selectedShadow,
       ),
       padding: const EdgeInsets.all(1.5),
       child: GlassCard(
         padding: padding,
         borderWidth: 0,
+        borderRadius: BorderRadius.circular(SunriseRadius.card - 1.5),
         onTap: onTap,
         child: child,
       ),

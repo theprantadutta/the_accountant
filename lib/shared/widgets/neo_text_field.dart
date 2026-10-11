@@ -153,9 +153,9 @@ class _NeoTextFieldState extends State<NeoTextField>
     if (hasError) {
       borderColor = AppColors.error;
     } else if (_isFocused) {
-      borderColor = AppColors.primaryAccent.withValues(alpha: 0.7);
+      borderColor = AppColors.primaryAccent;
     } else {
-      borderColor = AppColors.glassBorder;
+      borderColor = Colors.transparent;
     }
 
     return AnimatedBuilder(
@@ -177,9 +177,9 @@ class _NeoTextFieldState extends State<NeoTextField>
           AnimatedContainer(
             duration: AppAnimations.fast,
             decoration: BoxDecoration(
-              color: AppColors.glassWhite,
-              borderRadius: AppSpacing.borderRadiusLg,
-              border: Border.all(color: borderColor),
+              color: AppColors.primarySurface,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: borderColor, width: 1.5),
             ),
             child: TextFormField(
               controller: widget.controller,
@@ -336,9 +336,8 @@ class _NeoSearchFieldState extends State<NeoSearchField> {
     return Container(
       height: AppSpacing.inputHeight,
       decoration: BoxDecoration(
-        color: AppColors.glassWhite,
-        borderRadius: AppSpacing.borderRadiusFull,
-        border: Border.all(color: AppColors.glassBorder, width: 1),
+        color: AppColors.primarySurface,
+        borderRadius: BorderRadius.circular(14),
       ),
       child: TextField(
         controller: _controller,
