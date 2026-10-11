@@ -2543,4 +2543,55 @@ class L10nEn extends L10n {
 
   @override
   String get activitySearch => 'Search';
+
+  @override
+  String get addNewExpense => 'New expense';
+
+  @override
+  String get addNewIncome => 'New income';
+
+  @override
+  String get addNewTransfer => 'New transfer';
+
+  @override
+  String get addEditTitle => 'Edit transaction';
+
+  @override
+  String get addAmount => 'Amount';
+
+  @override
+  String get addCategory => 'Category';
+
+  @override
+  String get addMore => 'More';
+
+  @override
+  String get addWallet => 'Wallet';
+
+  @override
+  String get addDate => 'Date';
+
+  @override
+  String get addNoteHint => 'Add a note';
+
+  @override
+  String get addRepeatMonthly => 'Repeat monthly';
+
+  @override
+  String get addMoreOptions => 'More options';
+
+  @override
+  String get addScanReceipt => 'Scan receipt';
+
+  @override
+  String get addDelete => 'Delete transaction';
+
+  @override
+  String get addTypeExpense => 'Expense';
+
+  @override
+  String get addTypeIncome => 'Income';
+
+  @override
+  String get addTypeTransfer => 'Transfer';
 }

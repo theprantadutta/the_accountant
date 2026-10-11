@@ -776,5 +776,22 @@
   "activityCopiedPartial": "{count}টি কপি হয়েছে; ট্রান্সফার আলাদাভাবে কপি হয় না",
   "activityCopied": "{count}টি কপি হয়েছে",
   "activityDeleteOneBody": "এটি আপনার রেকর্ড থেকে মুছে যাবে এবং ব্যালান্স আবার হিসাব হবে।",
-  "activitySearch": "খুঁজুন"
+  "activitySearch": "খুঁজুন",
+  "addNewExpense": "নতুন খরচ",
+  "addNewIncome": "নতুন আয়",
+  "addNewTransfer": "নতুন ট্রান্সফার",
+  "addEditTitle": "লেনদেন সম্পাদনা",
+  "addAmount": "পরিমাণ",
+  "addCategory": "ক্যাটাগরি",
+  "addMore": "আরও",
+  "addWallet": "ওয়ালেট",
+  "addDate": "তারিখ",
+  "addNoteHint": "একটি নোট যোগ করুন",
+  "addRepeatMonthly": "প্রতি মাসে পুনরাবৃত্তি",
+  "addMoreOptions": "আরও অপশন",
+  "addScanReceipt": "রসিদ স্ক্যান",
+  "addDelete": "লেনদেন মুছুন",
+  "addTypeExpense": "খরচ",
+  "addTypeIncome": "আয়",
+  "addTypeTransfer": "ট্রান্সফার"
 }

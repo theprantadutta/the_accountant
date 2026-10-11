@@ -4762,6 +4762,108 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'Search'**
   String get activitySearch;
+
+  /// No description provided for @addNewExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'New expense'**
+  String get addNewExpense;
+
+  /// No description provided for @addNewIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'New income'**
+  String get addNewIncome;
+
+  /// No description provided for @addNewTransfer.
+  ///
+  /// In en, this message translates to:
+  /// **'New transfer'**
+  String get addNewTransfer;
+
+  /// No description provided for @addEditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit transaction'**
+  String get addEditTitle;
+
+  /// No description provided for @addAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get addAmount;
+
+  /// No description provided for @addCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get addCategory;
+
+  /// No description provided for @addMore.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get addMore;
+
+  /// No description provided for @addWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet'**
+  String get addWallet;
+
+  /// No description provided for @addDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get addDate;
+
+  /// No description provided for @addNoteHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a note'**
+  String get addNoteHint;
+
+  /// No description provided for @addRepeatMonthly.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeat monthly'**
+  String get addRepeatMonthly;
+
+  /// No description provided for @addMoreOptions.
+  ///
+  /// In en, this message translates to:
+  /// **'More options'**
+  String get addMoreOptions;
+
+  /// No description provided for @addScanReceipt.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan receipt'**
+  String get addScanReceipt;
+
+  /// No description provided for @addDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete transaction'**
+  String get addDelete;
+
+  /// No description provided for @addTypeExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense'**
+  String get addTypeExpense;
+
+  /// No description provided for @addTypeIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'Income'**
+  String get addTypeIncome;
+
+  /// No description provided for @addTypeTransfer.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfer'**
+  String get addTypeTransfer;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

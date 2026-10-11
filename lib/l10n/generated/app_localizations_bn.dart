@@ -2516,4 +2516,55 @@ class L10nBn extends L10n {
 
   @override
   String get activitySearch => 'খুঁজুন';
+
+  @override
+  String get addNewExpense => 'নতুন খরচ';
+
+  @override
+  String get addNewIncome => 'নতুন আয়';
+
+  @override
+  String get addNewTransfer => 'নতুন ট্রান্সফার';
+
+  @override
+  String get addEditTitle => 'লেনদেন সম্পাদনা';
+
+  @override
+  String get addAmount => 'পরিমাণ';
+
+  @override
+  String get addCategory => 'ক্যাটাগরি';
+
+  @override
+  String get addMore => 'আরও';
+
+  @override
+  String get addWallet => 'ওয়ালেট';
+
+  @override
+  String get addDate => 'তারিখ';
+
+  @override
+  String get addNoteHint => 'একটি নোট যোগ করুন';
+
+  @override
+  String get addRepeatMonthly => 'প্রতি মাসে পুনরাবৃত্তি';
+
+  @override
+  String get addMoreOptions => 'আরও অপশন';
+
+  @override
+  String get addScanReceipt => 'রসিদ স্ক্যান';
+
+  @override
+  String get addDelete => 'লেনদেন মুছুন';
+
+  @override
+  String get addTypeExpense => 'খরচ';
+
+  @override
+  String get addTypeIncome => 'আয়';
+
+  @override
+  String get addTypeTransfer => 'ট্রান্সফার';
 }

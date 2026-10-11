@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
 import 'package:flutter/services.dart';
@@ -8,12 +9,10 @@ import 'package:the_accountant/core/services/currency_service.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/core/themes/app_typography.dart';
-import 'package:the_accountant/core/themes/app_animations.dart';
 import 'package:the_accountant/core/utils/icon_registry.dart';
 import 'package:the_accountant/features/ai/screens/receipt_scanner_screen.dart';
 import 'package:the_accountant/features/premium/providers/premium_provider.dart';
 import 'package:the_accountant/shared/widgets/neo_button.dart';
-import 'package:the_accountant/shared/widgets/neo_text_field.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart'
     show Wallet, Transaction, TitleUsage;
 import 'package:the_accountant/data/models/transaction.dart'
@@ -933,214 +932,222 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
     final wallets = ref.watch(selectableWalletsProvider);
 
     // Nothing on this form can be saved without an account to file it against,
-    // and every picker below assumes there is at least one. Two things make the
-    // empty case reachable. The screen can open before the accounts have been
-    // read back — from a home-screen shortcut on a cold start, say, which does
-    // not go through the navigation container's wallet gate. And a closed
-    // account still counts for `hasWalletsProvider`, so the app keeps showing
-    // the dashboard, while `selectableWalletsProvider` leaves it out, which is
-    // the whole point of archiving. Either way this screen used to throw
-    // `Bad state: No element` out of `build`.
-    //
-    // The two need different answers: one is a wait, the other is a dead end.
-    // Telling somebody they have no accounts for the frame before their
-    // accounts arrive would be a lie with a button on it.
+    // and every picker below assumes there is at least one. The screen can
+    // open before the accounts have been read back (a cold-start shortcut), and
+    // an archived account still counts for the shell's wallet gate while this
+    // list leaves it out. The first is a wait, the second a dead end.
     if (wallets.isEmpty) {
       return ref.watch(walletsLoadingProvider)
           ? _buildLoadingAccounts()
           : _buildNoAccounts();
     }
-    // Any two accounts. Each leg of a transfer carries its own currency's
-    // amount now, plus what the other side saw and the rate between them, so a
-    // dollar account and a taka account are a perfectly good pair.
+    // Any two accounts: each leg of a transfer carries its own currency.
     final canTransfer = wallets.length > 1;
 
-    // Get currency symbol for current wallet
     final walletId = _isTransfer ? _fromWalletId : _selectedWalletId;
-    String currencySymbol = '\$'; // Default
-    if (wallets.isNotEmpty) {
-      final currentWallet = wallets.firstWhere(
-        (w) => w.id == walletId,
-        orElse: () => wallets.first,
-      );
-      currencySymbol = CurrencyInfo.getSymbol(currentWallet.currency);
-    }
-
-    // The ambient background is painted once for the whole app in
-    // `MaterialApp.builder`. This screen used to stack its own copy of the same
-    // gradient and orbs on top of it, which is a large part of why it read as a
-    // different app from the ones either side of it.
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.close),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        title: Text(_isEditing ? 'Edit Transaction' : 'New Transaction'),
-        actions: [
-          if (!_isEditing)
-            Padding(
-              padding: EdgeInsets.only(right: AppSpacing.sm),
-              child: Center(
-                child: TextButton.icon(
-                  onPressed: _scanReceipt,
-                  icon: const Icon(Icons.document_scanner_outlined, size: 18),
-                  label: Text(L10n.of(context).txScan),
-                ),
-              ),
-            ),
-          if (_isEditing)
-            IconButton(
-              icon: Icon(Icons.delete_outline, color: AppColors.error),
-              onPressed: _deleteTransaction,
-            ),
-        ],
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  AppSpacing.gapXs,
-
-                  // Hero: type toggle + amount + category
-                  _buildHero(canTransfer, currencySymbol),
-                  AppSpacing.gapXl,
-
-                  // Date/Time picker
-                  CompactDateTimePicker(
-                    selectedDateTime: _selectedDateTime,
-                    onDateTimeChanged: (dateTime) {
-                      setState(() => _selectedDateTime = dateTime);
-                    },
-                    accentColor: _chromeAccent,
-                    dateFormat: ref.watch(dateFormatSettingProvider),
-                  ),
-                  AppSpacing.gapLg,
-
-                  // Title input
-                  _buildTitleInput(),
-                  _buildTitleSuggestions(),
-                  AppSpacing.gapMd,
-
-                  // Notes input
-                  _buildNotesInput(),
-                  AppSpacing.gapXl,
-
-                  if (_isTransfer) ...[
-                    // Transfer: From/To wallet selectors
-                    _buildTransferWalletSelectors(wallets, currencySymbol),
-                  ] else ...[
-                    // Regular transaction sections
-                    // Special type chips (Default, Upcoming, Subscription)
-                    _buildSpecialTypeChips(),
-                    if (_specialType == TransactionSpecialType.subscription ||
-                        _specialType == TransactionSpecialType.repetitive)
-                      _buildSubscriptionConfigSection(),
-                    const SizedBox(height: 16),
-
-                    // Wallet chips
-                    _buildWalletChips(wallets),
-                    const SizedBox(height: 16),
-
-                    // Loan type chips
-                    LoanTypeChips(
-                      selectedType: _specialType,
-                      onTypeChanged: (type) {
-                        setState(() => _specialType = type);
-                      },
-                      accentColor: _chromeAccent,
-                    ),
-
-                    // Optional links (hidden when the user has none)
-                    _buildPaymentMethodSelector(),
-                    _buildBudgetSelector(),
-                    _buildObjectiveSelector(),
-                  ],
-                  AppSpacing.gapMd,
-                ],
-              ),
-            ),
-          ),
-
-          // Save button (sticky at bottom)
-          _buildSaveButton(),
-        ],
-      ),
+    final currentWallet = wallets.firstWhere(
+      (w) => w.id == walletId,
+      orElse: () => wallets.first,
     );
-  }
+    final currencySymbol = CurrencyInfo.getSymbol(currentWallet.currency);
+    final c = context.sunrise;
+    final l10n = L10n.of(context);
 
-  /// Gradient for the current transaction type — drives the save button and the
-  /// sliding type-selector pill.
-  Gradient get _typeGradient {
-    switch (_transactionType) {
-      case TransactionTypeSelection.income:
-        return AppColors.successGradient;
-      case TransactionTypeSelection.expense:
-        return AppColors.errorGradient;
-      case TransactionTypeSelection.transfer:
-        return LinearGradient(
-          colors: [AppColors.neonCyan, AppColors.neonBlue],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        );
-    }
-  }
-
-  /// Hero card: the type toggle, the big amount, and (for non-transfers) the
-  /// category selector — all tinted to the current transaction type.
-  Widget _buildHero(bool canTransfer, String currencySymbol) {
-    return AnimatedContainer(
-      duration: AppAnimations.normal,
-      curve: AppAnimations.easeOut,
-      width: double.infinity,
-      margin: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-      padding: const EdgeInsets.all(AppSpacing.xl),
+    final sheet = Container(
       decoration: BoxDecoration(
-        gradient: AppColors.glassGradient,
-        borderRadius: AppSpacing.borderRadiusXl,
-        border: Border.all(color: AppColors.glassBorder),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.glassShadow,
-            blurRadius: 24,
-            offset: const Offset(0, 10),
-          ),
-        ],
+        color: c.base,
+        borderRadius: SunriseRadius.sheetTop,
+      ),
+      padding: const EdgeInsets.fromLTRB(
+        SunriseSpace.screenX,
+        26,
+        SunriseSpace.screenX,
+        24,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _buildTypeSelector(canTransfer),
-          AppSpacing.gapXxl,
-          _buildAmountDisplay(currencySymbol),
-          if (!_isTransfer) ...[
-            AppSpacing.gapLg,
-            Center(child: _buildCategoryChip()),
+          if (_isTransfer) ...[
+            _buildTransferWalletSelectors(wallets, currencySymbol),
+            const SizedBox(height: SunriseSpace.section),
+          ] else ...[
+            SectionLabel(l10n.addCategory),
+            _buildCategoryGrid(),
+            const SizedBox(height: SunriseSpace.section),
           ],
+          SunriseCard(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _buildTitleInput(),
+                _buildTitleSuggestions(),
+                if (!_isTransfer) ...[
+                  Divider(height: 1, color: c.divider),
+                  _buildWalletRow(wallets),
+                ],
+                Divider(height: 1, color: c.divider),
+                CompactDateTimePicker(
+                  selectedDateTime: _selectedDateTime,
+                  onDateTimeChanged: (dateTime) {
+                    setState(() => _selectedDateTime = dateTime);
+                  },
+                  accentColor: c.accent,
+                  dateFormat: ref.watch(dateFormatSettingProvider),
+                ),
+                Divider(height: 1, color: c.divider),
+                _buildNotesInput(),
+              ],
+            ),
+          ),
+          if (!_isTransfer) ...[
+            const SizedBox(height: SunriseSpace.gap),
+            _buildRepeatMonthlyRow(),
+            const SizedBox(height: SunriseSpace.section),
+            SectionLabel(l10n.addMoreOptions),
+            _buildSpecialTypeChips(),
+            if (_specialType == TransactionSpecialType.subscription ||
+                _specialType == TransactionSpecialType.repetitive)
+              _buildSubscriptionConfigSection(),
+            const SizedBox(height: 12),
+            LoanTypeChips(
+              selectedType: _specialType,
+              onTypeChanged: (type) => setState(() => _specialType = type),
+              accentColor: c.accent,
+            ),
+            // Optional links (hidden when the user has none)
+            _buildPaymentMethodSelector(),
+            _buildBudgetSelector(),
+            _buildObjectiveSelector(),
+          ],
+        ],
+      ),
+    );
+
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.light.copyWith(
+        statusBarColor: Colors.transparent,
+        systemNavigationBarColor: c.base,
+        systemNavigationBarIconBrightness: c.isDark
+            ? Brightness.light
+            : Brightness.dark,
+      ),
+      child: Scaffold(
+        backgroundColor: c.base,
+        body: Column(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                keyboardDismissBehavior:
+                    ScrollViewKeyboardDismissBehavior.onDrag,
+                child: SunriseContentWidth(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _buildHeader(canTransfer, currencySymbol),
+                      // The sheet rides up over the header by a few dozen dp.
+                      Transform.translate(
+                        offset: const Offset(0, -40),
+                        child: sheet,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            // Save button (sticky at bottom)
+            _buildSaveButton(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _typeLabel(TransactionTypeSelection type) {
+    final l10n = L10n.of(context);
+    return switch (type) {
+      TransactionTypeSelection.expense => l10n.addTypeExpense,
+      TransactionTypeSelection.income => l10n.addTypeIncome,
+      TransactionTypeSelection.transfer => l10n.addTypeTransfer,
+    };
+  }
+
+  /// The full-bleed sunrise header: close, title, scan (or delete), the type
+  /// control and the big amount.
+  Widget _buildHeader(bool canTransfer, String currencySymbol) {
+    final c = context.sunrise;
+    final l10n = L10n.of(context);
+    final title = _isEditing
+        ? l10n.addEditTitle
+        : switch (_transactionType) {
+            TransactionTypeSelection.expense => l10n.addNewExpense,
+            TransactionTypeSelection.income => l10n.addNewIncome,
+            TransactionTypeSelection.transfer => l10n.addNewTransfer,
+          };
+    final onGlass = c.onFill.withValues(alpha: .18);
+
+    return Container(
+      decoration: BoxDecoration(gradient: c.headerGradient),
+      padding: EdgeInsets.fromLTRB(
+        SunriseSpace.screenX,
+        MediaQuery.paddingOf(context).top + 8,
+        SunriseSpace.screenX,
+        76,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              SunriseIconButton(
+                icon: Symbols.close_rounded,
+                tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
+                background: onGlass,
+                foreground: c.onFill,
+                onTap: () => Navigator.of(context).pop(),
+              ),
+              Expanded(
+                child: Text(
+                  title,
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: SunriseType.pushTitle.copyWith(color: c.onFill),
+                ),
+              ),
+              if (_isEditing)
+                SunriseIconButton(
+                  icon: Symbols.delete_rounded,
+                  tooltip: l10n.addDelete,
+                  background: onGlass,
+                  foreground: c.onFill,
+                  onTap: _deleteTransaction,
+                )
+              else
+                SunriseIconButton(
+                  icon: Symbols.document_scanner_rounded,
+                  tooltip: l10n.addScanReceipt,
+                  background: onGlass,
+                  foreground: c.onFill,
+                  onTap: _scanReceipt,
+                ),
+            ],
+          ),
+          const SizedBox(height: 22),
+          _buildTypeSelector(canTransfer),
+          const SizedBox(height: 26),
+          _buildAmountDisplay(currencySymbol),
         ],
       ),
     );
   }
 
-  /// Income / Expense / Transfer as three equal chips — same chip language as the
-  /// rest of the screen (the selected one is tinted in its own colour, the others
-  /// are plain glass), so it reads clearly as a three-way switch.
+  /// Expense / Income / Transfer on the header gradient.
+  ///
+  /// What a transaction *is* cannot be edited (an expense cannot become a
+  /// transfer, because a transfer is a pair of rows), so while editing only
+  /// the current type is shown and it cannot be changed.
   Widget _buildTypeSelector(bool canTransfer) {
-    // What a transaction *is* cannot be edited — an expense cannot become a
-    // transfer, because a transfer is a pair of rows and an expense is one. So
-    // while editing, the chips show what this transaction already is and none
-    // of them can be tapped.
-    //
-    // They used to be hidden instead, and Transfer was hidden hardest: editing
-    // a transfer offered Expense and Income with neither selected, and tapping
-    // either turned the form into a regular-transaction UI while the save still
-    // went through the transfer path.
     final List<TransactionTypeSelection> types;
     if (_isEditing) {
       types = [_transactionType];
@@ -1153,184 +1160,174 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
       ];
     }
 
-    return Row(
+    return KeyedSubtree(
       // Named so a test can ask what the type chips say without also matching
       // the save button, which is labelled "Transfer" in transfer mode too.
       key: const ValueKey('transaction-type-selector'),
-      children: [
-        for (var i = 0; i < types.length; i++) ...[
-          if (i > 0) AppSpacing.gapHSm,
-          Expanded(child: _typeChip(types[i])),
-        ],
-      ],
-    );
-  }
-
-  Widget _typeChip(TransactionTypeSelection type) {
-    final isSelected = type == _transactionType;
-    final color = type.color;
-
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      // Locked while editing: the chip is there to say what this is, not to
-      // offer to change it.
-      onTap: _isEditing ? null : () => _onTypeChanged(type),
-      child: AnimatedContainer(
-        duration: AppAnimations.fast,
-        curve: AppAnimations.easeOut,
-        // Horizontal padding as well as vertical: at three across, "Transfer"
-        // ran the full width of its chip and read as cramped.
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.sm,
-          vertical: AppSpacing.md,
-        ),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? color.withValues(alpha: 0.15)
-              : AppColors.glassWhite,
-          borderRadius: AppSpacing.borderRadiusFull,
-          border: Border.all(
-            color: isSelected ? color : AppColors.glassBorder,
-            width: isSelected ? 1.5 : 1,
-          ),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              type.icon,
-              size: AppSpacing.iconXs,
-              color: isSelected ? color : AppColors.textMuted,
-            ),
-            AppSpacing.gapHXs,
-            Flexible(
-              child: Text(
-                type.label,
-                overflow: TextOverflow.ellipsis,
-                style: AppTypography.labelMedium.copyWith(
-                  letterSpacing: 0.2,
-                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                  color: isSelected ? color : AppColors.textSecondary,
-                ),
-              ),
-            ),
-          ],
-        ),
+      child: SunriseSegmented<TransactionTypeSelection>(
+        onGradient: true,
+        height: 46,
+        value: _transactionType,
+        options: [for (final t in types) SegmentOption(t, _typeLabel(t))],
+        onChanged: _isEditing ? (_) {} : _onTypeChanged,
       ),
     );
   }
 
-  /// Big, tappable monospace amount — the screen's hero input.
+  /// The amount at 64/600 in white, decimals at half strength. Tapping opens
+  /// the calculator keypad.
   Widget _buildAmountDisplay(String currencySymbol) {
+    final c = context.sunrise;
+    final l10n = L10n.of(context);
     final hasAmount = _amount > 0;
-    final sign = _isTransfer ? '' : (_isIncome ? '+' : '−');
-    final color = hasAmount ? _accentColor : AppColors.textMuted;
+    final whole = _formatAmount(_amount.truncateToDouble());
+    final cents = ((_amount * 100).round() % 100).toString().padLeft(2, '0');
+    final big = SunriseType.amountHero.copyWith(color: c.onFill);
 
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: () {
-        HapticFeedback.selectionClick();
-        _showCalculator();
-      },
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text(
-                  '$sign$currencySymbol',
-                  style: AppTypography.monoMedium.copyWith(
-                    fontSize: 26,
-                    fontWeight: FontWeight.w600,
-                    color: color,
-                  ),
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  _formatAmount(_amount),
-                  style: AppTypography.monoLarge.copyWith(
-                    fontSize: 48,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: -1,
-                    color: color,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          AppSpacing.gapSm,
-          Text(
-            hasAmount ? 'Tap to edit amount' : 'Tap to enter amount',
-            style: AppTypography.labelSmall.copyWith(
-              color: AppColors.textMuted,
-              letterSpacing: 0.5,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// Inline category selector pill inside the hero (non-transfer only).
-  Widget _buildCategoryChip() {
-    final hasCategory = _selectedCategory != null;
-    final categoryColor = hasCategory && _selectedCategory!.colorCode.isNotEmpty
-        ? _parseHexColor(_selectedCategory!.colorCode)
-        : _chromeAccent;
-
-    return GestureDetector(
-      onTap: () {
-        HapticFeedback.selectionClick();
-        _showCategoryPicker();
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        decoration: BoxDecoration(
-          color: AppColors.glassWhite,
-          borderRadius: AppSpacing.borderRadiusFull,
-          border: Border.all(
-            color: hasCategory
-                ? categoryColor.withValues(alpha: 0.45)
-                : AppColors.glassBorder,
-          ),
-        ),
-        child: Row(
+    return Semantics(
+      button: true,
+      label: '${l10n.addAmount} $currencySymbol${_formatAmount(_amount)}',
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () {
+          HapticFeedback.selectionClick();
+          _showCalculator();
+        },
+        child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(
-              width: 28,
-              height: 28,
-              decoration: BoxDecoration(
-                color: categoryColor.withValues(alpha: 0.18),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(
-                hasCategory && _selectedCategory!.iconName != null
-                    ? IconRegistry.getIcon(_selectedCategory!.iconName!)
-                    : Icons.category_outlined,
-                size: 16,
-                color: categoryColor,
-              ),
-            ),
-            const SizedBox(width: 10),
             Text(
-              hasCategory ? _selectedCategory!.name : 'Select category',
-              style: AppTypography.titleSmall.copyWith(
-                color: hasCategory
-                    ? AppColors.textPrimary
-                    : AppColors.textSecondary,
+              l10n.addAmount,
+              style: SunriseType.label.copyWith(
+                color: c.onFill.withValues(alpha: .85),
+                fontSize: 15,
               ),
             ),
-            const SizedBox(width: 4),
-            Icon(Icons.expand_more, size: 18, color: AppColors.textMuted),
+            const SizedBox(height: 4),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.baseline,
+                textBaseline: TextBaseline.alphabetic,
+                children: [
+                  Text(
+                    currencySymbol,
+                    style: big.copyWith(fontSize: 54, fontWeight: FontWeight.w500),
+                  ),
+                  const SizedBox(width: 10),
+                  Text(whole, style: big),
+                  Text(
+                    '.$cents',
+                    style: big.copyWith(color: c.onFill.withValues(alpha: .5)),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              hasAmount ? 'Tap to edit amount' : 'Tap to enter amount',
+              style: SunriseType.caption.copyWith(
+                color: c.onFill.withValues(alpha: .8),
+              ),
+            ),
           ],
         ),
       ),
     );
+  }
+
+  /// Three likely categories as tiles, plus More for the full picker.
+  Widget _buildCategoryGrid() {
+    final l10n = L10n.of(context);
+    final c = context.sunrise;
+    final wantType = _isIncome ? 'income' : 'expense';
+    final usable = ref
+        .watch(categoryProvider)
+        .categories
+        .where((cat) => !cat.isSystem && cat.mainCategoryId == null)
+        .toList();
+    final ofType = usable.where((cat) => cat.type == wantType).toList();
+    final pool = ofType.isEmpty ? usable : ofType;
+
+    final shown = <Category>[];
+    if (_selectedCategory != null) shown.add(_selectedCategory!);
+    for (final cat in pool) {
+      if (shown.length >= 3) break;
+      if (!shown.any((s) => s.id == cat.id)) shown.add(cat);
+    }
+
+    return LayoutBuilder(
+      builder: (context, box) {
+        final tile = ((box.maxWidth - 3 * 8) / 4).clamp(56.0, 96.0) - 20;
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            for (final cat in shown)
+              CategoryTile(
+                icon: cat.iconName != null
+                    ? IconRegistry.getIcon(cat.iconName!)
+                    : Symbols.category_rounded,
+                label: cat.name,
+                size: tile.clamp(48.0, 56.0),
+                selected: cat.id == _selectedCategoryId,
+                onTap: () => setState(() {
+                  _selectedCategoryId = cat.id;
+                  _selectedCategory = cat;
+                }),
+              ),
+            for (var i = shown.length; i < 3; i++)
+              SizedBox(width: tile.clamp(48.0, 56.0) + 20),
+            CategoryTile(
+              icon: Symbols.grid_view_rounded,
+              label: l10n.addMore,
+              size: tile.clamp(48.0, 56.0),
+              selected: false,
+              color: c.accent,
+              onTap: () => _showCategoryPicker(),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  /// "Repeat monthly": a shortcut onto the existing repetitive type.
+  Widget _buildRepeatMonthlyRow() {
+    final c = context.sunrise;
+    final on =
+        _specialType == TransactionSpecialType.repetitive &&
+        _subscriptionFrequency == 'monthly' &&
+        _subscriptionPeriodLength == 1;
+    return SunriseCard(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      child: SettingsRow(
+        icon: Symbols.repeat_rounded,
+        iconBackground: Colors.transparent,
+        iconColor: c.accent,
+        title: L10n.of(context).addRepeatMonthly,
+        trailing: SettingsTrailing.none,
+        onTap: () => _setRepeatMonthly(!on),
+        trailingWidget: SunriseToggle(
+          value: on,
+          semanticLabel: L10n.of(context).addRepeatMonthly,
+          onChanged: _setRepeatMonthly,
+        ),
+      ),
+    );
+  }
+
+  void _setRepeatMonthly(bool on) {
+    setState(() {
+      if (on) {
+        _specialType = TransactionSpecialType.repetitive;
+        _subscriptionFrequency = 'monthly';
+        _subscriptionPeriodLength = 1;
+      } else if (_specialType == TransactionSpecialType.repetitive) {
+        _specialType = TransactionSpecialType.none;
+      }
+    });
   }
 
   /// Format an amount with thousand separators, hiding a trailing `.00`.
@@ -1349,15 +1346,6 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
       buffer.write(decPart);
     }
     return buffer.toString();
-  }
-
-  Color _parseHexColor(String code) {
-    try {
-      if (code.startsWith('#')) {
-        return Color(int.parse(code.substring(1), radix: 16) | 0xFF000000);
-      }
-    } catch (_) {}
-    return _chromeAccent;
   }
 
   Widget _buildSpecialTypeChips() {
@@ -1675,41 +1663,64 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
     );
   }
 
-  Widget _buildWalletChips(List<Wallet> wallets) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(
-                Icons.account_balance_wallet_outlined,
-                size: 16,
-                color: AppColors.textMuted,
-              ),
-              const SizedBox(width: 6),
-              Text(
-                L10n.of(context).entityAccount,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  color: AppColors.textMuted,
-                ),
-              ),
-            ],
+  /// Wallet: the chosen account, tap to pick another.
+  Widget _buildWalletRow(List<Wallet> wallets) {
+    final c = context.sunrise;
+    final l10n = L10n.of(context);
+    final selected = _pick(wallets, _selectedWalletId);
+    String label(Wallet w) => '${w.name} (${w.currency})';
+
+    return Pressable(
+      scale: .985,
+      onTap: () async {
+        final chosen = await showSunriseSheet<String>(
+          context: context,
+          builder: (sheet) => SunriseBottomSheet(
+            title: l10n.addWallet,
+            child: Column(
+              children: [
+                for (final w in wallets)
+                  SheetAction(
+                    icon: Symbols.account_balance_wallet_rounded,
+                    label: w.name,
+                    subtitle: w.currency,
+                    selected: w.id == selected.id,
+                    onTap: () => Navigator.pop(sheet, w.id),
+                  ),
+              ],
+            ),
           ),
-          const SizedBox(height: 8),
-          HorizontalChipSelector<Wallet>(
-            items: wallets,
-            selectedItem: _pick(wallets, _selectedWalletId),
-            labelBuilder: (wallet) => '${wallet.name} (${wallet.currency})',
-            onSelected: (wallet) {
-              setState(() => _selectedWalletId = wallet.id);
-            },
-            padding: EdgeInsets.zero,
-          ),
-        ],
+        );
+        if (chosen != null) setState(() => _selectedWalletId = chosen);
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        child: Row(
+          children: [
+            Icon(
+              Symbols.account_balance_wallet_rounded,
+              color: c.accent,
+              size: 24,
+            ),
+            const SizedBox(width: 14),
+            Text(
+              l10n.addWallet,
+              style: SunriseType.rowTitle.copyWith(color: c.ink),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                label(selected),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.end,
+                style: SunriseType.rowTitle.copyWith(color: c.ink),
+              ),
+            ),
+            const SizedBox(width: 6),
+            Icon(Symbols.chevron_right_rounded, color: c.chevron, size: 20),
+          ],
+        ),
       ),
     );
   }
@@ -2135,24 +2146,33 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
   }
 
   Widget _buildTitleInput() {
+    final c = context.sunrise;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: NeoTextField(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: TextField(
         controller: _titleController,
         focusNode: _titleFocusNode,
-        label: L10n.of(context).txTitle,
-        hint: _isTransfer
-            ? 'e.g. Move to savings (optional)'
-            : 'What was it for?',
         onChanged: (_) => setState(() {}),
-        prefixIcon: Icons.edit_outlined,
         textInputAction: TextInputAction.done,
+        textCapitalization: TextCapitalization.sentences,
+        style: SunriseType.rowTitle.copyWith(color: c.ink),
+        decoration: InputDecoration(
+          hintText: _isTransfer
+              ? 'e.g. Move to savings (optional)'
+              : 'What was it for?',
+          filled: false,
+          border: InputBorder.none,
+          enabledBorder: InputBorder.none,
+          focusedBorder: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(vertical: 12),
+          prefixIcon: Icon(Symbols.edit_rounded, color: c.accent, size: 24),
+          prefixIconConstraints: const BoxConstraints(minWidth: 38),
+        ),
         onSubmitted: (_) {
-          // After title is submitted, open category picker (then amount)
+          // After the title, open the category picker (then the amount).
           if (!_isTransfer && _selectedCategoryId == null) {
             _showCategoryPicker(openAmountAfter: true);
           } else if (!_isTransfer && _amount == 0) {
-            // Category already selected, just open amount
             _showCalculator();
           }
         },
@@ -2178,8 +2198,8 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
     final matches = ref.watch(titleUsageSearchProvider(query)).asData?.value;
     if (matches == null || matches.isEmpty) return const SizedBox.shrink();
 
-    // Typing the whole thing out is not worth interrupting: if the only match
-    // is what has already been typed, there is nothing left to suggest.
+    // If the only match is what has already been typed, there is nothing left
+    // to suggest.
     final useful = matches
         .where((m) => m.title.toLowerCase() != query.toLowerCase())
         .toList();
@@ -2187,10 +2207,8 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
 
     final categories = ref.watch(categoryProvider).categories;
 
-    // The field is focused, so the keyboard is up and there is very little form
-    // left visible below it — enough that the suggestions land just off the
-    // bottom edge and look like a rendering fault. Bring them into view once
-    // per set of results.
+    // The keyboard is up, so bring the suggestions into view once per set of
+    // results.
     if (_scrolledSuggestionsFor != query) {
       _scrolledSuggestionsFor = query;
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -2198,29 +2216,24 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
         if (anchor == null || !mounted) return;
         Scrollable.ensureVisible(
           anchor,
-          duration: AppAnimations.fast,
-          curve: AppAnimations.easeOut,
+          duration: SunriseMotion.tab,
+          curve: SunriseMotion.standard,
           alignment: 1.0,
         );
       });
     }
 
+    final c = context.sunrise;
     return Padding(
       key: _suggestionsKey,
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.lg,
-        AppSpacing.sm,
-        AppSpacing.lg,
-        0,
-      ),
+      padding: const EdgeInsets.only(bottom: 10),
       child: Container(
         // Named so a test can ask what is being suggested without also matching
         // the text sitting in the field above it.
         key: const ValueKey('title-suggestions'),
         decoration: BoxDecoration(
-          color: AppColors.glassWhite,
-          borderRadius: AppSpacing.borderRadiusLg,
-          border: Border.all(color: AppColors.glassBorder),
+          color: c.tintOrange,
+          borderRadius: SunriseRadius.inputAll,
         ),
         child: Column(
           children: [
@@ -2228,7 +2241,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
               _TitleSuggestionRow(
                 suggestion: suggestion,
                 category: categories
-                    .where((c) => c.id == suggestion.categoryId)
+                    .where((cat) => cat.id == suggestion.categoryId)
                     .firstOrNull,
                 onTap: () => _applyTitleSuggestion(suggestion),
               ),
@@ -2239,39 +2252,50 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
   }
 
   Widget _buildNotesInput() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: NeoTextField(
-        controller: _notesController,
-        label: L10n.of(context).txNotes,
-        hint: 'Add a note (optional)',
-        prefixIcon: Icons.notes_outlined,
-        maxLines: 3,
-        minLines: 1,
-        textCapitalization: TextCapitalization.sentences,
+    final c = context.sunrise;
+    return TextField(
+      controller: _notesController,
+      maxLines: 3,
+      minLines: 1,
+      textCapitalization: TextCapitalization.sentences,
+      style: SunriseType.rowTitle.copyWith(color: c.ink),
+      decoration: InputDecoration(
+        hintText: L10n.of(context).addNoteHint,
+        filled: false,
+        border: InputBorder.none,
+        enabledBorder: InputBorder.none,
+        focusedBorder: InputBorder.none,
+        contentPadding: const EdgeInsets.symmetric(vertical: 16),
+        prefixIcon: Icon(Symbols.notes_rounded, color: c.accent, size: 24),
+        prefixIconConstraints: const BoxConstraints(minWidth: 38),
       ),
     );
   }
 
   Widget _buildSaveButton() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.transparent,
-        border: Border(top: BorderSide(color: AppColors.glassBorder)),
-      ),
+    final c = context.sunrise;
+    return DecoratedBox(
+      decoration: BoxDecoration(color: c.base),
       child: SafeArea(
         top: false,
-        child: NeoButton(
-          label: _isEditing ? 'Update' : (_isTransfer ? 'Transfer' : 'Save'),
-          onPressed: _canSave && !_isSaving ? _saveTransaction : null,
-          isLoading: _isSaving,
-          isExpanded: true,
-          size: NeoButtonSize.large,
-          gradient: _typeGradient,
-          trailingIcon: _isTransfer
-              ? Icons.swap_horiz_rounded
-              : Icons.check_rounded,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(
+            SunriseSpace.screenX,
+            8,
+            SunriseSpace.screenX,
+            12,
+          ),
+          child: SunriseContentWidth(
+            child: NeoButton(
+              label: _isEditing
+                  ? 'Update'
+                  : (_isTransfer ? 'Transfer' : 'Save'),
+              onPressed: _canSave && !_isSaving ? _saveTransaction : null,
+              isLoading: _isSaving,
+              isExpanded: true,
+              size: NeoButtonSize.large,
+            ),
+          ),
         ),
       ),
     );

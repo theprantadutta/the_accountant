@@ -1069,5 +1069,22 @@
     }
   },
   "activityDeleteOneBody": "It will be removed from your records and your balance will be recalculated.",
-  "activitySearch": "Search"
+  "activitySearch": "Search",
+  "addNewExpense": "New expense",
+  "addNewIncome": "New income",
+  "addNewTransfer": "New transfer",
+  "addEditTitle": "Edit transaction",
+  "addAmount": "Amount",
+  "addCategory": "Category",
+  "addMore": "More",
+  "addWallet": "Wallet",
+  "addDate": "Date",
+  "addNoteHint": "Add a note",
+  "addRepeatMonthly": "Repeat monthly",
+  "addMoreOptions": "More options",
+  "addScanReceipt": "Scan receipt",
+  "addDelete": "Delete transaction",
+  "addTypeExpense": "Expense",
+  "addTypeIncome": "Income",
+  "addTypeTransfer": "Transfer"
 }
