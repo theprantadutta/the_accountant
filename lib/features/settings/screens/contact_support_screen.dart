@@ -179,18 +179,18 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
     return Container(
       padding: EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        color: Colors.amber.withValues(alpha: 0.1),
+        color: AppColors.warning.withValues(alpha: 0.1),
         borderRadius: AppSpacing.borderRadiusLg,
-        border: Border.all(color: Colors.amber.withValues(alpha: 0.35)),
+        border: Border.all(color: AppColors.warning.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
-          const Icon(Icons.bolt, color: Colors.amber, size: 20),
+          Icon(Icons.bolt, color: AppColors.warning, size: 20),
           SizedBox(width: AppSpacing.sm),
           Expanded(
             child: Text(
               L10n.of(context).settingsAsAPremiumMemberYour,
-              style: TextStyle(color: Colors.amber.shade200, fontSize: 13),
+              style: TextStyle(color: AppColors.textPrimary, fontSize: 13),
             ),
           ),
         ],

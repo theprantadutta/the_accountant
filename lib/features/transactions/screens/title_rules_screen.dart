@@ -1,3 +1,4 @@
+import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
 import 'package:flutter/material.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -59,46 +60,75 @@ class _TitleRulesScreenState extends ConsumerState<TitleRulesScreen> {
           ? const Center(child: CircularProgressIndicator())
           : rules.isEmpty
           ? _empty()
-          : ListView.separated(
-              padding: const EdgeInsets.fromLTRB(0, 8, 0, 96),
-              itemCount: rules.length + 1,
-              separatorBuilder: (_, _) => const Divider(height: 1),
-              itemBuilder: (context, index) {
-                if (index == rules.length) {
-                  return Padding(
-                    padding: AppSpacing.paddingLg,
-                    child: Text(
-                      'A rule matches anywhere in the title unless you make it '
-                      'exact. The app adds one for you each time you file '
-                      'something by hand.',
-                      style: AppTypography.bodySmall.copyWith(
-                        color: AppColors.textMuted,
-                      ),
+          : ListView(
+              padding: const EdgeInsets.fromLTRB(
+                SunriseSpace.screenX,
+                8,
+                SunriseSpace.screenX,
+                112,
+              ),
+              children: [
+                SunriseCard(
+                  padding: const EdgeInsets.symmetric(vertical: 6),
+                  child: Column(
+                    children: [
+                      for (final (index, rule) in rules.indexed) ...[
+                        if (index > 0)
+                          Divider(
+                            height: 1,
+                            indent: 68,
+                            endIndent: 16,
+                            color: context.sunrise.divider,
+                          ),
+                        ListTile(
+                          contentPadding: const EdgeInsets.only(
+                            left: 16,
+                            right: 4,
+                          ),
+                          leading: IconTile(
+                            icon: rule.isExactMatch
+                                ? Symbols.check_circle_rounded
+                                : Symbols.manage_search_rounded,
+                            color: context.sunrise.accent,
+                          ),
+                          title: Text(
+                            rule.title,
+                            style: SunriseType.rowTitle.copyWith(
+                              color: context.sunrise.ink,
+                            ),
+                          ),
+                          subtitle: Text(
+                            '${rule.isExactMatch ? 'Exactly this' : 'Anything containing this'}'
+                            ' → ${categoryName(rule.categoryId)}',
+                            style: SunriseType.caption.copyWith(
+                              color: context.sunrise.muted,
+                            ),
+                          ),
+                          trailing: SunriseIconButton(
+                            tooltip: L10n.of(context).actionDelete,
+                            icon: Symbols.delete_rounded,
+                            foreground: context.sunrise.negative,
+                            background: Colors.transparent,
+                            onTap: () => _delete(rule),
+                          ),
+                          onTap: () => _edit(existing: rule),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(4, 14, 4, 0),
+                  child: Text(
+                    'A rule matches anywhere in the title unless you make it '
+                    'exact. The app adds one for you each time you file '
+                    'something by hand.',
+                    style: SunriseType.caption.copyWith(
+                      color: context.sunrise.muted,
                     ),
-                  );
-                }
-
-                final rule = rules[index];
-                return ListTile(
-                  leading: Icon(
-                    rule.isExactMatch
-                        ? Icons.check_circle_outline
-                        : Icons.search,
-                    color: AppColors.textMuted,
                   ),
-                  title: Text(rule.title),
-                  subtitle: Text(
-                    '${rule.isExactMatch ? 'Exactly this' : 'Anything containing this'}'
-                    ' → ${categoryName(rule.categoryId)}',
-                  ),
-                  trailing: IconButton(
-                    tooltip: L10n.of(context).actionDelete,
-                    icon: const Icon(Icons.delete_outline),
-                    onPressed: () => _delete(rule),
-                  ),
-                  onTap: () => _edit(existing: rule),
-                );
-              },
+                ),
+              ],
             ),
     );
   }

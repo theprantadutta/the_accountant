@@ -1,3 +1,4 @@
+import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
 import 'package:flutter/material.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -40,39 +41,65 @@ class PaymentMethodsScreen extends ConsumerWidget {
           ? const Center(child: CircularProgressIndicator())
           : state.paymentMethods.isEmpty
           ? _empty(context, ref)
-          : ListView.builder(
-              padding: const EdgeInsets.fromLTRB(0, 8, 0, 96),
-              itemCount: state.paymentMethods.length,
-              itemBuilder: (context, index) {
-                final method = state.paymentMethods[index];
-                final kind = _kinds[method.type] ?? _kinds['card']!;
-
-                return ListTile(
-                  leading: CircleAvatar(
-                    backgroundColor: AppColors.glassWhite,
-                    child: Icon(kind.icon, color: AppColors.textSecondary),
+          : ListView(
+              padding: const EdgeInsets.fromLTRB(
+                SunriseSpace.screenX,
+                8,
+                SunriseSpace.screenX,
+                112,
+              ),
+              children: [
+                SunriseCard(
+                  padding: const EdgeInsets.symmetric(vertical: 6),
+                  child: Column(
+                    children: [
+                      for (final (index, method)
+                          in state.paymentMethods.indexed) ...[
+                        if (index > 0)
+                          Divider(
+                            height: 1,
+                            indent: 68,
+                            endIndent: 16,
+                            color: context.sunrise.divider,
+                          ),
+                        _methodTile(context, ref, method),
+                      ],
+                    ],
                   ),
-                  title: Text(method.name),
-                  subtitle: Text(
-                    [
-                      kind.label,
-                      if (method.institution?.isNotEmpty ?? false)
-                        method.institution!,
-                      if (method.lastFourDigits?.isNotEmpty ?? false)
-                        '···· ${method.lastFourDigits}',
-                    ].join(' · '),
-                  ),
-                  trailing: method.isDefault
-                      ? Chip(
-                          label: Text(L10n.of(context).payDefault),
-                          visualDensity: VisualDensity.compact,
-                        )
-                      : null,
-                  onTap: () => _edit(context, ref, existing: method),
-                  onLongPress: () => _delete(context, ref, method),
-                );
-              },
+                ),
+              ],
             ),
+    );
+  }
+
+  Widget _methodTile(
+    BuildContext context,
+    WidgetRef ref,
+    PaymentMethod method,
+  ) {
+    final c = context.sunrise;
+    final kind = _kinds[method.type] ?? _kinds['card']!;
+    return ListTile(
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+      leading: IconTile(icon: kind.icon, color: c.accent),
+      title: Text(
+        method.name,
+        style: SunriseType.rowTitle.copyWith(color: c.ink),
+      ),
+      subtitle: Text(
+        [
+          kind.label,
+          if (method.institution?.isNotEmpty ?? false) method.institution!,
+          if (method.lastFourDigits?.isNotEmpty ?? false)
+            '···· ${method.lastFourDigits}',
+        ].join(' · '),
+        style: SunriseType.caption.copyWith(color: c.muted),
+      ),
+      trailing: method.isDefault
+          ? SunrisePill(label: L10n.of(context).payDefault)
+          : null,
+      onTap: () => _edit(context, ref, existing: method),
+      onLongPress: () => _delete(context, ref, method),
     );
   }
 

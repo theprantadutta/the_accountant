@@ -182,7 +182,8 @@ class _PaceBar extends StatelessWidget {
                 borderRadius: BorderRadius.circular(4),
                 child: Container(
                   height: 8,
-                  color: AppColors.divider,
+                  width: width,
+                  color: context.sunrise.toggleOff,
                   child: FractionallySizedBox(
                     alignment: Alignment.centerLeft,
                     widthFactor: fraction,

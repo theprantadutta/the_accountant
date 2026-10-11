@@ -1,3 +1,4 @@
+import 'package:the_accountant/core/themes/sunrise/sunrise_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:the_accountant/features/wallets/services/wallet_maintenance_service.dart';
@@ -516,7 +517,7 @@ class _CreditSummary extends StatelessWidget {
           child: LinearProgressIndicator(
             value: used,
             minHeight: 6,
-            backgroundColor: AppColors.divider,
+            backgroundColor: context.sunrise.toggleOff,
             color: used > 0.8 ? AppColors.error : AppColors.primaryAccent,
           ),
         ),

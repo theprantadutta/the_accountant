@@ -1,3 +1,4 @@
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter/material.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart';
@@ -405,21 +406,21 @@ class _SyncSettingsScreenState extends ConsumerState<SyncSettingsScreen> {
     return Container(
       padding: EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        color: AppColors.info.withValues(alpha: 0.1),
+        color: AppColors.primaryAccent.withValues(alpha: 0.08),
         borderRadius: AppSpacing.borderRadiusLg,
-        border: Border.all(color: AppColors.info.withValues(alpha: 0.3)),
+        border: Border.all(color: AppColors.primaryAccent.withValues(alpha: 0.2)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: AppColors.info, size: 20),
+          Icon(Symbols.info_rounded, color: AppColors.primaryAccent, size: 20),
           SizedBox(width: AppSpacing.sm),
           Expanded(
             child: Text(
               'Your data syncs automatically every 15 minutes and when you open the app. '
               'All synced data is encrypted in transit.',
               style: TextStyle(
-                color: AppColors.info,
+                color: AppColors.primaryAccent,
                 fontSize: 13,
                 height: 1.4,
               ),

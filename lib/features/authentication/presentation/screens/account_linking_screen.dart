@@ -1,3 +1,4 @@
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter/material.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart';
@@ -196,16 +197,16 @@ class _AccountLinkingScreenState extends ConsumerState<AccountLinkingScreen>
     return Container(
       padding: AppSpacing.paddingMd,
       decoration: BoxDecoration(
-        color: AppColors.info.withValues(alpha: 0.1),
-        border: Border.all(color: AppColors.info.withValues(alpha: 0.3)),
+        color: AppColors.primaryAccent.withValues(alpha: 0.08),
+        border: Border.all(color: AppColors.primaryAccent.withValues(alpha: 0.2)),
         borderRadius: AppSpacing.borderRadiusMd,
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(
-            Icons.info_outline_rounded,
-            color: AppColors.info,
+            Symbols.info_rounded,
+            color: AppColors.primaryAccent,
             size: AppSpacing.iconSm,
           ),
           AppSpacing.gapHMd,

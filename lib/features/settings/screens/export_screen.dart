@@ -1,3 +1,4 @@
+import 'package:material_symbols_icons/symbols.dart';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
@@ -135,13 +136,13 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
     return Container(
       padding: EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        color: AppColors.info.withValues(alpha: 0.1),
+        color: AppColors.primaryAccent.withValues(alpha: 0.08),
         borderRadius: AppSpacing.borderRadiusLg,
-        border: Border.all(color: AppColors.info.withValues(alpha: 0.3)),
+        border: Border.all(color: AppColors.primaryAccent.withValues(alpha: 0.2)),
       ),
       child: Row(
         children: [
-          Icon(Icons.info_outline, color: AppColors.info),
+          Icon(Symbols.info_rounded, color: AppColors.primaryAccent),
           SizedBox(width: AppSpacing.sm),
           Expanded(
             child: Text(

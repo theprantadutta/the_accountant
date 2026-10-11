@@ -260,7 +260,7 @@ class ObjectiveCard extends ConsumerWidget {
             child: LinearProgressIndicator(
               value: fraction,
               minHeight: 6,
-              backgroundColor: AppColors.divider,
+              backgroundColor: context.sunrise.toggleOff,
               color: objective.isComplete ? AppColors.success : tint,
             ),
           ),
