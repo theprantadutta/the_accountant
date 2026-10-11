@@ -533,13 +533,7 @@ class _NetWorthCard extends ConsumerWidget {
             fit: BoxFit.scaleDown,
             alignment: AlignmentDirectional.centerStart,
             child: Text(
-              total
-                  .formatCurrency(
-                    currency,
-                    useDecimals: decimals && total.abs() < 10000000,
-                    numberFormat: nf,
-                  )
-                  .replaceFirst('-', '−'),
+              '${total < 0 ? '−' : ''}${total.abs().formatCurrency(currency, useDecimals: decimals && total.abs() < 10000000, numberFormat: nf)}',
               maxLines: 1,
               style: SunriseType.balance.copyWith(color: c.ink),
             ),
@@ -555,8 +549,9 @@ class _NetWorthCard extends ConsumerWidget {
                     for (var i = 0; i < positive.length; i++) ...[
                       if (i > 0) const SizedBox(width: 3),
                       Expanded(
+                        // At least 4% wide, so a small wallet still shows.
                         flex: (balanceOf(positive[i]) * 1000 ~/ sum).clamp(
-                          8,
+                          40,
                           1000,
                         ),
                         child: Container(

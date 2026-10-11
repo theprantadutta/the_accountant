@@ -777,15 +777,15 @@ class _PremiumActiveCard extends StatelessWidget {
                   style: SunriseType.rowTitle.copyWith(color: c.ink),
                 ),
                 Text(
-                  l10n.morePremiumThanks,
-                  maxLines: 1,
+                  '$tier · ${l10n.morePremiumThanks}',
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: SunriseType.caption.copyWith(color: c.subtle),
                 ),
               ],
             ),
           ),
-          SunrisePill(label: tier),
+          Icon(Symbols.chevron_right_rounded, color: c.chevron, size: 20),
         ],
       ),
     );

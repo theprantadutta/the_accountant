@@ -165,12 +165,15 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
   );
 }
 
-String _money(WidgetRef ref, double major, {bool decimals = false}) =>
-    (major * 100).round().formatCurrency(
-      ref.watch(defaultCurrencyProvider),
-      useDecimals: decimals,
-      numberFormat: ref.watch(numberFormatSettingProvider),
-    );
+String _money(WidgetRef ref, double major, {bool decimals = false}) {
+  final cents = (major * 100).round();
+  final text = cents.abs().formatCurrency(
+    ref.watch(defaultCurrencyProvider),
+    useDecimals: decimals,
+    numberFormat: ref.watch(numberFormatSettingProvider),
+  );
+  return cents < 0 ? '−$text' : text;
+}
 
 /// Spent vs earned headline over the period's bars.
 class _ChartCard extends ConsumerWidget {
@@ -644,7 +647,7 @@ class _SummaryRow extends ConsumerWidget {
             const SizedBox(width: 10),
             tile(
               l10n.statsNet,
-              _money(ref, net).replaceFirst('-', '−'),
+              _money(ref, net),
               net < 0 ? c.negative : c.ink,
             ),
           ],
@@ -666,8 +669,13 @@ class _HeatmapCard extends ConsumerWidget {
     final currency = ref.watch(defaultCurrencyProvider);
     final numberFormat = ref.watch(numberFormatSettingProvider);
     final dateFormat = ref.watch(dateFormatSettingProvider);
-    String money(int cents) =>
-        cents.formatCurrency(currency, numberFormat: numberFormat);
+    String money(int cents) {
+      final text = cents.abs().formatCurrency(
+        currency,
+        numberFormat: numberFormat,
+      );
+      return cents < 0 ? '−$text' : text;
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -680,7 +688,7 @@ class _HeatmapCard extends ConsumerWidget {
               child: Semantics(
                 label: l10n.heatmapNetForRange,
                 child: Text(
-                  money(value.totalNetCents).replaceFirst('-', '−'),
+                  money(value.totalNetCents),
                   style: SunriseType.amount.copyWith(
                     color: value.totalNetCents < 0 ? c.negative : c.positive,
                   ),

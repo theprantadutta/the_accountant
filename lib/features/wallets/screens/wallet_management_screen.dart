@@ -399,14 +399,15 @@ class _WalletManagementScreenState
 }
 
 /// Formats a wallet's balance in its own currency.
-String _walletAmount(WidgetRef ref, Wallet w, int cents, {bool? decimals}) =>
-    cents
-        .formatCurrency(
-          w.currency,
-          useDecimals: decimals ?? w.useDecimals,
-          numberFormat: ref.watch(numberFormatSettingProvider),
-        )
-        .replaceFirst('-', '−');
+String _walletAmount(WidgetRef ref, Wallet w, int cents, {bool? decimals}) {
+  final text = cents.abs().formatCurrency(
+    w.currency,
+    useDecimals: decimals ?? w.useDecimals,
+    numberFormat: ref.watch(numberFormatSettingProvider),
+  );
+  // The sign goes before the symbol: −$499.12, not $−499.12.
+  return cents < 0 ? '−$text' : text;
+}
 
 String _typeLabel(L10n l10n, WalletType type) => switch (type) {
   WalletType.bankAccount => l10n.walletsTypeBank,
