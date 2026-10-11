@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_page_transitions.dart';
 import 'package:the_accountant/core/themes/sunrise/sunrise_colors.dart';
@@ -109,6 +110,18 @@ class AppTheme {
       ),
       textTheme: _textTheme(c),
       iconTheme: IconThemeData(color: c.ink, size: 24),
+      // Stock app bars get the same round back and close buttons as the
+      // Sunrise PushHeader, so screens still on AppBar match the rest.
+      actionIconTheme: ActionIconThemeData(
+        backButtonIconBuilder: (_) => _RoundNavIcon(
+          icon: Symbols.arrow_back_rounded,
+          colors: c,
+        ),
+        closeButtonIconBuilder: (_) => _RoundNavIcon(
+          icon: Symbols.close_rounded,
+          colors: c,
+        ),
+      ),
       pageTransitionsTheme: appPageTransitionsTheme,
       appBarTheme: AppBarTheme(
         backgroundColor: Colors.transparent,
@@ -116,6 +129,8 @@ class AppTheme {
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: false,
+        toolbarHeight: 64,
+        titleSpacing: 8,
         titleTextStyle: SunriseType.pushTitle.copyWith(color: c.ink),
         iconTheme: IconThemeData(color: c.ink),
         systemOverlayStyle: overlay,
@@ -510,4 +525,25 @@ class AppTheme {
       child: child,
     );
   }
+}
+
+/// A 40dp surface circle around a navigation glyph, for stock app bars.
+class _RoundNavIcon extends StatelessWidget {
+  const _RoundNavIcon({required this.icon, required this.colors});
+
+  final IconData icon;
+  final SunriseColors colors;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    width: 40,
+    height: 40,
+    decoration: BoxDecoration(
+      color: colors.surface,
+      shape: BoxShape.circle,
+      boxShadow: colors.cardShadow,
+    ),
+    alignment: Alignment.center,
+    child: Icon(icon, size: 22, color: colors.ink),
+  );
 }

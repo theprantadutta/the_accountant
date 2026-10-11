@@ -101,7 +101,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
           elevation: 0,
           title: Text(L10n.of(context).settingsEditProfile),
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
+            icon: const BackButtonIcon(),
             onPressed: _handleBack,
           ),
         ),

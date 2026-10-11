@@ -1597,7 +1597,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
       backgroundColor: Colors.transparent,
       elevation: 0,
       leading: IconButton(
-        icon: const Icon(Icons.close),
+        icon: const CloseButtonIcon(),
         onPressed: () => Navigator.of(context).pop(),
       ),
       title: Text(_isEditing ? 'Edit Transaction' : 'New Transaction'),
@@ -1619,7 +1619,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.close),
+          icon: const CloseButtonIcon(),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(_isEditing ? 'Edit Transaction' : 'New Transaction'),

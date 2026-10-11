@@ -604,7 +604,9 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
           return Padding(
             padding: const EdgeInsets.only(bottom: SunriseSpace.section),
             child: _MonthSummary(
-              label: l10n.activitySoFar(DateFormat('MMMM', locale).format(month)),
+              label: DateUtils.isSameMonth(month, DateTime.now())
+                  ? l10n.activitySoFar(DateFormat('MMMM', locale).format(month))
+                  : DateFormat('MMMM yyyy', locale).format(month),
               net: l10n.activityNet(_money(monthIn - monthOut, sign: true)),
               inLabel: l10n.activityIn,
               inValue: _money(monthIn),

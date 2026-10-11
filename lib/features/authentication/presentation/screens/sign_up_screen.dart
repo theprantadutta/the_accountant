@@ -172,10 +172,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
           backgroundColor: Colors.transparent,
           elevation: 0,
           leading: IconButton(
-            icon: Icon(
-              Icons.arrow_back_ios_new_rounded,
-              color: AppColors.textPrimary,
-            ),
+            icon: const BackButtonIcon(),
             onPressed: () => Navigator.pop(context),
           ),
         ),

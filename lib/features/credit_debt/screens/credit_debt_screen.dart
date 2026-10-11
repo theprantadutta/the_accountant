@@ -58,7 +58,7 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
             style: AppTypography.headlineSmall,
           ),
           leading: IconButton(
-            icon: Icon(Icons.arrow_back_ios_new, color: AppColors.textPrimary),
+            icon: const BackButtonIcon(),
             onPressed: () => Navigator.pop(context),
           ),
           actions: [

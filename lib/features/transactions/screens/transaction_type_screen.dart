@@ -744,7 +744,7 @@ class _TransactionTypeScreenState extends ConsumerState<TransactionTypeScreen> {
           elevation: 0,
           title: Text(_title, style: AppTypography.titleMedium),
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new_rounded),
+            icon: const BackButtonIcon(),
             onPressed: () => Navigator.pop(context),
           ),
           actions: [

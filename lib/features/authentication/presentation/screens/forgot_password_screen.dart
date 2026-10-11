@@ -133,10 +133,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           backgroundColor: Colors.transparent,
           elevation: 0,
           leading: IconButton(
-            icon: Icon(
-              Icons.arrow_back_ios_new_rounded,
-              color: AppColors.textPrimary,
-            ),
+            icon: const BackButtonIcon(),
             onPressed: () {
               if (_step == 1) {
                 setState(() {
