@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:the_accountant/core/providers/theme_provider.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_theme.dart';
+import 'package:the_accountant/core/themes/sunrise/sunrise_colors.dart';
 
 /// The light theme, and the indirection that finally makes one possible.
 ///
@@ -61,10 +62,11 @@ void main() {
       expect(AppColors.usePalette(AppPalette.dark), isTrue);
     });
 
-    test('the default is the palette the app was drawn against', () {
-      expect(AppPalette.dark.primaryDark, const Color(0xFF0D0D1A));
-      expect(AppPalette.dark.textPrimary, const Color(0xFFF8FAFC));
-      expect(AppPalette.dark.primaryAccent, const Color(0xFF6366F1));
+    test('the legacy palette is Sunrise underneath', () {
+      expect(AppPalette.light.primaryDark, const Color(0xFFFFFAF6));
+      expect(AppPalette.dark.primaryDark, const Color(0xFF140D0A));
+      expect(AppPalette.light.primaryAccent, const Color(0xFFEA580C));
+      expect(AppPalette.dark.textPrimary, const Color(0xFFFFF4EC));
     });
   });
 
@@ -121,15 +123,16 @@ void main() {
       }
     });
 
-    test('white on the accent works either way', () {
-      // Buttons keep white labels in both themes rather than following the
-      // palette, so the accent has to stay dark enough to carry them.
-      for (final palette in [AppPalette.dark, AppPalette.light]) {
+    test('white labels sit on the gradient, not on the bare accent', () {
+      // Sunrise puts white button labels on the brand gradient, whose deep end
+      // carries them; the flat accent is for icons and rings. The ThemeData
+      // still says onPrimary is white for the stock buttons that use it.
+      for (final c in [SunriseColors.light, SunriseColors.dark]) {
         expect(
-          _contrast(const Color(0xFFFFFFFF), palette.primaryAccent),
-          greaterThanOrEqualTo(4.0),
-          reason: '${palette.brightness} accent cannot carry a white label',
+          _contrast(const Color(0xFFFFFFFF), c.gradientEnd),
+          greaterThanOrEqualTo(3.0),
         );
+        expect(AppTheme.themeFor(c).colorScheme.onPrimary, Colors.white);
       }
     });
 
@@ -146,81 +149,109 @@ void main() {
   });
 
   group('choosing a theme', () {
-    ThemeState stateFor(String theme) => ThemeState(
-      currentTheme: theme,
-      isPremiumTheme: false,
-      availableThemes: BaseThemes.all,
+    ThemeState stateFor(ThemeMode mode, [SunriseAccent? accent]) => ThemeState(
+      mode: mode,
+      accent: accent ?? SunriseAccent.sunrise,
+      premiumUnlocked: true,
     );
 
-    test('System follows the phone', () {
+    test('System follows the phone, the others ignore it', () {
       expect(
-        stateFor(BaseThemes.system).paletteFor(Brightness.light),
-        AppPalette.light,
+        stateFor(ThemeMode.system).paletteFor(Brightness.light),
+        same(AppPalette.light),
       );
       expect(
-        stateFor(BaseThemes.system).paletteFor(Brightness.dark),
-        AppPalette.dark,
-      );
-    });
-
-    test('Light and Dark ignore it, which is the point of choosing', () {
-      expect(
-        stateFor(BaseThemes.light).paletteFor(Brightness.dark),
-        AppPalette.light,
+        stateFor(ThemeMode.system).paletteFor(Brightness.dark),
+        same(AppPalette.dark),
       );
       expect(
-        stateFor(BaseThemes.dark).paletteFor(Brightness.light),
-        AppPalette.dark,
+        stateFor(ThemeMode.light).paletteFor(Brightness.dark),
+        same(AppPalette.light),
+      );
+      expect(
+        stateFor(ThemeMode.dark).paletteFor(Brightness.light),
+        same(AppPalette.dark),
       );
     });
 
-    test('a premium theme, or a name from a later build, is dark', () {
-      expect(
-        stateFor('Sapphire').paletteFor(Brightness.light),
-        AppPalette.dark,
-      );
-      expect(
-        stateFor('SomethingFromTheFuture').paletteFor(Brightness.light),
-        AppPalette.dark,
-      );
+    test('a premium accent reaches the legacy palette, light and dark', () {
+      // This is what was broken: a premium theme used to be a separate
+      // ThemeData that the AppColors call sites never read.
+      for (final b in Brightness.values) {
+        final sunrise = stateFor(ThemeMode.system).paletteFor(b);
+        final sapphire = stateFor(
+          ThemeMode.system,
+          SunriseAccent.sapphire,
+        ).paletteFor(b);
+        expect(sapphire.primaryAccent, isNot(sunrise.primaryAccent));
+        expect(sapphire.brightness, b);
+        // Neutrals never move with the accent.
+        expect(sapphire.textPrimary, sunrise.textPrimary);
+        expect(sapphire.primarySurface, sunrise.primarySurface);
+        expect(sapphire.success, sunrise.success);
+      }
     });
 
-    test('the mode handed to MaterialApp matches the choice', () {
-      expect(stateFor(BaseThemes.system).themeMode, ThemeMode.system);
-      expect(stateFor(BaseThemes.light).themeMode, ThemeMode.light);
-      expect(stateFor(BaseThemes.dark).themeMode, ThemeMode.dark);
-      expect(stateFor('Ruby').themeMode, ThemeMode.dark);
+    test('the mode is handed to MaterialApp unchanged', () {
+      for (final m in ThemeMode.values) {
+        expect(stateFor(m).themeMode, m);
+      }
     });
   });
 
-  group('the ThemeData built from a palette', () {
+  group('every accent stays readable', () {
+    for (final accent in SunriseAccent.values) {
+      for (final b in Brightness.values) {
+        test('${accent.name} ${b.name}', () {
+          final c = SunriseColors.resolve(b, accent);
+          expect(
+            _contrast(c.accentText, c.base),
+            greaterThanOrEqualTo(4.5),
+            reason: 'accent text (links, values) must pass AA on the page',
+          );
+          expect(
+            _contrast(c.accentText, c.surface),
+            greaterThanOrEqualTo(4.5),
+            reason: 'accent text must pass AA on cards',
+          );
+          expect(
+            _contrast(c.accent, c.surface),
+            greaterThanOrEqualTo(2.4),
+            reason: 'icons and rings in the accent must stay visible',
+          );
+        });
+      }
+    }
+  });
+
+  group('the ThemeData built from the tokens', () {
     test('it declares the brightness it was built for', () {
-      expect(AppTheme.themeFor(AppPalette.light).brightness, Brightness.light);
-      expect(AppTheme.themeFor(AppPalette.dark).brightness, Brightness.dark);
+      expect(
+        AppTheme.themeFor(SunriseColors.light).brightness,
+        Brightness.light,
+      );
+      expect(AppTheme.themeFor(SunriseColors.dark).brightness, Brightness.dark);
     });
 
-    test('the light theme is themed, not a bare colour scheme', () {
-      // It used to be four lines: a seeded scheme and nothing else. Even had it
-      // been reachable, it would have themed none of the components the dark
-      // theme themes.
-      final light = AppTheme.themeFor(AppPalette.light);
+    test('it carries the tokens as an extension', () {
+      final theme = AppTheme.themeFor(SunriseColors.dark);
+      expect(theme.extension<SunriseColors>(), same(SunriseColors.dark));
+    });
 
-      expect(light.colorScheme.surface, AppPalette.light.primarySurface);
-      expect(light.cardTheme.color, AppPalette.light.primarySurface);
-      expect(
-        light.dialogTheme.backgroundColor,
-        AppPalette.light.primarySurface,
-      );
-      expect(
-        light.dividerTheme.color,
-        AppPalette.light.divider,
-        reason: 'the dark divider is invisible on a white card',
-      );
+    test('components are themed from the tokens', () {
+      final c = SunriseColors.light;
+      final light = AppTheme.themeFor(c);
+
+      expect(light.colorScheme.surface, c.surface);
+      expect(light.colorScheme.primary, c.accent);
+      expect(light.cardTheme.color, c.surface);
+      expect(light.dialogTheme.backgroundColor, c.base);
+      expect(light.dividerTheme.color, c.divider);
     });
 
     test('the system bars are told which way round they are', () {
-      final light = AppTheme.themeFor(AppPalette.light);
-      final dark = AppTheme.themeFor(AppPalette.dark);
+      final light = AppTheme.themeFor(SunriseColors.light);
+      final dark = AppTheme.themeFor(SunriseColors.dark);
 
       expect(
         light.appBarTheme.systemOverlayStyle?.statusBarIconBrightness,
@@ -233,61 +264,96 @@ void main() {
       );
     });
 
-    test('a button label stays white on the accent', () {
-      for (final palette in [AppPalette.dark, AppPalette.light]) {
-        expect(AppTheme.themeFor(palette).colorScheme.onPrimary, Colors.white);
-      }
+    test('lerp blends every colour rather than snapping', () {
+      final mid = SunriseColors.light.lerp(SunriseColors.dark, .5);
+      expect(mid.base, isNot(SunriseColors.light.base));
+      expect(mid.base, isNot(SunriseColors.dark.base));
+      expect(
+        mid.ink,
+        Color.lerp(SunriseColors.light.ink, SunriseColors.dark.ink, .5),
+      );
     });
   });
 
   group('remembering the choice', () {
     setUp(() => SharedPreferences.setMockInitialValues({}));
 
-    test('System survives a restart', () async {
-      TestWidgetsFlutterBinding.ensureInitialized();
-      final notifier = ThemeNotifier();
-      notifier.setTheme(BaseThemes.system);
-
-      final reopened = ThemeNotifier();
+    Future<ThemeNotifier> reopen() async {
+      final n = ThemeNotifier();
       // The restore is async and fires from the constructor.
+      for (var i = 0; i < 5; i++) {
+        await Future<void>.delayed(Duration.zero);
+      }
+      return n;
+    }
+
+    test('mode and accent survive a restart', () async {
+      TestWidgetsFlutterBinding.ensureInitialized();
+      final notifier = ThemeNotifier()..unlockPremiumThemes();
+      notifier.setMode(ThemeMode.light);
+      notifier.setAccent(SunriseAccent.emerald);
       await Future<void>.delayed(Duration.zero);
 
-      expect(reopened.state.currentTheme, BaseThemes.system);
+      final reopened = await reopen();
+
+      expect(reopened.state.mode, ThemeMode.light);
+      expect(reopened.state.accent, SunriseAccent.emerald);
     });
 
-    test('the default is Dark, not System', () {
+    test('the default follows the phone, in Sunrise', () {
       TestWidgetsFlutterBinding.ensureInitialized();
+      final state = ThemeNotifier().state;
 
+      expect(state.mode, ThemeMode.system);
+      expect(state.accent, SunriseAccent.sunrise);
+    });
+
+    test('an old Dark choice migrates to the dark mode', () async {
+      TestWidgetsFlutterBinding.ensureInitialized();
+      SharedPreferences.setMockInitialValues({'selected_theme': 'Dark'});
+
+      final n = await reopen();
+
+      expect(n.state.mode, ThemeMode.dark);
+      expect(n.state.accent, SunriseAccent.sunrise);
+    });
+
+    test('an old premium theme keeps its look: that accent, in dark', () async {
+      TestWidgetsFlutterBinding.ensureInitialized();
+      SharedPreferences.setMockInitialValues({'selected_theme': 'Midnight'});
+
+      final n = await reopen();
+
+      expect(n.state.mode, ThemeMode.dark);
       expect(
-        ThemeNotifier().state.currentTheme,
-        BaseThemes.dark,
-        reason:
-            'every existing install is looking at dark; defaulting to System '
-            'would turn the app light for anybody whose phone is, without '
-            'their having asked for anything',
+        n.state.accent,
+        SunriseAccent.graphite,
+        reason: 'Midnight was renamed Graphite',
       );
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getString('selected_theme'), isNull);
     });
 
-    test('losing a subscription falls back to a theme that still exists', () {
+    test('a premium accent cannot be picked while locked', () {
       TestWidgetsFlutterBinding.ensureInitialized();
       final notifier = ThemeNotifier();
-      notifier.unlockPremiumThemes();
-      notifier.setTheme('Sapphire');
+
+      notifier.setAccent(SunriseAccent.ruby);
+
+      expect(notifier.state.accent, SunriseAccent.sunrise);
+    });
+
+    test('losing premium falls back to Sunrise and keeps the mode', () {
+      TestWidgetsFlutterBinding.ensureInitialized();
+      final notifier = ThemeNotifier()..unlockPremiumThemes();
+      notifier.setMode(ThemeMode.light);
+      notifier.setAccent(SunriseAccent.sapphire);
 
       notifier.lockPremiumThemes();
 
-      expect(notifier.state.currentTheme, BaseThemes.dark);
-      expect(notifier.state.availableThemes, BaseThemes.all);
-    });
-
-    test('a base theme is kept when premium lapses', () {
-      TestWidgetsFlutterBinding.ensureInitialized();
-      final notifier = ThemeNotifier();
-      notifier.setTheme(BaseThemes.light);
-
-      notifier.lockPremiumThemes();
-
-      expect(notifier.state.currentTheme, BaseThemes.light);
+      expect(notifier.state.accent, SunriseAccent.sunrise);
+      expect(notifier.state.mode, ThemeMode.light);
+      expect(notifier.state.premiumUnlocked, isFalse);
     });
   });
 
@@ -305,15 +371,18 @@ void main() {
       r'|color: AppColors\.(primaryAccent|error|success|warning|info)'
       r'|ElevatedButton\.styleFrom|FilledButton'
       r'|backgroundColor: Colors\.(black|transparent)'
-      r'|Colors\.black\d*|CircleAvatar|backgroundColor: color',
+      r'|Colors\.black\d*|CircleAvatar|backgroundColor: color'
+      // Sunrise fills: the brand gradient and its variants, solid accent,
+      // negative or positive buttons, and white-on-white knobs.
+      r'|GradientCard|[gG]radient|onGradient|SunrisePill'
+      r'|c\.(accent|negative|positive|glow)|destructive|shape: BoxShape\.circle',
     );
 
     final offenders = <String>[];
     for (final entity in Directory('lib').listSync(recursive: true)) {
       if (entity is! File || !entity.path.endsWith('.dart')) continue;
       final path = entity.path.replaceAll(r'\', '/');
-      // The palettes and the premium ThemeData are fixed sets of colours, not
-      // page chrome.
+      // The palettes and accents are fixed sets of colours, not page chrome.
       if (path.contains('lib/core/themes/')) continue;
 
       final lines = entity.readAsStringSync().split('\n');

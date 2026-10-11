@@ -12,7 +12,7 @@ import 'package:the_accountant/core/services/analytics_service.dart';
 import 'package:the_accountant/core/domain/regional_preferences.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_theme.dart';
-import 'package:the_accountant/core/themes/premium_themes.dart';
+import 'package:the_accountant/core/themes/sunrise/sunrise_tokens.dart';
 import 'package:the_accountant/features/onboarding/screens/post_signup_onboarding_screen.dart';
 import 'package:the_accountant/features/premium/providers/premium_sync_provider.dart';
 import 'package:the_accountant/features/settings/providers/settings_provider.dart';
@@ -134,17 +134,12 @@ class _MyAppState extends ConsumerState<MyApp> {
       weekStart: settings.firstDayOfWeek,
     );
 
-    final isPremiumTheme = PremiumThemes.themeMap.containsKey(
-      themeState.currentTheme,
+    // Light and dark are both built in the chosen accent; MaterialApp picks
+    // one from themeMode and animates between them through SunriseColors.lerp.
+    final lightTheme = AppTheme.themeFor(
+      themeState.colorsFor(Brightness.light),
     );
-    // A premium theme is a fixed dark ThemeData of its own; the base themes are
-    // built from whichever palette is now current.
-    final lightTheme = isPremiumTheme
-        ? AppTheme.getCurrentTheme(themeState.currentTheme)
-        : AppTheme.themeFor(AppPalette.light);
-    final darkTheme = isPremiumTheme
-        ? AppTheme.getCurrentTheme(themeState.currentTheme)
-        : AppTheme.themeFor(AppPalette.dark);
+    final darkTheme = AppTheme.themeFor(themeState.colorsFor(Brightness.dark));
 
     // Activate IAP → Premium state bridge (needs to be alive for app lifetime)
     ref.watch(premiumIapSyncProvider);
@@ -176,13 +171,13 @@ class _MyAppState extends ConsumerState<MyApp> {
       ],
       theme: lightTheme,
       darkTheme: darkTheme,
-      themeMode: isPremiumTheme ? ThemeMode.dark : themeState.themeMode,
+      themeMode: themeState.themeMode,
+      themeAnimationDuration: SunriseMotion.theme,
+      themeAnimationCurve: Curves.easeOut,
       navigatorObservers: [AnalyticsService().observer],
-      // One ambient gradient background painted behind every screen. Scaffolds
-      // are transparent (see AppTheme) so this shows through app-wide. Width
-      // adaptation for large screens is handled per-surface (the main shell uses
-      // a navigation rail; auth screens and sheets center their own content) so
-      // the tablet layout can use the full width where it wants to.
+      // The short Sunrise wash behind every route. Scaffolds are transparent,
+      // so screens that have not painted their own wash still sit on Sunrise;
+      // tab roots paint the tall wash over it.
       builder: (context, child) => AppBackground(
         key: _backgroundKey,
         child: child ?? const SizedBox.shrink(),
