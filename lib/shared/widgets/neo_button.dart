@@ -67,6 +67,12 @@ class NeoButton extends StatelessWidget {
 
     final (Color? bg, Gradient? grad, Color fg, List<BoxShadow>? shadow) =
         switch (style) {
+          NeoButtonStyle.primary when onPressed == null => (
+            c.isDark ? const Color(0xFF2B1F19) : c.toggleOff,
+            null,
+            c.faint,
+            null,
+          ),
           NeoButtonStyle.primary => (
             null,
             gradient ?? c.gradient,
@@ -125,7 +131,9 @@ class NeoButton extends StatelessWidget {
             : null,
         child: AnimatedOpacity(
           duration: SunriseMotion.press,
-          opacity: onPressed == null ? .5 : 1,
+          opacity: onPressed == null && style != NeoButtonStyle.primary
+              ? .5
+              : 1,
           child: Container(
             height: height,
             width: isExpanded ? double.infinity : null,

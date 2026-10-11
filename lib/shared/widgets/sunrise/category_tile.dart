@@ -17,6 +17,7 @@ class CategoryTile extends StatelessWidget {
     this.color,
     this.size = 56,
     this.onLongPress,
+    this.width,
   });
 
   final IconData icon;
@@ -26,6 +27,9 @@ class CategoryTile extends StatelessWidget {
   final VoidCallback? onLongPress;
   final Color? color;
   final double size;
+
+  /// The slot the label may use. Defaults to the tile plus a little.
+  final double? width;
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +41,7 @@ class CategoryTile extends StatelessWidget {
       haptic: true,
       semanticLabel: label,
       child: SizedBox(
-        width: size + 20,
+        width: width ?? size + 20,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

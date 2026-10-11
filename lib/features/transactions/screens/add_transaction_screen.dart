@@ -1259,7 +1259,8 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
 
     return LayoutBuilder(
       builder: (context, box) {
-        final tile = ((box.maxWidth - 3 * 8) / 4).clamp(56.0, 96.0) - 20;
+        final slot = box.maxWidth / 4;
+        final tile = (slot - 20).clamp(48.0, 56.0);
         return Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1270,7 +1271,8 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                     ? IconRegistry.getIcon(cat.iconName!)
                     : Symbols.category_rounded,
                 label: cat.name,
-                size: tile.clamp(48.0, 56.0),
+                size: tile,
+                width: slot - 4,
                 selected: cat.id == _selectedCategoryId,
                 onTap: () => setState(() {
                   _selectedCategoryId = cat.id;
@@ -1278,11 +1280,12 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                 }),
               ),
             for (var i = shown.length; i < 3; i++)
-              SizedBox(width: tile.clamp(48.0, 56.0) + 20),
+              SizedBox(width: slot - 4),
             CategoryTile(
               icon: Symbols.grid_view_rounded,
               label: l10n.addMore,
-              size: tile.clamp(48.0, 56.0),
+              size: tile,
+              width: slot - 4,
               selected: false,
               color: c.accent,
               onTap: () => _showCategoryPicker(),
@@ -1363,7 +1366,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
     }
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.zero,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

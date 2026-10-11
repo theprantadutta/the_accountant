@@ -378,15 +378,14 @@ class _MainNavigationContainerState
     final body = Stack(
       children: [
         _tabBody(IndexedStack(index: _currentIndex, children: _screens)),
-        // Non-blocking background-sync indicator, floating at the top.
-        const SafeArea(
-          child: Padding(
-            padding: EdgeInsets.only(top: 6),
-            child: Align(
-              alignment: Alignment.topCenter,
-              child: SyncStatusBanner(),
-            ),
-          ),
+        // Non-blocking sync indicator, a toast just above the tab bar so it
+        // never covers a screen's header.
+        Positioned(
+          left: 0,
+          right: 0,
+          bottom: (isTablet(context) ? 16 : 90) +
+              MediaQuery.paddingOf(context).bottom,
+          child: const Center(child: SyncStatusBanner()),
         ),
       ],
     );

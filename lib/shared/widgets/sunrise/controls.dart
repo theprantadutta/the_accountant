@@ -499,6 +499,12 @@ class SunriseButton extends StatelessWidget {
     final enabled = onPressed != null && !loading;
     final (Color? bg, Gradient? grad, Color fg, List<BoxShadow>? shadow) =
         switch (style) {
+          SunriseButtonStyle.primary when onPressed == null => (
+            c.isDark ? const Color(0xFF2B1F19) : c.toggleOff,
+            null,
+            c.faint,
+            null,
+          ),
           SunriseButtonStyle.primary => (
             null,
             c.gradient,
@@ -541,7 +547,9 @@ class SunriseButton extends StatelessWidget {
 
     final button = AnimatedOpacity(
       duration: SunriseMotion.press,
-      opacity: onPressed == null ? .5 : 1,
+      opacity: onPressed == null && style != SunriseButtonStyle.primary
+          ? .5
+          : 1,
       child: Container(
         height: height,
         width: expand ? double.infinity : null,
