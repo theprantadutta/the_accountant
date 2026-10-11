@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
-import 'package:the_accountant/core/themes/app_colors.dart';
+import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
 
-/// Shows a confirmation dialog for destructive actions
-/// [cancelText] and [confirmText] default to the reader's language.
+/// Asks "are you sure?" as a Sunrise bottom sheet. Resolves to true on
+/// confirm, false on cancel, null when dismissed.
 ///
-/// Nullable rather than defaulted to a literal: a default value has to be a
-/// compile-time constant, so an English word was the only thing that could go
-/// there. Resolved here instead, where there is a context to resolve it from.
+/// [cancelText] and [confirmText] default to the reader's language.
 Future<bool?> showConfirmationDialog({
   required BuildContext context,
   required String title,
@@ -18,21 +16,20 @@ Future<bool?> showConfirmationDialog({
   bool isDangerous = false,
 }) {
   final l10n = L10n.of(context);
-  return showDialog<bool>(
+  return showSunriseSheet<bool>(
     context: context,
-    builder: (context) => ConfirmationDialog(
+    builder: (_) => ConfirmationDialog(
       title: title,
       message: message,
       cancelText: cancelText ?? l10n.actionCancel,
       confirmText: confirmText ?? l10n.actionConfirm,
-      confirmColor:
-          confirmColor ??
-          (isDangerous ? AppColors.error : AppColors.primaryAccent),
+      confirmColor: confirmColor,
       isDangerous: isDangerous,
     ),
   );
 }
 
+/// The body of [showConfirmationDialog].
 class ConfirmationDialog extends StatelessWidget {
   const ConfirmationDialog({
     super.key,
@@ -48,140 +45,118 @@ class ConfirmationDialog extends StatelessWidget {
   final String message;
   final String cancelText;
   final String confirmText;
+
+  /// Kept for callers; the button follows [isDangerous].
   final Color? confirmColor;
   final bool isDangerous;
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      backgroundColor: AppColors.primarySurface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: AppColors.glassBorder),
-      ),
-      title: Text(
-        title,
-        style: TextStyle(
-          color: isDangerous ? AppColors.error : AppColors.textPrimary,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-      content: Text(message, style: TextStyle(color: AppColors.textSecondary)),
+    final c = context.sunrise;
+    return SunriseBottomSheet(
       actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context, false),
-          child: Text(cancelText, style: TextStyle(color: AppColors.textMuted)),
-        ),
-        TextButton(
-          onPressed: () => Navigator.pop(context, true),
-          style: TextButton.styleFrom(
-            foregroundColor: confirmColor ?? AppColors.error,
+        if (isDangerous)
+          SunriseButton.destructive(
+            label: confirmText,
+            onPressed: () => Navigator.pop(context, true),
+          )
+        else
+          SunriseButton(
+            label: confirmText,
+            height: 54,
+            onPressed: () => Navigator.pop(context, true),
           ),
-          child: Text(confirmText),
+        SunriseButton.secondary(
+          label: cancelText,
+          onPressed: () => Navigator.pop(context, false),
         ),
       ],
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          IconTile(
+            icon: isDangerous ? Symbols.warning_rounded : Symbols.help_rounded,
+            color: isDangerous ? c.negative : c.accent,
+            background: isDangerous ? c.tintRose : c.tintOrange,
+            size: 52,
+            radius: 16,
+            iconSize: 26,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            title,
+            style: SunriseType.section.copyWith(
+              color: isDangerous ? c.negative : c.ink,
+              fontSize: 20,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            message,
+            style: SunriseType.body.copyWith(color: c.muted, fontSize: 14),
+          ),
+          const SizedBox(height: 8),
+        ],
+      ),
     );
   }
 }
 
-/// Shows a loading dialog while an async operation is in progress
+/// Shows a small blocking dialog while [operation] runs.
 Future<T?> showLoadingDialog<T>({
   required BuildContext context,
   required Future<T> Function() operation,
   String message = 'Please wait...',
 }) async {
-  showDialog(
+  showSunriseDialog<void>(
     context: context,
     barrierDismissible: false,
-    builder: (context) => PopScope(
-      canPop: false,
-      child: AlertDialog(
-        backgroundColor: AppColors.primarySurface,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-          side: BorderSide(color: AppColors.glassBorder),
+    builder: (context) {
+      final c = context.sunrise;
+      return PopScope(
+        canPop: false,
+        child: Dialog(
+          backgroundColor: c.base,
+          surfaceTintColor: Colors.transparent,
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(SunriseRadius.hero)),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 22),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SunriseLoader(size: 24),
+                const SizedBox(width: 18),
+                Flexible(
+                  child: Text(
+                    message,
+                    style: SunriseType.rowTitle.copyWith(color: c.ink),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
-        content: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            CircularProgressIndicator(color: AppColors.primaryAccent),
-            const SizedBox(width: 20),
-            Text(message, style: TextStyle(color: AppColors.textPrimary)),
-          ],
-        ),
-      ),
-    ),
+      );
+    },
   );
 
   try {
     final result = await operation();
-    if (context.mounted) {
-      Navigator.pop(context);
-    }
+    if (context.mounted) Navigator.pop(context);
     return result;
   } catch (e) {
-    if (context.mounted) {
-      Navigator.pop(context);
-    }
+    if (context.mounted) Navigator.pop(context);
     rethrow;
   }
 }
 
-/// Shows a success snackbar
-void showSuccessSnackBar(BuildContext context, String message) {
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-      content: Row(
-        children: [
-          Icon(Icons.check_circle, color: AppColors.textPrimary),
-          const SizedBox(width: 8),
-          Text(message, style: TextStyle(color: AppColors.textPrimary)),
-        ],
-      ),
-      backgroundColor: AppColors.success.withValues(alpha: 0.9),
-      behavior: SnackBarBehavior.floating,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      margin: const EdgeInsets.all(16),
-    ),
-  );
-}
+void showSuccessSnackBar(BuildContext context, String message) =>
+    showSunriseSnack(context, message, tone: SnackTone.success);
 
-/// Shows an error snackbar
-void showErrorSnackBar(BuildContext context, String message) {
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-      content: Row(
-        children: [
-          const Icon(Icons.error_outline, color: Colors.white),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(message, style: const TextStyle(color: Colors.white)),
-          ),
-        ],
-      ),
-      backgroundColor: AppColors.error.withValues(alpha: 0.9),
-      behavior: SnackBarBehavior.floating,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      margin: const EdgeInsets.all(16),
-    ),
-  );
-}
+void showErrorSnackBar(BuildContext context, String message) =>
+    showSunriseSnack(context, message, tone: SnackTone.error);
 
-/// Shows an info snackbar
-void showInfoSnackBar(BuildContext context, String message) {
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-      content: Row(
-        children: [
-          const Icon(Icons.info_outline, color: Colors.white),
-          const SizedBox(width: 8),
-          Text(message, style: const TextStyle(color: Colors.white)),
-        ],
-      ),
-      backgroundColor: AppColors.info.withValues(alpha: 0.9),
-      behavior: SnackBarBehavior.floating,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      margin: const EdgeInsets.all(16),
-    ),
-  );
-}
+void showInfoSnackBar(BuildContext context, String message) =>
+    showSunriseSnack(context, message);

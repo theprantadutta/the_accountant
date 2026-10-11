@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,14 +8,11 @@ import 'package:the_accountant/core/providers/default_wallet_provider.dart';
 import 'package:the_accountant/core/providers/sync_provider.dart';
 import 'package:the_accountant/core/services/biometric_service.dart';
 import 'package:the_accountant/core/services/backend_auth_service.dart';
-import 'package:the_accountant/core/themes/app_colors.dart';
-import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
 import 'package:the_accountant/features/budgets/providers/budget_provider.dart';
 import 'package:the_accountant/features/categories/providers/category_provider.dart';
 import 'package:the_accountant/features/dashboard/providers/financial_data_provider.dart';
 import 'package:the_accountant/features/settings/providers/settings_provider.dart';
-import 'package:the_accountant/features/settings/widgets/settings_tile.dart';
 import 'package:the_accountant/features/settings/widgets/confirmation_dialog.dart';
 import 'package:the_accountant/features/settings/widgets/destructive_confirmation_dialog.dart';
 import 'package:the_accountant/features/settings/widgets/change_password_dialog.dart';
@@ -61,157 +59,144 @@ class _PrivacySecurityScreenState extends ConsumerState<PrivacySecurityScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
+    final c = context.sunrise;
     final settingsState = ref.watch(settingsProvider);
 
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        title: Text(L10n.of(context).settingsPrivacySecurity),
-      ),
-      body: ListView(
-        padding: EdgeInsets.symmetric(horizontal: AppSpacing.md),
-        children: [
-          // SECURITY SECTION
-          SettingsSection(
-            title: L10n.of(context).settingsSecurity,
-            tiles: [
-              SettingsSwitchTile(
-                icon: Icons.fingerprint,
-                title: L10n.of(context).settingsBiometricLock,
-                subtitle: L10n.of(context).settingsUseFingerprintOrFaceTo,
-                value: settingsState.biometricLockEnabled,
-                onChanged: (value) async {
-                  if (value) {
-                    // Check if biometrics are available
-                    final isAvailable = await BiometricService().isAvailable();
-                    if (!isAvailable) {
-                      if (context.mounted) {
-                        showErrorSnackBar(
-                          context,
-                          'Biometric authentication not available on this device',
-                        );
-                      }
-                      return;
+    return SunrisePushPage(
+      title: l10n.settingsPrivacySecurity,
+      children: [
+        SettingsGroup(
+          label: l10n.settingsSecurity,
+          children: [
+            SettingsRow.toggle(
+              icon: Symbols.fingerprint_rounded,
+              iconColor: c.accent,
+              iconBackground: c.tintOrange,
+              title: l10n.settingsBiometricLock,
+              subtitle: l10n.settingsUseFingerprintOrFaceTo,
+              value: settingsState.biometricLockEnabled,
+              onChanged: (value) async {
+                if (value) {
+                  final isAvailable = await BiometricService().isAvailable();
+                  if (!isAvailable) {
+                    if (context.mounted) {
+                      showErrorSnackBar(
+                        context,
+                        'Biometric authentication not available on this device',
+                      );
                     }
-                    // Confirm identity before enabling
-                    final authenticated = await BiometricService()
-                        .authenticate();
-                    if (!authenticated) return;
+                    return;
                   }
-                  await ref
-                      .read(settingsProvider.notifier)
-                      .setBiometricLock(value);
-                },
+                  // Confirm identity before enabling.
+                  final authenticated = await BiometricService()
+                      .authenticate();
+                  if (!authenticated) return;
+                }
+                await ref
+                    .read(settingsProvider.notifier)
+                    .setBiometricLock(value);
+              },
+            ),
+            if (settingsState.biometricLockEnabled)
+              SettingsRow(
+                icon: Symbols.timer_rounded,
+                iconColor: const Color(0xFFD97706),
+                iconBackground: c.tintAmber,
+                title: l10n.settingsAutoLock,
+                value: _getAutoLockLabel(settingsState.autoLockTimeoutMinutes),
+                onTap: _showAutoLockPicker,
               ),
-              if (settingsState.biometricLockEnabled)
-                SettingsNavigationTile(
-                  icon: Icons.timer_outlined,
-                  title: L10n.of(context).settingsAutoLock,
-                  subtitle: _getAutoLockLabel(
-                    settingsState.autoLockTimeoutMinutes,
-                  ),
-                  onTap: () => _showAutoLockPicker(),
-                ),
-              SettingsNavigationTile(
-                icon: Icons.lock_outline,
-                title: _hasPassword == false
-                    ? 'Set Password'
-                    : 'Change Password',
-                subtitle: _hasPassword == false
-                    ? 'Add password to your account'
-                    : 'Update your account password',
-                onTap: () async {
-                  final hasPassword = _hasPassword ?? true;
-                  final result = await showChangePasswordDialog(
-                    context: context,
-                    hasPassword: hasPassword,
-                    authService: _authService,
+            SettingsRow(
+              icon: Symbols.password_rounded,
+              iconColor: const Color(0xFF0284C7),
+              iconBackground: c.tintSky,
+              title: _hasPassword == false ? 'Set Password' : 'Change Password',
+              subtitle: _hasPassword == false
+                  ? 'Add password to your account'
+                  : null,
+              onTap: () async {
+                final hasPassword = _hasPassword ?? true;
+                final result = await showChangePasswordDialog(
+                  context: context,
+                  hasPassword: hasPassword,
+                  authService: _authService,
+                );
+                if (result == true && context.mounted) {
+                  showSuccessSnackBar(
+                    context,
+                    hasPassword
+                        ? 'Password changed successfully'
+                        : 'Password set successfully',
                   );
-                  if (result == true && context.mounted) {
-                    showSuccessSnackBar(
-                      context,
-                      hasPassword
-                          ? 'Password changed successfully'
-                          : 'Password set successfully',
-                    );
-                    // Refresh auth providers to update hasPassword state
-                    _loadAuthProviders();
-                  }
-                },
-              ),
-            ],
-          ),
-
-          // DATA PRIVACY SECTION
-          SettingsSection(
-            title: L10n.of(context).settingsDataPrivacy,
-            tiles: [
-              SettingsActionTile(
-                icon: Icons.cached,
-                title: L10n.of(context).settingsClearCache,
-                subtitle: L10n.of(context).settingsClearCachedDataAndForce,
-                onTap: _isClearingCache ? () {} : _showClearCacheDialog,
-              ),
-              SettingsActionTile(
-                icon: Icons.delete_forever,
-                iconColor: AppColors.error,
-                title: L10n.of(context).settingsClearAllData,
-                subtitle: L10n.of(
-                  context,
-                ).settingsDeleteAllTransactionsBudgetsAnd,
-                onTap: _isClearingData ? () {} : _showClearDataDialog,
-              ),
-            ],
-          ),
-
-          // LEGAL SECTION
-          SettingsSection(
-            title: L10n.of(context).settingsLegal,
-            tiles: [
-              SettingsNavigationTile(
-                icon: Icons.privacy_tip_outlined,
-                title: L10n.of(context).settingsPrivacyPolicy,
-                subtitle: L10n.of(context).settingsReadOurPrivacyPolicy,
-                onTap: _openPrivacyPolicy,
-              ),
-              SettingsNavigationTile(
-                icon: Icons.description_outlined,
-                title: L10n.of(context).settingsTermsOfService,
-                subtitle: L10n.of(context).settingsReadOurTermsOfService,
-                onTap: _openTermsOfService,
-              ),
-              SettingsNavigationTile(
-                icon: Icons.receipt_long_outlined,
-                title: L10n.of(context).settingsRefundPolicy,
-                subtitle: L10n.of(
-                  context,
-                ).settingsHowRefundsAndCancellationsWork,
-                onTap: _openRefundPolicy,
-              ),
-            ],
-          ),
-
-          // DANGER ZONE
-          SettingsSection(
-            title: L10n.of(context).settingsDangerZone,
-            tiles: [
-              SettingsActionTile(
-                icon: Icons.person_remove,
-                iconColor: AppColors.error,
-                title: L10n.of(context).settingsDeleteAccount,
-                subtitle: L10n.of(
-                  context,
-                ).settingsPermanentlyDeleteYourAccountAnd,
-                onTap: _showDeleteAccountDialog,
-              ),
-            ],
-          ),
-
-          SizedBox(height: AppSpacing.xxl),
-        ],
-      ),
+                  _loadAuthProviders();
+                }
+              },
+            ),
+          ],
+        ),
+        const SizedBox(height: SunriseSpace.section),
+        SettingsGroup(
+          label: l10n.settingsDataPrivacy,
+          children: [
+            SettingsRow(
+              icon: Symbols.cached_rounded,
+              iconColor: const Color(0xFFD97706),
+              iconBackground: c.tintAmber,
+              title: l10n.settingsClearCache,
+              subtitle: l10n.settingsClearCachedDataAndForce,
+              enabled: !_isClearingCache,
+              onTap: _showClearCacheDialog,
+            ),
+            SettingsRow(
+              icon: Symbols.shield_lock_rounded,
+              iconColor: c.positive,
+              iconBackground: c.tintGreen,
+              title: l10n.settingsPrivacyPolicy,
+              trailing: SettingsTrailing.external,
+              onTap: _openPrivacyPolicy,
+            ),
+            SettingsRow(
+              icon: Symbols.description_rounded,
+              iconColor: const Color(0xFF7C3AED),
+              iconBackground: c.tintViolet,
+              title: l10n.settingsTermsOfService,
+              trailing: SettingsTrailing.external,
+              onTap: _openTermsOfService,
+            ),
+            SettingsRow(
+              icon: Symbols.receipt_long_rounded,
+              iconColor: const Color(0xFF0284C7),
+              iconBackground: c.tintSky,
+              title: l10n.settingsRefundPolicy,
+              trailing: SettingsTrailing.external,
+              onTap: _openRefundPolicy,
+            ),
+          ],
+        ),
+        const SizedBox(height: SunriseSpace.section),
+        SettingsGroup(
+          label: l10n.settingsDangerZone,
+          danger: true,
+          children: [
+            SettingsRow(
+              icon: Symbols.delete_sweep_rounded,
+              title: l10n.settingsClearAllData,
+              subtitle: l10n.settingsDeleteAllTransactionsBudgetsAnd,
+              destructive: true,
+              enabled: !_isClearingData,
+              onTap: _showClearDataDialog,
+            ),
+            SettingsRow(
+              icon: Symbols.person_remove_rounded,
+              title: l10n.settingsDeleteAccount,
+              subtitle: l10n.settingsPermanentlyDeleteYourAccountAnd,
+              destructive: true,
+              onTap: _showDeleteAccountDialog,
+            ),
+          ],
+        ),
+      ],
     );
   }
 
@@ -228,88 +213,30 @@ class _PrivacySecurityScreenState extends ConsumerState<PrivacySecurityScreen> {
     final timeouts = ref.read(autoLockTimeoutsProvider);
     final currentTimeout = ref.read(settingsProvider).autoLockTimeoutMinutes;
 
-    final selected = await showModalBottomSheet<int>(
+    final selected = await showSunriseSheet<int>(
       context: context,
-      backgroundColor: AppColors.primarySurface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) => _buildPickerSheet(
+      builder: (sheet) => SunriseBottomSheet(
         title: L10n.of(context).settingsAutoLockTimeout,
-        items: timeouts
-            .map((t) => {'value': t['value'], 'label': t['label']})
-            .toList(),
-        selectedValue: currentTimeout,
+        child: Column(
+          children: [
+            for (final t in timeouts)
+              SheetAction(
+                icon: Symbols.timer_rounded,
+                label: t['label'] as String,
+                selected: t['value'] == currentTimeout,
+                onTap: () {
+                  HapticFeedback.selectionClick();
+                  Navigator.pop(sheet, t['value'] as int);
+                },
+              ),
+          ],
+        ),
       ),
     );
 
     if (selected != null) {
       await ref.read(settingsProvider.notifier).setAutoLockTimeout(selected);
     }
-  }
-
-  Widget _buildPickerSheet({
-    required String title,
-    required List<Map<String, dynamic>> items,
-    required int selectedValue,
-  }) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Padding(
-          padding: EdgeInsets.all(AppSpacing.md),
-          child: Row(
-            children: [
-              Text(
-                title,
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
-                ),
-              ),
-              const Spacer(),
-              IconButton(
-                icon: Icon(Icons.close, color: AppColors.textMuted),
-                onPressed: () => Navigator.pop(context),
-              ),
-            ],
-          ),
-        ),
-        Divider(height: 1, color: AppColors.divider),
-        Flexible(
-          child: ListView.builder(
-            shrinkWrap: true,
-            itemCount: items.length,
-            itemBuilder: (context, index) {
-              final item = items[index];
-              final isSelected = item['value'] == selectedValue;
-              return ListTile(
-                title: Text(
-                  item['label'],
-                  style: TextStyle(
-                    color: isSelected
-                        ? AppColors.primaryAccent
-                        : AppColors.textPrimary,
-                    fontWeight: isSelected
-                        ? FontWeight.w600
-                        : FontWeight.normal,
-                  ),
-                ),
-                trailing: isSelected
-                    ? Icon(Icons.check, color: AppColors.primaryAccent)
-                    : null,
-                onTap: () {
-                  HapticFeedback.selectionClick();
-                  Navigator.pop(context, item['value']);
-                },
-              );
-            },
-          ),
-        ),
-        SizedBox(height: AppSpacing.md),
-      ],
-    );
   }
 
   Future<void> _showClearCacheDialog() async {
