@@ -3886,6 +3886,606 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'A sync is running. Wait for it to finish before restoring.'**
   String get backupBusySyncing;
+
+  /// No description provided for @appearanceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance'**
+  String get appearanceTitle;
+
+  /// No description provided for @themeSunriseLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Sunrise Light'**
+  String get themeSunriseLight;
+
+  /// No description provided for @themeSunriseDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Sunrise Dark'**
+  String get themeSunriseDark;
+
+  /// No description provided for @themeMatchSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'Match system'**
+  String get themeMatchSystem;
+
+  /// No description provided for @themeMatchSystemHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch between light and dark with your phone'**
+  String get themeMatchSystemHint;
+
+  /// No description provided for @themeUnlockAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock all themes'**
+  String get themeUnlockAll;
+
+  /// No description provided for @themeProBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'PRO'**
+  String get themeProBadge;
+
+  /// No description provided for @themeAccentSunrise.
+  ///
+  /// In en, this message translates to:
+  /// **'Sunrise'**
+  String get themeAccentSunrise;
+
+  /// No description provided for @themeAccentSapphire.
+  ///
+  /// In en, this message translates to:
+  /// **'Sapphire'**
+  String get themeAccentSapphire;
+
+  /// No description provided for @themeAccentEmerald.
+  ///
+  /// In en, this message translates to:
+  /// **'Emerald'**
+  String get themeAccentEmerald;
+
+  /// No description provided for @themeAccentRuby.
+  ///
+  /// In en, this message translates to:
+  /// **'Ruby'**
+  String get themeAccentRuby;
+
+  /// No description provided for @themeAccentAmethyst.
+  ///
+  /// In en, this message translates to:
+  /// **'Amethyst'**
+  String get themeAccentAmethyst;
+
+  /// No description provided for @themeAccentGraphite.
+  ///
+  /// In en, this message translates to:
+  /// **'Graphite'**
+  String get themeAccentGraphite;
+
+  /// No description provided for @themeAccentHeading.
+  ///
+  /// In en, this message translates to:
+  /// **'Accent'**
+  String get themeAccentHeading;
+
+  /// No description provided for @themeAppearanceValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{accent} {mode}'**
+  String themeAppearanceValue(String accent, String mode);
+
+  /// No description provided for @navToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get navToday;
+
+  /// No description provided for @navWallets.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallets'**
+  String get navWallets;
+
+  /// No description provided for @navAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get navAdd;
+
+  /// No description provided for @navStats.
+  ///
+  /// In en, this message translates to:
+  /// **'Stats'**
+  String get navStats;
+
+  /// No description provided for @navMore.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get navMore;
+
+  /// No description provided for @walkthroughTodayTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your day at a glance'**
+  String get walkthroughTodayTitle;
+
+  /// No description provided for @walkthroughTodayBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Net worth, what you earned and spent, and today’s activity.'**
+  String get walkthroughTodayBody;
+
+  /// No description provided for @walkthroughAddTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add in seconds'**
+  String get walkthroughAddTitle;
+
+  /// No description provided for @walkthroughAddBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap Add to record an expense, income or transfer.'**
+  String get walkthroughAddBody;
+
+  /// No description provided for @walkthroughWalletsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallets and planning'**
+  String get walkthroughWalletsTitle;
+
+  /// No description provided for @walkthroughWalletsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your accounts, plus upcoming bills, lend & borrow, goals and budgets.'**
+  String get walkthroughWalletsBody;
+
+  /// No description provided for @walkthroughStatsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'See where it goes'**
+  String get walkthroughStatsTitle;
+
+  /// No description provided for @walkthroughStatsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Charts by week, month and year, by category.'**
+  String get walkthroughStatsBody;
+
+  /// No description provided for @walkthroughBellTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Stay informed'**
+  String get walkthroughBellTitle;
+
+  /// No description provided for @walkthroughBellBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Budget alerts and reminders appear here. You’re all set!'**
+  String get walkthroughBellBody;
+
+  /// No description provided for @walkthroughBalanceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your net worth'**
+  String get walkthroughBalanceTitle;
+
+  /// No description provided for @walkthroughBalanceBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Every wallet adds up here, with a bar showing how it splits.'**
+  String get walkthroughBalanceBody;
+
+  /// No description provided for @txTransfer.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfer'**
+  String get txTransfer;
+
+  /// No description provided for @txUncategorized.
+  ///
+  /// In en, this message translates to:
+  /// **'Uncategorized'**
+  String get txUncategorized;
+
+  /// No description provided for @todayGoodMorning.
+  ///
+  /// In en, this message translates to:
+  /// **'Good morning, {name}'**
+  String todayGoodMorning(String name);
+
+  /// No description provided for @todayGoodAfternoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Good afternoon, {name}'**
+  String todayGoodAfternoon(String name);
+
+  /// No description provided for @todayGoodEvening.
+  ///
+  /// In en, this message translates to:
+  /// **'Good evening, {name}'**
+  String todayGoodEvening(String name);
+
+  /// No description provided for @todayGoodMorningPlain.
+  ///
+  /// In en, this message translates to:
+  /// **'Good morning'**
+  String get todayGoodMorningPlain;
+
+  /// No description provided for @todayGoodAfternoonPlain.
+  ///
+  /// In en, this message translates to:
+  /// **'Good afternoon'**
+  String get todayGoodAfternoonPlain;
+
+  /// No description provided for @todayGoodEveningPlain.
+  ///
+  /// In en, this message translates to:
+  /// **'Good evening'**
+  String get todayGoodEveningPlain;
+
+  /// No description provided for @todayNetWorth.
+  ///
+  /// In en, this message translates to:
+  /// **'Net worth'**
+  String get todayNetWorth;
+
+  /// No description provided for @todayThisMonthDelta.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} this month'**
+  String todayThisMonthDelta(String amount);
+
+  /// No description provided for @todayEarned.
+  ///
+  /// In en, this message translates to:
+  /// **'Earned'**
+  String get todayEarned;
+
+  /// No description provided for @todaySpent.
+  ///
+  /// In en, this message translates to:
+  /// **'Spent'**
+  String get todaySpent;
+
+  /// No description provided for @todayTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get todayTitle;
+
+  /// No description provided for @todayRecent.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent'**
+  String get todayRecent;
+
+  /// No description provided for @todayAllActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'All activity'**
+  String get todayAllActivity;
+
+  /// No description provided for @todayNothingYet.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing yet today'**
+  String get todayNothingYet;
+
+  /// No description provided for @todayNothingYetBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap Add to record your first one.'**
+  String get todayNothingYetBody;
+
+  /// No description provided for @todayMoreWallets.
+  ///
+  /// In en, this message translates to:
+  /// **'+{count} more'**
+  String todayMoreWallets(int count);
+
+  /// No description provided for @todayCoachTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask your money coach'**
+  String get todayCoachTitle;
+
+  /// No description provided for @todayCoachBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Answers and nudges from your own spending'**
+  String get todayCoachBody;
+
+  /// No description provided for @todayNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get todayNotifications;
+
+  /// No description provided for @todayHidden.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden'**
+  String get todayHidden;
+
+  /// No description provided for @todayWithinBudget.
+  ///
+  /// In en, this message translates to:
+  /// **'Within budget'**
+  String get todayWithinBudget;
+
+  /// No description provided for @todayOverBudget.
+  ///
+  /// In en, this message translates to:
+  /// **'Over budget'**
+  String get todayOverBudget;
+
+  /// No description provided for @todayNetCredit.
+  ///
+  /// In en, this message translates to:
+  /// **'Net credit'**
+  String get todayNetCredit;
+
+  /// No description provided for @todayNetDebt.
+  ///
+  /// In en, this message translates to:
+  /// **'Net debt'**
+  String get todayNetDebt;
+
+  /// No description provided for @todayMonthly.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly'**
+  String get todayMonthly;
+
+  /// No description provided for @walletsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallets'**
+  String get walletsTitle;
+
+  /// No description provided for @walletsNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New'**
+  String get walletsNew;
+
+  /// No description provided for @walletsAddHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add bank, cash, savings…'**
+  String get walletsAddHint;
+
+  /// No description provided for @walletsPlanning.
+  ///
+  /// In en, this message translates to:
+  /// **'Planning'**
+  String get walletsPlanning;
+
+  /// No description provided for @walletsUpcoming.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming'**
+  String get walletsUpcoming;
+
+  /// No description provided for @walletsUpcomingSub.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} due · {amount}'**
+  String walletsUpcomingSub(int count, String amount);
+
+  /// No description provided for @walletsUpcomingNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing due soon'**
+  String get walletsUpcomingNone;
+
+  /// No description provided for @walletsLendBorrow.
+  ///
+  /// In en, this message translates to:
+  /// **'Lend & borrow'**
+  String get walletsLendBorrow;
+
+  /// No description provided for @walletsOwedToYou.
+  ///
+  /// In en, this message translates to:
+  /// **'You’re owed {amount}'**
+  String walletsOwedToYou(String amount);
+
+  /// No description provided for @walletsYouOwe.
+  ///
+  /// In en, this message translates to:
+  /// **'You owe {amount}'**
+  String walletsYouOwe(String amount);
+
+  /// No description provided for @walletsAllSettled.
+  ///
+  /// In en, this message translates to:
+  /// **'All settled'**
+  String get walletsAllSettled;
+
+  /// No description provided for @walletsGoals.
+  ///
+  /// In en, this message translates to:
+  /// **'Goals'**
+  String get walletsGoals;
+
+  /// No description provided for @walletsGoalsSub.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} active'**
+  String walletsGoalsSub(int count);
+
+  /// No description provided for @walletsBudgets.
+  ///
+  /// In en, this message translates to:
+  /// **'Budgets'**
+  String get walletsBudgets;
+
+  /// No description provided for @walletsSubscriptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscriptions'**
+  String get walletsSubscriptions;
+
+  /// No description provided for @walletsTransfer.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfer between wallets'**
+  String get walletsTransfer;
+
+  /// No description provided for @walletsArchived.
+  ///
+  /// In en, this message translates to:
+  /// **'Archived'**
+  String get walletsArchived;
+
+  /// No description provided for @walletsDeleteMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete “{name}”? Every transaction in this account is deleted with it.'**
+  String walletsDeleteMessage(String name);
+
+  /// No description provided for @walletsDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} deleted'**
+  String walletsDeleted(String name);
+
+  /// No description provided for @walletsSetDefaultDone.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is now your default'**
+  String walletsSetDefaultDone(String name);
+
+  /// No description provided for @walletsCreateFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn’t create the account. Please try again.'**
+  String get walletsCreateFailed;
+
+  /// No description provided for @walletsEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Create your first account to start tracking.'**
+  String get walletsEmptyBody;
+
+  /// No description provided for @walletsTypeBank.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank account'**
+  String get walletsTypeBank;
+
+  /// No description provided for @walletsTypeCard.
+  ///
+  /// In en, this message translates to:
+  /// **'Credit card'**
+  String get walletsTypeCard;
+
+  /// No description provided for @walletsTypeCash.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash'**
+  String get walletsTypeCash;
+
+  /// No description provided for @walletsTypeOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get walletsTypeOther;
+
+  /// No description provided for @moreTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get moreTitle;
+
+  /// No description provided for @moreGoPremium.
+  ///
+  /// In en, this message translates to:
+  /// **'Go Premium'**
+  String get moreGoPremium;
+
+  /// No description provided for @moreGoPremiumBody.
+  ///
+  /// In en, this message translates to:
+  /// **'AI assistant, cloud sync, themes'**
+  String get moreGoPremiumBody;
+
+  /// No description provided for @moreUnlock.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock'**
+  String get moreUnlock;
+
+  /// No description provided for @morePremiumActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium is active'**
+  String get morePremiumActive;
+
+  /// No description provided for @morePremiumThanks.
+  ///
+  /// In en, this message translates to:
+  /// **'Thanks for supporting The Accountant'**
+  String get morePremiumThanks;
+
+  /// No description provided for @sectionPreferences.
+  ///
+  /// In en, this message translates to:
+  /// **'PREFERENCES'**
+  String get sectionPreferences;
+
+  /// No description provided for @sectionTools.
+  ///
+  /// In en, this message translates to:
+  /// **'MONEY TOOLS'**
+  String get sectionTools;
+
+  /// No description provided for @moreAiAssistant.
+  ///
+  /// In en, this message translates to:
+  /// **'AI assistant'**
+  String get moreAiAssistant;
+
+  /// No description provided for @moreAiAssistantSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask questions about your money'**
+  String get moreAiAssistantSub;
+
+  /// No description provided for @moreSignOutConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out of your account on this device?'**
+  String get moreSignOutConfirm;
+
+  /// No description provided for @moreSignOutFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn’t sign out. Please try again.'**
+  String get moreSignOutFailed;
+
+  /// No description provided for @moreDeviceOnlyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Free accounts aren’t backed up to the cloud, so reinstalling or switching phones can lose your data. Upgrade for cloud sync, or export a backup regularly.'**
+  String get moreDeviceOnlyBody;
+
+  /// No description provided for @moreUpgradeToPremium.
+  ///
+  /// In en, this message translates to:
+  /// **'Upgrade to Premium'**
+  String get moreUpgradeToPremium;
+
+  /// No description provided for @moreUser.
+  ///
+  /// In en, this message translates to:
+  /// **'You'**
+  String get moreUser;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

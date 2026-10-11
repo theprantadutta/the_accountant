@@ -1,41 +1,59 @@
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:the_accountant/features/dashboard/screens/home_layout_screen.dart';
-import 'package:the_accountant/l10n/generated/app_localizations.dart';
-import 'package:the_accountant/features/transactions/screens/title_rules_screen.dart';
-import 'package:the_accountant/features/transactions/screens/recently_deleted_screen.dart';
-import 'package:the_accountant/features/transactions/screens/payment_methods_screen.dart';
-import 'package:the_accountant/features/wallets/screens/wallet_management_screen.dart';
-import 'package:the_accountant/features/transactions/screens/upcoming_transactions_screen.dart';
-import 'package:the_accountant/features/settings/screens/theme_selection_screen.dart';
-import 'package:the_accountant/features/objectives/screens/objectives_list_screen.dart';
-import 'package:the_accountant/features/categories/screens/category_management_screen.dart';
-import 'package:the_accountant/features/budgets/screens/budget_list_screen.dart';
 import 'package:flutter/services.dart';
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:the_accountant/core/themes/app_colors.dart';
-import 'package:the_accountant/core/themes/app_spacing.dart';
+import 'package:share_plus/share_plus.dart' show SharePlus, ShareParams;
+import 'package:the_accountant/core/providers/theme_provider.dart';
+import 'package:the_accountant/core/providers/walkthrough_provider.dart';
+import 'package:the_accountant/features/ai_assistant/screens/ai_assistant_screen.dart'
+    show AIAssistantScreenGated;
 import 'package:the_accountant/features/authentication/providers/auth_provider.dart';
+import 'package:the_accountant/features/backup/screens/backup_screen.dart';
+import 'package:the_accountant/features/budgets/screens/budget_list_screen.dart';
+import 'package:the_accountant/features/categories/screens/category_management_screen.dart';
+import 'package:the_accountant/features/dashboard/screens/home_layout_screen.dart';
+import 'package:the_accountant/features/import/screens/import_screen.dart';
+import 'package:the_accountant/features/objectives/screens/objectives_list_screen.dart';
 import 'package:the_accountant/features/premium/providers/premium_provider.dart';
 import 'package:the_accountant/features/settings/providers/settings_provider.dart';
-import 'package:the_accountant/features/settings/screens/sync_settings_screen.dart';
 import 'package:the_accountant/features/settings/screens/about_screen.dart';
 import 'package:the_accountant/features/settings/screens/contact_support_screen.dart';
-import 'package:the_accountant/features/settings/screens/help_screen.dart';
-import 'package:the_accountant/features/backup/screens/backup_screen.dart';
-import 'package:the_accountant/features/import/screens/import_screen.dart';
 import 'package:the_accountant/features/settings/screens/export_screen.dart';
-import 'package:the_accountant/features/settings/screens/profile_edit_screen.dart';
-import 'package:the_accountant/features/settings/screens/privacy_security_screen.dart';
+import 'package:the_accountant/features/settings/screens/help_screen.dart';
 import 'package:the_accountant/features/settings/screens/notifications_screen.dart';
+import 'package:the_accountant/features/settings/screens/privacy_security_screen.dart';
+import 'package:the_accountant/features/settings/screens/profile_edit_screen.dart';
 import 'package:the_accountant/features/settings/screens/regional_settings_screen.dart';
-import 'package:the_accountant/features/settings/widgets/settings_tile.dart';
-import 'package:the_accountant/features/settings/widgets/confirmation_dialog.dart';
+import 'package:the_accountant/features/settings/screens/sync_settings_screen.dart';
+import 'package:the_accountant/features/settings/screens/theme_selection_screen.dart';
+import 'package:the_accountant/features/settings/widgets/settings_tile.dart'
+    show PremiumBadge;
+import 'package:the_accountant/features/transactions/screens/payment_methods_screen.dart';
+import 'package:the_accountant/features/transactions/screens/recently_deleted_screen.dart';
+import 'package:the_accountant/features/transactions/screens/title_rules_screen.dart';
+import 'package:the_accountant/features/transactions/screens/upcoming_transactions_screen.dart';
+import 'package:the_accountant/features/wallets/screens/wallet_management_screen.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
+import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:share_plus/share_plus.dart' show SharePlus, ShareParams;
-import 'package:the_accountant/core/providers/walkthrough_provider.dart';
 
+/// One searchable settings entry.
+class _Entry {
+  const _Entry({
+    required this.row,
+    required this.title,
+    this.keywords = const [],
+  });
+
+  final Widget row;
+
+  /// Matched against the search, along with [keywords] (English synonyms).
+  final String title;
+  final List<String> keywords;
+}
+
+/// More: profile, Premium, then every setting in labelled groups, searchable.
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
 
@@ -53,668 +71,372 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     super.dispose();
   }
 
-  /// Check if text matches search query (case-insensitive)
-  bool _matchesSearch(String text) {
+  bool _matches(_Entry e) {
     if (_searchQuery.isEmpty) return true;
-    return text.toLowerCase().contains(_searchQuery.toLowerCase());
+    final q = _searchQuery.toLowerCase();
+    return e.title.toLowerCase().contains(q) ||
+        e.keywords.any((k) => k.toLowerCase().contains(q));
   }
 
-  /// Check if any keywords match search query
-  bool _matchesKeywords(List<String> keywords) {
-    if (_searchQuery.isEmpty) return true;
-    return keywords.any(
-      (k) => k.toLowerCase().contains(_searchQuery.toLowerCase()),
-    );
-  }
-
-  /// Notice shown to free users: their data lives only on this device (cloud sync
-  /// is a premium feature), so a reinstall or new phone can lose it. Taps through
-  /// to the premium screen.
-  Widget _buildDeviceOnlyDataNotice(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        HapticFeedback.selectionClick();
-        Navigator.pushNamed(context, '/premium');
-      },
-      child: Container(
-        padding: EdgeInsets.all(AppSpacing.md),
-        decoration: BoxDecoration(
-          color: AppColors.warning.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.warning.withValues(alpha: 0.3)),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: AppColors.warning.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Icon(
-                Icons.cloud_off_rounded,
-                color: AppColors.warning,
-                size: 22,
-              ),
-            ),
-            SizedBox(width: AppSpacing.md),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    L10n.of(context).settingsYourDataIsOnThis,
-                    style: TextStyle(
-                      color: AppColors.textPrimary,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 14,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    "Free accounts aren't backed up to the cloud, so reinstalling "
-                    "or switching phones can lose your data. Upgrade for automatic "
-                    "cloud sync — or export a backup regularly.",
-                    style: TextStyle(
-                      color: AppColors.textSecondary,
-                      fontSize: 13,
-                      height: 1.4,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Text(
-                        L10n.of(context).settingsUpgradeForCloudSync,
-                        style: TextStyle(
-                          color: AppColors.warning,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(width: 4),
-                      Icon(
-                        Icons.arrow_forward_rounded,
-                        color: AppColors.warning,
-                        size: 14,
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+  void _push(Widget screen) {
+    HapticFeedback.selectionClick();
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => screen));
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     final authState = ref.watch(authProvider);
     final premiumState = ref.watch(premiumProvider);
-    final settingsState = ref.watch(settingsProvider);
+    final groups = _groups(context, premiumState);
+    final searching = _searchQuery.isNotEmpty;
 
-    // Build all settings sections with search filtering
-    final sections = _buildFilteredSections(
-      context,
-      ref,
-      authState,
-      premiumState,
-      settingsState,
-    );
-
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Search bar
-            Padding(
-              padding: EdgeInsets.all(AppSpacing.md),
-              child: TextField(
-                controller: _searchController,
-                decoration: InputDecoration(
-                  hintText: L10n.of(context).settingsSearchSettings,
-                  hintStyle: TextStyle(color: AppColors.textMuted),
-                  prefixIcon: Icon(Icons.search, color: AppColors.textMuted),
-                  suffixIcon: _searchQuery.isNotEmpty
-                      ? IconButton(
-                          icon: Icon(Icons.clear, color: AppColors.textMuted),
-                          onPressed: () {
-                            _searchController.clear();
-                            setState(() => _searchQuery = '');
-                          },
-                        )
-                      : null,
-                  filled: true,
-                  fillColor: AppColors.primarySurface,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: AppColors.divider),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: AppColors.divider),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: AppColors.primaryAccent),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                ),
-                style: TextStyle(color: AppColors.textPrimary),
-                onChanged: (value) => setState(() => _searchQuery = value),
-              ),
-            ),
-            // Settings list
-            Expanded(
-              child: ListView(
-                padding: EdgeInsets.symmetric(horizontal: AppSpacing.md),
-                children: [
-                  // Show profile card only when not searching
-                  if (_searchQuery.isEmpty) ...[
-                    _buildProfileCard(context, authState),
-                    SizedBox(height: AppSpacing.sm),
-                    // Warn free users their data is device-only (no cloud backup).
-                    if (!premiumState.isPremium) ...[
-                      _buildDeviceOnlyDataNotice(context),
-                      SizedBox(height: AppSpacing.sm),
-                    ],
-                  ],
-                  // Show filtered sections
-                  ...sections,
-                  // No results message
-                  if (sections.isEmpty && _searchQuery.isNotEmpty)
-                    Padding(
-                      padding: EdgeInsets.all(AppSpacing.xl),
-                      child: Center(
-                        child: Column(
-                          children: [
-                            Icon(
-                              Icons.search_off,
-                              size: 48,
-                              color: AppColors.textMuted,
-                            ),
-                            SizedBox(height: AppSpacing.md),
-                            Text(
-                              L10n.of(context).settingsNoSettingsFound,
-                              style: TextStyle(
-                                color: AppColors.textSecondary,
-                                fontSize: 16,
-                              ),
-                            ),
-                            Text(
-                              L10n.of(context).settingsTryADifferentSearchTerm,
-                              style: TextStyle(
-                                color: AppColors.textMuted,
-                                fontSize: 14,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  // Bottom padding
-                  SizedBox(height: AppSpacing.lg),
-                ],
-              ),
-            ),
-          ],
+    final visible = <Widget>[];
+    for (final (label, entries, danger) in groups) {
+      final rows = entries.where(_matches).map((e) => e.row).toList();
+      if (rows.isEmpty) continue;
+      visible.add(
+        Padding(
+          padding: const EdgeInsets.only(top: SunriseSpace.section),
+          child: SettingsGroup(label: label, danger: danger, children: rows),
         ),
+      );
+    }
+
+    return SunriseTabPage(
+      child: ListView(
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.only(bottom: SunriseSpace.tabBarClearance),
+        children: [
+          LargeTitleHeader(title: l10n.moreTitle),
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: SunriseSpace.screenX,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (!searching) ...[
+                  _ProfileCard(
+                    auth: authState,
+                    onTap: () => _push(const ProfileEditScreen()),
+                  ),
+                  const SizedBox(height: SunriseSpace.sectionTight),
+                  if (premiumState.isPremium)
+                    _PremiumActiveCard(
+                      tier: premiumState.tier.displayName,
+                      onTap: () => Navigator.pushNamed(context, '/premium'),
+                    )
+                  else ...[
+                    _GoPremiumBanner(
+                      onTap: () => Navigator.pushNamed(context, '/premium'),
+                    ),
+                    const SizedBox(height: SunriseSpace.sectionTight),
+                    _DeviceOnlyNotice(
+                      onTap: () => Navigator.pushNamed(context, '/premium'),
+                    ),
+                  ],
+                  const SizedBox(height: SunriseSpace.sectionTight),
+                ],
+                SunriseSearchField(
+                  hint: l10n.settingsSearchSettings,
+                  controller: _searchController,
+                  onChanged: (v) => setState(() => _searchQuery = v.trim()),
+                  onClear: () {
+                    _searchController.clear();
+                    setState(() => _searchQuery = '');
+                  },
+                ),
+                ...visible,
+                if (visible.isEmpty && searching)
+                  EmptyState(
+                    icon: Symbols.search_off_rounded,
+                    title: l10n.settingsNoSettingsFound,
+                    message: l10n.settingsTryADifferentSearchTerm,
+                  ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  List<Widget> _buildFilteredSections(
+  /// Every group, in display order: (label, entries, danger).
+  List<(String, List<_Entry>, bool)> _groups(
     BuildContext context,
-    WidgetRef ref,
-    AuthState authState,
     PremiumState premiumState,
-    SettingsState settingsState,
   ) {
-    final sections = <Widget>[];
+    final l10n = L10n.of(context);
+    final c = context.sunrise;
+    final settings = ref.watch(settingsProvider);
+    final theme = ref.watch(themeProvider);
 
-    // ACCOUNT SECTION
-    final accountTiles = <Widget>[];
-    if (_matchesSearch('Subscription') ||
-        _matchesKeywords(['premium', 'upgrade', 'plan'])) {
-      accountTiles.add(
-        SettingsNavigationTile(
-          icon: Icons.workspace_premium,
-          iconColor: premiumState.isPremium
-              ? Colors.amber
-              : AppColors.textMuted,
-          title: L10n.of(context).settingsSubscription,
-          subtitle: premiumState.isPremium
-              ? premiumState.tier.displayName
-              : 'Upgrade to Premium',
-          onTap: () => Navigator.pushNamed(context, '/premium'),
-          trailing: premiumState.isPremium
-              ? const Icon(Icons.verified, color: Colors.amber, size: 20)
-              : null,
+    final preferences = [
+      _Entry(
+        title: l10n.settingsAppearance,
+        keywords: const ['theme', 'dark', 'light', 'colour', 'color', 'appearance'],
+        row: SettingsRow(
+          icon: Symbols.palette_rounded,
+          iconColor: c.accent,
+          iconBackground: c.tintOrange,
+          title: l10n.settingsAppearance,
+          value: ThemeSelectionScreen.currentLabel(
+            theme,
+            MediaQuery.platformBrightnessOf(context),
+            l10n,
+          ),
+          onTap: () => _push(const ThemeSelectionScreen()),
         ),
-      );
-    }
-    if (_matchesSearch('Sign Out') || _matchesKeywords(['logout', 'exit'])) {
-      accountTiles.add(
-        SettingsActionTile(
-          icon: Icons.logout,
-          iconColor: AppColors.error,
-          title: L10n.of(context).settingsSignOut,
-          onTap: () => _showSignOutDialog(context, ref),
+      ),
+      _Entry(
+        title: l10n.settingsRegionalTitle,
+        keywords: const ['currency', 'date', 'format', 'language', 'region'],
+        row: SettingsRow(
+          icon: Symbols.language_rounded,
+          iconColor: const Color(0xFF0284C7),
+          iconBackground: c.tintSky,
+          title: l10n.settingsRegionalTitle,
+          value: settings.currency,
+          onTap: () => _push(const RegionalSettingsScreen()),
         ),
-      );
-    }
-    if (accountTiles.isNotEmpty) {
-      sections.add(
-        SettingsSection(
-          title: L10n.of(context).sectionAccount,
-          tiles: accountTiles,
+      ),
+      _Entry(
+        title: l10n.settingsNotificationSettings,
+        keywords: const ['reminder', 'alert', 'budget alert', 'daily', 'notification'],
+        row: SettingsRow(
+          icon: Symbols.notifications_rounded,
+          iconColor: const Color(0xFFD97706),
+          iconBackground: c.tintAmber,
+          title: l10n.settingsNotificationSettings,
+          onTap: () => _push(const NotificationsScreen()),
         ),
-      );
-    }
+      ),
+      _Entry(
+        title: l10n.settingsCategories,
+        keywords: const ['category', 'categories', 'icon', 'colour', 'color'],
+        row: SettingsRow(
+          icon: Symbols.category_rounded,
+          iconColor: const Color(0xFF7C3AED),
+          iconBackground: c.tintViolet,
+          title: l10n.settingsCategories,
+          onTap: () => _push(const CategoryManagementScreen()),
+        ),
+      ),
+      _Entry(
+        title: l10n.layoutTitle,
+        keywords: const ['home', 'layout', 'sections', 'reorder', 'arrange', 'today'],
+        row: SettingsRow(
+          icon: Symbols.dashboard_customize_rounded,
+          iconColor: c.accent,
+          iconBackground: c.tintPeach,
+          title: l10n.layoutTitle,
+          subtitle: l10n.layoutSubtitle,
+          onTap: () => _push(const HomeLayoutScreen()),
+        ),
+      ),
+    ];
 
-    // MONEY SECTION
-    //
-    // Four screens that were fully built and unreachable: goals had no entry
-    // point anywhere, the upcoming list could only be opened from code that was
-    // commented out, category management was pushed from a dead route, and the
-    // theme picker existed only inside the intro slideshow. All of them work;
-    // none of them had a door.
-    final moneyTiles = <Widget>[];
-    if (_matchesSearch('Goals') ||
-        _matchesKeywords(['goal', 'objective', 'saving', 'target'])) {
-      moneyTiles.add(
-        SettingsNavigationTile(
-          icon: Icons.flag_outlined,
-          title: L10n.of(context).settingsGoals,
-          subtitle: L10n.of(context).settingsSaveTowardSomethingAndTrack,
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const ObjectivesListScreen()),
-          ),
+    final money = [
+      _Entry(
+        title: l10n.moreAiAssistant,
+        keywords: const ['ai', 'assistant', 'chat', 'coach', 'gemini', 'ask'],
+        row: SettingsRow(
+          icon: Symbols.auto_awesome_rounded,
+          iconColor: c.accent,
+          iconBackground: c.tintOrange,
+          title: l10n.moreAiAssistant,
+          subtitle: l10n.moreAiAssistantSub,
+          badge: premiumState.isPremium ? null : const PremiumBadge(),
+          onTap: () => _push(const AIAssistantScreenGated()),
         ),
-      );
-    }
-    if (_matchesSearch('Budgets') ||
-        _matchesKeywords(['budget', 'limit', 'spending'])) {
-      moneyTiles.add(
-        SettingsNavigationTile(
-          icon: Icons.pie_chart_outline,
-          title: L10n.of(context).settingsBudgets,
-          subtitle: L10n.of(context).settingsSetLimitsAndSeeHow,
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const BudgetListScreen()),
-          ),
+      ),
+      _Entry(
+        title: l10n.settingsGoals,
+        keywords: const ['goal', 'objective', 'saving', 'target'],
+        row: SettingsRow(
+          icon: Symbols.flag_rounded,
+          iconColor: c.positive,
+          iconBackground: c.tintGreen,
+          title: l10n.settingsGoals,
+          subtitle: l10n.settingsSaveTowardSomethingAndTrack,
+          onTap: () => _push(const ObjectivesListScreen()),
         ),
-      );
-    }
-    if (_matchesSearch('Upcoming') ||
-        _matchesKeywords(['upcoming', 'overdue', 'scheduled', 'due'])) {
-      moneyTiles.add(
-        SettingsNavigationTile(
-          icon: Icons.schedule_outlined,
-          title: L10n.of(context).settingsUpcomingAndOverdue,
-          subtitle: L10n.of(context).settingsWhatIsDueAndWhat,
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => const UpcomingTransactionsScreen(),
-            ),
-          ),
+      ),
+      _Entry(
+        title: l10n.settingsBudgets,
+        keywords: const ['budget', 'limit', 'spending'],
+        row: SettingsRow(
+          icon: Symbols.donut_large_rounded,
+          iconColor: const Color(0xFF0284C7),
+          iconBackground: c.tintSky,
+          title: l10n.settingsBudgets,
+          subtitle: l10n.settingsSetLimitsAndSeeHow,
+          onTap: () => _push(const BudgetListScreen()),
         ),
-      );
-    }
-    if (_matchesSearch('Categories') ||
-        _matchesKeywords([
-          'category',
-          'categories',
-          'icon',
-          'colour',
-          'color',
-        ])) {
-      moneyTiles.add(
-        SettingsNavigationTile(
-          icon: Icons.category_outlined,
-          title: L10n.of(context).settingsCategories,
-          subtitle: L10n.of(context).settingsRenameRecolourAndGroupThem,
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const CategoryManagementScreen()),
-          ),
+      ),
+      _Entry(
+        title: l10n.settingsUpcomingAndOverdue,
+        keywords: const ['upcoming', 'overdue', 'scheduled', 'due'],
+        row: SettingsRow(
+          icon: Symbols.event_upcoming_rounded,
+          iconColor: const Color(0xFFD97706),
+          iconBackground: c.tintAmber,
+          title: l10n.settingsUpcomingAndOverdue,
+          subtitle: l10n.settingsWhatIsDueAndWhat,
+          onTap: () => _push(const UpcomingTransactionsScreen()),
         ),
-      );
-    }
-    if (_matchesSearch('Accounts') ||
-        _matchesKeywords(['wallet', 'account', 'balance'])) {
-      moneyTiles.add(
-        SettingsNavigationTile(
-          icon: Icons.account_balance_wallet_outlined,
-          title: L10n.of(context).settingsAccounts,
-          subtitle: L10n.of(context).settingsAddReorderAndEditYour,
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const WalletManagementScreen()),
-          ),
+      ),
+      _Entry(
+        title: l10n.settingsAccounts,
+        keywords: const ['wallet', 'account', 'balance'],
+        row: SettingsRow(
+          icon: Symbols.account_balance_wallet_rounded,
+          iconColor: c.accent,
+          iconBackground: c.tintPeach,
+          title: l10n.settingsAccounts,
+          subtitle: l10n.settingsAddReorderAndEditYour,
+          onTap: () => _push(const WalletManagementScreen()),
         ),
-      );
-    }
-    if (_matchesSearch('Payment methods') ||
-        _matchesKeywords(['payment', 'card', 'method'])) {
-      moneyTiles.add(
-        SettingsNavigationTile(
-          icon: Icons.credit_card,
-          title: L10n.of(context).payTitle,
-          subtitle: L10n.of(context).settingsTheCardsAndAccountsYou,
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const PaymentMethodsScreen()),
-          ),
+      ),
+      _Entry(
+        title: l10n.payTitle,
+        keywords: const ['payment', 'card', 'method'],
+        row: SettingsRow(
+          icon: Symbols.credit_card_rounded,
+          iconColor: const Color(0xFF0284C7),
+          iconBackground: c.tintSky,
+          title: l10n.payTitle,
+          subtitle: l10n.settingsTheCardsAndAccountsYou,
+          onTap: () => _push(const PaymentMethodsScreen()),
         ),
-      );
-    }
-    if (_matchesSearch('Naming rules') ||
-        _matchesKeywords([
-          'rule',
-          'title',
-          'automatic',
-          'categorise',
-          'categorize',
-        ])) {
-      moneyTiles.add(
-        SettingsNavigationTile(
-          icon: Icons.auto_awesome_outlined,
-          title: L10n.of(context).rulesTitle,
-          subtitle: L10n.of(context).settingsWhereSomethingGoesBasedOn,
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const TitleRulesScreen()),
-          ),
+      ),
+      _Entry(
+        title: l10n.rulesTitle,
+        keywords: const ['rule', 'title', 'automatic', 'categorise', 'categorize', 'naming rules'],
+        row: SettingsRow(
+          icon: Symbols.rule_rounded,
+          iconColor: const Color(0xFF7C3AED),
+          iconBackground: c.tintViolet,
+          title: l10n.rulesTitle,
+          subtitle: l10n.settingsWhereSomethingGoesBasedOn,
+          onTap: () => _push(const TitleRulesScreen()),
         ),
-      );
-    }
-    if (moneyTiles.isNotEmpty) {
-      sections.add(
-        SettingsSection(
-          title: L10n.of(context).sectionMoney,
-          tiles: moneyTiles,
-        ),
-      );
-    }
+      ),
+    ];
 
-    // REGIONAL SECTION
-    final regionalTiles = <Widget>[];
-    if (_matchesSearch('Regional') ||
-        _matchesKeywords(['currency', 'date', 'format', 'language'])) {
-      regionalTiles.add(
-        SettingsNavigationTile(
-          icon: Icons.language,
-          title: L10n.of(context).settingsRegionalTitle,
-          subtitle:
-              '${settingsState.currency} - ${_getDateFormatLabel(settingsState.dateFormat, ref)}',
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const RegionalSettingsScreen()),
-          ),
+    final data = [
+      _Entry(
+        title: l10n.settingsCloudSync,
+        keywords: const ['sync', 'cloud', 'backup'],
+        row: SettingsRow(
+          icon: Symbols.cloud_sync_rounded,
+          iconColor: const Color(0xFF0284C7),
+          iconBackground: c.tintSky,
+          title: l10n.settingsCloudSync,
+          subtitle: l10n.settingsSyncYourDataAcrossDevices,
+          badge: premiumState.isPremium ? null : const PremiumBadge(),
+          onTap: () => _push(const SyncSettingsScreenGated()),
         ),
-      );
-    }
-    if (_matchesSearch('Home layout') ||
-        _matchesKeywords([
-          'home',
-          'layout',
-          'sections',
-          'reorder',
-          'arrange',
-        ])) {
-      regionalTiles.add(
-        SettingsNavigationTile(
-          icon: Icons.dashboard_customize_outlined,
-          title: L10n.of(context).layoutTitle,
-          subtitle: L10n.of(context).layoutSubtitle,
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const HomeLayoutScreen()),
-          ),
+      ),
+      _Entry(
+        title: l10n.settingsBackupRestore,
+        keywords: const ['backup', 'restore', 'google', 'drive', 'copy'],
+        row: SettingsRow(
+          icon: Symbols.backup_rounded,
+          iconColor: c.positive,
+          iconBackground: c.tintGreen,
+          title: l10n.settingsBackupRestore,
+          subtitle: l10n.settingsBackupRestoreSubtitle,
+          onTap: () => _push(const BackupScreen()),
         ),
-      );
-    }
-    if (_matchesSearch('Appearance') ||
-        _matchesKeywords([
-          'theme',
-          'dark',
-          'light',
-          'colour',
-          'color',
-          'appearance',
-        ])) {
-      regionalTiles.add(
-        SettingsNavigationTile(
-          icon: Icons.palette_outlined,
-          title: L10n.of(context).settingsAppearance,
-          subtitle: L10n.of(context).settingsAppearanceSubtitle,
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const ThemeSelectionScreen()),
-          ),
+      ),
+      _Entry(
+        title: l10n.settingsExportData,
+        keywords: const ['csv', 'pdf', 'download', 'data', 'export'],
+        row: SettingsRow(
+          icon: Symbols.download_rounded,
+          iconColor: c.accent,
+          iconBackground: c.tintOrange,
+          title: l10n.settingsExportData,
+          subtitle: l10n.settingsCsvIsFreePdfReport,
+          onTap: () => _push(const ExportScreen()),
         ),
-      );
-    }
-    if (regionalTiles.isNotEmpty) {
-      sections.add(
-        SettingsSection(
-          title: L10n.of(context).sectionRegional,
-          tiles: regionalTiles,
+      ),
+      _Entry(
+        title: l10n.settingsImportStatement,
+        keywords: const ['import', 'csv', 'statement', 'bank', 'upload'],
+        row: SettingsRow(
+          icon: Symbols.upload_file_rounded,
+          iconColor: const Color(0xFF7C3AED),
+          iconBackground: c.tintViolet,
+          title: l10n.settingsImportStatement,
+          subtitle: l10n.settingsImportStatementSubtitle,
+          onTap: () => _push(const ImportScreen()),
         ),
-      );
-    }
+      ),
+      _Entry(
+        title: l10n.settingsRecentlyDeleted,
+        keywords: const ['deleted', 'restore', 'undo', 'trash'],
+        row: SettingsRow(
+          icon: Symbols.restore_from_trash_rounded,
+          iconColor: c.negative,
+          iconBackground: c.tintRose,
+          title: l10n.settingsRecentlyDeleted,
+          subtitle: l10n.settingsRecentlyDeletedSubtitle,
+          onTap: () => _push(const RecentlyDeletedScreen()),
+        ),
+      ),
+    ];
 
-    // NOTIFICATIONS SECTION
-    final notificationTiles = <Widget>[];
-    if (_matchesSearch('Notification') ||
-        _matchesKeywords(['reminder', 'alert', 'budget alert', 'daily'])) {
-      notificationTiles.add(
-        SettingsNavigationTile(
-          icon: Icons.notifications_outlined,
-          title: L10n.of(context).settingsNotificationSettings,
-          subtitle: L10n.of(context).settingsDailyRemindersBudgetAlerts,
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const NotificationsScreen()),
-          ),
+    final help = [
+      _Entry(
+        title: l10n.settingsContactSupport,
+        keywords: const ['contact', 'support', 'email', 'feedback'],
+        row: SettingsRow(
+          icon: Symbols.mail_rounded,
+          iconColor: const Color(0xFF0284C7),
+          iconBackground: c.tintSky,
+          title: l10n.settingsContactSupport,
+          subtitle: l10n.settingsQuestionsComplaintsOrFeedback,
+          onTap: () => _push(const ContactSupportScreen()),
         ),
-      );
-    }
-    if (notificationTiles.isNotEmpty) {
-      sections.add(
-        SettingsSection(
-          title: L10n.of(context).sectionNotifications,
-          tiles: notificationTiles,
+      ),
+      _Entry(
+        title: l10n.settingsRateTheApp,
+        keywords: const ['rate', 'review', 'star'],
+        row: SettingsRow(
+          icon: Symbols.star_rounded,
+          iconColor: const Color(0xFFD97706),
+          iconBackground: c.tintAmber,
+          title: l10n.settingsRateTheApp,
+          trailing: SettingsTrailing.external,
+          onTap: _rateApp,
         ),
-      );
-    }
-
-    // PRIVACY & SECURITY SECTION
-    final privacyTiles = <Widget>[];
-    if (_matchesSearch('Privacy') ||
-        _matchesSearch('Security') ||
-        _matchesKeywords(['biometric', 'lock', 'fingerprint', 'password'])) {
-      privacyTiles.add(
-        SettingsNavigationTile(
-          icon: Icons.security,
-          title: L10n.of(context).settingsPrivacySecurity,
-          subtitle: L10n.of(context).settingsBiometricLockDataManagement,
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const PrivacySecurityScreen()),
-          ),
+      ),
+      _Entry(
+        title: l10n.settingsShareWithFriends,
+        keywords: const ['share', 'friends', 'invite'],
+        row: SettingsRow(
+          icon: Symbols.share_rounded,
+          iconColor: c.positive,
+          iconBackground: c.tintGreen,
+          title: l10n.settingsShareWithFriends,
+          trailing: SettingsTrailing.none,
+          onTap: _shareApp,
         ),
-      );
-    }
-    if (privacyTiles.isNotEmpty) {
-      sections.add(
-        SettingsSection(
-          title: L10n.of(context).sectionPrivacySecurity,
-          tiles: privacyTiles,
-        ),
-      );
-    }
-
-    // DATA MANAGEMENT SECTION
-    final dataTiles = <Widget>[];
-    if (_matchesSearch('Cloud Sync') ||
-        _matchesKeywords(['sync', 'cloud', 'backup'])) {
-      dataTiles.add(
-        SettingsNavigationTile(
-          icon: Icons.sync,
-          title: L10n.of(context).settingsCloudSync,
-          subtitle: L10n.of(context).settingsSyncYourDataAcrossDevices,
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const SyncSettingsScreenGated()),
-          ),
-          trailing: premiumState.isPremium ? null : const PremiumBadge(),
-        ),
-      );
-    }
-    if (_matchesSearch('Backup & Restore') ||
-        _matchesKeywords([
-          'backup',
-          'restore',
-          'google drive',
-          'drive',
-          'copy',
-        ])) {
-      dataTiles.add(
-        SettingsNavigationTile(
-          icon: Icons.backup_outlined,
-          title: L10n.of(context).settingsBackupRestore,
-          subtitle: L10n.of(context).settingsBackupRestoreSubtitle,
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const BackupScreen()),
-          ),
-        ),
-      );
-    }
-    if (_matchesSearch('Export') ||
-        _matchesKeywords(['csv', 'pdf', 'download', 'data'])) {
-      dataTiles.add(
-        SettingsNavigationTile(
-          icon: Icons.download_outlined,
-          title: L10n.of(context).settingsExportData,
-          subtitle: L10n.of(context).settingsCsvIsFreePdfReport,
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const ExportScreen()),
-          ),
-        ),
-      );
-    }
-    if (_matchesSearch('Import a statement') ||
-        _matchesKeywords(['import', 'csv', 'statement', 'bank', 'upload'])) {
-      dataTiles.add(
-        SettingsNavigationTile(
-          icon: Icons.upload_file_outlined,
-          title: L10n.of(context).settingsImportStatement,
-          subtitle: L10n.of(context).settingsImportStatementSubtitle,
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const ImportScreen()),
-          ),
-        ),
-      );
-    }
-    if (_matchesSearch('Recently deleted') ||
-        _matchesKeywords(['deleted', 'restore', 'undo', 'trash'])) {
-      dataTiles.add(
-        SettingsNavigationTile(
-          icon: Icons.restore_from_trash_outlined,
-          title: L10n.of(context).settingsRecentlyDeleted,
-          subtitle: L10n.of(context).settingsRecentlyDeletedSubtitle,
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const RecentlyDeletedScreen()),
-          ),
-        ),
-      );
-    }
-    if (dataTiles.isNotEmpty) {
-      sections.add(
-        SettingsSection(
-          title: L10n.of(context).sectionDataManagement,
-          tiles: dataTiles,
-        ),
-      );
-    }
-
-    // HELP & SUPPORT SECTION
-    final helpTiles = <Widget>[];
-    if (_matchesSearch('Help') ||
-        _matchesSearch('FAQ') ||
-        _matchesKeywords(['question', 'guide'])) {
-      helpTiles.add(
-        SettingsNavigationTile(
-          icon: Icons.help_outline,
-          title: L10n.of(context).settingsHelpFaq,
-          subtitle: L10n.of(context).settingsGetAnswersToCommonQuestions,
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const HelpScreen()),
-          ),
-        ),
-      );
-    }
-    if (_matchesSearch('Contact') ||
-        _matchesSearch('Support') ||
-        _matchesKeywords(['email', 'feedback'])) {
-      helpTiles.add(
-        SettingsNavigationTile(
-          icon: Icons.email_outlined,
-          title: L10n.of(context).settingsContactSupport,
-          subtitle: L10n.of(context).settingsQuestionsComplaintsOrFeedback,
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const ContactSupportScreen()),
-          ),
-        ),
-      );
-    }
-    if (_matchesSearch('Rate') || _matchesKeywords(['review', 'star'])) {
-      helpTiles.add(
-        SettingsActionTile(
-          icon: Icons.star_outline,
-          title: L10n.of(context).settingsRateTheApp,
-          onTap: () => _rateApp(),
-        ),
-      );
-    }
-    if (_matchesSearch('Share') || _matchesKeywords(['friends', 'invite'])) {
-      helpTiles.add(
-        SettingsActionTile(
-          icon: Icons.share_outlined,
-          title: L10n.of(context).settingsShareWithFriends,
-          onTap: () => _shareApp(),
-        ),
-      );
-    }
-    if (_matchesSearch('Replay App Tour') ||
-        _matchesKeywords([
-          'walkthrough',
-          'tour',
-          'tutorial',
-          'guide',
-          'replay',
-        ])) {
-      helpTiles.add(
-        SettingsActionTile(
-          icon: Icons.play_circle_outline,
-          title: L10n.of(context).settingsReplayAppTour,
-          subtitle: L10n.of(context).settingsSeeTheFeatureWalkthroughAgain,
+      ),
+      _Entry(
+        title: l10n.settingsReplayAppTour,
+        keywords: const ['walkthrough', 'tour', 'tutorial', 'guide', 'replay'],
+        row: SettingsRow(
+          icon: Symbols.play_circle_rounded,
+          iconColor: c.accent,
+          iconBackground: c.tintOrange,
+          title: l10n.settingsReplayAppTour,
+          subtitle: l10n.settingsSeeTheFeatureWalkthroughAgain,
+          trailing: SettingsTrailing.none,
           onTap: () {
             ref.read(walkthroughProvider.notifier).resetWalkthrough();
             Navigator.pushNamedAndRemoveUntil(
@@ -724,226 +446,126 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             );
           },
         ),
-      );
-    }
-    if (helpTiles.isNotEmpty) {
-      sections.add(
-        SettingsSection(
-          title: L10n.of(context).sectionHelpSupport,
-          tiles: helpTiles,
+      ),
+      _Entry(
+        title: l10n.settingsAboutTheAccountant,
+        keywords: const ['about', 'version', 'license', 'info'],
+        row: SettingsRow(
+          icon: Symbols.info_rounded,
+          iconColor: c.muted,
+          iconBackground: c.tintPeach,
+          title: l10n.settingsAboutTheAccountant,
+          subtitle: l10n.settingsVersionLicensesAndMore,
+          onTap: () => _push(const AboutScreen()),
         ),
-      );
-    }
+      ),
+    ];
 
-    // ABOUT SECTION
-    final aboutTiles = <Widget>[];
-    if (_matchesSearch('About') ||
-        _matchesKeywords(['version', 'license', 'info'])) {
-      aboutTiles.add(
-        SettingsNavigationTile(
-          icon: Icons.info_outline,
-          title: L10n.of(context).settingsAboutTheAccountant,
-          subtitle: L10n.of(context).settingsVersionLicensesAndMore,
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const AboutScreen()),
-          ),
+    final account = [
+      _Entry(
+        title: l10n.settingsSubscription,
+        keywords: const ['premium', 'upgrade', 'plan', 'subscription'],
+        row: SettingsRow(
+          icon: Symbols.workspace_premium_rounded,
+          iconColor: c.accent,
+          iconBackground: c.tintOrange,
+          title: l10n.settingsSubscription,
+          value: premiumState.isPremium
+              ? premiumState.tier.displayName
+              : l10n.moreUpgradeToPremium,
+          onTap: () => Navigator.pushNamed(context, '/premium'),
         ),
-      );
-    }
-    if (aboutTiles.isNotEmpty) {
-      sections.add(
-        SettingsSection(
-          title: L10n.of(context).sectionAbout,
-          tiles: aboutTiles,
+      ),
+      _Entry(
+        title: l10n.settingsPrivacySecurity,
+        keywords: const ['privacy', 'security', 'biometric', 'lock', 'fingerprint', 'password'],
+        row: SettingsRow(
+          icon: Symbols.shield_lock_rounded,
+          iconColor: c.positive,
+          iconBackground: c.tintGreen,
+          title: l10n.settingsPrivacySecurity,
+          onTap: () => _push(const PrivacySecurityScreen()),
         ),
-      );
-    }
-
-    // DEVELOPER SECTION (debug mode only)
-    if (kDebugMode) {
-      final devTiles = <Widget>[];
-      if (_matchesSearch('Test Crash') ||
-          _matchesKeywords(['crash', 'debug', 'crashlytics'])) {
-        devTiles.add(
-          SettingsActionTile(
-            icon: Icons.bug_report,
-            iconColor: Colors.orange,
-            title: L10n.of(context).settingsTestCrash,
-            subtitle: L10n.of(context).settingsTriggerATestExceptionFor,
-            onTap: () async {
-              await FirebaseCrashlytics.instance
-                  .setCrashlyticsCollectionEnabled(true);
-              final exception = Exception('Test Crashlytics exception');
-              await FirebaseCrashlytics.instance.recordError(
-                exception,
-                StackTrace.current,
-                reason: 'Manual test crash from settings',
-              );
-              await FirebaseCrashlytics.instance
-                  .setCrashlyticsCollectionEnabled(false);
-            },
-          ),
-        );
-      }
-      if (devTiles.isNotEmpty) {
-        sections.add(
-          SettingsSection(
-            title: L10n.of(context).settingsDeveloper,
-            tiles: devTiles,
-          ),
-        );
-      }
-    }
-
-    return sections;
-  }
-
-  Widget _buildProfileCard(BuildContext context, AuthState authState) {
-    return GestureDetector(
-      onTap: () {
-        HapticFeedback.selectionClick();
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const ProfileEditScreen()),
-        );
-      },
-      child: Container(
-        margin: EdgeInsets.only(top: AppSpacing.md),
-        padding: EdgeInsets.all(AppSpacing.lg),
-        decoration: BoxDecoration(
-          // Subtle accent-tinted glass rather than a solid saturated fill, so
-          // it sits calmly with the rest of the dark cards.
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              AppColors.primaryAccent.withValues(alpha: 0.14),
-              AppColors.neonPurple.withValues(alpha: 0.05),
-            ],
-          ),
-          borderRadius: AppSpacing.borderRadiusXl,
-          border: Border.all(
-            color: AppColors.primaryAccent.withValues(alpha: 0.22),
-          ),
+      ),
+      _Entry(
+        title: l10n.settingsHelpFaq,
+        keywords: const ['help', 'faq', 'question', 'guide'],
+        row: SettingsRow(
+          icon: Symbols.help_rounded,
+          iconColor: const Color(0xFF0284C7),
+          iconBackground: c.tintSky,
+          title: l10n.settingsHelpFaq,
+          onTap: () => _push(const HelpScreen()),
         ),
-        child: Row(
-          children: [
-            // Avatar
-            Container(
-              width: 60,
-              height: 60,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: AppColors.primaryGradient,
-                border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.15),
-                  width: 2,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.primaryAccent.withValues(alpha: 0.3),
-                    blurRadius: 14,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child:
-                  authState.photoUrl != null && authState.photoUrl!.isNotEmpty
-                  ? ClipRRect(
-                      borderRadius: BorderRadius.circular(30),
-                      child: Image.network(
-                        authState.photoUrl!,
-                        fit: BoxFit.cover,
-                        width: 60,
-                        height: 60,
-                        errorBuilder: (_, _, _) => const Icon(
-                          Icons.person,
-                          color: Colors.white,
-                          size: 28,
-                        ),
-                      ),
-                    )
-                  : Icon(Icons.person, color: AppColors.textPrimary, size: 28),
-            ),
-            SizedBox(width: AppSpacing.md),
+      ),
+      _Entry(
+        title: l10n.settingsSignOut,
+        keywords: const ['sign out', 'logout', 'exit'],
+        row: SettingsRow(
+          icon: Symbols.logout_rounded,
+          title: l10n.settingsSignOut,
+          destructive: true,
+          onTap: _signOut,
+        ),
+      ),
+    ];
 
-            // Name and Email
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    authState.displayName ?? 'User',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: AppColors.textPrimary,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: AppSpacing.xs),
-                  Text(
-                    authState.userEmail ?? '',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: AppColors.textSecondary,
-                      fontSize: 14,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            SizedBox(width: AppSpacing.sm),
-            // Edit indicator
-            Container(
-              padding: const EdgeInsets.all(9),
-              decoration: BoxDecoration(
-                color: AppColors.glassWhite,
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: AppColors.glassBorder),
-              ),
-              child: Icon(
-                Icons.edit_outlined,
-                color: AppColors.primaryAccent,
-                size: 18,
+    return [
+      (l10n.sectionPreferences, preferences, false),
+      (l10n.sectionTools, money, false),
+      (l10n.sectionDataManagement, data, false),
+      (l10n.sectionHelpSupport, help, false),
+      (l10n.sectionAccount, account, false),
+      if (kDebugMode)
+        (
+          l10n.settingsDeveloper,
+          [
+            _Entry(
+              title: l10n.settingsTestCrash,
+              keywords: const ['crash', 'debug', 'crashlytics'],
+              row: SettingsRow(
+                icon: Symbols.bug_report_rounded,
+                iconColor: const Color(0xFFD97706),
+                iconBackground: c.tintAmber,
+                title: l10n.settingsTestCrash,
+                subtitle: l10n.settingsTriggerATestExceptionFor,
+                trailing: SettingsTrailing.none,
+                onTap: _testCrash,
               ),
             ),
           ],
+          false,
         ),
-      ),
-    );
+    ];
   }
 
-  String _getDateFormatLabel(String format, WidgetRef ref) {
-    final formats = ref.read(dateFormatsProvider);
-    final match = formats.firstWhere(
-      (f) => f['value'] == format,
-      orElse: () => {'label': format},
+  Future<void> _testCrash() async {
+    await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
+    await FirebaseCrashlytics.instance.recordError(
+      Exception('Test Crashlytics exception'),
+      StackTrace.current,
+      reason: 'Manual test crash from settings',
     );
-    return match['label']!.split(' ').first;
+    await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(false);
   }
 
-  Future<void> _showSignOutDialog(BuildContext context, WidgetRef ref) async {
-    final confirmed = await showConfirmationDialog(
+  Future<void> _signOut() async {
+    final l10n = L10n.of(context);
+    final confirmed = await showSunriseConfirm(
       context: context,
-      title: L10n.of(context).settingsSignOut,
-      message: 'Are you sure you want to sign out of your account?',
-      confirmText: L10n.of(context).settingsSignOut,
-      isDangerous: true,
+      title: l10n.settingsSignOut,
+      message: l10n.moreSignOutConfirm,
+      confirmLabel: l10n.settingsSignOut,
+      destructive: true,
+      icon: Symbols.logout_rounded,
     );
-
-    if (confirmed == true) {
-      try {
-        await ref.read(authProvider.notifier).signOut();
-        // Navigation to login is handled by auth state listener
-      } catch (e) {
-        if (context.mounted) {
-          showErrorSnackBar(context, 'Failed to sign out: ${e.toString()}');
-        }
+    if (!confirmed) return;
+    try {
+      await ref.read(authProvider.notifier).signOut();
+      // Navigation to sign-in is handled by the auth state listener.
+    } catch (_) {
+      if (mounted) {
+        showSunriseSnack(context, l10n.moreSignOutFailed, tone: SnackTone.error);
       }
     }
   }
@@ -963,6 +585,258 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         text:
             'Check out The Accountant - a beautiful personal finance app!\n\nhttps://play.google.com/store/apps/details?id=com.pranta.theaccountant',
         subject: 'The Accountant - Personal Finance App',
+      ),
+    );
+  }
+}
+
+/// Avatar, name and email; opens the profile editor.
+class _ProfileCard extends StatelessWidget {
+  const _ProfileCard({required this.auth, required this.onTap});
+
+  final AuthState auth;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
+    final c = context.sunrise;
+    final name = (auth.displayName?.trim().isNotEmpty ?? false)
+        ? auth.displayName!.trim()
+        : l10n.moreUser;
+    final initials = name
+        .split(RegExp(r'\s+'))
+        .where((p) => p.isNotEmpty)
+        .take(2)
+        .map((p) => p.characters.first.toUpperCase())
+        .join();
+    final photo = auth.photoUrl;
+
+    return SunriseCard(
+      onTap: onTap,
+      padding: const EdgeInsets.all(16),
+      child: Row(
+        children: [
+          Container(
+            width: 54,
+            height: 54,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: c.gradient,
+            ),
+            clipBehavior: Clip.antiAlias,
+            alignment: Alignment.center,
+            child: photo != null && photo.isNotEmpty
+                ? Image.network(
+                    photo,
+                    width: 54,
+                    height: 54,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, _, _) => _initials(initials),
+                  )
+                : _initials(initials),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: SunriseType.section.copyWith(color: c.ink),
+                ),
+                if ((auth.userEmail ?? '').isNotEmpty)
+                  Text(
+                    auth.userEmail!,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: SunriseType.label.copyWith(
+                      color: c.subtle,
+                      fontWeight: FontWeight.w400,
+                      fontSize: 14,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          Icon(Symbols.chevron_right_rounded, color: c.chevron, size: 20),
+        ],
+      ),
+    );
+  }
+
+  Widget _initials(String text) => Builder(
+    builder: (context) => Text(
+      text.isEmpty ? '·' : text,
+      style: SunriseType.section.copyWith(color: context.sunrise.onFill),
+    ),
+  );
+}
+
+/// The Go Premium banner for free users.
+class _GoPremiumBanner extends StatelessWidget {
+  const _GoPremiumBanner({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
+    final c = context.sunrise;
+    return GradientCard(
+      onTap: onTap,
+      radius: SunriseRadius.hero,
+      padding: const EdgeInsets.all(16),
+      child: Row(
+        children: [
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: .22),
+              borderRadius: BorderRadius.circular(SunriseRadius.iconTileLg),
+            ),
+            child: const Icon(Symbols.workspace_premium_rounded, fill: 1),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l10n.moreGoPremium,
+                  style: SunriseType.section.copyWith(color: c.onFill),
+                ),
+                Text(
+                  l10n.moreGoPremiumBody,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: SunriseType.label.copyWith(
+                    color: c.onFill.withValues(alpha: .9),
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 10),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            decoration: BoxDecoration(
+              color: c.onFill,
+              borderRadius: BorderRadius.circular(SunriseRadius.chip),
+            ),
+            child: Text(
+              l10n.moreUnlock,
+              style: SunriseType.label.copyWith(
+                color: c.accent,
+                fontWeight: FontWeight.w600,
+                fontSize: 14,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// What premium users see in place of the banner.
+class _PremiumActiveCard extends StatelessWidget {
+  const _PremiumActiveCard({required this.tier, required this.onTap});
+
+  final String tier;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
+    final c = context.sunrise;
+    return SunriseCard(
+      onTap: onTap,
+      padding: const EdgeInsets.all(14),
+      child: Row(
+        children: [
+          IconTile(
+            icon: Symbols.verified_rounded,
+            color: c.onFill,
+            gradient: c.gradient,
+            size: 44,
+            radius: SunriseRadius.iconTileLg,
+            fill: 1,
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l10n.morePremiumActive,
+                  style: SunriseType.rowTitle.copyWith(color: c.ink),
+                ),
+                Text(
+                  l10n.morePremiumThanks,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: SunriseType.caption.copyWith(color: c.subtle),
+                ),
+              ],
+            ),
+          ),
+          SunrisePill(label: tier),
+        ],
+      ),
+    );
+  }
+}
+
+/// Free users' data lives only on this device.
+class _DeviceOnlyNotice extends StatelessWidget {
+  const _DeviceOnlyNotice({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
+    final c = context.sunrise;
+    return SunriseCard(
+      onTap: onTap,
+      color: c.tintAmber,
+      shadow: false,
+      padding: const EdgeInsets.all(14),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Symbols.cloud_off_rounded, color: Color(0xFFD97706)),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l10n.settingsYourDataIsOnThis,
+                  style: SunriseType.rowTitle.copyWith(color: c.ink),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  l10n.moreDeviceOnlyBody,
+                  style: SunriseType.caption.copyWith(color: c.body),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  l10n.settingsUpgradeForCloudSync,
+                  style: SunriseType.label.copyWith(
+                    color: c.accentText,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

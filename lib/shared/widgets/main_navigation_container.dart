@@ -1,46 +1,42 @@
 import 'package:flutter/material.dart';
-import 'package:quick_actions/quick_actions.dart';
-import 'package:the_accountant/features/transactions/screens/transaction_detail_screen.dart';
-import 'package:the_accountant/features/ai/screens/receipt_scanner_screen.dart';
-import 'package:the_accountant/features/budgets/screens/budget_list_screen.dart';
-import 'package:the_accountant/core/providers/deep_link_provider.dart';
-import 'package:the_accountant/core/services/deep_link_service.dart';
-import 'package:the_accountant/core/domain/app_destination.dart';
-import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:the_accountant/core/services/analytics_service.dart';
-import 'package:the_accountant/core/themes/app_colors.dart';
-import 'package:the_accountant/core/themes/app_spacing.dart';
-import 'package:the_accountant/core/themes/app_typography.dart';
-import 'package:the_accountant/shared/widgets/custom_bottom_nav_bar.dart';
-import 'package:the_accountant/shared/widgets/glass_card.dart';
-import 'package:the_accountant/shared/widgets/shimmer_loading.dart';
-import 'package:the_accountant/shared/widgets/sync_status_banner.dart';
-import 'package:the_accountant/shared/widgets/neo_button.dart';
-import 'package:the_accountant/features/dashboard/widgets/responsive_financial_overview.dart';
-import 'package:the_accountant/features/transactions/screens/transaction_list_screen.dart';
-import 'package:the_accountant/features/transactions/screens/add_transaction_screen.dart';
-import 'package:the_accountant/features/transactions/widgets/transaction_type_header.dart';
-import 'package:the_accountant/features/ai_assistant/screens/ai_assistant_screen.dart'
-    show AIAssistantScreenGated;
-import 'package:the_accountant/features/settings/screens/settings_screen.dart';
-import 'package:the_accountant/features/reports/screens/reports_screen.dart';
-import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
-import 'package:the_accountant/features/wallets/screens/create_first_wallet_screen.dart';
-import 'package:the_accountant/core/providers/startup_flow_provider.dart';
-import 'package:the_accountant/features/startup/screens/startup_recovery_screen.dart';
-import 'package:the_accountant/features/notifications/providers/notification_history_provider.dart';
-import 'package:the_accountant/features/notifications/screens/notification_inbox_screen.dart';
-import 'package:the_accountant/core/providers/walkthrough_provider.dart';
+import 'package:quick_actions/quick_actions.dart';
+import 'package:the_accountant/core/domain/app_destination.dart';
+import 'package:the_accountant/core/providers/deep_link_provider.dart';
 import 'package:the_accountant/core/providers/default_wallet_provider.dart';
+import 'package:the_accountant/core/providers/startup_flow_provider.dart';
+import 'package:the_accountant/core/providers/walkthrough_provider.dart';
+import 'package:the_accountant/core/services/analytics_service.dart';
+import 'package:the_accountant/core/services/deep_link_service.dart';
 import 'package:the_accountant/core/services/notification_service.dart';
 import 'package:the_accountant/core/utils/responsive.dart';
+import 'package:the_accountant/features/ai/screens/receipt_scanner_screen.dart';
+import 'package:the_accountant/features/budgets/screens/budget_list_screen.dart';
+import 'package:the_accountant/features/dashboard/widgets/responsive_financial_overview.dart';
+import 'package:the_accountant/features/notifications/providers/notification_history_provider.dart';
 import 'package:the_accountant/features/notifications/widgets/notification_permission_primer.dart';
+import 'package:the_accountant/features/reports/screens/reports_screen.dart';
+import 'package:the_accountant/features/settings/screens/settings_screen.dart';
+import 'package:the_accountant/features/startup/screens/startup_recovery_screen.dart';
+import 'package:the_accountant/features/transactions/screens/add_transaction_screen.dart';
+import 'package:the_accountant/features/transactions/screens/transaction_detail_screen.dart';
+import 'package:the_accountant/features/transactions/screens/transaction_list_screen.dart';
+import 'package:the_accountant/features/transactions/widgets/transaction_type_header.dart';
 import 'package:the_accountant/features/walkthrough/walkthrough_service.dart';
-import 'package:the_accountant/features/authentication/presentation/widgets/auth_background.dart';
-import 'package:the_accountant/features/authentication/presentation/widgets/auth_brand_header.dart';
+import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
+import 'package:the_accountant/features/wallets/screens/create_first_wallet_screen.dart';
+import 'package:the_accountant/features/wallets/screens/wallet_management_screen.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
+import 'package:the_accountant/shared/widgets/shimmer_loading.dart';
+import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
+import 'package:the_accountant/shared/widgets/sync_status_banner.dart';
 
+/// The signed-in shell: Today, Wallets, the Add pill, Stats and More.
+///
+/// Activity used to be a tab; it is now pushed from Today. The AI assistant
+/// used to be a tab; it is reached from cards on Today and Stats and from
+/// More. Neither lost a way in.
 class MainNavigationContainer extends ConsumerStatefulWidget {
   const MainNavigationContainer({super.key});
 
@@ -50,61 +46,48 @@ class MainNavigationContainer extends ConsumerStatefulWidget {
 }
 
 class _MainNavigationContainerState
-    extends ConsumerState<MainNavigationContainer> {
+    extends ConsumerState<MainNavigationContainer>
+    with SingleTickerProviderStateMixin {
   int _currentIndex = 0;
-  bool _isFabVisible = true;
 
-  // Reinstall/restore gate: when the local DB is empty we first try to pull the
-  // user's existing data from the server before assuming they're a brand-new
-  // user and showing the "create your first wallet" screen.
-
-  // Walkthrough keys
+  // Walkthrough targets.
   final GlobalKey _balanceKey = GlobalKey();
-  final GlobalKey _fabKey = GlobalKey();
+  final GlobalKey _addKey = GlobalKey();
   final GlobalKey _notificationKey = GlobalKey();
-  final GlobalKey _navHomeKey = GlobalKey();
-  final GlobalKey _navActivityKey = GlobalKey();
-  final GlobalKey _navAIKey = GlobalKey();
+  final GlobalKey _navTodayKey = GlobalKey();
+  final GlobalKey _navWalletsKey = GlobalKey();
+  final GlobalKey _navStatsKey = GlobalKey();
 
-  // Define the screens for each navigation item.
-  //
-  // `late` so the home screen can be handed the walkthrough key: a plain field
-  // initialiser cannot reach another instance field.
+  /// Crossfade plus a 6dp rise on every tab switch.
+  late final AnimationController _tabFade = AnimationController(
+    vsync: this,
+    duration: SunriseMotion.tab,
+    value: 1,
+  );
+
   late final List<Widget> _screens = [
-    ResponsiveFinancialOverview(balanceKey: _balanceKey), // Home
-    const TransactionListScreen(), // Transactions
-    const AIAssistantScreenGated(), // AI Assistant (Premium)
-    const ReportsScreen(), // Reports
-    const SettingsScreen(), // Settings
+    ResponsiveFinancialOverview(
+      balanceKey: _balanceKey,
+      notificationKey: _notificationKey,
+    ),
+    const WalletManagementScreen(asTab: true),
+    const ReportsScreen(),
+    const SettingsScreen(),
   ];
 
-  /// Stable English names, for analytics.
-  ///
-  /// These are event identifiers, not labels: translating them would split one
-  /// screen's history across as many names as the app has languages.
-  final List<String> _screenTitles = [
+  /// Stable English names, for analytics. Event identifiers, not labels.
+  static const List<String> _screenTitles = [
     'Dashboard',
-    'Transactions',
-    'AI Assistant',
+    'Wallets',
     'Reports',
     'Settings',
-  ];
-
-  /// What the app bar actually shows.
-  List<String> _localizedTitles(L10n l10n) => [
-    l10n.navDashboard,
-    l10n.navTransactions,
-    l10n.navAiAssistant,
-    l10n.navReports,
-    l10n.navSettings,
   ];
 
   /// The tab each destination lives on, for the ones that are tabs.
   static const Map<AppDestination, int> _tabFor = {
     AppDestination.dashboard: 0,
-    AppDestination.transactions: 1,
-    AppDestination.reports: 3,
-    AppDestination.settings: 4,
+    AppDestination.reports: 2,
+    AppDestination.settings: 3,
   };
 
   /// Act on a link that has been waiting for somewhere safe to go.
@@ -120,11 +103,14 @@ class _MainNavigationContainerState
 
     final tab = _tabFor[link.destination];
     if (tab != null) {
-      setState(() => _currentIndex = tab);
+      _select(tab);
       return;
     }
 
     final screen = switch (link.destination) {
+      AppDestination.transactions => const TransactionListScreen(
+        standalone: true,
+      ),
       AppDestination.addExpense => const AddTransactionScreen(),
       AppDestination.addIncome => const AddTransactionScreen(
         initialType: TransactionTypeSelection.income,
@@ -150,25 +136,19 @@ class _MainNavigationContainerState
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // Pull existing server data before deciding this is a brand-new user.
-
-      // Load unread notification count
       ref.read(notificationHistoryProvider.notifier).loadUnreadCount();
 
-      // Trigger walkthrough for new users.
-      //
       // No arbitrary delay: the service waits for the widgets it points at to
-      // exist. Guessing at half a second meant racing the dashboard's first
-      // layout, and losing that race threw the walkthrough away for good.
+      // exist.
       final walkthroughState = ref.read(walkthroughProvider);
       if (!walkthroughState.hasSeenWalkthrough && mounted) {
         WalkthroughService.showDashboardWalkthrough(context, ref, {
           'balance': _balanceKey,
-          'fab': _fabKey,
+          'add': _addKey,
+          'navToday': _navTodayKey,
+          'navWallets': _navWalletsKey,
+          'navStats': _navStatsKey,
           'notification': _notificationKey,
-          'navHome': _navHomeKey,
-          'navActivity': _navActivityKey,
-          'navAI': _navAIKey,
         });
       }
 
@@ -217,36 +197,29 @@ class _MainNavigationContainerState
   /// Riverpod throws a plain `StateError` there, in release as well as debug,
   /// so tearing this shell down — signing out is the ordinary way — crashed the
   /// app outright rather than merely warning.
-  ///
-  /// Keeping the instance is also the only way to be sure the listener comes
-  /// off the same object it went on. Re-reading the provider could hand back a
-  /// different one, and the old listener would simply stay attached.
   DeepLinkService? _deepLinks;
 
   @override
   void dispose() {
     _deepLinks?.pending.removeListener(_followPendingLink);
+    _tabFade.dispose();
     super.dispose();
   }
 
   /// Shows the notification priming prompt on the home screen — once, and only
-  /// after the first-run walkthrough is done so the two don't overlap. Tapping
-  /// "Enable" there is what triggers the real OS permission dialog.
+  /// after the first-run walkthrough is done so the two don't overlap.
   Future<void> _maybeShowNotificationPrimer() async {
     const primerShownKey = 'notification_primer_shown';
     final prefs = ref.read(sharedPreferencesProvider);
     if (prefs.getBool(primerShownKey) ?? false) return;
 
-    // Don't compete with the first-run walkthrough; the primer shows next visit.
     if (!ref.read(walkthroughProvider).hasSeenWalkthrough) return;
 
-    // Already authorized (e.g. a returning user) → nothing to ask.
     if (await NotificationService().hasPermission()) {
       await prefs.setBool(primerShownKey, true);
       return;
     }
 
-    // Let the dashboard settle before prompting.
     await Future.delayed(const Duration(milliseconds: 900));
     if (!mounted) return;
 
@@ -254,571 +227,254 @@ class _MainNavigationContainerState
     await prefs.setBool(primerShownKey, true);
   }
 
-  /// When the local database is empty, attempt a one-time "restore" sync so a
-  /// user who reinstalled the app (or logged in on a new device) pulls their
-  /// existing data down from the server before we'd ever show the
-  /// create-first-wallet screen. For genuinely new / free / offline users this
-  /// resolves quickly and falls through to that screen.
-  // The startup flow is driven by `AuthWrapper`, which is the widget that
-  // decides whether this container is on screen at all. Driving it from here as
-  // well was a loop: this container's `initState` started an evaluation, the
-  // evaluation's first transient phase made `AuthWrapper` swap the container
-  // out for the splash screen, and remounting it started the next evaluation.
-  // Roughly three a second, both on the device and against the API.
+  // The startup flow is driven by `AuthWrapper`, which decides whether this
+  // container is on screen at all. Driving it from here as well was a loop.
 
   Widget _buildRestoringScreen() {
-    return AuthBackground(
+    final l10n = L10n.of(context);
+    final c = context.sunrise;
+    return SunriseBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
         body: SafeArea(
-          child: Padding(
-            padding: AppSpacing.paddingScreen,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                AuthBrandHeader(
-                  icon: Icons.cloud_download_rounded,
-                  title: L10n.of(context).sharedWelcomeBack,
-                  subtitle: L10n.of(context).sharedRestoringYourDataFromThe,
-                ),
-                AppSpacing.gapXxxl,
-                SizedBox(
-                  width: 200,
-                  child: ClipRRect(
-                    borderRadius: AppSpacing.borderRadiusFull,
-                    child: LinearProgressIndicator(
-                      minHeight: 4,
-                      backgroundColor: AppColors.glassWhite,
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                        AppColors.primaryAccent,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _onNavigationTapped(int index) {
-    if (index != _currentIndex) {
-      setState(() {
-        _currentIndex = index;
-      });
-
-      // Update FAB visibility based on screen
-      _updateFabVisibility(index);
-
-      AnalyticsService().logScreenView(screenName: _screenTitles[index]);
-      HapticFeedback.lightImpact();
-    }
-  }
-
-  void _updateFabVisibility(int index) {
-    bool shouldShowFab =
-        index == 0 || index == 1; // Show FAB on Home and Transactions
-
-    if (shouldShowFab != _isFabVisible) {
-      setState(() {
-        _isFabVisible = shouldShowFab;
-      });
-    }
-  }
-
-  void _showAddTransactionModal() {
-    HapticFeedback.mediumImpact();
-    // Use the new full-screen Cashew-style transaction creation
-    showAddTransactionScreen(context);
-  }
-
-  // Legacy method for backward compatibility - kept for reference
-  // ignore: unused_element
-  void _showAddTransactionModalLegacy() {
-    HapticFeedback.mediumImpact();
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        height: MediaQuery.of(context).size.height * 0.85,
-        decoration: BoxDecoration(
-          color: AppColors.primarySurface,
-          borderRadius: BorderRadius.vertical(
-            top: Radius.circular(AppSpacing.radiusXxl),
-          ),
-        ),
-        child: Column(
-          children: [
-            // Handle bar
-            Container(
-              margin: EdgeInsets.symmetric(vertical: AppSpacing.md),
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: AppColors.glassBorder,
-                borderRadius: AppSpacing.borderRadiusFull,
-              ),
-            ),
-            Expanded(
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: AppSpacing.xl),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    AppSpacing.gapLg,
-                    // Header
-                    Row(
-                      children: [
-                        Container(
-                          width: 48,
-                          height: 48,
-                          decoration: BoxDecoration(
-                            gradient: AppColors.primaryGradient,
-                            borderRadius: AppSpacing.borderRadiusLg,
-                          ),
-                          child: Icon(
-                            Icons.add,
-                            color: AppColors.textPrimary,
-                            size: AppSpacing.iconMd,
-                          ),
-                        ),
-                        AppSpacing.gapHLg,
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    L10n.of(context).sharedQuickAdd,
-                                    style: AppTypography.headlineMedium,
-                                  ),
-                                  TextButton.icon(
-                                    onPressed: () {
-                                      Navigator.pop(context);
-                                      Navigator.pushNamed(
-                                        context,
-                                        '/categories',
-                                      );
-                                    },
-                                    icon: Icon(
-                                      Icons.settings_outlined,
-                                      color: AppColors.textMuted,
-                                      size: AppSpacing.iconXs,
-                                    ),
-                                    label: Text(
-                                      L10n.of(context).dashManage,
-                                      style: AppTypography.labelSmall.copyWith(
-                                        color: AppColors.textMuted,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Text(
-                                L10n.of(
-                                  context,
-                                ).sharedRecordYourIncomeOrExpense,
-                                style: AppTypography.bodySmall,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    AppSpacing.gapXxl,
-                    Expanded(
-                      child: SingleChildScrollView(
-                        child: _buildQuickAddOptions(),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildQuickAddOptions() {
-    final quickOptions = [
-      {
-        'icon': Icons.shopping_cart_outlined,
-        'title': 'Shopping',
-        'color': AppColors.neonPink,
-        'type': 'expense',
-        'categoryName': 'Shopping',
-      },
-      {
-        'icon': Icons.restaurant_outlined,
-        'title': 'Food & Dining',
-        'color': AppColors.neonCyan,
-        'type': 'expense',
-        'categoryName': 'Food & Dining',
-      },
-      {
-        'icon': Icons.local_gas_station_outlined,
-        'title': 'Fuel',
-        'color': AppColors.info,
-        'type': 'expense',
-        'categoryName': 'Transportation',
-      },
-      {
-        'icon': Icons.home_outlined,
-        'title': 'Bills & Utilities',
-        'color': AppColors.success,
-        'type': 'expense',
-        'categoryName': 'Bills & Utilities',
-      },
-      {
-        'icon': Icons.movie_outlined,
-        'title': 'Entertainment',
-        'color': AppColors.warning,
-        'type': 'expense',
-        'categoryName': 'Entertainment',
-      },
-      {
-        'icon': Icons.work_outline,
-        'title': 'Work Income',
-        'color': AppColors.success,
-        'type': 'income',
-        'categoryName': 'Salary',
-      },
-    ];
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          L10n.of(context).settingsCategories,
-          style: AppTypography.titleMedium,
-        ),
-        AppSpacing.gapLg,
-        GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            crossAxisSpacing: AppSpacing.md,
-            mainAxisSpacing: AppSpacing.md,
-            childAspectRatio: 1.4,
-          ),
-          itemCount: quickOptions.length,
-          itemBuilder: (context, index) {
-            final option = quickOptions[index];
-            final color = option['color'] as Color;
-            return GlassCard(
-              onTap: () {
-                Navigator.pop(context);
-                _navigateToAddTransaction(
-                  option['type'] as String,
-                  option['categoryName'] as String,
-                );
-              },
-              padding: AppSpacing.paddingMd,
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 32),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
-                    width: 44,
-                    height: 44,
+                    width: 84,
+                    height: 84,
                     decoration: BoxDecoration(
-                      color: color.withValues(alpha: 0.15),
-                      borderRadius: AppSpacing.borderRadiusMd,
+                      gradient: c.gradient,
+                      borderRadius: BorderRadius.circular(24),
+                      boxShadow: c.gradientShadow,
                     ),
-                    child: Icon(
-                      option['icon'] as IconData,
-                      color: color,
-                      size: AppSpacing.iconSm,
-                    ),
+                    padding: const EdgeInsets.all(18),
+                    child: Image.asset('assets/logo/glyph-white-256.png'),
                   ),
-                  AppSpacing.gapSm,
+                  const SizedBox(height: 28),
                   Text(
-                    option['title'] as String,
-                    style: AppTypography.labelMedium,
+                    l10n.sharedWelcomeBack,
                     textAlign: TextAlign.center,
+                    style: SunriseType.heroTitle.copyWith(color: c.ink),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    l10n.sharedRestoringYourDataFromThe,
+                    textAlign: TextAlign.center,
+                    style: SunriseType.body.copyWith(color: c.muted),
+                  ),
+                  const SizedBox(height: 32),
+                  SizedBox(
+                    width: 180,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(3),
+                      child: LinearProgressIndicator(
+                        minHeight: 5,
+                        backgroundColor: c.toggleOff,
+                        color: c.accent,
+                      ),
+                    ),
                   ),
                 ],
               ),
-            );
-          },
+            ),
+          ),
         ),
-      ],
+      ),
+    );
+  }
+
+  void _select(int index) {
+    if (index == _currentIndex) return;
+    setState(() => _currentIndex = index);
+    _tabFade.forward(from: 0);
+    AnalyticsService().logScreenView(screenName: _screenTitles[index]);
+  }
+
+  void _openAdd() {
+    HapticFeedback.mediumImpact();
+    showAddTransactionScreen(context);
+  }
+
+  List<SunriseTabItem> _tabs(L10n l10n) {
+    final unread = ref.watch(unreadNotificationCountProvider);
+    return [
+      SunriseTabItem(
+        icon: Symbols.sunny_rounded,
+        label: l10n.navToday,
+        key: _navTodayKey,
+        badge: unread > 0 && _currentIndex != 0,
+      ),
+      SunriseTabItem(
+        icon: Symbols.account_balance_wallet_rounded,
+        label: l10n.navWallets,
+        key: _navWalletsKey,
+      ),
+      SunriseTabItem(
+        icon: Symbols.leaderboard_rounded,
+        label: l10n.navStats,
+        key: _navStatsKey,
+      ),
+      SunriseTabItem(icon: Symbols.more_horiz_rounded, label: l10n.navMore),
+    ];
+  }
+
+  Widget _tabBody(Widget content) {
+    return AnimatedBuilder(
+      animation: _tabFade,
+      builder: (context, child) {
+        final t = Curves.easeOut.transform(_tabFade.value);
+        return Opacity(
+          opacity: t,
+          child: Transform.translate(
+            offset: Offset(0, (1 - t) * 6),
+            child: child,
+          ),
+        );
+      },
+      child: content,
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     final hasWallets = ref.watch(hasWalletsProvider);
     final isLoadingWallets = ref.watch(walletsLoadingProvider);
 
     // While wallets are being fetched, render the skeleton inside the SAME
-    // dashboard chrome (app bar + bottom nav) as the loaded state. Because the
-    // top-level structure matches, the nav persists across the transition and
-    // the body simply fills in — so it reads as one continuous "dashboard
-    // loading" instead of a separate blank skeleton screen first.
+    // chrome as the loaded state, so the tab bar persists across the
+    // transition and the body simply fills in.
     if (isLoadingWallets) {
-      return Container(
-        decoration: const BoxDecoration(),
-        child: Scaffold(
-          backgroundColor: Colors.transparent,
-          appBar: _buildCustomAppBar(),
-          body: const SafeArea(child: ShimmerDashboard()),
-          bottomNavigationBar: CustomBottomNavBar(
-            currentIndex: _currentIndex,
-            onTap: _onNavigationTapped,
-            items: NavItems.defaultItems,
-            itemKeys: const [null, null, null, null, null],
-          ),
+      return _chrome(
+        l10n,
+        const SunriseBackground(
+          child: SafeArea(bottom: false, child: ShimmerDashboard()),
         ),
       );
     }
 
     // No wallets locally. Before assuming this is a brand-new user, wait for the
-    // one-time restore sync to finish — a reinstalled/existing user pulls their
-    // data down first and lands on the dashboard, never on create-first-wallet.
+    // one-time restore sync to finish.
     if (!hasWallets) {
       final flow = ref.watch(startupFlowProvider);
 
-      // Unresolved or blocked state gets the recovery screen, never the
-      // first-wallet one.
       if (flow.needsUserAttention && !flow.startedOfflineByChoice) {
         return const StartupRecoveryScreen();
       }
 
-      // Only a confirmed-empty account — or the user's own warned choice to
-      // start offline — opens the create-first-wallet path.
       if (!flow.mayOfferFirstWallet) {
         return _buildRestoringScreen();
       }
 
       return CreateFirstWalletScreen(
-        onWalletCreated: () {
-          // Force refresh wallet provider
-          ref.invalidate(walletProvider);
-        },
+        onWalletCreated: () => ref.invalidate(walletProvider),
       );
     }
 
     final body = Stack(
       children: [
-        IndexedStack(
-          index: _currentIndex,
-          // The walkthrough key is attached to the account cards inside the
-          // home screen, not around the screen itself — wrapping the whole
-          // thing made the spotlight cover the display and pushed the tooltip,
-          // with its Next and Skip buttons, off the bottom of it.
-          children: _screens,
-        ),
+        _tabBody(IndexedStack(index: _currentIndex, children: _screens)),
         // Non-blocking background-sync indicator, floating at the top.
-        Positioned(
-          top: AppSpacing.sm,
-          left: 0,
-          right: 0,
-          child: const Align(
-            alignment: Alignment.topCenter,
-            child: SyncStatusBanner(),
+        const SafeArea(
+          child: Padding(
+            padding: EdgeInsets.only(top: 6),
+            child: Align(
+              alignment: Alignment.topCenter,
+              child: SyncStatusBanner(),
+            ),
           ),
         ),
       ],
     );
 
-    final fab = _isFabVisible
-        ? NeoFAB(
-            key: _fabKey,
-            icon: Icons.add,
-            onPressed: _showAddTransactionModal,
-          )
-        : null;
+    return _chrome(l10n, body);
+  }
 
-    // Tablet / large screens: a side navigation rail instead of a bottom bar,
-    // with the content held to a readable max width in the remaining space.
+  /// The shell around a body: tab bar on phones, a rail on tablets.
+  Widget _chrome(L10n l10n, Widget body) {
     if (isTablet(context)) {
+      final c = context.sunrise;
       return Scaffold(
         backgroundColor: Colors.transparent,
-        appBar: _buildCustomAppBar(),
-        body: SafeArea(
-          child: Row(
-            children: [
-              _buildNavRail(),
-              VerticalDivider(width: 1, color: AppColors.glassBorder),
-              Expanded(
-                child: Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 1000),
-                    child: body,
-                  ),
-                ),
+        body: Row(
+          children: [
+            SunriseGlass(
+              color: c.tabBar,
+              border: BorderDirectional(
+                end: BorderSide(color: c.tabBarBorder),
               ),
-            ],
-          ),
+              child: SafeArea(
+                right: false,
+                child: _buildNavRail(l10n),
+              ),
+            ),
+            Expanded(child: body),
+          ],
         ),
-        floatingActionButton: fab,
-        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       );
     }
 
-    // Phone: bottom navigation bar.
     return Scaffold(
       backgroundColor: Colors.transparent,
-      appBar: _buildCustomAppBar(),
-      extendBody: false,
+      // The frosted bar floats over content; scrollables pad themselves by
+      // SunriseSpace.tabBarClearance so nothing ends up hidden behind it.
+      extendBody: true,
       body: body,
-      floatingActionButton: fab,
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      bottomNavigationBar: CustomBottomNavBar(
+      bottomNavigationBar: SunriseTabBar(
+        items: _tabs(l10n),
         currentIndex: _currentIndex,
-        onTap: _onNavigationTapped,
-        items: NavItems.defaultItems,
-        itemKeys: [
-          _navHomeKey,
-          _navActivityKey,
-          _navAIKey,
-          null, // Reports
-          null, // Settings
-        ],
+        onTap: _select,
+        onAdd: _openAdd,
+        addLabel: l10n.navAdd,
+        addKey: _addKey,
       ),
     );
   }
 
-  /// Left navigation rail used on tablet / large screens in place of the
-  /// bottom bar.
-  Widget _buildNavRail() {
+  /// Side navigation for tablets: the same four destinations, Add on top.
+  Widget _buildNavRail(L10n l10n) {
+    final c = context.sunrise;
+    final tabs = _tabs(l10n);
     return NavigationRail(
       backgroundColor: Colors.transparent,
       selectedIndex: _currentIndex,
-      onDestinationSelected: _onNavigationTapped,
+      onDestinationSelected: (i) {
+        HapticFeedback.selectionClick();
+        _select(i);
+      },
       labelType: NavigationRailLabelType.all,
-      groupAlignment: -0.75,
-      indicatorColor: AppColors.primaryAccent.withValues(alpha: 0.18),
-      selectedIconTheme: IconThemeData(color: AppColors.primaryAccent),
-      unselectedIconTheme: IconThemeData(color: AppColors.textMuted),
-      selectedLabelTextStyle: AppTypography.labelSmall.copyWith(
-        color: AppColors.primaryAccent,
-        fontWeight: FontWeight.w600,
-      ),
-      unselectedLabelTextStyle: AppTypography.labelSmall.copyWith(
-        color: AppColors.textMuted,
+      groupAlignment: -0.7,
+      leading: Padding(
+        padding: const EdgeInsets.only(top: 12, bottom: 20),
+        child: Pressable(
+          key: _addKey,
+          onTap: _openAdd,
+          haptic: true,
+          semanticLabel: l10n.navAdd,
+          child: Container(
+            width: 52,
+            height: 40,
+            decoration: BoxDecoration(
+              gradient: c.gradient,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: c.selectedShadow,
+            ),
+            child: const Icon(Symbols.add_rounded, color: Colors.white),
+          ),
+        ),
       ),
       destinations: [
-        for (final item in NavItems.defaultItems)
+        for (final t in tabs)
           NavigationRailDestination(
-            icon: Icon(item.icon),
-            selectedIcon: Icon(item.activeIcon),
-            label: Text(NavItems.labelFor(item, L10n.of(context))),
+            icon: Icon(t.icon, key: t.key, size: 26),
+            selectedIcon: Icon(t.icon, size: 26, fill: 1),
+            label: Text(t.label),
           ),
       ],
-    );
-  }
-
-  PreferredSizeWidget _buildCustomAppBar() {
-    return AppBar(
-      backgroundColor: Colors.transparent,
-      elevation: 0,
-      systemOverlayStyle: const SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.light,
-      ),
-      title: Row(
-        children: [
-          Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              gradient: AppColors.primaryGradient,
-              borderRadius: AppSpacing.borderRadiusSm,
-            ),
-            child: Icon(
-              Icons.account_balance_wallet_rounded,
-              color: AppColors.textPrimary,
-              size: AppSpacing.iconSm,
-            ),
-          ),
-          AppSpacing.gapHMd,
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                _localizedTitles(L10n.of(context))[_currentIndex],
-                style: AppTypography.titleLarge,
-              ),
-              Text(
-                L10n.of(context).settingsTheAccountant,
-                style: AppTypography.labelSmall.copyWith(
-                  color: AppColors.textMuted,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-      actions: [
-        KeyedSubtree(key: _notificationKey, child: _buildNotificationButton()),
-        AppSpacing.gapHSm,
-      ],
-    );
-  }
-
-  Widget _buildNotificationButton() {
-    final unreadCount = ref.watch(unreadNotificationCountProvider);
-
-    return Stack(
-      children: [
-        NeoIconButton(
-          icon: Icons.notifications_outlined,
-          onPressed: () {
-            HapticFeedback.lightImpact();
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => const NotificationInboxScreen(),
-              ),
-            );
-          },
-          size: 40,
-          iconSize: AppSpacing.iconSm,
-        ),
-        if (unreadCount > 0)
-          Positioned(
-            right: 0,
-            top: 0,
-            child: Container(
-              padding: EdgeInsets.all(unreadCount > 9 ? 4 : 6),
-              decoration: BoxDecoration(
-                color: AppColors.error,
-                shape: BoxShape.circle,
-              ),
-              constraints: BoxConstraints(minWidth: 18, minHeight: 18),
-              child: Text(
-                unreadCount > 99 ? '99+' : unreadCount.toString(),
-                style: AppTypography.labelSmall.copyWith(
-                  color: Colors.white,
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ),
-      ],
-    );
-  }
-
-  void _navigateToAddTransaction(String transactionType, String categoryName) {
-    // Use the new Cashew-style transaction screen
-    showAddTransactionScreen(
-      context,
-      initialType: transactionType == 'income'
-          ? TransactionTypeSelection.income
-          : TransactionTypeSelection.expense,
     );
   }
 }

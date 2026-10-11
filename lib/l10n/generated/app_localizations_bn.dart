@@ -2013,4 +2013,337 @@ class L10nBn extends L10n {
   @override
   String get backupBusySyncing =>
       'একটি সিঙ্ক চলছে। ফিরিয়ে আনার আগে সেটি শেষ হতে দিন।';
+
+  @override
+  String get appearanceTitle => 'চেহারা';
+
+  @override
+  String get themeSunriseLight => 'সানরাইজ লাইট';
+
+  @override
+  String get themeSunriseDark => 'সানরাইজ ডার্ক';
+
+  @override
+  String get themeMatchSystem => 'ফোনের সেটিং অনুসরণ';
+
+  @override
+  String get themeMatchSystemHint => 'ফোনের সাথে লাইট ও ডার্ক বদলাবে';
+
+  @override
+  String get themeUnlockAll => 'সব থিম আনলক করুন';
+
+  @override
+  String get themeProBadge => 'প্রো';
+
+  @override
+  String get themeAccentSunrise => 'সানরাইজ';
+
+  @override
+  String get themeAccentSapphire => 'স্যাফায়ার';
+
+  @override
+  String get themeAccentEmerald => 'এমারেল্ড';
+
+  @override
+  String get themeAccentRuby => 'রুবি';
+
+  @override
+  String get themeAccentAmethyst => 'অ্যামেথিস্ট';
+
+  @override
+  String get themeAccentGraphite => 'গ্রাফাইট';
+
+  @override
+  String get themeAccentHeading => 'রঙ';
+
+  @override
+  String themeAppearanceValue(String accent, String mode) {
+    return '$accent $mode';
+  }
+
+  @override
+  String get navToday => 'আজ';
+
+  @override
+  String get navWallets => 'ওয়ালেট';
+
+  @override
+  String get navAdd => 'যোগ';
+
+  @override
+  String get navStats => 'পরিসংখ্যান';
+
+  @override
+  String get navMore => 'আরও';
+
+  @override
+  String get walkthroughTodayTitle => 'এক নজরে আপনার দিন';
+
+  @override
+  String get walkthroughTodayBody => 'নেট সম্পদ, আয়-ব্যয় আর আজকের লেনদেন।';
+
+  @override
+  String get walkthroughAddTitle => 'সেকেন্ডে যোগ করুন';
+
+  @override
+  String get walkthroughAddBody => 'খরচ, আয় বা ট্রান্সফার লিখতে যোগ চাপুন।';
+
+  @override
+  String get walkthroughWalletsTitle => 'ওয়ালেট ও পরিকল্পনা';
+
+  @override
+  String get walkthroughWalletsBody =>
+      'আপনার অ্যাকাউন্ট, আসন্ন বিল, ধার-দেনা, লক্ষ্য ও বাজেট।';
+
+  @override
+  String get walkthroughStatsTitle => 'টাকা কোথায় যায় দেখুন';
+
+  @override
+  String get walkthroughStatsBody =>
+      'সপ্তাহ, মাস ও বছর অনুযায়ী ক্যাটাগরি চার্ট।';
+
+  @override
+  String get walkthroughBellTitle => 'খবর রাখুন';
+
+  @override
+  String get walkthroughBellBody =>
+      'বাজেট সতর্কতা ও রিমাইন্ডার এখানে আসবে। সব প্রস্তুত!';
+
+  @override
+  String get walkthroughBalanceTitle => 'আপনার নেট সম্পদ';
+
+  @override
+  String get walkthroughBalanceBody =>
+      'সব ওয়ালেটের মোট এখানে, ভাগটা দেখায় বারে।';
+
+  @override
+  String get txTransfer => 'ট্রান্সফার';
+
+  @override
+  String get txUncategorized => 'শ্রেণিহীন';
+
+  @override
+  String todayGoodMorning(String name) {
+    return 'সুপ্রভাত, $name';
+  }
+
+  @override
+  String todayGoodAfternoon(String name) {
+    return 'শুভ অপরাহ্ন, $name';
+  }
+
+  @override
+  String todayGoodEvening(String name) {
+    return 'শুভ সন্ধ্যা, $name';
+  }
+
+  @override
+  String get todayGoodMorningPlain => 'সুপ্রভাত';
+
+  @override
+  String get todayGoodAfternoonPlain => 'শুভ অপরাহ্ন';
+
+  @override
+  String get todayGoodEveningPlain => 'শুভ সন্ধ্যা';
+
+  @override
+  String get todayNetWorth => 'নেট সম্পদ';
+
+  @override
+  String todayThisMonthDelta(String amount) {
+    return 'এই মাসে $amount';
+  }
+
+  @override
+  String get todayEarned => 'আয়';
+
+  @override
+  String get todaySpent => 'ব্যয়';
+
+  @override
+  String get todayTitle => 'আজ';
+
+  @override
+  String get todayRecent => 'সাম্প্রতিক';
+
+  @override
+  String get todayAllActivity => 'সব লেনদেন';
+
+  @override
+  String get todayNothingYet => 'আজ এখনো কিছু নেই';
+
+  @override
+  String get todayNothingYetBody => 'প্রথমটি লিখতে যোগ চাপুন।';
+
+  @override
+  String todayMoreWallets(int count) {
+    return '+আরও $countটি';
+  }
+
+  @override
+  String get todayCoachTitle => 'আপনার মানি কোচকে জিজ্ঞেস করুন';
+
+  @override
+  String get todayCoachBody => 'আপনার নিজের খরচ থেকে উত্তর ও পরামর্শ';
+
+  @override
+  String get todayNotifications => 'নোটিফিকেশন';
+
+  @override
+  String get todayHidden => 'লুকানো';
+
+  @override
+  String get todayWithinBudget => 'বাজেটের মধ্যে';
+
+  @override
+  String get todayOverBudget => 'বাজেট ছাড়িয়েছে';
+
+  @override
+  String get todayNetCredit => 'নিট পাওনা';
+
+  @override
+  String get todayNetDebt => 'নিট দেনা';
+
+  @override
+  String get todayMonthly => 'মাসিক';
+
+  @override
+  String get walletsTitle => 'ওয়ালেট';
+
+  @override
+  String get walletsNew => 'নতুন';
+
+  @override
+  String get walletsAddHint => 'ব্যাংক, ক্যাশ, সঞ্চয় যোগ করুন…';
+
+  @override
+  String get walletsPlanning => 'পরিকল্পনা';
+
+  @override
+  String get walletsUpcoming => 'আসন্ন';
+
+  @override
+  String walletsUpcomingSub(int count, String amount) {
+    return '$countটি বাকি · $amount';
+  }
+
+  @override
+  String get walletsUpcomingNone => 'শিগগির কিছু বাকি নেই';
+
+  @override
+  String get walletsLendBorrow => 'ধার ও দেনা';
+
+  @override
+  String walletsOwedToYou(String amount) {
+    return 'আপনি পাবেন $amount';
+  }
+
+  @override
+  String walletsYouOwe(String amount) {
+    return 'আপনার দেনা $amount';
+  }
+
+  @override
+  String get walletsAllSettled => 'সব মিটে গেছে';
+
+  @override
+  String get walletsGoals => 'লক্ষ্য';
+
+  @override
+  String walletsGoalsSub(int count) {
+    return '$countটি চলমান';
+  }
+
+  @override
+  String get walletsBudgets => 'বাজেট';
+
+  @override
+  String get walletsSubscriptions => 'সাবস্ক্রিপশন';
+
+  @override
+  String get walletsTransfer => 'ওয়ালেটের মধ্যে ট্রান্সফার';
+
+  @override
+  String get walletsArchived => 'আর্কাইভ';
+
+  @override
+  String walletsDeleteMessage(String name) {
+    return '“$name” মুছবেন? এই অ্যাকাউন্টের সব লেনদেনও মুছে যাবে।';
+  }
+
+  @override
+  String walletsDeleted(String name) {
+    return '$name মুছে ফেলা হয়েছে';
+  }
+
+  @override
+  String walletsSetDefaultDone(String name) {
+    return '$name এখন ডিফল্ট';
+  }
+
+  @override
+  String get walletsCreateFailed => 'অ্যাকাউন্ট তৈরি হয়নি। আবার চেষ্টা করুন।';
+
+  @override
+  String get walletsEmptyBody =>
+      'ট্র্যাকিং শুরু করতে প্রথম অ্যাকাউন্ট তৈরি করুন।';
+
+  @override
+  String get walletsTypeBank => 'ব্যাংক অ্যাকাউন্ট';
+
+  @override
+  String get walletsTypeCard => 'ক্রেডিট কার্ড';
+
+  @override
+  String get walletsTypeCash => 'ক্যাশ';
+
+  @override
+  String get walletsTypeOther => 'অ্যাকাউন্ট';
+
+  @override
+  String get moreTitle => 'আরও';
+
+  @override
+  String get moreGoPremium => 'প্রিমিয়াম নিন';
+
+  @override
+  String get moreGoPremiumBody => 'এআই সহকারী, ক্লাউড সিঙ্ক, থিম';
+
+  @override
+  String get moreUnlock => 'আনলক';
+
+  @override
+  String get morePremiumActive => 'প্রিমিয়াম চালু আছে';
+
+  @override
+  String get morePremiumThanks =>
+      'দ্য অ্যাকাউন্ট্যান্টকে সমর্থনের জন্য ধন্যবাদ';
+
+  @override
+  String get sectionPreferences => 'পছন্দ';
+
+  @override
+  String get sectionTools => 'টাকার টুলস';
+
+  @override
+  String get moreAiAssistant => 'এআই সহকারী';
+
+  @override
+  String get moreAiAssistantSub => 'আপনার টাকা নিয়ে প্রশ্ন করুন';
+
+  @override
+  String get moreSignOutConfirm => 'এই ডিভাইস থেকে সাইন আউট করবেন?';
+
+  @override
+  String get moreSignOutFailed => 'সাইন আউট হয়নি। আবার চেষ্টা করুন।';
+
+  @override
+  String get moreDeviceOnlyBody =>
+      'ফ্রি অ্যাকাউন্টের ডেটা ক্লাউডে ব্যাকআপ হয় না, তাই রিইনস্টল বা ফোন বদলালে ডেটা হারাতে পারে। ক্লাউড সিঙ্কের জন্য আপগ্রেড করুন, বা নিয়মিত ব্যাকআপ এক্সপোর্ট করুন।';
+
+  @override
+  String get moreUpgradeToPremium => 'প্রিমিয়ামে আপগ্রেড করুন';
+
+  @override
+  String get moreUser => 'আপনি';
 }

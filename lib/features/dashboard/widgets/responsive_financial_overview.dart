@@ -1,49 +1,52 @@
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:the_accountant/features/dashboard/providers/home_layout_provider.dart';
-import 'package:the_accountant/features/dashboard/domain/home_layout.dart';
-import 'package:the_accountant/l10n/generated/app_localizations.dart';
-import 'package:the_accountant/features/dashboard/widgets/pinned_goals_section.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fl_chart/fl_chart.dart';
-import 'package:the_accountant/core/themes/app_colors.dart';
-import 'package:the_accountant/core/themes/app_spacing.dart';
-import 'package:the_accountant/core/themes/app_typography.dart';
-import 'package:the_accountant/core/themes/app_animations.dart';
-import 'package:the_accountant/features/dashboard/providers/financial_data_provider.dart';
-import 'package:the_accountant/features/categories/providers/category_provider.dart'
-    as cat_provider;
-import 'package:the_accountant/features/reports/providers/reports_provider.dart';
-import 'package:the_accountant/data/datasources/local/app_database.dart';
+import 'package:intl/intl.dart';
 import 'package:the_accountant/core/providers/currency_provider.dart';
-import 'package:the_accountant/core/services/currency_service.dart';
-import 'package:the_accountant/core/utils/number_formatter.dart';
+import 'package:the_accountant/core/utils/currency_formatter.dart';
 import 'package:the_accountant/core/utils/responsive.dart';
-import 'package:the_accountant/features/settings/providers/settings_provider.dart';
-import 'package:the_accountant/shared/widgets/glass_card.dart';
-import 'package:the_accountant/shared/widgets/stat_card.dart';
-import 'package:the_accountant/shared/widgets/shimmer_loading.dart';
-// import 'package:the_accountant/features/transactions/screens/upcoming_transactions_screen.dart';
-// import 'package:the_accountant/features/transactions/screens/add_transaction_screen.dart';
-// import 'package:the_accountant/features/transactions/widgets/transaction_type_header.dart';
-import 'package:the_accountant/features/credit_debt/screens/credit_debt_screen.dart';
-import 'package:the_accountant/features/credit_debt/providers/credit_debt_provider.dart';
-import 'package:the_accountant/features/subscriptions/screens/subscription_dashboard_screen.dart';
-import 'package:the_accountant/features/subscriptions/providers/subscription_dashboard_provider.dart';
+import 'package:the_accountant/data/datasources/local/app_database.dart';
+import 'package:the_accountant/features/ai_assistant/screens/ai_assistant_screen.dart'
+    show AIAssistantScreenGated;
+import 'package:the_accountant/features/authentication/providers/auth_provider.dart';
 import 'package:the_accountant/features/budgets/screens/budget_list_screen.dart';
-import 'package:the_accountant/features/dashboard/widgets/wallet_cards_section.dart';
+import 'package:the_accountant/features/credit_debt/providers/credit_debt_provider.dart';
+import 'package:the_accountant/features/credit_debt/screens/credit_debt_screen.dart';
+import 'package:the_accountant/features/dashboard/domain/home_layout.dart';
+import 'package:the_accountant/features/dashboard/providers/balance_visibility_provider.dart';
+import 'package:the_accountant/features/dashboard/providers/financial_data_provider.dart';
+import 'package:the_accountant/features/dashboard/providers/home_layout_provider.dart';
+import 'package:the_accountant/features/dashboard/widgets/pinned_goals_section.dart';
+import 'package:the_accountant/features/notifications/providers/notification_history_provider.dart';
+import 'package:the_accountant/features/notifications/screens/notification_inbox_screen.dart';
+import 'package:the_accountant/features/reports/providers/reports_provider.dart';
+import 'package:the_accountant/features/settings/providers/settings_provider.dart';
+import 'package:the_accountant/features/subscriptions/providers/subscription_dashboard_provider.dart';
+import 'package:the_accountant/features/subscriptions/screens/subscription_dashboard_screen.dart';
 import 'package:the_accountant/features/transactions/screens/transaction_list_screen.dart';
 import 'package:the_accountant/features/transactions/screens/transaction_type_screen.dart';
+import 'package:the_accountant/features/transactions/widgets/sunrise_transaction_row.dart';
+import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
+import 'package:the_accountant/features/wallets/screens/wallet_management_screen.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
+import 'package:the_accountant/shared/widgets/shimmer_loading.dart';
+import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
 
+/// Today: greeting, net worth, earned and spent, and today's activity, then
+/// the rest of the user's home sections in the order they chose.
 class ResponsiveFinancialOverview extends ConsumerStatefulWidget {
-  const ResponsiveFinancialOverview({super.key, this.balanceKey});
+  const ResponsiveFinancialOverview({
+    super.key,
+    this.balanceKey,
+    this.notificationKey,
+  });
 
-  /// Marks the account cards for the first-run walkthrough.
-  ///
-  /// It has to land on the cards themselves. The shell used to attach it around
-  /// this whole screen, so the walkthrough spotlit the entire dashboard and
-  /// pointed at nothing in particular.
+  /// Marks the net-worth card for the first-run walkthrough.
   final Key? balanceKey;
+
+  /// Marks the bell for the walkthrough.
+  final Key? notificationKey;
 
   @override
   ConsumerState<ResponsiveFinancialOverview> createState() =>
@@ -53,555 +56,689 @@ class ResponsiveFinancialOverview extends ConsumerStatefulWidget {
 class _ResponsiveFinancialOverviewState
     extends ConsumerState<ResponsiveFinancialOverview>
     with SingleTickerProviderStateMixin {
-  late AnimationController _animationController;
-
-  @override
-  void initState() {
-    super.initState();
-
-    _animationController = AnimationController(
-      duration: AppAnimations.long,
-      vsync: this,
-    );
-
-    _animationController.forward();
-  }
+  late final AnimationController _entrance = AnimationController(
+    duration: const Duration(milliseconds: 700),
+    vsync: this,
+  )..forward();
 
   @override
   void dispose() {
-    _animationController.dispose();
+    _entrance.dispose();
     super.dispose();
+  }
+
+  void _push(Widget screen) {
+    HapticFeedback.lightImpact();
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => screen));
   }
 
   @override
   Widget build(BuildContext context) {
     final financialData = ref.watch(financialDataProvider);
+    final l10n = L10n.of(context);
 
-    // Show loading state with shimmer
     if (financialData.isLoading) {
-      return const Scaffold(
-        backgroundColor: Colors.transparent,
-        body: SafeArea(child: ShimmerDashboard()),
-      );
+      return const SunriseTabPage(child: ShimmerDashboard());
     }
 
-    // Show error state
     if (financialData.error != null) {
-      return Scaffold(
-        backgroundColor: Colors.transparent,
-        body: Center(
-          child: GlassCard(
-            padding: AppSpacing.paddingXl,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.error_outline,
-                  color: AppColors.error,
-                  size: AppSpacing.iconXxl,
-                ),
-                AppSpacing.gapLg,
-                Text(
-                  L10n.of(context).dashErrorLoadingFinancialData,
-                  style: AppTypography.titleMedium,
-                ),
-                AppSpacing.gapSm,
-                Text(
-                  financialData.error!,
-                  style: AppTypography.bodySmall,
-                  textAlign: TextAlign.center,
-                ),
-                AppSpacing.gapLg,
-                ElevatedButton(
-                  onPressed: () =>
-                      ref.read(financialDataProvider.notifier).refreshData(),
-                  child: Text(L10n.of(context).actionRetry),
-                ),
-              ],
-            ),
+      return SunriseTabPage(
+        child: Center(
+          child: EmptyState.error(
+            title: l10n.dashErrorLoadingFinancialData,
+            message: financialData.error,
+            retryLabel: l10n.actionRetry,
+            onRetry: () =>
+                ref.read(financialDataProvider.notifier).refreshData(),
           ),
         ),
       );
     }
 
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: SafeArea(
-        child: RefreshIndicator(
-          onRefresh: () async {
-            await ref.read(financialDataProvider.notifier).refreshData();
-          },
-          color: AppColors.primaryAccent,
-          backgroundColor: AppColors.primarySurface,
-          child: SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            padding: AppSpacing.paddingScreen,
-            child: isTablet(context)
-                ? _buildTabletBody(
-                    financialData.monthlyIncome,
-                    financialData.monthlyExpenses,
-                    financialData.recentTransactions,
-                  )
-                : _buildPhoneBody(
-                    financialData.monthlyIncome,
-                    financialData.monthlyExpenses,
-                    financialData.recentTransactions,
-                  ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  /// Phone: a single scrolling column of sections.
-  Widget _buildPhoneBody(
-    double income,
-    double expenses,
-    List<Transaction> recent,
-  ) {
-    // Drawn from the user's arrangement rather than a fixed list. The
-    // staggered entrance animation is keyed to the section's *position on
-    // screen*, not to which section it is, so a reordered page still animates
-    // top to bottom.
     final sections = ref.watch(homeLayoutProvider).visible;
+    final income = financialData.monthlyIncome;
+    final expenses = financialData.monthlyExpenses;
+    final recent = financialData.recentTransactions;
+    final c = context.sunrise;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        AppSpacing.gapLg,
-        for (var i = 0; i < sections.length; i++) ...[
-          _buildAnimatedSection(
-            i / sections.length * 0.7,
-            0.3 + i / sections.length * 0.7,
-            _sectionWidget(sections[i], income, expenses, recent),
+    final blocks = <Widget>[
+      _Header(
+        showGreeting: sections.contains(HomeSection.greeting),
+        bellKey: widget.notificationKey,
+        onBell: () => _push(const NotificationInboxScreen()),
+      ),
+      for (final s in sections)
+        if (s != HomeSection.greeting) ?_section(s, income, expenses, recent),
+    ];
+
+    final tablet = isTablet(context);
+
+    return SunriseBackground(
+      child: RefreshIndicator(
+        onRefresh: () => ref.read(financialDataProvider.notifier).refreshData(),
+        color: c.accent,
+        backgroundColor: c.surface,
+        edgeOffset: MediaQuery.paddingOf(context).top,
+        child: ListView(
+          physics: const AlwaysScrollableScrollPhysics(
+            parent: BouncingScrollPhysics(),
           ),
-          if (i < sections.length - 1)
-            sections[i] == HomeSection.greeting
-                ? AppSpacing.gapXxl
-                : AppSpacing.gapXl,
-        ],
-        SizedBox(height: AppSpacing.lg),
-      ],
-    );
-  }
-
-  /// One home-screen block, by name.
-  Widget _sectionWidget(
-    HomeSection section,
-    double income,
-    double expenses,
-    List<Transaction> recent,
-  ) => switch (section) {
-    HomeSection.greeting => _buildGreetingSection(),
-    HomeSection.accounts => WalletCardsSection(key: widget.balanceKey),
-    HomeSection.quickStats => _buildQuickStats(income, expenses),
-    HomeSection.quickLinks => _buildQuickLinks(),
-    HomeSection.spendingChart => _buildSpendingChart(),
-    HomeSection.recentTransactions => _buildRecentTransactions(recent),
-    HomeSection.budgets => _buildBudgetProgress(),
-    HomeSection.goals => const PinnedGoalsSection(),
-  };
-
-  /// Tablet: header full-width, then a two-column area so the wide screen reads
-  /// as a purposeful dashboard rather than a stretched phone column.
-  Widget _buildTabletBody(
-    double income,
-    double expenses,
-    List<Transaction> recent,
-  ) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        AppSpacing.gapLg,
-        _buildAnimatedSection(0.0, 0.3, _buildGreetingSection()),
-        AppSpacing.gapXl,
-        _buildAnimatedSection(
-          0.1,
-          0.4,
-          WalletCardsSection(key: widget.balanceKey),
-        ),
-        AppSpacing.gapXl,
-        _buildAnimatedSection(0.2, 0.5, _buildQuickStats(income, expenses)),
-        AppSpacing.gapXl,
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          padding: EdgeInsets.fromLTRB(
+            SunriseSpace.screenX,
+            MediaQuery.paddingOf(context).top + SunriseSpace.screenTop,
+            SunriseSpace.screenX,
+            SunriseSpace.tabBarClearance,
+          ),
           children: [
-            Expanded(
+            SunriseContentWidth(
+              maxWidth: tablet ? 980 : SunriseSpace.maxContentWidth,
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  _buildAnimatedSection(0.4, 0.7, _buildSpendingChart()),
-                  AppSpacing.gapXl,
-                  _buildAnimatedSection(
-                    0.5,
-                    0.8,
-                    _buildRecentTransactions(recent),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(width: AppSpacing.lg),
-            Expanded(
-              child: Column(
-                children: [
-                  _buildAnimatedSection(0.3, 0.6, _buildQuickLinks()),
-                  AppSpacing.gapXl,
-                  _buildAnimatedSection(0.6, 0.9, _buildBudgetProgress()),
-                  AppSpacing.gapXl,
-                  _buildAnimatedSection(0.7, 1.0, const PinnedGoalsSection()),
+                  for (var i = 0; i < blocks.length; i++)
+                    _Staggered(
+                      animation: _entrance,
+                      index: i,
+                      count: blocks.length,
+                      child: Padding(
+                        padding: EdgeInsets.only(
+                          bottom: i == blocks.length - 1
+                              ? 0
+                              : SunriseSpace.section,
+                        ),
+                        child: blocks[i],
+                      ),
+                    ),
                 ],
               ),
             ),
           ],
         ),
-        SizedBox(height: AppSpacing.lg),
-      ],
-    );
-  }
-
-  Widget _buildAnimatedSection(double start, double end, Widget child) {
-    return SlideTransition(
-      position: Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero)
-          .animate(
-            CurvedAnimation(
-              parent: _animationController,
-              curve: Interval(start, end, curve: AppAnimations.easeOut),
-            ),
-          ),
-      child: FadeTransition(
-        opacity: CurvedAnimation(
-          parent: _animationController,
-          curve: Interval(start, end, curve: AppAnimations.easeOut),
-        ),
-        child: child,
       ),
     );
   }
 
-  Widget _buildGreetingSection() {
+  /// One home block by name, or null when it has nothing to show.
+  Widget? _section(
+    HomeSection section,
+    double income,
+    double expenses,
+    List<Transaction> recent,
+  ) => switch (section) {
+    HomeSection.greeting => null,
+    HomeSection.accounts => _NetWorthCard(
+      key: widget.balanceKey,
+      monthDelta: income - expenses,
+      onTap: () => _push(const WalletManagementScreen()),
+    ),
+    HomeSection.quickStats => _quickStats(income, expenses),
+    HomeSection.quickLinks => _quickLinks(),
+    HomeSection.spendingChart => const _SpendingChartCard(),
+    HomeSection.recentTransactions => _todayList(recent),
+    HomeSection.budgets => const _BudgetsCard(),
+    HomeSection.goals => const PinnedGoalsSection(),
+  };
+
+  Widget _quickStats(double income, double expenses) {
+    final l10n = L10n.of(context);
+    final c = context.sunrise;
+    final currency = ref.watch(defaultCurrencyProvider);
+    final decimals = ref.watch(defaultDecimalProvider);
+    final nf = ref.watch(numberFormatSettingProvider);
+    String fmt(double v) => (v * 100).round().formatCurrency(
+      currency,
+      useDecimals: decimals,
+      numberFormat: nf,
+    );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: SunriseStatCard(
+                icon: Symbols.south_west_rounded,
+                iconColor: c.positive,
+                label: l10n.todayEarned,
+                value: fmt(income),
+                onTap: () => _push(
+                  const TransactionTypeScreen(transactionType: 'income'),
+                ),
+              ),
+            ),
+            const SizedBox(width: SunriseSpace.gap),
+            Expanded(
+              child: SunriseStatCard(
+                icon: Symbols.north_east_rounded,
+                iconColor: c.negative,
+                label: l10n.todaySpent,
+                value: fmt(expenses),
+                onTap: () => _push(
+                  const TransactionTypeScreen(transactionType: 'expense'),
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: SunriseSpace.gap),
+        _CoachCard(onTap: () => _push(const _AiRoute())),
+      ],
+    );
+  }
+
+  Widget _quickLinks() {
+    final l10n = L10n.of(context);
+    final c = context.sunrise;
+    final currency = ref.watch(defaultCurrencyProvider);
+    final nf = ref.watch(numberFormatSettingProvider);
+    final net = ref.watch(creditDebtProvider).netBalance;
+    final subs = ref.watch(subscriptionDashboardProvider).totalMonthlyCost;
+
     return Row(
+      children: [
+        Expanded(
+          child: SunriseStatCard(
+            icon: Symbols.handshake_rounded,
+            iconColor: c.negative,
+            label: l10n.dashCreditDebt,
+            value: net.formatCurrencyWithSign(
+              currency,
+              isIncome: net >= 0,
+              numberFormat: nf,
+            ),
+            footer: Text(
+              net >= 0 ? l10n.todayNetCredit : l10n.todayNetDebt,
+              style: SunriseType.caption.copyWith(color: c.subtle),
+            ),
+            onTap: () => _push(const CreditDebtScreen()),
+          ),
+        ),
+        const SizedBox(width: SunriseSpace.gap),
+        Expanded(
+          child: SunriseStatCard(
+            icon: Symbols.autorenew_rounded,
+            iconColor: c.accent,
+            label: l10n.dashSubscriptions,
+            value: (subs * 100).round().formatCurrency(
+              currency,
+              numberFormat: nf,
+            ),
+            footer: Text(
+              l10n.todayMonthly,
+              style: SunriseType.caption.copyWith(color: c.subtle),
+            ),
+            onTap: () => _push(const SubscriptionDashboardScreen()),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _todayList(List<Transaction> recent) {
+    final l10n = L10n.of(context);
+    final now = DateTime.now();
+    final today = recent
+        .where(
+          (t) =>
+              t.date.year == now.year &&
+              t.date.month == now.month &&
+              t.date.day == now.day,
+        )
+        .toList();
+    final showingToday = today.isNotEmpty || recent.isEmpty;
+    final rows = (showingToday ? today : recent).take(5).toList();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SectionTitle(
+          showingToday ? l10n.todayTitle : l10n.todayRecent,
+          actionLabel: l10n.todayAllActivity,
+          onAction: () => _push(const TransactionListScreen(standalone: true)),
+        ),
+        if (rows.isEmpty)
+          SunriseCard(
+            child: EmptyState(
+              compact: true,
+              icon: Symbols.receipt_long_rounded,
+              title: l10n.todayNothingYet,
+              message: l10n.todayNothingYetBody,
+            ),
+          )
+        else
+          ListCard(
+            children: [
+              for (final t in rows)
+                SunriseTransactionRow(transaction: t, showDate: !showingToday),
+            ],
+          ),
+      ],
+    );
+  }
+}
+
+/// The AI assistant, gated, as a pushed screen.
+class _AiRoute extends StatelessWidget {
+  const _AiRoute();
+
+  @override
+  Widget build(BuildContext context) => const AIAssistantScreenGated();
+}
+
+/// Entrance: each block fades and rises in turn.
+class _Staggered extends StatelessWidget {
+  const _Staggered({
+    required this.animation,
+    required this.index,
+    required this.count,
+    required this.child,
+  });
+
+  final Animation<double> animation;
+  final int index;
+  final int count;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final start = (index / (count + 2)).clamp(0.0, .7);
+    final curve = CurvedAnimation(
+      parent: animation,
+      curve: Interval(start, (start + .4).clamp(0, 1), curve: Curves.easeOut),
+    );
+    return FadeTransition(
+      opacity: curve,
+      child: SlideTransition(
+        position: Tween(
+          begin: const Offset(0, .06),
+          end: Offset.zero,
+        ).animate(curve),
+        child: child,
+      ),
+    );
+  }
+}
+
+/// Date line, bell, and "Good evening, Name".
+class _Header extends ConsumerWidget {
+  const _Header({
+    required this.showGreeting,
+    required this.onBell,
+    this.bellKey,
+  });
+
+  final bool showGreeting;
+  final VoidCallback onBell;
+  final Key? bellKey;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = L10n.of(context);
+    final c = context.sunrise;
+    final unread = ref.watch(unreadNotificationCountProvider);
+    final locale = Localizations.localeOf(context).toString();
+    final now = DateTime.now();
+    final date = DateFormat('EEE, d MMMM', locale).format(now);
+
+    final fullName = ref.watch(authProvider).displayName?.trim() ?? '';
+    final first = fullName.isEmpty ? '' : fullName.split(RegExp(r'\s+')).first;
+    final hour = now.hour;
+    final greeting = first.isEmpty
+        ? (hour < 12
+              ? l10n.todayGoodMorningPlain
+              : hour < 17
+              ? l10n.todayGoodAfternoonPlain
+              : l10n.todayGoodEveningPlain)
+        : (hour < 12
+              ? l10n.todayGoodMorning(first)
+              : hour < 17
+              ? l10n.todayGoodAfternoon(first)
+              : l10n.todayGoodEvening(first));
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                date,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: SunriseType.label.copyWith(color: c.muted, fontSize: 14),
+              ),
+            ),
+            KeyedSubtree(
+              key: bellKey,
+              child: SunriseIconButton(
+                icon: Symbols.notifications_rounded,
+                tooltip: l10n.todayNotifications,
+                onTap: onBell,
+                badge: unread == 0
+                    ? null
+                    : Container(
+                        constraints: const BoxConstraints(minWidth: 18),
+                        height: 18,
+                        padding: const EdgeInsets.symmetric(horizontal: 5),
+                        decoration: BoxDecoration(
+                          color: c.negative,
+                          borderRadius: BorderRadius.circular(9),
+                          border: Border.all(color: c.base, width: 1.5),
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(
+                          unread > 99 ? '99+' : '$unread',
+                          style: SunriseType.tabLabel.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+              ),
+            ),
+          ],
+        ),
+        if (showGreeting) ...[
+          const SizedBox(height: 10),
+          Semantics(
+            header: true,
+            child: Text(
+              greeting,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: SunriseType.greeting.copyWith(color: c.ink),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+/// The frosted net-worth card with the wallet split bar.
+class _NetWorthCard extends ConsumerWidget {
+  const _NetWorthCard({super.key, required this.monthDelta, this.onTap});
+
+  /// This month's income minus expenses, in major units.
+  final double monthDelta;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = L10n.of(context);
+    final c = context.sunrise;
+    final currency = ref.watch(defaultCurrencyProvider);
+    final decimals = ref.watch(defaultDecimalProvider);
+    final nf = ref.watch(numberFormatSettingProvider);
+    final total = ref.watch(convertedTotalBalanceProvider).asData?.value ?? 0;
+    final walletState = ref.watch(walletProvider);
+    final visibility = ref.watch(balanceVisibilityProvider);
+
+    final wallets = walletState.wallets.where((w) => !w.isArchived).toList();
+    final balances = walletState.walletBalances;
+    int balanceOf(Wallet w) => balances[w.id] ?? w.balance;
+
+    // Split by size; only positive balances take room on the bar.
+    final positive = wallets.where((w) => balanceOf(w) > 0).toList()
+      ..sort((a, b) => balanceOf(b).compareTo(balanceOf(a)));
+    final sum = positive.fold<int>(0, (s, w) => s + balanceOf(w));
+    final ramp = _ramp(c, positive.length);
+
+    final deltaCents = (monthDelta * 100).round();
+    final deltaText = deltaCents.formatCurrencyWithSign(
+      currency,
+      isIncome: deltaCents >= 0,
+      useDecimals: false,
+      numberFormat: nf,
+    );
+
+    return SunriseCard(
+      glass: true,
+      radius: SunriseRadius.heroBig,
+      padding: const EdgeInsets.all(SunriseSpace.hero),
+      onTap: onTap,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  l10n.todayNetWorth,
+                  style: SunriseType.label.copyWith(
+                    color: c.muted,
+                    fontSize: 15,
+                  ),
+                ),
+              ),
+              Flexible(
+                child: SunrisePill(
+                  label: l10n.todayThisMonthDelta(
+                    deltaText.replaceFirst('-', '−'),
+                  ),
+                  color: deltaCents >= 0 ? c.accentText : c.negative,
+                  background: deltaCents >= 0 ? c.tintPeach : c.tintRose,
+                  fontSize: 13,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: AlignmentDirectional.centerStart,
+            child: Text(
+              total
+                  .formatCurrency(
+                    currency,
+                    useDecimals: decimals && total.abs() < 10000000,
+                    numberFormat: nf,
+                  )
+                  .replaceFirst('-', '−'),
+              maxLines: 1,
+              style: SunriseType.balance.copyWith(color: c.ink),
+            ),
+          ),
+          if (positive.isNotEmpty) ...[
+            const SizedBox(height: 18),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(5),
+              child: SizedBox(
+                height: 10,
+                child: Row(
+                  children: [
+                    for (var i = 0; i < positive.length; i++) ...[
+                      if (i > 0) const SizedBox(width: 3),
+                      Expanded(
+                        flex: (balanceOf(positive[i]) * 1000 ~/ sum).clamp(
+                          8,
+                          1000,
+                        ),
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(5),
+                            gradient: LinearGradient(colors: ramp[i]),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 14),
+            Wrap(
+              spacing: 16,
+              runSpacing: 8,
+              alignment: WrapAlignment.spaceBetween,
+              children: [
+                for (var i = 0; i < positive.length && i < 3; i++)
+                  _Legend(
+                    color: ramp[i].last,
+                    label: positive[i].name,
+                    value: (visibility[positive[i].id] ?? true)
+                        ? balanceOf(positive[i]).formatCurrency(
+                            positive[i].currency,
+                            useDecimals: false,
+                            numberFormat: nf,
+                          )
+                        : '••••',
+                  ),
+                if (positive.length > 3)
+                  Text(
+                    l10n.todayMoreWallets(positive.length - 3),
+                    style: SunriseType.label.copyWith(color: c.subtle),
+                  ),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  /// Two-stop gradients walking along the brand gradient, one per wallet.
+  static List<List<Color>> _ramp(SunriseColors c, int n) {
+    if (n <= 0) return const [];
+    final stops = [c.gradientStart, c.gradientMid, c.gradientEnd];
+    Color at(double t) {
+      final scaled = t * 2;
+      final i = scaled.floor().clamp(0, 1);
+      return Color.lerp(stops[i], stops[i + 1], scaled - i)!;
+    }
+
+    if (n == 1) return [stops.sublist(0, 2)];
+    return [
+      for (var i = 0; i < n; i++)
+        [at(i / n), at(((i + 1) / n).clamp(0, 1))],
+    ];
+  }
+}
+
+class _Legend extends StatelessWidget {
+  const _Legend({required this.color, required this.label, required this.value});
+
+  final Color color;
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.sunrise;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
         Container(
-          width: 52,
-          height: 52,
-          decoration: BoxDecoration(
-            gradient: AppColors.primaryGradient,
-            borderRadius: AppSpacing.borderRadiusLg,
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.primaryGlow.withValues(alpha: 0.3),
-                blurRadius: 15,
-                offset: const Offset(0, 5),
-              ),
-            ],
-          ),
-          child: Icon(
-            Icons.waving_hand_rounded,
-            color: AppColors.textPrimary,
-            size: AppSpacing.iconMd,
-          ),
+          width: 8,
+          height: 8,
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
-        AppSpacing.gapHLg,
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Good ${_getTimeOfDay()}!',
-                style: AppTypography.headlineLarge,
-              ),
-              AppSpacing.gapXs,
-              Text(
-                L10n.of(context).dashReadyToManageYourFinances,
-                style: AppTypography.bodyMedium.copyWith(
-                  color: AppColors.textSecondary,
-                ),
-              ),
-            ],
+        const SizedBox(width: 8),
+        ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 200),
+          child: Text(
+            '$label $value',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: SunriseType.label.copyWith(color: c.ink, fontSize: 14),
           ),
         ),
       ],
     );
   }
+}
 
-  String _getTimeOfDay() {
-    final hour = DateTime.now().hour;
-    if (hour < 12) return 'Morning';
-    if (hour < 17) return 'Afternoon';
-    return 'Evening';
-  }
+/// The entry to the AI assistant on Today.
+class _CoachCard extends StatelessWidget {
+  const _CoachCard({required this.onTap});
 
-  Widget _buildQuickLinks() {
-    final displayCurrency = ref.watch(defaultCurrencyProvider);
-    final currencySymbol = CurrencyInfo.getSymbol(displayCurrency);
+  final VoidCallback onTap;
 
-    final creditDebtState = ref.watch(creditDebtProvider);
-    final netBalance = creditDebtState.netBalance;
-
-    final subState = ref.watch(subscriptionDashboardProvider);
-    final monthlySubs = subState.totalMonthlyCost;
-
-    return Row(
-      children: [
-        Expanded(
-          child: StatCard(
-            label: L10n.of(context).dashCreditDebt,
-            value: netBalance.abs() / 100.0, // cents -> major-unit dollars
-            prefix: '${netBalance >= 0 ? '+' : '-'}$currencySymbol',
-            icon: Icons.account_balance_wallet_rounded,
-            iconColor: AppColors.neonCyan,
-            accentColor: AppColors.neonCyan,
-            variant: GlassCardVariant.cyan,
-            trend: netBalance >= 0 ? TrendDirection.up : TrendDirection.down,
-            trendValue: netBalance >= 0 ? 'Net credit' : 'Net debt',
-            onTap: () {
-              HapticFeedback.lightImpact();
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const CreditDebtScreen(),
-                ),
-              );
-            },
+  @override
+  Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
+    final c = context.sunrise;
+    return SunriseCard(
+      onTap: onTap,
+      padding: const EdgeInsets.all(14),
+      child: Row(
+        children: [
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              gradient: c.orbGradient,
+              shape: BoxShape.circle,
+              boxShadow: c.selectedShadow,
+            ),
+            child: const Icon(
+              Symbols.auto_awesome_rounded,
+              color: Colors.white,
+              fill: 1,
+              size: 22,
+            ),
           ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: StatCard(
-            label: L10n.of(context).dashSubscriptions,
-            value: monthlySubs,
-            prefix: currencySymbol,
-            icon: Icons.subscriptions_rounded,
-            iconColor: AppColors.neonPurple,
-            accentColor: AppColors.neonPurple,
-            variant: GlassCardVariant.purple,
-            trend: TrendDirection.down,
-            trendValue: 'Monthly',
-            onTap: () {
-              HapticFeedback.lightImpact();
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const SubscriptionDashboardScreen(),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l10n.todayCoachTitle,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: SunriseType.rowTitle.copyWith(color: c.ink),
                 ),
-              );
-            },
+                Text(
+                  l10n.todayCoachBody,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: SunriseType.caption.copyWith(color: c.subtle),
+                ),
+              ],
+            ),
           ),
-        ),
-      ],
+          Icon(Symbols.chevron_right_rounded, color: c.chevron, size: 20),
+        ],
+      ),
     );
   }
+}
 
-  Widget _buildQuickStats(double income, double expenses) {
-    final displayCurrency = ref.watch(defaultCurrencyProvider);
-    final currencySymbol = CurrencyInfo.getSymbol(displayCurrency);
+/// The spending line for the current period, softly filled.
+class _SpendingChartCard extends ConsumerWidget {
+  const _SpendingChartCard();
 
-    return Row(
-      children: [
-        Expanded(
-          child: StatCard(
-            label: L10n.of(context).moneyIncome,
-            value: income,
-            prefix: currencySymbol,
-            icon: Icons.trending_up_rounded,
-            iconColor: AppColors.success,
-            accentColor: AppColors.success,
-            trend: TrendDirection.up,
-            trendValue: L10n.of(context).dashThisMonth,
-            onTap: () {
-              HapticFeedback.lightImpact();
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) =>
-                      const TransactionTypeScreen(transactionType: 'income'),
-                ),
-              );
-            },
-          ),
-        ),
-        AppSpacing.gapHMd,
-        Expanded(
-          child: StatCard(
-            label: L10n.of(context).dashExpenses,
-            value: expenses,
-            prefix: currencySymbol,
-            icon: Icons.trending_down_rounded,
-            iconColor: AppColors.error,
-            accentColor: AppColors.error,
-            trend: TrendDirection.down,
-            trendValue: L10n.of(context).dashThisMonth,
-            onTap: () {
-              HapticFeedback.lightImpact();
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) =>
-                      const TransactionTypeScreen(transactionType: 'expense'),
-                ),
-              );
-            },
-          ),
-        ),
-      ],
-    );
-  }
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = L10n.of(context);
+    final c = context.sunrise;
+    final reports = ref.watch(reportsProvider);
+    final spots = reports.toLineChartSpots();
+    final maxY = reports.getMaxY();
 
-  // Widget _buildQuickActions() {
-  //   final actions = [
-  //     {
-  //       'icon': Icons.add_rounded,
-  //       'label': 'Add',
-  //       'color': AppColors.primaryAccent,
-  //       'route': 'add',
-  //     },
-  //     {
-  //       'icon': Icons.schedule_rounded,
-  //       'label': 'Upcoming',
-  //       'color': AppColors.warning,
-  //       'route': 'upcoming',
-  //     },
-  //     {
-  //       'icon': Icons.account_balance_wallet_rounded,
-  //       'label': 'Lend/Borrow',
-  //       'color': AppColors.neonCyan,
-  //       'route': 'credit_debt',
-  //     },
-  //     {
-  //       'icon': Icons.savings_rounded,
-  //       'label': 'Goals',
-  //       'color': AppColors.success,
-  //       'route': 'goals',
-  //     },
-  //     {
-  //       'icon': Icons.swap_horiz_rounded,
-  //       'label': 'Transfer',
-  //       'color': AppColors.neonPurple,
-  //       'route': 'transfer',
-  //     },
-  //   ];
-
-  //   return SizedBox(
-  //     height: 100,
-  //     child: ListView.builder(
-  //       scrollDirection: Axis.horizontal,
-  //       itemCount: actions.length,
-  //       itemBuilder: (context, index) {
-  //         final action = actions[index];
-  //         final color = action['color'] as Color;
-  //         return Container(
-  //           margin: EdgeInsets.only(right: AppSpacing.md),
-  //           child: GlassCard(
-  //             width: 80,
-  //             onTap: () {
-  //               HapticFeedback.lightImpact();
-  //               _handleQuickAction(action['route'] as String?);
-  //             },
-  //             padding: AppSpacing.paddingSm,
-  //             child: Column(
-  //               mainAxisAlignment: MainAxisAlignment.center,
-  //               mainAxisSize: MainAxisSize.min,
-  //               children: [
-  //                 Container(
-  //                   width: 40,
-  //                   height: 40,
-  //                   decoration: BoxDecoration(
-  //                     color: color.withValues(alpha: 0.15),
-  //                     borderRadius: AppSpacing.borderRadiusMd,
-  //                   ),
-  //                   child: Icon(
-  //                     action['icon'] as IconData,
-  //                     color: color,
-  //                     size: AppSpacing.iconSm,
-  //                   ),
-  //                 ),
-  //                 AppSpacing.gapXs,
-  //                 Text(
-  //                   action['label'] as String,
-  //                   style: AppTypography.labelSmall,
-  //                 ),
-  //               ],
-  //             ),
-  //           ),
-  //         );
-  //       },
-  //     ),
-  //   );
-  // }
-
-  // void _handleQuickAction(String? route) {
-  //   switch (route) {
-  //     case 'add':
-  //       showAddTransactionScreen(context);
-  //       break;
-  //     case 'upcoming':
-  //       Navigator.push(
-  //         context,
-  //         MaterialPageRoute(
-  //           builder: (context) => const UpcomingTransactionsScreen(),
-  //         ),
-  //       );
-  //       break;
-  //     case 'credit_debt':
-  //       Navigator.push(
-  //         context,
-  //         MaterialPageRoute(
-  //           builder: (context) => const CreditDebtScreen(),
-  //         ),
-  //       );
-  //       break;
-  //     case 'goals':
-  //       // Navigate to budgets for now (goals/objectives screen coming soon)
-  //       Navigator.push(
-  //         context,
-  //         MaterialPageRoute(
-  //           builder: (context) => const BudgetListScreen(),
-  //         ),
-  //       );
-  //       break;
-  //     case 'transfer':
-  //       showAddTransactionScreen(
-  //         context,
-  //         initialType: TransactionTypeSelection.transfer,
-  //       );
-  //       break;
-  //   }
-  // }
-
-  Widget _buildSpendingChart() {
-    final reportsState = ref.watch(reportsProvider);
-    final spots = reportsState.toLineChartSpots();
-    final maxY = reportsState.getMaxY();
-
-    return GlassCard(
-      variant: GlassCardVariant.accent,
+    return SunriseCard(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            L10n.of(context).dashSpendingOverview,
-            style: AppTypography.titleMedium,
+            l10n.dashSpendingOverview,
+            style: SunriseType.section.copyWith(color: c.ink, fontSize: 16),
           ),
-          AppSpacing.gapLg,
+          const SizedBox(height: 14),
           SizedBox(
-            height: 180,
+            height: 160,
             child: spots.isEmpty
                 ? Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.show_chart,
-                          color: AppColors.textMuted,
-                          size: 40,
-                        ),
-                        AppSpacing.gapSm,
-                        Text(
-                          L10n.of(context).dashNoSpendingDataYet,
-                          style: AppTypography.bodySmall.copyWith(
-                            color: AppColors.textMuted,
-                          ),
-                        ),
-                      ],
+                    child: Text(
+                      l10n.dashNoSpendingDataYet,
+                      style: SunriseType.label.copyWith(color: c.subtle),
                     ),
                   )
                 : LineChart(
@@ -610,383 +747,191 @@ class _ResponsiveFinancialOverviewState
                         show: true,
                         drawVerticalLine: false,
                         horizontalInterval: maxY > 0 ? maxY / 4 : 1,
-                        getDrawingHorizontalLine: (value) {
-                          return FlLine(
-                            color: AppColors.glassBorder,
-                            strokeWidth: 1,
-                          );
-                        },
+                        getDrawingHorizontalLine: (_) =>
+                            FlLine(color: c.divider, strokeWidth: 1),
                       ),
-                      titlesData: FlTitlesData(show: false),
+                      titlesData: const FlTitlesData(show: false),
                       borderData: FlBorderData(show: false),
+                      lineTouchData: const LineTouchData(enabled: false),
                       minY: 0,
                       maxY: maxY,
                       lineBarsData: [
                         LineChartBarData(
                           spots: spots,
                           isCurved: true,
-                          gradient: AppColors.primaryGradient,
+                          preventCurveOverShooting: true,
+                          gradient: c.gradientShort,
                           barWidth: 3,
                           isStrokeCapRound: true,
                           dotData: FlDotData(
                             show: true,
-                            getDotPainter: (spot, percent, barData, index) {
-                              return FlDotCirclePainter(
-                                radius: index == spots.length - 1 ? 5 : 0,
-                                color: AppColors.primaryAccent,
-                                strokeWidth: 2,
-                                strokeColor: AppColors.textPrimary,
-                              );
-                            },
+                            getDotPainter: (spot, _, _, index) =>
+                                FlDotCirclePainter(
+                                  radius: index == spots.length - 1 ? 4.5 : 0,
+                                  color: c.gradientEnd,
+                                  strokeWidth: 2.5,
+                                  strokeColor: c.surface,
+                                ),
                           ),
                           belowBarData: BarAreaData(
                             show: true,
                             gradient: LinearGradient(
-                              colors: [
-                                AppColors.primaryAccent.withValues(alpha: 0.3),
-                                AppColors.primaryAccent.withValues(alpha: 0.0),
-                              ],
                               begin: Alignment.topCenter,
                               end: Alignment.bottomCenter,
+                              colors: [
+                                c.gradientMid.withValues(alpha: .25),
+                                c.gradientMid.withValues(alpha: 0),
+                              ],
                             ),
                           ),
                         ),
                       ],
                     ),
+                    duration: SunriseMotion.chart,
                   ),
           ),
         ],
       ),
     );
   }
+}
 
-  IconData _getCategoryIcon(String categoryName) {
-    switch (categoryName.toLowerCase()) {
-      case 'food & dining':
-      case 'food':
-      case 'dining':
-        return Icons.restaurant_rounded;
-      case 'transportation':
-      case 'transport':
-        return Icons.directions_car_rounded;
-      case 'shopping':
-        return Icons.shopping_cart_rounded;
-      case 'entertainment':
-        return Icons.movie_rounded;
-      case 'salary':
-      case 'income':
-        return Icons.work_rounded;
-      case 'freelance':
-        return Icons.business_center_rounded;
-      case 'bills':
-      case 'utilities':
-        return Icons.home_rounded;
-      case 'health':
-      case 'medical':
-        return Icons.local_hospital_rounded;
-      case 'education':
-        return Icons.school_rounded;
-      case 'travel':
-        return Icons.flight_rounded;
-      default:
-        return Icons.category_rounded;
-    }
-  }
+/// Active budgets with progress bars.
+class _BudgetsCard extends ConsumerWidget {
+  const _BudgetsCard();
 
-  Widget _buildRecentTransactions(List<Transaction> transactions) {
-    return GlassCard(
-      variant: GlassCardVariant.cyan,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                L10n.of(context).dashRecentTransactions,
-                style: AppTypography.titleMedium,
-              ),
-              GestureDetector(
-                onTap: () {
-                  HapticFeedback.lightImpact();
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          const TransactionListScreen(standalone: true),
-                    ),
-                  );
-                },
-                child: Text(
-                  L10n.of(context).dashViewAll,
-                  style: AppTypography.labelMedium.copyWith(
-                    color: AppColors.primaryAccent,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          AppSpacing.gapLg,
-          if (transactions.isEmpty)
-            Center(
-              child: Padding(
-                padding: AppSpacing.paddingLg,
-                child: Column(
-                  children: [
-                    Icon(
-                      Icons.receipt_long_outlined,
-                      color: AppColors.textMuted,
-                      size: AppSpacing.iconXxl,
-                    ),
-                    AppSpacing.gapMd,
-                    Text(
-                      L10n.of(context).dashNoTransactionsYet,
-                      style: AppTypography.titleSmall.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                    AppSpacing.gapXs,
-                    Text(
-                      L10n.of(context).dashAddYourFirstTransactionTo,
-                      style: AppTypography.bodySmall.copyWith(
-                        color: AppColors.textMuted,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            )
-          else
-            ...transactions.take(5).map((transaction) {
-              final categories = ref
-                  .read(cat_provider.categoryProvider)
-                  .categories;
-              final category = categories.firstWhere(
-                (c) => c.id == transaction.categoryId,
-                orElse: () => cat_provider.Category(
-                  id: transaction.categoryId ?? '',
-                  name: 'Unknown',
-                  colorCode: '#999999',
-                  type: transaction.type,
-                  isDefault: false,
-                ),
-              );
-
-              final isIncome = transaction.isIncome;
-              final categoryColor = Color(
-                int.parse(category.colorCode.replaceFirst('#', '0xFF')),
-              );
-              final walletCurrency = ref.watch(
-                walletCurrencyProvider(transaction.walletId),
-              );
-              final useDecimals = ref.watch(
-                walletDecimalProvider(transaction.walletId),
-              );
-              final currencySymbol = CurrencyInfo.getSymbol(walletCurrency);
-              final nf = ref.watch(numberFormatSettingProvider);
-              final formatter = AppNumberFormatter.get(
-                nf,
-                useDecimals: useDecimals,
-              );
-              // transaction.amount is integer cents; display in major-unit dollars.
-              final displayAmount = useDecimals
-                  ? transaction.amount / 100.0
-                  : (transaction.amount / 100.0).round();
-
-              return Container(
-                margin: EdgeInsets.only(bottom: AppSpacing.md),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 48,
-                      height: 48,
-                      decoration: BoxDecoration(
-                        color: categoryColor.withValues(alpha: 0.15),
-                        borderRadius: AppSpacing.borderRadiusMd,
-                      ),
-                      child: Icon(
-                        _getCategoryIcon(category.name),
-                        color: categoryColor,
-                        size: AppSpacing.iconSm,
-                      ),
-                    ),
-                    AppSpacing.gapHMd,
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            (transaction.notes?.isNotEmpty ?? false)
-                                ? transaction.notes!
-                                : category.name,
-                            style: AppTypography.titleSmall,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          Text(
-                            category.name,
-                            style: AppTypography.bodySmall.copyWith(
-                              color: AppColors.textMuted,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Text(
-                      '${isIncome ? '+' : '-'}$currencySymbol${formatter.format(displayAmount)}',
-                      style: AppTypography.monoSmall.copyWith(
-                        color: isIncome ? AppColors.success : AppColors.error,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBudgetProgress() {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = L10n.of(context);
+    final c = context.sunrise;
     final items = ref.watch(budgetProgressDetailsProvider);
-    final displayCurrency = ref.watch(defaultCurrencyProvider);
-    final useDecimals = ref.watch(defaultDecimalProvider);
-    final currencySymbol = CurrencyInfo.getSymbol(displayCurrency);
+    final currency = ref.watch(defaultCurrencyProvider);
     final nf = ref.watch(numberFormatSettingProvider);
-    final formatter = AppNumberFormatter.get(nf, useDecimals: useDecimals);
 
-    return GlassCard(
-      variant: GlassCardVariant.success,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                L10n.of(context).dashBudgetProgress,
-                style: AppTypography.titleMedium,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SectionTitle(
+          l10n.dashBudgetProgress,
+          actionLabel: l10n.dashManage,
+          onAction: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const BudgetListScreen()),
+          ),
+        ),
+        SunriseCard(
+          child: items.isEmpty
+              ? Text(
+                  l10n.reportNoActiveBudgets,
+                  style: SunriseType.label.copyWith(color: c.subtle),
+                )
+              : Column(
+                  children: [
+                    for (var i = 0; i < items.length; i++) ...[
+                      if (i > 0) const SizedBox(height: 16),
+                      _BudgetBar(
+                        name: items[i].budgetName,
+                        spent: items[i].spent,
+                        limit: items[i].limit,
+                        caption: (int spent, int limit) =>
+                            '${spent.formatCurrency(currency, useDecimals: false, numberFormat: nf)} / '
+                            '${limit.formatCurrency(currency, useDecimals: false, numberFormat: nf)}',
+                        withinLabel: l10n.todayWithinBudget,
+                        overLabel: l10n.todayOverBudget,
+                      ),
+                    ],
+                  ],
+                ),
+        ),
+      ],
+    );
+  }
+}
+
+class _BudgetBar extends StatelessWidget {
+  const _BudgetBar({
+    required this.name,
+    required this.spent,
+    required this.limit,
+    required this.caption,
+    required this.withinLabel,
+    required this.overLabel,
+  });
+
+  final String name;
+  final int spent;
+  final int limit;
+  final String Function(int spent, int limit) caption;
+  final String withinLabel;
+  final String overLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.sunrise;
+    final pct = limit <= 0 ? 0.0 : spent / limit;
+    final over = pct > 1;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                name,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: SunriseType.rowTitle.copyWith(color: c.ink),
               ),
-              GestureDetector(
-                onTap: () {
-                  HapticFeedback.lightImpact();
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const BudgetListScreen(),
-                    ),
-                  );
-                },
-                child: Text(
-                  L10n.of(context).dashManage,
-                  style: AppTypography.labelMedium.copyWith(
-                    color: AppColors.primaryAccent,
+            ),
+            Text(
+              caption(spent, limit),
+              style: SunriseType.label.copyWith(
+                color: c.subtle,
+                fontFeatures: const [FontFeature.tabularFigures()],
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(4),
+          child: Stack(
+            children: [
+              Container(height: 8, color: c.toggleOff),
+              FractionallySizedBox(
+                widthFactor: pct.clamp(0.0, 1.0),
+                child: Container(
+                  height: 8,
+                  decoration: BoxDecoration(
+                    color: over ? c.negative : null,
+                    gradient: over ? null : c.gradientShort,
+                    borderRadius: BorderRadius.circular(4),
                   ),
                 ),
               ),
             ],
           ),
-          AppSpacing.gapLg,
-          if (items.isEmpty)
-            Text(
-              L10n.of(context).reportNoActiveBudgets,
-              style: AppTypography.bodySmall.copyWith(
-                color: AppColors.textMuted,
-              ),
-            )
-          else
-            ...items.map((item) {
-              // BudgetProgressItem holds integer cents; display in major-unit dollars.
-              final spent = item.spent / 100.0;
-              final limit = item.limit / 100.0;
-              final percentage = limit <= 0 ? 0.0 : spent / limit;
-              final isOverBudget = percentage > 1.0;
-              final barColor = Color(
-                int.parse(item.colorCode.replaceFirst('#', '0xFF')),
-              );
-
-              return Container(
-                margin: EdgeInsets.only(bottom: AppSpacing.lg),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(item.budgetName, style: AppTypography.titleSmall),
-                        Text(
-                          '$currencySymbol${formatter.format(useDecimals ? spent : spent.round())} / $currencySymbol${formatter.format(useDecimals ? limit : limit.round())}',
-                          style: AppTypography.monoSmall.copyWith(
-                            color: AppColors.textSecondary,
-                          ),
-                        ),
-                      ],
-                    ),
-                    AppSpacing.gapSm,
-                    Stack(
-                      children: [
-                        Container(
-                          width: double.infinity,
-                          height: 8,
-                          decoration: BoxDecoration(
-                            color: AppColors.glassWhite,
-                            borderRadius: AppSpacing.borderRadiusFull,
-                          ),
-                        ),
-                        // Fill sized relative to the track (not the raw screen
-                        // width) so it renders correctly at any width, incl. iPad.
-                        FractionallySizedBox(
-                          widthFactor: percentage.clamp(0.0, 1.0),
-                          child: AnimatedContainer(
-                            duration: AppAnimations.slow,
-                            height: 8,
-                            decoration: BoxDecoration(
-                              gradient: isOverBudget
-                                  ? LinearGradient(
-                                      colors: [
-                                        AppColors.error,
-                                        AppColors.error.withValues(alpha: 0.7),
-                                      ],
-                                    )
-                                  : LinearGradient(
-                                      colors: [
-                                        barColor,
-                                        barColor.withValues(alpha: 0.7),
-                                      ],
-                                    ),
-                              borderRadius: AppSpacing.borderRadiusFull,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    AppSpacing.gapXs,
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          isOverBudget ? 'Over budget' : 'Within budget',
-                          style: AppTypography.labelSmall.copyWith(
-                            color: isOverBudget
-                                ? AppColors.error
-                                : AppColors.textMuted,
-                          ),
-                        ),
-                        Text(
-                          '${(percentage * 100).clamp(0.0, 999.9).toStringAsFixed(0)}%',
-                          style: AppTypography.labelSmall.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+        ),
+        const SizedBox(height: 6),
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                over ? overLabel : withinLabel,
+                style: SunriseType.caption.copyWith(
+                  color: over ? c.negative : c.subtle,
                 ),
-              );
-            }),
-        ],
-      ),
+              ),
+            ),
+            Text(
+              '${(pct * 100).clamp(0, 999).toStringAsFixed(0)}%',
+              style: SunriseType.caption.copyWith(
+                color: c.ink,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

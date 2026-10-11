@@ -2032,4 +2032,339 @@ class L10nEn extends L10n {
   @override
   String get backupBusySyncing =>
       'A sync is running. Wait for it to finish before restoring.';
+
+  @override
+  String get appearanceTitle => 'Appearance';
+
+  @override
+  String get themeSunriseLight => 'Sunrise Light';
+
+  @override
+  String get themeSunriseDark => 'Sunrise Dark';
+
+  @override
+  String get themeMatchSystem => 'Match system';
+
+  @override
+  String get themeMatchSystemHint =>
+      'Switch between light and dark with your phone';
+
+  @override
+  String get themeUnlockAll => 'Unlock all themes';
+
+  @override
+  String get themeProBadge => 'PRO';
+
+  @override
+  String get themeAccentSunrise => 'Sunrise';
+
+  @override
+  String get themeAccentSapphire => 'Sapphire';
+
+  @override
+  String get themeAccentEmerald => 'Emerald';
+
+  @override
+  String get themeAccentRuby => 'Ruby';
+
+  @override
+  String get themeAccentAmethyst => 'Amethyst';
+
+  @override
+  String get themeAccentGraphite => 'Graphite';
+
+  @override
+  String get themeAccentHeading => 'Accent';
+
+  @override
+  String themeAppearanceValue(String accent, String mode) {
+    return '$accent $mode';
+  }
+
+  @override
+  String get navToday => 'Today';
+
+  @override
+  String get navWallets => 'Wallets';
+
+  @override
+  String get navAdd => 'Add';
+
+  @override
+  String get navStats => 'Stats';
+
+  @override
+  String get navMore => 'More';
+
+  @override
+  String get walkthroughTodayTitle => 'Your day at a glance';
+
+  @override
+  String get walkthroughTodayBody =>
+      'Net worth, what you earned and spent, and today’s activity.';
+
+  @override
+  String get walkthroughAddTitle => 'Add in seconds';
+
+  @override
+  String get walkthroughAddBody =>
+      'Tap Add to record an expense, income or transfer.';
+
+  @override
+  String get walkthroughWalletsTitle => 'Wallets and planning';
+
+  @override
+  String get walkthroughWalletsBody =>
+      'Your accounts, plus upcoming bills, lend & borrow, goals and budgets.';
+
+  @override
+  String get walkthroughStatsTitle => 'See where it goes';
+
+  @override
+  String get walkthroughStatsBody =>
+      'Charts by week, month and year, by category.';
+
+  @override
+  String get walkthroughBellTitle => 'Stay informed';
+
+  @override
+  String get walkthroughBellBody =>
+      'Budget alerts and reminders appear here. You’re all set!';
+
+  @override
+  String get walkthroughBalanceTitle => 'Your net worth';
+
+  @override
+  String get walkthroughBalanceBody =>
+      'Every wallet adds up here, with a bar showing how it splits.';
+
+  @override
+  String get txTransfer => 'Transfer';
+
+  @override
+  String get txUncategorized => 'Uncategorized';
+
+  @override
+  String todayGoodMorning(String name) {
+    return 'Good morning, $name';
+  }
+
+  @override
+  String todayGoodAfternoon(String name) {
+    return 'Good afternoon, $name';
+  }
+
+  @override
+  String todayGoodEvening(String name) {
+    return 'Good evening, $name';
+  }
+
+  @override
+  String get todayGoodMorningPlain => 'Good morning';
+
+  @override
+  String get todayGoodAfternoonPlain => 'Good afternoon';
+
+  @override
+  String get todayGoodEveningPlain => 'Good evening';
+
+  @override
+  String get todayNetWorth => 'Net worth';
+
+  @override
+  String todayThisMonthDelta(String amount) {
+    return '$amount this month';
+  }
+
+  @override
+  String get todayEarned => 'Earned';
+
+  @override
+  String get todaySpent => 'Spent';
+
+  @override
+  String get todayTitle => 'Today';
+
+  @override
+  String get todayRecent => 'Recent';
+
+  @override
+  String get todayAllActivity => 'All activity';
+
+  @override
+  String get todayNothingYet => 'Nothing yet today';
+
+  @override
+  String get todayNothingYetBody => 'Tap Add to record your first one.';
+
+  @override
+  String todayMoreWallets(int count) {
+    return '+$count more';
+  }
+
+  @override
+  String get todayCoachTitle => 'Ask your money coach';
+
+  @override
+  String get todayCoachBody => 'Answers and nudges from your own spending';
+
+  @override
+  String get todayNotifications => 'Notifications';
+
+  @override
+  String get todayHidden => 'Hidden';
+
+  @override
+  String get todayWithinBudget => 'Within budget';
+
+  @override
+  String get todayOverBudget => 'Over budget';
+
+  @override
+  String get todayNetCredit => 'Net credit';
+
+  @override
+  String get todayNetDebt => 'Net debt';
+
+  @override
+  String get todayMonthly => 'Monthly';
+
+  @override
+  String get walletsTitle => 'Wallets';
+
+  @override
+  String get walletsNew => 'New';
+
+  @override
+  String get walletsAddHint => 'Add bank, cash, savings…';
+
+  @override
+  String get walletsPlanning => 'Planning';
+
+  @override
+  String get walletsUpcoming => 'Upcoming';
+
+  @override
+  String walletsUpcomingSub(int count, String amount) {
+    return '$count due · $amount';
+  }
+
+  @override
+  String get walletsUpcomingNone => 'Nothing due soon';
+
+  @override
+  String get walletsLendBorrow => 'Lend & borrow';
+
+  @override
+  String walletsOwedToYou(String amount) {
+    return 'You’re owed $amount';
+  }
+
+  @override
+  String walletsYouOwe(String amount) {
+    return 'You owe $amount';
+  }
+
+  @override
+  String get walletsAllSettled => 'All settled';
+
+  @override
+  String get walletsGoals => 'Goals';
+
+  @override
+  String walletsGoalsSub(int count) {
+    return '$count active';
+  }
+
+  @override
+  String get walletsBudgets => 'Budgets';
+
+  @override
+  String get walletsSubscriptions => 'Subscriptions';
+
+  @override
+  String get walletsTransfer => 'Transfer between wallets';
+
+  @override
+  String get walletsArchived => 'Archived';
+
+  @override
+  String walletsDeleteMessage(String name) {
+    return 'Delete “$name”? Every transaction in this account is deleted with it.';
+  }
+
+  @override
+  String walletsDeleted(String name) {
+    return '$name deleted';
+  }
+
+  @override
+  String walletsSetDefaultDone(String name) {
+    return '$name is now your default';
+  }
+
+  @override
+  String get walletsCreateFailed =>
+      'Couldn’t create the account. Please try again.';
+
+  @override
+  String get walletsEmptyBody => 'Create your first account to start tracking.';
+
+  @override
+  String get walletsTypeBank => 'Bank account';
+
+  @override
+  String get walletsTypeCard => 'Credit card';
+
+  @override
+  String get walletsTypeCash => 'Cash';
+
+  @override
+  String get walletsTypeOther => 'Account';
+
+  @override
+  String get moreTitle => 'More';
+
+  @override
+  String get moreGoPremium => 'Go Premium';
+
+  @override
+  String get moreGoPremiumBody => 'AI assistant, cloud sync, themes';
+
+  @override
+  String get moreUnlock => 'Unlock';
+
+  @override
+  String get morePremiumActive => 'Premium is active';
+
+  @override
+  String get morePremiumThanks => 'Thanks for supporting The Accountant';
+
+  @override
+  String get sectionPreferences => 'PREFERENCES';
+
+  @override
+  String get sectionTools => 'MONEY TOOLS';
+
+  @override
+  String get moreAiAssistant => 'AI assistant';
+
+  @override
+  String get moreAiAssistantSub => 'Ask questions about your money';
+
+  @override
+  String get moreSignOutConfirm => 'Sign out of your account on this device?';
+
+  @override
+  String get moreSignOutFailed => 'Couldn’t sign out. Please try again.';
+
+  @override
+  String get moreDeviceOnlyBody =>
+      'Free accounts aren’t backed up to the cloud, so reinstalling or switching phones can lose your data. Upgrade for cloud sync, or export a backup regularly.';
+
+  @override
+  String get moreUpgradeToPremium => 'Upgrade to Premium';
+
+  @override
+  String get moreUser => 'You';
 }

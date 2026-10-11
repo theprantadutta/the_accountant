@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:the_accountant/core/providers/walkthrough_provider.dart';
 import 'package:the_accountant/features/walkthrough/widgets/walkthrough_tooltip.dart';
 
@@ -11,51 +13,49 @@ class WalkthroughService {
     WidgetRef ref,
     Map<String, GlobalKey> keys,
   ) async {
+    final l10n = L10n.of(context);
     final steps = <_WalkthroughStep>[
       _WalkthroughStep(
         key: keys['balance']!,
         align: ContentAlign.bottom,
-        icon: Icons.account_balance_wallet_rounded,
-        title: 'Your Financial Overview',
-        description:
-            'See your total balance, income, and expenses at a glance. Swipe wallet cards to switch accounts.',
+        icon: Symbols.account_balance_wallet_rounded,
+        title: l10n.walkthroughBalanceTitle,
+        description: l10n.walkthroughBalanceBody,
       ),
       _WalkthroughStep(
-        key: keys['fab']!,
+        key: keys['add']!,
         align: ContentAlign.top,
-        icon: Icons.add_circle_outline,
-        title: 'Add Transactions',
-        description: 'Tap here to quickly record a new income or expense.',
+        icon: Symbols.add_circle_rounded,
+        title: l10n.walkthroughAddTitle,
+        description: l10n.walkthroughAddBody,
       ),
       _WalkthroughStep(
-        key: keys['navHome']!,
+        key: keys['navToday']!,
         align: ContentAlign.top,
-        icon: Icons.home_rounded,
-        title: 'Home Dashboard',
-        description:
-            'Your home base with spending charts, recent transactions, and summaries.',
+        icon: Symbols.sunny_rounded,
+        title: l10n.walkthroughTodayTitle,
+        description: l10n.walkthroughTodayBody,
       ),
       _WalkthroughStep(
-        key: keys['navActivity']!,
+        key: keys['navWallets']!,
         align: ContentAlign.top,
-        icon: Icons.receipt_long_rounded,
-        title: 'Transaction Activity',
-        description: 'Browse, search, and filter all your transactions here.',
+        icon: Symbols.account_balance_wallet_rounded,
+        title: l10n.walkthroughWalletsTitle,
+        description: l10n.walkthroughWalletsBody,
       ),
       _WalkthroughStep(
-        key: keys['navAI']!,
+        key: keys['navStats']!,
         align: ContentAlign.top,
-        icon: Icons.auto_awesome,
-        title: 'AI Assistant',
-        description:
-            'Get spending insights, scan receipts, or ask financial questions.',
+        icon: Symbols.leaderboard_rounded,
+        title: l10n.walkthroughStatsTitle,
+        description: l10n.walkthroughStatsBody,
       ),
       _WalkthroughStep(
         key: keys['notification']!,
         align: ContentAlign.bottom,
-        icon: Icons.notifications_rounded,
-        title: 'Stay Informed',
-        description: "Budget alerts and reminders appear here. You're all set!",
+        icon: Symbols.notifications_rounded,
+        title: l10n.walkthroughBellTitle,
+        description: l10n.walkthroughBellBody,
       ),
     ];
 

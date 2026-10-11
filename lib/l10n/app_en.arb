@@ -718,5 +718,202 @@
   "shortcutAddIncome": "Add income",
   "shortcutScanReceipt": "Scan receipt",
   "shortcutTransactions": "Transactions",
-  "backupBusySyncing": "A sync is running. Wait for it to finish before restoring."
+  "backupBusySyncing": "A sync is running. Wait for it to finish before restoring.",
+  "appearanceTitle": "Appearance",
+  "themeSunriseLight": "Sunrise Light",
+  "themeSunriseDark": "Sunrise Dark",
+  "themeMatchSystem": "Match system",
+  "themeMatchSystemHint": "Switch between light and dark with your phone",
+  "themeUnlockAll": "Unlock all themes",
+  "themeProBadge": "PRO",
+  "themeAccentSunrise": "Sunrise",
+  "themeAccentSapphire": "Sapphire",
+  "themeAccentEmerald": "Emerald",
+  "themeAccentRuby": "Ruby",
+  "themeAccentAmethyst": "Amethyst",
+  "themeAccentGraphite": "Graphite",
+  "themeAccentHeading": "Accent",
+  "themeAppearanceValue": "{accent} {mode}",
+  "@themeAppearanceValue": {
+    "placeholders": {
+      "accent": {
+        "type": "String"
+      },
+      "mode": {
+        "type": "String"
+      }
+    }
+  },
+  "navToday": "Today",
+  "navWallets": "Wallets",
+  "navAdd": "Add",
+  "navStats": "Stats",
+  "navMore": "More",
+  "walkthroughTodayTitle": "Your day at a glance",
+  "walkthroughTodayBody": "Net worth, what you earned and spent, and today’s activity.",
+  "walkthroughAddTitle": "Add in seconds",
+  "walkthroughAddBody": "Tap Add to record an expense, income or transfer.",
+  "walkthroughWalletsTitle": "Wallets and planning",
+  "walkthroughWalletsBody": "Your accounts, plus upcoming bills, lend & borrow, goals and budgets.",
+  "walkthroughStatsTitle": "See where it goes",
+  "walkthroughStatsBody": "Charts by week, month and year, by category.",
+  "walkthroughBellTitle": "Stay informed",
+  "walkthroughBellBody": "Budget alerts and reminders appear here. You’re all set!",
+  "walkthroughBalanceTitle": "Your net worth",
+  "walkthroughBalanceBody": "Every wallet adds up here, with a bar showing how it splits.",
+  "txTransfer": "Transfer",
+  "txUncategorized": "Uncategorized",
+  "todayGoodMorning": "Good morning, {name}",
+  "@todayGoodMorning": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "todayGoodAfternoon": "Good afternoon, {name}",
+  "@todayGoodAfternoon": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "todayGoodEvening": "Good evening, {name}",
+  "@todayGoodEvening": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "todayGoodMorningPlain": "Good morning",
+  "todayGoodAfternoonPlain": "Good afternoon",
+  "todayGoodEveningPlain": "Good evening",
+  "todayNetWorth": "Net worth",
+  "todayThisMonthDelta": "{amount} this month",
+  "@todayThisMonthDelta": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "todayEarned": "Earned",
+  "todaySpent": "Spent",
+  "todayTitle": "Today",
+  "todayRecent": "Recent",
+  "todayAllActivity": "All activity",
+  "todayNothingYet": "Nothing yet today",
+  "todayNothingYetBody": "Tap Add to record your first one.",
+  "todayMoreWallets": "+{count} more",
+  "@todayMoreWallets": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "todayCoachTitle": "Ask your money coach",
+  "todayCoachBody": "Answers and nudges from your own spending",
+  "todayNotifications": "Notifications",
+  "todayHidden": "Hidden",
+  "todayWithinBudget": "Within budget",
+  "todayOverBudget": "Over budget",
+  "todayNetCredit": "Net credit",
+  "todayNetDebt": "Net debt",
+  "todayMonthly": "Monthly",
+  "walletsTitle": "Wallets",
+  "walletsNew": "New",
+  "walletsAddHint": "Add bank, cash, savings…",
+  "walletsPlanning": "Planning",
+  "walletsUpcoming": "Upcoming",
+  "walletsUpcomingSub": "{count} due · {amount}",
+  "@walletsUpcomingSub": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "walletsUpcomingNone": "Nothing due soon",
+  "walletsLendBorrow": "Lend & borrow",
+  "walletsOwedToYou": "You’re owed {amount}",
+  "@walletsOwedToYou": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "walletsYouOwe": "You owe {amount}",
+  "@walletsYouOwe": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "walletsAllSettled": "All settled",
+  "walletsGoals": "Goals",
+  "walletsGoalsSub": "{count} active",
+  "@walletsGoalsSub": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "walletsBudgets": "Budgets",
+  "walletsSubscriptions": "Subscriptions",
+  "walletsTransfer": "Transfer between wallets",
+  "walletsArchived": "Archived",
+  "walletsDeleteMessage": "Delete “{name}”? Every transaction in this account is deleted with it.",
+  "@walletsDeleteMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "walletsDeleted": "{name} deleted",
+  "@walletsDeleted": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "walletsSetDefaultDone": "{name} is now your default",
+  "@walletsSetDefaultDone": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "walletsCreateFailed": "Couldn’t create the account. Please try again.",
+  "walletsEmptyBody": "Create your first account to start tracking.",
+  "walletsTypeBank": "Bank account",
+  "walletsTypeCard": "Credit card",
+  "walletsTypeCash": "Cash",
+  "walletsTypeOther": "Account",
+  "moreTitle": "More",
+  "moreGoPremium": "Go Premium",
+  "moreGoPremiumBody": "AI assistant, cloud sync, themes",
+  "moreUnlock": "Unlock",
+  "morePremiumActive": "Premium is active",
+  "morePremiumThanks": "Thanks for supporting The Accountant",
+  "sectionPreferences": "PREFERENCES",
+  "sectionTools": "MONEY TOOLS",
+  "moreAiAssistant": "AI assistant",
+  "moreAiAssistantSub": "Ask questions about your money",
+  "moreSignOutConfirm": "Sign out of your account on this device?",
+  "moreSignOutFailed": "Couldn’t sign out. Please try again.",
+  "moreDeviceOnlyBody": "Free accounts aren’t backed up to the cloud, so reinstalling or switching phones can lose your data. Upgrade for cloud sync, or export a backup regularly.",
+  "moreUpgradeToPremium": "Upgrade to Premium",
+  "moreUser": "You"
 }

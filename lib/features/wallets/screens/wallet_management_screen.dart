@@ -1,109 +1,76 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:the_accountant/l10n/generated/app_localizations.dart';
-import 'package:the_accountant/features/wallets/screens/wallet_detail_screen.dart';
-import 'package:the_accountant/core/providers/currency_provider.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:the_accountant/core/services/currency_service.dart';
-import 'package:the_accountant/core/utils/number_formatter.dart';
-import 'package:the_accountant/core/themes/app_colors.dart';
+import 'package:the_accountant/core/providers/currency_provider.dart';
 import 'package:the_accountant/core/utils/currency_formatter.dart';
-import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/data/models/wallet.dart' show WalletType;
-import 'package:the_accountant/features/settings/providers/settings_provider.dart';
+import 'package:the_accountant/features/budgets/providers/budget_provider.dart';
+import 'package:the_accountant/features/budgets/screens/budget_list_screen.dart';
+import 'package:the_accountant/features/credit_debt/providers/credit_debt_provider.dart';
+import 'package:the_accountant/features/credit_debt/screens/credit_debt_screen.dart';
+import 'package:the_accountant/features/objectives/providers/objectives_provider.dart';
+import 'package:the_accountant/features/objectives/screens/objectives_list_screen.dart';
 import 'package:the_accountant/features/premium/exceptions/premium_limit_exception.dart';
 import 'package:the_accountant/features/premium/widgets/upgrade_limit_dialog.dart';
-import 'package:the_accountant/shared/widgets/shimmer_loading.dart';
+import 'package:the_accountant/features/settings/providers/settings_provider.dart';
+import 'package:the_accountant/features/subscriptions/providers/subscription_dashboard_provider.dart';
+import 'package:the_accountant/features/subscriptions/screens/subscription_dashboard_screen.dart';
+import 'package:the_accountant/features/transactions/providers/upcoming_provider.dart';
+import 'package:the_accountant/features/transactions/screens/add_transaction_screen.dart';
+import 'package:the_accountant/features/transactions/screens/upcoming_transactions_screen.dart';
+import 'package:the_accountant/features/transactions/widgets/transaction_type_header.dart';
 import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
+import 'package:the_accountant/features/wallets/screens/wallet_detail_screen.dart';
 import 'package:the_accountant/features/wallets/widgets/add_wallet_form.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:the_accountant/shared/widgets/color_picker.dart';
 import 'package:the_accountant/shared/widgets/icon_picker.dart';
+import 'package:the_accountant/shared/widgets/shimmer_loading.dart';
+import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
 
+/// Wallets: the default account as a gradient card, the others as rows, an
+/// add row, and the Planning group (upcoming, lend & borrow, goals, budgets,
+/// subscriptions, transfers).
+///
+/// A tab root in the shell ([asTab]) and still pushable from elsewhere.
 class WalletManagementScreen extends ConsumerStatefulWidget {
-  const WalletManagementScreen({super.key});
+  const WalletManagementScreen({super.key, this.asTab = false});
+
+  final bool asTab;
 
   @override
   ConsumerState<WalletManagementScreen> createState() =>
       _WalletManagementScreenState();
 }
 
-class _WalletManagementScreenState extends ConsumerState<WalletManagementScreen>
-    with TickerProviderStateMixin {
+class _WalletManagementScreenState
+    extends ConsumerState<WalletManagementScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _balanceController = TextEditingController();
-
-  // Accounts that have already played their entrance animation, so reordering
-  // (which rebuilds/recreates cards) doesn't replay the slide-up + fade.
-  final Set<String> _animatedWalletIds = {};
-
-  late AnimationController _headerController;
-  late Animation<double> _headerAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _headerController = AnimationController(
-      duration: const Duration(milliseconds: 800),
-      vsync: this,
-    );
-    _headerAnimation = CurvedAnimation(
-      parent: _headerController,
-      curve: Curves.easeOutCubic,
-    );
-    _headerController.forward();
-  }
 
   @override
   void dispose() {
     _nameController.dispose();
     _balanceController.dispose();
-    _headerController.dispose();
     super.dispose();
   }
 
+  // ---------------------------------------------------------------- actions
+
   void _showAddWalletSheet() {
     HapticFeedback.lightImpact();
-    showModalBottomSheet(
+    showSunriseSheet<void>(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: AppColors.primarySurface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (context) => Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-        ),
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: AppSpacing.paddingLg,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Handle bar
-                Container(
-                  width: 40,
-                  height: 4,
-                  margin: const EdgeInsets.only(bottom: 20),
-                  decoration: BoxDecoration(
-                    color: AppColors.divider,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-                AddWalletForm(
-                  formKey: _formKey,
-                  nameController: _nameController,
-                  balanceController: _balanceController,
-                  initialCurrency: ref.read(settingsProvider).currency,
-                  onSubmit: _submitForm,
-                  onCancel: () => Navigator.pop(context),
-                ),
-              ],
-            ),
-          ),
+      builder: (sheetContext) => SunriseBottomSheet(
+        child: AddWalletForm(
+          formKey: _formKey,
+          nameController: _nameController,
+          balanceController: _balanceController,
+          initialCurrency: ref.read(settingsProvider).currency,
+          onSubmit: _submitForm,
+          onCancel: () => Navigator.pop(sheetContext),
         ),
       ),
     );
@@ -120,6 +87,7 @@ class _WalletManagementScreenState extends ConsumerState<WalletManagementScreen>
     required int? billingCycleDay,
   }) async {
     final walletNotifier = ref.read(walletProvider.notifier);
+    final l10n = L10n.of(context);
 
     try {
       await walletNotifier.addWallet(
@@ -140,412 +108,46 @@ class _WalletManagementScreenState extends ConsumerState<WalletManagementScreen>
 
       if (!mounted) return;
       Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(L10n.of(context).walletWalletCreatedSuccessfully),
-          backgroundColor: AppColors.success,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-        ),
+      showSunriseSnack(
+        context,
+        l10n.walletWalletCreatedSuccessfully,
+        tone: SnackTone.success,
       );
     } on PremiumLimitException catch (e) {
+      if (mounted) await UpgradeLimitDialog.showFromException(context, e);
+    } catch (_) {
       if (mounted) {
-        await UpgradeLimitDialog.showFromException(context, e);
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Failed to create wallet: $e')));
+        showSunriseSnack(context, l10n.walletsCreateFailed, tone: SnackTone.error);
       }
     }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final walletState = ref.watch(walletProvider);
-    final wallets = walletState.wallets;
-
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: CustomScrollView(
-        slivers: [
-          // Custom App Bar with total balance
-          SliverAppBar(
-            expandedHeight: 200,
-            floating: false,
-            pinned: true,
-            backgroundColor: Colors.transparent,
-            flexibleSpace: FlexibleSpaceBar(
-              background: _buildHeader(wallets, walletState),
-            ),
-            leading: IconButton(
-              icon: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: AppColors.glassWhite,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(Icons.arrow_back, size: 20),
-              ),
-              onPressed: () => Navigator.pop(context),
-            ),
-            actions: [
-              Padding(
-                padding: const EdgeInsets.only(right: 16),
-                child: IconButton(
-                  icon: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: AppColors.primaryAccent.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Icon(
-                      Icons.add,
-                      size: 20,
-                      color: AppColors.primaryAccent,
-                    ),
-                  ),
-                  onPressed: _showAddWalletSheet,
-                ),
-              ),
-            ],
-          ),
-
-          // Wallet list grouped by type
-          if (walletState.isLoading)
-            const SliverToBoxAdapter(
-              child: Padding(
-                padding: EdgeInsets.all(16),
-                child: Column(
-                  children: [
-                    ShimmerCard(height: 80),
-                    SizedBox(height: 12),
-                    ShimmerCard(height: 80),
-                    SizedBox(height: 12),
-                    ShimmerCard(height: 80),
-                    SizedBox(height: 12),
-                    ShimmerCard(height: 80),
-                  ],
-                ),
-              ),
-            )
-          else if (wallets.isEmpty)
-            SliverFillRemaining(child: _buildEmptyState())
-          else
-            SliverReorderableList(
-              itemCount: wallets.length,
-              onReorderItem: (oldIndex, newIndex) {
-                // onReorderItem's newIndex is already adjusted for the removal.
-                final ids = wallets.map((w) => w.id).toList();
-                final moved = ids.removeAt(oldIndex);
-                ids.insert(newIndex, moved);
-                HapticFeedback.mediumImpact();
-                ref.read(walletProvider.notifier).reorderWallets(ids);
-              },
-              itemBuilder: (context, index) {
-                final wallet = wallets[index];
-                return Padding(
-                  key: ValueKey(wallet.id),
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: _WalletCard(
-                    wallet: wallet,
-                    index: index,
-                    animatedIds: _animatedWalletIds,
-                    // Tapping opens the account rather than the editor: the
-                    // question people have about an account is what has moved
-                    // through it, not what it is called. Editing stays on the
-                    // long-press menu, where it was.
-                    onOpen: () => _openWallet(wallet),
-                    onEdit: () => _showEditWalletSheet(wallet),
-                    onDelete: () => _showDeleteConfirmationDialog(wallet),
-                    onSetDefault: () => _setAsDefault(wallet),
-                  ),
-                );
-              },
-            ),
-          SliverToBoxAdapter(child: SizedBox(height: 100)),
-        ],
-      ),
-      floatingActionButton: wallets.isNotEmpty
-          ? FloatingActionButton.extended(
-              onPressed: _showAddWalletSheet,
-              backgroundColor: AppColors.primaryAccent,
-              icon: const Icon(Icons.add, color: Colors.white),
-              label: Text(
-                L10n.of(context).walletAddAccount,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            )
-          : null,
-    );
   }
 
   Future<void> _openWallet(Wallet wallet) async {
     await Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => WalletDetailScreen(walletId: wallet.id),
-      ),
+      MaterialPageRoute(builder: (_) => WalletDetailScreen(walletId: wallet.id)),
     );
     if (mounted) await ref.read(walletProvider.notifier).loadWallets();
   }
 
-  Widget _buildHeader(List<Wallet> wallets, WalletState walletState) {
-    // Converted, and only over the accounts that count. This used to add the
-    // raw balances together whatever currency they were in — a hundred dollars
-    // plus a hundred taka came out as two hundred of whatever the default
-    // account happened to be, which is not a number that means anything.
-    final primaryCurrency = ref.watch(defaultCurrencyProvider);
-    final converted = ref.watch(convertedTotalBalanceProvider);
-    final totalBalance = (converted.asData?.value ?? 0) / 100.0;
-
-    return AnimatedBuilder(
-      animation: _headerAnimation,
-      builder: (context, child) {
-        return Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                AppColors.primaryAccent.withValues(alpha: 0.3),
-                AppColors.primaryDark,
-              ],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-            ),
-          ),
-          child: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 60, 20, 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.end,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    L10n.of(context).walletYourAccounts,
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: AppColors.textSecondary,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        CurrencyInfo.getSymbol(primaryCurrency),
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w300,
-                          color: AppColors.textPrimary.withValues(alpha: 0.7),
-                        ),
-                      ),
-                      const SizedBox(width: 4),
-                      Flexible(
-                        child: FittedBox(
-                          fit: BoxFit.scaleDown,
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            AppNumberFormatter.get(
-                              ref.watch(numberFormatSettingProvider),
-                            ).format(totalBalance * _headerAnimation.value),
-                            style: TextStyle(
-                              fontSize: 32,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.textPrimary,
-                              letterSpacing: -1,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 6),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColors.glassWhite,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.account_balance_wallet_outlined,
-                          size: 12,
-                          color: AppColors.textSecondary,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          '${wallets.length} ${wallets.length == 1 ? 'account' : 'accounts'}',
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: AppColors.textSecondary,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
-    );
+  void _push(Widget screen) {
+    HapticFeedback.lightImpact();
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => screen));
   }
 
-  Widget _buildEmptyState() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 100,
-              height: 100,
-              decoration: BoxDecoration(
-                color: AppColors.primaryAccent.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.account_balance_wallet_outlined,
-                size: 48,
-                color: AppColors.primaryAccent,
-              ),
-            ),
-            const SizedBox(height: 24),
-            Text(
-              L10n.of(context).walletNoAccountsYet,
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Create your first account to start\ntracking your finances',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 14,
-                color: AppColors.textSecondary,
-                height: 1.5,
-              ),
-            ),
-            const SizedBox(height: 32),
-            ElevatedButton.icon(
-              onPressed: _showAddWalletSheet,
-              icon: Icon(Icons.add, color: AppColors.textPrimary),
-              label: Text(
-                L10n.of(context).walletCreateAccount,
-                style: TextStyle(
-                  color: AppColors.textPrimary,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primaryAccent,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 14,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showDeleteConfirmationDialog(Wallet wallet) {
-    HapticFeedback.mediumImpact();
-    showDialog(
+  Future<void> _confirmDelete(Wallet wallet) async {
+    final l10n = L10n.of(context);
+    final ok = await showSunriseConfirm(
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor: AppColors.primarySurface,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          title: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: AppColors.error.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(
-                  Icons.delete_outline,
-                  color: AppColors.error,
-                  size: 20,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Text(
-                L10n.of(context).settingsDeleteAccount,
-                style: TextStyle(color: AppColors.textPrimary, fontSize: 18),
-              ),
-            ],
-          ),
-          content: Text(
-            'Are you sure you want to delete "${wallet.name}"? This will also delete all transactions associated with this account.',
-            style: TextStyle(color: AppColors.textSecondary, height: 1.5),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text(
-                L10n.of(context).actionCancel,
-                style: TextStyle(color: AppColors.textSecondary),
-              ),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                ref.read(walletProvider.notifier).deleteWallet(wallet.id);
-                Navigator.of(context).pop();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('${wallet.name} deleted'),
-                    backgroundColor: AppColors.error,
-                    behavior: SnackBarBehavior.floating,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.error,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              child: Text(
-                L10n.of(context).actionDelete,
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-          ],
-        );
-      },
+      title: l10n.settingsDeleteAccount,
+      message: l10n.walletsDeleteMessage(wallet.name),
+      confirmLabel: l10n.actionDelete,
+      destructive: true,
+      icon: Symbols.delete_rounded,
     );
+    if (!ok || !mounted) return;
+    await ref.read(walletProvider.notifier).deleteWallet(wallet.id);
+    if (mounted) showSunriseSnack(context, l10n.walletsDeleted(wallet.name));
   }
 
   void _setAsDefault(Wallet wallet) {
@@ -553,13 +155,10 @@ class _WalletManagementScreenState extends ConsumerState<WalletManagementScreen>
     ref
         .read(walletProvider.notifier)
         .updateWallet(id: wallet.id, isDefault: true);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('${wallet.name} set as default'),
-        backgroundColor: AppColors.success,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      ),
+    showSunriseSnack(
+      context,
+      L10n.of(context).walletsSetDefaultDone(wallet.name),
+      tone: SnackTone.success,
     );
   }
 
@@ -570,765 +169,378 @@ class _WalletManagementScreenState extends ConsumerState<WalletManagementScreen>
     );
     final editFormKey = GlobalKey<FormState>();
 
-    showModalBottomSheet(
+    showSunriseSheet<void>(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: AppColors.primarySurface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (context) => Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
+      builder: (sheetContext) => SunriseBottomSheet(
+        child: AddWalletForm(
+          formKey: editFormKey,
+          nameController: editNameController,
+          balanceController: editBalanceController,
+          initialCurrency: wallet.currency,
+          initialIcon: wallet.iconName,
+          initialColor: wallet.color,
+          initialIsDefault: wallet.isDefault,
+          initialUseDecimals: wallet.useDecimals,
+          initialWalletType: wallet.walletType,
+          initialCreditLimit: wallet.creditLimit == null
+              ? null
+              : wallet.creditLimit! / 100.0,
+          initialBillingCycleDay: wallet.billingCycleDay,
+          isEditing: true,
+          onSubmit:
+              ({
+                required String currency,
+                required String icon,
+                required String color,
+                required bool isDefault,
+                required bool useDecimals,
+                required WalletType walletType,
+                required double? creditLimit,
+                required int? billingCycleDay,
+              }) {
+                ref
+                    .read(walletProvider.notifier)
+                    .updateWallet(
+                      id: wallet.id,
+                      name: editNameController.text,
+                      currency: currency,
+                      balance: editBalanceController.text.toCentsOrNull(),
+                      iconName: icon,
+                      color: color,
+                      isDefault: isDefault,
+                      useDecimals: useDecimals,
+                      creditLimit: creditLimit == null
+                          ? null
+                          : (creditLimit * 100).round(),
+                      billingCycleDay: billingCycleDay,
+                    );
+                Navigator.pop(sheetContext);
+                showSunriseSnack(
+                  context,
+                  L10n.of(context).walletAccountUpdatedSuccessfully,
+                  tone: SnackTone.success,
+                );
+              },
+          onCancel: () => Navigator.pop(sheetContext),
         ),
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: AppSpacing.paddingLg,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Handle bar
-                Container(
-                  width: 40,
-                  height: 4,
-                  margin: const EdgeInsets.only(bottom: 20),
-                  decoration: BoxDecoration(
-                    color: AppColors.divider,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
+      ),
+    );
+  }
+
+  void _showOptions(Wallet wallet) {
+    final l10n = L10n.of(context);
+    showSunriseSheet<void>(
+      context: context,
+      builder: (sheetContext) {
+        void close(VoidCallback then) {
+          Navigator.pop(sheetContext);
+          then();
+        }
+
+        return SunriseBottomSheet(
+          title: wallet.name,
+          subtitle: wallet.currency,
+          child: Column(
+            children: [
+              SheetAction(
+                icon: Symbols.edit_rounded,
+                label: l10n.walletEditAccount,
+                onTap: () => close(() => _showEditWalletSheet(wallet)),
+              ),
+              if (!wallet.isDefault)
+                SheetAction(
+                  icon: Symbols.star_rounded,
+                  label: l10n.walletSetAsDefault,
+                  onTap: () => close(() => _setAsDefault(wallet)),
                 ),
-                AddWalletForm(
-                  formKey: editFormKey,
-                  nameController: editNameController,
-                  balanceController: editBalanceController,
-                  initialCurrency: wallet.currency,
-                  initialIcon: wallet.iconName,
-                  initialColor: wallet.color,
-                  initialIsDefault: wallet.isDefault,
-                  initialUseDecimals: wallet.useDecimals,
-                  initialWalletType: wallet.walletType,
-                  initialCreditLimit: wallet.creditLimit == null
-                      ? null
-                      : wallet.creditLimit! / 100.0,
-                  initialBillingCycleDay: wallet.billingCycleDay,
-                  isEditing: true,
-                  onSubmit:
-                      ({
-                        required String currency,
-                        required String icon,
-                        required String color,
-                        required bool isDefault,
-                        required bool useDecimals,
-                        required WalletType walletType,
-                        required double? creditLimit,
-                        required int? billingCycleDay,
-                      }) {
-                        ref
-                            .read(walletProvider.notifier)
-                            .updateWallet(
-                              id: wallet.id,
-                              name: editNameController.text,
-                              currency: currency,
-                              balance: editBalanceController.text
-                                  .toCentsOrNull(),
-                              iconName: icon,
-                              color: color,
-                              isDefault: isDefault,
-                              useDecimals: useDecimals,
-                              creditLimit: creditLimit == null
-                                  ? null
-                                  : (creditLimit * 100).round(),
-                              billingCycleDay: billingCycleDay,
-                            );
-                        Navigator.pop(context);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              L10n.of(context).walletAccountUpdatedSuccessfully,
-                            ),
-                            backgroundColor: AppColors.success,
-                            behavior: SnackBarBehavior.floating,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                        );
-                      },
-                  onCancel: () => Navigator.pop(context),
-                ),
-              ],
-            ),
+              SheetAction(
+                icon: Symbols.delete_rounded,
+                label: l10n.settingsDeleteAccount,
+                destructive: true,
+                onTap: () => close(() => _confirmDelete(wallet)),
+              ),
+            ],
           ),
-        ),
-      ),
-    );
-  }
-}
-
-/// Beautiful wallet card with gradient and animations
-class _WalletCard extends ConsumerStatefulWidget {
-  final Wallet wallet;
-  final int index;
-
-  /// Ids that have already animated in; shared/owned by the parent screen so the
-  /// entrance animation plays once and never replays on reorder.
-  final Set<String> animatedIds;
-  final VoidCallback onOpen;
-  final VoidCallback onEdit;
-  final VoidCallback onDelete;
-  final VoidCallback onSetDefault;
-
-  const _WalletCard({
-    required this.wallet,
-    required this.index,
-    required this.animatedIds,
-    required this.onOpen,
-    required this.onEdit,
-    required this.onDelete,
-    required this.onSetDefault,
-  });
-
-  @override
-  ConsumerState<_WalletCard> createState() => _WalletCardState();
-}
-
-class _WalletCardState extends ConsumerState<_WalletCard>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _slideAnimation;
-  late Animation<double> _fadeAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      duration: Duration(milliseconds: 400 + (widget.index * 100)),
-      vsync: this,
-    );
-    _slideAnimation = Tween<double>(
-      begin: 50,
-      end: 0,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
-    _fadeAnimation = Tween<double>(
-      begin: 0,
-      end: 1,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
-    // Set.add returns true only the first time this account is seen — animate it
-    // in then; on any later rebuild (e.g. after a reorder) skip straight to shown.
-    if (widget.animatedIds.add(widget.wallet.id)) {
-      _controller.forward();
-    } else {
-      _controller.value = 1.0;
-    }
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final wallet = widget.wallet;
-    final walletColor = WalletColors.parseColor(wallet.color);
-    final walletBalances = ref.watch(walletProvider).walletBalances;
-    // Balances/limits are integer cents; display works in major-unit dollars.
-    final balance = (walletBalances[wallet.id] ?? wallet.balance) / 100.0;
-    final isCreditCard = wallet.walletType == WalletType.creditCard;
-    final creditLimit = (wallet.creditLimit ?? 0) / 100.0;
-    final outstanding = isCreditCard ? balance.abs() : 0.0;
-    final available = isCreditCard ? (creditLimit - outstanding) : 0.0;
-    final usageRatio = isCreditCard && creditLimit > 0
-        ? (outstanding / creditLimit).clamp(0.0, 1.0)
-        : 0.0;
-
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, child) {
-        return Transform.translate(
-          offset: Offset(0, _slideAnimation.value),
-          child: Opacity(opacity: _fadeAnimation.value, child: child),
         );
       },
-      // Long-press anywhere on the card to drag-reorder; the ≡ handle drags
-      // immediately. Tap opens edit; the ⋮ button opens the options menu.
-      child: ReorderableDelayedDragStartListener(
-        index: widget.index,
-        child: GestureDetector(
-          onTap: widget.onOpen,
-          child: Container(
-            margin: const EdgeInsets.only(bottom: 16),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  walletColor.withValues(alpha: 0.25),
-                  walletColor.withValues(alpha: 0.05),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: walletColor.withValues(alpha: 0.3),
-                width: 1,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: walletColor.withValues(alpha: 0.15),
-                  blurRadius: 20,
-                  offset: const Offset(0, 8),
-                ),
-              ],
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: Stack(
-                children: [
-                  // Background pattern
-                  Positioned(
-                    right: -40,
-                    bottom: -40,
-                    child: Icon(
-                      WalletIcons.getIcon(wallet.iconName),
-                      size: 150,
-                      color: walletColor.withValues(alpha: 0.08),
-                    ),
-                  ),
+    );
+  }
 
-                  // Shimmer effect on top
-                  Positioned(
-                    top: -50,
-                    left: -50,
-                    child: Container(
-                      width: 150,
-                      height: 150,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: RadialGradient(
-                          colors: [
-                            walletColor.withValues(alpha: 0.15),
-                            Colors.transparent,
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
+  // ----------------------------------------------------------------- build
 
-                  // Content
-                  Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Top row: Icon + Name + Actions
-                        Row(
-                          children: [
-                            // Icon
-                            Container(
-                              width: 48,
-                              height: 48,
-                              decoration: BoxDecoration(
-                                color: walletColor.withValues(alpha: 0.2),
-                                borderRadius: BorderRadius.circular(14),
-                              ),
-                              child: Icon(
-                                WalletIcons.getIcon(wallet.iconName),
-                                color: walletColor,
-                                size: 24,
-                              ),
-                            ),
-                            const SizedBox(width: 14),
+  @override
+  Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
+    final c = context.sunrise;
+    final walletState = ref.watch(walletProvider);
+    final wallets = walletState.wallets;
 
-                            // Name and currency
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Flexible(
-                                        child: Text(
-                                          wallet.name,
-                                          style: TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.bold,
-                                            color: AppColors.textPrimary,
-                                          ),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ),
-                                      if (wallet.isDefault == true) ...[
-                                        const SizedBox(width: 8),
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 8,
-                                            vertical: 3,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color: AppColors.warning.withValues(
-                                              alpha: 0.2,
-                                            ),
-                                            borderRadius: BorderRadius.circular(
-                                              6,
-                                            ),
-                                          ),
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              Icon(
-                                                Icons.star_rounded,
-                                                size: 12,
-                                                color: AppColors.warning,
-                                              ),
-                                              const SizedBox(width: 4),
-                                              Text(
-                                                L10n.of(context).payDefault,
-                                                style: TextStyle(
-                                                  fontSize: 10,
-                                                  fontWeight: FontWeight.w600,
-                                                  color: AppColors.warning,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ],
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Row(
-                                    children: [
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 8,
-                                          vertical: 3,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: walletColor.withValues(
-                                            alpha: 0.15,
-                                          ),
-                                          borderRadius: BorderRadius.circular(
-                                            6,
-                                          ),
-                                        ),
-                                        child: Text(
-                                          wallet.currency,
-                                          style: TextStyle(
-                                            fontSize: 11,
-                                            fontWeight: FontWeight.w600,
-                                            color: walletColor,
-                                            letterSpacing: 0.5,
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 6),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 8,
-                                          vertical: 3,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: AppColors.glassWhite,
-                                          borderRadius: BorderRadius.circular(
-                                            6,
-                                          ),
-                                        ),
-                                        child: Text(
-                                          _walletTypeLabel(wallet.walletType),
-                                          style: TextStyle(
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.w500,
-                                            color: AppColors.textMuted,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
+    Wallet? featured;
+    for (final w in wallets) {
+      if (w.isDefault && !w.isArchived) featured = w;
+    }
+    featured ??= wallets.where((w) => !w.isArchived).firstOrNull;
+    final others = wallets.where((w) => w.id != featured?.id).toList();
 
-                            // Drag handle — reorder accounts
-                            ReorderableDragStartListener(
-                              index: widget.index,
-                              child: Container(
-                                padding: const EdgeInsets.all(6),
-                                margin: const EdgeInsets.only(right: 2),
-                                child: Icon(
-                                  Icons.drag_handle_rounded,
-                                  color: AppColors.textMuted,
-                                  size: 20,
-                                ),
-                              ),
-                            ),
-
-                            // Options button
-                            IconButton(
-                              onPressed: () => _showOptionsMenu(context),
-                              icon: Container(
-                                padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  color: AppColors.glassWhite,
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: Icon(
-                                  Icons.more_vert,
-                                  color: AppColors.textSecondary,
-                                  size: 18,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-
-                        const SizedBox(height: 20),
-
-                        // Credit card specific layout
-                        if (isCreditCard && creditLimit > 0) ...[
-                          // Outstanding
-                          Text(
-                            L10n.of(context).walletOutstanding,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: AppColors.textMuted,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Text(
-                                CurrencyInfo.getSymbol(wallet.currency),
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w300,
-                                  color: AppColors.textPrimary,
-                                ),
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                AppNumberFormatter.get(
-                                  ref.watch(numberFormatSettingProvider),
-                                  useDecimals: wallet.useDecimals,
-                                ).format(
-                                  wallet.useDecimals
-                                      ? outstanding
-                                      : outstanding.round(),
-                                ),
-                                style: TextStyle(
-                                  fontSize: 28,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColors.textPrimary,
-                                  letterSpacing: -0.5,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 12),
-                          // Usage progress bar
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(4),
-                            child: LinearProgressIndicator(
-                              value: usageRatio,
-                              backgroundColor: walletColor.withValues(
-                                alpha: 0.15,
-                              ),
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                usageRatio > 0.8
-                                    ? AppColors.error
-                                    : walletColor,
-                              ),
-                              minHeight: 6,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          // Available credit + limit
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    L10n.of(context).walletAvailable,
-                                    style: TextStyle(
-                                      fontSize: 10,
-                                      color: AppColors.textMuted,
-                                    ),
-                                  ),
-                                  Text(
-                                    '${CurrencyInfo.getSymbol(wallet.currency)}${AppNumberFormatter.get(ref.watch(numberFormatSettingProvider), useDecimals: wallet.useDecimals).format(wallet.useDecimals ? available : available.round())}',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w600,
-                                      color: available >= 0
-                                          ? AppColors.success
-                                          : AppColors.error,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  Text(
-                                    L10n.of(context).walletLimit,
-                                    style: TextStyle(
-                                      fontSize: 10,
-                                      color: AppColors.textMuted,
-                                    ),
-                                  ),
-                                  Text(
-                                    '${CurrencyInfo.getSymbol(wallet.currency)}${AppNumberFormatter.get(ref.watch(numberFormatSettingProvider), useDecimals: wallet.useDecimals).format(wallet.useDecimals ? creditLimit : creditLimit.round())}',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w600,
-                                      color: AppColors.textSecondary,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                          // Positive balance = overpayment / credit balance
-                          if (balance > 0)
-                            Padding(
-                              padding: const EdgeInsets.only(top: 8),
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 3,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: AppColors.success.withValues(
-                                    alpha: 0.15,
-                                  ),
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                child: Text(
-                                  L10n.of(context).walletCreditBalance,
-                                  style: TextStyle(
-                                    fontSize: 9,
-                                    fontWeight: FontWeight.bold,
-                                    color: AppColors.success,
-                                    letterSpacing: 0.5,
-                                  ),
-                                ),
-                              ),
-                            ),
-                        ] else ...[
-                          // Standard balance display for non-credit-card wallets
-                          Text(
-                            L10n.of(context).walletBalance,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: AppColors.textMuted,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Text(
-                                CurrencyInfo.getSymbol(wallet.currency),
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w300,
-                                  color: balance >= 0
-                                      ? AppColors.textPrimary
-                                      : AppColors.error,
-                                ),
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                AppNumberFormatter.get(
-                                  ref.watch(numberFormatSettingProvider),
-                                  useDecimals: wallet.useDecimals,
-                                ).format(
-                                  wallet.useDecimals
-                                      ? balance.abs()
-                                      : balance.abs().round(),
-                                ),
-                                style: TextStyle(
-                                  fontSize: 28,
-                                  fontWeight: FontWeight.bold,
-                                  color: balance >= 0
-                                      ? AppColors.textPrimary
-                                      : AppColors.error,
-                                  letterSpacing: -0.5,
-                                ),
-                              ),
-                              if (balance < 0)
-                                Padding(
-                                  padding: const EdgeInsets.only(
-                                    left: 8,
-                                    bottom: 4,
-                                  ),
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 6,
-                                      vertical: 2,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: AppColors.error.withValues(
-                                        alpha: 0.15,
-                                      ),
-                                      borderRadius: BorderRadius.circular(4),
-                                    ),
-                                    child: Text(
-                                      L10n.of(context).walletOverdrawn,
-                                      style: TextStyle(
-                                        fontSize: 9,
-                                        fontWeight: FontWeight.bold,
-                                        color: AppColors.error,
-                                        letterSpacing: 0.5,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                ],
+    final newButton = Pressable(
+      onTap: _showAddWalletSheet,
+      haptic: true,
+      semanticLabel: l10n.walletAddAccount,
+      child: Container(
+        height: 40,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        decoration: BoxDecoration(
+          color: c.chipActiveBg,
+          borderRadius: BorderRadius.circular(SunriseRadius.chip),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Symbols.add_rounded, color: c.chipActiveFg, size: 20),
+            const SizedBox(width: 6),
+            Text(
+              l10n.walletsNew,
+              style: SunriseType.label.copyWith(
+                color: c.chipActiveFg,
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
               ),
             ),
+          ],
+        ),
+      ),
+    );
+
+    final content = <Widget>[
+      if (walletState.isLoading) ...[
+        const ShimmerCard(height: 176),
+        const SizedBox(height: 12),
+        const ShimmerCard(height: 76),
+        const SizedBox(height: 12),
+        const ShimmerCard(height: 76),
+      ] else if (wallets.isEmpty)
+        SunriseCard(
+          child: EmptyState(
+            icon: Symbols.account_balance_wallet_rounded,
+            title: l10n.walletNoAccountsYet,
+            message: l10n.walletsEmptyBody,
+            actionLabel: l10n.walletCreateAccount,
+            onAction: _showAddWalletSheet,
           ),
+        )
+      else ...[
+        if (featured != null)
+          _FeaturedWalletCard(
+            wallet: featured,
+            onTap: () => _openWallet(featured!),
+            onLongPress: () => _showOptions(featured!),
+          ),
+        if (others.isNotEmpty) ...[
+          const SizedBox(height: SunriseSpace.gap),
+          _ReorderableWallets(
+            wallets: others,
+            onOpen: _openWallet,
+            onOptions: _showOptions,
+            onReorder: (ids) {
+              // Keep the featured wallet where it was in the stored order.
+              final all = wallets.map((w) => w.id).toList();
+              final featuredIndex = featured == null
+                  ? -1
+                  : all.indexOf(featured.id);
+              final merged = [...ids];
+              if (featuredIndex >= 0) {
+                merged.insert(featuredIndex.clamp(0, merged.length), featured!.id);
+              }
+              ref.read(walletProvider.notifier).reorderWallets(merged);
+            },
+          ),
+        ],
+        const SizedBox(height: SunriseSpace.gap),
+        _DashedAddRow(label: l10n.walletsAddHint, onTap: _showAddWalletSheet),
+      ],
+      const SizedBox(height: 26),
+      _PlanningGroup(onOpen: _push),
+    ];
+
+    if (!widget.asTab) {
+      return SunrisePushPage(
+        title: l10n.walletsTitle,
+        actions: [newButton],
+        children: content,
+      );
+    }
+
+    return SunriseTabPage(
+      child: RefreshIndicator(
+        color: c.accent,
+        backgroundColor: c.surface,
+        onRefresh: () => ref.read(walletProvider.notifier).loadWallets(),
+        child: ListView(
+          physics: const AlwaysScrollableScrollPhysics(
+            parent: BouncingScrollPhysics(),
+          ),
+          padding: const EdgeInsets.only(bottom: SunriseSpace.tabBarClearance),
+          children: [
+            LargeTitleHeader(title: l10n.walletsTitle, trailing: newButton),
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: SunriseSpace.screenX,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: content,
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
+}
 
-  static String _walletTypeLabel(WalletType type) {
-    switch (type) {
-      case WalletType.bankAccount:
-        return 'Bank Account';
-      case WalletType.creditCard:
-        return 'Credit Card';
-      case WalletType.subscription:
-        return 'Subscription';
-      case WalletType.cash:
-        return 'Cash';
-    }
-  }
+/// Formats a wallet's balance in its own currency.
+String _walletAmount(WidgetRef ref, Wallet w, int cents, {bool? decimals}) =>
+    cents
+        .formatCurrency(
+          w.currency,
+          useDecimals: decimals ?? w.useDecimals,
+          numberFormat: ref.watch(numberFormatSettingProvider),
+        )
+        .replaceFirst('-', '−');
 
-  void _showOptionsMenu(BuildContext context) {
-    HapticFeedback.lightImpact();
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (context) => BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-        child: Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: AppColors.primarySurface,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-            border: Border.all(color: AppColors.glassBorder),
-          ),
-          // Transparent Material in front of the coloured sheet background so the
-          // option ListTiles' ink splashes are visible.
-          child: Material(
-            type: MaterialType.transparency,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
+String _typeLabel(L10n l10n, WalletType type) => switch (type) {
+  WalletType.bankAccount => l10n.walletsTypeBank,
+  WalletType.creditCard => l10n.walletsTypeCard,
+  WalletType.cash => l10n.walletsTypeCash,
+  _ => l10n.walletsTypeOther,
+};
+
+/// The default account on the brand gradient (height 176).
+class _FeaturedWalletCard extends ConsumerWidget {
+  const _FeaturedWalletCard({
+    required this.wallet,
+    required this.onTap,
+    required this.onLongPress,
+  });
+
+  final Wallet wallet;
+  final VoidCallback onTap;
+  final VoidCallback onLongPress;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = L10n.of(context);
+    final balances = ref.watch(walletProvider).walletBalances;
+    final cents = balances[wallet.id] ?? wallet.balance;
+    final isCard = wallet.walletType == WalletType.creditCard;
+    final limit = wallet.creditLimit ?? 0;
+    final outstanding = isCard ? cents.abs() : 0;
+
+    return Pressable(
+      onTap: onTap,
+      onLongPress: onLongPress,
+      child: GradientCard(
+        height: 176,
+        radius: SunriseRadius.hero,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
               children: [
-                // Handle
-                Container(
-                  width: 40,
-                  height: 4,
-                  margin: const EdgeInsets.only(bottom: 20),
-                  decoration: BoxDecoration(
-                    color: AppColors.divider,
-                    borderRadius: BorderRadius.circular(2),
+                Icon(WalletIcons.getIcon(wallet.iconName), size: 24),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    wallet.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: SunriseType.section.copyWith(color: Colors.white),
                   ),
                 ),
-
-                // Wallet info header
-                Row(
-                  children: [
-                    Container(
-                      width: 44,
-                      height: 44,
-                      decoration: BoxDecoration(
-                        color: WalletColors.parseColor(
-                          widget.wallet.color,
-                        ).withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Icon(
-                        WalletIcons.getIcon(widget.wallet.iconName),
-                        color: WalletColors.parseColor(widget.wallet.color),
-                        size: 22,
-                      ),
-                    ),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            widget.wallet.name,
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.textPrimary,
-                            ),
-                          ),
-                          Text(
-                            widget.wallet.currency,
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 20),
-                Divider(color: AppColors.divider),
-                const SizedBox(height: 10),
-
-                // Options
-                _OptionTile(
-                  icon: Icons.edit_outlined,
-                  label: L10n.of(context).walletEditAccount,
-                  onTap: () {
-                    Navigator.pop(context);
-                    widget.onEdit();
-                  },
-                ),
-                if (widget.wallet.isDefault != true)
-                  _OptionTile(
-                    icon: Icons.star_outline,
-                    label: L10n.of(context).walletSetAsDefault,
-                    onTap: () {
-                      Navigator.pop(context);
-                      widget.onSetDefault();
-                    },
+                if (wallet.isDefault)
+                  SunrisePill(
+                    label: l10n.payDefault,
+                    color: Colors.white,
+                    background: Colors.white.withValues(alpha: .24),
                   ),
-                _OptionTile(
-                  icon: Icons.delete_outline,
-                  label: L10n.of(context).settingsDeleteAccount,
-                  isDestructive: true,
-                  onTap: () {
-                    Navigator.pop(context);
-                    widget.onDelete();
-                  },
-                ),
-
-                SizedBox(height: MediaQuery.of(context).padding.bottom + 10),
               ],
             ),
+            const Spacer(),
+            Text(
+              isCard ? l10n.walletOutstanding : l10n.walletBalance,
+              style: SunriseType.label.copyWith(
+                color: Colors.white.withValues(alpha: .85),
+                fontSize: 14,
+              ),
+            ),
+            const SizedBox(height: 2),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: AlignmentDirectional.centerStart,
+              child: Text(
+                _walletAmount(ref, wallet, isCard ? outstanding : cents),
+                maxLines: 1,
+                style: SunriseType.balance.copyWith(fontSize: 34),
+              ),
+            ),
+            if (isCard && limit > 0) ...[
+              const SizedBox(height: 4),
+              Text(
+                '${l10n.walletAvailable} ${_walletAmount(ref, wallet, limit - outstanding)} · '
+                '${l10n.walletLimit} ${_walletAmount(ref, wallet, limit)}',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: SunriseType.caption.copyWith(
+                  color: context.sunrise.onFill.withValues(alpha: .85),
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// The non-featured wallets as drag-reorderable rows.
+class _ReorderableWallets extends ConsumerWidget {
+  const _ReorderableWallets({
+    required this.wallets,
+    required this.onOpen,
+    required this.onOptions,
+    required this.onReorder,
+  });
+
+  final List<Wallet> wallets;
+  final ValueChanged<Wallet> onOpen;
+  final ValueChanged<Wallet> onOptions;
+  final ValueChanged<List<String>> onReorder;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return ReorderableListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      buildDefaultDragHandles: false,
+      itemCount: wallets.length,
+      proxyDecorator: (child, _, _) =>
+          Material(type: MaterialType.transparency, child: child),
+      onReorderItem: (oldIndex, newIndex) {
+        final ids = wallets.map((w) => w.id).toList();
+        final moved = ids.removeAt(oldIndex);
+        ids.insert(newIndex, moved);
+        HapticFeedback.mediumImpact();
+        onReorder(ids);
+      },
+      itemBuilder: (context, i) => Padding(
+        key: ValueKey(wallets[i].id),
+        padding: EdgeInsets.only(top: i == 0 ? 0 : SunriseSpace.gap),
+        child: ReorderableDelayedDragStartListener(
+          index: i,
+          child: _WalletRow(
+            wallet: wallets[i],
+            onTap: () => onOpen(wallets[i]),
+            onOptions: () => onOptions(wallets[i]),
           ),
         ),
       ),
@@ -1336,36 +548,262 @@ class _WalletCardState extends ConsumerState<_WalletCard>
   }
 }
 
-class _OptionTile extends StatelessWidget {
-  final IconData icon;
+class _WalletRow extends ConsumerWidget {
+  const _WalletRow({
+    required this.wallet,
+    required this.onTap,
+    required this.onOptions,
+  });
+
+  final Wallet wallet;
+  final VoidCallback onTap;
+  final VoidCallback onOptions;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = L10n.of(context);
+    final c = context.sunrise;
+    final balances = ref.watch(walletProvider).walletBalances;
+    final cents = balances[wallet.id] ?? wallet.balance;
+    final isCard = wallet.walletType == WalletType.creditCard;
+    final color = WalletColors.parseColor(wallet.color);
+    final subtitle = [
+      wallet.currency,
+      if (isCard) _typeLabel(l10n, wallet.walletType),
+      if (wallet.isArchived) l10n.walletsArchived,
+    ].join(' · ');
+
+    return Opacity(
+      opacity: wallet.isArchived ? .55 : 1,
+      child: SunriseCard(
+        onTap: onTap,
+        padding: const EdgeInsets.fromLTRB(16, 14, 8, 14),
+        child: Row(
+          children: [
+            IconTile(
+              icon: WalletIcons.getIcon(wallet.iconName),
+              color: color,
+              size: 44,
+              radius: SunriseRadius.iconTileLg,
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    wallet.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: SunriseType.rowTitle.copyWith(
+                      color: c.ink,
+                      fontSize: 16,
+                    ),
+                  ),
+                  Text(
+                    subtitle,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: SunriseType.caption.copyWith(color: c.subtle),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            Flexible(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: AlignmentDirectional.centerEnd,
+                child: Text(
+                  _walletAmount(ref, wallet, isCard ? -cents.abs() : cents),
+                  style: SunriseType.amount.copyWith(
+                    color: cents < 0 && !isCard ? c.negative : c.ink,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+            ),
+            IconButton(
+              tooltip: MaterialLocalizations.of(context).showMenuTooltip,
+              onPressed: onOptions,
+              icon: Icon(Symbols.more_vert_rounded, color: c.chevron, size: 20),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// The dashed "add another account" row.
+class _DashedAddRow extends StatelessWidget {
+  const _DashedAddRow({required this.label, required this.onTap});
+
   final String label;
   final VoidCallback onTap;
-  final bool isDestructive;
-
-  const _OptionTile({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-    this.isDestructive = false,
-  });
 
   @override
   Widget build(BuildContext context) {
-    final color = isDestructive ? AppColors.error : AppColors.textPrimary;
-
-    return ListTile(
+    final c = context.sunrise;
+    return Pressable(
       onTap: onTap,
-      leading: Icon(icon, color: color, size: 22),
-      title: Text(
-        label,
-        style: TextStyle(
-          color: color,
-          fontSize: 15,
-          fontWeight: FontWeight.w500,
+      haptic: true,
+      child: CustomPaint(
+        painter: _DashedBorderPainter(
+          color: c.dashed,
+          radius: SunriseRadius.card,
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
+          child: Row(
+            children: [
+              Icon(Symbols.add_card_rounded, color: c.accentText, size: 24),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: SunriseType.rowTitle.copyWith(
+                    color: c.accentText,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+    );
+  }
+}
+
+class _DashedBorderPainter extends CustomPainter {
+  _DashedBorderPainter({required this.color, required this.radius});
+
+  final Color color;
+  final double radius;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.5;
+    final path = Path()
+      ..addRRect(
+        RRect.fromRectAndRadius(
+          Offset.zero & size,
+          Radius.circular(radius),
+        ).deflate(.75),
+      );
+    for (final metric in path.computeMetrics()) {
+      var d = 0.0;
+      while (d < metric.length) {
+        canvas.drawPath(metric.extractPath(d, d + 6), paint);
+        d += 11;
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(_DashedBorderPainter old) =>
+      old.color != color || old.radius != radius;
+}
+
+/// Upcoming, lend & borrow, goals, budgets, subscriptions, transfers.
+class _PlanningGroup extends ConsumerWidget {
+  const _PlanningGroup({required this.onOpen});
+
+  final ValueChanged<Widget> onOpen;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = L10n.of(context);
+    final c = context.sunrise;
+    final currency = ref.watch(defaultCurrencyProvider);
+    final nf = ref.watch(numberFormatSettingProvider);
+    String money(int cents) => cents.abs().formatCurrency(
+      currency,
+      useDecimals: false,
+      numberFormat: nf,
+    );
+
+    final upcoming = ref.watch(upcomingProvider);
+    final due = [
+      ...upcoming.overdueTransactions,
+      ...upcoming.upcomingTransactions,
+    ];
+    final dueTotal = due.fold<int>(0, (s, t) => s + t.amount.abs());
+
+    final net = ref.watch(creditDebtProvider).netBalance;
+    final goals = ref.watch(goalsProvider).asData?.value ?? const [];
+    final activeGoals = goals.where((g) => !g.isArchived).length;
+    final budgets = ref.watch(budgetProvider).budgets.length;
+    final subs = ref.watch(subscriptionDashboardProvider).totalMonthlyCost;
+
+    return SettingsGroup(
+      label: l10n.walletsPlanning,
+      children: [
+        SettingsRow(
+          icon: Symbols.event_upcoming_rounded,
+          iconColor: const Color(0xFFD97706),
+          iconBackground: c.tintAmber,
+          title: l10n.walletsUpcoming,
+          subtitle: due.isEmpty
+              ? l10n.walletsUpcomingNone
+              : l10n.walletsUpcomingSub(due.length, money(dueTotal)),
+          onTap: () => onOpen(const UpcomingTransactionsScreen()),
+        ),
+        SettingsRow(
+          icon: Symbols.handshake_rounded,
+          iconColor: c.negative,
+          iconBackground: c.tintRose,
+          title: l10n.walletsLendBorrow,
+          subtitle: net == 0
+              ? l10n.walletsAllSettled
+              : net > 0
+              ? l10n.walletsOwedToYou(money(net))
+              : l10n.walletsYouOwe(money(net)),
+          onTap: () => onOpen(const CreditDebtScreen()),
+        ),
+        SettingsRow(
+          icon: Symbols.flag_rounded,
+          iconColor: c.positive,
+          iconBackground: c.tintGreen,
+          title: l10n.walletsGoals,
+          subtitle: activeGoals == 0 ? null : l10n.walletsGoalsSub(activeGoals),
+          onTap: () => onOpen(const ObjectivesListScreen()),
+        ),
+        SettingsRow(
+          icon: Symbols.donut_large_rounded,
+          iconColor: const Color(0xFF0284C7),
+          iconBackground: c.tintSky,
+          title: l10n.walletsBudgets,
+          subtitle: budgets == 0 ? null : l10n.walletsGoalsSub(budgets),
+          onTap: () => onOpen(const BudgetListScreen()),
+        ),
+        SettingsRow(
+          icon: Symbols.autorenew_rounded,
+          iconColor: const Color(0xFF7C3AED),
+          iconBackground: c.tintViolet,
+          title: l10n.walletsSubscriptions,
+          subtitle: subs <= 0
+              ? null
+              : '${money((subs * 100).round())} · ${l10n.todayMonthly}',
+          onTap: () => onOpen(const SubscriptionDashboardScreen()),
+        ),
+        SettingsRow(
+          icon: Symbols.sync_alt_rounded,
+          iconColor: c.accent,
+          iconBackground: c.tintOrange,
+          title: l10n.walletsTransfer,
+          onTap: () => showAddTransactionScreen(
+            context,
+            initialType: TransactionTypeSelection.transfer,
+          ),
+        ),
+      ],
     );
   }
 }
