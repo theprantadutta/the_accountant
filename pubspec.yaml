@@ -141,3 +141,42 @@ flutter:
   #   - assets/animations/
   #   - assets/icons/
   #   - assets/images/
+
+# Launcher icons: `dart run flutter_launcher_icons`
+flutter_launcher_icons:
+  android: "ic_launcher"
+  image_path_android: "assets/launcher/app-icon-1024.png"
+  adaptive_icon_foreground: "assets/launcher/android-adaptive-foreground-432.png"
+  adaptive_icon_background: "assets/launcher/android-adaptive-background-432.png"
+  adaptive_icon_monochrome: "assets/launcher/android-monochrome-432.png"
+  # The handoff layers are already drawn inside the safe zone.
+  adaptive_icon_foreground_inset: 0
+  min_sdk_android: 21
+  ios: true
+  image_path_ios: "assets/launcher/app-icon-square-1024.png"
+  remove_alpha_ios: true
+  web:
+    generate: true
+    image_path: "assets/launcher/app-icon-1024.png"
+    background_color: "#FFFAF6"
+    theme_color: "#F97316"
+
+# Native splash: `dart run flutter_native_splash:create`
+# Light is concept A (white glyph on the sunrise orange), dark is concept C
+# (gradient glyph on ember). The Flutter intro animation takes over from here.
+flutter_native_splash:
+  color: "#F97316"
+  image: assets/launcher/glyph-white-512.png
+  color_dark: "#140D0A"
+  image_dark: assets/launcher/glyph-gradient-512.png
+  android_12:
+    color: "#F97316"
+    image: assets/launcher/android12-splash-glyph-white-288.png
+    icon_background_color: "#F97316"
+    color_dark: "#140D0A"
+    image_dark: assets/launcher/glyph-gradient-512.png
+    icon_background_color_dark: "#140D0A"
+  ios: true
+  android: true
+  web: false
+  fullscreen: false
