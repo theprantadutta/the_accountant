@@ -313,7 +313,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
         style: TextStyle(color: AppColors.textMuted, fontSize: 13),
       ),
       trailing: locked
-          ? const Icon(Icons.lock_outline, color: Colors.amber, size: 20)
+          ? Icon(Icons.lock_outline, color: AppColors.warning, size: 20)
           : Container(
               width: 24,
               height: 24,
@@ -356,14 +356,14 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: Colors.amber.withValues(alpha: 0.15),
+        color: AppColors.warning.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: Colors.amber.withValues(alpha: 0.4)),
+        border: Border.all(color: AppColors.warning.withValues(alpha: 0.4)),
       ),
       child: Text(
         L10n.of(context).settingsPremium,
         style: TextStyle(
-          color: Colors.amber,
+          color: AppColors.warning,
           fontSize: 10,
           fontWeight: FontWeight.bold,
           letterSpacing: 0.5,
@@ -378,7 +378,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
       builder: (dialogContext) => AlertDialog(
         title: Row(
           children: [
-            const Icon(Icons.picture_as_pdf_outlined, color: Colors.amber),
+            Icon(Icons.picture_as_pdf_outlined, color: AppColors.warning),
             const SizedBox(width: 8),
             Text(
               L10n.of(context).settingsPdfReports,
@@ -403,7 +403,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
               Navigator.pushNamed(context, '/premium');
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.amber,
+              backgroundColor: AppColors.warning,
               foregroundColor: Colors.black,
             ),
             child: Text(L10n.of(context).settingsGoPremium),
