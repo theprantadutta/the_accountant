@@ -411,6 +411,9 @@ class _AuthLoadingScreenState extends State<AuthLoadingScreen>
     ];
     const white = _onBrand;
     final reduceMotion = MediaQuery.disableAnimationsOf(context);
+    // Landscape phones: no room under the glyph, so the wordmark sits beside
+    // it and the tip is left out.
+    final compact = MediaQuery.sizeOf(context).height < 640;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light.copyWith(
@@ -509,7 +512,9 @@ class _AuthLoadingScreenState extends State<AuthLoadingScreen>
                   ),
 
                   Transform.translate(
-                    offset: Offset(0, 150 + 10 * (1 - _word.value)),
+                    offset: compact
+                        ? Offset(300, 10 * (1 - _word.value))
+                        : Offset(0, 150 + 10 * (1 - _word.value)),
                     child: Opacity(
                       opacity: _word.value,
                       child: Column(
@@ -581,21 +586,22 @@ class _AuthLoadingScreenState extends State<AuthLoadingScreen>
                   ),
 
                   // The money tip.
-                  Positioned(
-                    left: 24,
-                    right: 24,
-                    bottom: MediaQuery.paddingOf(context).bottom + 28,
-                    child: Opacity(
-                      opacity: _tip.value,
-                      child: Transform.translate(
-                        offset: Offset(0, 24 * (1 - _tip.value)),
-                        child: _TipCard(
-                          label: l10n.introTipLabel,
-                          text: _tipText(l10n),
+                  if (!compact)
+                    Positioned(
+                      left: 24,
+                      right: 24,
+                      bottom: MediaQuery.paddingOf(context).bottom + 28,
+                      child: Opacity(
+                        opacity: _tip.value,
+                        child: Transform.translate(
+                          offset: Offset(0, 24 * (1 - _tip.value)),
+                          child: _TipCard(
+                            label: l10n.introTipLabel,
+                            text: _tipText(l10n),
+                          ),
                         ),
                       ),
                     ),
-                  ),
                 ],
               ),
             );

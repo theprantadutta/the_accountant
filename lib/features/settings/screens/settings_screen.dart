@@ -464,8 +464,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           title: l10n.settingsReplayAppTour,
           subtitle: l10n.settingsSeeTheFeatureWalkthroughAgain,
           trailing: SettingsTrailing.none,
-          onTap: () {
-            ref.read(walkthroughProvider.notifier).resetWalkthrough();
+          onTap: () async {
+            // Wait for the flag to clear: the dashboard reads it on its first
+            // frame, and an unfinished reset meant the tour only appeared on
+            // the next launch.
+            await ref.read(walkthroughProvider.notifier).resetWalkthrough();
+            if (!context.mounted) return;
             Navigator.pushNamedAndRemoveUntil(
               context,
               '/dashboard',

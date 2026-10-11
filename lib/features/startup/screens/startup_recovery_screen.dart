@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/providers/startup_flow_provider.dart';
-import 'package:the_accountant/core/themes/app_colors.dart';
-import 'package:the_accountant/core/themes/app_spacing.dart';
-import 'package:the_accountant/core/themes/app_typography.dart';
+import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
 import 'package:the_accountant/features/authentication/presentation/widgets/auth_background.dart';
 import 'package:the_accountant/features/premium/screens/premium_screen.dart';
 
@@ -40,30 +38,20 @@ class _StartupRecoveryScreenState extends ConsumerState<StartupRecoveryScreen> {
   }
 
   Future<void> _startOffline() async {
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showSunriseConfirm(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(L10n.of(context).startupContinueWithoutChecking),
-        content: const Text(
+      title: L10n.of(context).startupContinueWithoutChecking,
+      message:
           'Your data stays exactly where it is — nothing on this device or in '
           'the cloud will be deleted.\n\n'
           'But if the account does have data saved, anything you add now will '
           'sit alongside it once you restore — you may end up with duplicates '
           'to tidy up.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text(L10n.of(context).actionCancel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text(L10n.of(context).startupContinueOffline),
-          ),
-        ],
-      ),
+      confirmLabel: L10n.of(context).startupContinueOffline,
+      cancelLabel: L10n.of(context).actionCancel,
+      icon: Symbols.cloud_off_rounded,
     );
-    if (confirmed != true) return;
+    if (!confirmed) return;
     ref.read(startupFlowProvider.notifier).startOfflineAnyway();
   }
 
@@ -71,6 +59,7 @@ class _StartupRecoveryScreenState extends ConsumerState<StartupRecoveryScreen> {
   Widget build(BuildContext context) {
     final flow = ref.watch(startupFlowProvider);
     final needsSubscription = flow.needsSubscription;
+    final c = context.sunrise;
 
     return AuthBackground(
       child: Scaffold(
@@ -78,89 +67,78 @@ class _StartupRecoveryScreenState extends ConsumerState<StartupRecoveryScreen> {
         body: SafeArea(
           child: Center(
             child: SingleChildScrollView(
-              padding: EdgeInsets.all(AppSpacing.xl),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    needsSubscription
-                        ? Icons.workspace_premium_rounded
-                        : Icons.cloud_off_rounded,
-                    size: 64,
-                    color: AppColors.warning,
-                  ),
-                  AppSpacing.gapXl,
-                  Text(
-                    needsSubscription
-                        ? 'Your data is waiting in the cloud'
-                        : "We couldn't finish loading your account",
-                    style: AppTypography.headlineSmall,
-                    textAlign: TextAlign.center,
-                  ),
-                  AppSpacing.gapMd,
-                  Text(
-                    flow.reason ??
-                        'Something went wrong while checking this account.',
-                    style: AppTypography.bodyMedium.copyWith(
-                      color: AppColors.textSecondary,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  AppSpacing.gapSm,
-                  Text(
-                    L10n.of(context).startupNothingHasBeenChangedOr,
-                    style: AppTypography.bodySmall.copyWith(
-                      color: AppColors.textMuted,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  AppSpacing.gapXxl,
-                  SizedBox(
-                    width: double.infinity,
-                    child: FilledButton.icon(
-                      onPressed: _retrying ? null : _retry,
-                      icon: _retrying
-                          ? const SizedBox(
-                              width: 16,
-                              height: 16,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Icon(Icons.refresh),
-                      label: Text(_retrying ? 'Checking…' : 'Try again'),
-                    ),
-                  ),
-                  if (needsSubscription) ...[
-                    AppSpacing.gapSm,
-                    SizedBox(
-                      width: double.infinity,
-                      child: FilledButton.icon(
-                        onPressed: _retrying
-                            ? null
-                            : () => Navigator.of(context).push(
-                                MaterialPageRoute<void>(
-                                  builder: (_) => const PremiumScreen(),
-                                ),
-                              ),
-                        icon: const Icon(Icons.workspace_premium_rounded),
-                        label: Text(
-                          L10n.of(context).startupViewSubscriptionOptions,
-                        ),
+              padding: const EdgeInsets.all(SunriseSpace.screenX),
+              child: SunriseContentWidth(
+                child: SunriseCard(
+                  padding: const EdgeInsets.fromLTRB(22, 28, 22, 20),
+                  child: Column(
+                    children: [
+                      IconTile(
+                        icon: needsSubscription
+                            ? Symbols.workspace_premium_rounded
+                            : Symbols.cloud_off_rounded,
+                        color: c.accent,
+                        size: 72,
+                        iconSize: 36,
+                        radius: 24,
+                        fill: 1,
                       ),
-                    ),
-                  ],
-                  AppSpacing.gapSm,
-                  SizedBox(
-                    width: double.infinity,
-                    child: TextButton(
-                      onPressed: _retrying ? null : _startOffline,
-                      child: Text(
+                      const SizedBox(height: 20),
+                      Text(
                         needsSubscription
+                            ? 'Your data is waiting in the cloud'
+                            : "We couldn't finish loading your account",
+                        style: SunriseType.pushTitle.copyWith(color: c.ink),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        flow.reason ??
+                            'Something went wrong while checking this account.',
+                        style: SunriseType.body.copyWith(color: c.body),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        L10n.of(context).startupNothingHasBeenChangedOr,
+                        style: SunriseType.caption.copyWith(color: c.muted),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 28),
+                      SunriseButton(
+                        label: _retrying ? 'Checking…' : 'Try again',
+                        icon: Symbols.refresh_rounded,
+                        loading: _retrying,
+                        onPressed: _retrying ? null : _retry,
+                      ),
+                      if (needsSubscription) ...[
+                        const SizedBox(height: 10),
+                        SunriseButton(
+                          style: SunriseButtonStyle.secondary,
+                          label: L10n.of(
+                            context,
+                          ).startupViewSubscriptionOptions,
+                          icon: Symbols.workspace_premium_rounded,
+                          onPressed: _retrying
+                              ? null
+                              : () => Navigator.of(context).push(
+                                  MaterialPageRoute<void>(
+                                    builder: (_) => const PremiumScreen(),
+                                  ),
+                                ),
+                        ),
+                      ],
+                      const SizedBox(height: 6),
+                      SunriseButton(
+                        style: SunriseButtonStyle.ghost,
+                        label: needsSubscription
                             ? 'Use the app without restoring'
                             : 'Continue offline',
+                        onPressed: _retrying ? null : _startOffline,
                       ),
-                    ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
           ),

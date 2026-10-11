@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:the_accountant/core/services/biometric_service.dart';
-import 'package:the_accountant/core/themes/app_colors.dart';
-import 'package:the_accountant/core/themes/app_theme.dart';
+import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
 
 class LockScreen extends StatefulWidget {
   final VoidCallback onUnlocked;
@@ -54,94 +53,76 @@ class _LockScreenState extends State<LockScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.sunrise;
     return PopScope(
       canPop: false,
-      child: Container(
-        decoration: const BoxDecoration(),
-        child: Scaffold(
-          backgroundColor: Colors.transparent,
-          body: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // App icon
-                AppTheme.gradientContainer(
-                  gradient: AppTheme.primaryGradient,
-                  width: 100,
-                  height: 100,
-                  borderRadius: BorderRadius.circular(32),
-                  child: const Icon(
-                    Icons.lock_outline,
-                    size: 48,
-                    color: Colors.white,
-                  ),
+      child: Scaffold(
+        backgroundColor: c.base,
+        body: SunriseBackground(
+          child: SafeArea(
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: SunriseSpace.screenX,
                 ),
-                const SizedBox(height: 32),
-
-                // Title
-                Text(
-                  L10n.of(context).settingsAppLocked,
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    letterSpacing: 1.0,
-                  ),
-                ),
-                const SizedBox(height: 12),
-
-                Text(
-                  L10n.of(context).settingsUnlockToAccessTheAccountant,
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: AppColors.textPrimary.withValues(alpha: 0.7),
-                  ),
-                ),
-                const SizedBox(height: 48),
-
-                // Error message
-                if (_errorMessage != null) ...[
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 40),
-                    child: Text(
-                      _errorMessage!,
-                      style: TextStyle(color: AppColors.error, fontSize: 14),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                ],
-
-                // Unlock button
-                SizedBox(
-                  width: 200,
-                  height: 50,
-                  child: ElevatedButton.icon(
-                    onPressed: _isAuthenticating ? null : _authenticate,
-                    icon: _isAuthenticating
-                        ? SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: AppColors.textPrimary,
-                            ),
-                          )
-                        : const Icon(Icons.fingerprint, size: 24),
-                    label: Text(
-                      _isAuthenticating ? 'Authenticating...' : 'Unlock',
-                      style: const TextStyle(fontSize: 16),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primaryAccent,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      width: 96,
+                      height: 96,
+                      decoration: BoxDecoration(
+                        gradient: c.gradient,
+                        borderRadius: BorderRadius.circular(30),
+                        boxShadow: [
+                          BoxShadow(
+                            color: c.glow,
+                            blurRadius: 32,
+                            offset: const Offset(0, 12),
+                          ),
+                        ],
+                      ),
+                      child: Icon(
+                        Symbols.lock_rounded,
+                        size: 44,
+                        fill: 1,
+                        color: c.onFill,
                       ),
                     ),
-                  ),
+                    const SizedBox(height: 28),
+                    Text(
+                      L10n.of(context).settingsAppLocked,
+                      style: SunriseType.largeTitle.copyWith(color: c.ink),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      L10n.of(context).settingsUnlockToAccessTheAccountant,
+                      textAlign: TextAlign.center,
+                      style: SunriseType.body.copyWith(color: c.muted),
+                    ),
+                    const SizedBox(height: 40),
+                    if (_errorMessage != null) ...[
+                      Text(
+                        _errorMessage!,
+                        textAlign: TextAlign.center,
+                        style: SunriseType.label.copyWith(color: c.negative),
+                      ),
+                      const SizedBox(height: 20),
+                    ],
+                    SizedBox(
+                      width: 240,
+                      child: SunriseButton(
+                        label: _isAuthenticating
+                            ? 'Authenticating...'
+                            : 'Unlock',
+                        icon: Symbols.fingerprint_rounded,
+                        loading: _isAuthenticating,
+                        onPressed: _isAuthenticating ? null : _authenticate,
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
         ),
