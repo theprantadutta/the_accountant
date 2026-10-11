@@ -114,45 +114,48 @@ class _ResponsiveFinancialOverviewState
     final tablet = isTablet(context);
 
     return SunriseBackground(
-      child: RefreshIndicator(
-        onRefresh: () => ref.read(financialDataProvider.notifier).refreshData(),
-        color: c.accent,
-        backgroundColor: c.surface,
-        edgeOffset: MediaQuery.paddingOf(context).top,
-        child: ListView(
-          physics: const AlwaysScrollableScrollPhysics(
-            parent: BouncingScrollPhysics(),
-          ),
-          padding: EdgeInsets.fromLTRB(
-            SunriseSpace.screenX,
-            MediaQuery.paddingOf(context).top + SunriseSpace.screenTop,
-            SunriseSpace.screenX,
-            SunriseSpace.tabBarClearance,
-          ),
-          children: [
-            SunriseContentWidth(
-              maxWidth: tablet ? 980 : SunriseSpace.maxContentWidth,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  for (var i = 0; i < blocks.length; i++)
-                    _Staggered(
-                      animation: _entrance,
-                      index: i,
-                      count: blocks.length,
-                      child: Padding(
-                        padding: EdgeInsets.only(
-                          bottom: i == blocks.length - 1
-                              ? 0
-                              : SunriseSpace.section,
-                        ),
-                        child: blocks[i],
-                      ),
-                    ),
-                ],
-              ),
+      child: StatusBarScrim(
+        child: RefreshIndicator(
+          onRefresh: () =>
+              ref.read(financialDataProvider.notifier).refreshData(),
+          color: c.accent,
+          backgroundColor: c.surface,
+          edgeOffset: MediaQuery.paddingOf(context).top,
+          child: ListView(
+            physics: const AlwaysScrollableScrollPhysics(
+              parent: BouncingScrollPhysics(),
             ),
-          ],
+            padding: EdgeInsets.fromLTRB(
+              SunriseSpace.screenX,
+              MediaQuery.paddingOf(context).top + SunriseSpace.screenTop,
+              SunriseSpace.screenX,
+              SunriseSpace.tabBarClearance,
+            ),
+            children: [
+              SunriseContentWidth(
+                maxWidth: tablet ? 980 : SunriseSpace.maxContentWidth,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    for (var i = 0; i < blocks.length; i++)
+                      _Staggered(
+                        animation: _entrance,
+                        index: i,
+                        count: blocks.length,
+                        child: Padding(
+                          padding: EdgeInsets.only(
+                            bottom: i == blocks.length - 1
+                                ? 0
+                                : SunriseSpace.section,
+                          ),
+                          child: blocks[i],
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -609,14 +612,17 @@ class _NetWorthCard extends ConsumerWidget {
 
     if (n == 1) return [stops.sublist(0, 2)];
     return [
-      for (var i = 0; i < n; i++)
-        [at(i / n), at(((i + 1) / n).clamp(0, 1))],
+      for (var i = 0; i < n; i++) [at(i / n), at(((i + 1) / n).clamp(0, 1))],
     ];
   }
 }
 
 class _Legend extends StatelessWidget {
-  const _Legend({required this.color, required this.label, required this.value});
+  const _Legend({
+    required this.color,
+    required this.label,
+    required this.value,
+  });
 
   final Color color;
   final String label;
@@ -809,9 +815,9 @@ class _BudgetsCard extends ConsumerWidget {
         SectionTitle(
           l10n.dashBudgetProgress,
           actionLabel: l10n.dashManage,
-          onAction: () => Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => const BudgetListScreen()),
-          ),
+          onAction: () => Navigator.of(
+            context,
+          ).push(MaterialPageRoute(builder: (_) => const BudgetListScreen())),
         ),
         SunriseCard(
           child: items.isEmpty

@@ -64,3 +64,34 @@ class SunriseGlass extends StatelessWidget {
     );
   }
 }
+
+/// Lays [child] edge to edge and frosts the strip under the status bar, so
+/// content scrolling up never runs into the clock and icons.
+class StatusBarScrim extends StatelessWidget {
+  const StatusBarScrim({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final top = MediaQuery.paddingOf(context).top;
+    if (top == 0) return child;
+    final c = context.sunrise;
+    return Stack(
+      children: [
+        child,
+        Positioned(
+          top: 0,
+          left: 0,
+          right: 0,
+          height: top,
+          child: SunriseGlass(
+            color: c.base.withValues(alpha: .55),
+            blur: 18,
+            child: const SizedBox.expand(),
+          ),
+        ),
+      ],
+    );
+  }
+}
