@@ -66,15 +66,17 @@ biometric lock switched on to see it.
 | Screen | Light | Dark |
 |---|---|---|
 | Sign in | ✅ | ✅ |
-| Sign up | ✅ | ✅ |
-| Forgot password | ✅ | ✅ |
+| Sign up | ⏳ | ✅ |
+| Forgot password | ⏳ | ✅ |
 | Onboarding / post-signup onboarding / first wallet | ⏳ | ⏳ |
-| Lock screen | 🔧 | 🔧 |
+| Lock screen (rebuilt in code, not seen on device) | ⏳ | ⏳ |
 
 ## Automated
 
 - `flutter analyze`: clean.
 - `flutter test`: 956 passed.
+- `flutter build apk --release`: builds (161 MB universal APK; the size is the
+  three ABIs plus ML Kit OCR, not the redesign. The Play bundle splits it).
 
 ## Bugs found and fixed during QA
 
@@ -83,5 +85,3 @@ biometric lock switched on to see it.
   the app stuck on the restoring screen. The tour now starts in place.
 - The intro's tip covered the wordmark in landscape.
 - The budget pace bar hid its track at zero spend.
-- `flutter build apk --release`: builds (161 MB universal APK; the size is the
-  three ABIs plus ML Kit OCR, not the redesign. The Play bundle splits it).
