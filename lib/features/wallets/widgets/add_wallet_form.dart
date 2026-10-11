@@ -79,10 +79,10 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
   };
 
   static const _defaultColors = {
-    WalletType.cash: '#6366F1',
-    WalletType.bankAccount: '#06B6D4',
-    WalletType.creditCard: '#F59E0B',
-    WalletType.subscription: '#8B5CF6',
+    WalletType.cash: '#F43F5E',
+    WalletType.bankAccount: '#F97316',
+    WalletType.creditCard: '#8B5CF6',
+    WalletType.subscription: '#3B82F6',
   };
 
   @override
@@ -90,7 +90,8 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
     super.initState();
     _selectedCurrency = widget.initialCurrency ?? 'USD';
     _selectedIcon = widget.initialIcon ?? 'wallet';
-    _selectedColor = widget.initialColor ?? '#6366F1';
+    _selectedColor =
+        widget.initialColor ?? _defaultColors[widget.initialWalletType]!;
     _isDefault = widget.initialIsDefault;
     _useDecimals = widget.initialUseDecimals;
     _walletType = widget.initialWalletType;
@@ -113,7 +114,7 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
       // Set default icon and color for the type if user hasn't customized
       if (!widget.isEditing) {
         _selectedIcon = _defaultIcons[type] ?? 'wallet';
-        _selectedColor = _defaultColors[type] ?? '#6366F1';
+        _selectedColor = _defaultColors[type]!;
       }
     });
   }
@@ -307,9 +308,12 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
             prefixIcon: Symbols.account_balance_wallet_rounded,
             suffixIcon: Padding(
               padding: const EdgeInsetsDirectional.only(end: 16),
-              child: Text(
-                symbol,
-                style: SunriseType.rowTitle.copyWith(color: c.subtle),
+              child: Center(
+                widthFactor: 1,
+                child: Text(
+                  symbol,
+                  style: SunriseType.rowTitle.copyWith(color: c.subtle),
+                ),
               ),
             ),
             keyboardType: const TextInputType.numberWithOptions(
