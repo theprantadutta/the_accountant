@@ -578,7 +578,7 @@ class _WalletRow extends ConsumerWidget {
       opacity: wallet.isArchived ? .55 : 1,
       child: SunriseCard(
         onTap: onTap,
-        padding: const EdgeInsets.fromLTRB(16, 14, 8, 14),
+        padding: const EdgeInsets.fromLTRB(16, 14, 6, 14),
         child: Row(
           children: [
             IconTile(
@@ -610,8 +610,11 @@ class _WalletRow extends ConsumerWidget {
                 ],
               ),
             ),
-            const SizedBox(width: 8),
-            Flexible(
+            const SizedBox(width: 10),
+            ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: MediaQuery.sizeOf(context).width * .42,
+              ),
               child: FittedBox(
                 fit: BoxFit.scaleDown,
                 alignment: AlignmentDirectional.centerEnd,
@@ -624,10 +627,21 @@ class _WalletRow extends ConsumerWidget {
                 ),
               ),
             ),
-            IconButton(
-              tooltip: MaterialLocalizations.of(context).showMenuTooltip,
-              onPressed: onOptions,
-              icon: Icon(Symbols.more_vert_rounded, color: c.chevron, size: 20),
+            const SizedBox(width: 2),
+            SizedBox(
+              width: 28,
+              height: 40,
+              child: IconButton(
+                tooltip: MaterialLocalizations.of(context).showMenuTooltip,
+                padding: EdgeInsets.zero,
+                visualDensity: VisualDensity.compact,
+                onPressed: onOptions,
+                icon: Icon(
+                  Symbols.more_vert_rounded,
+                  color: c.chevron,
+                  size: 20,
+                ),
+              ),
             ),
           ],
         ),
