@@ -16,7 +16,7 @@ class BackgroundNotificationHelper {
   /// Does NOT request permissions (already granted from foreground).
   Future<void> initialize() async {
     const androidSettings = AndroidInitializationSettings(
-      '@mipmap/ic_launcher',
+      '@drawable/ic_stat_notify',
     );
     const iosSettings = DarwinInitializationSettings(
       requestAlertPermission: false,
@@ -49,7 +49,7 @@ class BackgroundNotificationHelper {
       channelDescription: channelDesc,
       importance: Importance.high,
       priority: Priority.high,
-      icon: '@mipmap/ic_launcher',
+      icon: '@drawable/ic_stat_notify',
     );
 
     const iosDetails = DarwinNotificationDetails(
@@ -101,7 +101,7 @@ class BackgroundNotificationHelper {
       channelDescription: channelDesc,
       importance: Importance.high,
       priority: Priority.high,
-      icon: '@mipmap/ic_launcher',
+      icon: '@drawable/ic_stat_notify',
       actions: <AndroidNotificationAction>[
         AndroidNotificationAction(
           BackgroundTaskConstants.actionSnooze1Day,

@@ -1,3 +1,5 @@
+import 'package:flutter/services.dart';
+import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
 import 'package:flutter/material.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,10 +9,6 @@ import 'package:the_accountant/features/authentication/presentation/screens/acco
 import 'package:the_accountant/features/onboarding/providers/onboarding_provider.dart';
 import 'package:the_accountant/features/onboarding/screens/post_signup_onboarding_screen.dart';
 import 'package:the_accountant/shared/widgets/main_navigation_container.dart';
-import 'package:the_accountant/core/themes/app_colors.dart';
-import 'package:the_accountant/core/themes/app_spacing.dart';
-import 'package:the_accountant/core/themes/app_typography.dart';
-import 'package:the_accountant/features/authentication/presentation/widgets/auth_background.dart';
 import 'package:the_accountant/core/services/subscription_expiry_checker.dart';
 import 'package:the_accountant/features/budgets/providers/budget_notification_provider.dart';
 import 'package:the_accountant/core/services/secure_token_storage.dart';
@@ -178,6 +176,28 @@ class _AuthWrapperState extends ConsumerState<AuthWrapper>
       }
     });
 
+    final gate = _gate(authState, onboardingState);
+
+    // The intro hands over with a short crossfade and a slight settle, so the
+    // splash glow melts into the first real screen instead of cutting to it.
+    // Keyed by screen type: consecutive loading states keep one intro alive.
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 420),
+      switchInCurve: Curves.easeOutCubic,
+      switchOutCurve: Curves.easeIn,
+      transitionBuilder: (child, animation) => FadeTransition(
+        opacity: animation,
+        child: ScaleTransition(
+          scale: Tween(begin: 1.02, end: 1.0).animate(animation),
+          child: child,
+        ),
+      ),
+      child: KeyedSubtree(key: ValueKey(gate.runtimeType), child: gate),
+    );
+  }
+
+  /// Which screen the app should be on right now.
+  Widget _gate(AuthState authState, OnboardingState onboardingState) {
     // Show loading screen while authentication is initializing
     if (authState.isLoading) {
       return const AuthLoadingScreen();
@@ -295,6 +315,14 @@ class _AuthWrapperState extends ConsumerState<AuthWrapper>
   }
 }
 
+/// The Sunrise intro, shown while sign-in and the account store settle.
+///
+/// Light is splash concept A (white glyph on the sunrise gradient with a soft
+/// white glow); dark is concept C (the gradient glyph glowing on ember). It
+/// continues the native splash: the glyph rises 24dp and fades in (0-400ms)
+/// while its glow grows from 0.6 to 1, then the wordmark fades and slides up
+/// 8dp (250-600ms). It never waits on itself: the moment the app is ready the
+/// wrapper crossfades away from it.
 class AuthLoadingScreen extends StatefulWidget {
   const AuthLoadingScreen({super.key});
 
@@ -304,90 +332,136 @@ class AuthLoadingScreen extends StatefulWidget {
 
 class _AuthLoadingScreenState extends State<AuthLoadingScreen>
     with SingleTickerProviderStateMixin {
-  late final AnimationController _pulseController = AnimationController(
-    duration: const Duration(milliseconds: 1600),
+  late final AnimationController _intro = AnimationController(
+    duration: const Duration(milliseconds: 700),
     vsync: this,
-  )..repeat(reverse: true);
+  )..forward();
 
-  late final Animation<double> _pulseAnimation = Tween<double>(
-    begin: 0.94,
-    end: 1.06,
-  ).animate(CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut));
+  late final Animation<double> _glyph = CurvedAnimation(
+    parent: _intro,
+    curve: const Interval(0, 400 / 700, curve: Curves.easeOutCubic),
+  );
+  late final Animation<double> _word = CurvedAnimation(
+    parent: _intro,
+    curve: const Interval(250 / 700, 600 / 700, curve: Curves.easeOutCubic),
+  );
 
   @override
   void dispose() {
-    _pulseController.dispose();
+    _intro.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return AuthBackground(
+    final c = context.sunrise;
+    final l10n = L10n.of(context);
+    final dark = c.isDark;
+
+    final background = dark
+        ? BoxDecoration(
+            color: c.base,
+            gradient: RadialGradient(
+              center: const Alignment(0, .9),
+              radius: .9,
+              colors: [
+                c.gradientEnd.withValues(alpha: .22),
+                c.base.withValues(alpha: 0),
+              ],
+            ),
+          )
+        : BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [c.headerStart, c.gradientMid, c.gradientEnd],
+              stops: const [0, .5, 1],
+            ),
+          );
+    final glowColor = dark ? c.gradientMid : Colors.white;
+
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.light.copyWith(
+        statusBarColor: Colors.transparent,
+      ),
       child: Scaffold(
-        backgroundColor: Colors.transparent,
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // Pulsing, glowing app logo
-              ScaleTransition(
-                scale: _pulseAnimation,
-                child: Container(
-                  width: 96,
-                  height: 96,
-                  decoration: BoxDecoration(
-                    gradient: AppColors.primaryGradient,
-                    borderRadius: BorderRadius.circular(28),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.primaryGlow.withValues(alpha: 0.5),
-                        blurRadius: 36,
-                        spreadRadius: 4,
-                      ),
-                    ],
-                  ),
-                  child: Icon(
-                    Icons.account_balance_wallet_rounded,
-                    size: 48,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-              ),
-
-              AppSpacing.gapXxl,
-
-              Text(
-                L10n.of(context).settingsTheAccountant,
-                style: AppTypography.displaySmall,
-              ),
-
-              AppSpacing.gapSm,
-
-              Text(
-                L10n.of(context).authInitializingYourFinancialJourney,
-                style: AppTypography.bodyMedium.copyWith(
-                  color: AppColors.textSecondary,
-                ),
-                textAlign: TextAlign.center,
-              ),
-
-              AppSpacing.gapXxxl,
-
-              // Loading Indicator
-              SizedBox(
-                width: 180,
-                child: ClipRRect(
-                  borderRadius: AppSpacing.borderRadiusFull,
-                  child: LinearProgressIndicator(
-                    minHeight: 4,
-                    backgroundColor: AppColors.glassWhite,
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      AppColors.primaryAccent,
+        backgroundColor: dark ? c.base : c.gradientMid,
+        body: DecoratedBox(
+          decoration: background,
+          child: Center(
+            child: AnimatedBuilder(
+              animation: _intro,
+              builder: (context, _) => Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SizedBox(
+                    width: 260,
+                    height: 220,
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Transform.scale(
+                          scale: .6 + .4 * _glyph.value,
+                          child: Container(
+                            width: 260,
+                            height: 260,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              gradient: RadialGradient(
+                                colors: [
+                                  glowColor.withValues(alpha: dark ? .45 : .35),
+                                  glowColor.withValues(alpha: 0),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                        Opacity(
+                          opacity: _glyph.value,
+                          child: Transform.translate(
+                            offset: Offset(0, 24 * (1 - _glyph.value)),
+                            child: Image.asset(
+                              dark
+                                  ? 'assets/logo/glyph-gradient-256.png'
+                                  : 'assets/logo/glyph-white-256.png',
+                              width: 104,
+                              height: 104,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ),
+                  Opacity(
+                    opacity: _word.value,
+                    child: Transform.translate(
+                      offset: Offset(0, 8 * (1 - _word.value)),
+                      child: Column(
+                        children: [
+                          Text(
+                            l10n.settingsTheAccountant,
+                            style: SunriseType.heroTitle.copyWith(
+                              color: dark ? c.ink : c.onFill,
+                              fontSize: 30,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            l10n.splashTagline,
+                            style: SunriseType.body.copyWith(
+                              color: dark
+                                  ? c.subtle
+                                  : c.onFill.withValues(alpha: .85),
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),

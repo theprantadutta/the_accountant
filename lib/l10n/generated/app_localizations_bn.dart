@@ -2823,4 +2823,7 @@ class L10nBn extends L10n {
 
   @override
   String get helpStepTrack => 'প্রতিদিন লিখুন';
+
+  @override
+  String get splashTagline => 'টাকা, আরও উজ্জ্বল।';
 }

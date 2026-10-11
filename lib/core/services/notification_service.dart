@@ -43,7 +43,7 @@ class NotificationService {
     // Initialize local notifications. requestXxxPermission are all false so
     // plugin setup never triggers the system permission dialog either.
     const AndroidInitializationSettings initializationSettingsAndroid =
-        AndroidInitializationSettings('@mipmap/ic_launcher');
+        AndroidInitializationSettings('@drawable/ic_stat_notify');
 
     const DarwinInitializationSettings initializationSettingsIOS =
         DarwinInitializationSettings(

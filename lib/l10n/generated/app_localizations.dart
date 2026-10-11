@@ -5344,6 +5344,12 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'Track daily'**
   String get helpStepTrack;
+
+  /// No description provided for @splashTagline.
+  ///
+  /// In en, this message translates to:
+  /// **'Money, brighter.'**
+  String get splashTagline;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

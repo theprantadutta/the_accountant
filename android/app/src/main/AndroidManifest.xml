@@ -16,6 +16,13 @@
         android:label="The Accountant"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+        <!-- Push notifications use the white logo silhouette, tinted Sunrise. -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_stat_notify" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/notification_accent" />
         <activity
             android:name=".MainActivity"
             android:exported="true"

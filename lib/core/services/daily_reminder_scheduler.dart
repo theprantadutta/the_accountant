@@ -196,7 +196,7 @@ class DailyReminderScheduler {
       channelDescription: _channelDescription,
       importance: Importance.max,
       priority: Priority.max,
-      icon: '@mipmap/ic_launcher',
+      icon: '@drawable/ic_stat_notify',
       enableLights: true,
       enableVibration: true,
       fullScreenIntent:
@@ -351,7 +351,7 @@ class DailyReminderScheduler {
       channelDescription: _channelDescription,
       importance: Importance.max,
       priority: Priority.max,
-      icon: '@mipmap/ic_launcher',
+      icon: '@drawable/ic_stat_notify',
       enableLights: true,
       enableVibration: true,
       fullScreenIntent: true,
