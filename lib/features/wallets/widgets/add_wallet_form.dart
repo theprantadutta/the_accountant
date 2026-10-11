@@ -516,7 +516,6 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
                     Switch(
                       value: _isDefault,
                       onChanged: (value) => setState(() => _isDefault = value),
-                      activeThumbColor: AppColors.primaryAccent,
                     ),
                   ],
                 ),
@@ -563,7 +562,6 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
                       value: _useDecimals,
                       onChanged: (value) =>
                           setState(() => _useDecimals = value),
-                      activeThumbColor: AppColors.primaryAccent,
                     ),
                   ],
                 ),

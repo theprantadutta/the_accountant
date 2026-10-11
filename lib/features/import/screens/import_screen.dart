@@ -433,7 +433,6 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
       L10n.of(context).importForExportsThatWriteA,
       style: TextStyle(color: AppColors.textMuted, fontSize: 13),
     ),
-    activeThumbColor: AppColors.primaryAccent,
   );
 
   Widget _walletTile() {
@@ -472,7 +471,6 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
       'overlapping statement does not double anything',
       style: TextStyle(color: AppColors.textMuted, fontSize: 13),
     ),
-    activeThumbColor: AppColors.primaryAccent,
   );
 
   Widget _categoriesTile() => SwitchListTile(
@@ -486,7 +484,6 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
       L10n.of(context).importOtherwiseThoseRowsArriveUncategorised,
       style: TextStyle(color: AppColors.textMuted, fontSize: 13),
     ),
-    activeThumbColor: AppColors.primaryAccent,
   );
 
   // -------------------------------------------------------------- preview
