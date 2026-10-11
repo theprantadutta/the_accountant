@@ -362,9 +362,8 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
     await _runBulk(
       () =>
           ref.read(transactionProvider.notifier).setWalletForMany(ids, chosen),
-      (n) => n < ids.length
-          ? l10n.activityMovedPartial(n)
-          : l10n.activityMoved(n),
+      (n) =>
+          n < ids.length ? l10n.activityMovedPartial(n) : l10n.activityMoved(n),
     );
   }
 
@@ -624,11 +623,12 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
           padding: const EdgeInsets.only(bottom: SunriseSpace.section),
           child: DayGroupCard(
             label: _formatDateHeader(date),
-            total: dayIn == 0 && dayOut == 0 ? null : _money(dayNet, sign: true),
+            total: dayIn == 0 && dayOut == 0
+                ? null
+                : _money(dayNet, sign: true),
             totalColor: c.subtle,
             children: [
-              for (final transaction in dayTransactions)
-                _row(transaction),
+              for (final transaction in dayTransactions) _row(transaction),
             ],
           ),
         );
@@ -958,10 +958,7 @@ class _MonthSummary extends StatelessWidget {
       children: [
         Text(l, style: SunriseType.label.copyWith(color: c.muted)),
         const SizedBox(height: 2),
-        Text(
-          v,
-          style: SunriseType.amount.copyWith(color: color, fontSize: 14),
-        ),
+        Text(v, style: SunriseType.amount.copyWith(color: color, fontSize: 14)),
       ],
     );
     return Container(

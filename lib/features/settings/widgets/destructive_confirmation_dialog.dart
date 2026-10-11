@@ -94,7 +94,10 @@ class _DestructiveConfirmationDialogState
           const SizedBox(height: 16),
           Text(
             widget.title,
-            style: SunriseType.section.copyWith(color: c.negative, fontSize: 20),
+            style: SunriseType.section.copyWith(
+              color: c.negative,
+              fontSize: 20,
+            ),
           ),
           const SizedBox(height: 8),
           Text(

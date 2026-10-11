@@ -176,7 +176,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final preferences = [
       _Entry(
         title: l10n.settingsAppearance,
-        keywords: const ['theme', 'dark', 'light', 'colour', 'color', 'appearance'],
+        keywords: const [
+          'theme',
+          'dark',
+          'light',
+          'colour',
+          'color',
+          'appearance',
+        ],
         row: SettingsRow(
           icon: Symbols.palette_rounded,
           iconColor: c.accent,
@@ -204,7 +211,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       ),
       _Entry(
         title: l10n.settingsNotificationSettings,
-        keywords: const ['reminder', 'alert', 'budget alert', 'daily', 'notification'],
+        keywords: const [
+          'reminder',
+          'alert',
+          'budget alert',
+          'daily',
+          'notification',
+        ],
         row: SettingsRow(
           icon: Symbols.notifications_rounded,
           iconColor: const Color(0xFFD97706),
@@ -226,7 +239,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       ),
       _Entry(
         title: l10n.layoutTitle,
-        keywords: const ['home', 'layout', 'sections', 'reorder', 'arrange', 'today'],
+        keywords: const [
+          'home',
+          'layout',
+          'sections',
+          'reorder',
+          'arrange',
+          'today',
+        ],
         row: SettingsRow(
           icon: Symbols.dashboard_customize_rounded,
           iconColor: c.accent,
@@ -314,7 +334,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       ),
       _Entry(
         title: l10n.rulesTitle,
-        keywords: const ['rule', 'title', 'automatic', 'categorise', 'categorize', 'naming rules'],
+        keywords: const [
+          'rule',
+          'title',
+          'automatic',
+          'categorise',
+          'categorize',
+          'naming rules',
+        ],
         row: SettingsRow(
           icon: Symbols.rule_rounded,
           iconColor: const Color(0xFF7C3AED),
@@ -478,7 +505,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       ),
       _Entry(
         title: l10n.settingsPrivacySecurity,
-        keywords: const ['privacy', 'security', 'biometric', 'lock', 'fingerprint', 'password'],
+        keywords: const [
+          'privacy',
+          'security',
+          'biometric',
+          'lock',
+          'fingerprint',
+          'password',
+        ],
         row: SettingsRow(
           icon: Symbols.shield_lock_rounded,
           iconColor: c.positive,
@@ -565,7 +599,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       // Navigation to sign-in is handled by the auth state listener.
     } catch (_) {
       if (mounted) {
-        showSunriseSnack(context, l10n.moreSignOutFailed, tone: SnackTone.error);
+        showSunriseSnack(
+          context,
+          l10n.moreSignOutFailed,
+          tone: SnackTone.error,
+        );
       }
     }
   }

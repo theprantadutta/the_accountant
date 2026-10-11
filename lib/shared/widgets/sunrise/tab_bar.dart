@@ -59,7 +59,9 @@ class SunriseTabBar extends StatelessWidget {
             children: [
               _tab(context, 0),
               _tab(context, 1),
-              Expanded(child: _AddButton(onTap: onAdd, label: addLabel, key: addKey)),
+              Expanded(
+                child: _AddButton(onTap: onAdd, label: addLabel, key: addKey),
+              ),
               _tab(context, 2),
               _tab(context, 3),
             ],
@@ -95,12 +97,8 @@ class SunriseTabBar extends StatelessWidget {
                   TweenAnimationBuilder<double>(
                     tween: Tween(end: active ? 1 : 0),
                     duration: SunriseMotion.tab,
-                    builder: (_, fill, _) => Icon(
-                      item.icon,
-                      size: 26,
-                      color: color,
-                      fill: fill,
-                    ),
+                    builder: (_, fill, _) =>
+                        Icon(item.icon, size: 26, color: color, fill: fill),
                   ),
                   if (item.badge)
                     PositionedDirectional(

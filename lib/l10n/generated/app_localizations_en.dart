@@ -24,16 +24,7 @@ class L10nEn extends L10n {
   String get dateTomorrow => 'Tomorrow';
 
   @override
-  String get navDashboard => 'Dashboard';
-
-  @override
   String get navTransactions => 'Transactions';
-
-  @override
-  String get navReports => 'Reports';
-
-  @override
-  String get navSettings => 'Settings';
 
   @override
   String get settingsRegionalTitle => 'Regional Settings';
@@ -124,59 +115,16 @@ class L10nEn extends L10n {
   String get selectCurrency => 'Select Currency';
 
   @override
-  String get themeTitle => 'Choose Your Theme';
-
-  @override
-  String get themeSystem => 'System';
-
-  @override
   String get themeLight => 'Light';
 
   @override
   String get themeDark => 'Dark';
 
   @override
-  String get themeSystemDescription => 'Match whatever your phone is set to';
-
-  @override
-  String get themeLightDescription => 'Bright, for daylight and shared screens';
-
-  @override
-  String get themeDarkDescription =>
-      'The original - deep space with indigo accents';
-
-  @override
   String get languageSystem => 'Match my phone';
 
   @override
-  String get navHome => 'Home';
-
-  @override
-  String get navActivity => 'Activity';
-
-  @override
-  String get navAi => 'AI';
-
-  @override
-  String get navInsights => 'Insights';
-
-  @override
-  String get navAiAssistant => 'AI Assistant';
-
-  @override
   String get sectionAccount => 'ACCOUNT';
-
-  @override
-  String get sectionMoney => 'MONEY';
-
-  @override
-  String get sectionRegional => 'REGIONAL';
-
-  @override
-  String get sectionNotifications => 'NOTIFICATIONS';
-
-  @override
-  String get sectionPrivacySecurity => 'PRIVACY & SECURITY';
 
   @override
   String get sectionDataManagement => 'DATA MANAGEMENT';
@@ -185,13 +133,7 @@ class L10nEn extends L10n {
   String get sectionHelpSupport => 'HELP & SUPPORT';
 
   @override
-  String get sectionAbout => 'ABOUT';
-
-  @override
   String get settingsAppearance => 'Appearance';
-
-  @override
-  String get settingsAppearanceSubtitle => 'Theme and accent colour';
 
   @override
   String get settingsBackupRestore => 'Backup & Restore';
@@ -218,17 +160,7 @@ class L10nEn extends L10n {
       'Put back something removed in the last thirty days';
 
   @override
-  String get themeExpressYourself => 'Express Yourself';
-
-  @override
-  String get themeExpressYourselfBody =>
-      'Choose a theme that reflects your style and makes managing finances a joy.';
-
-  @override
   String get themePremiumHeading => 'Premium Themes';
-
-  @override
-  String get themeUnlockPremium => 'Unlock Premium Themes';
 
   @override
   String get actionRetry => 'Retry';
@@ -247,9 +179,6 @@ class L10nEn extends L10n {
 
   @override
   String get dashSpendingOverview => 'Spending Overview';
-
-  @override
-  String get dashRecentTransactions => 'Recent Transactions';
 
   @override
   String get dashBudgetProgress => 'Budget Progress';
@@ -329,9 +258,6 @@ class L10nEn extends L10n {
 
   @override
   String get actionApply => 'Apply';
-
-  @override
-  String get dashThisMonth => 'This month';
 
   @override
   String get filterPaid => 'Paid';
@@ -855,19 +781,6 @@ class L10nEn extends L10n {
       'Delete all transactions, budgets, and settings';
 
   @override
-  String get settingsLegal => 'LEGAL';
-
-  @override
-  String get settingsReadOurPrivacyPolicy => 'Read our privacy policy';
-
-  @override
-  String get settingsReadOurTermsOfService => 'Read our terms of service';
-
-  @override
-  String get settingsHowRefundsAndCancellationsWork =>
-      'How refunds and cancellations work';
-
-  @override
   String get settingsDangerZone => 'DANGER ZONE';
 
   @override
@@ -943,10 +856,6 @@ class L10nEn extends L10n {
   String get settingsWhatIsDueAndWhat => 'What is due, and what was missed';
 
   @override
-  String get settingsRenameRecolourAndGroupThem =>
-      'Rename, recolour, and group them';
-
-  @override
   String get settingsAccounts => 'Accounts';
 
   @override
@@ -965,14 +874,6 @@ class L10nEn extends L10n {
   String get settingsNotificationSettings => 'Notification Settings';
 
   @override
-  String get settingsDailyRemindersBudgetAlerts =>
-      'Daily reminders, budget alerts';
-
-  @override
-  String get settingsBiometricLockDataManagement =>
-      'Biometric lock, data management';
-
-  @override
   String get settingsCloudSync => 'Cloud Sync';
 
   @override
@@ -982,10 +883,6 @@ class L10nEn extends L10n {
   @override
   String get settingsCsvIsFreePdfReport =>
       'CSV is free · PDF report is Premium';
-
-  @override
-  String get settingsGetAnswersToCommonQuestions =>
-      'Get answers to common questions';
 
   @override
   String get settingsQuestionsComplaintsOrFeedback =>
@@ -1082,9 +979,6 @@ class L10nEn extends L10n {
   String get walletUseDecimals => 'Use Decimals';
 
   @override
-  String get walletSaveWallet => 'Save Wallet';
-
-  @override
   String get walletEnterWalletName => 'Enter wallet name';
 
   @override
@@ -1104,9 +998,6 @@ class L10nEn extends L10n {
 
   @override
   String get walletInitialBalance => 'Initial Balance';
-
-  @override
-  String get txScan => 'Scan';
 
   @override
   String get txAddATransferFee => 'Add a transfer fee';
@@ -1428,9 +1319,6 @@ class L10nEn extends L10n {
   String get settingsPdfReports => 'PDF Reports';
 
   @override
-  String get settingsFrequentlyAskedQuestions => 'FREQUENTLY ASKED QUESTIONS';
-
-  @override
   String get settingsGettingStarted => 'Getting Started';
 
   @override
@@ -1550,13 +1438,7 @@ class L10nEn extends L10n {
   String get walletLimit => 'Limit';
 
   @override
-  String get walletCreditBalance => 'CREDIT BALANCE';
-
-  @override
   String get walletBalance => 'Balance';
-
-  @override
-  String get walletOverdrawn => 'OVERDRAWN';
 
   @override
   String get walletBillingCycleDay => 'Billing Cycle Day';
@@ -1631,9 +1513,6 @@ class L10nEn extends L10n {
   String get txUpcomingOverdue => 'Upcoming & Overdue';
 
   @override
-  String get txEnterAmount => 'Enter Amount';
-
-  @override
   String get txNew => 'New';
 
   @override
@@ -1667,12 +1546,6 @@ class L10nEn extends L10n {
 
   @override
   String get reportNoCategorySpendingData => 'No category spending data';
-
-  @override
-  String get reportFinancialSummary => 'Financial Summary';
-
-  @override
-  String get reportCategoryBreakdown => 'Category Breakdown';
 
   @override
   String get reportNoSpendingDataAvailable => 'No spending data available';
@@ -1782,32 +1655,11 @@ class L10nEn extends L10n {
   String get authTheAccountant => 'THE ACCOUNTANT';
 
   @override
-  String get authInitializingYourFinancialJourney =>
-      'Initializing your financial journey...';
-
-  @override
   String get legalPrivacyTerms => 'Privacy & Terms';
 
   @override
   String get legalReviewTheseBeforeYouContinue =>
       'Review these before you continue.';
-
-  @override
-  String get premiumLifetimeAccessNeverExpires =>
-      'Lifetime access - Never expires';
-
-  @override
-  String get premiumPremiumFeatures => 'Premium Features';
-
-  @override
-  String get premiumChooseYourPlan => 'Choose Your Plan';
-
-  @override
-  String get premiumUnlockPremium => 'Unlock Premium';
-
-  @override
-  String get premiumOneTimePurchaseLifetimeAccess =>
-      'One-time purchase • Lifetime access';
 
   @override
   String get premiumLimitReached => 'Limit Reached';
@@ -1826,13 +1678,7 @@ class L10nEn extends L10n {
       'Start chatting and your threads show up here.';
 
   @override
-  String get aiAiFinancialAssistant => 'AI Financial Assistant';
-
-  @override
   String get aiScanAReceipt => 'Scan a receipt';
-
-  @override
-  String get aiAiIsThinking => 'AI is thinking...';
 
   @override
   String get aiSpendingTrend => 'Spending Trend';
@@ -1854,20 +1700,7 @@ class L10nEn extends L10n {
   String get dashErrorLoadingFinancialData => 'Error loading financial data';
 
   @override
-  String get dashReadyToManageYourFinances => 'Ready to manage your finances?';
-
-  @override
   String get dashNoSpendingDataYet => 'No spending data yet';
-
-  @override
-  String get dashViewAll => 'View All';
-
-  @override
-  String get dashNoTransactionsYet => 'No transactions yet';
-
-  @override
-  String get dashAddYourFirstTransactionTo =>
-      'Add your first transaction to get started';
 
   @override
   String get dashManage => 'Manage';
@@ -1937,12 +1770,6 @@ class L10nEn extends L10n {
 
   @override
   String get sharedIncludeCryptoCurrencies => 'Include crypto currencies';
-
-  @override
-  String get sharedQuickAdd => 'Quick Add';
-
-  @override
-  String get sharedRecordYourIncomeOrExpense => 'Record your income or expense';
 
   @override
   String get sharedTotalBalance => 'Total Balance';
@@ -2072,9 +1899,6 @@ class L10nEn extends L10n {
 
   @override
   String get themeAccentGraphite => 'Graphite';
-
-  @override
-  String get themeAccentHeading => 'Accent';
 
   @override
   String themeAppearanceValue(String accent, String mode) {
@@ -2210,9 +2034,6 @@ class L10nEn extends L10n {
 
   @override
   String get todayNotifications => 'Notifications';
-
-  @override
-  String get todayHidden => 'Hidden';
 
   @override
   String get todayWithinBudget => 'Within budget';
@@ -2626,15 +2447,6 @@ class L10nEn extends L10n {
 
   @override
   String get aiChipBudgets => 'Smart budgets';
-
-  @override
-  String get gateChipSync => 'All devices';
-
-  @override
-  String get gateChipBackup => 'Encrypted';
-
-  @override
-  String get gateChipThemes => '5 themes';
 
   @override
   String get aiAssistantTitle => 'AI assistant';

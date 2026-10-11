@@ -108,12 +108,8 @@ class _ChipItem extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) => SunriseChip(
-    label: label,
-    icon: icon,
-    selected: isSelected,
-    onTap: onTap,
-  );
+  Widget build(BuildContext context) =>
+      SunriseChip(label: label, icon: icon, selected: isSelected, onTap: onTap);
 }
 
 /// Labeled section with horizontal chip selector

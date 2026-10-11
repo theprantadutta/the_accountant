@@ -408,7 +408,9 @@ class _SyncSettingsScreenState extends ConsumerState<SyncSettingsScreen> {
       decoration: BoxDecoration(
         color: AppColors.primaryAccent.withValues(alpha: 0.08),
         borderRadius: AppSpacing.borderRadiusLg,
-        border: Border.all(color: AppColors.primaryAccent.withValues(alpha: 0.2)),
+        border: Border.all(
+          color: AppColors.primaryAccent.withValues(alpha: 0.2),
+        ),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,

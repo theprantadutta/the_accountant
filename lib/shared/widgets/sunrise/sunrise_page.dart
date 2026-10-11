@@ -173,9 +173,6 @@ class SunriseTabPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => SunriseBackground(
-    child: SafeArea(
-      bottom: false,
-      child: SunriseContentWidth(child: child),
-    ),
+    child: SafeArea(bottom: false, child: SunriseContentWidth(child: child)),
   );
 }

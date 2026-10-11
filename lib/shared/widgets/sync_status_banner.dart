@@ -90,7 +90,9 @@ class _SyncStatusBannerState extends ConsumerState<SyncStatusBanner> {
               Symbols.check_circle_rounded,
               size: 16,
               fill: 1,
-              color: c.isDark ? const Color(0xFF16A34A) : const Color(0xFF4ADE80),
+              color: c.isDark
+                  ? const Color(0xFF16A34A)
+                  : const Color(0xFF4ADE80),
             ),
           const SizedBox(width: 8),
           Text(

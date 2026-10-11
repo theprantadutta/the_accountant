@@ -117,7 +117,11 @@ class _WalletManagementScreenState
       if (mounted) await UpgradeLimitDialog.showFromException(context, e);
     } catch (_) {
       if (mounted) {
-        showSunriseSnack(context, l10n.walletsCreateFailed, tone: SnackTone.error);
+        showSunriseSnack(
+          context,
+          l10n.walletsCreateFailed,
+          tone: SnackTone.error,
+        );
       }
     }
   }
@@ -125,7 +129,9 @@ class _WalletManagementScreenState
   Future<void> _openWallet(Wallet wallet) async {
     await Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => WalletDetailScreen(walletId: wallet.id)),
+      MaterialPageRoute(
+        builder: (_) => WalletDetailScreen(walletId: wallet.id),
+      ),
     );
     if (mounted) await ref.read(walletProvider.notifier).loadWallets();
   }
@@ -349,7 +355,10 @@ class _WalletManagementScreenState
                   : all.indexOf(featured.id);
               final merged = [...ids];
               if (featuredIndex >= 0) {
-                merged.insert(featuredIndex.clamp(0, merged.length), featured!.id);
+                merged.insert(
+                  featuredIndex.clamp(0, merged.length),
+                  featured!.id,
+                );
               }
               ref.read(walletProvider.notifier).reorderWallets(merged);
             },

@@ -383,7 +383,8 @@ class _MainNavigationContainerState
         Positioned(
           left: 0,
           right: 0,
-          bottom: (isTablet(context) ? 16 : 90) +
+          bottom:
+              (isTablet(context) ? 16 : 90) +
               MediaQuery.paddingOf(context).bottom,
           child: const Center(child: SyncStatusBanner()),
         ),
@@ -403,13 +404,8 @@ class _MainNavigationContainerState
           children: [
             SunriseGlass(
               color: c.tabBar,
-              border: BorderDirectional(
-                end: BorderSide(color: c.tabBarBorder),
-              ),
-              child: SafeArea(
-                right: false,
-                child: _buildNavRail(l10n),
-              ),
+              border: BorderDirectional(end: BorderSide(color: c.tabBarBorder)),
+              child: SafeArea(right: false, child: _buildNavRail(l10n)),
             ),
             Expanded(child: body),
           ],

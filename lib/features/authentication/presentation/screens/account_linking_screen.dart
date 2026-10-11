@@ -198,7 +198,9 @@ class _AccountLinkingScreenState extends ConsumerState<AccountLinkingScreen>
       padding: AppSpacing.paddingMd,
       decoration: BoxDecoration(
         color: AppColors.primaryAccent.withValues(alpha: 0.08),
-        border: Border.all(color: AppColors.primaryAccent.withValues(alpha: 0.2)),
+        border: Border.all(
+          color: AppColors.primaryAccent.withValues(alpha: 0.2),
+        ),
         borderRadius: AppSpacing.borderRadiusMd,
       ),
       child: Row(

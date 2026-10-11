@@ -114,20 +114,21 @@ class _ResponsiveFinancialOverviewState
     final tablet = isTablet(context);
 
     return SunriseBackground(
-      child: StatusBarScrim(
+      child: SafeArea(
+        bottom: false,
         child: RefreshIndicator(
           onRefresh: () =>
               ref.read(financialDataProvider.notifier).refreshData(),
           color: c.accent,
           backgroundColor: c.surface,
-          edgeOffset: MediaQuery.paddingOf(context).top,
+          edgeOffset: 0,
           child: ListView(
             physics: const AlwaysScrollableScrollPhysics(
               parent: BouncingScrollPhysics(),
             ),
             padding: EdgeInsets.fromLTRB(
               SunriseSpace.screenX,
-              MediaQuery.paddingOf(context).top + SunriseSpace.screenTop,
+              SunriseSpace.screenTop,
               SunriseSpace.screenX,
               SunriseSpace.tabBarClearance,
             ),

@@ -73,7 +73,11 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                   ),
                   child: Row(
                     children: [
-                      Icon(Symbols.info_rounded, color: AppColors.primaryAccent, size: 24),
+                      Icon(
+                        Symbols.info_rounded,
+                        color: AppColors.primaryAccent,
+                        size: 24,
+                      ),
                       SizedBox(width: AppSpacing.md),
                       Expanded(
                         child: Text(

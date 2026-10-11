@@ -5,6 +5,9 @@ import 'package:the_accountant/features/premium/providers/premium_provider.dart'
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
 
+/// White in the theme previews: part of the fixed preview art, not page chrome.
+const _previewWhite = Color(0xFFFFFFFF);
+
 /// Appearance: Sunrise Light / Dark, Match system, and the accent swatches.
 ///
 /// A premium accent swaps only the gradient, accent and wash, never the
@@ -300,7 +303,7 @@ class _Check extends StatelessWidget {
           ? const Icon(
               Symbols.check_rounded,
               size: 15,
-              color: Colors.white,
+              color: _previewWhite,
               weight: 700,
             )
           : null,
@@ -329,7 +332,7 @@ class _AccentSwatch extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.sunrise;
     final p = SunriseColors.resolve(c.brightness, accent);
-    final card = p.isDark ? const Color(0xFF221813) : Colors.white;
+    final card = p.isDark ? const Color(0xFF221813) : _previewWhite;
 
     Widget bar(double w, Color color, {double h = 6}) => Container(
       width: w,
@@ -376,8 +379,8 @@ class _AccentSwatch extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          bar(26, Colors.white.withValues(alpha: .7), h: 4),
-                          bar(52, Colors.white, h: 8),
+                          bar(26, _previewWhite.withValues(alpha: .7), h: 4),
+                          bar(52, _previewWhite, h: 8),
                         ],
                       ),
                     ),
@@ -499,7 +502,7 @@ class _AccentSwatch extends StatelessWidget {
                           child: const Icon(
                             Symbols.lock_rounded,
                             size: 15,
-                            color: Colors.white,
+                            color: _previewWhite,
                           ),
                         ),
                       ),

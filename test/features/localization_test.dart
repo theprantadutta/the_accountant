@@ -48,7 +48,7 @@ void main() {
       );
 
       expect(l10n.actionCancel, 'Cancel');
-      expect(l10n.navSettings, 'Settings');
+      expect(l10n.navToday, 'Today');
     });
 
     testWidgets('Bangla', (tester) async {
@@ -66,7 +66,7 @@ void main() {
       );
 
       expect(l10n.actionCancel, 'বাতিল');
-      expect(l10n.navSettings, 'সেটিংস');
+      expect(l10n.navToday, 'আজ');
     });
 
     testWidgets('a language we do not ship falls back to English', (
@@ -187,6 +187,8 @@ void main() {
         'settingsCsv',
         'settingsTheAccountant',
         'authTheAccountant',
+        // Only placeholders: "{accent} {mode}", both already translated.
+        'themeAppearanceValue',
       };
 
       final untranslated = [

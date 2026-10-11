@@ -197,7 +197,9 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
             _PlanCard(
               plan: p,
               selected: p.id == chosen?.id,
-              onTap: busy ? null : () => setState(() => _chosenProductId = p.id),
+              onTap: busy
+                  ? null
+                  : () => setState(() => _chosenProductId = p.id),
             ),
             const SizedBox(height: 10),
           ],
@@ -290,7 +292,11 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
         child: Row(
           children: [
             if (spinner)
-              const SizedBox(width: 22, height: 22, child: SunriseLoader(size: 20))
+              const SizedBox(
+                width: 22,
+                height: 22,
+                child: SunriseLoader(size: 20),
+              )
             else
               Icon(icon, color: c.negative),
             const SizedBox(width: 12),
@@ -315,8 +321,11 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
       return banner(Symbols.warning_rounded, l10n.paywallIapUnavailable);
     }
     if (iapState.isLoading && iapState.products.isEmpty) {
-      return banner(Symbols.hourglass_top_rounded, l10n.paywallLoadingPlans,
-          spinner: true);
+      return banner(
+        Symbols.hourglass_top_rounded,
+        l10n.paywallLoadingPlans,
+        spinner: true,
+      );
     }
     if (iapState.products.isEmpty) {
       if (!_emptyStateLogged) {
@@ -407,7 +416,9 @@ class _Header extends StatelessWidget {
             boxShadow: c.gradientShadow,
           ),
           child: Icon(
-            isPremium ? Symbols.verified_rounded : Symbols.workspace_premium_rounded,
+            isPremium
+                ? Symbols.verified_rounded
+                : Symbols.workspace_premium_rounded,
             color: c.onFill,
             size: 44,
             fill: 1,
@@ -492,13 +503,41 @@ class _FeatureGrid extends StatelessWidget {
     final c = context.sunrise;
     final features = [
       (Symbols.auto_awesome_rounded, l10n.paywallFeatAi, l10n.paywallFeatAiSub),
-      (Symbols.document_scanner_rounded, l10n.paywallFeatOcr, l10n.paywallFeatOcrSub),
-      (Symbols.cloud_sync_rounded, l10n.paywallFeatSync, l10n.paywallFeatSyncSub),
-      (Symbols.insights_rounded, l10n.paywallFeatInsights, l10n.paywallFeatInsightsSub),
-      (Symbols.palette_rounded, l10n.paywallFeatThemes, l10n.paywallFeatThemesSub),
-      (Symbols.all_inclusive_rounded, l10n.paywallFeatUnlimited, l10n.paywallFeatUnlimitedSub),
-      (Symbols.picture_as_pdf_rounded, l10n.paywallFeatPdf, l10n.paywallFeatPdfSub),
-      (Symbols.support_agent_rounded, l10n.paywallFeatSupport, l10n.paywallFeatSupportSub),
+      (
+        Symbols.document_scanner_rounded,
+        l10n.paywallFeatOcr,
+        l10n.paywallFeatOcrSub,
+      ),
+      (
+        Symbols.cloud_sync_rounded,
+        l10n.paywallFeatSync,
+        l10n.paywallFeatSyncSub,
+      ),
+      (
+        Symbols.insights_rounded,
+        l10n.paywallFeatInsights,
+        l10n.paywallFeatInsightsSub,
+      ),
+      (
+        Symbols.palette_rounded,
+        l10n.paywallFeatThemes,
+        l10n.paywallFeatThemesSub,
+      ),
+      (
+        Symbols.all_inclusive_rounded,
+        l10n.paywallFeatUnlimited,
+        l10n.paywallFeatUnlimitedSub,
+      ),
+      (
+        Symbols.picture_as_pdf_rounded,
+        l10n.paywallFeatPdf,
+        l10n.paywallFeatPdfSub,
+      ),
+      (
+        Symbols.support_agent_rounded,
+        l10n.paywallFeatSupport,
+        l10n.paywallFeatSupportSub,
+      ),
     ];
     return LayoutBuilder(
       builder: (context, box) {
@@ -525,7 +564,9 @@ class _FeatureGrid extends StatelessWidget {
                               title,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: SunriseType.rowTitle.copyWith(color: c.ink),
+                              style: SunriseType.rowTitle.copyWith(
+                                color: c.ink,
+                              ),
                             ),
                             Text(
                               sub,

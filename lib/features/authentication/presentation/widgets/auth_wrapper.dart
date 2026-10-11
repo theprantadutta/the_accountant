@@ -27,6 +27,9 @@ import 'package:the_accountant/core/providers/account_store_provider.dart';
 import 'package:the_accountant/core/providers/startup_flow_provider.dart';
 import 'package:the_accountant/features/startup/screens/startup_recovery_screen.dart';
 
+/// White on the intro's sunrise ground, which is the same in both themes.
+const _onBrand = Color(0xFFFFFFFF);
+
 class AuthWrapper extends ConsumerStatefulWidget {
   const AuthWrapper({super.key});
 
@@ -406,7 +409,7 @@ class _AuthLoadingScreenState extends State<AuthLoadingScreen>
       l10n.introStep3,
       l10n.introStep4,
     ];
-    const white = Colors.white;
+    const white = _onBrand;
     final reduceMotion = MediaQuery.disableAnimationsOf(context);
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
@@ -618,11 +621,11 @@ class _AuthLoadingScreenState extends State<AuthLoadingScreen>
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: .22),
+              color: _onBrand.withValues(alpha: .22),
               shape: BoxShape.circle,
-              border: Border.all(color: Colors.white.withValues(alpha: .45)),
+              border: Border.all(color: _onBrand.withValues(alpha: .45)),
             ),
-            child: Icon(icon, color: Colors.white, size: 21, fill: 1),
+            child: Icon(icon, color: _onBrand, size: 21, fill: 1),
           ),
         ),
       ),
@@ -663,7 +666,7 @@ class _Coin extends StatelessWidget {
                     shape: BoxShape.circle,
                     color: const Color(0xFFFDE68A),
                     border: Border.all(
-                      color: Colors.white.withValues(alpha: .7),
+                      color: _onBrand.withValues(alpha: .7),
                       width: 2,
                     ),
                   ),
@@ -695,8 +698,8 @@ class _RaysPainter extends CustomPainter {
     final paint = Paint()
       ..shader = RadialGradient(
         colors: [
-          Colors.white.withValues(alpha: .22),
-          Colors.white.withValues(alpha: 0),
+          _onBrand.withValues(alpha: .22),
+          _onBrand.withValues(alpha: 0),
         ],
       ).createShader(Rect.fromCircle(center: c, radius: r));
     const rays = 14;
@@ -725,10 +728,10 @@ class _TipCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SunriseGlass(
-      color: Colors.white.withValues(alpha: .18),
+      color: _onBrand.withValues(alpha: .18),
       radius: BorderRadius.circular(SunriseRadius.card),
       blur: 16,
-      border: Border.all(color: Colors.white.withValues(alpha: .35)),
+      border: Border.all(color: _onBrand.withValues(alpha: .35)),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
         child: Row(
@@ -738,12 +741,12 @@ class _TipCard extends StatelessWidget {
               width: 36,
               height: 36,
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: .25),
+                color: _onBrand.withValues(alpha: .25),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Icon(
                 Symbols.lightbulb_rounded,
-                color: Colors.white,
+                color: _onBrand,
                 fill: 1,
                 size: 20,
               ),
@@ -756,7 +759,7 @@ class _TipCard extends StatelessWidget {
                   Text(
                     label.toUpperCase(),
                     style: SunriseType.overline.copyWith(
-                      color: Colors.white.withValues(alpha: .85),
+                      color: _onBrand.withValues(alpha: .85),
                       fontSize: 11,
                     ),
                   ),
@@ -764,7 +767,7 @@ class _TipCard extends StatelessWidget {
                   Text(
                     text,
                     style: SunriseType.label.copyWith(
-                      color: Colors.white,
+                      color: _onBrand,
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
                       height: 1.35,

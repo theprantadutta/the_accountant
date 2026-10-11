@@ -280,7 +280,11 @@ class _HelpScreenState extends State<HelpScreen> {
   Widget _buildQuickHelpSection() {
     final l10n = L10n.of(context);
     final c = context.sunrise;
-    final steps = [l10n.helpStepWallets, l10n.helpStepCategories, l10n.helpStepTrack];
+    final steps = [
+      l10n.helpStepWallets,
+      l10n.helpStepCategories,
+      l10n.helpStepTrack,
+    ];
     return GradientCard(
       radius: SunriseRadius.hero,
       child: Column(
@@ -322,9 +326,7 @@ class _HelpScreenState extends State<HelpScreen> {
                       children: [
                         Text(
                           '${i + 1}',
-                          style: SunriseType.section.copyWith(
-                            color: c.onFill,
-                          ),
+                          style: SunriseType.section.copyWith(color: c.onFill),
                         ),
                         const SizedBox(height: 2),
                         Text(

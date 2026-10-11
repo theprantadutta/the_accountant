@@ -193,32 +193,29 @@ class SettingsRow extends StatelessWidget {
           if (trailingWidget != null) ...[
             const SizedBox(width: 8),
             trailingWidget!,
-          ] else if (!destructive) ...switch (trailing) {
-            SettingsTrailing.chevron => [
-              const SizedBox(width: 4),
-              Icon(
-                Symbols.chevron_right_rounded,
-                size: 20,
-                color: c.chevron,
-                textDirection: Directionality.of(context),
-              ),
-            ],
-            SettingsTrailing.external => [
-              const SizedBox(width: 4),
-              Icon(Symbols.open_in_new_rounded, size: 20, color: c.chevron),
-            ],
-            SettingsTrailing.none => const <Widget>[],
-          },
+          ] else if (!destructive)
+            ...switch (trailing) {
+              SettingsTrailing.chevron => [
+                const SizedBox(width: 4),
+                Icon(
+                  Symbols.chevron_right_rounded,
+                  size: 20,
+                  color: c.chevron,
+                  textDirection: Directionality.of(context),
+                ),
+              ],
+              SettingsTrailing.external => [
+                const SizedBox(width: 4),
+                Icon(Symbols.open_in_new_rounded, size: 20, color: c.chevron),
+              ],
+              SettingsTrailing.none => const <Widget>[],
+            },
         ],
       ),
     );
     return Opacity(
       opacity: enabled ? 1 : .45,
-      child: Pressable(
-        onTap: enabled ? onTap : null,
-        scale: .985,
-        child: row,
-      ),
+      child: Pressable(onTap: enabled ? onTap : null, scale: .985, child: row),
     );
   }
 }

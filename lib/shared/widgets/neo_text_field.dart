@@ -318,8 +318,9 @@ class _NeoTextFieldState extends State<NeoTextField>
 
   /// The message under the box: an explicit [NeoTextField.errorText] first,
   /// then whatever the validator said last.
-  String? get _shownError =>
-      (_errorText != null && _errorText!.isNotEmpty) ? _errorText : _validatorError;
+  String? get _shownError => (_errorText != null && _errorText!.isNotEmpty)
+      ? _errorText
+      : _validatorError;
 }
 
 /// A search text field with glass styling

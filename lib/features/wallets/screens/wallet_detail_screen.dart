@@ -100,7 +100,7 @@ class _WalletDetailScreenState extends ConsumerState<WalletDetailScreen> {
 
     final tint = ColorUtils.hexToColor(wallet.color);
     final deep = Color.lerp(tint, Colors.black, .28)!;
-    final onGlass = Colors.white.withValues(alpha: .22);
+    final onGlass = context.sunrise.onFill.withValues(alpha: .22);
 
     return SunrisePushPage(
       title: wallet.name,
@@ -126,14 +126,14 @@ class _WalletDetailScreenState extends ConsumerState<WalletDetailScreen> {
                 children: [
                   IconTile(
                     icon: WalletIcons.getIcon(wallet.iconName),
-                    color: Colors.white,
+                    color: context.sunrise.onFill,
                     background: onGlass,
                     size: 48,
                   ),
                   const Spacer(),
                   SunrisePill(
                     label: wallet.currency,
-                    color: Colors.white,
+                    color: context.sunrise.onFill,
                     background: onGlass,
                   ),
                 ],
@@ -142,7 +142,7 @@ class _WalletDetailScreenState extends ConsumerState<WalletDetailScreen> {
               Text(
                 L10n.of(context).entityAccount.toUpperCase(),
                 style: SunriseType.overline.copyWith(
-                  color: Colors.white.withValues(alpha: .8),
+                  color: context.sunrise.onFill.withValues(alpha: .8),
                 ),
               ),
               const SizedBox(height: 4),
@@ -153,7 +153,9 @@ class _WalletDetailScreenState extends ConsumerState<WalletDetailScreen> {
                   wallet.balance < 0
                       ? '−${money(-wallet.balance)}'
                       : money(wallet.balance),
-                  style: SunriseType.amountHero.copyWith(color: Colors.white),
+                  style: SunriseType.amountHero.copyWith(
+                    color: context.sunrise.onFill,
+                  ),
                 ),
               ),
               if (wallet.isArchived || wallet.excludeFromTotal) ...[
@@ -166,7 +168,7 @@ class _WalletDetailScreenState extends ConsumerState<WalletDetailScreen> {
                       ? 'Closed. Its history is kept, but it is not offered '
                             'or counted.'
                       : 'Left out of the total across accounts.',
-                  color: Colors.white,
+                  color: context.sunrise.onFill,
                   background: onGlass,
                 ),
               ],
@@ -442,15 +444,15 @@ class _CreditSummary extends StatelessWidget {
           child: LinearProgressIndicator(
             value: used,
             minHeight: 6,
-            backgroundColor: Colors.white.withValues(alpha: .25),
-            color: Colors.white,
+            backgroundColor: context.sunrise.onFill.withValues(alpha: .25),
+            color: context.sunrise.onFill,
           ),
         ),
         AppSpacing.gapSm,
         Text(
           '${money(outstanding)} owed · ${money(available)} still available',
           style: SunriseType.body.copyWith(
-            color: Colors.white.withValues(alpha: .9),
+            color: context.sunrise.onFill.withValues(alpha: .9),
           ),
         ),
       ],

@@ -127,29 +127,11 @@ abstract class L10n {
   /// **'Tomorrow'**
   String get dateTomorrow;
 
-  /// No description provided for @navDashboard.
-  ///
-  /// In en, this message translates to:
-  /// **'Dashboard'**
-  String get navDashboard;
-
   /// No description provided for @navTransactions.
   ///
   /// In en, this message translates to:
   /// **'Transactions'**
   String get navTransactions;
-
-  /// No description provided for @navReports.
-  ///
-  /// In en, this message translates to:
-  /// **'Reports'**
-  String get navReports;
-
-  /// No description provided for @navSettings.
-  ///
-  /// In en, this message translates to:
-  /// **'Settings'**
-  String get navSettings;
 
   /// No description provided for @settingsRegionalTitle.
   ///
@@ -325,18 +307,6 @@ abstract class L10n {
   /// **'Select Currency'**
   String get selectCurrency;
 
-  /// No description provided for @themeTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Choose Your Theme'**
-  String get themeTitle;
-
-  /// No description provided for @themeSystem.
-  ///
-  /// In en, this message translates to:
-  /// **'System'**
-  String get themeSystem;
-
   /// No description provided for @themeLight.
   ///
   /// In en, this message translates to:
@@ -349,89 +319,17 @@ abstract class L10n {
   /// **'Dark'**
   String get themeDark;
 
-  /// No description provided for @themeSystemDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'Match whatever your phone is set to'**
-  String get themeSystemDescription;
-
-  /// No description provided for @themeLightDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'Bright, for daylight and shared screens'**
-  String get themeLightDescription;
-
-  /// No description provided for @themeDarkDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'The original - deep space with indigo accents'**
-  String get themeDarkDescription;
-
   /// No description provided for @languageSystem.
   ///
   /// In en, this message translates to:
   /// **'Match my phone'**
   String get languageSystem;
 
-  /// No description provided for @navHome.
-  ///
-  /// In en, this message translates to:
-  /// **'Home'**
-  String get navHome;
-
-  /// No description provided for @navActivity.
-  ///
-  /// In en, this message translates to:
-  /// **'Activity'**
-  String get navActivity;
-
-  /// No description provided for @navAi.
-  ///
-  /// In en, this message translates to:
-  /// **'AI'**
-  String get navAi;
-
-  /// No description provided for @navInsights.
-  ///
-  /// In en, this message translates to:
-  /// **'Insights'**
-  String get navInsights;
-
-  /// No description provided for @navAiAssistant.
-  ///
-  /// In en, this message translates to:
-  /// **'AI Assistant'**
-  String get navAiAssistant;
-
   /// No description provided for @sectionAccount.
   ///
   /// In en, this message translates to:
   /// **'ACCOUNT'**
   String get sectionAccount;
-
-  /// No description provided for @sectionMoney.
-  ///
-  /// In en, this message translates to:
-  /// **'MONEY'**
-  String get sectionMoney;
-
-  /// No description provided for @sectionRegional.
-  ///
-  /// In en, this message translates to:
-  /// **'REGIONAL'**
-  String get sectionRegional;
-
-  /// No description provided for @sectionNotifications.
-  ///
-  /// In en, this message translates to:
-  /// **'NOTIFICATIONS'**
-  String get sectionNotifications;
-
-  /// No description provided for @sectionPrivacySecurity.
-  ///
-  /// In en, this message translates to:
-  /// **'PRIVACY & SECURITY'**
-  String get sectionPrivacySecurity;
 
   /// No description provided for @sectionDataManagement.
   ///
@@ -445,23 +343,11 @@ abstract class L10n {
   /// **'HELP & SUPPORT'**
   String get sectionHelpSupport;
 
-  /// No description provided for @sectionAbout.
-  ///
-  /// In en, this message translates to:
-  /// **'ABOUT'**
-  String get sectionAbout;
-
   /// No description provided for @settingsAppearance.
   ///
   /// In en, this message translates to:
   /// **'Appearance'**
   String get settingsAppearance;
-
-  /// No description provided for @settingsAppearanceSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Theme and accent colour'**
-  String get settingsAppearanceSubtitle;
 
   /// No description provided for @settingsBackupRestore.
   ///
@@ -505,29 +391,11 @@ abstract class L10n {
   /// **'Put back something removed in the last thirty days'**
   String get settingsRecentlyDeletedSubtitle;
 
-  /// No description provided for @themeExpressYourself.
-  ///
-  /// In en, this message translates to:
-  /// **'Express Yourself'**
-  String get themeExpressYourself;
-
-  /// No description provided for @themeExpressYourselfBody.
-  ///
-  /// In en, this message translates to:
-  /// **'Choose a theme that reflects your style and makes managing finances a joy.'**
-  String get themeExpressYourselfBody;
-
   /// No description provided for @themePremiumHeading.
   ///
   /// In en, this message translates to:
   /// **'Premium Themes'**
   String get themePremiumHeading;
-
-  /// No description provided for @themeUnlockPremium.
-  ///
-  /// In en, this message translates to:
-  /// **'Unlock Premium Themes'**
-  String get themeUnlockPremium;
 
   /// No description provided for @actionRetry.
   ///
@@ -564,12 +432,6 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'Spending Overview'**
   String get dashSpendingOverview;
-
-  /// No description provided for @dashRecentTransactions.
-  ///
-  /// In en, this message translates to:
-  /// **'Recent Transactions'**
-  String get dashRecentTransactions;
 
   /// No description provided for @dashBudgetProgress.
   ///
@@ -714,12 +576,6 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'Apply'**
   String get actionApply;
-
-  /// No description provided for @dashThisMonth.
-  ///
-  /// In en, this message translates to:
-  /// **'This month'**
-  String get dashThisMonth;
 
   /// No description provided for @filterPaid.
   ///
@@ -1685,30 +1541,6 @@ abstract class L10n {
   /// **'Delete all transactions, budgets, and settings'**
   String get settingsDeleteAllTransactionsBudgetsAnd;
 
-  /// No description provided for @settingsLegal.
-  ///
-  /// In en, this message translates to:
-  /// **'LEGAL'**
-  String get settingsLegal;
-
-  /// No description provided for @settingsReadOurPrivacyPolicy.
-  ///
-  /// In en, this message translates to:
-  /// **'Read our privacy policy'**
-  String get settingsReadOurPrivacyPolicy;
-
-  /// No description provided for @settingsReadOurTermsOfService.
-  ///
-  /// In en, this message translates to:
-  /// **'Read our terms of service'**
-  String get settingsReadOurTermsOfService;
-
-  /// No description provided for @settingsHowRefundsAndCancellationsWork.
-  ///
-  /// In en, this message translates to:
-  /// **'How refunds and cancellations work'**
-  String get settingsHowRefundsAndCancellationsWork;
-
   /// No description provided for @settingsDangerZone.
   ///
   /// In en, this message translates to:
@@ -1853,12 +1685,6 @@ abstract class L10n {
   /// **'What is due, and what was missed'**
   String get settingsWhatIsDueAndWhat;
 
-  /// No description provided for @settingsRenameRecolourAndGroupThem.
-  ///
-  /// In en, this message translates to:
-  /// **'Rename, recolour, and group them'**
-  String get settingsRenameRecolourAndGroupThem;
-
   /// No description provided for @settingsAccounts.
   ///
   /// In en, this message translates to:
@@ -1889,18 +1715,6 @@ abstract class L10n {
   /// **'Notification Settings'**
   String get settingsNotificationSettings;
 
-  /// No description provided for @settingsDailyRemindersBudgetAlerts.
-  ///
-  /// In en, this message translates to:
-  /// **'Daily reminders, budget alerts'**
-  String get settingsDailyRemindersBudgetAlerts;
-
-  /// No description provided for @settingsBiometricLockDataManagement.
-  ///
-  /// In en, this message translates to:
-  /// **'Biometric lock, data management'**
-  String get settingsBiometricLockDataManagement;
-
   /// No description provided for @settingsCloudSync.
   ///
   /// In en, this message translates to:
@@ -1918,12 +1732,6 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'CSV is free · PDF report is Premium'**
   String get settingsCsvIsFreePdfReport;
-
-  /// No description provided for @settingsGetAnswersToCommonQuestions.
-  ///
-  /// In en, this message translates to:
-  /// **'Get answers to common questions'**
-  String get settingsGetAnswersToCommonQuestions;
 
   /// No description provided for @settingsQuestionsComplaintsOrFeedback.
   ///
@@ -2105,12 +1913,6 @@ abstract class L10n {
   /// **'Use Decimals'**
   String get walletUseDecimals;
 
-  /// No description provided for @walletSaveWallet.
-  ///
-  /// In en, this message translates to:
-  /// **'Save Wallet'**
-  String get walletSaveWallet;
-
   /// No description provided for @walletEnterWalletName.
   ///
   /// In en, this message translates to:
@@ -2152,12 +1954,6 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'Initial Balance'**
   String get walletInitialBalance;
-
-  /// No description provided for @txScan.
-  ///
-  /// In en, this message translates to:
-  /// **'Scan'**
-  String get txScan;
 
   /// No description provided for @txAddATransferFee.
   ///
@@ -2771,12 +2567,6 @@ abstract class L10n {
   /// **'PDF Reports'**
   String get settingsPdfReports;
 
-  /// No description provided for @settingsFrequentlyAskedQuestions.
-  ///
-  /// In en, this message translates to:
-  /// **'FREQUENTLY ASKED QUESTIONS'**
-  String get settingsFrequentlyAskedQuestions;
-
   /// No description provided for @settingsGettingStarted.
   ///
   /// In en, this message translates to:
@@ -2999,23 +2789,11 @@ abstract class L10n {
   /// **'Limit'**
   String get walletLimit;
 
-  /// No description provided for @walletCreditBalance.
-  ///
-  /// In en, this message translates to:
-  /// **'CREDIT BALANCE'**
-  String get walletCreditBalance;
-
   /// No description provided for @walletBalance.
   ///
   /// In en, this message translates to:
   /// **'Balance'**
   String get walletBalance;
-
-  /// No description provided for @walletOverdrawn.
-  ///
-  /// In en, this message translates to:
-  /// **'OVERDRAWN'**
-  String get walletOverdrawn;
 
   /// No description provided for @walletBillingCycleDay.
   ///
@@ -3149,12 +2927,6 @@ abstract class L10n {
   /// **'Upcoming & Overdue'**
   String get txUpcomingOverdue;
 
-  /// No description provided for @txEnterAmount.
-  ///
-  /// In en, this message translates to:
-  /// **'Enter Amount'**
-  String get txEnterAmount;
-
   /// No description provided for @txNew.
   ///
   /// In en, this message translates to:
@@ -3220,18 +2992,6 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'No category spending data'**
   String get reportNoCategorySpendingData;
-
-  /// No description provided for @reportFinancialSummary.
-  ///
-  /// In en, this message translates to:
-  /// **'Financial Summary'**
-  String get reportFinancialSummary;
-
-  /// No description provided for @reportCategoryBreakdown.
-  ///
-  /// In en, this message translates to:
-  /// **'Category Breakdown'**
-  String get reportCategoryBreakdown;
 
   /// No description provided for @reportNoSpendingDataAvailable.
   ///
@@ -3431,12 +3191,6 @@ abstract class L10n {
   /// **'THE ACCOUNTANT'**
   String get authTheAccountant;
 
-  /// No description provided for @authInitializingYourFinancialJourney.
-  ///
-  /// In en, this message translates to:
-  /// **'Initializing your financial journey...'**
-  String get authInitializingYourFinancialJourney;
-
   /// No description provided for @legalPrivacyTerms.
   ///
   /// In en, this message translates to:
@@ -3448,36 +3202,6 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'Review these before you continue.'**
   String get legalReviewTheseBeforeYouContinue;
-
-  /// No description provided for @premiumLifetimeAccessNeverExpires.
-  ///
-  /// In en, this message translates to:
-  /// **'Lifetime access - Never expires'**
-  String get premiumLifetimeAccessNeverExpires;
-
-  /// No description provided for @premiumPremiumFeatures.
-  ///
-  /// In en, this message translates to:
-  /// **'Premium Features'**
-  String get premiumPremiumFeatures;
-
-  /// No description provided for @premiumChooseYourPlan.
-  ///
-  /// In en, this message translates to:
-  /// **'Choose Your Plan'**
-  String get premiumChooseYourPlan;
-
-  /// No description provided for @premiumUnlockPremium.
-  ///
-  /// In en, this message translates to:
-  /// **'Unlock Premium'**
-  String get premiumUnlockPremium;
-
-  /// No description provided for @premiumOneTimePurchaseLifetimeAccess.
-  ///
-  /// In en, this message translates to:
-  /// **'One-time purchase • Lifetime access'**
-  String get premiumOneTimePurchaseLifetimeAccess;
 
   /// No description provided for @premiumLimitReached.
   ///
@@ -3509,23 +3233,11 @@ abstract class L10n {
   /// **'Start chatting and your threads show up here.'**
   String get aiStartChattingAndYourThreads;
 
-  /// No description provided for @aiAiFinancialAssistant.
-  ///
-  /// In en, this message translates to:
-  /// **'AI Financial Assistant'**
-  String get aiAiFinancialAssistant;
-
   /// No description provided for @aiScanAReceipt.
   ///
   /// In en, this message translates to:
   /// **'Scan a receipt'**
   String get aiScanAReceipt;
-
-  /// No description provided for @aiAiIsThinking.
-  ///
-  /// In en, this message translates to:
-  /// **'AI is thinking...'**
-  String get aiAiIsThinking;
 
   /// No description provided for @aiSpendingTrend.
   ///
@@ -3563,35 +3275,11 @@ abstract class L10n {
   /// **'Error loading financial data'**
   String get dashErrorLoadingFinancialData;
 
-  /// No description provided for @dashReadyToManageYourFinances.
-  ///
-  /// In en, this message translates to:
-  /// **'Ready to manage your finances?'**
-  String get dashReadyToManageYourFinances;
-
   /// No description provided for @dashNoSpendingDataYet.
   ///
   /// In en, this message translates to:
   /// **'No spending data yet'**
   String get dashNoSpendingDataYet;
-
-  /// No description provided for @dashViewAll.
-  ///
-  /// In en, this message translates to:
-  /// **'View All'**
-  String get dashViewAll;
-
-  /// No description provided for @dashNoTransactionsYet.
-  ///
-  /// In en, this message translates to:
-  /// **'No transactions yet'**
-  String get dashNoTransactionsYet;
-
-  /// No description provided for @dashAddYourFirstTransactionTo.
-  ///
-  /// In en, this message translates to:
-  /// **'Add your first transaction to get started'**
-  String get dashAddYourFirstTransactionTo;
 
   /// No description provided for @dashManage.
   ///
@@ -3724,18 +3412,6 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'Include crypto currencies'**
   String get sharedIncludeCryptoCurrencies;
-
-  /// No description provided for @sharedQuickAdd.
-  ///
-  /// In en, this message translates to:
-  /// **'Quick Add'**
-  String get sharedQuickAdd;
-
-  /// No description provided for @sharedRecordYourIncomeOrExpense.
-  ///
-  /// In en, this message translates to:
-  /// **'Record your income or expense'**
-  String get sharedRecordYourIncomeOrExpense;
 
   /// No description provided for @sharedTotalBalance.
   ///
@@ -3964,12 +3640,6 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'Graphite'**
   String get themeAccentGraphite;
-
-  /// No description provided for @themeAccentHeading.
-  ///
-  /// In en, this message translates to:
-  /// **'Accent'**
-  String get themeAccentHeading;
 
   /// No description provided for @themeAppearanceValue.
   ///
@@ -4204,12 +3874,6 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'Notifications'**
   String get todayNotifications;
-
-  /// No description provided for @todayHidden.
-  ///
-  /// In en, this message translates to:
-  /// **'Hidden'**
-  String get todayHidden;
 
   /// No description provided for @todayWithinBudget.
   ///
@@ -4924,24 +4588,6 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'Smart budgets'**
   String get aiChipBudgets;
-
-  /// No description provided for @gateChipSync.
-  ///
-  /// In en, this message translates to:
-  /// **'All devices'**
-  String get gateChipSync;
-
-  /// No description provided for @gateChipBackup.
-  ///
-  /// In en, this message translates to:
-  /// **'Encrypted'**
-  String get gateChipBackup;
-
-  /// No description provided for @gateChipThemes.
-  ///
-  /// In en, this message translates to:
-  /// **'5 themes'**
-  String get gateChipThemes;
 
   /// No description provided for @aiAssistantTitle.
   ///

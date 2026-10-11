@@ -58,32 +58,40 @@ class NeoButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.sunrise;
     final enabled = onPressed != null && !isLoading;
-    final (double height, double font, double hPad, double icon) =
-        switch (size) {
-          NeoButtonSize.small => (40.0, 14.0, 16.0, 18.0),
-          NeoButtonSize.medium => (52.0, 16.0, 22.0, 20.0),
-          NeoButtonSize.large => (58.0, 16.0, 26.0, 22.0),
-        };
+    final (
+      double height,
+      double font,
+      double hPad,
+      double icon,
+    ) = switch (size) {
+      NeoButtonSize.small => (40.0, 14.0, 16.0, 18.0),
+      NeoButtonSize.medium => (52.0, 16.0, 22.0, 20.0),
+      NeoButtonSize.large => (58.0, 16.0, 26.0, 22.0),
+    };
 
-    final (Color? bg, Gradient? grad, Color fg, List<BoxShadow>? shadow) =
-        switch (style) {
-          NeoButtonStyle.primary when onPressed == null => (
-            c.isDark ? const Color(0xFF2B1F19) : c.toggleOff,
-            null,
-            c.faint,
-            null,
-          ),
-          NeoButtonStyle.primary => (
-            null,
-            gradient ?? c.gradient,
-            Colors.white,
-            enabled ? c.buttonShadow : null,
-          ),
-          NeoButtonStyle.secondary => (c.surface, null, c.ink, c.cardShadow),
-          NeoButtonStyle.ghost => (Colors.transparent, null, c.accentText, null),
-          NeoButtonStyle.danger => (c.negative, null, Colors.white, null),
-          NeoButtonStyle.success => (c.positive, null, Colors.white, null),
-        };
+    final (
+      Color? bg,
+      Gradient? grad,
+      Color fg,
+      List<BoxShadow>? shadow,
+    ) = switch (style) {
+      NeoButtonStyle.primary when onPressed == null => (
+        c.isDark ? const Color(0xFF2B1F19) : c.toggleOff,
+        null,
+        c.faint,
+        null,
+      ),
+      NeoButtonStyle.primary => (
+        null,
+        gradient ?? c.gradient,
+        Colors.white,
+        enabled ? c.buttonShadow : null,
+      ),
+      NeoButtonStyle.secondary => (c.surface, null, c.ink, c.cardShadow),
+      NeoButtonStyle.ghost => (Colors.transparent, null, c.accentText, null),
+      NeoButtonStyle.danger => (c.negative, null, Colors.white, null),
+      NeoButtonStyle.success => (c.positive, null, Colors.white, null),
+    };
 
     final content = isLoading
         ? SizedBox(
@@ -206,7 +214,11 @@ class NeoIconButton extends StatelessWidget {
           ],
         ),
         alignment: Alignment.center,
-        child: Icon(icon, size: iconSize ?? size * .46, color: iconColor ?? c.ink),
+        child: Icon(
+          icon,
+          size: iconSize ?? size * .46,
+          color: iconColor ?? c.ink,
+        ),
       ),
     );
     if (tooltip != null) button = Tooltip(message: tooltip!, child: button);

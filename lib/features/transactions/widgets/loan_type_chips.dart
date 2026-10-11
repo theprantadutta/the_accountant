@@ -129,10 +129,6 @@ class _LoanChip extends StatelessWidget {
   }) : subtitle = null;
 
   @override
-  Widget build(BuildContext context) => SunriseChip(
-    label: label,
-    icon: icon,
-    selected: isSelected,
-    onTap: onTap,
-  );
+  Widget build(BuildContext context) =>
+      SunriseChip(label: label, icon: icon, selected: isSelected, onTap: onTap);
 }

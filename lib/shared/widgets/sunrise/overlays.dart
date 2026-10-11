@@ -261,7 +261,10 @@ class SunriseDialog extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text(
                   message!,
-                  style: SunriseType.body.copyWith(color: c.muted, fontSize: 14),
+                  style: SunriseType.body.copyWith(
+                    color: c.muted,
+                    fontSize: 14,
+                  ),
                 ),
               ],
               if (content != null) ...[const SizedBox(height: 16), content!],
@@ -372,9 +375,18 @@ void showSunriseSnack(
 }) {
   final c = context.sunrise;
   final (IconData icon, Color color) = switch (tone) {
-    SnackTone.success => (Symbols.check_circle_rounded, c.isDark ? const Color(0xFF16A34A) : const Color(0xFF4ADE80)),
-    SnackTone.error => (Symbols.error_rounded, c.isDark ? const Color(0xFFE11D48) : const Color(0xFFFB7185)),
-    SnackTone.info => (Symbols.info_rounded, c.isDark ? c.gradientMid : c.gradientStart),
+    SnackTone.success => (
+      Symbols.check_circle_rounded,
+      c.isDark ? const Color(0xFF16A34A) : const Color(0xFF4ADE80),
+    ),
+    SnackTone.error => (
+      Symbols.error_rounded,
+      c.isDark ? const Color(0xFFE11D48) : const Color(0xFFFB7185),
+    ),
+    SnackTone.info => (
+      Symbols.info_rounded,
+      c.isDark ? c.gradientMid : c.gradientStart,
+    ),
   };
   if (tone == SnackTone.error) HapticFeedback.mediumImpact();
   final messenger = ScaffoldMessenger.maybeOf(context);

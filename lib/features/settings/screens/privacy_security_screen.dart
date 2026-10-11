@@ -89,8 +89,7 @@ class _PrivacySecurityScreenState extends ConsumerState<PrivacySecurityScreen> {
                     return;
                   }
                   // Confirm identity before enabling.
-                  final authenticated = await BiometricService()
-                      .authenticate();
+                  final authenticated = await BiometricService().authenticate();
                   if (!authenticated) return;
                 }
                 await ref

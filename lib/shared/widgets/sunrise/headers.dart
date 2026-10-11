@@ -170,7 +170,9 @@ class PushHeader extends StatelessWidget {
           children: [
             if (canPop) ...[
               SunriseIconButton(
-                icon: close ? Symbols.close_rounded : Symbols.arrow_back_rounded,
+                icon: close
+                    ? Symbols.close_rounded
+                    : Symbols.arrow_back_rounded,
                 tooltip: close
                     ? MaterialLocalizations.of(context).closeButtonTooltip
                     : MaterialLocalizations.of(context).backButtonTooltip,

@@ -265,7 +265,10 @@ class _Headline extends StatelessWidget {
           ? CrossAxisAlignment.end
           : CrossAxisAlignment.start,
       children: [
-        Text(label, style: SunriseType.label.copyWith(color: c.muted, fontSize: 14)),
+        Text(
+          label,
+          style: SunriseType.label.copyWith(color: c.muted, fontSize: 14),
+        ),
         const SizedBox(height: 2),
         FittedBox(
           fit: BoxFit.scaleDown,
@@ -645,11 +648,7 @@ class _SummaryRow extends ConsumerWidget {
             const SizedBox(width: 10),
             tile(l10n.statsEarned, _money(ref, data.monthlyIncome), c.positive),
             const SizedBox(width: 10),
-            tile(
-              l10n.statsNet,
-              _money(ref, net),
-              net < 0 ? c.negative : c.ink,
-            ),
+            tile(l10n.statsNet, _money(ref, net), net < 0 ? c.negative : c.ink),
           ],
         ),
       ],

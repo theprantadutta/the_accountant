@@ -82,10 +82,9 @@ class _AmountInputSheetState extends State<_AmountInputSheet> {
       s = s.substring(0, s.length - 1);
     }
     if (s.isEmpty) return 0;
-    final tokens = RegExp(r'(\d+\.?\d*|\.\d+|[+−×÷])')
-        .allMatches(s)
-        .map((m) => m.group(0)!)
-        .toList();
+    final tokens = RegExp(
+      r'(\d+\.?\d*|\.\d+|[+−×÷])',
+    ).allMatches(s).map((m) => m.group(0)!).toList();
     if (tokens.isEmpty) return null;
     // × and ÷ first, then + and −.
     final terms = <double>[];
@@ -263,11 +262,7 @@ class _AmountInputSheetState extends State<_AmountInputSheet> {
             ),
           ),
           const SizedBox(height: 14),
-          _Keypad(
-            onKey: _press,
-            onBackspace: _backspace,
-            onClear: _clear,
-          ),
+          _Keypad(onKey: _press, onBackspace: _backspace, onClear: _clear),
           const SizedBox(height: 14),
           SunriseButton(label: l10n.importDone, height: 56, onPressed: _done),
         ],

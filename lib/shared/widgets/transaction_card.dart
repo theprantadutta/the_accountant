@@ -74,7 +74,11 @@ class TransactionCard extends ConsumerWidget {
     final cents = (amount * 100).round().abs();
 
     final formatted = isTransfer
-        ? cents.formatCurrency(currency, useDecimals: useDecimals, numberFormat: nf)
+        ? cents.formatCurrency(
+            currency,
+            useDecimals: useDecimals,
+            numberFormat: nf,
+          )
         : cents
               .formatCurrencyWithSign(
                 currency,

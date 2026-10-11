@@ -24,16 +24,7 @@ class L10nBn extends L10n {
   String get dateTomorrow => 'আগামীকাল';
 
   @override
-  String get navDashboard => 'ড্যাশবোর্ড';
-
-  @override
   String get navTransactions => 'লেনদেন';
-
-  @override
-  String get navReports => 'রিপোর্ট';
-
-  @override
-  String get navSettings => 'সেটিংস';
 
   @override
   String get settingsRegionalTitle => 'আঞ্চলিক সেটিংস';
@@ -124,60 +115,16 @@ class L10nBn extends L10n {
   String get selectCurrency => 'মুদ্রা বাছুন';
 
   @override
-  String get themeTitle => 'আপনার থিম বাছুন';
-
-  @override
-  String get themeSystem => 'সিস্টেম';
-
-  @override
   String get themeLight => 'লাইট';
 
   @override
   String get themeDark => 'ডার্ক';
 
   @override
-  String get themeSystemDescription =>
-      'আপনার ফোন যা সেট করা আছে তা অনুসরণ করুন';
-
-  @override
-  String get themeLightDescription =>
-      'উজ্জ্বল — দিনের আলো ও ভাগ করা স্ক্রিনের জন্য';
-
-  @override
-  String get themeDarkDescription => 'মূল রূপ — গভীর কালোয় ইন্ডিগো ছোঁয়া';
-
-  @override
   String get languageSystem => 'ফোনের ভাষা অনুসরণ করুন';
 
   @override
-  String get navHome => 'হোম';
-
-  @override
-  String get navActivity => 'কার্যকলাপ';
-
-  @override
-  String get navAi => 'AI';
-
-  @override
-  String get navInsights => 'বিশ্লেষণ';
-
-  @override
-  String get navAiAssistant => 'AI সহকারী';
-
-  @override
   String get sectionAccount => 'অ্যাকাউন্ট';
-
-  @override
-  String get sectionMoney => 'অর্থ';
-
-  @override
-  String get sectionRegional => 'আঞ্চলিক';
-
-  @override
-  String get sectionNotifications => 'বিজ্ঞপ্তি';
-
-  @override
-  String get sectionPrivacySecurity => 'গোপনীয়তা ও নিরাপত্তা';
 
   @override
   String get sectionDataManagement => 'ডেটা ব্যবস্থাপনা';
@@ -186,13 +133,7 @@ class L10nBn extends L10n {
   String get sectionHelpSupport => 'সহায়তা';
 
   @override
-  String get sectionAbout => 'সম্পর্কে';
-
-  @override
   String get settingsAppearance => 'চেহারা';
-
-  @override
-  String get settingsAppearanceSubtitle => 'থিম ও অ্যাকসেন্ট রঙ';
 
   @override
   String get settingsBackupRestore => 'ব্যাকআপ ও পুনরুদ্ধার';
@@ -219,17 +160,7 @@ class L10nBn extends L10n {
       'গত ত্রিশ দিনে সরানো কিছু ফিরিয়ে আনুন';
 
   @override
-  String get themeExpressYourself => 'নিজেকে প্রকাশ করুন';
-
-  @override
-  String get themeExpressYourselfBody =>
-      'এমন একটি থিম বাছুন যা আপনার রুচির সঙ্গে মেলে এবং হিসাব রাখাকে আনন্দের করে তোলে।';
-
-  @override
   String get themePremiumHeading => 'প্রিমিয়াম থিম';
-
-  @override
-  String get themeUnlockPremium => 'প্রিমিয়াম থিম আনলক করুন';
 
   @override
   String get actionRetry => 'আবার চেষ্টা করুন';
@@ -248,9 +179,6 @@ class L10nBn extends L10n {
 
   @override
   String get dashSpendingOverview => 'খরচের সারসংক্ষেপ';
-
-  @override
-  String get dashRecentTransactions => 'সাম্প্রতিক লেনদেন';
 
   @override
   String get dashBudgetProgress => 'বাজেটের অগ্রগতি';
@@ -330,9 +258,6 @@ class L10nBn extends L10n {
 
   @override
   String get actionApply => 'প্রয়োগ করুন';
-
-  @override
-  String get dashThisMonth => 'এই মাসে';
 
   @override
   String get filterPaid => 'পরিশোধিত';
@@ -851,19 +776,6 @@ class L10nBn extends L10n {
       'সমস্ত লেনদেন, বাজেট ও সেটিংস মুছে ফেলুন';
 
   @override
-  String get settingsLegal => 'আইনি';
-
-  @override
-  String get settingsReadOurPrivacyPolicy => 'আমাদের গোপনীয়তা নীতি পড়ুন';
-
-  @override
-  String get settingsReadOurTermsOfService => 'আমাদের ব্যবহারের শর্তাবলী পড়ুন';
-
-  @override
-  String get settingsHowRefundsAndCancellationsWork =>
-      'ফেরত ও বাতিল কীভাবে কাজ করে';
-
-  @override
   String get settingsDangerZone => 'বিপজ্জনক অংশ';
 
   @override
@@ -939,10 +851,6 @@ class L10nBn extends L10n {
   String get settingsWhatIsDueAndWhat => 'কী বাকি আছে, আর কী বাদ পড়েছে';
 
   @override
-  String get settingsRenameRecolourAndGroupThem =>
-      'নাম, রঙ বদলান আর দলবদ্ধ করুন';
-
-  @override
   String get settingsAccounts => 'অ্যাকাউন্ট';
 
   @override
@@ -961,14 +869,6 @@ class L10nBn extends L10n {
   String get settingsNotificationSettings => 'বিজ্ঞপ্তির সেটিংস';
 
   @override
-  String get settingsDailyRemindersBudgetAlerts =>
-      'দৈনিক অনুস্মারক, বাজেট সতর্কতা';
-
-  @override
-  String get settingsBiometricLockDataManagement =>
-      'বায়োমেট্রিক লক, ডেটা ব্যবস্থাপনা';
-
-  @override
   String get settingsCloudSync => 'ক্লাউড সিঙ্ক';
 
   @override
@@ -978,9 +878,6 @@ class L10nBn extends L10n {
   @override
   String get settingsCsvIsFreePdfReport =>
       'CSV বিনামূল্যে · PDF রিপোর্ট প্রিমিয়াম';
-
-  @override
-  String get settingsGetAnswersToCommonQuestions => 'সাধারণ প্রশ্নের উত্তর পান';
 
   @override
   String get settingsQuestionsComplaintsOrFeedback => 'প্রশ্ন, অভিযোগ বা মতামত';
@@ -1076,9 +973,6 @@ class L10nBn extends L10n {
   String get walletUseDecimals => 'দশমিক ব্যবহার করুন';
 
   @override
-  String get walletSaveWallet => 'ওয়ালেট সংরক্ষণ করুন';
-
-  @override
   String get walletEnterWalletName => 'ওয়ালেটের নাম লিখুন';
 
   @override
@@ -1098,9 +992,6 @@ class L10nBn extends L10n {
 
   @override
   String get walletInitialBalance => 'শুরুর ব্যালেন্স';
-
-  @override
-  String get txScan => 'স্ক্যান';
 
   @override
   String get txAddATransferFee => 'স্থানান্তরের ফি যোগ করুন';
@@ -1422,9 +1313,6 @@ class L10nBn extends L10n {
   String get settingsPdfReports => 'PDF রিপোর্ট';
 
   @override
-  String get settingsFrequentlyAskedQuestions => 'সাধারণ জিজ্ঞাসা';
-
-  @override
   String get settingsGettingStarted => 'শুরু করা';
 
   @override
@@ -1543,13 +1431,7 @@ class L10nBn extends L10n {
   String get walletLimit => 'সীমা';
 
   @override
-  String get walletCreditBalance => 'ক্রেডিট ব্যালেন্স';
-
-  @override
   String get walletBalance => 'ব্যালেন্স';
-
-  @override
-  String get walletOverdrawn => 'সীমা ছাড়িয়েছে';
 
   @override
   String get walletBillingCycleDay => 'বিল চক্রের দিন';
@@ -1622,9 +1504,6 @@ class L10nBn extends L10n {
   String get txUpcomingOverdue => 'আসন্ন ও বকেয়া';
 
   @override
-  String get txEnterAmount => 'পরিমাণ লিখুন';
-
-  @override
   String get txNew => 'নতুন';
 
   @override
@@ -1658,12 +1537,6 @@ class L10nBn extends L10n {
 
   @override
   String get reportNoCategorySpendingData => 'ক্যাটাগরিভিত্তিক খরচের তথ্য নেই';
-
-  @override
-  String get reportFinancialSummary => 'আর্থিক সারসংক্ষেপ';
-
-  @override
-  String get reportCategoryBreakdown => 'ক্যাটাগরিভিত্তিক বিভাজন';
 
   @override
   String get reportNoSpendingDataAvailable => 'খরচের কোনো তথ্য নেই';
@@ -1772,32 +1645,11 @@ class L10nBn extends L10n {
   String get authTheAccountant => 'THE ACCOUNTANT';
 
   @override
-  String get authInitializingYourFinancialJourney =>
-      'আপনার আর্থিক যাত্রা শুরু হচ্ছে...';
-
-  @override
   String get legalPrivacyTerms => 'গোপনীয়তা ও শর্তাবলী';
 
   @override
   String get legalReviewTheseBeforeYouContinue =>
       'চালিয়ে যাওয়ার আগে এগুলি দেখে নিন।';
-
-  @override
-  String get premiumLifetimeAccessNeverExpires =>
-      'আজীবন ব্যবহার — কখনও শেষ হবে না';
-
-  @override
-  String get premiumPremiumFeatures => 'প্রিমিয়াম সুবিধা';
-
-  @override
-  String get premiumChooseYourPlan => 'আপনার প্ল্যান বাছুন';
-
-  @override
-  String get premiumUnlockPremium => 'প্রিমিয়াম খুলুন';
-
-  @override
-  String get premiumOneTimePurchaseLifetimeAccess =>
-      'একবার কিনলেই আজীবন ব্যবহার';
 
   @override
   String get premiumLimitReached => 'সীমায় পৌঁছে গেছে';
@@ -1816,13 +1668,7 @@ class L10nBn extends L10n {
       'কথা বলা শুরু করুন, আপনার আলাপগুলি এখানে দেখা যাবে।';
 
   @override
-  String get aiAiFinancialAssistant => 'AI আর্থিক সহকারী';
-
-  @override
   String get aiScanAReceipt => 'একটি রসিদ স্ক্যান করুন';
-
-  @override
-  String get aiAiIsThinking => 'AI ভাবছে...';
 
   @override
   String get aiSpendingTrend => 'খরচের ধারা';
@@ -1844,20 +1690,7 @@ class L10nBn extends L10n {
   String get dashErrorLoadingFinancialData => 'আর্থিক তথ্য আনতে সমস্যা হয়েছে';
 
   @override
-  String get dashReadyToManageYourFinances => 'আপনার হিসাব সামলাতে প্রস্তুত?';
-
-  @override
   String get dashNoSpendingDataYet => 'এখনও খরচের কোনো তথ্য নেই';
-
-  @override
-  String get dashViewAll => 'সব দেখুন';
-
-  @override
-  String get dashNoTransactionsYet => 'এখনও কোনো লেনদেন নেই';
-
-  @override
-  String get dashAddYourFirstTransactionTo =>
-      'শুরু করতে আপনার প্রথম লেনদেনটি যোগ করুন';
 
   @override
   String get dashManage => 'পরিচালনা';
@@ -1927,12 +1760,6 @@ class L10nBn extends L10n {
 
   @override
   String get sharedIncludeCryptoCurrencies => 'ক্রিপ্টো মুদ্রাও দেখান';
-
-  @override
-  String get sharedQuickAdd => 'দ্রুত যোগ';
-
-  @override
-  String get sharedRecordYourIncomeOrExpense => 'আপনার আয় বা ব্যয় লিখে রাখুন';
 
   @override
   String get sharedTotalBalance => 'মোট ব্যালেন্স';
@@ -2052,9 +1879,6 @@ class L10nBn extends L10n {
 
   @override
   String get themeAccentGraphite => 'গ্রাফাইট';
-
-  @override
-  String get themeAccentHeading => 'রঙ';
 
   @override
   String themeAppearanceValue(String accent, String mode) {
@@ -2188,9 +2012,6 @@ class L10nBn extends L10n {
 
   @override
   String get todayNotifications => 'নোটিফিকেশন';
-
-  @override
-  String get todayHidden => 'লুকানো';
 
   @override
   String get todayWithinBudget => 'বাজেটের মধ্যে';
@@ -2599,15 +2420,6 @@ class L10nBn extends L10n {
 
   @override
   String get aiChipBudgets => 'স্মার্ট বাজেট';
-
-  @override
-  String get gateChipSync => 'সব ডিভাইসে';
-
-  @override
-  String get gateChipBackup => 'এনক্রিপ্টেড';
-
-  @override
-  String get gateChipThemes => '৫টি থিম';
 
   @override
   String get aiAssistantTitle => 'এআই সহকারী';

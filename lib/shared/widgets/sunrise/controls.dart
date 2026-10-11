@@ -497,29 +497,33 @@ class SunriseButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.sunrise;
     final enabled = onPressed != null && !loading;
-    final (Color? bg, Gradient? grad, Color fg, List<BoxShadow>? shadow) =
-        switch (style) {
-          SunriseButtonStyle.primary when onPressed == null => (
-            c.isDark ? const Color(0xFF2B1F19) : c.toggleOff,
-            null,
-            c.faint,
-            null,
-          ),
-          SunriseButtonStyle.primary => (
-            null,
-            c.gradient,
-            Colors.white,
-            enabled ? c.buttonShadow : null,
-          ),
-          SunriseButtonStyle.secondary => (c.surface, null, c.ink, c.cardShadow),
-          SunriseButtonStyle.destructive => (
-            c.negative,
-            null,
-            Colors.white,
-            null,
-          ),
-          SunriseButtonStyle.ghost => (Colors.transparent, null, c.accentText, null),
-        };
+    final (
+      Color? bg,
+      Gradient? grad,
+      Color fg,
+      List<BoxShadow>? shadow,
+    ) = switch (style) {
+      SunriseButtonStyle.primary when onPressed == null => (
+        c.isDark ? const Color(0xFF2B1F19) : c.toggleOff,
+        null,
+        c.faint,
+        null,
+      ),
+      SunriseButtonStyle.primary => (
+        null,
+        c.gradient,
+        Colors.white,
+        enabled ? c.buttonShadow : null,
+      ),
+      SunriseButtonStyle.secondary => (c.surface, null, c.ink, c.cardShadow),
+      SunriseButtonStyle.destructive => (c.negative, null, Colors.white, null),
+      SunriseButtonStyle.ghost => (
+        Colors.transparent,
+        null,
+        c.accentText,
+        null,
+      ),
+    };
 
     final content = loading
         ? SizedBox(
