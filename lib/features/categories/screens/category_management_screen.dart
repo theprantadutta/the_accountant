@@ -111,6 +111,7 @@ class CategoryManagementScreen extends ConsumerWidget {
                 colorCode: category.colorCode,
                 type: category.type,
                 isDefault: category.isDefault,
+                iconName: category.iconName,
               );
 
               return category_list_item.CategoryListItem(
