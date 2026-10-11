@@ -333,7 +333,10 @@ class _AuthWrapperState extends ConsumerState<AuthWrapper>
 /// steps along a progress bar, and a money tip slides in. It never holds the
 /// app: the wrapper crossfades away the moment the real screen is ready.
 class AuthLoadingScreen extends StatefulWidget {
-  const AuthLoadingScreen({super.key});
+  const AuthLoadingScreen({super.key, this.steps});
+
+  /// Status lines to step through; the playful defaults when null.
+  final List<String>? steps;
 
   @override
   State<AuthLoadingScreen> createState() => _AuthLoadingScreenState();
@@ -403,12 +406,9 @@ class _AuthLoadingScreenState extends State<AuthLoadingScreen>
   @override
   Widget build(BuildContext context) {
     final l10n = L10n.of(context);
-    final steps = [
-      l10n.introStep1,
-      l10n.introStep2,
-      l10n.introStep3,
-      l10n.introStep4,
-    ];
+    final steps =
+        widget.steps ??
+        [l10n.introStep1, l10n.introStep2, l10n.introStep3, l10n.introStep4];
     const white = _onBrand;
     final reduceMotion = MediaQuery.disableAnimationsOf(context);
     // Landscape phones: no room under the glyph, so the wordmark sits beside
@@ -429,10 +429,9 @@ class _AuthLoadingScreenState extends State<AuthLoadingScreen>
             // Steps advance every 1.4s and stay on the last one.
             final elapsed = (_loop.lastElapsedDuration?.inMilliseconds ?? 0);
             final step = math.min(elapsed ~/ 1400, steps.length - 1);
-            final progress = math.min(
-              1.0,
-              .12 + elapsed / (1400.0 * steps.length),
-            );
+            // Eases toward full without ever claiming to be done, since
+            // nothing here knows how long the wait really is.
+            final progress = 1 - .88 * math.exp(-elapsed / 3500);
 
             return SizedBox.expand(
               child: Stack(

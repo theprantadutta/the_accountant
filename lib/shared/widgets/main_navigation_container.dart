@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/features/authentication/presentation/widgets/auth_wrapper.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quick_actions/quick_actions.dart';
@@ -141,16 +142,7 @@ class _MainNavigationContainerState
       // No arbitrary delay: the service waits for the widgets it points at to
       // exist.
       final walkthroughState = ref.read(walkthroughProvider);
-      if (!walkthroughState.hasSeenWalkthrough && mounted) {
-        WalkthroughService.showDashboardWalkthrough(context, ref, {
-          'balance': _balanceKey,
-          'add': _addKey,
-          'navToday': _navTodayKey,
-          'navWallets': _navWalletsKey,
-          'navStats': _navStatsKey,
-          'notification': _notificationKey,
-        });
-      }
+      if (!walkthroughState.hasSeenWalkthrough && mounted) _startWalkthrough();
 
       // Ask about notifications with an in-app priming prompt (never the bare
       // iOS dialog on launch).
@@ -230,60 +222,24 @@ class _MainNavigationContainerState
   // The startup flow is driven by `AuthWrapper`, which decides whether this
   // container is on screen at all. Driving it from here as well was a loop.
 
+  void _startWalkthrough() {
+    WalkthroughService.showDashboardWalkthrough(context, ref, {
+      'balance': _balanceKey,
+      'add': _addKey,
+      'navToday': _navTodayKey,
+      'navWallets': _navWalletsKey,
+      'navStats': _navStatsKey,
+      'notification': _notificationKey,
+    });
+  }
+
+  /// A returning account with nothing local yet: the same animated intro the
+  /// app opens with, so the wait for the cloud copy reads as one launch.
   Widget _buildRestoringScreen() {
     final l10n = L10n.of(context);
-    final c = context.sunrise;
-    return SunriseBackground(
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        body: SafeArea(
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 84,
-                    height: 84,
-                    decoration: BoxDecoration(
-                      gradient: c.gradient,
-                      borderRadius: BorderRadius.circular(24),
-                      boxShadow: c.gradientShadow,
-                    ),
-                    padding: const EdgeInsets.all(18),
-                    child: Image.asset('assets/logo/glyph-white-256.png'),
-                  ),
-                  const SizedBox(height: 28),
-                  Text(
-                    l10n.sharedWelcomeBack,
-                    textAlign: TextAlign.center,
-                    style: SunriseType.heroTitle.copyWith(color: c.ink),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    l10n.sharedRestoringYourDataFromThe,
-                    textAlign: TextAlign.center,
-                    style: SunriseType.body.copyWith(color: c.muted),
-                  ),
-                  const SizedBox(height: 32),
-                  SizedBox(
-                    width: 180,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(3),
-                      child: LinearProgressIndicator(
-                        minHeight: 5,
-                        backgroundColor: c.toggleOff,
-                        color: c.accent,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
+    return AuthLoadingScreen(
+      key: const ValueKey('restoring'),
+      steps: [l10n.sharedWelcomeBack, l10n.sharedRestoringYourDataFromThe],
     );
   }
 
@@ -341,6 +297,18 @@ class _MainNavigationContainerState
 
   @override
   Widget build(BuildContext context) {
+    // Replay from More: go back to Today and run the tour here, in place.
+    // Rebuilding the route stack for it dropped the auth gate underneath, so
+    // signing out afterwards had nowhere to go.
+    ref.listen(walkthroughProvider, (previous, next) {
+      if ((previous?.hasSeenWalkthrough ?? false) && !next.hasSeenWalkthrough) {
+        Navigator.of(context).popUntil((route) => route.isFirst);
+        _select(0);
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) _startWalkthrough();
+        });
+      }
+    });
     final l10n = L10n.of(context);
     final hasWallets = ref.watch(hasWalletsProvider);
     final isLoadingWallets = ref.watch(walletsLoadingProvider);

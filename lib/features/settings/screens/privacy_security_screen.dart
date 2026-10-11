@@ -344,9 +344,9 @@ class _PrivacySecurityScreenState extends ConsumerState<PrivacySecurityScreen> {
 
       if (mounted) {
         showSuccessSnackBar(context, 'All data cleared successfully');
-        Navigator.of(
-          context,
-        ).pushNamedAndRemoveUntil('/dashboard', (route) => false);
+        // Back to the dashboard under the auth gate, not a fresh copy of it
+        // with the gate removed (which left sign-out with nowhere to go).
+        Navigator.of(context).popUntil((route) => route.isFirst);
       }
     } catch (e) {
       if (mounted) {
