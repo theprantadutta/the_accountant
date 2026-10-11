@@ -77,11 +77,6 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
         : 'Add a password to your account for additional security';
 
     return AlertDialog(
-      backgroundColor: AppColors.primarySurface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: AppColors.glassBorder),
-      ),
       title: Text(
         title,
         style: TextStyle(

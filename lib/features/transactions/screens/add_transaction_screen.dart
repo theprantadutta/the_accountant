@@ -889,7 +889,6 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: AppColors.primarySurface,
         title: Text(
           L10n.of(context).txDeleteTransaction,
           style: TextStyle(color: AppColors.textPrimary),
@@ -1213,7 +1212,10 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                 children: [
                   Text(
                     currencySymbol,
-                    style: big.copyWith(fontSize: 54, fontWeight: FontWeight.w500),
+                    style: big.copyWith(
+                      fontSize: 54,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                   const SizedBox(width: 10),
                   Text(whole, style: big),
@@ -1279,8 +1281,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                   _selectedCategory = cat;
                 }),
               ),
-            for (var i = shown.length; i < 3; i++)
-              SizedBox(width: slot - 4),
+            for (var i = shown.length; i < 3; i++) SizedBox(width: slot - 4),
             CategoryTile(
               icon: Symbols.grid_view_rounded,
               label: l10n.addMore,

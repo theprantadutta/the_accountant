@@ -104,10 +104,7 @@ class _BackupScreenState extends ConsumerState<BackupScreen>
           _driveSection(),
           SizedBox(height: AppSpacing.lg),
 
-          _header(
-            'BACKUPS IN DRIVE',
-            action: _refreshDriveButton(),
-          ),
+          _header('BACKUPS IN DRIVE', action: _refreshDriveButton()),
           _driveList(),
           SizedBox(height: AppSpacing.xl),
         ],
@@ -253,9 +250,7 @@ class _BackupScreenState extends ConsumerState<BackupScreen>
     try {
       // Under the lock, so a sync cannot be applying to the database while it
       // is being replaced. Null means one already is.
-      final summary = await ref
-          .read(syncServiceProvider)
-          .runExclusively(run);
+      final summary = await ref.read(syncServiceProvider).runExclusively(run);
       if (!mounted) return;
       if (summary == null) {
         _say(L10n.of(context).backupBusySyncing, bad: true);
@@ -621,7 +616,6 @@ class _BackupScreenState extends ConsumerState<BackupScreen>
     final picked = await showDialog<BackupFrequency>(
       context: context,
       builder: (context) => SimpleDialog(
-        backgroundColor: AppColors.primarySurface,
         title: Text(L10n.of(context).backupAutomaticBackups),
         children: [
           RadioGroup<BackupFrequency>(
@@ -655,7 +649,6 @@ class _BackupScreenState extends ConsumerState<BackupScreen>
     final picked = await showDialog<int>(
       context: context,
       builder: (context) => SimpleDialog(
-        backgroundColor: AppColors.primarySurface,
         title: Text(L10n.of(context).backupHowManyBackupsToKeep),
         children: [
           RadioGroup<int>(

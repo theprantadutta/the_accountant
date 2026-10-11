@@ -703,7 +703,6 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
     await showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: AppColors.primarySurface,
         title: Text('Imported ${result.imported}'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -751,7 +750,6 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
     final name = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: AppColors.primarySurface,
         title: Text(L10n.of(context).importRememberThisBank),
         content: Column(
           mainAxisSize: MainAxisSize.min,

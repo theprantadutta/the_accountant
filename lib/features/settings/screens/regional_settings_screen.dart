@@ -241,10 +241,6 @@ class RegionalSettingsScreen extends ConsumerWidget {
 
     final selected = await showModalBottomSheet<String>(
       context: context,
-      backgroundColor: AppColors.primarySurface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
       builder: (context) => _PickerSheet(
         title: L10n.of(context).selectDateFormat,
         items: formats,
@@ -371,10 +367,6 @@ class RegionalSettingsScreen extends ConsumerWidget {
 
     final selected = await showModalBottomSheet<String>(
       context: context,
-      backgroundColor: AppColors.primarySurface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
       builder: (context) => _PickerSheet(
         title: L10n.of(context).selectNumberFormat,
         items: formats,
@@ -397,10 +389,6 @@ Future<T?> _pickOne<T>({
 }) {
   return showModalBottomSheet<T>(
     context: context,
-    backgroundColor: AppColors.primarySurface,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-    ),
     builder: (context) => SafeArea(
       child: Column(
         mainAxisSize: MainAxisSize.min,

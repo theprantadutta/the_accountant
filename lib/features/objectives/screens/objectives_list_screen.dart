@@ -119,10 +119,6 @@ class _ObjectivesListScreenState extends ConsumerState<ObjectivesListScreen> {
   Future<void> _showActions(ObjectiveWithProgress objective) async {
     final action = await showModalBottomSheet<String>(
       context: context,
-      backgroundColor: AppColors.primarySurface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
       builder: (context) => SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,

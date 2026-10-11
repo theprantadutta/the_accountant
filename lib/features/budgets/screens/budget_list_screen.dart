@@ -117,10 +117,6 @@ class _BudgetListScreenState extends ConsumerState<BudgetListScreen> {
   Future<void> _showActions(BudgetView budget) async {
     final action = await showModalBottomSheet<String>(
       context: context,
-      backgroundColor: AppColors.primarySurface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
       builder: (context) => SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,

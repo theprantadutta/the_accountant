@@ -301,10 +301,6 @@ class _TransactionTypeScreenState extends ConsumerState<TransactionTypeScreen> {
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppColors.primarySurface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
       isScrollControlled: true,
       builder: (BuildContext context) {
         return StatefulBuilder(

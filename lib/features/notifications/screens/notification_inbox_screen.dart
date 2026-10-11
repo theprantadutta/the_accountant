@@ -245,12 +245,6 @@ class _NotificationInboxScreenState
   void _showNotificationDetail(NotificationItem notification) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppColors.primarySurface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(AppSpacing.radiusXl),
-        ),
-      ),
       builder: (context) => Padding(
         padding: AppSpacing.paddingXl,
         child: Column(

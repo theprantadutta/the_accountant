@@ -26,10 +26,6 @@ Future<TransactionFilters?> showTransactionFilterSheet({
   return showModalBottomSheet<TransactionFilters>(
     context: context,
     isScrollControlled: true,
-    backgroundColor: AppColors.primarySurface,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-    ),
     builder: (context) => _FilterSheet(initial: current),
   );
 }

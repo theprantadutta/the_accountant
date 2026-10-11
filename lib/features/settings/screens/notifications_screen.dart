@@ -340,7 +340,6 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
     final result = await showDialog<double>(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: AppColors.primarySurface,
         title: Text(L10n.of(context).settingsLargeTransactionThreshold),
         content: TextField(
           controller: controller,
@@ -382,7 +381,6 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
     final result = await showDialog<int>(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: AppColors.primarySurface,
         title: Text(L10n.of(context).settingsRemindMeBeforeDueDate),
         content: RadioGroup<int>(
           groupValue: prefsState.reminderOffsetMinutes,

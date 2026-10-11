@@ -375,8 +375,6 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        backgroundColor: AppColors.primarySurface,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Row(
           children: [
             const Icon(Icons.picture_as_pdf_outlined, color: Colors.amber),

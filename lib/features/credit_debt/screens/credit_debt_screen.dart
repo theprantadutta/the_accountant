@@ -684,10 +684,6 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
       context: context,
       builder: (context) {
         return AlertDialog(
-          backgroundColor: AppColors.primarySurface,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
           title: Row(
             children: [
               Container(
