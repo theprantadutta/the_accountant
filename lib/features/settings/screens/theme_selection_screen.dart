@@ -19,7 +19,9 @@ class ThemeSelectionScreen extends ConsumerWidget {
     final notifier = ref.read(themeProvider.notifier);
     final unlocked = ref.watch(premiumProvider).features.isUnlocked;
     final c = context.sunrise;
-    final effective = theme.brightnessFor(MediaQuery.platformBrightnessOf(context));
+    final effective = theme.brightnessFor(
+      MediaQuery.platformBrightnessOf(context),
+    );
 
     return SunrisePushPage(
       title: l10n.appearanceTitle,
@@ -102,7 +104,7 @@ class ThemeSelectionScreen extends ConsumerWidget {
         LayoutBuilder(
           builder: (context, box) {
             const gap = 12.0;
-            final w = (box.maxWidth - gap * 2) / 3;
+            final w = (box.maxWidth - gap) / 2;
             return Wrap(
               spacing: gap,
               runSpacing: 16,
@@ -144,11 +146,7 @@ class ThemeSelectionScreen extends ConsumerWidget {
       };
 
   /// "Sunrise Light", "Sapphire Dark", ... for the More screen.
-  static String currentLabel(
-    ThemeState theme,
-    Brightness platform,
-    L10n l10n,
-  ) {
+  static String currentLabel(ThemeState theme, Brightness platform, L10n l10n) {
     final dark = theme.brightnessFor(platform) == Brightness.dark;
     if (theme.accent == SunriseAccent.sunrise) {
       return dark ? l10n.themeSunriseDark : l10n.themeSunriseLight;
@@ -161,7 +159,8 @@ class ThemeSelectionScreen extends ConsumerWidget {
 }
 
 extension on Brightness {
-  ThemeMode get mode => this == Brightness.dark ? ThemeMode.dark : ThemeMode.light;
+  ThemeMode get mode =>
+      this == Brightness.dark ? ThemeMode.dark : ThemeMode.light;
 }
 
 /// A light or dark preview card with a selection ring.
@@ -280,9 +279,10 @@ class _ModeCard extends StatelessWidget {
 }
 
 class _Check extends StatelessWidget {
-  const _Check({required this.selected});
+  const _Check({required this.selected, this.color});
 
   final bool selected;
+  final Color? color;
 
   @override
   Widget build(BuildContext context) {
@@ -293,17 +293,23 @@ class _Check extends StatelessWidget {
       height: 22,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: selected ? c.accent : Colors.transparent,
+        color: selected ? (color ?? c.accent) : Colors.transparent,
         border: selected ? null : Border.all(color: c.chevron, width: 1.6),
       ),
       child: selected
-          ? const Icon(Symbols.check_rounded, size: 15, color: Colors.white, weight: 700)
+          ? const Icon(
+              Symbols.check_rounded,
+              size: 15,
+              color: Colors.white,
+              weight: 700,
+            )
           : null,
     );
   }
 }
 
-/// A gradient square for one accent, locked or selectable.
+/// A theme shown as the app wearing it: the wash, a gradient balance card,
+/// a couple of rows and the tab bar, in that accent and the current mode.
 class _AccentSwatch extends StatelessWidget {
   const _AccentSwatch({
     required this.accent,
@@ -322,59 +328,211 @@ class _AccentSwatch extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.sunrise;
-    final g = accent.swatch(Brightness.light).gradient;
+    final p = SunriseColors.resolve(c.brightness, accent);
+    final card = p.isDark ? const Color(0xFF221813) : Colors.white;
+
+    Widget bar(double w, Color color, {double h = 6}) => Container(
+      width: w,
+      height: h,
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(h / 2),
+      ),
+    );
+
+    final preview = ClipRRect(
+      borderRadius: BorderRadius.circular(SunriseRadius.card - 4),
+      child: DecoratedBox(
+        decoration: BoxDecoration(gradient: p.washTall, color: p.base),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    bar(46, p.ink.withValues(alpha: .55), h: 7),
+                    const SizedBox(height: 6),
+                    // The hero card in the accent's gradient.
+                    Container(
+                      width: double.infinity,
+                      height: 40,
+                      padding: const EdgeInsets.all(7),
+                      decoration: BoxDecoration(
+                        gradient: p.gradient,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            offset: const Offset(0, 6),
+                            blurRadius: 12,
+                            spreadRadius: -6,
+                            color: p.glow.withValues(alpha: .7),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          bar(26, Colors.white.withValues(alpha: .7), h: 4),
+                          bar(52, Colors.white, h: 8),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    for (final w in [42.0, 30.0]) ...[
+                      Container(
+                        height: 20,
+                        padding: const EdgeInsets.symmetric(horizontal: 6),
+                        decoration: BoxDecoration(
+                          color: card,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 12,
+                              height: 12,
+                              decoration: BoxDecoration(
+                                color: p.tintOrange,
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Center(
+                                child: Container(
+                                  width: 5,
+                                  height: 5,
+                                  decoration: BoxDecoration(
+                                    color: p.accent,
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 5),
+                            bar(w, p.ink.withValues(alpha: .3), h: 4),
+                            const Spacer(),
+                            bar(14, p.ink.withValues(alpha: .5), h: 4),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 5),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+            // Tab bar with the accent's active tab and Add pill.
+            Container(
+              height: 18,
+              color: p.tabBar,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Container(
+                    width: 6,
+                    height: 6,
+                    decoration: BoxDecoration(
+                      color: p.accent,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  bar(6, p.faint.withValues(alpha: .6)),
+                  Container(
+                    width: 16,
+                    height: 10,
+                    decoration: BoxDecoration(
+                      gradient: p.gradient,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                  bar(6, p.faint.withValues(alpha: .6)),
+                  bar(6, p.faint.withValues(alpha: .6)),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+
     return Semantics(
       selected: selected,
+      button: true,
       label: label,
       child: Pressable(
         onTap: onTap,
         haptic: true,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            AnimatedContainer(
-              duration: SunriseMotion.press,
-              padding: EdgeInsets.all(selected ? 3 : 0),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(SunriseRadius.card + 3),
-                border: Border.all(
-                  color: selected ? c.accent : Colors.transparent,
-                  width: 2,
+        child: AnimatedContainer(
+          duration: SunriseMotion.press,
+          padding: const EdgeInsets.all(6),
+          decoration: BoxDecoration(
+            color: c.surface,
+            borderRadius: BorderRadius.circular(SunriseRadius.card),
+            border: Border.all(
+              color: selected ? p.accent : Colors.transparent,
+              width: 2,
+            ),
+            boxShadow: c.cardShadow,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              SizedBox(
+                height: 150,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    preview,
+                    if (locked)
+                      Positioned(
+                        top: 6,
+                        right: 6,
+                        child: Container(
+                          width: 26,
+                          height: 26,
+                          decoration: BoxDecoration(
+                            color: Colors.black.withValues(alpha: .45),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Symbols.lock_rounded,
+                            size: 15,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
               ),
-              child: AspectRatio(
-                aspectRatio: 1.15,
-                child: Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: g,
+              Padding(
+                padding: const EdgeInsets.fromLTRB(6, 10, 4, 4),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 14,
+                      height: 14,
+                      decoration: BoxDecoration(
+                        gradient: p.gradientShort,
+                        shape: BoxShape.circle,
+                      ),
                     ),
-                    borderRadius: BorderRadius.circular(SunriseRadius.card),
-                  ),
-                  alignment: Alignment.center,
-                  child: locked
-                      ? const Icon(Symbols.lock_rounded, color: Colors.white, size: 26)
-                      : selected
-                      ? const Icon(
-                          Symbols.check_circle_rounded,
-                          color: Colors.white,
-                          size: 28,
-                          fill: 1,
-                        )
-                      : null,
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        label,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: SunriseType.rowTitle.copyWith(color: c.ink),
+                      ),
+                    ),
+                    _Check(selected: selected, color: p.accent),
+                  ],
                 ),
               ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: SunriseType.rowTitle.copyWith(color: c.ink),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
