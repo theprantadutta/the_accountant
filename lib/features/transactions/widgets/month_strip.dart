@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
 import 'package:intl/intl.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
@@ -71,44 +72,50 @@ class MonthStrip extends StatelessWidget {
           final isCurrentMonth = month == thisMonth;
           final isFutureMonth = month.isAfter(thisMonth);
 
+          final c = context.sunrise;
           final Color labelColor;
           if (isSelected) {
-            labelColor = AppColors.textPrimary;
+            labelColor = c.chipActiveFg;
           } else if (isCurrentMonth) {
-            labelColor = AppColors.primaryAccent;
+            labelColor = c.accentText;
           } else if (isFutureMonth) {
-            labelColor = AppColors.info;
+            labelColor = c.subtle;
           } else {
-            labelColor = AppColors.textSecondary;
+            labelColor = c.muted;
           }
 
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: chipGap),
-            child: GestureDetector(
-              onTap: () => onSelected(index),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                curve: Curves.easeOut,
-                width: chipWidth,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: isSelected
-                      ? AppColors.primaryAccent
-                      : AppColors.glassWhite,
-                  borderRadius: AppSpacing.borderRadiusFull,
-                  border: Border.all(
-                    color: isSelected || isCurrentMonth
-                        ? AppColors.primaryAccent
-                        : AppColors.glassBorder,
+            child: Semantics(
+              selected: isSelected,
+              button: true,
+              child: GestureDetector(
+                onTap: () => onSelected(index),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  curve: Curves.easeOut,
+                  width: chipWidth,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: isSelected ? c.chipActiveBg : Colors.transparent,
+                    borderRadius: BorderRadius.circular(SunriseRadius.chip),
+                    border: isCurrentMonth && !isSelected
+                        ? Border.all(color: c.accent.withValues(alpha: .5))
+                        : null,
                   ),
-                ),
-                child: Text(
-                  DateFormat('MMM yyyy').format(month),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTypography.labelMedium.copyWith(
-                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                    color: labelColor,
+                  child: Text(
+                    DateFormat(
+                      'MMM yyyy',
+                      Localizations.localeOf(context).toString(),
+                    ).format(month),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: SunriseType.label.copyWith(
+                      fontWeight: isSelected
+                          ? FontWeight.w600
+                          : FontWeight.w500,
+                      color: labelColor,
+                    ),
                   ),
                 ),
               ),

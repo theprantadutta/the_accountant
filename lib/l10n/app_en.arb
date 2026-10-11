@@ -952,5 +952,122 @@
         "type": "String"
       }
     }
-  }
+  },
+  "activityTitle": "Activity",
+  "activityAll": "All",
+  "activitySpent": "Spent",
+  "activityEarned": "Earned",
+  "activityTransfers": "Transfers",
+  "activitySoFar": "{month} so far",
+  "@activitySoFar": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "activityNet": "{amount} net",
+  "@activityNet": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "activityIn": "In",
+  "activityOut": "Out",
+  "activityToday": "Today",
+  "activityYesterday": "Yesterday",
+  "activityTomorrow": "Tomorrow",
+  "activityEmptyFutureTitle": "No planned transactions",
+  "activityEmptyFutureBody": "Add future payments for {month}",
+  "@activityEmptyFutureBody": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "activityEmptyNowTitle": "No transactions yet",
+  "activityEmptyNowBody": "Start tracking your expenses this month",
+  "activityEmptyPastTitle": "No transactions found",
+  "activityEmptyPastBody": "No records for {month}",
+  "@activityEmptyPastBody": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "activityDeletedCount": "{count, plural, =1{1 transaction deleted} other{{count} transactions deleted}}",
+  "@activityDeletedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "activityMovedToCategory": "Moved {count} to {name}",
+  "@activityMovedToCategory": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "activityMixedCurrencies": "These are held in different currencies, so there is no one account they can all move to. Select rows from one currency.",
+  "activityMovedPartial": "Moved {count}; transfers were left where they are",
+  "@activityMovedPartial": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "activityMoved": "Moved {count} to another account",
+  "@activityMoved": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "activityRedated": "Re-dated {count}",
+  "@activityRedated": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "activityNothingToPay": "Nothing was waiting to be paid",
+  "activityMarkedPaid": "Marked {count} as paid",
+  "@activityMarkedPaid": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "activityCopiedPartial": "Copied {count}; transfers cannot be copied on their own",
+  "@activityCopiedPartial": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "activityCopied": "Copied {count}",
+  "@activityCopied": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "activityDeleteOneBody": "It will be removed from your records and your balance will be recalculated.",
+  "activitySearch": "Search"
 }

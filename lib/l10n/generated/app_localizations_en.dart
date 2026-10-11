@@ -2421,4 +2421,126 @@ class L10nEn extends L10n {
   String statsRemaining(String percent) {
     return '$percent% remaining';
   }
+
+  @override
+  String get activityTitle => 'Activity';
+
+  @override
+  String get activityAll => 'All';
+
+  @override
+  String get activitySpent => 'Spent';
+
+  @override
+  String get activityEarned => 'Earned';
+
+  @override
+  String get activityTransfers => 'Transfers';
+
+  @override
+  String activitySoFar(String month) {
+    return '$month so far';
+  }
+
+  @override
+  String activityNet(String amount) {
+    return '$amount net';
+  }
+
+  @override
+  String get activityIn => 'In';
+
+  @override
+  String get activityOut => 'Out';
+
+  @override
+  String get activityToday => 'Today';
+
+  @override
+  String get activityYesterday => 'Yesterday';
+
+  @override
+  String get activityTomorrow => 'Tomorrow';
+
+  @override
+  String get activityEmptyFutureTitle => 'No planned transactions';
+
+  @override
+  String activityEmptyFutureBody(String month) {
+    return 'Add future payments for $month';
+  }
+
+  @override
+  String get activityEmptyNowTitle => 'No transactions yet';
+
+  @override
+  String get activityEmptyNowBody => 'Start tracking your expenses this month';
+
+  @override
+  String get activityEmptyPastTitle => 'No transactions found';
+
+  @override
+  String activityEmptyPastBody(String month) {
+    return 'No records for $month';
+  }
+
+  @override
+  String activityDeletedCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count transactions deleted',
+      one: '1 transaction deleted',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String activityMovedToCategory(int count, String name) {
+    return 'Moved $count to $name';
+  }
+
+  @override
+  String get activityMixedCurrencies =>
+      'These are held in different currencies, so there is no one account they can all move to. Select rows from one currency.';
+
+  @override
+  String activityMovedPartial(int count) {
+    return 'Moved $count; transfers were left where they are';
+  }
+
+  @override
+  String activityMoved(int count) {
+    return 'Moved $count to another account';
+  }
+
+  @override
+  String activityRedated(int count) {
+    return 'Re-dated $count';
+  }
+
+  @override
+  String get activityNothingToPay => 'Nothing was waiting to be paid';
+
+  @override
+  String activityMarkedPaid(int count) {
+    return 'Marked $count as paid';
+  }
+
+  @override
+  String activityCopiedPartial(int count) {
+    return 'Copied $count; transfers cannot be copied on their own';
+  }
+
+  @override
+  String activityCopied(int count) {
+    return 'Copied $count';
+  }
+
+  @override
+  String get activityDeleteOneBody =>
+      'It will be removed from your records and your balance will be recalculated.';
+
+  @override
+  String get activitySearch => 'Search';
 }

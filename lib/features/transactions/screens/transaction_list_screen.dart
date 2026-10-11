@@ -1,25 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:the_accountant/l10n/generated/app_localizations.dart';
-import 'package:the_accountant/features/transactions/screens/transaction_detail_screen.dart';
-import 'package:the_accountant/features/transactions/widgets/category_picker_sheet.dart';
-import 'package:the_accountant/features/settings/widgets/confirmation_dialog.dart';
-import 'package:the_accountant/features/transactions/widgets/transaction_filter_sheet.dart';
-import 'package:the_accountant/features/transactions/domain/transaction_filters.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:the_accountant/core/themes/app_colors.dart';
-import 'package:the_accountant/core/themes/app_spacing.dart';
-import 'package:the_accountant/core/themes/app_typography.dart';
-import 'package:the_accountant/core/utils/date_formatter.dart';
+import 'package:the_accountant/core/providers/currency_provider.dart';
+import 'package:the_accountant/core/utils/currency_formatter.dart';
 import 'package:the_accountant/features/categories/providers/category_provider.dart';
 import 'package:the_accountant/features/settings/providers/settings_provider.dart';
+import 'package:the_accountant/features/transactions/domain/transaction_filters.dart';
 import 'package:the_accountant/features/transactions/providers/transaction_provider.dart';
 import 'package:the_accountant/features/transactions/screens/add_transaction_screen.dart';
+import 'package:the_accountant/features/transactions/screens/transaction_detail_screen.dart';
+import 'package:the_accountant/features/transactions/widgets/category_picker_sheet.dart';
 import 'package:the_accountant/features/transactions/widgets/month_strip.dart';
-import 'package:the_accountant/shared/widgets/neo_button.dart';
-import 'package:the_accountant/shared/widgets/transaction_card.dart';
+import 'package:the_accountant/features/transactions/widgets/transaction_filter_sheet.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:the_accountant/shared/widgets/shimmer_loading.dart';
+import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
+import 'package:the_accountant/shared/widgets/transaction_card.dart';
 
 class TransactionListScreen extends ConsumerStatefulWidget {
   const TransactionListScreen({super.key, this.standalone = false});
@@ -249,29 +246,22 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
     return grouped;
   }
 
+  /// "Today · Tue 11", "Yesterday · Mon 10", "Wed 5".
   String _formatDateHeader(DateTime date) {
+    final l10n = L10n.of(context);
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
-    final yesterday = today.subtract(const Duration(days: 1));
-    final tomorrow = today.add(const Duration(days: 1));
-
-    final df = ref.watch(dateFormatSettingProvider);
-    final shortDate = AppDateFormatter.formatShortDate(date, df);
-    final dayFormat = DateFormat('EEEE');
-
-    if (date == today) {
-      return 'Today, $shortDate';
-    } else if (date == yesterday) {
-      return 'Yesterday, $shortDate';
-    } else if (date == tomorrow) {
-      return 'Tomorrow, $shortDate';
-    } else if (date.isAfter(today) && date.difference(today).inDays <= 7) {
-      return '${dayFormat.format(date)}, $shortDate';
-    } else if (date.isBefore(today) && today.difference(date).inDays < 7) {
-      return '${dayFormat.format(date)}, $shortDate';
-    } else {
-      return '${dayFormat.format(date)}, $shortDate';
-    }
+    final day = DateFormat(
+      'EEE d',
+      Localizations.localeOf(context).toString(),
+    ).format(date);
+    final diff = date.difference(today).inDays;
+    return switch (diff) {
+      0 => '${l10n.activityToday} · $day',
+      -1 => '${l10n.activityYesterday} · $day',
+      1 => '${l10n.activityTomorrow} · $day',
+      _ => day,
+    };
   }
 
   void _toggleSelected(String id) {
@@ -295,36 +285,37 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
     final count = await action();
     if (!mounted) return;
     _clearSelection();
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(describe(count))));
+    showSunriseSnack(context, describe(count), tone: SnackTone.success);
   }
 
   Future<void> _bulkDelete() async {
-    final confirmed = await showConfirmationDialog(
+    final confirmed = await showSunriseConfirm(
       context: context,
       title: L10n.of(context).txDeleteManyTitle(_selected.length),
       message: L10n.of(context).txDeleteManyBody,
-      confirmText: L10n.of(context).actionDelete,
-      isDangerous: true,
+      confirmLabel: L10n.of(context).actionDelete,
+      destructive: true,
+      icon: Symbols.delete_rounded,
     );
-    if (confirmed != true) return;
+    if (!confirmed || !mounted) return;
+    final l10n = L10n.of(context);
     final ids = _selected.toList();
     await _runBulk(
       () => ref.read(transactionProvider.notifier).deleteMany(ids),
-      (n) => n == 1 ? '1 transaction deleted' : '$n transactions deleted',
+      l10n.activityDeletedCount,
     );
   }
 
   Future<void> _bulkCategory() async {
     final category = await showCategoryPickerSheet(context: context, ref: ref);
-    if (category == null) return;
+    if (category == null || !mounted) return;
+    final l10n = L10n.of(context);
     final ids = _selected.toList();
     await _runBulk(
       () => ref
           .read(transactionProvider.notifier)
           .setCategoryForMany(ids, category.id),
-      (n) => 'Moved $n to ${category.name}',
+      (n) => l10n.activityMovedToCategory(n, category.name),
     );
   }
 
@@ -340,39 +331,40 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
     if (!mounted) return;
 
     if (targets.spansCurrencies) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'These are held in different currencies, so there is no one '
-            'account they can all move to. Select rows from one currency.',
-          ),
-        ),
+      showSunriseSnack(
+        context,
+        L10n.of(context).activityMixedCurrencies,
+        tone: SnackTone.error,
       );
       return;
     }
     if (targets.wallets.isEmpty) return;
 
-    final chosen = await showDialog<String>(
+    final chosen = await showSunriseSheet<String>(
       context: context,
-      builder: (context) => SimpleDialog(
-        title: Text(L10n.of(context).txMoveToAccount),
-        children: [
-          for (final w in targets.wallets)
-            SimpleDialogOption(
-              onPressed: () => Navigator.pop(context, w.id),
-              child: Text(w.name),
-            ),
-        ],
+      builder: (sheet) => SunriseBottomSheet(
+        title: L10n.of(context).txMoveToAccount,
+        child: Column(
+          children: [
+            for (final w in targets.wallets)
+              SheetAction(
+                icon: Symbols.account_balance_wallet_rounded,
+                label: w.name,
+                onTap: () => Navigator.pop(sheet, w.id),
+              ),
+          ],
+        ),
       ),
     );
-    if (chosen == null) return;
+    if (chosen == null || !mounted) return;
+    final l10n = L10n.of(context);
 
     await _runBulk(
       () =>
           ref.read(transactionProvider.notifier).setWalletForMany(ids, chosen),
       (n) => n < ids.length
-          ? 'Moved $n; transfers were left where they are'
-          : 'Moved $n to another account',
+          ? l10n.activityMovedPartial(n)
+          : l10n.activityMoved(n),
     );
   }
 
@@ -383,29 +375,32 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
       firstDate: DateTime(DateTime.now().year - 10),
       lastDate: DateTime(DateTime.now().year + 5),
     );
-    if (picked == null) return;
+    if (picked == null || !mounted) return;
+    final l10n = L10n.of(context);
     final ids = _selected.toList();
     await _runBulk(
       () => ref.read(transactionProvider.notifier).setDateForMany(ids, picked),
-      (n) => 'Re-dated $n',
+      l10n.activityRedated,
     );
   }
 
   Future<void> _bulkMarkPaid() async {
+    final l10n = L10n.of(context);
     final ids = _selected.toList();
     await _runBulk(
       () => ref.read(transactionProvider.notifier).markManyPaid(ids),
-      (n) => n == 0 ? 'Nothing was waiting to be paid' : 'Marked $n as paid',
+      (n) => n == 0 ? l10n.activityNothingToPay : l10n.activityMarkedPaid(n),
     );
   }
 
   Future<void> _bulkDuplicate() async {
+    final l10n = L10n.of(context);
     final ids = _selected.toList();
     await _runBulk(
       () => ref.read(transactionProvider.notifier).duplicateMany(ids),
       (n) => n < ids.length
-          ? 'Copied $n; transfers cannot be copied on their own'
-          : 'Copied $n',
+          ? l10n.activityCopiedPartial(n)
+          : l10n.activityCopied(n),
     );
   }
 
@@ -444,20 +439,18 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
           .read(transactionProvider.notifier)
           .deleteTransaction(transaction.id);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(L10n.of(context).txDeleted),
-            backgroundColor: AppColors.success,
-          ),
+        showSunriseSnack(
+          context,
+          L10n.of(context).txDeleted,
+          tone: SnackTone.success,
         );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(L10n.of(context).txDeleteFailed('$e')),
-            backgroundColor: AppColors.error,
-          ),
+        showSunriseSnack(
+          context,
+          L10n.of(context).txDeleteFailed('$e'),
+          tone: SnackTone.error,
         );
       }
     }
@@ -472,65 +465,103 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
   }
 
   Widget _buildEmptyState(DateTime month) {
+    final l10n = L10n.of(context);
     final now = DateTime.now();
     final isFutureMonth = month.isAfter(DateTime(now.year, now.month));
     final isCurrentMonth = month.year == now.year && month.month == now.month;
+    final monthLabel = DateFormat(
+      'MMMM yyyy',
+      Localizations.localeOf(context).toString(),
+    ).format(month);
 
-    IconData icon;
-    String title;
-    String subtitle;
+    final (IconData icon, String title, String body) = isFutureMonth
+        ? (
+            Symbols.event_available_rounded,
+            l10n.activityEmptyFutureTitle,
+            l10n.activityEmptyFutureBody(monthLabel),
+          )
+        : isCurrentMonth
+        ? (
+            Symbols.receipt_long_rounded,
+            l10n.activityEmptyNowTitle,
+            l10n.activityEmptyNowBody,
+          )
+        : (
+            Symbols.history_rounded,
+            l10n.activityEmptyPastTitle,
+            l10n.activityEmptyPastBody(monthLabel),
+          );
 
-    if (isFutureMonth) {
-      icon = Icons.event_available_outlined;
-      title = 'No planned transactions';
-      subtitle =
-          'Add future payments for ${DateFormat('MMMM yyyy').format(month)}';
-    } else if (isCurrentMonth) {
-      icon = Icons.receipt_long_outlined;
-      title = 'No transactions yet';
-      subtitle = 'Start tracking your expenses this month';
-    } else {
-      icon = Icons.history_outlined;
-      title = 'No transactions found';
-      subtitle = 'No records for ${DateFormat('MMMM yyyy').format(month)}';
-    }
-
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color:
-                  (isFutureMonth ? AppColors.success : AppColors.primaryAccent)
-                      .withValues(alpha: 0.1),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              icon,
-              size: 48,
-              color: isFutureMonth ? AppColors.success : AppColors.textMuted,
-            ),
-          ),
-          const SizedBox(height: 20),
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: AppColors.textPrimary,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            subtitle,
-            style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
+    return ListView(
+      padding: const EdgeInsets.only(top: 40),
+      children: [EmptyState(icon: icon, title: title, message: body)],
     );
+  }
+
+  /// The selected chip, read back from the filters it sets.
+  _TypeChip get _typeChip {
+    if (_filters.transfers == TransferFilter.only) return _TypeChip.transfers;
+    return switch (_filters.direction) {
+      DirectionFilter.expense => _TypeChip.spent,
+      DirectionFilter.income => _TypeChip.earned,
+      DirectionFilter.any => _TypeChip.all,
+    };
+  }
+
+  void _setTypeChip(_TypeChip chip) {
+    setState(() {
+      _filters = switch (chip) {
+        _TypeChip.all => _filters.copyWith(
+          direction: DirectionFilter.any,
+          transfers: TransferFilter.hide,
+        ),
+        _TypeChip.spent => _filters.copyWith(
+          direction: DirectionFilter.expense,
+          transfers: TransferFilter.hide,
+        ),
+        _TypeChip.earned => _filters.copyWith(
+          direction: DirectionFilter.income,
+          transfers: TransferFilter.hide,
+        ),
+        _TypeChip.transfers => _filters.copyWith(
+          direction: DirectionFilter.any,
+          transfers: TransferFilter.only,
+        ),
+      };
+    });
+  }
+
+  String _money(int cents, {bool sign = false}) {
+    final currency = ref.watch(defaultCurrencyProvider);
+    final nf = ref.watch(numberFormatSettingProvider);
+    final text = sign
+        ? cents.formatCurrencyWithSign(
+            currency,
+            isIncome: cents >= 0,
+            useDecimals: false,
+            numberFormat: nf,
+          )
+        : cents.abs().formatCurrency(
+            currency,
+            useDecimals: false,
+            numberFormat: nf,
+          );
+    return text.replaceFirst('-', '−');
+  }
+
+  /// Money in and out over [rows], leaving transfers and unpaid rows aside.
+  (int income, int expense) _totals(List<Transaction> rows) {
+    var income = 0;
+    var expense = 0;
+    for (final t in rows) {
+      if (t.isTransferLeg || !t.isPaid) continue;
+      if (t.type == 'income') {
+        income += t.amount.abs();
+      } else {
+        expense += t.amount.abs();
+      }
+    }
+    return (income, expense);
   }
 
   Widget _buildMonthPage(
@@ -538,100 +569,150 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
     List<Transaction> allTransactions,
     bool isLoading,
   ) {
-    final filteredTransactions = _filterTransactionsForMonth(
-      allTransactions,
-      month,
-    );
-    final groupedTransactions = _groupTransactionsByDate(filteredTransactions);
-    final sortedDates = groupedTransactions.keys.toList()
-      ..sort((a, b) => b.compareTo(a)); // Newest first
+    final l10n = L10n.of(context);
+    final c = context.sunrise;
 
     if (isLoading) {
       return const SingleChildScrollView(
+        padding: EdgeInsets.symmetric(horizontal: SunriseSpace.screenX),
         child: ShimmerTransactionList(itemCount: 8),
       );
     }
 
-    if (filteredTransactions.isEmpty) {
-      return _buildEmptyState(month);
-    }
+    final filteredTransactions = _filterTransactionsForMonth(
+      allTransactions,
+      month,
+    );
+    if (filteredTransactions.isEmpty) return _buildEmptyState(month);
+
+    final groupedTransactions = _groupTransactionsByDate(filteredTransactions);
+    final sortedDates = groupedTransactions.keys.toList()
+      ..sort((a, b) => b.compareTo(a)); // Newest first
+    final (monthIn, monthOut) = _totals(filteredTransactions);
+    final locale = Localizations.localeOf(context).toString();
 
     return ListView.builder(
-      // Room at the bottom for the floating add button, which otherwise sits
-      // on top of the last row and hides its amount — the one part of a
-      // transaction you cannot guess from the rest of it.
-      padding: const EdgeInsets.only(bottom: AppSpacing.huge + AppSpacing.xxl),
-      itemCount: sortedDates.length,
-      itemBuilder: (context, dateIndex) {
-        final date = sortedDates[dateIndex];
+      padding: const EdgeInsets.fromLTRB(
+        SunriseSpace.screenX,
+        4,
+        SunriseSpace.screenX,
+        SunriseSpace.tabBarClearance,
+      ),
+      itemCount: sortedDates.length + 1,
+      itemBuilder: (context, index) {
+        if (index == 0) {
+          return Padding(
+            padding: const EdgeInsets.only(bottom: SunriseSpace.section),
+            child: _MonthSummary(
+              label: l10n.activitySoFar(DateFormat('MMMM', locale).format(month)),
+              net: l10n.activityNet(_money(monthIn - monthOut, sign: true)),
+              inLabel: l10n.activityIn,
+              inValue: _money(monthIn),
+              outLabel: l10n.activityOut,
+              outValue: _money(monthOut),
+            ),
+          );
+        }
+        final date = sortedDates[index - 1];
         final dayTransactions = groupedTransactions[date]!;
+        final (dayIn, dayOut) = _totals(dayTransactions);
+        final dayNet = dayIn - dayOut;
 
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Date header
-            TransactionDateHeader(date: date, label: _formatDateHeader(date)),
-            // Transactions for this date
-            ...dayTransactions.map((transaction) {
-              final categoryState = ref.watch(categoryProvider);
-              final category = categoryState.categories.firstWhere(
-                (c) => c.id == transaction.categoryId,
-                orElse: () => categoryState.categories.isNotEmpty
-                    ? categoryState.categories.first
-                    : Category(
-                        id: '',
-                        name: 'Other',
-                        colorCode: '#4ECDC4',
-                        type: 'expense',
-                        isDefault: false,
-                      ),
-              );
-              final displayTitle = transaction.title.isNotEmpty
-                  ? transaction.title
-                  : transaction.notes.isNotEmpty
-                  ? transaction.notes
-                  : transaction.category;
-
-              return TransactionCard(
-                id: transaction.id,
-                title: displayTitle,
-                category: transaction.category,
-                categoryColor: category.colorCode,
-                categoryIcon: category.iconName,
-                amount:
-                    transaction.amount / 100.0, // cents -> major-unit dollars
-                transactionType: transaction.type,
-                walletId: transaction.walletId,
-                notes: transaction.notes,
-                selected: _selected.contains(transaction.id),
-                onTap: () {
-                  if (_selecting) {
-                    _toggleSelected(transaction.id);
-                  } else {
-                    // Opens the row rather than the editor: there was nowhere
-                    // to simply look at a transaction without being one stray
-                    // keystroke away from changing it.
-                    _openTransaction(transaction);
-                  }
-                },
-                onLongPress: () => _toggleSelected(transaction.id),
-                onEdit: () {
-                  _editTransaction(transaction);
-                },
-                onDelete: () {
-                  _deleteTransaction(transaction);
-                },
-              );
-            }),
-          ],
+        return Padding(
+          padding: const EdgeInsets.only(bottom: SunriseSpace.section),
+          child: DayGroupCard(
+            label: _formatDateHeader(date),
+            total: dayIn == 0 && dayOut == 0 ? null : _money(dayNet, sign: true),
+            totalColor: c.subtle,
+            children: [
+              for (final transaction in dayTransactions)
+                _row(transaction),
+            ],
+          ),
         );
       },
     );
   }
 
+  Widget _row(Transaction transaction) {
+    final categoryState = ref.watch(categoryProvider);
+    final category = categoryState.categories.firstWhere(
+      (c) => c.id == transaction.categoryId,
+      orElse: () => categoryState.categories.isNotEmpty
+          ? categoryState.categories.first
+          : Category(
+              id: '',
+              name: 'Other',
+              colorCode: '#9A7869',
+              type: 'expense',
+              isDefault: false,
+            ),
+    );
+    final displayTitle = transaction.title.isNotEmpty
+        ? transaction.title
+        : transaction.notes.isNotEmpty
+        ? transaction.notes
+        : transaction.category;
+
+    return TransactionCard(
+      id: transaction.id,
+      title: displayTitle,
+      category: transaction.isTransferLeg
+          ? L10n.of(context).txTransfer
+          : transaction.category,
+      categoryColor: category.colorCode,
+      categoryIcon: category.iconName,
+      amount: transaction.amount / 100.0, // cents -> major units
+      transactionType: transaction.type,
+      walletId: transaction.walletId,
+      notes: transaction.notes,
+      date: transaction.date,
+      isTransfer: transaction.isTransferLeg,
+      isPending: !transaction.isPaid,
+      selected: _selected.contains(transaction.id),
+      onTap: () {
+        if (_selecting) {
+          _toggleSelected(transaction.id);
+        } else {
+          // Opens the row rather than the editor: there was nowhere to simply
+          // look at a transaction without being one stray keystroke away from
+          // changing it.
+          _openTransaction(transaction);
+        }
+      },
+      onLongPress: () => _toggleSelected(transaction.id),
+      onEdit: () => _editTransaction(transaction),
+      onDelete: () => _deleteTransaction(transaction),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
+    final c = context.sunrise;
     final transactionState = ref.watch(transactionProvider);
+    final canPop = Navigator.of(context).canPop();
+    final chip = _typeChip;
+
+    final filterButton = SunriseIconButton(
+      icon: Symbols.tune_rounded,
+      tooltip: l10n.filterTitle,
+      onTap: () => _showFilterOptions(context),
+      // Coloured only while something is actually filtered out, so the
+      // control says the list is not showing everything.
+      foreground: _filters.activeCount > 0 ? c.accent : c.ink,
+      badge: _filters.activeCount == 0
+          ? null
+          : Container(
+              width: 10,
+              height: 10,
+              decoration: BoxDecoration(
+                color: c.accent,
+                shape: BoxShape.circle,
+                border: Border.all(color: c.base, width: 1.5),
+              ),
+            ),
+    );
 
     return PopScope(
       // Back should put the selection down before it leaves the screen: losing
@@ -641,48 +722,116 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
       onPopInvokedWithResult: (didPop, _) {
         if (!didPop && _selecting) _clearSelection();
       },
-      child: Scaffold(
-        // Transparent, so the app-wide background painted in `MaterialApp.builder`
-        // shows through here the same way it does on every other screen.
-        backgroundColor: Colors.transparent,
-        appBar: widget.standalone
-            ? AppBar(
-                backgroundColor: Colors.transparent,
-                elevation: 0,
-                title: Text(
-                  L10n.of(context).navTransactions,
-                  style: AppTypography.titleLarge,
-                ),
-              )
-            : null,
-        body: Column(
-          children: [
-            MonthStrip(
-              months: _availableMonths,
-              selectedIndex: _currentPageIndex,
-              onSelected: _onMonthChipTapped,
-              controller: _monthScrollController,
-            ),
-            // While rows are picked out, the actions replace search rather than
-            // sitting beside it: narrowing the list mid-selection would quietly
-            // change what "all of these" means.
-            if (_selecting) _buildSelectionBar() else _buildSearchRow(),
-            Expanded(
-              child: PageView.builder(
-                controller: _pageController,
-                onPageChanged: _onPageChanged,
-                itemCount: _availableMonths.length,
-                itemBuilder: (context, index) {
-                  final month = _availableMonths[index];
-                  return _buildMonthPage(
-                    month,
-                    transactionState.transactions,
-                    transactionState.isLoading,
-                  );
-                },
+      child: SunriseBackground(
+        child: Scaffold(
+          backgroundColor: Colors.transparent,
+          body: SafeArea(
+            bottom: false,
+            child: SunriseContentWidth(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                      SunriseSpace.screenX,
+                      SunriseSpace.screenTop,
+                      SunriseSpace.screenX,
+                      SunriseSpace.sectionTight,
+                    ),
+                    child: Row(
+                      children: [
+                        if (canPop) ...[
+                          SunriseIconButton(
+                            icon: Symbols.arrow_back_rounded,
+                            tooltip: MaterialLocalizations.of(
+                              context,
+                            ).backButtonTooltip,
+                            onTap: () => Navigator.of(context).maybePop(),
+                          ),
+                          const SizedBox(width: 14),
+                        ],
+                        Expanded(
+                          child: Text(
+                            l10n.activityTitle,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: SunriseType.largeTitle.copyWith(
+                              color: c.ink,
+                            ),
+                          ),
+                        ),
+                        filterButton,
+                      ],
+                    ),
+                  ),
+                  // While rows are picked out, the actions replace search
+                  // rather than sitting beside it: narrowing the list
+                  // mid-selection would quietly change what "all of these"
+                  // means.
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: SunriseSpace.screenX,
+                    ),
+                    child: _selecting
+                        ? _buildSelectionBar()
+                        : SunriseSearchField(
+                            hint: l10n.activitySearch,
+                            controller: _searchController,
+                            onClear: () {
+                              _searchController.clear();
+                              setState(() {
+                                _searchQuery = '';
+                                _filters = _filters.copyWith(query: '');
+                              });
+                            },
+                          ),
+                  ),
+                  const SizedBox(height: 12),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: SunriseSpace.screenX,
+                    ),
+                    child: Row(
+                      children: [
+                        for (final (value, label) in [
+                          (_TypeChip.all, l10n.activityAll),
+                          (_TypeChip.spent, l10n.activitySpent),
+                          (_TypeChip.earned, l10n.activityEarned),
+                          (_TypeChip.transfers, l10n.activityTransfers),
+                        ]) ...[
+                          SunriseChip(
+                            label: label,
+                            selected: chip == value,
+                            onTap: () => _setTypeChip(value),
+                          ),
+                          const SizedBox(width: 8),
+                        ],
+                      ],
+                    ),
+                  ),
+                  MonthStrip(
+                    months: _availableMonths,
+                    selectedIndex: _currentPageIndex,
+                    onSelected: _onMonthChipTapped,
+                    controller: _monthScrollController,
+                  ),
+                  Expanded(
+                    child: PageView.builder(
+                      controller: _pageController,
+                      onPageChanged: _onPageChanged,
+                      itemCount: _availableMonths.length,
+                      itemBuilder: (context, index) => _buildMonthPage(
+                        _availableMonths[index],
+                        transactionState.transactions,
+                        transactionState.isLoading,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -694,127 +843,163 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
   /// account" and "re-date" are not guessable from a picture, and a bulk action
   /// applied by mistake is expensive to undo by hand.
   Widget _buildSelectionBar() {
+    final l10n = L10n.of(context);
+    final c = context.sunrise;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-      color: AppColors.primaryAccent.withValues(alpha: 0.12),
+      height: 46,
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      decoration: BoxDecoration(
+        color: c.chipActiveBg,
+        borderRadius: SunriseRadius.inputAll,
+      ),
       child: Row(
         children: [
           IconButton(
-            tooltip: L10n.of(context).actionCancel,
-            icon: const Icon(Icons.close),
+            tooltip: l10n.actionCancel,
+            icon: Icon(Symbols.close_rounded, color: c.chipActiveFg),
             onPressed: _clearSelection,
           ),
-          Text(
-            L10n.of(context).txSelectedCount(_selected.length),
-            style: AppTypography.titleSmall,
+          Expanded(
+            child: Text(
+              l10n.txSelectedCount(_selected.length),
+              style: SunriseType.rowTitle.copyWith(color: c.chipActiveFg),
+            ),
           ),
-          const Spacer(),
-          PopupMenuButton<String>(
-            icon: const Icon(Icons.more_horiz),
-            tooltip: L10n.of(context).txActions,
-            onSelected: (value) {
-              switch (value) {
-                case 'category':
-                  _bulkCategory();
-                case 'wallet':
-                  _bulkWallet();
-                case 'date':
-                  _bulkDate();
-                case 'paid':
-                  _bulkMarkPaid();
-                case 'duplicate':
-                  _bulkDuplicate();
-                case 'delete':
-                  _bulkDelete();
-              }
-            },
-            itemBuilder: (context) => [
-              PopupMenuItem(
-                value: 'category',
-                child: ListTile(
-                  leading: Icon(Icons.category_outlined),
-                  title: Text(L10n.of(context).txChangeCategory),
-                  contentPadding: EdgeInsets.zero,
-                ),
-              ),
-              PopupMenuItem(
-                value: 'wallet',
-                child: ListTile(
-                  leading: Icon(Icons.account_balance_wallet_outlined),
-                  title: Text(L10n.of(context).txMoveToAccount),
-                  contentPadding: EdgeInsets.zero,
-                ),
-              ),
-              PopupMenuItem(
-                value: 'date',
-                child: ListTile(
-                  leading: Icon(Icons.event_outlined),
-                  title: Text(L10n.of(context).txChangeDate),
-                  contentPadding: EdgeInsets.zero,
-                ),
-              ),
-              PopupMenuItem(
-                value: 'paid',
-                child: ListTile(
-                  leading: Icon(Icons.check_circle_outline),
-                  title: Text(L10n.of(context).txMarkAsPaid),
-                  contentPadding: EdgeInsets.zero,
-                ),
-              ),
-              PopupMenuItem(
-                value: 'duplicate',
-                child: ListTile(
-                  leading: Icon(Icons.copy_outlined),
-                  title: Text(L10n.of(context).txDuplicate),
-                  contentPadding: EdgeInsets.zero,
-                ),
-              ),
-              PopupMenuDivider(),
-              PopupMenuItem(
-                value: 'delete',
-                child: ListTile(
-                  leading: Icon(Icons.delete_outline, color: AppColors.error),
-                  title: Text(
-                    L10n.of(context).actionDelete,
-                    style: TextStyle(color: AppColors.error),
-                  ),
-                  contentPadding: EdgeInsets.zero,
-                ),
-              ),
-            ],
+          IconButton(
+            tooltip: l10n.txActions,
+            icon: Icon(Symbols.more_horiz_rounded, color: c.chipActiveFg),
+            onPressed: _showBulkActions,
           ),
         ],
       ),
     );
   }
 
-  /// Search and filtering, side by side.
-  ///
-  /// Filtering used to live in the app bar this screen no longer has, and it
-  /// belongs next to search anyway — both narrow the same list.
-  Widget _buildSearchRow() {
-    final hasFilters = _filters.hasActiveFilters;
+  void _showBulkActions() {
+    final l10n = L10n.of(context);
+    showSunriseSheet<void>(
+      context: context,
+      builder: (sheet) {
+        void run(Future<void> Function() action) {
+          Navigator.pop(sheet);
+          action();
+        }
 
-    return TransactionSearchField(
-      controller: _searchController,
-      query: _searchQuery,
-      onCleared: () {
-        _searchController.clear();
-        setState(() {
-          _searchQuery = '';
-          _filters = _filters.copyWith(query: '');
-        });
+        return SunriseBottomSheet(
+          title: l10n.txSelectedCount(_selected.length),
+          child: Column(
+            children: [
+              SheetAction(
+                icon: Symbols.category_rounded,
+                label: l10n.txChangeCategory,
+                onTap: () => run(_bulkCategory),
+              ),
+              SheetAction(
+                icon: Symbols.account_balance_wallet_rounded,
+                label: l10n.txMoveToAccount,
+                onTap: () => run(_bulkWallet),
+              ),
+              SheetAction(
+                icon: Symbols.event_rounded,
+                label: l10n.txChangeDate,
+                onTap: () => run(_bulkDate),
+              ),
+              SheetAction(
+                icon: Symbols.check_circle_rounded,
+                label: l10n.txMarkAsPaid,
+                onTap: () => run(_bulkMarkPaid),
+              ),
+              SheetAction(
+                icon: Symbols.content_copy_rounded,
+                label: l10n.txDuplicate,
+                onTap: () => run(_bulkDuplicate),
+              ),
+              SheetAction(
+                icon: Symbols.delete_rounded,
+                label: l10n.actionDelete,
+                destructive: true,
+                onTap: () => run(_bulkDelete),
+              ),
+            ],
+          ),
+        );
       },
-      trailing: NeoIconButton(
-        icon: Icons.tune,
-        tooltip: L10n.of(context).filterTitle,
-        size: AppSpacing.inputHeight,
-        onPressed: () => _showFilterOptions(context),
-        // Coloured only while something is actually filtered out, so the
-        // control says the list is not showing everything.
-        iconColor: hasFilters
-            ? AppColors.primaryAccent
-            : AppColors.textSecondary,
+    );
+  }
+}
+
+enum _TypeChip { all, spent, earned, transfers }
+
+/// "October so far: +৳1,850 net", with money in and out.
+class _MonthSummary extends StatelessWidget {
+  const _MonthSummary({
+    required this.label,
+    required this.net,
+    required this.inLabel,
+    required this.inValue,
+    required this.outLabel,
+    required this.outValue,
+  });
+
+  final String label;
+  final String net;
+  final String inLabel;
+  final String inValue;
+  final String outLabel;
+  final String outValue;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.sunrise;
+    Widget figure(String l, String v, Color color) => Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Text(l, style: SunriseType.label.copyWith(color: c.muted)),
+        const SizedBox(height: 2),
+        Text(
+          v,
+          style: SunriseType.amount.copyWith(color: color, fontSize: 14),
+        ),
+      ],
+    );
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+      decoration: BoxDecoration(
+        gradient: c.softStrip,
+        borderRadius: SunriseRadius.cardAll,
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: SunriseType.label.copyWith(color: c.muted),
+                ),
+                const SizedBox(height: 2),
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: AlignmentDirectional.centerStart,
+                  child: Text(
+                    net,
+                    style: SunriseType.statValue.copyWith(
+                      color: c.ink,
+                      fontSize: 24,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 12),
+          figure(inLabel, inValue, c.positive),
+          const SizedBox(width: 18),
+          figure(outLabel, outValue, c.negative),
+        ],
       ),
     );
   }

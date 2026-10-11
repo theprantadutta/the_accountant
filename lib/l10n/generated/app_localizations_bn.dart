@@ -2400,4 +2400,120 @@ class L10nBn extends L10n {
   String statsRemaining(String percent) {
     return '$percent% বাকি';
   }
+
+  @override
+  String get activityTitle => 'লেনদেন';
+
+  @override
+  String get activityAll => 'সব';
+
+  @override
+  String get activitySpent => 'ব্যয়';
+
+  @override
+  String get activityEarned => 'আয়';
+
+  @override
+  String get activityTransfers => 'ট্রান্সফার';
+
+  @override
+  String activitySoFar(String month) {
+    return '$month এ পর্যন্ত';
+  }
+
+  @override
+  String activityNet(String amount) {
+    return 'নিট $amount';
+  }
+
+  @override
+  String get activityIn => 'আয়';
+
+  @override
+  String get activityOut => 'ব্যয়';
+
+  @override
+  String get activityToday => 'আজ';
+
+  @override
+  String get activityYesterday => 'গতকাল';
+
+  @override
+  String get activityTomorrow => 'আগামীকাল';
+
+  @override
+  String get activityEmptyFutureTitle => 'পরিকল্পিত কোনো লেনদেন নেই';
+
+  @override
+  String activityEmptyFutureBody(String month) {
+    return '$month এর আগাম পেমেন্ট যোগ করুন';
+  }
+
+  @override
+  String get activityEmptyNowTitle => 'এখনো কোনো লেনদেন নেই';
+
+  @override
+  String get activityEmptyNowBody => 'এই মাসের খরচ লিখতে শুরু করুন';
+
+  @override
+  String get activityEmptyPastTitle => 'কোনো লেনদেন পাওয়া যায়নি';
+
+  @override
+  String activityEmptyPastBody(String month) {
+    return '$month এ কোনো রেকর্ড নেই';
+  }
+
+  @override
+  String activityDeletedCount(int count) {
+    return '$countটি লেনদেন মুছে ফেলা হয়েছে';
+  }
+
+  @override
+  String activityMovedToCategory(int count, String name) {
+    return '$countটি $name এ সরানো হয়েছে';
+  }
+
+  @override
+  String get activityMixedCurrencies =>
+      'এগুলো ভিন্ন মুদ্রায় আছে, তাই একটি অ্যাকাউন্টে সরানো যাবে না। একই মুদ্রার লেনদেন বাছুন।';
+
+  @override
+  String activityMovedPartial(int count) {
+    return '$countটি সরানো হয়েছে; ট্রান্সফার যেমন ছিল তেমনই আছে';
+  }
+
+  @override
+  String activityMoved(int count) {
+    return '$countটি অন্য অ্যাকাউন্টে সরানো হয়েছে';
+  }
+
+  @override
+  String activityRedated(int count) {
+    return '$countটির তারিখ বদলানো হয়েছে';
+  }
+
+  @override
+  String get activityNothingToPay => 'পরিশোধের অপেক্ষায় কিছু ছিল না';
+
+  @override
+  String activityMarkedPaid(int count) {
+    return '$countটি পরিশোধিত হিসেবে চিহ্নিত';
+  }
+
+  @override
+  String activityCopiedPartial(int count) {
+    return '$countটি কপি হয়েছে; ট্রান্সফার আলাদাভাবে কপি হয় না';
+  }
+
+  @override
+  String activityCopied(int count) {
+    return '$countটি কপি হয়েছে';
+  }
+
+  @override
+  String get activityDeleteOneBody =>
+      'এটি আপনার রেকর্ড থেকে মুছে যাবে এবং ব্যালান্স আবার হিসাব হবে।';
+
+  @override
+  String get activitySearch => 'খুঁজুন';
 }

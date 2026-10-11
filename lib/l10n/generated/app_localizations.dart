@@ -4582,6 +4582,186 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'{percent}% remaining'**
   String statsRemaining(String percent);
+
+  /// No description provided for @activityTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity'**
+  String get activityTitle;
+
+  /// No description provided for @activityAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get activityAll;
+
+  /// No description provided for @activitySpent.
+  ///
+  /// In en, this message translates to:
+  /// **'Spent'**
+  String get activitySpent;
+
+  /// No description provided for @activityEarned.
+  ///
+  /// In en, this message translates to:
+  /// **'Earned'**
+  String get activityEarned;
+
+  /// No description provided for @activityTransfers.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfers'**
+  String get activityTransfers;
+
+  /// No description provided for @activitySoFar.
+  ///
+  /// In en, this message translates to:
+  /// **'{month} so far'**
+  String activitySoFar(String month);
+
+  /// No description provided for @activityNet.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} net'**
+  String activityNet(String amount);
+
+  /// No description provided for @activityIn.
+  ///
+  /// In en, this message translates to:
+  /// **'In'**
+  String get activityIn;
+
+  /// No description provided for @activityOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Out'**
+  String get activityOut;
+
+  /// No description provided for @activityToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get activityToday;
+
+  /// No description provided for @activityYesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday'**
+  String get activityYesterday;
+
+  /// No description provided for @activityTomorrow.
+  ///
+  /// In en, this message translates to:
+  /// **'Tomorrow'**
+  String get activityTomorrow;
+
+  /// No description provided for @activityEmptyFutureTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No planned transactions'**
+  String get activityEmptyFutureTitle;
+
+  /// No description provided for @activityEmptyFutureBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Add future payments for {month}'**
+  String activityEmptyFutureBody(String month);
+
+  /// No description provided for @activityEmptyNowTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No transactions yet'**
+  String get activityEmptyNowTitle;
+
+  /// No description provided for @activityEmptyNowBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Start tracking your expenses this month'**
+  String get activityEmptyNowBody;
+
+  /// No description provided for @activityEmptyPastTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No transactions found'**
+  String get activityEmptyPastTitle;
+
+  /// No description provided for @activityEmptyPastBody.
+  ///
+  /// In en, this message translates to:
+  /// **'No records for {month}'**
+  String activityEmptyPastBody(String month);
+
+  /// No description provided for @activityDeletedCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 transaction deleted} other{{count} transactions deleted}}'**
+  String activityDeletedCount(int count);
+
+  /// No description provided for @activityMovedToCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Moved {count} to {name}'**
+  String activityMovedToCategory(int count, String name);
+
+  /// No description provided for @activityMixedCurrencies.
+  ///
+  /// In en, this message translates to:
+  /// **'These are held in different currencies, so there is no one account they can all move to. Select rows from one currency.'**
+  String get activityMixedCurrencies;
+
+  /// No description provided for @activityMovedPartial.
+  ///
+  /// In en, this message translates to:
+  /// **'Moved {count}; transfers were left where they are'**
+  String activityMovedPartial(int count);
+
+  /// No description provided for @activityMoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Moved {count} to another account'**
+  String activityMoved(int count);
+
+  /// No description provided for @activityRedated.
+  ///
+  /// In en, this message translates to:
+  /// **'Re-dated {count}'**
+  String activityRedated(int count);
+
+  /// No description provided for @activityNothingToPay.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing was waiting to be paid'**
+  String get activityNothingToPay;
+
+  /// No description provided for @activityMarkedPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Marked {count} as paid'**
+  String activityMarkedPaid(int count);
+
+  /// No description provided for @activityCopiedPartial.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied {count}; transfers cannot be copied on their own'**
+  String activityCopiedPartial(int count);
+
+  /// No description provided for @activityCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied {count}'**
+  String activityCopied(int count);
+
+  /// No description provided for @activityDeleteOneBody.
+  ///
+  /// In en, this message translates to:
+  /// **'It will be removed from your records and your balance will be recalculated.'**
+  String get activityDeleteOneBody;
+
+  /// No description provided for @activitySearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get activitySearch;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

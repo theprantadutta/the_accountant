@@ -1,46 +1,40 @@
 import 'package:flutter/material.dart';
-import 'package:the_accountant/l10n/generated/app_localizations.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/providers/currency_provider.dart';
-import 'package:the_accountant/core/services/currency_service.dart';
-import 'package:the_accountant/core/themes/app_colors.dart';
-import 'package:the_accountant/core/themes/app_spacing.dart';
-import 'package:the_accountant/core/themes/app_typography.dart';
 import 'package:the_accountant/core/utils/color_utils.dart';
+import 'package:the_accountant/core/utils/currency_formatter.dart';
 import 'package:the_accountant/core/utils/icon_registry.dart';
-import 'package:the_accountant/core/utils/number_formatter.dart';
+import 'package:the_accountant/core/utils/time_formatter.dart';
 import 'package:the_accountant/features/settings/providers/settings_provider.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
+import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
 
-/// One transaction in a list.
+/// One transaction in a list, drawn as a Sunrise [TransactionTile].
 ///
-/// Rebuilt to match the row the dashboard already uses, because the two sat one
-/// tap apart and looked like they came from different products.
-///
-/// The old row spent the category colour on everything it could: a gradient
-/// across the whole card, a border, an 80px watermark of the category icon
-/// bleeding out of the corner, and the category name again as a filled chip.
-/// Stacked into a list that produced a column of saturated blocks — green, red,
-/// teal, purple — where the colour carried no more information than the icon
-/// already did, and the amounts had to compete with all of it.
-///
-/// Here the colour appears once, on the icon plate, and the row itself is
-/// transparent. That leaves exactly two things emphasised, which are the two
-/// things anyone scanning a ledger is looking for: what it was, and how much.
-///
-/// The amount is set in the mono face for the same reason a bank statement is —
-/// in a vertical column, proportional digits do not line up, so you cannot
-/// compare two figures without reading both.
+/// The category colour appears once, on the icon tile; the row itself is
+/// plain. Expense amounts are ink and income amounts green, so the two things
+/// anyone scanning a ledger looks for (what it was, and how much) stand out.
 class TransactionCard extends ConsumerWidget {
   final String id;
   final String title;
   final String category;
   final String categoryColor;
   final String? categoryIcon;
+
+  /// Major units.
   final double amount;
   final String transactionType; // 'expense' or 'income'
   final String? walletId;
   final String? notes;
+
+  /// When set, the time is shown after the category.
+  final DateTime? date;
+
+  /// One leg of a transfer: drawn neutral, with a transfer glyph.
+  final bool isTransfer;
+
+  /// Not yet paid (upcoming): drawn dimmed.
+  final bool isPending;
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
   final VoidCallback? onEdit;
@@ -60,6 +54,9 @@ class TransactionCard extends ConsumerWidget {
     required this.transactionType,
     this.walletId,
     this.notes,
+    this.date,
+    this.isTransfer = false,
+    this.isPending = false,
     this.onTap,
     this.onLongPress,
     this.selected = false,
@@ -69,257 +66,116 @@ class TransactionCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final walletCurrency = ref.watch(walletCurrencyProvider(walletId));
+    final c = context.sunrise;
+    final currency = ref.watch(walletCurrencyProvider(walletId));
     final useDecimals = ref.watch(walletDecimalProvider(walletId));
-    final categoryTint = ColorUtils.hexToColor(categoryColor);
-    final isExpense = transactionType == 'expense';
-
     final nf = ref.watch(numberFormatSettingProvider);
-    final formattedAmount = AppNumberFormatter.currency(
-      CurrencyInfo.getSymbol(walletCurrency),
-      nf,
-      decimalDigits: useDecimals ? 2 : 0,
-    ).format(useDecimals ? amount : amount.round());
+    final isExpense = transactionType == 'expense';
+    final cents = (amount * 100).round().abs();
 
-    return Material(
-      // Tinted while selected, so a row picked out of a long list is obvious
-      // without a checkbox stealing space from the amount.
-      color: selected
-          ? AppColors.primaryAccent.withValues(alpha: 0.16)
-          : Colors.transparent,
-      child: InkWell(
+    final formatted = isTransfer
+        ? cents.formatCurrency(currency, useDecimals: useDecimals, numberFormat: nf)
+        : cents
+              .formatCurrencyWithSign(
+                currency,
+                isIncome: !isExpense,
+                useDecimals: useDecimals,
+                numberFormat: nf,
+              )
+              .replaceFirst('-', '−');
+
+    final tint = isTransfer ? c.accent : ColorUtils.hexToColor(categoryColor);
+    final icon = isTransfer
+        ? Symbols.sync_alt_rounded
+        : categoryIcon != null
+        ? IconRegistry.getIcon(categoryIcon!)
+        : (isExpense ? Symbols.north_east_rounded : Symbols.south_west_rounded);
+    final subtitle = date == null
+        ? category
+        : '$category · ${AppTimeFormatter.of(context, date!)}';
+
+    return Semantics(
+      selected: selected,
+      child: TransactionTile(
+        icon: icon,
+        iconColor: tint,
+        title: title.isNotEmpty ? title : category,
+        subtitle: subtitle,
+        amount: formatted,
+        tone: isTransfer
+            ? AmountTone.neutral
+            : isExpense
+            ? AmountTone.expense
+            : AmountTone.income,
+        dimmed: isPending,
+        leading: selected
+            ? Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  gradient: c.gradient,
+                  borderRadius: BorderRadius.circular(SunriseRadius.iconTile),
+                ),
+                child: Icon(
+                  Symbols.check_rounded,
+                  color: c.onFill,
+                  weight: 700,
+                ),
+              )
+            : null,
         onTap: onTap,
         // A long press picks the row out when the screen offers that; where it
         // does not, it falls back to the row's own menu.
-        onLongPress: onLongPress ?? () => _showOptionsMenu(context),
-        borderRadius: AppSpacing.borderRadiusLg,
-        child: Padding(
-          // The tap target stays full-bleed so the ripple covers the whole
-          // row; only the content is inset, to the same margin the search field
-          // and month chips above it use.
-          padding: EdgeInsets.symmetric(
-            horizontal: AppSpacing.xxl,
-            vertical: AppSpacing.sm,
-          ),
-          child: Row(
-            children: [
-              if (selected)
-                Padding(
-                  padding: EdgeInsets.only(right: 4),
-                  child: Icon(
-                    Icons.check_circle,
-                    color: AppColors.primaryAccent,
-                    size: 20,
-                  ),
-                )
-              else
-                _CategoryGlyph(
-                  tint: categoryTint,
-                  iconName: categoryIcon,
-                  isExpense: isExpense,
-                ),
-              AppSpacing.gapHMd,
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title.isNotEmpty ? title : category,
-                      style: AppTypography.titleSmall,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    Text(
-                      category,
-                      style: AppTypography.bodySmall.copyWith(
-                        color: AppColors.textMuted,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
-              ),
-              AppSpacing.gapHSm,
-              // The sign does the work the trend arrow used to, in a character
-              // that belongs to the number rather than sitting beside it.
-              Text(
-                '${isExpense ? '-' : '+'}$formattedAmount',
-                style: AppTypography.monoSmall.copyWith(
-                  color: isExpense ? AppColors.error : AppColors.success,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
-        ),
+        onLongPress: onLongPress ?? () => _showOptionsMenu(context, icon, tint),
       ),
     );
   }
 
-  void _showOptionsMenu(BuildContext context) {
-    HapticFeedback.selectionClick();
-    final outerContext = context;
-    final tint = ColorUtils.hexToColor(categoryColor);
-
-    showModalBottomSheet<void>(
+  void _showOptionsMenu(BuildContext context, IconData icon, Color tint) {
+    final l10n = L10n.of(context);
+    final outer = context;
+    showSunriseSheet<void>(
       context: context,
-      backgroundColor: AppColors.primarySurface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(AppSpacing.radiusXxl),
-        ),
-      ),
-      builder: (sheetContext) => SafeArea(
+      builder: (sheetContext) => SunriseBottomSheet(
+        title: title.isNotEmpty ? title : category,
+        subtitle: category,
         child: Column(
-          mainAxisSize: MainAxisSize.min,
           children: [
-            Container(
-              margin: EdgeInsets.symmetric(vertical: AppSpacing.md),
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: AppColors.divider,
-                borderRadius: AppSpacing.borderRadiusFull,
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.fromLTRB(
-                AppSpacing.xl,
-                AppSpacing.sm,
-                AppSpacing.xl,
-                AppSpacing.lg,
-              ),
-              child: Row(
-                children: [
-                  _CategoryGlyph(
-                    tint: tint,
-                    iconName: categoryIcon,
-                    isExpense: transactionType == 'expense',
-                  ),
-                  AppSpacing.gapHMd,
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          title.isNotEmpty ? title : category,
-                          style: AppTypography.titleSmall,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        Text(
-                          category,
-                          style: AppTypography.bodySmall.copyWith(
-                            color: AppColors.textMuted,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Divider(height: 1, color: AppColors.divider),
             if (onEdit != null)
-              ListTile(
-                leading: Icon(
-                  Icons.edit_outlined,
-                  color: AppColors.textSecondary,
-                ),
-                title: Text(
-                  L10n.of(context).actionEdit,
-                  style: AppTypography.bodyLarge,
-                ),
+              SheetAction(
+                icon: Symbols.edit_rounded,
+                label: l10n.actionEdit,
                 onTap: () {
                   Navigator.pop(sheetContext);
                   onEdit!();
                 },
               ),
             if (onDelete != null)
-              ListTile(
-                leading: Icon(Icons.delete_outline, color: AppColors.error),
-                title: Text(
-                  L10n.of(context).actionDelete,
-                  style: AppTypography.bodyLarge.copyWith(
-                    color: AppColors.error,
-                  ),
-                ),
+              SheetAction(
+                icon: Symbols.delete_rounded,
+                label: l10n.actionDelete,
+                destructive: true,
                 onTap: () {
                   Navigator.pop(sheetContext);
-                  _confirmDelete(outerContext);
+                  _confirmDelete(outer);
                 },
               ),
-            AppSpacing.gapSm,
           ],
         ),
       ),
     );
   }
 
-  void _confirmDelete(BuildContext context) {
-    showDialog<void>(
+  Future<void> _confirmDelete(BuildContext context) async {
+    final l10n = L10n.of(context);
+    final ok = await showSunriseConfirm(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        backgroundColor: AppColors.primarySurface,
-        title: Text(
-          L10n.of(context).txDeleteOneTitle,
-          style: AppTypography.titleLarge,
-        ),
-        content: Text(
-          'It will be removed from your records and your balance will be '
-          'recalculated.',
-          style: AppTypography.bodyMedium.copyWith(
-            color: AppColors.textSecondary,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: Text(L10n.of(context).actionCancel),
-          ),
-          FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: AppColors.error),
-            onPressed: () {
-              Navigator.pop(dialogContext);
-              onDelete?.call();
-            },
-            child: Text(L10n.of(context).actionDelete),
-          ),
-        ],
-      ),
+      title: l10n.txDeleteOneTitle,
+      message: l10n.activityDeleteOneBody,
+      confirmLabel: l10n.actionDelete,
+      destructive: true,
+      icon: Symbols.delete_rounded,
     );
-  }
-}
-
-/// The one place a transaction's category colour appears.
-class _CategoryGlyph extends StatelessWidget {
-  const _CategoryGlyph({
-    required this.tint,
-    required this.iconName,
-    required this.isExpense,
-  });
-
-  final Color tint;
-  final String? iconName;
-  final bool isExpense;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 40,
-      height: 40,
-      decoration: BoxDecoration(
-        color: tint.withValues(alpha: 0.15),
-        borderRadius: AppSpacing.borderRadiusMd,
-      ),
-      child: Icon(
-        iconName != null
-            ? IconRegistry.getIcon(iconName!)
-            : (isExpense ? Icons.arrow_upward : Icons.arrow_downward),
-        color: tint,
-        size: AppSpacing.iconSm,
-      ),
-    );
+    if (ok) onDelete?.call();
   }
 }
