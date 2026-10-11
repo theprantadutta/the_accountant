@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:the_accountant/core/utils/color_utils.dart';
+import 'package:the_accountant/core/utils/icon_registry.dart';
+import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
 
+/// One category as a Sunrise row: its own icon on its colour, the name, and
+/// a lock (built-in) or edit and delete (the user's own).
 class CategoryListItem extends StatelessWidget {
   final Category category;
   final VoidCallback? onDelete;
@@ -15,41 +19,47 @@ class CategoryListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.sunrise;
     final color = ColorUtils.hexToColor(category.colorCode);
+    final icon = category.iconName != null
+        ? IconRegistry.getIcon(category.iconName)
+        : (category.type == 'expense'
+              ? Symbols.north_east_rounded
+              : Symbols.south_west_rounded);
 
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      child: ListTile(
-        leading: Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.2),
-            shape: BoxShape.circle,
+    return SunriseCard(
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+      padding: const EdgeInsets.fromLTRB(14, 10, 6, 10),
+      onTap: category.isDefault ? null : onEdit,
+      child: Row(
+        children: [
+          IconTile(icon: icon, color: color, size: 42),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Text(
+              category.name,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: SunriseType.rowTitle.copyWith(color: c.ink),
+            ),
           ),
-          child: Icon(
-            category.type == 'expense'
-                ? Icons.arrow_upward
-                : Icons.arrow_downward,
-            color: color,
-          ),
-        ),
-        title: Text(category.name),
-        trailing: category.isDefault
-            ? const Icon(Icons.lock, size: 16, color: Colors.grey)
-            : Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.edit, size: 18),
-                    onPressed: onEdit,
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.delete, size: 18),
-                    onPressed: onDelete,
-                  ),
-                ],
-              ),
+          if (category.isDefault)
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: Icon(Symbols.lock_rounded, size: 18, color: c.faint),
+            )
+          else ...[
+            IconButton(
+              icon: Icon(Symbols.edit_rounded, size: 20, color: c.subtle),
+              onPressed: onEdit,
+            ),
+            IconButton(
+              tooltip: MaterialLocalizations.of(context).deleteButtonTooltip,
+              icon: Icon(Symbols.delete_rounded, size: 20, color: c.negative),
+              onPressed: onDelete,
+            ),
+          ],
+        ],
       ),
     );
   }
@@ -62,6 +72,7 @@ class Category {
   final String colorCode;
   final String type; // 'expense' or 'income'
   final bool isDefault;
+  final String? iconName;
 
   Category({
     required this.id,
@@ -69,5 +80,6 @@ class Category {
     required this.colorCode,
     required this.type,
     required this.isDefault,
+    this.iconName,
   });
 }

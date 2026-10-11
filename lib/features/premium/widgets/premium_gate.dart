@@ -1,19 +1,27 @@
 import 'package:flutter/material.dart';
-import 'package:the_accountant/l10n/generated/app_localizations.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/features/premium/providers/premium_provider.dart';
 import 'package:the_accountant/features/premium/utils/paywall_utils.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
+import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
 
-/// Widget that gates content behind premium subscription
-/// Shows an upgrade prompt for free users, actual content for premium users
+/// Gates content behind premium: the content for premium users, the Sunrise
+/// locked screen for everyone else.
 class PremiumGate extends ConsumerWidget {
   final String featureId;
   final String featureName;
   final String featureDescription;
   final IconData featureIcon;
   final Widget child;
+
+  /// Replaces [featureName] as the big title ("Meet your money coach").
+  final String? headline;
+
+  /// A taste of the feature under the description (a sample chat).
+  final Widget? preview;
+
+  /// Short highlights shown as chips.
+  final List<String> highlights;
 
   const PremiumGate({
     super.key,
@@ -22,6 +30,9 @@ class PremiumGate extends ConsumerWidget {
     required this.featureDescription,
     required this.featureIcon,
     required this.child,
+    this.headline,
+    this.preview,
+    this.highlights = const [],
   });
 
   @override
@@ -34,8 +45,11 @@ class PremiumGate extends ConsumerWidget {
 
     return _PremiumUpgradeScreen(
       featureName: featureName,
+      headline: headline ?? featureName,
       featureDescription: featureDescription,
       featureIcon: featureIcon,
+      preview: preview,
+      highlights: highlights,
     );
   }
 }
@@ -44,341 +58,238 @@ void _openPaywall(BuildContext context, {String? featureName}) {
   PaywallUtils.showPaywall(context, featureName: featureName);
 }
 
-/// Upgrade prompt screen shown when a premium feature is accessed by free users
+/// The locked state: a glowing orb with a lock, the pitch, and Unlock.
 class _PremiumUpgradeScreen extends StatelessWidget {
   final String featureName;
+  final String headline;
   final String featureDescription;
   final IconData featureIcon;
+  final Widget? preview;
+  final List<String> highlights;
 
   const _PremiumUpgradeScreen({
     required this.featureName,
+    required this.headline,
     required this.featureDescription,
     required this.featureIcon,
+    required this.preview,
+    required this.highlights,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(backgroundColor: Colors.transparent, elevation: 0),
-      body: Stack(
-        children: [
-          // Background gradient orbs
-          Positioned(
-            top: -100,
-            right: -100,
-            child: Container(
-              width: 300,
-              height: 300,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: RadialGradient(
-                  colors: [
-                    AppColors.primaryAccent.withValues(alpha: 0.3),
-                    AppColors.primaryAccent.withValues(alpha: 0.0),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          Positioned(
-            bottom: -50,
-            left: -100,
-            child: Container(
-              width: 250,
-              height: 250,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: RadialGradient(
-                  colors: [
-                    AppColors.neonPurple.withValues(alpha: 0.2),
-                    AppColors.neonPurple.withValues(alpha: 0.0),
-                  ],
-                ),
-              ),
-            ),
-          ),
+    final l10n = L10n.of(context);
+    final c = context.sunrise;
+    final canPop = Navigator.of(context).canPop();
 
-          // Main content
-          SafeArea(
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                final scale = (constraints.maxHeight / 600).clamp(0.75, 1.0);
-                return Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 16 * scale,
+    return SunriseBackground(
+      tall: false,
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: SafeArea(
+          child: SunriseContentWidth(
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    SunriseSpace.screenX,
+                    SunriseSpace.screenTop,
+                    SunriseSpace.screenX,
+                    0,
+                  ),
+                  child: Row(
+                    children: [
+                      if (canPop)
+                        SunriseIconButton(
+                          icon: Symbols.arrow_back_rounded,
+                          tooltip: MaterialLocalizations.of(
+                            context,
+                          ).backButtonTooltip,
+                          onTap: () => Navigator.of(context).maybePop(),
+                        ),
+                      const Spacer(),
+                      SunrisePill(
+                        label: l10n.gatePremium,
+                        icon: Symbols.workspace_premium_rounded,
+                        fontSize: 14,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 8,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: ListView(
+                    padding: const EdgeInsets.fromLTRB(
+                      SunriseSpace.screenX,
+                      8,
+                      SunriseSpace.screenX,
+                      24,
+                    ),
+                    children: [
+                      Center(child: _Orb(icon: featureIcon)),
+                      const SizedBox(height: 22),
+                      Text(
+                        headline,
+                        textAlign: TextAlign.center,
+                        style: SunriseType.heroTitle.copyWith(color: c.ink),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        featureDescription,
+                        textAlign: TextAlign.center,
+                        style: SunriseType.body.copyWith(
+                          color: c.muted,
+                          fontSize: 16,
+                        ),
+                      ),
+                      if (preview != null) ...[
+                        const SizedBox(height: 22),
+                        preview!,
+                      ],
+                      if (highlights.isNotEmpty) ...[
+                        const SizedBox(height: 18),
+                        Wrap(
+                          alignment: WrapAlignment.center,
+                          spacing: 10,
+                          runSpacing: 10,
+                          children: [
+                            for (final h in highlights)
+                              SunriseChip(
+                                label: h,
+                                selected: false,
+                                onTap: null,
+                              ),
+                          ],
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    SunriseSpace.screenX,
+                    0,
+                    SunriseSpace.screenX,
+                    16,
                   ),
                   child: Column(
                     children: [
-                      _buildHeroSection(scale),
-                      SizedBox(height: 20 * scale),
-                      _buildFeatureInfo(scale),
-                      SizedBox(height: 20 * scale),
-                      _buildBenefitsGrid(scale),
-                      const Spacer(),
-                      _buildCTASection(context, scale),
-                      SizedBox(height: 16 * scale),
+                      SunriseButton(
+                        label: l10n.gateUnlock,
+                        onPressed: () =>
+                            _openPaywall(context, featureName: featureName),
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Symbols.check_circle_rounded,
+                            size: 18,
+                            fill: 1,
+                            color: c.positive,
+                          ),
+                          const SizedBox(width: 6),
+                          Flexible(
+                            child: Text(
+                              l10n.gateFootnote,
+                              textAlign: TextAlign.center,
+                              style: SunriseType.label.copyWith(
+                                color: c.subtle,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
-                );
-              },
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// The 128dp radial orb with two halo rings and a lock badge.
+class _Orb extends StatelessWidget {
+  const _Orb({required this.icon});
+
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.sunrise;
+    return SizedBox(
+      width: 188,
+      height: 188,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Container(
+            width: 188,
+            height: 188,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: c.gradientMid.withValues(alpha: .05),
+            ),
+          ),
+          Container(
+            width: 156,
+            height: 156,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: c.gradientMid.withValues(alpha: .10),
+            ),
+          ),
+          Container(
+            width: 128,
+            height: 128,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: c.orbGradient,
+              boxShadow: [
+                BoxShadow(
+                  offset: const Offset(0, 30),
+                  blurRadius: 60,
+                  spreadRadius: -20,
+                  color: c.glow.withValues(alpha: .8),
+                ),
+              ],
+            ),
+            child: Icon(icon, size: 56, color: c.onFill, fill: 1),
+          ),
+          Positioned(
+            right: 26,
+            bottom: 26,
+            child: Container(
+              width: 42,
+              height: 42,
+              decoration: BoxDecoration(
+                color: c.surface,
+                shape: BoxShape.circle,
+                boxShadow: c.cardShadow,
+              ),
+              child: Icon(
+                Symbols.lock_rounded,
+                color: c.accent,
+                size: 22,
+                fill: 1,
+              ),
             ),
           ),
         ],
       ),
     );
   }
-
-  Widget _buildHeroSection(double scale) {
-    final iconSize = 80.0 * scale;
-    final innerIconSize = 40.0 * scale;
-
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        // Outer glow ring
-        Container(
-          width: iconSize + 32 * scale,
-          height: iconSize + 32 * scale,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: RadialGradient(
-              colors: [
-                AppColors.primaryAccent.withValues(alpha: 0.2),
-                AppColors.primaryAccent.withValues(alpha: 0.0),
-              ],
-            ),
-          ),
-        ),
-        // Main icon container
-        Container(
-          width: iconSize,
-          height: iconSize,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: AppColors.primaryGradient,
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.primaryAccent.withValues(alpha: 0.5),
-                blurRadius: 30,
-                spreadRadius: 5,
-              ),
-            ],
-          ),
-          child: Icon(featureIcon, size: innerIconSize, color: Colors.white),
-        ),
-        // Lock badge
-        Positioned(
-          bottom: 0,
-          right: 5 * scale,
-          child: Container(
-            padding: EdgeInsets.all(8 * scale),
-            decoration: BoxDecoration(
-              color: AppColors.primaryDark,
-              shape: BoxShape.circle,
-              border: Border.all(color: AppColors.warning, width: 2),
-            ),
-            child: Icon(
-              Icons.lock_rounded,
-              size: 16 * scale,
-              color: AppColors.warning,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildFeatureInfo(double scale) {
-    return Column(
-      children: [
-        // Premium badge
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                AppColors.warning.withValues(alpha: 0.2),
-                AppColors.neonPurple.withValues(alpha: 0.2),
-              ],
-            ),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: AppColors.warning.withValues(alpha: 0.5)),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.diamond, size: 14, color: AppColors.warning),
-              const SizedBox(width: 4),
-              Text(
-                'PREMIUM FEATURE',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.warning,
-                  letterSpacing: 1,
-                ),
-              ),
-            ],
-          ),
-        ),
-
-        SizedBox(height: 16 * scale),
-
-        // Feature name
-        Text(
-          featureName,
-          style: TextStyle(
-            fontSize: 28 * scale,
-            fontWeight: FontWeight.bold,
-            color: AppColors.textPrimary,
-          ),
-          textAlign: TextAlign.center,
-        ),
-
-        SizedBox(height: 12 * scale),
-
-        // Description
-        Text(
-          featureDescription,
-          style: TextStyle(
-            fontSize: 14 + scale,
-            color: AppColors.textSecondary,
-            height: 1.4,
-          ),
-          textAlign: TextAlign.center,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildBenefitsGrid(double scale) {
-    final benefits = [
-      _BenefitItem(
-        Icons.smart_toy_outlined,
-        'AI Insights',
-        AppColors.primaryAccent,
-      ),
-      _BenefitItem(Icons.sync_rounded, 'Cloud Sync', AppColors.neonCyan),
-      _BenefitItem(Icons.palette_outlined, 'Themes', AppColors.neonPink),
-      _BenefitItem(Icons.all_inclusive, 'Unlimited', AppColors.success),
-    ];
-
-    return Container(
-      padding: EdgeInsets.all(16 * scale),
-      decoration: BoxDecoration(
-        color: AppColors.primarySurface.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.glassBorder),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: benefits.map((b) => _buildBenefitItem(b, scale)).toList(),
-      ),
-    );
-  }
-
-  Widget _buildBenefitItem(_BenefitItem benefit, double scale) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: 48 * scale,
-          height: 48 * scale,
-          decoration: BoxDecoration(
-            color: benefit.color.withValues(alpha: 0.15),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Icon(benefit.icon, size: 24 * scale, color: benefit.color),
-        ),
-        SizedBox(height: 8 * scale),
-        Text(
-          benefit.label,
-          style: TextStyle(
-            fontSize: 11 + scale,
-            fontWeight: FontWeight.w500,
-            color: AppColors.textSecondary,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildCTASection(BuildContext context, double scale) {
-    return Column(
-      children: [
-        // Main upgrade button
-        GestureDetector(
-          onTap: () {
-            HapticFeedback.mediumImpact();
-            _openPaywall(context, featureName: featureName);
-          },
-          child: Container(
-            width: double.infinity,
-            padding: EdgeInsets.symmetric(vertical: 16 * scale),
-            decoration: BoxDecoration(
-              gradient: AppColors.primaryGradient,
-              borderRadius: BorderRadius.circular(14),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.primaryAccent.withValues(alpha: 0.4),
-                  blurRadius: 20,
-                  offset: const Offset(0, 8),
-                ),
-              ],
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.diamond_rounded,
-                  color: Colors.white,
-                  size: 22 * scale,
-                ),
-                const SizedBox(width: 10),
-                Text(
-                  L10n.of(context).premiumUnlockPremium,
-                  style: TextStyle(
-                    fontSize: 17 * scale,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-
-        SizedBox(height: 14 * scale),
-
-        // Pricing hint
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.check_circle, size: 14, color: AppColors.success),
-            const SizedBox(width: 6),
-            Text(
-              L10n.of(context).premiumOneTimePurchaseLifetimeAccess,
-              style: TextStyle(fontSize: 12, color: AppColors.textMuted),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
 }
 
-class _BenefitItem {
-  final IconData icon;
-  final String label;
-  final Color color;
-
-  _BenefitItem(this.icon, this.label, this.color);
-}
-
-/// Convenience widget for gating specific features
+/// Inline lock chip for gating a single control.
 class PremiumFeatureGate extends ConsumerWidget {
   final String featureId;
   final Widget child;
@@ -399,31 +310,13 @@ class PremiumFeatureGate extends ConsumerWidget {
       return child;
     }
 
-    return lockedPlaceholder ?? _buildLockedIndicator(context);
-  }
-
-  Widget _buildLockedIndicator(BuildContext context) {
-    return GestureDetector(
-      onTap: () => _openPaywall(context),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-          color: AppColors.primarySurface,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: AppColors.glassBorder),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.lock, size: 14, color: AppColors.textMuted),
-            const SizedBox(width: 4),
-            Text(
-              L10n.of(context).premiumPremium,
-              style: TextStyle(fontSize: 12, color: AppColors.textMuted),
-            ),
-          ],
-        ),
-      ),
-    );
+    return lockedPlaceholder ??
+        Pressable(
+          onTap: () => _openPaywall(context),
+          child: SunrisePill(
+            label: L10n.of(context).premiumPremium,
+            icon: Symbols.lock_rounded,
+          ),
+        );
   }
 }

@@ -1,3 +1,4 @@
+import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
 import 'package:flutter/material.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
@@ -136,46 +137,13 @@ class NotificationEmptyState extends StatelessWidget {
   const NotificationEmptyState({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: AppSpacing.paddingXl,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                color: AppColors.glassWhite,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.notifications_none,
-                size: 40,
-                color: AppColors.textMuted,
-              ),
-            ),
-            AppSpacing.gapXl,
-            Text(
-              L10n.of(context).notifNoNotificationsYet,
-              style: AppTypography.titleMedium.copyWith(
-                color: AppColors.textSecondary,
-              ),
-            ),
-            AppSpacing.gapSm,
-            Text(
-              L10n.of(context).notifWhenYouReceiveNotificationsThey,
-              style: AppTypography.bodySmall.copyWith(
-                color: AppColors.textMuted,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => Center(
+    child: EmptyState(
+      icon: Symbols.notifications_rounded,
+      title: L10n.of(context).notifNoNotificationsYet,
+      message: L10n.of(context).notifWhenYouReceiveNotificationsThey,
+    ),
+  );
 }
 
 /// Section header for date grouping.

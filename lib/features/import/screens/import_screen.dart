@@ -1,3 +1,4 @@
+import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
@@ -72,15 +73,11 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
         'will be.',
       ),
       SizedBox(height: AppSpacing.lg),
-      ElevatedButton.icon(
+      SunriseButton(
+        label: L10n.of(context).importChooseACsvFile,
+        icon: Symbols.folder_open_rounded,
+        loading: _busy,
         onPressed: _busy ? null : _pickFile,
-        icon: const Icon(Icons.folder_open),
-        label: Text(L10n.of(context).importChooseACsvFile),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primaryAccent,
-          foregroundColor: Colors.white,
-          padding: EdgeInsets.symmetric(vertical: AppSpacing.md),
-        ),
       ),
       SizedBox(height: AppSpacing.lg),
       _savedTemplates(),
@@ -433,7 +430,6 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
       L10n.of(context).importForExportsThatWriteA,
       style: TextStyle(color: AppColors.textMuted, fontSize: 13),
     ),
-    activeThumbColor: AppColors.primaryAccent,
   );
 
   Widget _walletTile() {
@@ -472,7 +468,6 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
       'overlapping statement does not double anything',
       style: TextStyle(color: AppColors.textMuted, fontSize: 13),
     ),
-    activeThumbColor: AppColors.primaryAccent,
   );
 
   Widget _categoriesTile() => SwitchListTile(
@@ -486,7 +481,6 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
       L10n.of(context).importOtherwiseThoseRowsArriveUncategorised,
       style: TextStyle(color: AppColors.textMuted, fontSize: 13),
     ),
-    activeThumbColor: AppColors.primaryAccent,
   );
 
   // -------------------------------------------------------------- preview
@@ -706,7 +700,6 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
     await showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: AppColors.primarySurface,
         title: Text('Imported ${result.imported}'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -754,7 +747,6 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
     final name = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: AppColors.primarySurface,
         title: Text(L10n.of(context).importRememberThisBank),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -875,7 +867,7 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
   );
 
   Widget _info(String message) =>
-      _banner(message, AppColors.info, Icons.info_outline);
+      _banner(message, AppColors.primaryAccent, Symbols.info_rounded);
 
   Widget _warning(String message) =>
       _banner(message, AppColors.warning, Icons.warning_amber);

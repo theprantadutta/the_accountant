@@ -21,7 +21,7 @@ class ShimmerCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Shimmer.fromColors(
       baseColor: AppColors.primarySurface,
-      highlightColor: AppColors.primaryElevated,
+      highlightColor: AppColors.glassBorder,
       child: Container(
         height: height,
         width: width ?? double.infinity,
@@ -42,7 +42,7 @@ class ShimmerTransactionItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Shimmer.fromColors(
       baseColor: AppColors.primarySurface,
-      highlightColor: AppColors.primaryElevated,
+      highlightColor: AppColors.glassBorder,
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
         padding: AppSpacing.paddingMd,
@@ -138,7 +138,7 @@ class ShimmerStatCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Shimmer.fromColors(
       baseColor: AppColors.primarySurface,
-      highlightColor: AppColors.primaryElevated,
+      highlightColor: AppColors.glassBorder,
       child: Container(
         padding: AppSpacing.paddingCard,
         decoration: BoxDecoration(
@@ -203,7 +203,7 @@ class ShimmerWalletCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Shimmer.fromColors(
       baseColor: AppColors.primarySurface,
-      highlightColor: AppColors.primaryElevated,
+      highlightColor: AppColors.glassBorder,
       child: Container(
         width: 160,
         height: 100,
@@ -281,7 +281,7 @@ class ShimmerBudgetItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Shimmer.fromColors(
       baseColor: AppColors.primarySurface,
-      highlightColor: AppColors.primaryElevated,
+      highlightColor: AppColors.glassBorder,
       child: Container(
         margin: const EdgeInsets.only(bottom: 16),
         child: Column(
@@ -352,89 +352,51 @@ class ShimmerDashboard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: AppSpacing.paddingScreen,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 16),
-
-          // Greeting shimmer
-          _buildGreetingShimmer(),
-
-          const SizedBox(height: 24),
-
-          // Wallet cards shimmer
-          const ShimmerWalletList(),
-
-          const SizedBox(height: 24),
-
-          // Stat cards shimmer
-          Row(
-            children: [
-              const Expanded(child: ShimmerStatCard()),
-              const SizedBox(width: 16),
-              const Expanded(child: ShimmerStatCard()),
-            ],
-          ),
-
-          const SizedBox(height: 24),
-
-          // Chart shimmer
-          const ShimmerCard(height: 220),
-
-          const SizedBox(height: 24),
-
-          // Recent transactions shimmer
-          const ShimmerCard(height: 250),
-
-          const SizedBox(height: 24),
-
-          // Budget progress shimmer
-          const ShimmerCard(height: 180),
-        ],
+    Widget block(double h, {double? w, double r = 22}) => Container(
+      height: h,
+      width: w,
+      decoration: BoxDecoration(
+        color: AppColors.primarySurface,
+        borderRadius: BorderRadius.circular(r),
       ),
     );
-  }
 
-  Widget _buildGreetingShimmer() {
-    return Shimmer.fromColors(
-      baseColor: AppColors.primarySurface,
-      highlightColor: AppColors.primaryElevated,
-      child: Row(
-        children: [
-          Container(
-            width: 52,
-            height: 52,
-            decoration: BoxDecoration(
-              color: AppColors.primaryElevated,
-              borderRadius: AppSpacing.borderRadiusLg,
+    // Today's shape: date line and greeting, net worth, earned and spent,
+    // and the day's list.
+    return SingleChildScrollView(
+      physics: const NeverScrollableScrollPhysics(),
+      padding: const EdgeInsets.fromLTRB(20, 18, 20, 120),
+      child: Shimmer.fromColors(
+        baseColor: AppColors.primarySurface,
+        highlightColor: AppColors.glassBorder,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                block(14, w: 130, r: 7),
+                const Spacer(),
+                block(40, w: 40, r: 20),
+              ],
             ),
-          ),
-          const SizedBox(width: 16),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                height: 20,
-                width: 140,
-                decoration: BoxDecoration(
-                  color: AppColors.primaryElevated,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-              ),
-              const SizedBox(height: 8),
-              Container(
-                height: 14,
-                width: 200,
-                decoration: BoxDecoration(
-                  color: AppColors.primaryElevated,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-              ),
-            ],
-          ),
-        ],
+            const SizedBox(height: 14),
+            block(30, w: 240, r: 10),
+            const SizedBox(height: 18),
+            block(210, r: 28),
+            const SizedBox(height: 18),
+            Row(
+              children: [
+                Expanded(child: block(120)),
+                const SizedBox(width: 12),
+                Expanded(child: block(120)),
+              ],
+            ),
+            const SizedBox(height: 18),
+            block(18, w: 90, r: 7),
+            const SizedBox(height: 12),
+            block(260),
+          ],
+        ),
       ),
     );
   }

@@ -8,7 +8,6 @@ import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/core/themes/app_typography.dart';
 import 'package:the_accountant/features/authentication/presentation/widgets/auth_background.dart';
 import 'package:the_accountant/features/authentication/presentation/widgets/auth_brand_header.dart';
-import 'package:the_accountant/shared/widgets/glass_card.dart';
 import 'package:the_accountant/shared/widgets/neo_button.dart';
 import 'package:the_accountant/shared/widgets/neo_text_field.dart';
 
@@ -134,10 +133,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           backgroundColor: Colors.transparent,
           elevation: 0,
           leading: IconButton(
-            icon: Icon(
-              Icons.arrow_back_ios_new_rounded,
-              color: AppColors.textPrimary,
-            ),
+            tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+            icon: const BackButtonIcon(),
             onPressed: () {
               if (_step == 1) {
                 setState(() {
@@ -206,11 +203,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   }
 
   Widget _buildRequestForm() {
-    return GlassCard(
-      key: const ValueKey('request'),
-      padding: AppSpacing.paddingXl,
-      enableBlur: true,
-      blurAmount: 14,
+    return Padding(
+      padding: EdgeInsets.zero,
       child: Form(
         key: _requestFormKey,
         child: Column(
@@ -250,11 +244,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   }
 
   Widget _buildResetForm() {
-    return GlassCard(
-      key: const ValueKey('reset'),
-      padding: AppSpacing.paddingXl,
-      enableBlur: true,
-      blurAmount: 14,
+    return Padding(
+      padding: EdgeInsets.zero,
       child: Form(
         key: _resetFormKey,
         child: Column(

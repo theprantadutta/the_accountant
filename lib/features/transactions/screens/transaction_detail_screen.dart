@@ -3,11 +3,11 @@ import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/domain/transaction_policy.dart';
 import 'package:the_accountant/core/providers/currency_provider.dart';
-import 'package:the_accountant/core/themes/app_colors.dart';
-import 'package:the_accountant/core/themes/app_spacing.dart';
-import 'package:the_accountant/core/themes/app_typography.dart';
+import 'package:the_accountant/core/utils/color_utils.dart';
 import 'package:the_accountant/core/utils/currency_formatter.dart';
 import 'package:the_accountant/core/utils/date_formatter.dart';
+import 'package:the_accountant/core/utils/icon_registry.dart';
+import 'package:the_accountant/core/utils/time_formatter.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart' as db;
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
 import 'package:the_accountant/data/models/transaction.dart'
@@ -20,7 +20,7 @@ import 'package:the_accountant/features/transactions/providers/transaction_provi
 import 'package:the_accountant/features/transactions/screens/add_transaction_screen.dart';
 import 'package:the_accountant/features/transactions/widgets/special_type_selector.dart';
 import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
-import 'package:the_accountant/shared/widgets/glass_card.dart';
+import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
 
 /// Everything recorded about one transaction, and what can be done to it.
 ///
@@ -62,21 +62,28 @@ class _TransactionDetailScreenState
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     final row = _row;
 
     if (_loading) {
-      return Scaffold(
-        appBar: AppBar(title: Text(L10n.of(context).entityTransaction)),
-        body: const Center(child: CircularProgressIndicator()),
+      return SunrisePushPage(
+        title: l10n.entityTransaction,
+        body: const Center(child: SunriseLoader()),
       );
     }
     if (row == null || row.deletedAt != null) {
-      return Scaffold(
-        appBar: AppBar(title: Text(L10n.of(context).entityTransaction)),
-        body: Center(child: Text(L10n.of(context).txGone)),
+      return SunrisePushPage(
+        title: l10n.entityTransaction,
+        body: Center(
+          child: EmptyState(
+            icon: Symbols.receipt_long_rounded,
+            title: l10n.txGone,
+          ),
+        ),
       );
     }
 
+    final c = context.sunrise;
     final currency = ref.watch(defaultCurrencyProvider);
     final useDecimals = ref.watch(defaultDecimalProvider);
     final numberFormat = ref.watch(numberFormatSettingProvider);
@@ -101,191 +108,282 @@ class _TransactionDetailScreenState
     final specialType = row.specialType ?? TransactionSpecialType.none;
     final isLoan = TransactionPolicy.isCreditOrDebt(row);
     final outstanding = row.amount - row.paidAmount;
+    final isTransfer = row.transactionType == 'transfer';
+    final settled = row.isPaid && !row.skipPaid;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(L10n.of(context).entityTransaction),
-        actions: [
-          IconButton(
-            tooltip: L10n.of(context).actionEdit,
-            icon: const Icon(Icons.edit_outlined),
-            onPressed: () async {
-              await showAddTransactionScreen(context, existingTransaction: row);
-              await _load();
-            },
-          ),
-          PopupMenuButton<String>(
-            onSelected: _onAction,
-            itemBuilder: (context) => [
-              PopupMenuItem(
-                value: 'duplicate',
-                child: ListTile(
-                  leading: Icon(Icons.copy_outlined),
-                  title: Text(L10n.of(context).txDuplicate),
-                  contentPadding: EdgeInsets.zero,
+    final tint = isTransfer
+        ? c.accent
+        : ColorUtils.hexToColor(category?.colorCode ?? '#9A7869');
+    final categoryIcon = isTransfer
+        ? Symbols.sync_alt_rounded
+        : IconRegistry.getIcon(category?.iconName);
+    final kind = switch (row.transactionType) {
+      'transfer' => 'Transfer between accounts',
+      'recurring_instance' => 'From a repeating entry',
+      _ => row.isIncome ? 'Money in' : 'Money out',
+    };
+    final state = row.skipPaid
+        ? 'Skipped'
+        : row.isPaid
+        ? 'Paid'
+        : 'Not yet paid';
+    final amount = isTransfer
+        ? money(row.amount)
+        : '${row.isIncome ? '+' : '−'}${money(row.amount)}';
+    final onGlass = Colors.white.withValues(alpha: .22);
+
+    return SunrisePushPage(
+      title: l10n.entityTransaction,
+      actions: [
+        SunriseIconButton(
+          icon: Symbols.edit_rounded,
+          tooltip: l10n.actionEdit,
+          onTap: () async {
+            await showAddTransactionScreen(context, existingTransaction: row);
+            await _load();
+          },
+        ),
+        SunriseIconButton(
+          icon: Symbols.more_horiz_rounded,
+          tooltip: MaterialLocalizations.of(context).showMenuTooltip,
+          onTap: () => _showActions(row),
+        ),
+      ],
+      children: [
+        GradientCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  IconTile(
+                    icon: categoryIcon,
+                    color: Colors.white,
+                    background: onGlass,
+                    size: 48,
+                    fill: 1,
+                  ),
+                  const Spacer(),
+                  SunrisePill(
+                    label: settled ? kind : state,
+                    color: Colors.white,
+                    background: onGlass,
+                    icon: !settled
+                        ? Symbols.schedule_rounded
+                        : isTransfer
+                        ? Symbols.sync_alt_rounded
+                        : row.isIncome
+                        ? Symbols.south_west_rounded
+                        : Symbols.north_east_rounded,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 22),
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  amount,
+                  style: SunriseType.amountHero.copyWith(color: c.onFill),
                 ),
               ),
-              if (!row.isPaid)
-                PopupMenuItem(
-                  value: 'paid',
-                  child: ListTile(
-                    leading: Icon(Icons.check_circle_outline),
-                    title: Text(L10n.of(context).txMarkAsPaid),
-                    contentPadding: EdgeInsets.zero,
-                  ),
-                ),
-              const PopupMenuDivider(),
-              PopupMenuItem(
-                value: 'delete',
-                child: ListTile(
-                  leading: Icon(Icons.delete_outline, color: AppColors.error),
-                  title: Text(
-                    L10n.of(context).actionDelete,
-                    style: TextStyle(color: AppColors.error),
-                  ),
-                  contentPadding: EdgeInsets.zero,
+              const SizedBox(height: 6),
+              Text(
+                row.title.trim().isNotEmpty
+                    ? row.title.trim()
+                    : (category?.name ?? l10n.txUncategorized),
+                style: SunriseType.heroTitle.copyWith(
+                  color: c.onFill,
+                  fontSize: 20,
                 ),
               ),
+              const SizedBox(height: 4),
+              Text(
+                '${AppDateFormatter.formatDate(row.date, dateFormat)}'
+                ' · ${AppTimeFormatter.of(context, row.date)}',
+                style: SunriseType.body.copyWith(
+                  color: c.onFill.withValues(alpha: .85),
+                ),
+              ),
+              if (specialType != TransactionSpecialType.none) ...[
+                const SizedBox(height: 14),
+                SunrisePill(
+                  label: specialType.label,
+                  icon: specialType.icon,
+                  color: Colors.white,
+                  background: onGlass,
+                ),
+              ],
             ],
           ),
-        ],
-      ),
-      body: ListView(
-        padding: AppSpacing.paddingLg,
-        children: [
-          GlassCard(
-            padding: AppSpacing.paddingLg,
+        ),
+        const SizedBox(height: SunriseSpace.section),
+
+        if (isLoan) ...[
+          SunriseCard(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  row.isIncome ? '+${money(row.amount)}' : money(row.amount),
-                  style: AppTypography.displaySmall.copyWith(
-                    color: row.isIncome
-                        ? AppColors.success
-                        : AppColors.textPrimary,
+                Row(
+                  children: [
+                    Text(
+                      specialType == TransactionSpecialType.credit
+                          ? 'Lent out'
+                          : 'Borrowed',
+                      style: SunriseType.rowTitle.copyWith(color: c.ink),
+                    ),
+                    const Spacer(),
+                    Text(
+                      row.amount <= 0 || outstanding <= 0
+                          ? '100%'
+                          : '${row.paidAmount * 100 ~/ row.amount}%',
+                      style: SunriseType.label.copyWith(color: c.positive),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: LinearProgressIndicator(
+                    value: row.amount <= 0
+                        ? 0
+                        : (row.paidAmount / row.amount).clamp(0.0, 1.0),
+                    minHeight: 8,
+                    backgroundColor: c.barIdle,
+                    color: c.positive,
                   ),
                 ),
-                if (row.title.isNotEmpty) ...[
-                  AppSpacing.gapSm,
-                  Text(row.title, style: AppTypography.titleMedium),
-                ],
-                AppSpacing.gapSm,
+                const SizedBox(height: 10),
                 Text(
-                  AppDateFormatter.formatDate(row.date, dateFormat),
-                  style: AppTypography.bodySmall.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
+                  outstanding <= 0
+                      ? 'Settled in full.'
+                      : '${money(row.paidAmount)} back, '
+                            '${money(outstanding)} still owed.',
+                  style: SunriseType.body.copyWith(color: c.muted),
                 ),
-                if (specialType != TransactionSpecialType.none) ...[
-                  AppSpacing.gapMd,
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: SpecialTypeIndicator(type: specialType),
-                  ),
-                ],
               ],
             ),
           ),
-          AppSpacing.gapLg,
-
-          if (isLoan) ...[
-            GlassCard(
-              padding: AppSpacing.paddingLg,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    specialType == TransactionSpecialType.credit
-                        ? 'Lent out'
-                        : 'Borrowed',
-                    style: AppTypography.titleSmall,
-                  ),
-                  AppSpacing.gapSm,
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(4),
-                    child: LinearProgressIndicator(
-                      value: row.amount <= 0
-                          ? 0
-                          : (row.paidAmount / row.amount).clamp(0.0, 1.0),
-                      minHeight: 6,
-                      backgroundColor: AppColors.divider,
-                      color: AppColors.success,
-                    ),
-                  ),
-                  AppSpacing.gapSm,
-                  Text(
-                    outstanding <= 0
-                        ? 'Settled in full.'
-                        : '${money(row.paidAmount)} back, '
-                              '${money(outstanding)} still owed.',
-                    style: AppTypography.bodyMedium,
-                  ),
-                ],
-              ),
-            ),
-            AppSpacing.gapLg,
-          ],
-
-          GlassCard(
-            padding: AppSpacing.paddingLg,
-            child: Column(
-              children: [
-                _Field(
-                  icon: Icons.category_outlined,
-                  label: L10n.of(context).entityCategory,
-                  value: category?.name ?? 'Uncategorised',
-                ),
-                _Field(
-                  icon: Icons.account_balance_wallet_outlined,
-                  label: L10n.of(context).entityAccount,
-                  value: wallet?.name ?? 'Unknown',
-                ),
-                _Field(
-                  icon: Icons.swap_horiz,
-                  label: L10n.of(context).txKind,
-                  value: switch (row.transactionType) {
-                    'transfer' => 'Transfer between accounts',
-                    'recurring_instance' => 'From a repeating entry',
-                    _ => row.isIncome ? 'Money in' : 'Money out',
-                  },
-                ),
-                _Field(
-                  icon: Icons.check_circle_outline,
-                  label: L10n.of(context).txState,
-                  value: row.skipPaid
-                      ? 'Skipped'
-                      : row.isPaid
-                      ? 'Paid'
-                      : 'Not yet paid',
-                ),
-                if (row.originalDueDate != null)
-                  _Field(
-                    icon: Icons.event_outlined,
-                    label: L10n.of(context).txWasDue,
-                    value: AppDateFormatter.formatDate(
-                      row.originalDueDate!,
-                      dateFormat,
-                    ),
-                  ),
-                if (budget != null)
-                  _Field(
-                    icon: Icons.pie_chart_outline,
-                    label: L10n.of(context).entityBudget,
-                    value: budget.name,
-                  ),
-                if (row.notes?.isNotEmpty ?? false)
-                  _Field(
-                    icon: Icons.notes_outlined,
-                    label: L10n.of(context).txNotes,
-                    value: row.notes!,
-                    last: true,
-                  ),
-              ],
-            ),
-          ),
-          AppSpacing.gapXxl,
+          const SizedBox(height: SunriseSpace.section),
         ],
+
+        SettingsGroup(
+          children: [
+            SettingsRow(
+              icon: categoryIcon,
+              iconColor: tint,
+              title: l10n.entityCategory,
+              value: isTransfer
+                  ? l10n.txTransfer
+                  : (category?.name ?? 'Uncategorised'),
+              trailing: SettingsTrailing.none,
+            ),
+            SettingsRow(
+              icon: Symbols.account_balance_wallet_rounded,
+              iconColor: wallet == null
+                  ? c.accent
+                  : ColorUtils.hexToColor(wallet.color),
+              title: l10n.entityAccount,
+              value: wallet?.name ?? 'Unknown',
+              trailing: SettingsTrailing.none,
+            ),
+            SettingsRow(
+              icon: Symbols.swap_horiz_rounded,
+              iconColor: c.accent,
+              title: l10n.txKind,
+              value: kind,
+              trailing: SettingsTrailing.none,
+            ),
+            SettingsRow(
+              icon: settled
+                  ? Symbols.check_circle_rounded
+                  : Symbols.schedule_rounded,
+              iconColor: settled ? c.positive : c.muted,
+              title: l10n.txState,
+              value: state,
+              trailing: SettingsTrailing.none,
+            ),
+            if (row.originalDueDate != null)
+              SettingsRow(
+                icon: Symbols.event_rounded,
+                iconColor: c.accent,
+                title: l10n.txWasDue,
+                value: AppDateFormatter.formatDate(
+                  row.originalDueDate!,
+                  dateFormat,
+                ),
+                trailing: SettingsTrailing.none,
+              ),
+            if (budget != null)
+              SettingsRow(
+                icon: Symbols.pie_chart_rounded,
+                iconColor: c.accent,
+                title: l10n.entityBudget,
+                value: budget.name,
+                trailing: SettingsTrailing.none,
+              ),
+          ],
+        ),
+
+        if (row.notes?.trim().isNotEmpty ?? false) ...[
+          const SizedBox(height: SunriseSpace.section),
+          SectionLabel(l10n.txNotes),
+          SunriseCard(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(Symbols.notes_rounded, color: c.muted, size: 20),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    row.notes!.trim(),
+                    style: SunriseType.body.copyWith(color: c.body),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  void _showActions(db.Transaction row) {
+    final l10n = L10n.of(context);
+    showSunriseSheet<void>(
+      context: context,
+      builder: (sheet) => SunriseBottomSheet(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SheetAction(
+              icon: Symbols.content_copy_rounded,
+              label: l10n.txDuplicate,
+              onTap: () {
+                Navigator.pop(sheet);
+                _onAction('duplicate');
+              },
+            ),
+            if (!row.isPaid)
+              SheetAction(
+                icon: Symbols.check_circle_rounded,
+                label: l10n.txMarkAsPaid,
+                onTap: () {
+                  Navigator.pop(sheet);
+                  _onAction('paid');
+                },
+              ),
+            SheetAction(
+              icon: Symbols.delete_rounded,
+              label: l10n.actionDelete,
+              destructive: true,
+              onTap: () {
+                Navigator.pop(sheet);
+                _onAction('delete');
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -297,16 +395,14 @@ class _TransactionDetailScreenState
       case 'duplicate':
         final copy = await notifier.duplicateTransaction(widget.transactionId);
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              copy == null
-                  // The only rows this refuses are transfer legs, and saying so
-                  // is better than a copy silently not appearing.
-                  ? 'A transfer cannot be copied on its own.'
-                  : 'Copied.',
-            ),
-          ),
+        showSunriseSnack(
+          context,
+          copy == null
+              // The only rows this refuses are transfer legs, and saying so
+              // is better than a copy silently not appearing.
+              ? 'A transfer cannot be copied on its own.'
+              : 'Copied.',
+          tone: copy == null ? SnackTone.info : SnackTone.success,
         );
         if (copy != null && mounted) {
           Navigator.pushReplacement(
@@ -335,47 +431,5 @@ class _TransactionDetailScreenState
         await notifier.deleteTransaction(widget.transactionId);
         if (mounted) Navigator.pop(context);
     }
-  }
-}
-
-class _Field extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String value;
-  final bool last;
-
-  const _Field({
-    required this.icon,
-    required this.label,
-    required this.value,
-    this.last = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: last ? 0 : 14),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, size: 18, color: AppColors.textMuted),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: AppTypography.labelSmall.copyWith(
-                    color: AppColors.textMuted,
-                  ),
-                ),
-                Text(value, style: AppTypography.bodyMedium),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }

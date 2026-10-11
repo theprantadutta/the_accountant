@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:the_accountant/core/themes/sunrise/sunrise_tokens.dart';
 import 'app_colors.dart';
 
 /// Typography system for The Accountant app
-/// Uses Inter for UI and JetBrains Mono for numbers
+/// Lexend throughout (bundled). The `mono*` styles keep their names but are
+/// Lexend with tabular figures, so amounts still line up in columns.
 class AppTypography {
   AppTypography._();
 
@@ -11,15 +12,18 @@ class AppTypography {
   // FONT FAMILIES
   // ============================================
 
-  static String get fontFamily => GoogleFonts.inter().fontFamily!;
-  static String get monoFontFamily => GoogleFonts.jetBrainsMono().fontFamily!;
+  static const String fontFamily = kSunriseFont;
+  static const String monoFontFamily = kSunriseFont;
+
+  static const List<FontFeature> _tabular = [FontFeature.tabularFigures()];
 
   // ============================================
   // DISPLAY STYLES - Hero text, large numbers
   // ============================================
 
   /// Extra large display - main balance
-  static TextStyle get displayLarge => GoogleFonts.inter(
+  static TextStyle get displayLarge => TextStyle(
+    fontFamily: kSunriseFont,
     fontSize: 48,
     fontWeight: FontWeight.w700,
     height: 1.1,
@@ -28,7 +32,8 @@ class AppTypography {
   );
 
   /// Large display - section headers
-  static TextStyle get displayMedium => GoogleFonts.inter(
+  static TextStyle get displayMedium => TextStyle(
+    fontFamily: kSunriseFont,
     fontSize: 36,
     fontWeight: FontWeight.w700,
     height: 1.2,
@@ -37,7 +42,8 @@ class AppTypography {
   );
 
   /// Small display - card titles
-  static TextStyle get displaySmall => GoogleFonts.inter(
+  static TextStyle get displaySmall => TextStyle(
+    fontFamily: kSunriseFont,
     fontSize: 28,
     fontWeight: FontWeight.w600,
     height: 1.2,
@@ -50,7 +56,8 @@ class AppTypography {
   // ============================================
 
   /// Large headline - screen titles
-  static TextStyle get headlineLarge => GoogleFonts.inter(
+  static TextStyle get headlineLarge => TextStyle(
+    fontFamily: kSunriseFont,
     fontSize: 24,
     fontWeight: FontWeight.w600,
     height: 1.3,
@@ -59,7 +66,8 @@ class AppTypography {
   );
 
   /// Medium headline - section headers
-  static TextStyle get headlineMedium => GoogleFonts.inter(
+  static TextStyle get headlineMedium => TextStyle(
+    fontFamily: kSunriseFont,
     fontSize: 20,
     fontWeight: FontWeight.w600,
     height: 1.3,
@@ -67,7 +75,8 @@ class AppTypography {
   );
 
   /// Small headline - card headers
-  static TextStyle get headlineSmall => GoogleFonts.inter(
+  static TextStyle get headlineSmall => TextStyle(
+    fontFamily: kSunriseFont,
     fontSize: 18,
     fontWeight: FontWeight.w500,
     height: 1.4,
@@ -79,7 +88,8 @@ class AppTypography {
   // ============================================
 
   /// Large title
-  static TextStyle get titleLarge => GoogleFonts.inter(
+  static TextStyle get titleLarge => TextStyle(
+    fontFamily: kSunriseFont,
     fontSize: 18,
     fontWeight: FontWeight.w600,
     height: 1.4,
@@ -87,7 +97,8 @@ class AppTypography {
   );
 
   /// Medium title
-  static TextStyle get titleMedium => GoogleFonts.inter(
+  static TextStyle get titleMedium => TextStyle(
+    fontFamily: kSunriseFont,
     fontSize: 16,
     fontWeight: FontWeight.w600,
     height: 1.4,
@@ -95,7 +106,8 @@ class AppTypography {
   );
 
   /// Small title
-  static TextStyle get titleSmall => GoogleFonts.inter(
+  static TextStyle get titleSmall => TextStyle(
+    fontFamily: kSunriseFont,
     fontSize: 14,
     fontWeight: FontWeight.w600,
     height: 1.4,
@@ -107,7 +119,8 @@ class AppTypography {
   // ============================================
 
   /// Large body text
-  static TextStyle get bodyLarge => GoogleFonts.inter(
+  static TextStyle get bodyLarge => TextStyle(
+    fontFamily: kSunriseFont,
     fontSize: 16,
     fontWeight: FontWeight.w400,
     height: 1.5,
@@ -115,7 +128,8 @@ class AppTypography {
   );
 
   /// Medium body text (default)
-  static TextStyle get bodyMedium => GoogleFonts.inter(
+  static TextStyle get bodyMedium => TextStyle(
+    fontFamily: kSunriseFont,
     fontSize: 14,
     fontWeight: FontWeight.w400,
     height: 1.5,
@@ -123,7 +137,8 @@ class AppTypography {
   );
 
   /// Small body text
-  static TextStyle get bodySmall => GoogleFonts.inter(
+  static TextStyle get bodySmall => TextStyle(
+    fontFamily: kSunriseFont,
     fontSize: 12,
     fontWeight: FontWeight.w400,
     height: 1.5,
@@ -135,29 +150,32 @@ class AppTypography {
   // ============================================
 
   /// Large label - primary buttons
-  static TextStyle get labelLarge => GoogleFonts.inter(
+  static TextStyle get labelLarge => TextStyle(
+    fontFamily: kSunriseFont,
     fontSize: 14,
     fontWeight: FontWeight.w600,
     height: 1.4,
-    letterSpacing: 0.5,
+    letterSpacing: 0.1,
     color: AppColors.textPrimary,
   );
 
   /// Medium label - secondary buttons
-  static TextStyle get labelMedium => GoogleFonts.inter(
+  static TextStyle get labelMedium => TextStyle(
+    fontFamily: kSunriseFont,
     fontSize: 12,
     fontWeight: FontWeight.w500,
     height: 1.4,
-    letterSpacing: 0.5,
+    letterSpacing: 0.1,
     color: AppColors.textPrimary,
   );
 
   /// Small label - chips, tags
-  static TextStyle get labelSmall => GoogleFonts.inter(
+  static TextStyle get labelSmall => TextStyle(
+    fontFamily: kSunriseFont,
     fontSize: 10,
     fontWeight: FontWeight.w500,
     height: 1.4,
-    letterSpacing: 0.8,
+    letterSpacing: 0.1,
     color: AppColors.textSecondary,
   );
 
@@ -166,7 +184,9 @@ class AppTypography {
   // ============================================
 
   /// Large mono - main balance display
-  static TextStyle get monoLarge => GoogleFonts.jetBrainsMono(
+  static TextStyle get monoLarge => TextStyle(
+    fontFamily: kSunriseFont,
+    fontFeatures: _tabular,
     fontSize: 36,
     fontWeight: FontWeight.w700,
     height: 1.2,
@@ -175,7 +195,9 @@ class AppTypography {
   );
 
   /// Medium mono - transaction amounts
-  static TextStyle get monoMedium => GoogleFonts.jetBrainsMono(
+  static TextStyle get monoMedium => TextStyle(
+    fontFamily: kSunriseFont,
+    fontFeatures: _tabular,
     fontSize: 18,
     fontWeight: FontWeight.w600,
     height: 1.4,
@@ -183,7 +205,9 @@ class AppTypography {
   );
 
   /// Small mono - stats, small numbers
-  static TextStyle get monoSmall => GoogleFonts.jetBrainsMono(
+  static TextStyle get monoSmall => TextStyle(
+    fontFamily: kSunriseFont,
+    fontFeatures: _tabular,
     fontSize: 14,
     fontWeight: FontWeight.w500,
     height: 1.4,

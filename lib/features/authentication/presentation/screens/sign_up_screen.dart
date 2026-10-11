@@ -11,7 +11,6 @@ import 'package:the_accountant/features/authentication/presentation/screens/sign
 import 'package:the_accountant/features/authentication/presentation/widgets/auth_background.dart';
 import 'package:the_accountant/features/authentication/presentation/widgets/auth_brand_header.dart';
 import 'package:the_accountant/features/authentication/providers/auth_provider.dart';
-import 'package:the_accountant/shared/widgets/glass_card.dart';
 import 'package:the_accountant/shared/widgets/neo_button.dart';
 import 'package:the_accountant/shared/widgets/neo_text_field.dart';
 
@@ -173,10 +172,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
           backgroundColor: Colors.transparent,
           elevation: 0,
           leading: IconButton(
-            icon: Icon(
-              Icons.arrow_back_ios_new_rounded,
-              color: AppColors.textPrimary,
-            ),
+            tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+            icon: const BackButtonIcon(),
             onPressed: () => Navigator.pop(context),
           ),
         ),
@@ -244,10 +241,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
   }
 
   Widget _buildSignUpForm(AuthState authState) {
-    return GlassCard(
-      padding: AppSpacing.paddingXl,
-      enableBlur: true,
-      blurAmount: 14,
+    return Padding(
+      padding: EdgeInsets.zero,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [

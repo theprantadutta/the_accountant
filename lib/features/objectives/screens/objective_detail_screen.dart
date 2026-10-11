@@ -1,3 +1,4 @@
+import 'package:the_accountant/core/themes/sunrise/sunrise_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -134,7 +135,7 @@ class ObjectiveDetailScreen extends ConsumerWidget {
                   child: LinearProgressIndicator(
                     value: fraction,
                     minHeight: 8,
-                    backgroundColor: AppColors.divider,
+                    backgroundColor: context.sunrise.toggleOff,
                     color: objective.isComplete ? AppColors.success : tint,
                   ),
                 ),

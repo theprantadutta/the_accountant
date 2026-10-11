@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
-import 'package:the_accountant/core/themes/app_colors.dart';
+import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
 
 /// Shows a destructive confirmation dialog that requires the user to type
 /// a confirmation word (e.g. "DELETE") before the confirm button is enabled.
@@ -11,7 +11,7 @@ Future<bool?> showDestructiveConfirmationDialog({
   String confirmationWord = 'DELETE',
   String confirmText = 'Confirm',
 }) {
-  return showDialog<bool>(
+  return showSunriseSheet<bool>(
     context: context,
     builder: (context) => DestructiveConfirmationDialog(
       title: title,
@@ -67,92 +67,54 @@ class _DestructiveConfirmationDialogState
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      backgroundColor: AppColors.primarySurface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: AppColors.glassBorder),
-      ),
-      title: Row(
-        children: [
-          Icon(Icons.warning_amber_rounded, color: AppColors.error, size: 28),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              widget.title,
-              style: TextStyle(
-                color: AppColors.error,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        ],
-      ),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
+    final c = context.sunrise;
+    final l10n = L10n.of(context);
+    return SunriseBottomSheet(
+      actions: [
+        SunriseButton.destructive(
+          label: widget.confirmText,
+          onPressed: _isMatch ? () => Navigator.pop(context, true) : null,
+        ),
+        SunriseButton.secondary(
+          label: l10n.actionCancel,
+          onPressed: () => Navigator.pop(context, false),
+        ),
+      ],
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            widget.message,
-            style: TextStyle(color: AppColors.textSecondary),
+          IconTile(
+            icon: Symbols.warning_rounded,
+            color: c.negative,
+            background: c.tintRose,
+            size: 52,
+            radius: 16,
+            iconSize: 26,
           ),
           const SizedBox(height: 16),
           Text(
-            'Type "${widget.confirmationWord}" to confirm:',
-            style: TextStyle(color: AppColors.textMuted, fontSize: 13),
-          ),
-          const SizedBox(height: 8),
-          TextField(
-            controller: _controller,
-            autofocus: true,
-            style: TextStyle(color: AppColors.textPrimary),
-            decoration: InputDecoration(
-              hintText: widget.confirmationWord,
-              hintStyle: TextStyle(
-                color: AppColors.textMuted.withValues(alpha: 0.4),
-              ),
-              filled: true,
-              fillColor: AppColors.primaryDark,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide: BorderSide(color: AppColors.glassBorder),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide: BorderSide(color: AppColors.glassBorder),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide: BorderSide(
-                  color: _isMatch ? AppColors.error : AppColors.glassBorder,
-                  width: _isMatch ? 1.5 : 1,
-                ),
-              ),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 14,
-                vertical: 12,
-              ),
+            widget.title,
+            style: SunriseType.section.copyWith(
+              color: c.negative,
+              fontSize: 20,
             ),
           ),
+          const SizedBox(height: 8),
+          Text(
+            widget.message,
+            style: SunriseType.body.copyWith(color: c.muted, fontSize: 14),
+          ),
+          const SizedBox(height: 16),
+          SunriseTextField(
+            controller: _controller,
+            autofocus: true,
+            label: 'Type "${widget.confirmationWord}" to confirm',
+            hint: widget.confirmationWord,
+            textCapitalization: TextCapitalization.characters,
+          ),
+          const SizedBox(height: 8),
         ],
       ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context, false),
-          child: Text(
-            L10n.of(context).actionCancel,
-            style: TextStyle(color: AppColors.textMuted),
-          ),
-        ),
-        TextButton(
-          onPressed: _isMatch ? () => Navigator.pop(context, true) : null,
-          style: TextButton.styleFrom(
-            foregroundColor: AppColors.error,
-            disabledForegroundColor: AppColors.error.withValues(alpha: 0.3),
-          ),
-          child: Text(widget.confirmText),
-        ),
-      ],
     );
   }
 }

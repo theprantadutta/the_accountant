@@ -77,3 +77,4 @@ tmpclaude-*
 # Stray dev/test store. The real one lives in the app sandbox, per account.
 db.sqlite
 *.sqlite
+design_handoff_sunrise_redesign/

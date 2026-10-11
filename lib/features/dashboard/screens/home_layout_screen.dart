@@ -104,7 +104,6 @@ class HomeLayoutScreen extends ConsumerWidget {
                     ),
                     trailing: Switch(
                       value: shown,
-                      activeThumbColor: AppColors.primaryAccent,
                       onChanged: (_) {
                         HapticFeedback.selectionClick();
                         notifier.toggle(section);

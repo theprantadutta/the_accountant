@@ -1,3 +1,4 @@
+import 'package:the_accountant/core/themes/sunrise/sunrise_colors.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
@@ -225,7 +226,7 @@ class _Headline extends ConsumerWidget {
             child: LinearProgressIndicator(
               value: progress.fraction.clamp(0.0, 1.0),
               minHeight: 8,
-              backgroundColor: AppColors.divider,
+              backgroundColor: context.sunrise.toggleOff,
               color: progress.isOver ? AppColors.error : AppColors.success,
             ),
           ),
@@ -361,7 +362,7 @@ class _CategoryBreakdown extends ConsumerWidget {
                         child: LinearProgressIndicator(
                           value: biggest <= 0 ? 0 : entry.value / biggest,
                           minHeight: 4,
-                          backgroundColor: AppColors.divider,
+                          backgroundColor: context.sunrise.toggleOff,
                           color: AppColors.primaryAccent,
                         ),
                       ),
@@ -663,7 +664,7 @@ class _CategoryCaps extends ConsumerWidget {
                             child: LinearProgressIndicator(
                               value: limit.fraction.clamp(0.0, 1.0),
                               minHeight: 4,
-                              backgroundColor: AppColors.divider,
+                              backgroundColor: context.sunrise.toggleOff,
                               color: limit.isOver
                                   ? AppColors.error
                                   : AppColors.success,

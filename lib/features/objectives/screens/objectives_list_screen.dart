@@ -1,3 +1,4 @@
+import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
 import 'package:flutter/material.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -118,10 +119,6 @@ class _ObjectivesListScreenState extends ConsumerState<ObjectivesListScreen> {
   Future<void> _showActions(ObjectiveWithProgress objective) async {
     final action = await showModalBottomSheet<String>(
       context: context,
-      backgroundColor: AppColors.primarySurface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
       builder: (context) => SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -263,7 +260,7 @@ class ObjectiveCard extends ConsumerWidget {
             child: LinearProgressIndicator(
               value: fraction,
               minHeight: 6,
-              backgroundColor: AppColors.divider,
+              backgroundColor: context.sunrise.toggleOff,
               color: objective.isComplete ? AppColors.success : tint,
             ),
           ),
@@ -304,55 +301,16 @@ class _Empty extends StatelessWidget {
   const _Empty({required this.archived, required this.onCreate});
 
   @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: AppSpacing.paddingXl,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                color: AppColors.glassWhite,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                archived ? Icons.archive_outlined : Icons.flag_outlined,
-                size: 40,
-                color: AppColors.textMuted,
-              ),
-            ),
-            AppSpacing.gapXl,
-            Text(
-              archived ? 'Nothing archived' : 'No goals yet',
-              style: AppTypography.titleMedium.copyWith(
-                color: AppColors.textSecondary,
-              ),
-            ),
-            AppSpacing.gapSm,
-            Text(
-              archived
-                  ? 'Goals you archive are kept here.'
-                  : 'Name something you are saving for, then link the '
-                        'transactions that go toward it.',
-              textAlign: TextAlign.center,
-              style: AppTypography.bodySmall.copyWith(
-                color: AppColors.textMuted,
-              ),
-            ),
-            if (!archived) ...[
-              AppSpacing.gapXl,
-              FilledButton.icon(
-                onPressed: onCreate,
-                icon: const Icon(Icons.add),
-                label: Text(L10n.of(context).goalCreate),
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => Center(
+    child: EmptyState(
+      icon: archived ? Symbols.archive_rounded : Symbols.flag_rounded,
+      title: archived ? 'Nothing archived' : 'No goals yet',
+      message: archived
+          ? 'Goals you archive are kept here.'
+          : 'Name something you are saving for, then link the '
+                'transactions that go toward it.',
+      actionLabel: archived ? null : L10n.of(context).goalCreate,
+      onAction: onCreate,
+    ),
+  );
 }

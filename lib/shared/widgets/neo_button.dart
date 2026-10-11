@@ -1,41 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:the_accountant/core/themes/app_colors.dart';
-import 'package:the_accountant/core/themes/app_spacing.dart';
-import 'package:the_accountant/core/themes/app_typography.dart';
-import 'package:the_accountant/core/themes/app_animations.dart';
+import 'package:the_accountant/core/themes/sunrise/sunrise_colors.dart';
+import 'package:the_accountant/core/themes/sunrise/sunrise_tokens.dart';
+import 'package:the_accountant/shared/widgets/sunrise/pressable.dart';
 
-/// Button style variants
+/// Button style variants.
 enum NeoButtonStyle {
-  /// Gradient fill with glow effect
+  /// The brand gradient with its glow.
   primary,
 
-  /// Glass outline style
+  /// A surface button.
   secondary,
 
-  /// Text only with underline animation
+  /// Accent text only.
   ghost,
 
-  /// Danger/destructive action
+  /// Destructive action.
   danger,
 
-  /// Success/positive action
+  /// Positive action.
   success,
 }
 
-/// Button size variants
+/// Button size variants.
 enum NeoButtonSize { small, medium, large }
 
-/// A modern, animated button with multiple style variants.
-///
-/// Features:
-/// - Multiple style variants (primary, secondary, ghost, danger, success)
-/// - Scale animation on press
-/// - Glow effect for primary style
-/// - Loading state with spinner
-/// - Icon support (leading and trailing)
-/// - Haptic feedback
-class NeoButton extends StatefulWidget {
+/// The original button, now drawn in Sunrise. API unchanged.
+class NeoButton extends StatelessWidget {
   const NeoButton({
     super.key,
     required this.label,
@@ -64,267 +55,114 @@ class NeoButton extends StatefulWidget {
   final BorderRadius? borderRadius;
 
   @override
-  State<NeoButton> createState() => _NeoButtonState();
-}
-
-class _NeoButtonState extends State<NeoButton>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _scaleAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: AppAnimations.quick,
-    );
-    _scaleAnimation = Tween<double>(begin: 1.0, end: AppAnimations.pressedScale)
-        .animate(
-          CurvedAnimation(parent: _controller, curve: AppAnimations.easeOut),
-        );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  void _handleTapDown(TapDownDetails details) {
-    if (widget.onPressed != null && !widget.isLoading) {
-      _controller.forward();
-    }
-  }
-
-  void _handleTapUp(TapUpDetails details) {
-    _controller.reverse();
-  }
-
-  void _handleTapCancel() {
-    _controller.reverse();
-  }
-
-  void _handleTap() {
-    if (widget.onPressed != null && !widget.isLoading) {
-      if (widget.enableHaptics) {
-        HapticFeedback.lightImpact();
-      }
-      widget.onPressed!();
-    }
-  }
-
-  EdgeInsets _getPadding() {
-    switch (widget.size) {
-      case NeoButtonSize.small:
-        return AppSpacing.paddingButtonCompact;
-      case NeoButtonSize.medium:
-        return AppSpacing.paddingButton;
-      case NeoButtonSize.large:
-        return EdgeInsets.symmetric(
-          horizontal: AppSpacing.xl,
-          vertical: AppSpacing.md,
-        );
-    }
-  }
-
-  double _getHeight() {
-    switch (widget.size) {
-      case NeoButtonSize.small:
-        return AppSpacing.buttonHeightSm;
-      case NeoButtonSize.medium:
-        return AppSpacing.buttonHeightMd;
-      case NeoButtonSize.large:
-        return AppSpacing.buttonHeightLg;
-    }
-  }
-
-  double _getIconSize() {
-    switch (widget.size) {
-      case NeoButtonSize.small:
-        return AppSpacing.iconXs;
-      case NeoButtonSize.medium:
-        return AppSpacing.iconSm;
-      case NeoButtonSize.large:
-        return AppSpacing.iconMd;
-    }
-  }
-
-  TextStyle _getTextStyle() {
-    switch (widget.size) {
-      case NeoButtonSize.small:
-        return AppTypography.labelMedium;
-      case NeoButtonSize.medium:
-        return AppTypography.labelLarge;
-      case NeoButtonSize.large:
-        return AppTypography.titleMedium;
-    }
-  }
-
-  Color _getBackgroundColor() {
-    switch (widget.style) {
-      case NeoButtonStyle.primary:
-        return AppColors.primaryAccent;
-      case NeoButtonStyle.secondary:
-        return Colors.transparent;
-      case NeoButtonStyle.ghost:
-        return Colors.transparent;
-      case NeoButtonStyle.danger:
-        return AppColors.error;
-      case NeoButtonStyle.success:
-        return AppColors.success;
-    }
-  }
-
-  Color _getForegroundColor() {
-    switch (widget.style) {
-      case NeoButtonStyle.primary:
-        return AppColors.textPrimary;
-      case NeoButtonStyle.secondary:
-        return AppColors.textPrimary;
-      case NeoButtonStyle.ghost:
-        return AppColors.primaryAccent;
-      case NeoButtonStyle.danger:
-        return AppColors.textPrimary;
-      case NeoButtonStyle.success:
-        return AppColors.textPrimary;
-    }
-  }
-
-  Gradient? _getGradient() {
-    if (widget.gradient != null) return widget.gradient;
-    if (widget.style == NeoButtonStyle.primary) {
-      return AppColors.primaryGradient;
-    }
-    return null;
-  }
-
-  BoxBorder? _getBorder() {
-    if (widget.style == NeoButtonStyle.secondary) {
-      return Border.all(color: AppColors.glassBorder, width: 1.5);
-    }
-    return null;
-  }
-
-  List<BoxShadow>? _getBoxShadow() {
-    if (widget.style == NeoButtonStyle.primary) {
-      return [
-        BoxShadow(
-          color: AppColors.primaryAccent.withValues(alpha: 0.4),
-          blurRadius: 20,
-          offset: const Offset(0, 8),
-        ),
-      ];
-    }
-    return null;
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final isDisabled = widget.onPressed == null || widget.isLoading;
-    final foregroundColor = _getForegroundColor();
-    final textStyle = _getTextStyle().copyWith(
-      color: isDisabled
-          ? foregroundColor.withValues(alpha: 0.5)
-          : foregroundColor,
-    );
+    final c = context.sunrise;
+    final enabled = onPressed != null && !isLoading;
+    final (
+      double height,
+      double font,
+      double hPad,
+      double icon,
+    ) = switch (size) {
+      NeoButtonSize.small => (40.0, 14.0, 16.0, 18.0),
+      NeoButtonSize.medium => (52.0, 16.0, 22.0, 20.0),
+      NeoButtonSize.large => (58.0, 16.0, 26.0, 22.0),
+    };
 
-    Widget buttonContent = Row(
-      mainAxisSize: widget.isExpanded ? MainAxisSize.max : MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        if (widget.isLoading) ...[
-          SizedBox(
-            width: _getIconSize(),
-            height: _getIconSize(),
-            child: CircularProgressIndicator(
-              strokeWidth: 2,
-              valueColor: AlwaysStoppedAnimation(foregroundColor),
+    final (
+      Color? bg,
+      Gradient? grad,
+      Color fg,
+      List<BoxShadow>? shadow,
+    ) = switch (style) {
+      NeoButtonStyle.primary when onPressed == null => (
+        c.isDark ? const Color(0xFF2B1F19) : c.toggleOff,
+        null,
+        c.faint,
+        null,
+      ),
+      NeoButtonStyle.primary => (
+        null,
+        gradient ?? c.gradient,
+        Colors.white,
+        enabled ? c.buttonShadow : null,
+      ),
+      NeoButtonStyle.secondary => (c.surface, null, c.ink, c.cardShadow),
+      NeoButtonStyle.ghost => (Colors.transparent, null, c.accentText, null),
+      NeoButtonStyle.danger => (c.negative, null, Colors.white, null),
+      NeoButtonStyle.success => (c.positive, null, Colors.white, null),
+    };
+
+    final content = isLoading
+        ? SizedBox(
+            width: icon,
+            height: icon,
+            child: CircularProgressIndicator(strokeWidth: 2.4, color: fg),
+          )
+        : Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (leadingIcon != null) ...[
+                Icon(leadingIcon, size: icon, color: fg),
+                const SizedBox(width: 8),
+              ],
+              Flexible(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: SunriseType.button.copyWith(color: fg, fontSize: font),
+                ),
+              ),
+              if (trailingIcon != null) ...[
+                const SizedBox(width: 8),
+                Icon(trailingIcon, size: icon, color: fg),
+              ],
+            ],
+          );
+
+    final radius =
+        borderRadius ??
+        BorderRadius.circular(
+          size == NeoButtonSize.small ? 14 : SunriseRadius.button,
+        );
+
+    return Semantics(
+      button: true,
+      enabled: enabled,
+      child: Pressable(
+        onTap: enabled
+            ? () {
+                if (enableHaptics) HapticFeedback.lightImpact();
+                onPressed!();
+              }
+            : null,
+        child: AnimatedOpacity(
+          duration: SunriseMotion.press,
+          opacity: onPressed == null && style != NeoButtonStyle.primary
+              ? .5
+              : 1,
+          child: Container(
+            height: height,
+            width: isExpanded ? double.infinity : null,
+            padding: EdgeInsets.symmetric(horizontal: hPad),
+            decoration: BoxDecoration(
+              color: bg,
+              gradient: grad,
+              borderRadius: radius,
+              boxShadow: shadow,
             ),
-          ),
-          AppSpacing.gapHSm,
-        ] else if (widget.leadingIcon != null) ...[
-          Icon(
-            widget.leadingIcon,
-            size: _getIconSize(),
-            color: textStyle.color,
-          ),
-          AppSpacing.gapHSm,
-        ],
-        Flexible(
-          child: Text(
-            widget.label,
-            style: textStyle,
-            overflow: TextOverflow.ellipsis,
-            maxLines: 1,
+            alignment: Alignment.center,
+            child: content,
           ),
         ),
-        if (widget.trailingIcon != null && !widget.isLoading) ...[
-          AppSpacing.gapHSm,
-          Icon(
-            widget.trailingIcon,
-            size: _getIconSize(),
-            color: textStyle.color,
-          ),
-        ],
-      ],
-    );
-
-    Widget button = Container(
-      constraints: BoxConstraints(minHeight: _getHeight()),
-      padding: _getPadding(),
-      decoration: BoxDecoration(
-        gradient: isDisabled ? null : _getGradient(),
-        color: isDisabled
-            ? _getBackgroundColor().withValues(alpha: 0.3)
-            : (_getGradient() == null ? _getBackgroundColor() : null),
-        borderRadius: widget.borderRadius ?? AppSpacing.borderRadiusMd,
-        border: _getBorder(),
-        boxShadow: isDisabled ? null : _getBoxShadow(),
-      ),
-      alignment: Alignment.center,
-      child: buttonContent,
-    );
-
-    // Ghost style underline effect
-    if (widget.style == NeoButtonStyle.ghost) {
-      button = Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          buttonContent,
-          AppSpacing.gapXs,
-          AnimatedContainer(
-            duration: AppAnimations.fast,
-            height: 2,
-            width: 0, // Will animate on hover/focus
-            decoration: BoxDecoration(
-              color: AppColors.primaryAccent,
-              borderRadius: AppSpacing.borderRadiusFull,
-            ),
-          ),
-        ],
-      );
-    }
-
-    return GestureDetector(
-      onTap: _handleTap,
-      onTapDown: _handleTapDown,
-      onTapUp: _handleTapUp,
-      onTapCancel: _handleTapCancel,
-      child: AnimatedBuilder(
-        animation: _scaleAnimation,
-        builder: (context, child) =>
-            Transform.scale(scale: _scaleAnimation.value, child: child),
-        child: widget.isExpanded
-            ? SizedBox(width: double.infinity, child: button)
-            : button,
       ),
     );
   }
 }
 
-/// A circular icon button with glass effect
-class NeoIconButton extends StatefulWidget {
+/// A circular icon button on the surface colour.
+class NeoIconButton extends StatelessWidget {
   const NeoIconButton({
     super.key,
     required this.icon,
@@ -349,83 +187,47 @@ class NeoIconButton extends StatefulWidget {
   final String? tooltip;
 
   @override
-  State<NeoIconButton> createState() => _NeoIconButtonState();
-}
-
-class _NeoIconButtonState extends State<NeoIconButton>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _scaleAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: AppAnimations.quick,
-    );
-    _scaleAnimation = Tween<double>(begin: 1.0, end: AppAnimations.pressedScale)
-        .animate(
-          CurvedAnimation(parent: _controller, curve: AppAnimations.easeOut),
-        );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final effectiveIconSize = widget.iconSize ?? widget.size * 0.5;
-    final effectiveGlowColor = widget.glowColor ?? AppColors.primaryGlow;
-
-    Widget button = GestureDetector(
-      onTap: widget.onPressed,
-      onTapDown: (_) => _controller.forward(),
-      onTapUp: (_) => _controller.reverse(),
-      onTapCancel: () => _controller.reverse(),
-      child: AnimatedBuilder(
-        animation: _scaleAnimation,
-        builder: (context, child) =>
-            Transform.scale(scale: _scaleAnimation.value, child: child),
-        child: Container(
-          width: widget.size,
-          height: widget.size,
-          decoration: BoxDecoration(
-            color: widget.backgroundColor ?? AppColors.glassWhite,
-            shape: BoxShape.circle,
-            border: Border.all(color: AppColors.glassBorder, width: 1),
-            boxShadow: widget.enableGlow
-                ? [
-                    BoxShadow(
-                      color: effectiveGlowColor.withValues(alpha: 0.4),
-                      blurRadius: 15,
-                      spreadRadius: 0,
-                    ),
-                  ]
-                : null,
-          ),
-          child: Icon(
-            widget.icon,
-            size: effectiveIconSize,
-            color: widget.iconColor ?? AppColors.textPrimary,
-          ),
+    final c = context.sunrise;
+    Widget button = Pressable(
+      onTap: onPressed == null
+          ? null
+          : () {
+              HapticFeedback.lightImpact();
+              onPressed!();
+            },
+      semanticLabel: tooltip,
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          color: backgroundColor ?? c.surface,
+          shape: BoxShape.circle,
+          boxShadow: [
+            if (backgroundColor == null) ...c.cardShadow,
+            if (enableGlow)
+              BoxShadow(
+                color: (glowColor ?? c.glow).withValues(alpha: .35),
+                blurRadius: 16,
+                spreadRadius: -4,
+              ),
+          ],
+        ),
+        alignment: Alignment.center,
+        child: Icon(
+          icon,
+          size: iconSize ?? size * .46,
+          color: iconColor ?? c.ink,
         ),
       ),
     );
-
-    if (widget.tooltip != null) {
-      return Tooltip(message: widget.tooltip!, child: button);
-    }
-
+    if (tooltip != null) button = Tooltip(message: tooltip!, child: button);
     return button;
   }
 }
 
-/// A floating action button with gradient and glow
-class NeoFAB extends StatefulWidget {
+/// A gradient floating action button.
+class NeoFAB extends StatelessWidget {
   const NeoFAB({
     super.key,
     required this.icon,
@@ -442,73 +244,27 @@ class NeoFAB extends StatefulWidget {
   final Object? heroTag;
 
   @override
-  State<NeoFAB> createState() => _NeoFABState();
-}
-
-class _NeoFABState extends State<NeoFAB> with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _scaleAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: AppAnimations.quick,
-    );
-    _scaleAnimation = Tween<double>(begin: 1.0, end: AppAnimations.pressedScale)
-        .animate(
-          CurvedAnimation(parent: _controller, curve: AppAnimations.easeOut),
-        );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    Widget fab = GestureDetector(
-      onTap: () {
-        HapticFeedback.mediumImpact();
-        widget.onPressed?.call();
-      },
-      onTapDown: (_) => _controller.forward(),
-      onTapUp: (_) => _controller.reverse(),
-      onTapCancel: () => _controller.reverse(),
-      child: AnimatedBuilder(
-        animation: _scaleAnimation,
-        builder: (context, child) =>
-            Transform.scale(scale: _scaleAnimation.value, child: child),
-        child: Container(
-          width: widget.size,
-          height: widget.size,
-          decoration: BoxDecoration(
-            gradient: widget.gradient ?? AppColors.primaryGradient,
-            shape: BoxShape.circle,
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.primaryAccent.withValues(alpha: 0.5),
-                blurRadius: 20,
-                offset: const Offset(0, 8),
-              ),
-            ],
-          ),
-          child: Icon(
-            widget.icon,
-            size: widget.size * 0.5,
-            color: AppColors.textPrimary,
-          ),
+    final c = context.sunrise;
+    final fab = Pressable(
+      onTap: onPressed == null
+          ? null
+          : () {
+              HapticFeedback.mediumImpact();
+              onPressed!();
+            },
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          gradient: gradient ?? c.gradient,
+          borderRadius: BorderRadius.circular(SunriseRadius.button),
+          boxShadow: c.buttonShadow,
         ),
+        alignment: Alignment.center,
+        child: Icon(icon, color: Colors.white, size: size * .46),
       ),
     );
-
-    if (widget.heroTag != null) {
-      return Hero(tag: widget.heroTag!, child: fab);
-    }
-
-    return fab;
+    return heroTag == null ? fab : Hero(tag: heroTag!, child: fab);
   }
 }

@@ -101,7 +101,8 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
           elevation: 0,
           title: Text(L10n.of(context).settingsEditProfile),
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
+            tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+            icon: const BackButtonIcon(),
             onPressed: _handleBack,
           ),
         ),
@@ -253,19 +254,19 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: Colors.amber.withValues(alpha: 0.12),
+        color: AppColors.warning.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.amber.withValues(alpha: 0.35)),
+        border: Border.all(color: AppColors.warning.withValues(alpha: 0.35)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.workspace_premium, color: Colors.amber, size: 16),
+          Icon(Icons.workspace_premium, color: AppColors.warning, size: 16),
           const SizedBox(width: 6),
           Text(
             _formatSubscriptionTier(authState.subscriptionTier),
-            style: const TextStyle(
-              color: Colors.amber,
+            style: TextStyle(
+              color: AppColors.warning,
               fontSize: 12.5,
               fontWeight: FontWeight.w600,
             ),
@@ -343,7 +344,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
                 ? _formatSubscriptionTier(authState.subscriptionTier)
                 : 'Free',
             Icons.workspace_premium_outlined,
-            valueColor: authState.isPremium ? Colors.amber : null,
+            valueColor: authState.isPremium ? AppColors.warning : null,
           ),
           _divider(),
           _buildInfoRow(

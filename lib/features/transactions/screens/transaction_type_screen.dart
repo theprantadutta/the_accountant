@@ -301,10 +301,6 @@ class _TransactionTypeScreenState extends ConsumerState<TransactionTypeScreen> {
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppColors.primarySurface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
       isScrollControlled: true,
       builder: (BuildContext context) {
         return StatefulBuilder(
@@ -744,7 +740,8 @@ class _TransactionTypeScreenState extends ConsumerState<TransactionTypeScreen> {
           elevation: 0,
           title: Text(_title, style: AppTypography.titleMedium),
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new_rounded),
+            tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+            icon: const BackButtonIcon(),
             onPressed: () => Navigator.pop(context),
           ),
           actions: [

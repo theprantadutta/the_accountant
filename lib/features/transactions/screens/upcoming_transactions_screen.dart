@@ -1,3 +1,4 @@
+import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
 import 'package:flutter/material.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart';
@@ -58,7 +59,8 @@ class _UpcomingTransactionsScreenState
             style: AppTypography.headlineSmall,
           ),
           leading: IconButton(
-            icon: Icon(Icons.arrow_back_ios_new, color: AppColors.textPrimary),
+            tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+            icon: const BackButtonIcon(),
             onPressed: () => Navigator.pop(context),
           ),
           bottom: TabBar(
@@ -132,37 +134,17 @@ class _UpcomingTransactionsScreenState
     );
   }
 
-  Widget _buildEmptyState(bool isOverdue) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            isOverdue ? Icons.check_circle_outline : Icons.event_available,
-            size: 80,
-            color: AppColors.textMuted,
-          ),
-          AppSpacing.gapLg,
-          Text(
-            isOverdue ? 'No overdue transactions' : 'No upcoming transactions',
-            style: AppTypography.titleMedium.copyWith(
-              color: AppColors.textSecondary,
-            ),
-          ),
-          AppSpacing.gapSm,
-          Text(
-            isOverdue
-                ? 'All your payments are up to date!'
-                : 'You have no pending payments scheduled',
-            style: AppTypography.bodyMedium.copyWith(
-              color: AppColors.textMuted,
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    );
-  }
+  Widget _buildEmptyState(bool isOverdue) => Center(
+    child: EmptyState(
+      icon: isOverdue
+          ? Symbols.task_alt_rounded
+          : Symbols.event_available_rounded,
+      title: isOverdue ? 'No overdue transactions' : 'No upcoming transactions',
+      message: isOverdue
+          ? 'All your payments are up to date!'
+          : 'You have no pending payments scheduled',
+    ),
+  );
 
   Widget _buildSummaryCard(List<Transaction> transactions, bool isOverdue) {
     final total = transactions.fold(0.0, (sum, t) => sum + t.amount / 100.0);

@@ -2,6 +2,7 @@ import 'dart:io' show Platform;
 
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -15,7 +16,6 @@ import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/core/themes/app_typography.dart';
 import 'package:the_accountant/core/themes/app_animations.dart';
 import 'package:the_accountant/core/themes/app_page_transitions.dart';
-import 'package:the_accountant/shared/widgets/glass_card.dart';
 import 'package:the_accountant/shared/widgets/google_logo.dart';
 import 'package:the_accountant/shared/widgets/neo_button.dart';
 import 'package:the_accountant/shared/widgets/neo_text_field.dart';
@@ -206,169 +206,99 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
   }
 
   Widget _buildLoginForm(AuthState authState) {
-    return GlassCard(
-      padding: AppSpacing.paddingLg,
-      enableBlur: true,
-      blurAmount: 14,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Email Field
-          NeoTextField(
-            controller: _emailController,
-            label: L10n.of(context).authEmailAddress,
-            hint: 'Enter your email',
-            prefixIcon: Icons.email_outlined,
-            keyboardType: TextInputType.emailAddress,
-            textInputAction: TextInputAction.next,
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Please enter your email';
-              }
-              if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                return 'Please enter a valid email';
-              }
-              return null;
-            },
-          ),
-
-          AppSpacing.gapMd,
-
-          // Password Field
-          NeoTextField(
-            controller: _passwordController,
-            label: L10n.of(context).authPassword,
-            hint: 'Enter your password',
-            prefixIcon: Icons.lock_outline,
-            obscureText: true,
-            textInputAction: TextInputAction.done,
-            onSubmitted: (_) => _signIn(),
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Please enter your password';
-              }
-              if (value.length < 6) {
-                return 'Password must be at least 6 characters';
-              }
-              return null;
-            },
-          ),
-
-          AppSpacing.gapSm,
-
-          // Forgot Password Link
-          Align(
-            alignment: Alignment.centerRight,
-            child: TextButton(
-              onPressed: () {
-                HapticFeedback.lightImpact();
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ForgotPasswordScreen(
-                      initialEmail: _emailController.text.trim().isEmpty
-                          ? null
-                          : _emailController.text.trim(),
-                    ),
-                  ),
-                );
-              },
-              style: TextButton.styleFrom(
-                padding: EdgeInsets.zero,
-                minimumSize: Size.zero,
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              ),
-              child: Text(
-                L10n.of(context).authForgotPassword,
-                style: AppTypography.labelMedium.copyWith(
-                  color: AppColors.primaryAccent,
-                ),
-              ),
-            ),
-          ),
-
-          AppSpacing.gapXl,
-
-          // Sign In Button
-          NeoButton(
-            label: L10n.of(context).authSignIn,
-            onPressed: authState.isLoading ? null : _signIn,
-            isLoading: authState.isLoading,
-            isExpanded: true,
-            size: NeoButtonSize.large,
-            trailingIcon: Icons.arrow_forward_rounded,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDivider() {
-    return Row(
+    final c = context.sunrise;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Expanded(child: Container(height: 1, color: AppColors.glassBorder)),
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-          child: Text(
-            L10n.of(context).authOrContinueWith,
-            style: AppTypography.labelSmall.copyWith(
-              color: AppColors.textMuted,
+        NeoTextField(
+          controller: _emailController,
+          label: L10n.of(context).authEmailAddress,
+          hint: 'you@example.com',
+          prefixIcon: Symbols.mail_rounded,
+          keyboardType: TextInputType.emailAddress,
+          textInputAction: TextInputAction.next,
+          autocorrect: false,
+          enableSuggestions: false,
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please enter your email';
+            }
+            if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+              return 'Please enter a valid email';
+            }
+            return null;
+          },
+        ),
+        const SizedBox(height: 16),
+        NeoTextField(
+          controller: _passwordController,
+          label: L10n.of(context).authPassword,
+          hint: '••••••••',
+          prefixIcon: Symbols.lock_rounded,
+          obscureText: true,
+          textInputAction: TextInputAction.done,
+          onSubmitted: (_) => _signIn(),
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please enter your password';
+            }
+            if (value.length < 6) {
+              return 'Password must be at least 6 characters';
+            }
+            return null;
+          },
+        ),
+        Align(
+          alignment: AlignmentDirectional.centerEnd,
+          child: TextButton(
+            onPressed: () {
+              HapticFeedback.lightImpact();
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ForgotPasswordScreen(
+                    initialEmail: _emailController.text.trim().isEmpty
+                        ? null
+                        : _emailController.text.trim(),
+                  ),
+                ),
+              );
+            },
+            child: Text(
+              L10n.of(context).authForgotPassword,
+              style: SunriseType.label.copyWith(
+                color: c.accentText,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
         ),
-        Expanded(child: Container(height: 1, color: AppColors.glassBorder)),
+        const SizedBox(height: 8),
+        NeoButton(
+          label: L10n.of(context).authSignIn,
+          onPressed: authState.isLoading ? null : _signIn,
+          isLoading: authState.isLoading,
+          isExpanded: true,
+          size: NeoButtonSize.large,
+        ),
       ],
     );
   }
 
-  Widget _buildGoogleSignIn(AuthState authState) {
-    return GlassCard(
-      onTap: authState.isLoading ? null : _signInWithGoogle,
-      padding: EdgeInsets.symmetric(
-        horizontal: AppSpacing.lg,
-        vertical: AppSpacing.md,
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              color: AppColors.textPrimary,
-              borderRadius: AppSpacing.borderRadiusSm,
-            ),
-            child: const GoogleGLogo(size: 20),
-          ),
-          AppSpacing.gapHMd,
-          Text(
-            L10n.of(context).authContinueWithGoogle,
-            style: AppTypography.titleSmall,
-          ),
-        ],
-      ),
-    );
-  }
+  Widget _buildDivider() =>
+      AuthDivider(label: L10n.of(context).authOrContinueWith);
 
-  Widget _buildAppleSignIn(AuthState authState) {
-    return GlassCard(
-      onTap: authState.isLoading ? null : _signInWithApple,
-      padding: EdgeInsets.symmetric(
-        horizontal: AppSpacing.lg,
-        vertical: AppSpacing.md,
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.apple, size: 26, color: AppColors.textPrimary),
-          AppSpacing.gapHMd,
-          Text(
-            L10n.of(context).authContinueWithApple,
-            style: AppTypography.titleSmall,
-          ),
-        ],
-      ),
-    );
-  }
+  Widget _buildGoogleSignIn(AuthState authState) => AuthProviderButton(
+    logo: const GoogleGLogo(size: 22),
+    label: L10n.of(context).authContinueWithGoogle,
+    onPressed: authState.isLoading ? null : _signInWithGoogle,
+  );
+
+  Widget _buildAppleSignIn(AuthState authState) => AuthProviderButton(
+    logo: Icon(Icons.apple, size: 26, color: context.sunrise.ink),
+    label: L10n.of(context).authContinueWithApple,
+    onPressed: authState.isLoading ? null : _signInWithApple,
+  );
 
   Widget _buildSignUpLink() {
     return Row(

@@ -39,7 +39,6 @@ dependencies:
   lottie: ^3.1.2
   animated_text_kit: ^4.2.2
   fl_chart: ^1.0.0
-  google_fonts: ^8.0.0
   shimmer: ^4.0.0
   flutter_animate: ^4.3.0
   auto_size_text: ^3.0.0
@@ -97,6 +96,9 @@ dependencies:
   material_ui: ^1.1.1
   app_links: ^7.2.1
   quick_actions: ^1.1.0
+  # Holds the native splash until the first Flutter frame (see main.dart).
+  flutter_native_splash: ^2.4.8
+  material_symbols_icons: ^4.2960.0
 
 dev_dependencies:
   flutter_test:
@@ -107,6 +109,7 @@ dev_dependencies:
   riverpod_generator: ^4.0.3
   drift_dev: ^2.32.1
   build_runner: ^2.11.1
+  flutter_launcher_icons: ^0.14.4
 
 
 flutter:
@@ -118,7 +121,74 @@ flutter:
   assets:
     - .env
     - assets/legal/
+    - assets/logo/
+    - assets/launcher/splash-glyph.png
+    - assets/launcher/splash-background.png
+
+  # Lexend, instanced from the variable font into static weights so that a
+  # plain `FontWeight` picks the right face on every engine.
+  fonts:
+    - family: Lexend
+      fonts:
+        - asset: assets/fonts/Lexend-Light.ttf
+          weight: 300
+        - asset: assets/fonts/Lexend-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Lexend-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Lexend-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Lexend-Bold.ttf
+          weight: 700
   #   - assets/
   #   - assets/animations/
   #   - assets/icons/
   #   - assets/images/
+
+# Launcher icons: `dart run flutter_launcher_icons`
+flutter_launcher_icons:
+  android: "ic_launcher"
+  image_path_android: "assets/launcher/app-icon-1024.png"
+  adaptive_icon_foreground: "assets/launcher/android-adaptive-foreground-432.png"
+  adaptive_icon_background: "assets/launcher/android-adaptive-background-432.png"
+  adaptive_icon_monochrome: "assets/launcher/android-monochrome-432.png"
+  # The handoff layers are already drawn inside the safe zone.
+  adaptive_icon_foreground_inset: 0
+  min_sdk_android: 21
+  ios: true
+  image_path_ios: "assets/launcher/app-icon-square-1024.png"
+  remove_alpha_ios: true
+  web:
+    generate: true
+    image_path: "assets/launcher/app-icon-1024.png"
+    background_color: "#FFFAF6"
+    theme_color: "#F97316"
+
+# Native splash: `dart run flutter_native_splash:create`
+#
+# One ground in light and dark, deliberately, as ai-persona does: the launcher
+# icon is the sunrise gradient in both, so a dark splash meant tapping an
+# orange tile and landing on near-black - a jump in the one moment the app
+# should feel like a single thing. The Flutter intro starts from this exact
+# frame (same gradient, same glyph at 128dp), so the hand-off is invisible.
+#
+# 4x assets: 1024px canvas -> 256dp, glyph at 50% -> 128dp. Android 12 crops
+# rather than scales: 1152px canvas, glyph kept inside the centred 768px circle.
+flutter_native_splash:
+  color: "#F97316"
+  background_image: assets/launcher/splash-background.png
+  image: assets/launcher/splash-glyph.png
+  color_dark: "#F97316"
+  background_image_dark: assets/launcher/splash-background.png
+  image_dark: assets/launcher/splash-glyph.png
+  android_12:
+    color: "#F97316"
+    image: assets/launcher/android12-splash-glyph.png
+    icon_background_color: "#F97316"
+    color_dark: "#F97316"
+    image_dark: assets/launcher/android12-splash-glyph.png
+    icon_background_color_dark: "#F97316"
+  ios: true
+  android: true
+  web: false
+  fullscreen: false

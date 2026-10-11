@@ -24,16 +24,7 @@ class L10nBn extends L10n {
   String get dateTomorrow => 'আগামীকাল';
 
   @override
-  String get navDashboard => 'ড্যাশবোর্ড';
-
-  @override
   String get navTransactions => 'লেনদেন';
-
-  @override
-  String get navReports => 'রিপোর্ট';
-
-  @override
-  String get navSettings => 'সেটিংস';
 
   @override
   String get settingsRegionalTitle => 'আঞ্চলিক সেটিংস';
@@ -124,60 +115,16 @@ class L10nBn extends L10n {
   String get selectCurrency => 'মুদ্রা বাছুন';
 
   @override
-  String get themeTitle => 'আপনার থিম বাছুন';
-
-  @override
-  String get themeSystem => 'সিস্টেম';
-
-  @override
   String get themeLight => 'লাইট';
 
   @override
   String get themeDark => 'ডার্ক';
 
   @override
-  String get themeSystemDescription =>
-      'আপনার ফোন যা সেট করা আছে তা অনুসরণ করুন';
-
-  @override
-  String get themeLightDescription =>
-      'উজ্জ্বল — দিনের আলো ও ভাগ করা স্ক্রিনের জন্য';
-
-  @override
-  String get themeDarkDescription => 'মূল রূপ — গভীর কালোয় ইন্ডিগো ছোঁয়া';
-
-  @override
   String get languageSystem => 'ফোনের ভাষা অনুসরণ করুন';
 
   @override
-  String get navHome => 'হোম';
-
-  @override
-  String get navActivity => 'কার্যকলাপ';
-
-  @override
-  String get navAi => 'AI';
-
-  @override
-  String get navInsights => 'বিশ্লেষণ';
-
-  @override
-  String get navAiAssistant => 'AI সহকারী';
-
-  @override
   String get sectionAccount => 'অ্যাকাউন্ট';
-
-  @override
-  String get sectionMoney => 'অর্থ';
-
-  @override
-  String get sectionRegional => 'আঞ্চলিক';
-
-  @override
-  String get sectionNotifications => 'বিজ্ঞপ্তি';
-
-  @override
-  String get sectionPrivacySecurity => 'গোপনীয়তা ও নিরাপত্তা';
 
   @override
   String get sectionDataManagement => 'ডেটা ব্যবস্থাপনা';
@@ -186,13 +133,7 @@ class L10nBn extends L10n {
   String get sectionHelpSupport => 'সহায়তা';
 
   @override
-  String get sectionAbout => 'সম্পর্কে';
-
-  @override
   String get settingsAppearance => 'চেহারা';
-
-  @override
-  String get settingsAppearanceSubtitle => 'থিম ও অ্যাকসেন্ট রঙ';
 
   @override
   String get settingsBackupRestore => 'ব্যাকআপ ও পুনরুদ্ধার';
@@ -219,17 +160,7 @@ class L10nBn extends L10n {
       'গত ত্রিশ দিনে সরানো কিছু ফিরিয়ে আনুন';
 
   @override
-  String get themeExpressYourself => 'নিজেকে প্রকাশ করুন';
-
-  @override
-  String get themeExpressYourselfBody =>
-      'এমন একটি থিম বাছুন যা আপনার রুচির সঙ্গে মেলে এবং হিসাব রাখাকে আনন্দের করে তোলে।';
-
-  @override
   String get themePremiumHeading => 'প্রিমিয়াম থিম';
-
-  @override
-  String get themeUnlockPremium => 'প্রিমিয়াম থিম আনলক করুন';
 
   @override
   String get actionRetry => 'আবার চেষ্টা করুন';
@@ -248,9 +179,6 @@ class L10nBn extends L10n {
 
   @override
   String get dashSpendingOverview => 'খরচের সারসংক্ষেপ';
-
-  @override
-  String get dashRecentTransactions => 'সাম্প্রতিক লেনদেন';
 
   @override
   String get dashBudgetProgress => 'বাজেটের অগ্রগতি';
@@ -330,9 +258,6 @@ class L10nBn extends L10n {
 
   @override
   String get actionApply => 'প্রয়োগ করুন';
-
-  @override
-  String get dashThisMonth => 'এই মাসে';
 
   @override
   String get filterPaid => 'পরিশোধিত';
@@ -851,19 +776,6 @@ class L10nBn extends L10n {
       'সমস্ত লেনদেন, বাজেট ও সেটিংস মুছে ফেলুন';
 
   @override
-  String get settingsLegal => 'আইনি';
-
-  @override
-  String get settingsReadOurPrivacyPolicy => 'আমাদের গোপনীয়তা নীতি পড়ুন';
-
-  @override
-  String get settingsReadOurTermsOfService => 'আমাদের ব্যবহারের শর্তাবলী পড়ুন';
-
-  @override
-  String get settingsHowRefundsAndCancellationsWork =>
-      'ফেরত ও বাতিল কীভাবে কাজ করে';
-
-  @override
   String get settingsDangerZone => 'বিপজ্জনক অংশ';
 
   @override
@@ -939,10 +851,6 @@ class L10nBn extends L10n {
   String get settingsWhatIsDueAndWhat => 'কী বাকি আছে, আর কী বাদ পড়েছে';
 
   @override
-  String get settingsRenameRecolourAndGroupThem =>
-      'নাম, রঙ বদলান আর দলবদ্ধ করুন';
-
-  @override
   String get settingsAccounts => 'অ্যাকাউন্ট';
 
   @override
@@ -961,14 +869,6 @@ class L10nBn extends L10n {
   String get settingsNotificationSettings => 'বিজ্ঞপ্তির সেটিংস';
 
   @override
-  String get settingsDailyRemindersBudgetAlerts =>
-      'দৈনিক অনুস্মারক, বাজেট সতর্কতা';
-
-  @override
-  String get settingsBiometricLockDataManagement =>
-      'বায়োমেট্রিক লক, ডেটা ব্যবস্থাপনা';
-
-  @override
   String get settingsCloudSync => 'ক্লাউড সিঙ্ক';
 
   @override
@@ -978,9 +878,6 @@ class L10nBn extends L10n {
   @override
   String get settingsCsvIsFreePdfReport =>
       'CSV বিনামূল্যে · PDF রিপোর্ট প্রিমিয়াম';
-
-  @override
-  String get settingsGetAnswersToCommonQuestions => 'সাধারণ প্রশ্নের উত্তর পান';
 
   @override
   String get settingsQuestionsComplaintsOrFeedback => 'প্রশ্ন, অভিযোগ বা মতামত';
@@ -1076,9 +973,6 @@ class L10nBn extends L10n {
   String get walletUseDecimals => 'দশমিক ব্যবহার করুন';
 
   @override
-  String get walletSaveWallet => 'ওয়ালেট সংরক্ষণ করুন';
-
-  @override
   String get walletEnterWalletName => 'ওয়ালেটের নাম লিখুন';
 
   @override
@@ -1098,9 +992,6 @@ class L10nBn extends L10n {
 
   @override
   String get walletInitialBalance => 'শুরুর ব্যালেন্স';
-
-  @override
-  String get txScan => 'স্ক্যান';
 
   @override
   String get txAddATransferFee => 'স্থানান্তরের ফি যোগ করুন';
@@ -1422,9 +1313,6 @@ class L10nBn extends L10n {
   String get settingsPdfReports => 'PDF রিপোর্ট';
 
   @override
-  String get settingsFrequentlyAskedQuestions => 'সাধারণ জিজ্ঞাসা';
-
-  @override
   String get settingsGettingStarted => 'শুরু করা';
 
   @override
@@ -1543,13 +1431,7 @@ class L10nBn extends L10n {
   String get walletLimit => 'সীমা';
 
   @override
-  String get walletCreditBalance => 'ক্রেডিট ব্যালেন্স';
-
-  @override
   String get walletBalance => 'ব্যালেন্স';
-
-  @override
-  String get walletOverdrawn => 'সীমা ছাড়িয়েছে';
 
   @override
   String get walletBillingCycleDay => 'বিল চক্রের দিন';
@@ -1622,9 +1504,6 @@ class L10nBn extends L10n {
   String get txUpcomingOverdue => 'আসন্ন ও বকেয়া';
 
   @override
-  String get txEnterAmount => 'পরিমাণ লিখুন';
-
-  @override
   String get txNew => 'নতুন';
 
   @override
@@ -1658,12 +1537,6 @@ class L10nBn extends L10n {
 
   @override
   String get reportNoCategorySpendingData => 'ক্যাটাগরিভিত্তিক খরচের তথ্য নেই';
-
-  @override
-  String get reportFinancialSummary => 'আর্থিক সারসংক্ষেপ';
-
-  @override
-  String get reportCategoryBreakdown => 'ক্যাটাগরিভিত্তিক বিভাজন';
 
   @override
   String get reportNoSpendingDataAvailable => 'খরচের কোনো তথ্য নেই';
@@ -1772,32 +1645,11 @@ class L10nBn extends L10n {
   String get authTheAccountant => 'THE ACCOUNTANT';
 
   @override
-  String get authInitializingYourFinancialJourney =>
-      'আপনার আর্থিক যাত্রা শুরু হচ্ছে...';
-
-  @override
   String get legalPrivacyTerms => 'গোপনীয়তা ও শর্তাবলী';
 
   @override
   String get legalReviewTheseBeforeYouContinue =>
       'চালিয়ে যাওয়ার আগে এগুলি দেখে নিন।';
-
-  @override
-  String get premiumLifetimeAccessNeverExpires =>
-      'আজীবন ব্যবহার — কখনও শেষ হবে না';
-
-  @override
-  String get premiumPremiumFeatures => 'প্রিমিয়াম সুবিধা';
-
-  @override
-  String get premiumChooseYourPlan => 'আপনার প্ল্যান বাছুন';
-
-  @override
-  String get premiumUnlockPremium => 'প্রিমিয়াম খুলুন';
-
-  @override
-  String get premiumOneTimePurchaseLifetimeAccess =>
-      'একবার কিনলেই আজীবন ব্যবহার';
 
   @override
   String get premiumLimitReached => 'সীমায় পৌঁছে গেছে';
@@ -1816,13 +1668,7 @@ class L10nBn extends L10n {
       'কথা বলা শুরু করুন, আপনার আলাপগুলি এখানে দেখা যাবে।';
 
   @override
-  String get aiAiFinancialAssistant => 'AI আর্থিক সহকারী';
-
-  @override
   String get aiScanAReceipt => 'একটি রসিদ স্ক্যান করুন';
-
-  @override
-  String get aiAiIsThinking => 'AI ভাবছে...';
 
   @override
   String get aiSpendingTrend => 'খরচের ধারা';
@@ -1844,20 +1690,7 @@ class L10nBn extends L10n {
   String get dashErrorLoadingFinancialData => 'আর্থিক তথ্য আনতে সমস্যা হয়েছে';
 
   @override
-  String get dashReadyToManageYourFinances => 'আপনার হিসাব সামলাতে প্রস্তুত?';
-
-  @override
   String get dashNoSpendingDataYet => 'এখনও খরচের কোনো তথ্য নেই';
-
-  @override
-  String get dashViewAll => 'সব দেখুন';
-
-  @override
-  String get dashNoTransactionsYet => 'এখনও কোনো লেনদেন নেই';
-
-  @override
-  String get dashAddYourFirstTransactionTo =>
-      'শুরু করতে আপনার প্রথম লেনদেনটি যোগ করুন';
 
   @override
   String get dashManage => 'পরিচালনা';
@@ -1927,12 +1760,6 @@ class L10nBn extends L10n {
 
   @override
   String get sharedIncludeCryptoCurrencies => 'ক্রিপ্টো মুদ্রাও দেখান';
-
-  @override
-  String get sharedQuickAdd => 'দ্রুত যোগ';
-
-  @override
-  String get sharedRecordYourIncomeOrExpense => 'আপনার আয় বা ব্যয় লিখে রাখুন';
 
   @override
   String get sharedTotalBalance => 'মোট ব্যালেন্স';
@@ -2013,4 +1840,844 @@ class L10nBn extends L10n {
   @override
   String get backupBusySyncing =>
       'একটি সিঙ্ক চলছে। ফিরিয়ে আনার আগে সেটি শেষ হতে দিন।';
+
+  @override
+  String get appearanceTitle => 'চেহারা';
+
+  @override
+  String get themeSunriseLight => 'সানরাইজ লাইট';
+
+  @override
+  String get themeSunriseDark => 'সানরাইজ ডার্ক';
+
+  @override
+  String get themeMatchSystem => 'ফোনের সেটিং অনুসরণ';
+
+  @override
+  String get themeMatchSystemHint => 'ফোনের সাথে লাইট ও ডার্ক বদলাবে';
+
+  @override
+  String get themeUnlockAll => 'সব থিম আনলক করুন';
+
+  @override
+  String get themeProBadge => 'প্রো';
+
+  @override
+  String get themeAccentSunrise => 'সানরাইজ';
+
+  @override
+  String get themeAccentSapphire => 'স্যাফায়ার';
+
+  @override
+  String get themeAccentEmerald => 'এমারেল্ড';
+
+  @override
+  String get themeAccentRuby => 'রুবি';
+
+  @override
+  String get themeAccentAmethyst => 'অ্যামেথিস্ট';
+
+  @override
+  String get themeAccentGraphite => 'গ্রাফাইট';
+
+  @override
+  String themeAppearanceValue(String accent, String mode) {
+    return '$accent $mode';
+  }
+
+  @override
+  String get navToday => 'আজ';
+
+  @override
+  String get navWallets => 'ওয়ালেট';
+
+  @override
+  String get navAdd => 'যোগ';
+
+  @override
+  String get navStats => 'পরিসংখ্যান';
+
+  @override
+  String get navMore => 'আরও';
+
+  @override
+  String get walkthroughTodayTitle => 'এক নজরে আপনার দিন';
+
+  @override
+  String get walkthroughTodayBody => 'নেট সম্পদ, আয়-ব্যয় আর আজকের লেনদেন।';
+
+  @override
+  String get walkthroughAddTitle => 'সেকেন্ডে যোগ করুন';
+
+  @override
+  String get walkthroughAddBody => 'খরচ, আয় বা ট্রান্সফার লিখতে যোগ চাপুন।';
+
+  @override
+  String get walkthroughWalletsTitle => 'ওয়ালেট ও পরিকল্পনা';
+
+  @override
+  String get walkthroughWalletsBody =>
+      'আপনার অ্যাকাউন্ট, আসন্ন বিল, ধার-দেনা, লক্ষ্য ও বাজেট।';
+
+  @override
+  String get walkthroughStatsTitle => 'টাকা কোথায় যায় দেখুন';
+
+  @override
+  String get walkthroughStatsBody =>
+      'সপ্তাহ, মাস ও বছর অনুযায়ী ক্যাটাগরি চার্ট।';
+
+  @override
+  String get walkthroughBellTitle => 'খবর রাখুন';
+
+  @override
+  String get walkthroughBellBody =>
+      'বাজেট সতর্কতা ও রিমাইন্ডার এখানে আসবে। সব প্রস্তুত!';
+
+  @override
+  String get walkthroughBalanceTitle => 'আপনার নেট সম্পদ';
+
+  @override
+  String get walkthroughBalanceBody =>
+      'সব ওয়ালেটের মোট এখানে, ভাগটা দেখায় বারে।';
+
+  @override
+  String get txTransfer => 'ট্রান্সফার';
+
+  @override
+  String get txUncategorized => 'শ্রেণিহীন';
+
+  @override
+  String todayGoodMorning(String name) {
+    return 'সুপ্রভাত, $name';
+  }
+
+  @override
+  String todayGoodAfternoon(String name) {
+    return 'শুভ অপরাহ্ন, $name';
+  }
+
+  @override
+  String todayGoodEvening(String name) {
+    return 'শুভ সন্ধ্যা, $name';
+  }
+
+  @override
+  String get todayGoodMorningPlain => 'সুপ্রভাত';
+
+  @override
+  String get todayGoodAfternoonPlain => 'শুভ অপরাহ্ন';
+
+  @override
+  String get todayGoodEveningPlain => 'শুভ সন্ধ্যা';
+
+  @override
+  String get todayNetWorth => 'নেট সম্পদ';
+
+  @override
+  String todayThisMonthDelta(String amount) {
+    return 'এই মাসে $amount';
+  }
+
+  @override
+  String get todayEarned => 'আয়';
+
+  @override
+  String get todaySpent => 'ব্যয়';
+
+  @override
+  String get todayTitle => 'আজ';
+
+  @override
+  String get todayRecent => 'সাম্প্রতিক';
+
+  @override
+  String get todayAllActivity => 'সব লেনদেন';
+
+  @override
+  String get todayNothingYet => 'আজ এখনো কিছু নেই';
+
+  @override
+  String get todayNothingYetBody => 'প্রথমটি লিখতে যোগ চাপুন।';
+
+  @override
+  String todayMoreWallets(int count) {
+    return '+আরও $countটি';
+  }
+
+  @override
+  String get todayCoachTitle => 'আপনার মানি কোচকে জিজ্ঞেস করুন';
+
+  @override
+  String get todayCoachBody => 'আপনার নিজের খরচ থেকে উত্তর ও পরামর্শ';
+
+  @override
+  String get todayNotifications => 'নোটিফিকেশন';
+
+  @override
+  String get todayWithinBudget => 'বাজেটের মধ্যে';
+
+  @override
+  String get todayOverBudget => 'বাজেট ছাড়িয়েছে';
+
+  @override
+  String get todayNetCredit => 'নিট পাওনা';
+
+  @override
+  String get todayNetDebt => 'নিট দেনা';
+
+  @override
+  String get todayMonthly => 'মাসিক';
+
+  @override
+  String get walletsTitle => 'ওয়ালেট';
+
+  @override
+  String get walletsNew => 'নতুন';
+
+  @override
+  String get walletsAddHint => 'ব্যাংক, ক্যাশ, সঞ্চয় যোগ করুন…';
+
+  @override
+  String get walletsPlanning => 'পরিকল্পনা';
+
+  @override
+  String get walletsUpcoming => 'আসন্ন';
+
+  @override
+  String walletsUpcomingSub(int count, String amount) {
+    return '$countটি বাকি · $amount';
+  }
+
+  @override
+  String get walletsUpcomingNone => 'শিগগির কিছু বাকি নেই';
+
+  @override
+  String get walletsLendBorrow => 'ধার ও দেনা';
+
+  @override
+  String walletsOwedToYou(String amount) {
+    return 'আপনি পাবেন $amount';
+  }
+
+  @override
+  String walletsYouOwe(String amount) {
+    return 'আপনার দেনা $amount';
+  }
+
+  @override
+  String get walletsAllSettled => 'সব মিটে গেছে';
+
+  @override
+  String get walletsGoals => 'লক্ষ্য';
+
+  @override
+  String walletsGoalsSub(int count) {
+    return '$countটি চলমান';
+  }
+
+  @override
+  String get walletsBudgets => 'বাজেট';
+
+  @override
+  String get walletsSubscriptions => 'সাবস্ক্রিপশন';
+
+  @override
+  String get walletsTransfer => 'ওয়ালেটের মধ্যে ট্রান্সফার';
+
+  @override
+  String get walletsArchived => 'আর্কাইভ';
+
+  @override
+  String walletsDeleteMessage(String name) {
+    return '“$name” মুছবেন? এই অ্যাকাউন্টের সব লেনদেনও মুছে যাবে।';
+  }
+
+  @override
+  String walletsDeleted(String name) {
+    return '$name মুছে ফেলা হয়েছে';
+  }
+
+  @override
+  String walletsSetDefaultDone(String name) {
+    return '$name এখন ডিফল্ট';
+  }
+
+  @override
+  String get walletsCreateFailed => 'অ্যাকাউন্ট তৈরি হয়নি। আবার চেষ্টা করুন।';
+
+  @override
+  String get walletsEmptyBody =>
+      'ট্র্যাকিং শুরু করতে প্রথম অ্যাকাউন্ট তৈরি করুন।';
+
+  @override
+  String get walletsTypeBank => 'ব্যাংক অ্যাকাউন্ট';
+
+  @override
+  String get walletsTypeCard => 'ক্রেডিট কার্ড';
+
+  @override
+  String get walletsTypeCash => 'ক্যাশ';
+
+  @override
+  String get walletsTypeOther => 'অ্যাকাউন্ট';
+
+  @override
+  String get moreTitle => 'আরও';
+
+  @override
+  String get moreGoPremium => 'প্রিমিয়াম নিন';
+
+  @override
+  String get moreGoPremiumBody => 'এআই সহকারী, ক্লাউড সিঙ্ক, থিম';
+
+  @override
+  String get moreUnlock => 'আনলক';
+
+  @override
+  String get morePremiumActive => 'প্রিমিয়াম চালু আছে';
+
+  @override
+  String get morePremiumThanks =>
+      'দ্য অ্যাকাউন্ট্যান্টকে সমর্থনের জন্য ধন্যবাদ';
+
+  @override
+  String get sectionPreferences => 'পছন্দ';
+
+  @override
+  String get sectionTools => 'টাকার টুলস';
+
+  @override
+  String get moreAiAssistant => 'এআই সহকারী';
+
+  @override
+  String get moreAiAssistantSub => 'আপনার টাকা নিয়ে প্রশ্ন করুন';
+
+  @override
+  String get moreSignOutConfirm => 'এই ডিভাইস থেকে সাইন আউট করবেন?';
+
+  @override
+  String get moreSignOutFailed => 'সাইন আউট হয়নি। আবার চেষ্টা করুন।';
+
+  @override
+  String get moreDeviceOnlyBody =>
+      'ফ্রি অ্যাকাউন্টের ডেটা ক্লাউডে ব্যাকআপ হয় না, তাই রিইনস্টল বা ফোন বদলালে ডেটা হারাতে পারে। ক্লাউড সিঙ্কের জন্য আপগ্রেড করুন, বা নিয়মিত ব্যাকআপ এক্সপোর্ট করুন।';
+
+  @override
+  String get moreUpgradeToPremium => 'প্রিমিয়ামে আপগ্রেড করুন';
+
+  @override
+  String get moreUser => 'আপনি';
+
+  @override
+  String get statsTitle => 'পরিসংখ্যান';
+
+  @override
+  String get statsWeek => 'সপ্তাহ';
+
+  @override
+  String get statsMonth => 'মাস';
+
+  @override
+  String get statsYear => 'বছর';
+
+  @override
+  String get statsSpending => 'ব্যয়';
+
+  @override
+  String get statsIncome => 'আয়';
+
+  @override
+  String get statsCategories => 'ক্যাটাগরি';
+
+  @override
+  String get statsSpent => 'ব্যয়';
+
+  @override
+  String get statsEarned => 'আয়';
+
+  @override
+  String get statsNet => 'নিট';
+
+  @override
+  String get statsThisMonth => 'এই মাসে';
+
+  @override
+  String statsVsLastMonth(String change) {
+    return 'গত মাসের তুলনায় $change';
+  }
+
+  @override
+  String get statsInsightsSub => 'এই মাসের সারাংশ, প্রবণতা ও পরামর্শ';
+
+  @override
+  String get statsAskCoach => 'এ নিয়ে এআই কোচকে জিজ্ঞেস করুন';
+
+  @override
+  String statsOverBy(String amount) {
+    return '$amount বেশি';
+  }
+
+  @override
+  String statsRemaining(String percent) {
+    return '$percent% বাকি';
+  }
+
+  @override
+  String get activityTitle => 'লেনদেন';
+
+  @override
+  String get activityAll => 'সব';
+
+  @override
+  String get activitySpent => 'ব্যয়';
+
+  @override
+  String get activityEarned => 'আয়';
+
+  @override
+  String get activityTransfers => 'ট্রান্সফার';
+
+  @override
+  String activitySoFar(String month) {
+    return '$month এ পর্যন্ত';
+  }
+
+  @override
+  String activityNet(String amount) {
+    return 'নিট $amount';
+  }
+
+  @override
+  String get activityIn => 'আয়';
+
+  @override
+  String get activityOut => 'ব্যয়';
+
+  @override
+  String get activityToday => 'আজ';
+
+  @override
+  String get activityYesterday => 'গতকাল';
+
+  @override
+  String get activityTomorrow => 'আগামীকাল';
+
+  @override
+  String get activityEmptyFutureTitle => 'পরিকল্পিত কোনো লেনদেন নেই';
+
+  @override
+  String activityEmptyFutureBody(String month) {
+    return '$month এর আগাম পেমেন্ট যোগ করুন';
+  }
+
+  @override
+  String get activityEmptyNowTitle => 'এখনো কোনো লেনদেন নেই';
+
+  @override
+  String get activityEmptyNowBody => 'এই মাসের খরচ লিখতে শুরু করুন';
+
+  @override
+  String get activityEmptyPastTitle => 'কোনো লেনদেন পাওয়া যায়নি';
+
+  @override
+  String activityEmptyPastBody(String month) {
+    return '$month এ কোনো রেকর্ড নেই';
+  }
+
+  @override
+  String activityDeletedCount(int count) {
+    return '$countটি লেনদেন মুছে ফেলা হয়েছে';
+  }
+
+  @override
+  String activityMovedToCategory(int count, String name) {
+    return '$countটি $name এ সরানো হয়েছে';
+  }
+
+  @override
+  String get activityMixedCurrencies =>
+      'এগুলো ভিন্ন মুদ্রায় আছে, তাই একটি অ্যাকাউন্টে সরানো যাবে না। একই মুদ্রার লেনদেন বাছুন।';
+
+  @override
+  String activityMovedPartial(int count) {
+    return '$countটি সরানো হয়েছে; ট্রান্সফার যেমন ছিল তেমনই আছে';
+  }
+
+  @override
+  String activityMoved(int count) {
+    return '$countটি অন্য অ্যাকাউন্টে সরানো হয়েছে';
+  }
+
+  @override
+  String activityRedated(int count) {
+    return '$countটির তারিখ বদলানো হয়েছে';
+  }
+
+  @override
+  String get activityNothingToPay => 'পরিশোধের অপেক্ষায় কিছু ছিল না';
+
+  @override
+  String activityMarkedPaid(int count) {
+    return '$countটি পরিশোধিত হিসেবে চিহ্নিত';
+  }
+
+  @override
+  String activityCopiedPartial(int count) {
+    return '$countটি কপি হয়েছে; ট্রান্সফার আলাদাভাবে কপি হয় না';
+  }
+
+  @override
+  String activityCopied(int count) {
+    return '$countটি কপি হয়েছে';
+  }
+
+  @override
+  String get activityDeleteOneBody =>
+      'এটি আপনার রেকর্ড থেকে মুছে যাবে এবং ব্যালান্স আবার হিসাব হবে।';
+
+  @override
+  String get activitySearch => 'খুঁজুন';
+
+  @override
+  String get addNewExpense => 'নতুন খরচ';
+
+  @override
+  String get addNewIncome => 'নতুন আয়';
+
+  @override
+  String get addNewTransfer => 'নতুন ট্রান্সফার';
+
+  @override
+  String get addEditTitle => 'লেনদেন সম্পাদনা';
+
+  @override
+  String get addAmount => 'পরিমাণ';
+
+  @override
+  String get addCategory => 'ক্যাটাগরি';
+
+  @override
+  String get addMore => 'আরও';
+
+  @override
+  String get addWallet => 'ওয়ালেট';
+
+  @override
+  String get addDate => 'তারিখ';
+
+  @override
+  String get addNoteHint => 'একটি নোট যোগ করুন';
+
+  @override
+  String get addRepeatMonthly => 'প্রতি মাসে পুনরাবৃত্তি';
+
+  @override
+  String get addMoreOptions => 'আরও অপশন';
+
+  @override
+  String get addScanReceipt => 'রসিদ স্ক্যান';
+
+  @override
+  String get addDelete => 'লেনদেন মুছুন';
+
+  @override
+  String get addTypeExpense => 'খরচ';
+
+  @override
+  String get addTypeIncome => 'আয়';
+
+  @override
+  String get addTypeTransfer => 'ট্রান্সফার';
+
+  @override
+  String get gatePremium => 'প্রিমিয়াম';
+
+  @override
+  String get gateUnlock => 'প্রিমিয়াম দিয়ে আনলক করুন';
+
+  @override
+  String get gateFootnote => 'লাইফটাইম বা সাবস্ক্রিপশন · যেকোনো সময় রিস্টোর';
+
+  @override
+  String get aiCoachTitle => 'আপনার মানি কোচের সাথে পরিচিত হোন';
+
+  @override
+  String get aiCoachBody =>
+      'সহজ ভাষায় জিজ্ঞেস করুন। নিজের খরচ থেকে উত্তর, পরামর্শ আর পরিকল্পনা পান।';
+
+  @override
+  String get aiSampleQuestion => 'এই মাসে কি একটা উইকেন্ড ট্রিপ সম্ভব?';
+
+  @override
+  String get aiSampleAnswer =>
+      'হ্যাঁ। বাজেটে জায়গা থাকবে, তবে ৩১ তারিখ পর্যন্ত বাড়তি কেনাকাটা এড়িয়ে চলুন।';
+
+  @override
+  String get aiChipInsights => 'খরচের বিশ্লেষণ';
+
+  @override
+  String get aiChipReceipt => 'রসিদ স্ক্যান';
+
+  @override
+  String get aiChipBudgets => 'স্মার্ট বাজেট';
+
+  @override
+  String get aiAssistantTitle => 'এআই সহকারী';
+
+  @override
+  String get aiAskAnything => 'আপনার টাকা নিয়ে জিজ্ঞেস করুন…';
+
+  @override
+  String get aiSend => 'পাঠান';
+
+  @override
+  String get aiCopy => 'কপি';
+
+  @override
+  String get aiCopied => 'কপি হয়েছে';
+
+  @override
+  String get aiRetry => 'আবার চেষ্টা';
+
+  @override
+  String get aiDismiss => 'বন্ধ করুন';
+
+  @override
+  String get aiTyping => 'কোচ লিখছে';
+
+  @override
+  String aiStarterCategory(String category) {
+    return 'আমার $category খরচ কোথায় গেল?';
+  }
+
+  @override
+  String get aiStarterBudgets => 'আমার বাজেট কি ঠিকঠাক চলছে?';
+
+  @override
+  String get aiStarterUpcoming => 'কোন বিলগুলো আসছে?';
+
+  @override
+  String get aiStarterAnalyze => 'আমার সাম্প্রতিক খরচের ধরন বিশ্লেষণ করুন';
+
+  @override
+  String get aiStarterBudgetTips => 'ভালো বাজেটের জন্য টিপস দিন';
+
+  @override
+  String get aiStarterSave => 'কীভাবে আরও টাকা সঞ্চয় করতে পারি?';
+
+  @override
+  String aiDeleteChatBody(String title) {
+    return '“$title” স্থায়ীভাবে মুছে যাবে।';
+  }
+
+  @override
+  String get aiJustNow => 'এইমাত্র';
+
+  @override
+  String get aiErrorTitle => 'কোচ উত্তর দিতে পারেনি';
+
+  @override
+  String get paywallTitle => 'অ্যাকাউন্ট্যান্ট প্রিমিয়াম';
+
+  @override
+  String get paywallTagline => 'অ্যাপের সবকিছু, আপনার জন্য।';
+
+  @override
+  String get paywallActiveTitle => 'প্রিমিয়াম চালু আছে';
+
+  @override
+  String get paywallActiveTagline => 'আপনার সমর্থনের জন্য ধন্যবাদ!';
+
+  @override
+  String get paywallRestore => 'রিস্টোর';
+
+  @override
+  String get paywallProcessing => 'প্রক্রিয়াকরণ…';
+
+  @override
+  String paywallTriggered(String feature) {
+    return '$feature একটি প্রিমিয়াম ফিচার';
+  }
+
+  @override
+  String paywallDaysRemaining(int days) {
+    return 'আর $days দিন বাকি';
+  }
+
+  @override
+  String get paywallFeatSync => 'ক্লাউড সিঙ্ক';
+
+  @override
+  String get paywallFeatSyncSub => 'সব ডিভাইসে';
+
+  @override
+  String get paywallFeatAi => 'এআই সহকারী';
+
+  @override
+  String get paywallFeatAiSub => 'জেমিনি চালিত';
+
+  @override
+  String get paywallFeatOcr => 'রসিদ স্ক্যান';
+
+  @override
+  String get paywallFeatOcrSub => 'এআই দিয়ে ওসিআর';
+
+  @override
+  String get paywallFeatInsights => 'খরচের বিশ্লেষণ';
+
+  @override
+  String get paywallFeatInsightsSub => 'মাসিক প্রবণতা';
+
+  @override
+  String get paywallFeatThemes => '৫টি থিম';
+
+  @override
+  String get paywallFeatThemesSub => 'এক্সক্লুসিভ';
+
+  @override
+  String get paywallFeatPdf => 'পিডিএফ রিপোর্ট';
+
+  @override
+  String get paywallFeatPdfSub => 'সিএসভি ফ্রি থাকছে';
+
+  @override
+  String get paywallFeatUnlimited => 'আনলিমিটেড';
+
+  @override
+  String get paywallFeatUnlimitedSub => 'ওয়ালেট, বাজেট';
+
+  @override
+  String get paywallFeatSupport => 'অগ্রাধিকার সহায়তা';
+
+  @override
+  String get paywallFeatSupportSub => 'দ্রুত উত্তর';
+
+  @override
+  String get paywallPerMonth => '/মাস';
+
+  @override
+  String get paywallPerYear => '/বছর';
+
+  @override
+  String get paywallOnce => 'একবার';
+
+  @override
+  String get paywallBestValue => 'সেরা মূল্য';
+
+  @override
+  String get paywallForever => 'চিরকাল';
+
+  @override
+  String get paywallMonthlyDesc => 'মাসিক বিল';
+
+  @override
+  String get paywallYearlyDesc => 'বার্ষিক বিল';
+
+  @override
+  String get paywallLifetimeDesc => 'একবার দিন, চিরকাল রাখুন';
+
+  @override
+  String paywallTrial(String trial, String rest) {
+    return '$trial ফ্রি, তারপর $rest';
+  }
+
+  @override
+  String get paywallCtaLifetime => 'লাইফটাইম অ্যাক্সেস নিন';
+
+  @override
+  String get paywallCtaYearly => 'বার্ষিক প্ল্যান শুরু করুন';
+
+  @override
+  String get paywallCtaMonthly => 'মাসিক প্ল্যান শুরু করুন';
+
+  @override
+  String get paywallFootLifetime => 'এককালীন কেনা · কোনো সাবস্ক্রিপশন নেই';
+
+  @override
+  String get paywallFootSubscription =>
+      'স্বয়ংক্রিয়ভাবে নবায়ন · স্টোরে যেকোনো সময় বাতিল';
+
+  @override
+  String get paywallTerms =>
+      'সাবস্ক্রিপশনের চার্জ আপনার অ্যাপ স্টোর বা গুগল প্লে অ্যাকাউন্টে হবে এবং বর্তমান মেয়াদ শেষ হওয়ার অন্তত ২৪ ঘণ্টা আগে বাতিল না করলে স্বয়ংক্রিয়ভাবে নবায়ন হবে।';
+
+  @override
+  String get paywallIapUnavailable =>
+      'এই ডিভাইসে ইন-অ্যাপ কেনাকাটা পাওয়া যাচ্ছে না। গুগল প্লে সার্ভিস আছে এবং অ্যাপটি প্লে স্টোর থেকে নেওয়া কিনা দেখুন।';
+
+  @override
+  String get paywallLoadingPlans => 'প্ল্যান লোড হচ্ছে…';
+
+  @override
+  String get paywallPlansFailed =>
+      'প্ল্যান লোড হয়নি। সংযোগ দেখে আবার চেষ্টা করুন।';
+
+  @override
+  String get paywallTryAgain => 'আবার চেষ্টা';
+
+  @override
+  String get paywallRestored => 'কেনাকাটা রিস্টোর হয়েছে';
+
+  @override
+  String get paywallPurchased => 'প্রিমিয়ামে স্বাগতম!';
+
+  @override
+  String get paywallLifetimeNever => 'লাইফটাইম অ্যাক্সেসের মেয়াদ শেষ হয় না';
+
+  @override
+  String get helpSearchQuestions => 'প্রশ্ন খুঁজুন';
+
+  @override
+  String get helpStepWallets => 'ওয়ালেট যোগ করুন';
+
+  @override
+  String get helpStepCategories => 'ক্যাটাগরি বাছুন';
+
+  @override
+  String get helpStepTrack => 'প্রতিদিন লিখুন';
+
+  @override
+  String get splashTagline => 'টাকা, আরও উজ্জ্বল।';
+
+  @override
+  String get introStep1 => 'আপনার কয়েন গুনছি…';
+
+  @override
+  String get introStep2 => 'ওয়ালেটগুলো জাগাচ্ছি…';
+
+  @override
+  String get introStep3 => 'চার্টগুলো ঝকঝকে করছি…';
+
+  @override
+  String get introStep4 => 'প্রায় হয়ে গেছে…';
+
+  @override
+  String get introTipLabel => 'টাকার টিপস';
+
+  @override
+  String get introTip1 => 'আগে নিজেকে দিন: বেতন এলেই সঞ্চয় আলাদা করে রাখুন।';
+
+  @override
+  String get introTip2 => 'ছোট দৈনিক খরচ মিলে বড় হয়। লিখে রাখাই অর্ধেক কাজ।';
+
+  @override
+  String get introTip3 => '৩ মাসের জরুরি তহবিল বিপদকে ঝামেলায় বদলে দেয়।';
+
+  @override
+  String get introTip4 =>
+      'প্রতি মাসে সাবস্ক্রিপশন দেখুন: যা ব্যবহার করেননি তা বাদ দিন।';
+
+  @override
+  String get introTip5 => 'মাস শুরুর আগে প্রতিটি টাকার একটা কাজ ঠিক করুন।';
+
+  @override
+  String get introTip6 => 'অপরিকল্পিত কেনাকাটার আগে ২৪ ঘণ্টা অপেক্ষা করুন।';
+
+  @override
+  String get introTip7 =>
+      'বাজেট মানে বাধা নয়, গুরুত্বপূর্ণ জিনিসে খরচের অনুমতি।';
+
+  @override
+  String get introTip8 =>
+      'ছোট জয় উদযাপন করুন: প্রতিটি লক্ষ্য শুরু হয় প্রথম জমা থেকে।';
 }

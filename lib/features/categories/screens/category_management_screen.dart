@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/features/categories/providers/category_provider.dart'
@@ -45,27 +46,32 @@ class CategoryManagementScreen extends ConsumerWidget {
                 ],
               ),
             )
-          : Column(
-              children: [
-                // Expense categories section
-                _buildCategorySection(
-                  context,
-                  ref,
-                  'Expense Categories',
-                  categoryState.categories
-                      .where((c) => c.type == 'expense')
-                      .toList(),
-                ),
-                // Income categories section
-                _buildCategorySection(
-                  context,
-                  ref,
-                  'Income Categories',
-                  categoryState.categories
-                      .where((c) => c.type == 'income')
-                      .toList(),
-                ),
-              ],
+          : SingleChildScrollView(
+              // The two lists used to sit in a plain Column, which overflowed
+              // as soon as there were more categories than fit on screen.
+              padding: const EdgeInsets.only(bottom: 32),
+              child: Column(
+                children: [
+                  // Expense categories section
+                  _buildCategorySection(
+                    context,
+                    ref,
+                    'Expense Categories',
+                    categoryState.categories
+                        .where((c) => c.type == 'expense')
+                        .toList(),
+                  ),
+                  // Income categories section
+                  _buildCategorySection(
+                    context,
+                    ref,
+                    'Income Categories',
+                    categoryState.categories
+                        .where((c) => c.type == 'income')
+                        .toList(),
+                  ),
+                ],
+              ),
             ),
     );
   }
@@ -80,18 +86,15 @@ class CategoryManagementScreen extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Text(
-            title,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
+          padding: const EdgeInsets.fromLTRB(20, 18, 20, 0),
+          child: SectionLabel(title),
         ),
         if (categories.isEmpty)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Text(
               'No ${title.toLowerCase()} yet',
-              style: const TextStyle(color: Colors.grey),
+              style: TextStyle(color: context.sunrise.subtle),
             ),
           )
         else
@@ -108,6 +111,7 @@ class CategoryManagementScreen extends ConsumerWidget {
                 colorCode: category.colorCode,
                 type: category.type,
                 isDefault: category.isDefault,
+                iconName: category.iconName,
               );
 
               return category_list_item.CategoryListItem(

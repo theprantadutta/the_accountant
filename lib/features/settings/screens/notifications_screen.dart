@@ -1,3 +1,4 @@
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter/material.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart';
@@ -64,15 +65,19 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                   margin: EdgeInsets.only(top: AppSpacing.lg),
                   padding: EdgeInsets.all(AppSpacing.md),
                   decoration: BoxDecoration(
-                    color: AppColors.info.withValues(alpha: 0.1),
+                    color: AppColors.primaryAccent.withValues(alpha: 0.08),
                     borderRadius: AppSpacing.borderRadiusLg,
                     border: Border.all(
-                      color: AppColors.info.withValues(alpha: 0.3),
+                      color: AppColors.primaryAccent.withValues(alpha: 0.2),
                     ),
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.info_outline, color: AppColors.info, size: 24),
+                      Icon(
+                        Symbols.info_rounded,
+                        color: AppColors.primaryAccent,
+                        size: 24,
+                      ),
                       SizedBox(width: AppSpacing.md),
                       Expanded(
                         child: Text(
@@ -340,7 +345,6 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
     final result = await showDialog<double>(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: AppColors.primarySurface,
         title: Text(L10n.of(context).settingsLargeTransactionThreshold),
         content: TextField(
           controller: controller,
@@ -382,7 +386,6 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
     final result = await showDialog<int>(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: AppColors.primarySurface,
         title: Text(L10n.of(context).settingsRemindMeBeforeDueDate),
         content: RadioGroup<int>(
           groupValue: prefsState.reminderOffsetMinutes,

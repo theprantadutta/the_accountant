@@ -9,14 +9,14 @@ import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/core/themes/app_typography.dart';
 import 'package:the_accountant/core/utils/color_utils.dart';
 import 'package:the_accountant/core/utils/currency_formatter.dart';
-import 'package:the_accountant/core/utils/date_formatter.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart' as db;
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
 import 'package:the_accountant/data/models/wallet.dart' show WalletType;
 import 'package:the_accountant/features/settings/providers/settings_provider.dart';
 import 'package:the_accountant/features/transactions/screens/transaction_detail_screen.dart';
 import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
-import 'package:the_accountant/shared/widgets/glass_card.dart';
+import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
+import 'package:the_accountant/features/transactions/widgets/sunrise_transaction_row.dart';
 import 'package:the_accountant/shared/widgets/icon_picker.dart';
 
 /// One account: what is in it, what has moved through it, and what to do next.
@@ -59,15 +59,20 @@ class _WalletDetailScreenState extends ConsumerState<WalletDetailScreen> {
         .firstOrNull;
 
     if (wallet == null) {
-      return Scaffold(
-        appBar: AppBar(title: Text(L10n.of(context).entityAccount)),
-        body: Center(child: Text(L10n.of(context).walletGone)),
+      return SunrisePushPage(
+        title: L10n.of(context).entityAccount,
+        body: Center(
+          child: EmptyState(
+            icon: Symbols.account_balance_wallet_rounded,
+            title: L10n.of(context).walletGone,
+          ),
+        ),
       );
     }
 
+    final c = context.sunrise;
     final rows = _rows;
     final numberFormat = ref.watch(numberFormatSettingProvider);
-    final dateFormat = ref.watch(dateFormatSettingProvider);
 
     String money(int cents) => cents.formatCurrency(
       wallet.currency,
@@ -94,234 +99,192 @@ class _WalletDetailScreenState extends ConsumerState<WalletDetailScreen> {
     }
 
     final tint = ColorUtils.hexToColor(wallet.color);
+    final deep = Color.lerp(tint, Colors.black, .28)!;
+    final onGlass = context.sunrise.onFill.withValues(alpha: .22);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(wallet.name),
-        actions: [
-          PopupMenuButton<String>(
-            onSelected: (value) => _onAction(value, wallet),
-            itemBuilder: (context) => [
-              PopupMenuItem(
-                value: 'archive',
-                child: ListTile(
-                  leading: Icon(
-                    wallet.isArchived
-                        ? Icons.unarchive_outlined
-                        : Icons.archive_outlined,
-                  ),
-                  title: Text(wallet.isArchived ? 'Reopen' : 'Close account'),
-                  subtitle: Text(
-                    wallet.isArchived
-                        ? 'Offer it again and count it'
-                        : 'Keep its history, stop counting it',
-                  ),
-                  contentPadding: EdgeInsets.zero,
-                ),
-              ),
-              PopupMenuItem(
-                value: 'correct',
-                child: ListTile(
-                  leading: Icon(Icons.rule),
-                  title: Text(L10n.of(context).walletCorrectBalance),
-                  subtitle: Text(L10n.of(context).walletCorrectBalanceSubtitle),
-                  contentPadding: EdgeInsets.zero,
-                ),
-              ),
-              PopupMenuItem(
-                value: 'merge',
-                child: ListTile(
-                  leading: Icon(Icons.merge),
-                  title: Text(L10n.of(context).walletMergeInto),
-                  contentPadding: EdgeInsets.zero,
-                ),
-              ),
-              PopupMenuItem(
-                value: 'exclude',
-                child: ListTile(
-                  leading: const Icon(Icons.functions),
-                  title: Text(
-                    wallet.excludeFromTotal
-                        ? 'Include in the total'
-                        : 'Leave out of the total',
-                  ),
-                  contentPadding: EdgeInsets.zero,
-                ),
-              ),
-            ],
+    return SunrisePushPage(
+      title: wallet.name,
+      onRefresh: _load,
+      actions: [
+        SunriseIconButton(
+          icon: Symbols.more_horiz_rounded,
+          tooltip: MaterialLocalizations.of(context).showMenuTooltip,
+          onTap: () => _showActions(wallet),
+        ),
+      ],
+      children: [
+        GradientCard(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [tint, deep],
           ),
-        ],
-      ),
-      body: RefreshIndicator(
-        onRefresh: _load,
-        child: ListView(
-          padding: AppSpacing.paddingLg,
-          children: [
-            GlassCard(
-              padding: AppSpacing.paddingLg,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
                 children: [
-                  Row(
-                    children: [
-                      Container(
-                        width: 44,
-                        height: 44,
-                        decoration: BoxDecoration(
-                          color: tint.withValues(alpha: 0.18),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Icon(
-                          WalletIcons.getIcon(wallet.iconName),
-                          color: tint,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              money(wallet.balance),
-                              style: AppTypography.displaySmall,
-                            ),
-                            Text(
-                              wallet.currency,
-                              style: AppTypography.bodySmall.copyWith(
-                                color: AppColors.textSecondary,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+                  IconTile(
+                    icon: WalletIcons.getIcon(wallet.iconName),
+                    color: context.sunrise.onFill,
+                    background: onGlass,
+                    size: 48,
                   ),
-                  if (wallet.isArchived || wallet.excludeFromTotal) ...[
-                    AppSpacing.gapMd,
-                    Text(
-                      wallet.isArchived
-                          ? 'Closed. Its history is kept, but it is not offered '
-                                'or counted.'
-                          : 'Left out of the total across accounts.',
-                      style: AppTypography.bodySmall.copyWith(
-                        color: AppColors.warning,
-                      ),
-                    ),
-                  ],
-                  if (wallet.walletType == WalletType.creditCard &&
-                      wallet.creditLimit != null) ...[
-                    AppSpacing.gapMd,
-                    _CreditSummary(
-                      balanceCents: wallet.balance,
-                      limitCents: wallet.creditLimit!,
-                      money: money,
-                    ),
-                  ],
+                  const Spacer(),
+                  SunrisePill(
+                    label: wallet.currency,
+                    color: context.sunrise.onFill,
+                    background: onGlass,
+                  ),
                 ],
               ),
-            ),
-            AppSpacing.gapLg,
-
-            Row(
-              children: [
-                Expanded(
-                  child: _MonthStat(
-                    label: L10n.of(context).walletInThisMonth,
-                    value: money(inCents),
-                    tint: AppColors.success,
+              const SizedBox(height: 22),
+              Text(
+                L10n.of(context).entityAccount.toUpperCase(),
+                style: SunriseType.overline.copyWith(
+                  color: context.sunrise.onFill.withValues(alpha: .8),
+                ),
+              ),
+              const SizedBox(height: 4),
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  wallet.balance < 0
+                      ? '−${money(-wallet.balance)}'
+                      : money(wallet.balance),
+                  style: SunriseType.amountHero.copyWith(
+                    color: context.sunrise.onFill,
                   ),
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _MonthStat(
-                    label: L10n.of(context).walletOutThisMonth,
-                    value: money(outCents),
-                    tint: AppColors.error,
-                  ),
+              ),
+              if (wallet.isArchived || wallet.excludeFromTotal) ...[
+                const SizedBox(height: 12),
+                SunrisePill(
+                  icon: wallet.isArchived
+                      ? Symbols.archive_rounded
+                      : Symbols.functions_rounded,
+                  label: wallet.isArchived
+                      ? 'Closed. Its history is kept, but it is not offered '
+                            'or counted.'
+                      : 'Left out of the total across accounts.',
+                  color: context.sunrise.onFill,
+                  background: onGlass,
                 ),
               ],
-            ),
-            AppSpacing.gapLg,
+              if (wallet.walletType == WalletType.creditCard &&
+                  wallet.creditLimit != null) ...[
+                const SizedBox(height: 16),
+                _CreditSummary(
+                  balanceCents: wallet.balance,
+                  limitCents: wallet.creditLimit!,
+                  money: money,
+                ),
+              ],
+            ],
+          ),
+        ),
+        const SizedBox(height: 14),
 
-            GlassCard(
-              padding: AppSpacing.paddingLg,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    L10n.of(context).walletRecentActivity,
-                    style: AppTypography.titleSmall,
-                  ),
-                  AppSpacing.gapSm,
-                  if (rows == null)
-                    const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 24),
-                      child: Center(child: CircularProgressIndicator()),
-                    )
-                  else if (rows.isEmpty)
-                    Text(
-                      L10n.of(context).walletNothingRecordedAgainstThisAccount,
-                      style: AppTypography.bodySmall.copyWith(
-                        color: AppColors.textMuted,
-                      ),
-                    )
-                  else
-                    for (final t in rows.take(20))
-                      InkWell(
-                        onTap: () async {
-                          await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) =>
-                                  TransactionDetailScreen(transactionId: t.id),
-                            ),
-                          );
-                          await _load();
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      t.title.isEmpty ? 'Transaction' : t.title,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: AppTypography.bodyMedium,
-                                    ),
-                                    Text(
-                                      AppDateFormatter.formatShortDate(
-                                        t.date,
-                                        dateFormat,
-                                      ),
-                                      style: AppTypography.labelSmall.copyWith(
-                                        color: AppColors.textMuted,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Text(
-                                t.isIncome
-                                    ? '+${money(t.amount)}'
-                                    : money(t.amount),
-                                style: AppTypography.bodyMedium.copyWith(
-                                  color: t.isIncome
-                                      ? AppColors.success
-                                      : AppColors.textPrimary,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                ],
+        Row(
+          children: [
+            Expanded(
+              child: SunriseStatCard(
+                icon: Symbols.south_west_rounded,
+                iconColor: c.positive,
+                label: L10n.of(context).walletInThisMonth,
+                value: money(inCents),
               ),
             ),
-            AppSpacing.gapXxl,
+            const SizedBox(width: 12),
+            Expanded(
+              child: SunriseStatCard(
+                icon: Symbols.north_east_rounded,
+                iconColor: c.negative,
+                label: L10n.of(context).walletOutThisMonth,
+                value: money(outCents),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: SunriseSpace.section),
+
+        SectionTitle(L10n.of(context).walletRecentActivity),
+        if (rows == null)
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 32),
+            child: Center(child: SunriseLoader()),
+          )
+        else if (rows.isEmpty)
+          EmptyState(
+            compact: true,
+            icon: Symbols.receipt_long_rounded,
+            title: L10n.of(context).walletNothingRecordedAgainstThisAccount,
+          )
+        else
+          ListCard(
+            children: [
+              for (final t in rows.take(20))
+                SunriseTransactionRow(
+                  transaction: t,
+                  showDate: true,
+                  onTap: () async {
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            TransactionDetailScreen(transactionId: t.id),
+                      ),
+                    );
+                    await _load();
+                  },
+                ),
+            ],
+          ),
+      ],
+    );
+  }
+
+  void _showActions(db.Wallet wallet) {
+    void run(BuildContext sheet, String action) {
+      Navigator.pop(sheet);
+      _onAction(action, wallet);
+    }
+
+    showSunriseSheet<void>(
+      context: context,
+      builder: (sheet) => SunriseBottomSheet(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SheetAction(
+              icon: wallet.isArchived
+                  ? Symbols.unarchive_rounded
+                  : Symbols.archive_rounded,
+              label: wallet.isArchived ? 'Reopen' : 'Close account',
+              subtitle: wallet.isArchived
+                  ? 'Offer it again and count it'
+                  : 'Keep its history, stop counting it',
+              onTap: () => run(sheet, 'archive'),
+            ),
+            SheetAction(
+              icon: Symbols.rule_rounded,
+              label: L10n.of(context).walletCorrectBalance,
+              subtitle: L10n.of(context).walletCorrectBalanceSubtitle,
+              onTap: () => run(sheet, 'correct'),
+            ),
+            SheetAction(
+              icon: Symbols.merge_rounded,
+              label: L10n.of(context).walletMergeInto,
+              onTap: () => run(sheet, 'merge'),
+            ),
+            SheetAction(
+              icon: Symbols.functions_rounded,
+              label: wallet.excludeFromTotal
+                  ? 'Include in the total'
+                  : 'Leave out of the total',
+              onTap: () => run(sheet, 'exclude'),
+            ),
           ],
         ),
       ),
@@ -450,41 +413,6 @@ class _WalletDetailScreenState extends ConsumerState<WalletDetailScreen> {
   }
 }
 
-class _MonthStat extends StatelessWidget {
-  final String label;
-  final String value;
-  final Color tint;
-
-  const _MonthStat({
-    required this.label,
-    required this.value,
-    required this.tint,
-  });
-
-  @override
-  Widget build(BuildContext context) => GlassCard(
-    padding: AppSpacing.paddingLg,
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: AppTypography.labelSmall.copyWith(color: AppColors.textMuted),
-        ),
-        AppSpacing.gapSm,
-        FittedBox(
-          fit: BoxFit.scaleDown,
-          alignment: Alignment.centerLeft,
-          child: Text(
-            value,
-            style: AppTypography.titleMedium.copyWith(color: tint),
-          ),
-        ),
-      ],
-    ),
-  );
-}
-
 /// What is owed on a card and what is left to spend.
 ///
 /// A credit card's balance runs negative as it is used, so the amount
@@ -516,15 +444,15 @@ class _CreditSummary extends StatelessWidget {
           child: LinearProgressIndicator(
             value: used,
             minHeight: 6,
-            backgroundColor: AppColors.divider,
-            color: used > 0.8 ? AppColors.error : AppColors.primaryAccent,
+            backgroundColor: context.sunrise.onFill.withValues(alpha: .25),
+            color: context.sunrise.onFill,
           ),
         ),
         AppSpacing.gapSm,
         Text(
           '${money(outstanding)} owed · ${money(available)} still available',
-          style: AppTypography.bodySmall.copyWith(
-            color: AppColors.textSecondary,
+          style: SunriseType.body.copyWith(
+            color: context.sunrise.onFill.withValues(alpha: .9),
           ),
         ),
       ],

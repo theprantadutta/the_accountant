@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/core/themes/app_typography.dart';
@@ -83,6 +84,9 @@ class _NeoTextFieldState extends State<NeoTextField>
   bool _obscureText = false;
   String? _errorText;
 
+  /// What the form validator last reported, drawn under the box.
+  String? _validatorError;
+
   @override
   void initState() {
     super.initState();
@@ -142,21 +146,27 @@ class _NeoTextFieldState extends State<NeoTextField>
 
   @override
   Widget build(BuildContext context) {
+    final c = context.sunrise;
     final hasError = _errorText != null && _errorText!.isNotEmpty;
 
-    // Focus changes the colour of the outline, not its weight and not the area
-    // around it. The old treatment thickened the border to 2px and added a
-    // 10px accent glow, so the moment a field took focus it grew by a pixel on
-    // every side and lit up like something had gone wrong — which is the one
-    // thing the error state is supposed to mean.
+    // A field one step off whatever it sits on: white on the warm page in
+    // light, a lifted brown in dark, so it reads on cards as well as on the
+    // wash. Focus changes the outline's colour only, never its weight, so
+    // the field does not jump.
+    final fill = c.isDark ? const Color(0xFF2B1F19) : c.surface;
     final Color borderColor;
     if (hasError) {
-      borderColor = AppColors.error;
+      borderColor = c.negative;
     } else if (_isFocused) {
-      borderColor = AppColors.primaryAccent.withValues(alpha: 0.7);
+      borderColor = c.accent;
     } else {
-      borderColor = AppColors.glassBorder;
+      borderColor = c.isDark ? const Color(0x14FFFFFF) : c.tabBarBorder;
     }
+    final iconColor = hasError
+        ? c.negative
+        : _isFocused
+        ? c.accent
+        : c.subtle;
 
     return AnimatedBuilder(
       animation: _shakeAnimation,
@@ -174,13 +184,34 @@ class _NeoTextFieldState extends State<NeoTextField>
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          AnimatedContainer(
-            duration: AppAnimations.fast,
-            decoration: BoxDecoration(
-              color: AppColors.glassWhite,
-              borderRadius: AppSpacing.borderRadiusLg,
-              border: Border.all(color: borderColor),
+          if (widget.label != null)
+            Padding(
+              padding: const EdgeInsetsDirectional.only(start: 4, bottom: 8),
+              child: Text(
+                widget.label!,
+                style: SunriseType.label.copyWith(
+                  color: hasError ? c.negative : c.muted,
+                ),
+              ),
             ),
+          AnimatedContainer(
+            duration: SunriseMotion.press,
+            constraints: const BoxConstraints(minHeight: 54),
+            decoration: BoxDecoration(
+              color: fill,
+              borderRadius: SunriseRadius.inputAll,
+              border: Border.all(color: borderColor, width: 1.5),
+              boxShadow: _isFocused && !hasError
+                  ? [
+                      BoxShadow(
+                        color: c.accent.withValues(alpha: .14),
+                        blurRadius: 0,
+                        spreadRadius: 4,
+                      ),
+                    ]
+                  : (c.isDark ? null : c.cardShadow),
+            ),
+            alignment: Alignment.center,
             child: TextFormField(
               controller: widget.controller,
               focusNode: _focusNode,
@@ -190,7 +221,17 @@ class _NeoTextFieldState extends State<NeoTextField>
               onChanged: widget.onChanged,
               onFieldSubmitted: widget.onSubmitted,
               onTap: widget.onTap,
-              validator: widget.validator,
+              validator: (value) {
+                final error = widget.validator?.call(value);
+                // Shown under the box rather than inside it, so the field
+                // keeps its height when a message appears.
+                if (error != _validatorError) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (mounted) setState(() => _validatorError = error);
+                  });
+                }
+                return error == null ? null : '';
+              },
               inputFormatters: widget.inputFormatters,
               maxLines: widget.obscureText ? 1 : widget.maxLines,
               minLines: widget.minLines,
@@ -201,69 +242,72 @@ class _NeoTextFieldState extends State<NeoTextField>
               textCapitalization: widget.textCapitalization,
               autocorrect: widget.autocorrect,
               enableSuggestions: widget.enableSuggestions,
-              style: AppTypography.bodyLarge.copyWith(
-                color: widget.enabled
-                    ? AppColors.textPrimary
-                    : AppColors.textMuted,
+              style: SunriseType.body.copyWith(
+                color: widget.enabled ? c.ink : c.subtle,
+                fontSize: 16,
               ),
-              cursorColor: AppColors.primaryAccent,
+              cursorColor: c.accent,
               decoration: InputDecoration(
-                labelText: widget.label,
                 hintText: widget.hint,
-                labelStyle: AppTypography.bodyMedium.copyWith(
-                  color: AppColors.textMuted,
+                hintStyle: SunriseType.body.copyWith(
+                  color: c.faint,
+                  fontSize: 16,
                 ),
-                hintStyle: AppTypography.bodyMedium.copyWith(
-                  color: AppColors.textMuted,
-                ),
-                floatingLabelStyle: AppTypography.labelSmall.copyWith(
-                  color: hasError ? AppColors.error : AppColors.textMuted,
-                ),
+                filled: false,
+                isDense: true,
                 prefixIcon: widget.prefixIcon != null
-                    ? Icon(
-                        widget.prefixIcon,
-                        color: _isFocused
-                            ? AppColors.textSecondary
-                            : AppColors.textMuted,
-                        size: AppSpacing.iconSm,
-                      )
+                    ? Icon(widget.prefixIcon, color: iconColor, size: 22)
                     : null,
+                prefixIconConstraints: const BoxConstraints(minWidth: 50),
                 suffixIcon: widget.obscureText
                     ? IconButton(
                         icon: Icon(
                           _obscureText
-                              ? Icons.visibility_outlined
-                              : Icons.visibility_off_outlined,
-                          color: AppColors.textMuted,
-                          size: AppSpacing.iconSm,
+                              ? Symbols.visibility_rounded
+                              : Symbols.visibility_off_rounded,
+                          color: c.subtle,
+                          size: 22,
                         ),
                         onPressed: _toggleObscureText,
                       )
                     : widget.suffixIcon,
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.lg,
-                  vertical: AppSpacing.md,
+                contentPadding: EdgeInsetsDirectional.fromSTEB(
+                  widget.prefixIcon == null ? 16 : 0,
+                  16,
+                  16,
+                  16,
                 ),
                 border: InputBorder.none,
                 enabledBorder: InputBorder.none,
                 focusedBorder: InputBorder.none,
                 errorBorder: InputBorder.none,
                 focusedErrorBorder: InputBorder.none,
+                disabledBorder: InputBorder.none,
+                errorStyle: const TextStyle(height: 0, fontSize: 0),
                 counterText: '',
               ),
             ),
           ),
-          if (_errorText != null || widget.helperText != null) ...[
-            AppSpacing.gapXs,
+          if (_shownError != null || widget.helperText != null) ...[
+            const SizedBox(height: 6),
             Padding(
-              padding: EdgeInsets.only(left: AppSpacing.md),
-              child: Text(
-                _errorText ?? widget.helperText ?? '',
-                style: AppTypography.bodySmall.copyWith(
-                  color: _errorText != null
-                      ? AppColors.error
-                      : AppColors.textMuted,
-                ),
+              padding: const EdgeInsetsDirectional.only(start: 4),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (_shownError != null) ...[
+                    Icon(Symbols.error_rounded, size: 15, color: c.negative),
+                    const SizedBox(width: 6),
+                  ],
+                  Expanded(
+                    child: Text(
+                      _shownError ?? widget.helperText ?? '',
+                      style: SunriseType.caption.copyWith(
+                        color: _shownError != null ? c.negative : c.subtle,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
@@ -271,6 +315,12 @@ class _NeoTextFieldState extends State<NeoTextField>
       ),
     );
   }
+
+  /// The message under the box: an explicit [NeoTextField.errorText] first,
+  /// then whatever the validator said last.
+  String? get _shownError => (_errorText != null && _errorText!.isNotEmpty)
+      ? _errorText
+      : _validatorError;
 }
 
 /// A search text field with glass styling
@@ -336,9 +386,8 @@ class _NeoSearchFieldState extends State<NeoSearchField> {
     return Container(
       height: AppSpacing.inputHeight,
       decoration: BoxDecoration(
-        color: AppColors.glassWhite,
-        borderRadius: AppSpacing.borderRadiusFull,
-        border: Border.all(color: AppColors.glassBorder, width: 1),
+        color: AppColors.primarySurface,
+        borderRadius: BorderRadius.circular(14),
       ),
       child: TextField(
         controller: _controller,

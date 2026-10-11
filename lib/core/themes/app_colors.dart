@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:the_accountant/core/themes/app_palette.dart';
 
+import 'package:the_accountant/core/themes/sunrise/sunrise_colors.dart';
+
 export 'package:the_accountant/core/themes/app_palette.dart' show AppPalette;
 
 /// The colour vocabulary the whole app is written in.
@@ -114,36 +116,27 @@ class AppColors {
   // GRADIENTS
   // ============================================
 
-  /// Brand gradients do not change with the theme.
+  /// Brand gradients follow the accent in force.
   ///
-  /// They are the identity of the app rather than part of its surface, and they
-  /// are always drawn behind white text, so they read the same either way.
-  static const LinearGradient primaryGradient = LinearGradient(
-    colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-  );
+  /// They used to be fixed indigo constants, which is part of why a premium
+  /// theme barely showed: every hero card and primary button kept the default
+  /// colours. They are drawn behind white text, so they read either way.
+  static SunriseColors get _sunrise => _palette.sunrise ?? SunriseColors.dark;
 
-  static const LinearGradient secondaryGradient = LinearGradient(
-    colors: [Color(0xFF06B6D4), Color(0xFF10B981)],
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-  );
+  static LinearGradient get primaryGradient => _sunrise.gradient;
 
-  static const LinearGradient accentGradient = LinearGradient(
-    colors: [Color(0xFFEC4899), Color(0xFFA855F7)],
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-  );
+  static LinearGradient get secondaryGradient => _sunrise.gradientShort;
+
+  static LinearGradient get accentGradient => _sunrise.headerGradient;
 
   static const LinearGradient successGradient = LinearGradient(
-    colors: [Color(0xFF10B981), Color(0xFF34D399)],
+    colors: [Color(0xFF22C55E), Color(0xFF16A34A)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
   static const LinearGradient errorGradient = LinearGradient(
-    colors: [Color(0xFFEF4444), Color(0xFFF87171)],
+    colors: [Color(0xFFFB7185), Color(0xFFE11D48)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );

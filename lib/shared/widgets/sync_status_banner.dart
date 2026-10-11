@@ -1,13 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/providers/sync_provider.dart';
 import 'package:the_accountant/core/services/sync/sync_models.dart';
 import 'package:the_accountant/core/themes/app_animations.dart';
-import 'package:the_accountant/core/themes/app_colors.dart';
-import 'package:the_accountant/core/themes/app_spacing.dart';
-import 'package:the_accountant/core/themes/app_typography.dart';
 
 /// A subtle, non-blocking pill that floats at the top of the dashboard to show
 /// background/periodic sync activity. Shows "Syncing…" while a sync runs and a
@@ -56,7 +54,7 @@ class _SyncStatusBannerState extends ConsumerState<SyncStatusBanner> {
       child: AnimatedSlide(
         duration: AppAnimations.normal,
         curve: AppAnimations.easeOut,
-        offset: visible ? Offset.zero : const Offset(0, -1.5),
+        offset: visible ? Offset.zero : const Offset(0, 1.5),
         child: AnimatedOpacity(
           duration: AppAnimations.normal,
           opacity: visible ? 1 : 0,
@@ -67,19 +65,13 @@ class _SyncStatusBannerState extends ConsumerState<SyncStatusBanner> {
   }
 
   Widget _pill(bool isSyncing) {
+    final c = context.sunrise;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
       decoration: BoxDecoration(
-        color: AppColors.primaryElevated.withValues(alpha: 0.95),
-        borderRadius: AppSpacing.borderRadiusFull,
-        border: Border.all(color: AppColors.glassBorder),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.glassShadow,
-            blurRadius: 16,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        color: c.chipActiveBg,
+        borderRadius: BorderRadius.circular(SunriseRadius.chip),
+        boxShadow: c.cardShadow,
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -90,23 +82,22 @@ class _SyncStatusBannerState extends ConsumerState<SyncStatusBanner> {
               height: 14,
               child: CircularProgressIndicator(
                 strokeWidth: 2,
-                valueColor: AlwaysStoppedAnimation<Color>(
-                  AppColors.primaryAccent,
-                ),
+                color: c.isDark ? c.accentText : c.gradientStart,
               ),
             )
           else
             Icon(
-              Icons.check_circle_rounded,
+              Symbols.check_circle_rounded,
               size: 16,
-              color: AppColors.success,
+              fill: 1,
+              color: c.isDark
+                  ? const Color(0xFF16A34A)
+                  : const Color(0xFF4ADE80),
             ),
-          AppSpacing.gapHSm,
+          const SizedBox(width: 8),
           Text(
             isSyncing ? 'Syncing…' : 'Synced',
-            style: AppTypography.labelMedium.copyWith(
-              color: AppColors.textPrimary,
-            ),
+            style: SunriseType.label.copyWith(color: c.chipActiveFg),
           ),
         ],
       ),

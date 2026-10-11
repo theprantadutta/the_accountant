@@ -1,3 +1,4 @@
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter/material.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart';
@@ -9,7 +10,6 @@ import 'package:the_accountant/core/themes/app_typography.dart';
 import 'package:the_accountant/features/authentication/presentation/widgets/auth_background.dart';
 import 'package:the_accountant/features/authentication/presentation/widgets/auth_brand_header.dart';
 import 'package:the_accountant/features/authentication/providers/auth_provider.dart';
-import 'package:the_accountant/shared/widgets/glass_card.dart';
 import 'package:the_accountant/shared/widgets/neo_button.dart';
 import 'package:the_accountant/shared/widgets/neo_text_field.dart';
 
@@ -157,10 +157,8 @@ class _AccountLinkingScreenState extends ConsumerState<AccountLinkingScreen>
   }
 
   Widget _buildForm(AuthState authState) {
-    return GlassCard(
-      padding: AppSpacing.paddingXl,
-      enableBlur: true,
-      blurAmount: 14,
+    return Padding(
+      padding: EdgeInsets.zero,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -199,16 +197,18 @@ class _AccountLinkingScreenState extends ConsumerState<AccountLinkingScreen>
     return Container(
       padding: AppSpacing.paddingMd,
       decoration: BoxDecoration(
-        color: AppColors.info.withValues(alpha: 0.1),
-        border: Border.all(color: AppColors.info.withValues(alpha: 0.3)),
+        color: AppColors.primaryAccent.withValues(alpha: 0.08),
+        border: Border.all(
+          color: AppColors.primaryAccent.withValues(alpha: 0.2),
+        ),
         borderRadius: AppSpacing.borderRadiusMd,
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(
-            Icons.info_outline_rounded,
-            color: AppColors.info,
+            Symbols.info_rounded,
+            color: AppColors.primaryAccent,
             size: AppSpacing.iconSm,
           ),
           AppSpacing.gapHMd,

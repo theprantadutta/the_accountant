@@ -64,7 +64,9 @@ class WalletNotifier extends StateNotifier<WalletState> {
       // answer of its own, so a choice made here or arriving from another
       // device is not undone by an older preference. It can run more than once
       // — archiving or deleting the default account brings the condition back.
-      await _database.reconcileDefaultWallet(_ref.read(defaultWalletIdProvider));
+      await _database.reconcileDefaultWallet(
+        _ref.read(defaultWalletIdProvider),
+      );
 
       final wallets = await _database.getAllWallets();
 

@@ -1,3 +1,4 @@
+import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
 import 'package:flutter/material.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart';
@@ -37,7 +38,8 @@ class SubscriptionDashboardScreen extends ConsumerWidget {
             style: AppTypography.headlineSmall,
           ),
           leading: IconButton(
-            icon: Icon(Icons.arrow_back_ios_new, color: AppColors.textPrimary),
+            tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+            icon: const BackButtonIcon(),
             onPressed: () => Navigator.pop(context),
           ),
         ),
@@ -122,38 +124,14 @@ class SubscriptionDashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.subscriptions_outlined,
-            size: 80,
-            color: AppColors.textMuted,
-          ),
-          AppSpacing.gapLg,
-          Text(
-            'No subscriptions or bills',
-            style: AppTypography.titleMedium.copyWith(
-              color: AppColors.textSecondary,
-            ),
-          ),
-          AppSpacing.gapSm,
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 32),
-            child: Text(
-              'Add subscription or recurring bill transactions to track them here',
-              style: AppTypography.bodyMedium.copyWith(
-                color: AppColors.textMuted,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  Widget _buildEmptyState() => const Center(
+    child: EmptyState(
+      icon: Symbols.autorenew_rounded,
+      title: 'No subscriptions or bills',
+      message:
+          'Add subscription or recurring bill transactions to track them here',
+    ),
+  );
 
   Widget _buildSummaryCard(SubscriptionDashboardState state, WidgetRef ref) {
     final monthlyFormat = AppNumberFormatter.currency(
@@ -163,7 +141,7 @@ class SubscriptionDashboardScreen extends ConsumerWidget {
 
     return GlassCard(
       padding: AppSpacing.paddingLg,
-      variant: GlassCardVariant.purple,
+      variant: GlassCardVariant.standard,
       child: Column(
         children: [
           // Monthly cost
@@ -262,11 +240,7 @@ class _SubscriptionCard extends ConsumerWidget {
       padding: const EdgeInsets.only(bottom: 10),
       child: GlassCard(
         padding: AppSpacing.paddingMd,
-        variant: isPaused
-            ? GlassCardVariant.standard
-            : (isRepetitive
-                  ? GlassCardVariant.standard
-                  : GlassCardVariant.purple),
+        variant: GlassCardVariant.standard,
         onTap: () async {
           final result = await showEditSubscriptionBottomSheet(
             context,
@@ -421,6 +395,8 @@ class _SubscriptionCard extends ConsumerWidget {
                       foregroundColor: AppColors.textSecondary,
                       side: BorderSide(color: AppColors.glassBorder),
                       padding: const EdgeInsets.symmetric(vertical: 6),
+                      minimumSize: const Size(0, 42),
+                      shape: const StadiumBorder(),
                     ),
                   ),
                 ),
@@ -440,6 +416,8 @@ class _SubscriptionCard extends ConsumerWidget {
                         color: AppColors.error.withValues(alpha: 0.4),
                       ),
                       padding: const EdgeInsets.symmetric(vertical: 6),
+                      minimumSize: const Size(0, 42),
+                      shape: const StadiumBorder(),
                     ),
                   ),
                 ),
@@ -455,8 +433,6 @@ class _SubscriptionCard extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: AppColors.primarySurface,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Row(
           children: [
             Container(

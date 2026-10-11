@@ -1,3 +1,4 @@
+import 'package:material_symbols_icons/symbols.dart';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
@@ -135,13 +136,15 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
     return Container(
       padding: EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        color: AppColors.info.withValues(alpha: 0.1),
+        color: AppColors.primaryAccent.withValues(alpha: 0.08),
         borderRadius: AppSpacing.borderRadiusLg,
-        border: Border.all(color: AppColors.info.withValues(alpha: 0.3)),
+        border: Border.all(
+          color: AppColors.primaryAccent.withValues(alpha: 0.2),
+        ),
       ),
       child: Row(
         children: [
-          Icon(Icons.info_outline, color: AppColors.info),
+          Icon(Symbols.info_rounded, color: AppColors.primaryAccent),
           SizedBox(width: AppSpacing.sm),
           Expanded(
             child: Text(
@@ -312,7 +315,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
         style: TextStyle(color: AppColors.textMuted, fontSize: 13),
       ),
       trailing: locked
-          ? const Icon(Icons.lock_outline, color: Colors.amber, size: 20)
+          ? Icon(Icons.lock_outline, color: AppColors.warning, size: 20)
           : Container(
               width: 24,
               height: 24,
@@ -355,14 +358,14 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: Colors.amber.withValues(alpha: 0.15),
+        color: AppColors.warning.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: Colors.amber.withValues(alpha: 0.4)),
+        border: Border.all(color: AppColors.warning.withValues(alpha: 0.4)),
       ),
       child: Text(
         L10n.of(context).settingsPremium,
         style: TextStyle(
-          color: Colors.amber,
+          color: AppColors.warning,
           fontSize: 10,
           fontWeight: FontWeight.bold,
           letterSpacing: 0.5,
@@ -375,11 +378,9 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        backgroundColor: AppColors.primarySurface,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Row(
           children: [
-            const Icon(Icons.picture_as_pdf_outlined, color: Colors.amber),
+            Icon(Icons.picture_as_pdf_outlined, color: AppColors.warning),
             const SizedBox(width: 8),
             Text(
               L10n.of(context).settingsPdfReports,
@@ -404,7 +405,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
               Navigator.pushNamed(context, '/premium');
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.amber,
+              backgroundColor: AppColors.warning,
               foregroundColor: Colors.black,
             ),
             child: Text(L10n.of(context).settingsGoPremium),

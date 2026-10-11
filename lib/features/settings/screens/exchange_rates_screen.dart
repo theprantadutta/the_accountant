@@ -256,7 +256,6 @@ class _ExchangeRatesScreenState extends ConsumerState<ExchangeRatesScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: AppColors.primarySurface,
         title: Text('Edit Rate: $_baseCurrency → $currencyCode'),
         content: Column(
           mainAxisSize: MainAxisSize.min,

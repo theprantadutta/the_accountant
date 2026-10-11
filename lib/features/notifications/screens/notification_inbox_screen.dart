@@ -58,7 +58,8 @@ class _NotificationInboxScreenState
         elevation: 0,
         title: Text(L10n.of(context).settingsNotifications),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+          icon: const BackButtonIcon(),
           onPressed: () => Navigator.of(context).pop(),
         ),
         actions: [
@@ -245,12 +246,6 @@ class _NotificationInboxScreenState
   void _showNotificationDetail(NotificationItem notification) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppColors.primarySurface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(AppSpacing.radiusXl),
-        ),
-      ),
       builder: (context) => Padding(
         padding: AppSpacing.paddingXl,
         child: Column(

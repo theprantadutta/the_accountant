@@ -1,10 +1,9 @@
+import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
 import 'package:flutter/material.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/providers/currency_provider.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
-import 'package:the_accountant/core/themes/app_spacing.dart';
-import 'package:the_accountant/core/themes/app_typography.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
 import 'package:the_accountant/features/budgets/domain/budget_engine.dart';
 import 'package:the_accountant/features/budgets/providers/budget_provider.dart';
@@ -118,10 +117,6 @@ class _BudgetListScreenState extends ConsumerState<BudgetListScreen> {
   Future<void> _showActions(BudgetView budget) async {
     final action = await showModalBottomSheet<String>(
       context: context,
-      backgroundColor: AppColors.primarySurface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
       builder: (context) => SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -243,54 +238,17 @@ class _EmptyBudgets extends StatelessWidget {
   const _EmptyBudgets({required this.archived, this.onCreate});
 
   @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: AppSpacing.paddingXl,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                color: AppColors.glassWhite,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                archived ? Icons.archive_outlined : Icons.pie_chart_outline,
-                size: 40,
-                color: AppColors.textMuted,
-              ),
-            ),
-            AppSpacing.gapXl,
-            Text(
-              archived ? 'Nothing archived' : 'No budgets yet',
-              style: AppTypography.titleMedium.copyWith(
-                color: AppColors.textSecondary,
-              ),
-            ),
-            AppSpacing.gapSm,
-            Text(
-              archived
-                  ? 'Budgets you archive are kept here.'
-                  : 'Set a limit for a category and see how the month is going.',
-              textAlign: TextAlign.center,
-              style: AppTypography.bodySmall.copyWith(
-                color: AppColors.textMuted,
-              ),
-            ),
-            if (onCreate != null) ...[
-              AppSpacing.gapXl,
-              FilledButton.icon(
-                onPressed: onCreate,
-                icon: const Icon(Icons.add),
-                label: Text(L10n.of(context).budgetCreate),
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => Center(
+    child: EmptyState(
+      icon: archived ? Symbols.archive_rounded : Symbols.donut_large_rounded,
+      title: archived ? 'Nothing archived' : 'No budgets yet',
+      message: archived
+          ? 'Budgets you archive are kept here.'
+          : 'Set a limit for a category and see how the month is going.',
+      actionLabel: archived || onCreate == null
+          ? null
+          : L10n.of(context).budgetCreate,
+      onAction: onCreate,
+    ),
+  );
 }

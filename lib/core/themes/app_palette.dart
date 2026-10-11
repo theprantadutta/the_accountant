@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/core/themes/sunrise/sunrise_colors.dart';
 
 /// Every colour the app draws with, as one swappable set.
 ///
@@ -58,6 +59,7 @@ class AppPalette {
     required this.warningCardGradient,
     required this.cyanCardGradient,
     required this.purpleCardGradient,
+    this.sunrise,
   });
 
   /// Whether this palette is meant for a light or a dark surface.
@@ -115,194 +117,83 @@ class AppPalette {
 
   bool get isDark => brightness == Brightness.dark;
 
-  // ---------------------------------------------------------------- dark
-
-  /// The original palette, value for value.
+  /// The Sunrise tokens this palette was derived from.
   ///
-  /// Nothing here is new. It is the set the whole app was designed against,
-  /// lifted out of the constants it used to live in, so that the light set
-  /// below can be its peer rather than an afterthought.
-  static const AppPalette dark = AppPalette(
-    brightness: Brightness.dark,
-    primaryDark: Color(0xFF0D0D1A),
-    primarySurface: Color(0xFF1A1A2E),
-    primaryElevated: Color(0xFF252542),
-    primaryAccent: Color(0xFF6366F1),
-    primaryGlow: Color(0xFF818CF8),
-    primaryPressed: Color(0xFF4F46E5),
-    neonCyan: Color(0xFF22D3EE),
-    neonPurple: Color(0xFFA855F7),
-    neonPink: Color(0xFFEC4899),
-    neonBlue: Color(0xFF3B82F6),
-    success: Color(0xFF10B981),
-    successLight: Color(0xFF34D399),
-    successDark: Color(0xFF059669),
-    error: Color(0xFFEF4444),
-    errorLight: Color(0xFFF87171),
-    errorDark: Color(0xFFDC2626),
-    warning: Color(0xFFF59E0B),
-    warningLight: Color(0xFFFBBF24),
-    warningDark: Color(0xFFD97706),
-    info: Color(0xFF3B82F6),
-    infoLight: Color(0xFF60A5FA),
-    infoDark: Color(0xFF2563EB),
-    textPrimary: Color(0xFFF8FAFC),
-    textSecondary: Color(0xFF94A3B8),
-    textMuted: Color(0xFF64748B),
-    textInverse: Color(0xFF0F172A),
-    glassWhite: Color(0x0DFFFFFF),
-    glassBorder: Color(0x306366F1),
-    glassHighlight: Color(0x33FFFFFF),
-    glassShadow: Color(0x40000000),
-    divider: Color(0xFF2D2D44),
-    backgroundGradient: LinearGradient(
-      colors: [Color(0xFF0D0D1A), Color(0xFF1A1A2E), Color(0xFF0D0D1A)],
-      begin: Alignment.topCenter,
-      end: Alignment.bottomCenter,
-      stops: [0.0, 0.5, 1.0],
-    ),
-    cardGradient: LinearGradient(
-      colors: [Color(0xFF1E1E38), Color(0xFF2A2A4A)],
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-    ),
-    glassGradient: LinearGradient(
-      colors: [Color(0x206366F1), Color(0x10252542)],
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-    ),
-    accentCardGradient: LinearGradient(
-      colors: [Color(0x256366F1), Color(0x15818CF8)],
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-    ),
-    successCardGradient: LinearGradient(
-      colors: [Color(0x2010B981), Color(0x1034D399)],
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-    ),
-    errorCardGradient: LinearGradient(
-      colors: [Color(0x20EF4444), Color(0x10F87171)],
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-    ),
-    infoCardGradient: LinearGradient(
-      colors: [Color(0x203B82F6), Color(0x1060A5FA)],
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-    ),
-    warningCardGradient: LinearGradient(
-      colors: [Color(0x20F59E0B), Color(0x10FBBF24)],
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-    ),
-    cyanCardGradient: LinearGradient(
-      colors: [Color(0x2022D3EE), Color(0x1006B6D4)],
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-    ),
-    purpleCardGradient: LinearGradient(
-      colors: [Color(0x20A855F7), Color(0x108B5CF6)],
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-    ),
-  );
+  /// Kept so `AppColors` can hand out the brand gradients of the accent in
+  /// force, which have no slot of their own in the legacy vocabulary.
+  final SunriseColors? sunrise;
 
-  // --------------------------------------------------------------- light
+  /// Sunrise Light in the default accent.
+  static AppPalette get light => fromSunrise(SunriseColors.light);
 
-  /// The same design, lit from the other side.
+  /// Sunrise Dark in the default accent.
+  static AppPalette get dark => fromSunrise(SunriseColors.dark);
+
+  static final Expando<AppPalette> _bySunrise = Expando('AppPalette');
+
+  /// The legacy names, filled from the Sunrise tokens.
   ///
-  /// Two things are not simply inverted. The accents are a step darker than
-  /// their dark-theme counterparts, because a colour with enough contrast
-  /// against near-black almost never has enough against white — indigo 500 on
-  /// white is a little under 4.5:1, indigo 600 clears it. And the tinted card
-  /// gradients carry roughly half again the alpha, because a wash that reads
-  /// clearly over a dark surface disappears entirely over a white one.
-  static const AppPalette light = AppPalette(
-    brightness: Brightness.light,
-    primaryDark: Color(0xFFF1F5F9),
-    primarySurface: Color(0xFFFFFFFF),
-    primaryElevated: Color(0xFFFFFFFF),
-    primaryAccent: Color(0xFF4F46E5),
-    primaryGlow: Color(0xFF6366F1),
-    primaryPressed: Color(0xFF4338CA),
-    neonCyan: Color(0xFF0891B2),
-    neonPurple: Color(0xFF9333EA),
-    neonPink: Color(0xFFDB2777),
-    neonBlue: Color(0xFF2563EB),
-    success: Color(0xFF059669),
-    successLight: Color(0xFF10B981),
-    successDark: Color(0xFF047857),
-    error: Color(0xFFDC2626),
-    errorLight: Color(0xFFEF4444),
-    errorDark: Color(0xFFB91C1C),
-    warning: Color(0xFFB45309),
-    warningLight: Color(0xFFD97706),
-    warningDark: Color(0xFF92400E),
-    info: Color(0xFF2563EB),
-    infoLight: Color(0xFF3B82F6),
-    infoDark: Color(0xFF1D4ED8),
-    textPrimary: Color(0xFF0F172A),
-    textSecondary: Color(0xFF475569),
-    textMuted: Color(0xFF64748B),
-    textInverse: Color(0xFFF8FAFC),
-    glassWhite: Color(0x0A0F172A),
-    glassBorder: Color(0x334F46E5),
-    glassHighlight: Color(0x14000000),
-    glassShadow: Color(0x1A0F172A),
-    divider: Color(0xFFE2E8F0),
-    backgroundGradient: LinearGradient(
-      colors: [Color(0xFFFFFFFF), Color(0xFFEEF2F8), Color(0xFFFFFFFF)],
-      begin: Alignment.topCenter,
-      end: Alignment.bottomCenter,
-      stops: [0.0, 0.5, 1.0],
-    ),
-    cardGradient: LinearGradient(
-      colors: [Color(0xFFFFFFFF), Color(0xFFF6F8FC)],
+  /// Every `AppColors.*` call site in the app reads through this, so deriving
+  /// it from the same tokens as the `ThemeData` is what makes the redesign,
+  /// light/dark and the premium accents reach screens that have not been
+  /// rebuilt yet. Cached per token set so [AppColors.usePalette] can compare by
+  /// identity on every rebuild.
+  static AppPalette fromSunrise(SunriseColors c) =>
+      _bySunrise[c] ??= _derive(c);
+
+  static AppPalette _derive(SunriseColors c) {
+    final d = c.isDark;
+    LinearGradient pair(Color a, Color b) => LinearGradient(
+      colors: [a, b],
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
-    ),
-    glassGradient: LinearGradient(
-      colors: [Color(0x146366F1), Color(0x0AF8FAFC)],
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-    ),
-    accentCardGradient: LinearGradient(
-      colors: [Color(0x2E4F46E5), Color(0x1A6366F1)],
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-    ),
-    successCardGradient: LinearGradient(
-      colors: [Color(0x2E059669), Color(0x1A10B981)],
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-    ),
-    errorCardGradient: LinearGradient(
-      colors: [Color(0x2EDC2626), Color(0x1AEF4444)],
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-    ),
-    infoCardGradient: LinearGradient(
-      colors: [Color(0x2E2563EB), Color(0x1A3B82F6)],
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-    ),
-    warningCardGradient: LinearGradient(
-      colors: [Color(0x2EB45309), Color(0x1AD97706)],
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-    ),
-    cyanCardGradient: LinearGradient(
-      colors: [Color(0x2E0891B2), Color(0x1A06B6D4)],
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-    ),
-    purpleCardGradient: LinearGradient(
-      colors: [Color(0x2E9333EA), Color(0x1AA855F7)],
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-    ),
-  );
+    );
+    return AppPalette(
+      brightness: c.brightness,
+      sunrise: c,
+      primaryDark: c.base,
+      primarySurface: c.surface,
+      primaryElevated: d ? const Color(0xFF2B1F19) : c.surface,
+      primaryAccent: c.accent,
+      primaryGlow: c.gradientStart,
+      primaryPressed: c.accentText,
+      neonCyan: c.gradientEnd,
+      neonPurple: d ? const Color(0xFFA78BFA) : const Color(0xFF7C3AED),
+      neonPink: d ? const Color(0xFFF472B6) : const Color(0xFFDB2777),
+      neonBlue: d ? const Color(0xFF60A5FA) : const Color(0xFF2563EB),
+      success: c.positive,
+      successLight: d ? const Color(0xFF86EFAC) : const Color(0xFF22C55E),
+      successDark: d ? const Color(0xFF22C55E) : const Color(0xFF15803D),
+      error: c.negative,
+      errorLight: d ? const Color(0xFFFDA4AF) : const Color(0xFFF43F5E),
+      errorDark: d ? const Color(0xFFF43F5E) : const Color(0xFFBE123C),
+      warning: d ? const Color(0xFFFBBF24) : const Color(0xFFB45309),
+      warningLight: d ? const Color(0xFFFCD34D) : const Color(0xFFD97706),
+      warningDark: d ? const Color(0xFFF59E0B) : const Color(0xFF92400E),
+      info: d ? const Color(0xFF38BDF8) : const Color(0xFF0369A1),
+      infoLight: d ? const Color(0xFF7DD3FC) : const Color(0xFF0284C7),
+      infoDark: d ? const Color(0xFF0EA5E9) : const Color(0xFF075985),
+      textPrimary: c.ink,
+      textSecondary: c.muted,
+      textMuted: c.subtle,
+      textInverse: c.base,
+      glassWhite: d ? const Color(0x0FFFFFFF) : const Color(0xB3FFFFFF),
+      glassBorder: c.tabBarBorder,
+      glassHighlight: d ? const Color(0x1AFFFFFF) : const Color(0x0F2B1B12),
+      glassShadow: d ? const Color(0x40000000) : const Color(0x1FC85A28),
+      divider: c.divider,
+      backgroundGradient: c.washTall,
+      cardGradient: pair(c.surface, c.surface),
+      glassGradient: pair(c.surface, c.surface),
+      accentCardGradient: pair(c.tintOrange, c.tintPeach),
+      successCardGradient: pair(c.tintGreen, c.tintGreen),
+      errorCardGradient: pair(c.tintRose, c.tintRose),
+      infoCardGradient: pair(c.tintSky, c.tintSky),
+      warningCardGradient: pair(c.tintAmber, c.tintAmber),
+      cyanCardGradient: pair(c.tintPeach, c.tintRose),
+      purpleCardGradient: pair(c.tintViolet, c.tintViolet),
+    );
+  }
 
   static AppPalette of(Brightness brightness) =>
       brightness == Brightness.light ? light : dark;

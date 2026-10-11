@@ -1,3 +1,4 @@
+import 'package:material_symbols_icons/symbols.dart';
 import 'dart:convert';
 
 import 'package:file_picker/file_picker.dart';
@@ -104,10 +105,7 @@ class _BackupScreenState extends ConsumerState<BackupScreen>
           _driveSection(),
           SizedBox(height: AppSpacing.lg),
 
-          _header(
-            'BACKUPS IN DRIVE',
-            action: _refreshDriveButton(),
-          ),
+          _header('BACKUPS IN DRIVE', action: _refreshDriveButton()),
           _driveList(),
           SizedBox(height: AppSpacing.xl),
         ],
@@ -253,9 +251,7 @@ class _BackupScreenState extends ConsumerState<BackupScreen>
     try {
       // Under the lock, so a sync cannot be applying to the database while it
       // is being replaced. Null means one already is.
-      final summary = await ref
-          .read(syncServiceProvider)
-          .runExclusively(run);
+      final summary = await ref.read(syncServiceProvider).runExclusively(run);
       if (!mounted) return;
       if (summary == null) {
         _say(L10n.of(context).backupBusySyncing, bad: true);
@@ -621,7 +617,6 @@ class _BackupScreenState extends ConsumerState<BackupScreen>
     final picked = await showDialog<BackupFrequency>(
       context: context,
       builder: (context) => SimpleDialog(
-        backgroundColor: AppColors.primarySurface,
         title: Text(L10n.of(context).backupAutomaticBackups),
         children: [
           RadioGroup<BackupFrequency>(
@@ -655,7 +650,6 @@ class _BackupScreenState extends ConsumerState<BackupScreen>
     final picked = await showDialog<int>(
       context: context,
       builder: (context) => SimpleDialog(
-        backgroundColor: AppColors.primarySurface,
         title: Text(L10n.of(context).backupHowManyBackupsToKeep),
         children: [
           RadioGroup<int>(
@@ -821,13 +815,13 @@ class _BackupScreenState extends ConsumerState<BackupScreen>
   Widget _infoCard(String message) => Container(
     padding: EdgeInsets.all(AppSpacing.md),
     decoration: BoxDecoration(
-      color: AppColors.info.withValues(alpha: 0.1),
+      color: AppColors.primaryAccent.withValues(alpha: 0.08),
       borderRadius: AppSpacing.borderRadiusLg,
-      border: Border.all(color: AppColors.info.withValues(alpha: 0.3)),
+      border: Border.all(color: AppColors.primaryAccent.withValues(alpha: 0.2)),
     ),
     child: Row(
       children: [
-        Icon(Icons.info_outline, color: AppColors.info),
+        Icon(Symbols.info_rounded, color: AppColors.primaryAccent),
         SizedBox(width: AppSpacing.sm),
         Expanded(
           child: Text(
