@@ -1205,5 +1205,18 @@
   "helpStepWallets": "Add wallets",
   "helpStepCategories": "Pick categories",
   "helpStepTrack": "Track daily",
-  "splashTagline": "Money, brighter."
+  "splashTagline": "Money, brighter.",
+  "introStep1": "Counting your coins…",
+  "introStep2": "Waking up your wallets…",
+  "introStep3": "Polishing the charts…",
+  "introStep4": "Almost there…",
+  "introTipLabel": "Money tip",
+  "introTip1": "Pay yourself first: move savings out the day your salary lands.",
+  "introTip2": "Small daily spends add up. Logging them is half the battle.",
+  "introTip3": "A 3-month emergency fund turns surprises into inconveniences.",
+  "introTip4": "Review subscriptions monthly: cancel what you didn’t use.",
+  "introTip5": "Give every taka a job before the month starts.",
+  "introTip6": "Wait 24 hours before any unplanned purchase.",
+  "introTip7": "Budgets aren’t limits, they’re permission to spend on what matters.",
+  "introTip8": "Celebrate small wins: every goal starts with the first deposit."
 }

@@ -1,3 +1,4 @@
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -33,7 +34,10 @@ void callbackDispatcher() {
 
 void main() async {
   // Minimum required before runApp()
-  WidgetsFlutterBinding.ensureInitialized();
+  final binding = WidgetsFlutterBinding.ensureInitialized();
+  // Keep the native splash up through start-up instead of flashing an empty
+  // frame; AuthWrapper lets go once its first screen has drawn.
+  FlutterNativeSplash.preserve(widgetsBinding: binding);
   await EnvService.init();
   // Explicit options make init work identically on every platform (Android,
   // iOS, web, Windows) instead of relying on native config files being present.

@@ -96,6 +96,8 @@ dependencies:
   material_ui: ^1.1.1
   app_links: ^7.2.1
   quick_actions: ^1.1.0
+  # Holds the native splash until the first Flutter frame (see main.dart).
+  flutter_native_splash: ^2.4.8
   material_symbols_icons: ^4.2960.0
 
 dev_dependencies:
@@ -108,7 +110,6 @@ dev_dependencies:
   drift_dev: ^2.32.1
   build_runner: ^2.11.1
   flutter_launcher_icons: ^0.14.4
-  flutter_native_splash: ^2.4.8
 
 
 flutter:
@@ -121,6 +122,8 @@ flutter:
     - .env
     - assets/legal/
     - assets/logo/
+    - assets/launcher/splash-glyph.png
+    - assets/launcher/splash-background.png
 
   # Lexend, instanced from the variable font into static weights so that a
   # plain `FontWeight` picks the right face on every engine.
@@ -162,20 +165,29 @@ flutter_launcher_icons:
     theme_color: "#F97316"
 
 # Native splash: `dart run flutter_native_splash:create`
-# Light is concept A (white glyph on the sunrise orange), dark is concept C
-# (gradient glyph on ember). The Flutter intro animation takes over from here.
+#
+# One ground in light and dark, deliberately, as ai-persona does: the launcher
+# icon is the sunrise gradient in both, so a dark splash meant tapping an
+# orange tile and landing on near-black - a jump in the one moment the app
+# should feel like a single thing. The Flutter intro starts from this exact
+# frame (same gradient, same glyph at 128dp), so the hand-off is invisible.
+#
+# 4x assets: 1024px canvas -> 256dp, glyph at 50% -> 128dp. Android 12 crops
+# rather than scales: 1152px canvas, glyph kept inside the centred 768px circle.
 flutter_native_splash:
   color: "#F97316"
-  image: assets/launcher/glyph-white-512.png
-  color_dark: "#140D0A"
-  image_dark: assets/launcher/glyph-gradient-512.png
+  background_image: assets/launcher/splash-background.png
+  image: assets/launcher/splash-glyph.png
+  color_dark: "#F97316"
+  background_image_dark: assets/launcher/splash-background.png
+  image_dark: assets/launcher/splash-glyph.png
   android_12:
     color: "#F97316"
-    image: assets/launcher/android12-splash-glyph-white-288.png
+    image: assets/launcher/android12-splash-glyph.png
     icon_background_color: "#F97316"
-    color_dark: "#140D0A"
-    image_dark: assets/launcher/android12-splash-glyph-gradient-288.png
-    icon_background_color_dark: "#140D0A"
+    color_dark: "#F97316"
+    image_dark: assets/launcher/android12-splash-glyph.png
+    icon_background_color_dark: "#F97316"
   ios: true
   android: true
   web: false

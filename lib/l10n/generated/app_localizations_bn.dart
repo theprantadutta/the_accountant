@@ -2826,4 +2826,46 @@ class L10nBn extends L10n {
 
   @override
   String get splashTagline => 'টাকা, আরও উজ্জ্বল।';
+
+  @override
+  String get introStep1 => 'আপনার কয়েন গুনছি…';
+
+  @override
+  String get introStep2 => 'ওয়ালেটগুলো জাগাচ্ছি…';
+
+  @override
+  String get introStep3 => 'চার্টগুলো ঝকঝকে করছি…';
+
+  @override
+  String get introStep4 => 'প্রায় হয়ে গেছে…';
+
+  @override
+  String get introTipLabel => 'টাকার টিপস';
+
+  @override
+  String get introTip1 => 'আগে নিজেকে দিন: বেতন এলেই সঞ্চয় আলাদা করে রাখুন।';
+
+  @override
+  String get introTip2 => 'ছোট দৈনিক খরচ মিলে বড় হয়। লিখে রাখাই অর্ধেক কাজ।';
+
+  @override
+  String get introTip3 => '৩ মাসের জরুরি তহবিল বিপদকে ঝামেলায় বদলে দেয়।';
+
+  @override
+  String get introTip4 =>
+      'প্রতি মাসে সাবস্ক্রিপশন দেখুন: যা ব্যবহার করেননি তা বাদ দিন।';
+
+  @override
+  String get introTip5 => 'মাস শুরুর আগে প্রতিটি টাকার একটা কাজ ঠিক করুন।';
+
+  @override
+  String get introTip6 => 'অপরিকল্পিত কেনাকাটার আগে ২৪ ঘণ্টা অপেক্ষা করুন।';
+
+  @override
+  String get introTip7 =>
+      'বাজেট মানে বাধা নয়, গুরুত্বপূর্ণ জিনিসে খরচের অনুমতি।';
+
+  @override
+  String get introTip8 =>
+      'ছোট জয় উদযাপন করুন: প্রতিটি লক্ষ্য শুরু হয় প্রথম জমা থেকে।';
 }

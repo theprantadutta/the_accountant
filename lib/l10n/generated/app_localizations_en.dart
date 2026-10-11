@@ -2853,4 +2853,49 @@ class L10nEn extends L10n {
 
   @override
   String get splashTagline => 'Money, brighter.';
+
+  @override
+  String get introStep1 => 'Counting your coins…';
+
+  @override
+  String get introStep2 => 'Waking up your wallets…';
+
+  @override
+  String get introStep3 => 'Polishing the charts…';
+
+  @override
+  String get introStep4 => 'Almost there…';
+
+  @override
+  String get introTipLabel => 'Money tip';
+
+  @override
+  String get introTip1 =>
+      'Pay yourself first: move savings out the day your salary lands.';
+
+  @override
+  String get introTip2 =>
+      'Small daily spends add up. Logging them is half the battle.';
+
+  @override
+  String get introTip3 =>
+      'A 3-month emergency fund turns surprises into inconveniences.';
+
+  @override
+  String get introTip4 =>
+      'Review subscriptions monthly: cancel what you didn’t use.';
+
+  @override
+  String get introTip5 => 'Give every taka a job before the month starts.';
+
+  @override
+  String get introTip6 => 'Wait 24 hours before any unplanned purchase.';
+
+  @override
+  String get introTip7 =>
+      'Budgets aren’t limits, they’re permission to spend on what matters.';
+
+  @override
+  String get introTip8 =>
+      'Celebrate small wins: every goal starts with the first deposit.';
 }

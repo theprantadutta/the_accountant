@@ -5350,6 +5350,84 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'Money, brighter.'**
   String get splashTagline;
+
+  /// No description provided for @introStep1.
+  ///
+  /// In en, this message translates to:
+  /// **'Counting your coins…'**
+  String get introStep1;
+
+  /// No description provided for @introStep2.
+  ///
+  /// In en, this message translates to:
+  /// **'Waking up your wallets…'**
+  String get introStep2;
+
+  /// No description provided for @introStep3.
+  ///
+  /// In en, this message translates to:
+  /// **'Polishing the charts…'**
+  String get introStep3;
+
+  /// No description provided for @introStep4.
+  ///
+  /// In en, this message translates to:
+  /// **'Almost there…'**
+  String get introStep4;
+
+  /// No description provided for @introTipLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Money tip'**
+  String get introTipLabel;
+
+  /// No description provided for @introTip1.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay yourself first: move savings out the day your salary lands.'**
+  String get introTip1;
+
+  /// No description provided for @introTip2.
+  ///
+  /// In en, this message translates to:
+  /// **'Small daily spends add up. Logging them is half the battle.'**
+  String get introTip2;
+
+  /// No description provided for @introTip3.
+  ///
+  /// In en, this message translates to:
+  /// **'A 3-month emergency fund turns surprises into inconveniences.'**
+  String get introTip3;
+
+  /// No description provided for @introTip4.
+  ///
+  /// In en, this message translates to:
+  /// **'Review subscriptions monthly: cancel what you didn’t use.'**
+  String get introTip4;
+
+  /// No description provided for @introTip5.
+  ///
+  /// In en, this message translates to:
+  /// **'Give every taka a job before the month starts.'**
+  String get introTip5;
+
+  /// No description provided for @introTip6.
+  ///
+  /// In en, this message translates to:
+  /// **'Wait 24 hours before any unplanned purchase.'**
+  String get introTip6;
+
+  /// No description provided for @introTip7.
+  ///
+  /// In en, this message translates to:
+  /// **'Budgets aren’t limits, they’re permission to spend on what matters.'**
+  String get introTip7;
+
+  /// No description provided for @introTip8.
+  ///
+  /// In en, this message translates to:
+  /// **'Celebrate small wins: every goal starts with the first deposit.'**
+  String get introTip8;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

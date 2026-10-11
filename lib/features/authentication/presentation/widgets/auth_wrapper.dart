@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter/services.dart';
 import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
 import 'package:flutter/material.dart';
@@ -46,6 +48,9 @@ class _AuthWrapperState extends ConsumerState<AuthWrapper>
     WidgetsBinding.instance.addObserver(this);
     // Sync premium status when auth state has premium info
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      // The first real frame has drawn (usually the intro, which matches the
+      // native splash pixel for pixel), so the native splash can go.
+      FlutterNativeSplash.remove();
       _syncPremiumStatus();
     });
   }
@@ -317,12 +322,13 @@ class _AuthWrapperState extends ConsumerState<AuthWrapper>
 
 /// The Sunrise intro, shown while sign-in and the account store settle.
 ///
-/// Light is splash concept A (white glyph on the sunrise gradient with a soft
-/// white glow); dark is concept C (the gradient glyph glowing on ember). It
-/// continues the native splash: the glyph rises 24dp and fades in (0-400ms)
-/// while its glow grows from 0.6 to 1, then the wordmark fades and slides up
-/// 8dp (250-600ms). It never waits on itself: the moment the app is ready the
-/// wrapper crossfades away from it.
+/// The first frame is the native splash, pixel for pixel: flat sunrise orange
+/// with the glyph at the centre (Android 12 cannot draw more than that), so
+/// the hand-off is invisible. Then it comes alive: the gradient and a slow
+/// turning sunburst fade in behind the glyph, four little money icons orbit
+/// it, coins drift up the screen, the wordmark rises, a playful status line
+/// steps along a progress bar, and a money tip slides in. It never holds the
+/// app: the wrapper crossfades away the moment the real screen is ready.
 class AuthLoadingScreen extends StatefulWidget {
   const AuthLoadingScreen({super.key});
 
@@ -331,138 +337,443 @@ class AuthLoadingScreen extends StatefulWidget {
 }
 
 class _AuthLoadingScreenState extends State<AuthLoadingScreen>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
+  /// The one-off entrance (0.9s).
   late final AnimationController _intro = AnimationController(
-    duration: const Duration(milliseconds: 700),
+    duration: const Duration(milliseconds: 900),
     vsync: this,
   )..forward();
 
-  late final Animation<double> _glyph = CurvedAnimation(
+  /// The ambient loop: rays, orbit, coins, status steps.
+  late final AnimationController _loop = AnimationController(
+    duration: const Duration(seconds: 8),
+    vsync: this,
+  )..repeat();
+
+  late final Animation<double> _bg = CurvedAnimation(
     parent: _intro,
-    curve: const Interval(0, 400 / 700, curve: Curves.easeOutCubic),
+    curve: const Interval(0, .45, curve: Curves.easeOutCubic),
+  );
+  late final Animation<double> _orbitIn = CurvedAnimation(
+    parent: _intro,
+    curve: const Interval(.2, .7, curve: Curves.easeOutBack),
   );
   late final Animation<double> _word = CurvedAnimation(
     parent: _intro,
-    curve: const Interval(250 / 700, 600 / 700, curve: Curves.easeOutCubic),
+    curve: const Interval(.3, .7, curve: Curves.easeOutCubic),
   );
+  late final Animation<double> _tip = CurvedAnimation(
+    parent: _intro,
+    curve: const Interval(.55, 1, curve: Curves.easeOutCubic),
+  );
+
+  /// One tip per launch.
+  late final int _tipIndex = DateTime.now().millisecondsSinceEpoch % 8;
+
+  /// Coins: horizontal position, size and phase, fixed per launch.
+  late final List<(double, double, double)> _coins = () {
+    final r = math.Random(DateTime.now().day);
+    return [
+      for (var i = 0; i < 9; i++)
+        (r.nextDouble(), 14 + r.nextDouble() * 14, r.nextDouble()),
+    ];
+  }();
 
   @override
   void dispose() {
     _intro.dispose();
+    _loop.dispose();
     super.dispose();
   }
 
+  String _tipText(L10n l10n) => switch (_tipIndex) {
+    0 => l10n.introTip1,
+    1 => l10n.introTip2,
+    2 => l10n.introTip3,
+    3 => l10n.introTip4,
+    4 => l10n.introTip5,
+    5 => l10n.introTip6,
+    6 => l10n.introTip7,
+    _ => l10n.introTip8,
+  };
+
   @override
   Widget build(BuildContext context) {
-    final c = context.sunrise;
     final l10n = L10n.of(context);
-    final dark = c.isDark;
-
-    final background = dark
-        ? BoxDecoration(
-            color: c.base,
-            gradient: RadialGradient(
-              center: const Alignment(0, .9),
-              radius: .9,
-              colors: [
-                c.gradientEnd.withValues(alpha: .22),
-                c.base.withValues(alpha: 0),
-              ],
-            ),
-          )
-        : BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [c.headerStart, c.gradientMid, c.gradientEnd],
-              stops: const [0, .5, 1],
-            ),
-          );
-    final glowColor = dark ? c.gradientMid : Colors.white;
+    final steps = [
+      l10n.introStep1,
+      l10n.introStep2,
+      l10n.introStep3,
+      l10n.introStep4,
+    ];
+    const white = Colors.white;
+    final reduceMotion = MediaQuery.disableAnimationsOf(context);
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light.copyWith(
         statusBarColor: Colors.transparent,
+        systemNavigationBarColor: const Color(0xFFF97316),
       ),
       child: Scaffold(
-        backgroundColor: dark ? c.base : c.gradientMid,
-        body: DecoratedBox(
-          decoration: background,
-          child: Center(
-            child: AnimatedBuilder(
-              animation: _intro,
-              builder: (context, _) => Column(
-                mainAxisSize: MainAxisSize.min,
+        backgroundColor: const Color(0xFFF97316),
+        body: AnimatedBuilder(
+          animation: Listenable.merge([_intro, _loop]),
+          builder: (context, _) {
+            final t = reduceMotion ? 0.0 : _loop.value;
+            // Steps advance every 1.4s and stay on the last one.
+            final elapsed = (_loop.lastElapsedDuration?.inMilliseconds ?? 0);
+            final step = math.min(elapsed ~/ 1400, steps.length - 1);
+            final progress = math.min(
+              1.0,
+              .12 + elapsed / (1400.0 * steps.length),
+            );
+
+            return SizedBox.expand(
+              child: Stack(
+                alignment: Alignment.center,
                 children: [
-                  SizedBox(
-                    width: 260,
-                    height: 220,
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        Transform.scale(
-                          scale: .6 + .4 * _glyph.value,
-                          child: Container(
-                            width: 260,
-                            height: 260,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              gradient: RadialGradient(
-                                colors: [
-                                  glowColor.withValues(alpha: dark ? .45 : .35),
-                                  glowColor.withValues(alpha: 0),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                        Opacity(
-                          opacity: _glyph.value,
-                          child: Transform.translate(
-                            offset: Offset(0, 24 * (1 - _glyph.value)),
-                            child: Image.asset(
-                              dark
-                                  ? 'assets/logo/glyph-gradient-256.png'
-                                  : 'assets/logo/glyph-white-256.png',
-                              width: 104,
-                              height: 104,
-                            ),
-                          ),
-                        ),
-                      ],
+                  // Android 12+ can only draw a flat ground on its splash,
+                  // so the gradient fades in rather than being there at once.
+                  Positioned.fill(
+                    child: Opacity(
+                      opacity: _bg.value,
+                      child: Image.asset(
+                        'assets/launcher/splash-background.png',
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
+
+                  // Coins drifting up the screen.
+                  for (final (x, size, phase) in _coins)
+                    Positioned.fill(
+                      child: Opacity(
+                        opacity: _bg.value * .55,
+                        child: _Coin(
+                          x: x,
+                          size: size,
+                          progress: (t * 1.6 + phase) % 1,
+                        ),
+                      ),
+                    ),
+
+                  // A slowly turning sunburst behind the glyph.
                   Opacity(
-                    opacity: _word.value,
-                    child: Transform.translate(
-                      offset: Offset(0, 8 * (1 - _word.value)),
+                    opacity: _bg.value,
+                    child: Transform.rotate(
+                      angle: t * 2 * math.pi / 3,
+                      child: CustomPaint(
+                        size: const Size(420, 420),
+                        painter: _RaysPainter(),
+                      ),
+                    ),
+                  ),
+                  Transform.scale(
+                    scale: .6 + .4 * _bg.value,
+                    child: Container(
+                      width: 300,
+                      height: 300,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: RadialGradient(
+                          colors: [
+                            white.withValues(alpha: .38 * _bg.value),
+                            white.withValues(alpha: 0),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  // Four money icons orbiting the glyph.
+                  for (var i = 0; i < 4; i++)
+                    _orbiter(
+                      i,
+                      t,
+                      [
+                        Symbols.paid_rounded,
+                        Symbols.trending_up_rounded,
+                        Symbols.savings_rounded,
+                        Symbols.auto_awesome_rounded,
+                      ][i],
+                    ),
+
+                  // Same file, same box, same place as the native splash.
+                  Image.asset(
+                    'assets/launcher/splash-glyph.png',
+                    width: 256,
+                    height: 256,
+                  ),
+
+                  Transform.translate(
+                    offset: Offset(0, 150 + 10 * (1 - _word.value)),
+                    child: Opacity(
+                      opacity: _word.value,
                       child: Column(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
                             l10n.settingsTheAccountant,
                             style: SunriseType.heroTitle.copyWith(
-                              color: dark ? c.ink : c.onFill,
+                              color: white,
                               fontSize: 30,
                             ),
                           ),
-                          const SizedBox(height: 6),
+                          const SizedBox(height: 4),
                           Text(
                             l10n.splashTagline,
                             style: SunriseType.body.copyWith(
-                              color: dark
-                                  ? c.subtle
-                                  : c.onFill.withValues(alpha: .85),
+                              color: white.withValues(alpha: .88),
                               fontSize: 16,
+                            ),
+                          ),
+                          const SizedBox(height: 22),
+                          SizedBox(
+                            height: 20,
+                            child: AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 300),
+                              reverseDuration: const Duration(milliseconds: 90),
+                              transitionBuilder: (child, a) => FadeTransition(
+                                opacity: a,
+                                child: SlideTransition(
+                                  position: Tween(
+                                    begin: const Offset(0, .4),
+                                    end: Offset.zero,
+                                  ).animate(a),
+                                  child: child,
+                                ),
+                              ),
+                              child: Text(
+                                steps[step],
+                                key: ValueKey(step),
+                                style: SunriseType.label.copyWith(
+                                  color: white,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(3),
+                            child: SizedBox(
+                              width: 160,
+                              height: 5,
+                              child: Stack(
+                                children: [
+                                  Container(
+                                    color: white.withValues(alpha: .25),
+                                  ),
+                                  FractionallySizedBox(
+                                    widthFactor: progress,
+                                    child: Container(color: white),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ],
                       ),
                     ),
                   ),
+
+                  // The money tip.
+                  Positioned(
+                    left: 24,
+                    right: 24,
+                    bottom: MediaQuery.paddingOf(context).bottom + 28,
+                    child: Opacity(
+                      opacity: _tip.value,
+                      child: Transform.translate(
+                        offset: Offset(0, 24 * (1 - _tip.value)),
+                        child: _TipCard(
+                          label: l10n.introTipLabel,
+                          text: _tipText(l10n),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _orbiter(int i, double t, IconData icon) {
+    final angle = 2 * math.pi * (t + i / 4);
+    final radius = 112 + 6 * math.sin(2 * math.pi * (t * 2 + i / 4));
+    final dx = math.cos(angle) * radius;
+    final dy = math.sin(angle) * radius * .72;
+    final pop = _orbitIn.value;
+    return Transform.translate(
+      offset: Offset(dx * pop, dy * pop),
+      child: Opacity(
+        opacity: pop.clamp(0.0, 1.0),
+        child: Transform.scale(
+          scale: pop,
+          child: Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: .22),
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.white.withValues(alpha: .45)),
+            ),
+            child: Icon(icon, color: Colors.white, size: 21, fill: 1),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// A coin rising from the bottom of the screen and fading out near the top.
+class _Coin extends StatelessWidget {
+  const _Coin({required this.x, required this.size, required this.progress});
+
+  final double x;
+  final double size;
+  final double progress;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, box) {
+        final y = box.maxHeight * (1.05 - progress * 1.15);
+        final sway = math.sin(progress * math.pi * 4) * 10;
+        final fade = progress < .15
+            ? progress / .15
+            : progress > .8
+            ? (1 - progress) / .2
+            : 1.0;
+        return Stack(
+          children: [
+            Positioned(
+              left: x * (box.maxWidth - size) + sway,
+              top: y,
+              child: Opacity(
+                opacity: fade.clamp(0.0, 1.0),
+                child: Container(
+                  width: size,
+                  height: size,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: const Color(0xFFFDE68A),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: .7),
+                      width: 2,
+                    ),
+                  ),
+                  alignment: Alignment.center,
+                  child: Container(
+                    width: size * .38,
+                    height: size * .38,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: const Color(0xFFF59E0B).withValues(alpha: .8),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+/// Soft sun rays.
+class _RaysPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final c = size.center(Offset.zero);
+    final r = size.width / 2;
+    final paint = Paint()
+      ..shader = RadialGradient(
+        colors: [
+          Colors.white.withValues(alpha: .22),
+          Colors.white.withValues(alpha: 0),
+        ],
+      ).createShader(Rect.fromCircle(center: c, radius: r));
+    const rays = 14;
+    for (var i = 0; i < rays; i++) {
+      final a = 2 * math.pi * i / rays;
+      final path = Path()
+        ..moveTo(c.dx, c.dy)
+        ..lineTo(c.dx + r * math.cos(a - .09), c.dy + r * math.sin(a - .09))
+        ..lineTo(c.dx + r * math.cos(a + .09), c.dy + r * math.sin(a + .09))
+        ..close();
+      canvas.drawPath(path, paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(_RaysPainter oldDelegate) => false;
+}
+
+/// A frosted card holding the launch's money tip.
+class _TipCard extends StatelessWidget {
+  const _TipCard({required this.label, required this.text});
+
+  final String label;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return SunriseGlass(
+      color: Colors.white.withValues(alpha: .18),
+      radius: BorderRadius.circular(SunriseRadius.card),
+      blur: 16,
+      border: Border.all(color: Colors.white.withValues(alpha: .35)),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: .25),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(
+                Symbols.lightbulb_rounded,
+                color: Colors.white,
+                fill: 1,
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label.toUpperCase(),
+                    style: SunriseType.overline.copyWith(
+                      color: Colors.white.withValues(alpha: .85),
+                      fontSize: 11,
+                    ),
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    text,
+                    style: SunriseType.label.copyWith(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      height: 1.35,
+                    ),
+                  ),
                 ],
               ),
             ),
-          ),
+          ],
         ),
       ),
     );
