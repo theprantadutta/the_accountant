@@ -730,5 +730,21 @@
   "moreSignOutFailed": "সাইন আউট হয়নি। আবার চেষ্টা করুন।",
   "moreDeviceOnlyBody": "ফ্রি অ্যাকাউন্টের ডেটা ক্লাউডে ব্যাকআপ হয় না, তাই রিইনস্টল বা ফোন বদলালে ডেটা হারাতে পারে। ক্লাউড সিঙ্কের জন্য আপগ্রেড করুন, বা নিয়মিত ব্যাকআপ এক্সপোর্ট করুন।",
   "moreUpgradeToPremium": "প্রিমিয়ামে আপগ্রেড করুন",
-  "moreUser": "আপনি"
+  "moreUser": "আপনি",
+  "statsTitle": "পরিসংখ্যান",
+  "statsWeek": "সপ্তাহ",
+  "statsMonth": "মাস",
+  "statsYear": "বছর",
+  "statsSpending": "ব্যয়",
+  "statsIncome": "আয়",
+  "statsCategories": "ক্যাটাগরি",
+  "statsSpent": "ব্যয়",
+  "statsEarned": "আয়",
+  "statsNet": "নিট",
+  "statsThisMonth": "এই মাসে",
+  "statsVsLastMonth": "গত মাসের তুলনায় {change}",
+  "statsInsightsSub": "এই মাসের সারাংশ, প্রবণতা ও পরামর্শ",
+  "statsAskCoach": "এ নিয়ে এআই কোচকে জিজ্ঞেস করুন",
+  "statsOverBy": "{amount} বেশি",
+  "statsRemaining": "{percent}% বাকি"
 }

@@ -915,5 +915,42 @@
   "moreSignOutFailed": "Couldn’t sign out. Please try again.",
   "moreDeviceOnlyBody": "Free accounts aren’t backed up to the cloud, so reinstalling or switching phones can lose your data. Upgrade for cloud sync, or export a backup regularly.",
   "moreUpgradeToPremium": "Upgrade to Premium",
-  "moreUser": "You"
+  "moreUser": "You",
+  "statsTitle": "Stats",
+  "statsWeek": "Week",
+  "statsMonth": "Month",
+  "statsYear": "Year",
+  "statsSpending": "Spending",
+  "statsIncome": "Income",
+  "statsCategories": "Categories",
+  "statsSpent": "Spent",
+  "statsEarned": "Earned",
+  "statsNet": "Net",
+  "statsThisMonth": "This month",
+  "statsVsLastMonth": "{change} vs last month",
+  "@statsVsLastMonth": {
+    "placeholders": {
+      "change": {
+        "type": "String"
+      }
+    }
+  },
+  "statsInsightsSub": "This month’s summary, trends & tips",
+  "statsAskCoach": "Ask the AI coach about this",
+  "statsOverBy": "Over by {amount}",
+  "@statsOverBy": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "statsRemaining": "{percent}% remaining",
+  "@statsRemaining": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  }
 }

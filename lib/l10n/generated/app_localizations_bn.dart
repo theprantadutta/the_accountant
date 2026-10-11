@@ -2346,4 +2346,58 @@ class L10nBn extends L10n {
 
   @override
   String get moreUser => 'আপনি';
+
+  @override
+  String get statsTitle => 'পরিসংখ্যান';
+
+  @override
+  String get statsWeek => 'সপ্তাহ';
+
+  @override
+  String get statsMonth => 'মাস';
+
+  @override
+  String get statsYear => 'বছর';
+
+  @override
+  String get statsSpending => 'ব্যয়';
+
+  @override
+  String get statsIncome => 'আয়';
+
+  @override
+  String get statsCategories => 'ক্যাটাগরি';
+
+  @override
+  String get statsSpent => 'ব্যয়';
+
+  @override
+  String get statsEarned => 'আয়';
+
+  @override
+  String get statsNet => 'নিট';
+
+  @override
+  String get statsThisMonth => 'এই মাসে';
+
+  @override
+  String statsVsLastMonth(String change) {
+    return 'গত মাসের তুলনায় $change';
+  }
+
+  @override
+  String get statsInsightsSub => 'এই মাসের সারাংশ, প্রবণতা ও পরামর্শ';
+
+  @override
+  String get statsAskCoach => 'এ নিয়ে এআই কোচকে জিজ্ঞেস করুন';
+
+  @override
+  String statsOverBy(String amount) {
+    return '$amount বেশি';
+  }
+
+  @override
+  String statsRemaining(String percent) {
+    return '$percent% বাকি';
+  }
 }

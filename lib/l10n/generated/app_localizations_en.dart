@@ -2367,4 +2367,58 @@ class L10nEn extends L10n {
 
   @override
   String get moreUser => 'You';
+
+  @override
+  String get statsTitle => 'Stats';
+
+  @override
+  String get statsWeek => 'Week';
+
+  @override
+  String get statsMonth => 'Month';
+
+  @override
+  String get statsYear => 'Year';
+
+  @override
+  String get statsSpending => 'Spending';
+
+  @override
+  String get statsIncome => 'Income';
+
+  @override
+  String get statsCategories => 'Categories';
+
+  @override
+  String get statsSpent => 'Spent';
+
+  @override
+  String get statsEarned => 'Earned';
+
+  @override
+  String get statsNet => 'Net';
+
+  @override
+  String get statsThisMonth => 'This month';
+
+  @override
+  String statsVsLastMonth(String change) {
+    return '$change vs last month';
+  }
+
+  @override
+  String get statsInsightsSub => 'This month’s summary, trends & tips';
+
+  @override
+  String get statsAskCoach => 'Ask the AI coach about this';
+
+  @override
+  String statsOverBy(String amount) {
+    return 'Over by $amount';
+  }
+
+  @override
+  String statsRemaining(String percent) {
+    return '$percent% remaining';
+  }
 }

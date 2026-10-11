@@ -4486,6 +4486,102 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'You'**
   String get moreUser;
+
+  /// No description provided for @statsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Stats'**
+  String get statsTitle;
+
+  /// No description provided for @statsWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Week'**
+  String get statsWeek;
+
+  /// No description provided for @statsMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Month'**
+  String get statsMonth;
+
+  /// No description provided for @statsYear.
+  ///
+  /// In en, this message translates to:
+  /// **'Year'**
+  String get statsYear;
+
+  /// No description provided for @statsSpending.
+  ///
+  /// In en, this message translates to:
+  /// **'Spending'**
+  String get statsSpending;
+
+  /// No description provided for @statsIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'Income'**
+  String get statsIncome;
+
+  /// No description provided for @statsCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'Categories'**
+  String get statsCategories;
+
+  /// No description provided for @statsSpent.
+  ///
+  /// In en, this message translates to:
+  /// **'Spent'**
+  String get statsSpent;
+
+  /// No description provided for @statsEarned.
+  ///
+  /// In en, this message translates to:
+  /// **'Earned'**
+  String get statsEarned;
+
+  /// No description provided for @statsNet.
+  ///
+  /// In en, this message translates to:
+  /// **'Net'**
+  String get statsNet;
+
+  /// No description provided for @statsThisMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'This month'**
+  String get statsThisMonth;
+
+  /// No description provided for @statsVsLastMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'{change} vs last month'**
+  String statsVsLastMonth(String change);
+
+  /// No description provided for @statsInsightsSub.
+  ///
+  /// In en, this message translates to:
+  /// **'This month’s summary, trends & tips'**
+  String get statsInsightsSub;
+
+  /// No description provided for @statsAskCoach.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask the AI coach about this'**
+  String get statsAskCoach;
+
+  /// No description provided for @statsOverBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Over by {amount}'**
+  String statsOverBy(String amount);
+
+  /// No description provided for @statsRemaining.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% remaining'**
+  String statsRemaining(String percent);
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {
