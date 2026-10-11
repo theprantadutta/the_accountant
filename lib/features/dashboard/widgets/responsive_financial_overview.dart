@@ -559,7 +559,7 @@ class _NetWorthCard extends ConsumerWidget {
                           8,
                           1000,
                         ),
-                        child: DecoratedBox(
+                        child: Container(
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(5),
                             gradient: LinearGradient(colors: ramp[i]),

@@ -9,7 +9,6 @@ import 'package:the_accountant/core/themes/app_typography.dart';
 import 'package:the_accountant/features/authentication/presentation/widgets/auth_background.dart';
 import 'package:the_accountant/features/authentication/presentation/widgets/auth_brand_header.dart';
 import 'package:the_accountant/features/authentication/providers/auth_provider.dart';
-import 'package:the_accountant/shared/widgets/glass_card.dart';
 import 'package:the_accountant/shared/widgets/neo_button.dart';
 import 'package:the_accountant/shared/widgets/neo_text_field.dart';
 
@@ -157,10 +156,8 @@ class _AccountLinkingScreenState extends ConsumerState<AccountLinkingScreen>
   }
 
   Widget _buildForm(AuthState authState) {
-    return GlassCard(
-      padding: AppSpacing.paddingXl,
-      enableBlur: true,
-      blurAmount: 14,
+    return Padding(
+      padding: EdgeInsets.zero,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [

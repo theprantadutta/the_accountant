@@ -8,7 +8,6 @@ import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/core/themes/app_typography.dart';
 import 'package:the_accountant/features/authentication/presentation/widgets/auth_background.dart';
 import 'package:the_accountant/features/authentication/presentation/widgets/auth_brand_header.dart';
-import 'package:the_accountant/shared/widgets/glass_card.dart';
 import 'package:the_accountant/shared/widgets/neo_button.dart';
 import 'package:the_accountant/shared/widgets/neo_text_field.dart';
 
@@ -206,11 +205,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   }
 
   Widget _buildRequestForm() {
-    return GlassCard(
-      key: const ValueKey('request'),
-      padding: AppSpacing.paddingXl,
-      enableBlur: true,
-      blurAmount: 14,
+    return Padding(
+      padding: EdgeInsets.zero,
       child: Form(
         key: _requestFormKey,
         child: Column(
@@ -250,11 +246,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   }
 
   Widget _buildResetForm() {
-    return GlassCard(
-      key: const ValueKey('reset'),
-      padding: AppSpacing.paddingXl,
-      enableBlur: true,
-      blurAmount: 14,
+    return Padding(
+      padding: EdgeInsets.zero,
       child: Form(
         key: _resetFormKey,
         child: Column(
