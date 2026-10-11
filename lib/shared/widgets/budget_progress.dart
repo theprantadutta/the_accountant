@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/providers/currency_provider.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
@@ -41,7 +42,7 @@ class BudgetProgressCard extends ConsumerWidget {
     final remaining = progress.remaining;
     final isOver = progress.isOver;
 
-    final (accent, gradient) = switch (fraction) {
+    final (accent, _) = switch (fraction) {
       < 0.5 => (AppColors.success, AppColors.successCardGradient),
       < 0.8 => (AppColors.warning, AppColors.warningCardGradient),
       _ => (AppColors.error, AppColors.errorCardGradient),
@@ -55,13 +56,13 @@ class BudgetProgressCard extends ConsumerWidget {
       child: InkWell(
         onTap: onTap,
         onLongPress: onLongPress,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: SunriseRadius.cardAll,
         child: Container(
-          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
           decoration: BoxDecoration(
-            gradient: gradient,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: accent.withValues(alpha: 0.3), width: 1),
+            color: context.sunrise.surface,
+            borderRadius: SunriseRadius.cardAll,
+            boxShadow: context.sunrise.cardShadow,
           ),
           child: Padding(
             padding: const EdgeInsets.all(16),

@@ -140,7 +140,7 @@ class SubscriptionDashboardScreen extends ConsumerWidget {
 
     return GlassCard(
       padding: AppSpacing.paddingLg,
-      variant: GlassCardVariant.purple,
+      variant: GlassCardVariant.standard,
       child: Column(
         children: [
           // Monthly cost
@@ -239,11 +239,7 @@ class _SubscriptionCard extends ConsumerWidget {
       padding: const EdgeInsets.only(bottom: 10),
       child: GlassCard(
         padding: AppSpacing.paddingMd,
-        variant: isPaused
-            ? GlassCardVariant.standard
-            : (isRepetitive
-                  ? GlassCardVariant.standard
-                  : GlassCardVariant.purple),
+        variant: GlassCardVariant.standard,
         onTap: () async {
           final result = await showEditSubscriptionBottomSheet(
             context,
@@ -398,6 +394,8 @@ class _SubscriptionCard extends ConsumerWidget {
                       foregroundColor: AppColors.textSecondary,
                       side: BorderSide(color: AppColors.glassBorder),
                       padding: const EdgeInsets.symmetric(vertical: 6),
+                      minimumSize: const Size(0, 42),
+                      shape: const StadiumBorder(),
                     ),
                   ),
                 ),
@@ -417,6 +415,8 @@ class _SubscriptionCard extends ConsumerWidget {
                         color: AppColors.error.withValues(alpha: 0.4),
                       ),
                       padding: const EdgeInsets.symmetric(vertical: 6),
+                      minimumSize: const Size(0, 42),
+                      shape: const StadiumBorder(),
                     ),
                   ),
                 ),
