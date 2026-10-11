@@ -89,7 +89,9 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
   /// Every message id that existed when the screen last looked, so a reply is
   /// only "new" if it was not already on screen.
   final Set<String> _seenIds = {};
-  bool _primed = false;
+
+  /// A send is in flight; the next AI message is its reply.
+  bool _awaitingReply = false;
 
   @override
   void initState() {
@@ -116,6 +118,7 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
     if (text.isEmpty || ref.read(aiChatProvider).isLoading) return;
     HapticFeedback.lightImpact();
     if (preset == null) _textController.clear();
+    _awaitingReply = true;
     await ref.read(aiChatProvider.notifier).sendMessage(text);
   }
 
@@ -125,19 +128,22 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
   }
 
   /// Track which reply is new, so only it animates.
+  ///
+  /// Only a reply that lands while this screen is waiting on a send counts:
+  /// history loaded on open, or a conversation picked from the list, never
+  /// types itself out again.
   void _noteMessages(AiChatState state) {
-    if (state.isLoadingHistory) return;
     final ids = state.messages.map((m) => m.id).toSet();
-    if (!_primed) {
-      _seenIds.addAll(ids);
-      _primed = true;
-      return;
+    if (_awaitingReply && !state.isLoading) {
+      final fresh = state.messages.where(
+        (m) => !m.isFromUser && !_seenIds.contains(m.id),
+      );
+      if (fresh.isNotEmpty) _revealId = fresh.last.id;
+      _awaitingReply = false;
     }
-    final fresh = state.messages.where(
-      (m) => !m.isFromUser && !_seenIds.contains(m.id),
-    );
-    if (fresh.isNotEmpty) _revealId = fresh.last.id;
-    _seenIds.addAll(ids);
+    _seenIds
+      ..clear()
+      ..addAll(ids);
   }
 
   @override
@@ -243,10 +249,11 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
                     setState(() => _revealId = null);
                   }
                 },
-                showRetry:
-                    m.isAiFallback && m.id == lastId && !chat.isLoading,
-                onRetry: () =>
-                    ref.read(aiChatProvider.notifier).retryLastMessage(),
+                showRetry: m.isAiFallback && m.id == lastId && !chat.isLoading,
+                onRetry: () {
+                  _awaitingReply = true;
+                  ref.read(aiChatProvider.notifier).retryLastMessage();
+                },
               ),
             ),
           ],
@@ -352,7 +359,9 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
     controller.dispose();
     final trimmed = newTitle?.trim() ?? '';
     if (trimmed.isNotEmpty && trimmed != conv.title) {
-      await ref.read(aiChatProvider.notifier).renameConversation(conv.id, trimmed);
+      await ref
+          .read(aiChatProvider.notifier)
+          .renameConversation(conv.id, trimmed);
     }
   }
 
@@ -497,7 +506,11 @@ class _Welcome extends ConsumerWidget {
 /// A chat bubble: ink for the user (18 18 4 18), surface for the coach
 /// (18 18 18 4).
 class _Bubble extends StatelessWidget {
-  const _Bubble({required this.fromUser, required this.child, this.error = false});
+  const _Bubble({
+    required this.fromUser,
+    required this.child,
+    this.error = false,
+  });
 
   final bool fromUser;
   final bool error;
@@ -712,8 +725,21 @@ class _TypewriterState extends State<_Typewriter>
   Widget build(BuildContext context) => Semantics(
     label: widget.text,
     excludeSemantics: true,
-    child: _BubbleText(widget.text.substring(0, _shown), fromUser: false),
+    child: _BubbleText(
+      _balanced(widget.text.substring(0, _shown)),
+      fromUser: false,
+    ),
   );
+
+  /// Close any bold or italic marker the cut left open, so a half-typed
+  /// reply never shows raw asterisks.
+  static String _balanced(String partial) {
+    var out = partial;
+    if ('**'.allMatches(out).length.isOdd) out = '$out**';
+    final singles = out.replaceAll('**', '');
+    if ('*'.allMatches(singles).length.isOdd) out = '$out*';
+    return out;
+  }
 }
 
 /// Three dots fading in turn, all driven by one controller.
