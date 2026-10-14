@@ -2255,18 +2255,6 @@ abstract class L10n {
   /// **'Chat name'**
   String get aiChatName;
 
-  /// No description provided for @aiRefreshSummary.
-  ///
-  /// In en, this message translates to:
-  /// **'Refresh Summary'**
-  String get aiRefreshSummary;
-
-  /// No description provided for @aiNetSavings.
-  ///
-  /// In en, this message translates to:
-  /// **'Net Savings'**
-  String get aiNetSavings;
-
   /// No description provided for @aiScanReceipt.
   ///
   /// In en, this message translates to:
@@ -2819,12 +2807,6 @@ abstract class L10n {
   /// **'Select Color'**
   String get walletSelectColor;
 
-  /// No description provided for @txScanReceipts.
-  ///
-  /// In en, this message translates to:
-  /// **'Scan receipts'**
-  String get txScanReceipts;
-
   /// No description provided for @txYouNeedAtLeast2.
   ///
   /// In en, this message translates to:
@@ -3238,18 +3220,6 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'Scan a receipt'**
   String get aiScanAReceipt;
-
-  /// No description provided for @aiSpendingTrend.
-  ///
-  /// In en, this message translates to:
-  /// **'Spending Trend'**
-  String get aiSpendingTrend;
-
-  /// No description provided for @aiTopSpendingCategories.
-  ///
-  /// In en, this message translates to:
-  /// **'Top Spending Categories'**
-  String get aiTopSpendingCategories;
 
   /// No description provided for @aiReadingYourReceipt.
   ///
@@ -4558,36 +4528,6 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'Ask in plain words. Get answers, nudges and plans built from your own spending.'**
   String get aiCoachBody;
-
-  /// No description provided for @aiSampleQuestion.
-  ///
-  /// In en, this message translates to:
-  /// **'Can I afford a weekend trip this month?'**
-  String get aiSampleQuestion;
-
-  /// No description provided for @aiSampleAnswer.
-  ///
-  /// In en, this message translates to:
-  /// **'Yes. You’d still have room in your budget, but skip extra shopping until the 31st.'**
-  String get aiSampleAnswer;
-
-  /// No description provided for @aiChipInsights.
-  ///
-  /// In en, this message translates to:
-  /// **'Spending insights'**
-  String get aiChipInsights;
-
-  /// No description provided for @aiChipReceipt.
-  ///
-  /// In en, this message translates to:
-  /// **'Receipt scan'**
-  String get aiChipReceipt;
-
-  /// No description provided for @aiChipBudgets.
-  ///
-  /// In en, this message translates to:
-  /// **'Smart budgets'**
-  String get aiChipBudgets;
 
   /// No description provided for @aiAssistantTitle.
   ///

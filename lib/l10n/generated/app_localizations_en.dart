@@ -1151,12 +1151,6 @@ class L10nEn extends L10n {
   String get aiChatName => 'Chat name';
 
   @override
-  String get aiRefreshSummary => 'Refresh Summary';
-
-  @override
-  String get aiNetSavings => 'Net Savings';
-
-  @override
   String get aiScanReceipt => 'Scan Receipt';
 
   @override
@@ -1454,9 +1448,6 @@ class L10nEn extends L10n {
   String get walletSelectColor => 'Select Color';
 
   @override
-  String get txScanReceipts => 'Scan receipts';
-
-  @override
   String get txYouNeedAtLeast2 =>
       'You need at least 2 accounts to make a transfer';
 
@@ -1679,12 +1670,6 @@ class L10nEn extends L10n {
 
   @override
   String get aiScanAReceipt => 'Scan a receipt';
-
-  @override
-  String get aiSpendingTrend => 'Spending Trend';
-
-  @override
-  String get aiTopSpendingCategories => 'Top Spending Categories';
 
   @override
   String get aiReadingYourReceipt => 'Reading your receipt…';
@@ -2431,22 +2416,6 @@ class L10nEn extends L10n {
   @override
   String get aiCoachBody =>
       'Ask in plain words. Get answers, nudges and plans built from your own spending.';
-
-  @override
-  String get aiSampleQuestion => 'Can I afford a weekend trip this month?';
-
-  @override
-  String get aiSampleAnswer =>
-      'Yes. You’d still have room in your budget, but skip extra shopping until the 31st.';
-
-  @override
-  String get aiChipInsights => 'Spending insights';
-
-  @override
-  String get aiChipReceipt => 'Receipt scan';
-
-  @override
-  String get aiChipBudgets => 'Smart budgets';
 
   @override
   String get aiAssistantTitle => 'AI assistant';

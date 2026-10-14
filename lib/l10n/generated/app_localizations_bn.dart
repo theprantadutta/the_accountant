@@ -1145,12 +1145,6 @@ class L10nBn extends L10n {
   String get aiChatName => 'চ্যাটের নাম';
 
   @override
-  String get aiRefreshSummary => 'সারসংক্ষেপ হালনাগাদ করুন';
-
-  @override
-  String get aiNetSavings => 'নিট সঞ্চয়';
-
-  @override
   String get aiScanReceipt => 'রসিদ স্ক্যান করুন';
 
   @override
@@ -1447,9 +1441,6 @@ class L10nBn extends L10n {
   String get walletSelectColor => 'রঙ বাছুন';
 
   @override
-  String get txScanReceipts => 'রসিদ স্ক্যান করুন';
-
-  @override
   String get txYouNeedAtLeast2 => 'স্থানান্তর করতে অন্তত ২টি অ্যাকাউন্ট দরকার';
 
   @override
@@ -1669,12 +1660,6 @@ class L10nBn extends L10n {
 
   @override
   String get aiScanAReceipt => 'একটি রসিদ স্ক্যান করুন';
-
-  @override
-  String get aiSpendingTrend => 'খরচের ধারা';
-
-  @override
-  String get aiTopSpendingCategories => 'সবচেয়ে বেশি খরচের ক্যাটাগরি';
 
   @override
   String get aiReadingYourReceipt => 'আপনার রসিদ পড়া হচ্ছে…';
@@ -2404,22 +2389,6 @@ class L10nBn extends L10n {
   @override
   String get aiCoachBody =>
       'সহজ ভাষায় জিজ্ঞেস করুন। নিজের খরচ থেকে উত্তর, পরামর্শ আর পরিকল্পনা পান।';
-
-  @override
-  String get aiSampleQuestion => 'এই মাসে কি একটা উইকেন্ড ট্রিপ সম্ভব?';
-
-  @override
-  String get aiSampleAnswer =>
-      'হ্যাঁ। বাজেটে জায়গা থাকবে, তবে ৩১ তারিখ পর্যন্ত বাড়তি কেনাকাটা এড়িয়ে চলুন।';
-
-  @override
-  String get aiChipInsights => 'খরচের বিশ্লেষণ';
-
-  @override
-  String get aiChipReceipt => 'রসিদ স্ক্যান';
-
-  @override
-  String get aiChipBudgets => 'স্মার্ট বাজেট';
 
   @override
   String get aiAssistantTitle => 'এআই সহকারী';
