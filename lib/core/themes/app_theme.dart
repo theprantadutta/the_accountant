@@ -113,14 +113,10 @@ class AppTheme {
       // Stock app bars get the same round back and close buttons as the
       // Sunrise PushHeader, so screens still on AppBar match the rest.
       actionIconTheme: ActionIconThemeData(
-        backButtonIconBuilder: (_) => _RoundNavIcon(
-          icon: Symbols.arrow_back_rounded,
-          colors: c,
-        ),
-        closeButtonIconBuilder: (_) => _RoundNavIcon(
-          icon: Symbols.close_rounded,
-          colors: c,
-        ),
+        backButtonIconBuilder: (_) =>
+            _RoundNavIcon(icon: Symbols.arrow_back_rounded, colors: c),
+        closeButtonIconBuilder: (_) =>
+            _RoundNavIcon(icon: Symbols.close_rounded, colors: c),
       ),
       pageTransitionsTheme: appPageTransitionsTheme,
       appBarTheme: AppBarTheme(
@@ -241,9 +237,7 @@ class AppTheme {
         selectedIconTheme: IconThemeData(color: c.accent),
         unselectedIconTheme: IconThemeData(color: c.faint),
         selectedLabelTextStyle: SunriseType.tabLabel.copyWith(color: c.accent),
-        unselectedLabelTextStyle: SunriseType.tabLabel.copyWith(
-          color: c.faint,
-        ),
+        unselectedLabelTextStyle: SunriseType.tabLabel.copyWith(color: c.faint),
       ),
       floatingActionButtonTheme: FloatingActionButtonThemeData(
         backgroundColor: c.accent,
@@ -300,19 +294,14 @@ class AppTheme {
       segmentedButtonTheme: SegmentedButtonThemeData(
         style: ButtonStyle(
           backgroundColor: WidgetStateProperty.resolveWith(
-            (s) => s.contains(WidgetState.selected)
-                ? c.chipActiveBg
-                : c.surface,
+            (s) =>
+                s.contains(WidgetState.selected) ? c.chipActiveBg : c.surface,
           ),
           foregroundColor: WidgetStateProperty.resolveWith(
-            (s) => s.contains(WidgetState.selected)
-                ? c.chipActiveFg
-                : c.body,
+            (s) => s.contains(WidgetState.selected) ? c.chipActiveFg : c.body,
           ),
           iconColor: WidgetStateProperty.resolveWith(
-            (s) => s.contains(WidgetState.selected)
-                ? c.chipActiveFg
-                : c.body,
+            (s) => s.contains(WidgetState.selected) ? c.chipActiveFg : c.body,
           ),
           side: WidgetStatePropertyAll(BorderSide(color: c.divider)),
           textStyle: WidgetStatePropertyAll(SunriseType.label),

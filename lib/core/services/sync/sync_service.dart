@@ -339,11 +339,9 @@ class SyncService {
             _logger.i('Merged $merged duplicate default categories');
           }
 
-          // A brand-new device whose account had no cloud categories still needs
-          // its built-ins; seeding is per-slug, so this only fills genuine gaps.
-          await CategoryInitializationService(
-            _database,
-          ).initializeDefaultCategories();
+          // An account with no categories at all (brand new) gets the
+          // built-ins; one that already has its own keeps exactly those.
+          await CategoryInitializationService(_database).seedAfterPull();
         }
 
         if (applyFailures.isEmpty && deferredPulls.isEmpty) {
@@ -1330,7 +1328,8 @@ class SyncService {
     }
   }
 
-  Future<void> _applyTransactionChange(SyncChange change) async {    final rawData = change.data;
+  Future<void> _applyTransactionChange(SyncChange change) async {
+    final rawData = change.data;
     if (change.operation == 'delete') {
       await (_database.update(
         _database.transactions,
@@ -1426,7 +1425,8 @@ class SyncService {
     await _database.into(_database.transactions).insert(companion);
   }
 
-  Future<void> _applyWalletChange(SyncChange change) async {    final rawData = change.data;
+  Future<void> _applyWalletChange(SyncChange change) async {
+    final rawData = change.data;
     if (change.operation == 'delete') {
       await (_database.update(
         _database.wallets,
@@ -1478,7 +1478,8 @@ class SyncService {
     }
   }
 
-  Future<void> _applyCategoryChange(SyncChange change) async {    final rawData = change.data;
+  Future<void> _applyCategoryChange(SyncChange change) async {
+    final rawData = change.data;
     if (change.operation == 'delete') {
       await (_database.update(
         _database.categories,
@@ -1552,7 +1553,8 @@ class SyncService {
     await _database.into(_database.categories).insert(companion);
   }
 
-  Future<void> _applyBudgetChange(SyncChange change) async {    final rawData = change.data;
+  Future<void> _applyBudgetChange(SyncChange change) async {
+    final rawData = change.data;
     if (change.operation == 'delete') {
       await (_database.update(
         _database.budgets,
@@ -1617,7 +1619,8 @@ class SyncService {
     }
   }
 
-  Future<void> _applyAssociatedTitleChange(SyncChange change) async {    if (change.operation == 'delete') {
+  Future<void> _applyAssociatedTitleChange(SyncChange change) async {
+    if (change.operation == 'delete') {
       await (_database.update(
         _database.associatedTitles,
       )..where((a) => a.id.equals(change.entityId))).write(
@@ -1654,7 +1657,8 @@ class SyncService {
     }
   }
 
-  Future<void> _applyCategoryLimitChange(SyncChange change) async {    if (change.operation == 'delete') {
+  Future<void> _applyCategoryLimitChange(SyncChange change) async {
+    if (change.operation == 'delete') {
       await (_database.update(
         _database.categoryBudgetLimits,
       )..where((l) => l.id.equals(change.entityId))).write(
@@ -1691,7 +1695,8 @@ class SyncService {
     }
   }
 
-  Future<void> _applyObjectiveChange(SyncChange change) async {    final rawData = change.data;
+  Future<void> _applyObjectiveChange(SyncChange change) async {
+    final rawData = change.data;
     if (change.operation == 'delete') {
       await (_database.update(
         _database.objectives,
@@ -1742,7 +1747,8 @@ class SyncService {
     }
   }
 
-  Future<void> _applyPaymentMethodChange(SyncChange change) async {    final rawData = change.data;
+  Future<void> _applyPaymentMethodChange(SyncChange change) async {
+    final rawData = change.data;
     if (change.operation == 'delete') {
       await (_database.update(
         _database.paymentMethods,
@@ -1786,7 +1792,8 @@ class SyncService {
     }
   }
 
-  Future<void> _applyRecurringConfigChange(SyncChange change) async {    final rawData = change.data;
+  Future<void> _applyRecurringConfigChange(SyncChange change) async {
+    final rawData = change.data;
     // RecurringConfig has no deletedAt - uses isActive flag
     if (change.operation == 'delete') {
       await (_database.update(
@@ -2284,7 +2291,6 @@ class SyncService {
 
     return await _database.rowRevision(table, id) == submitted;
   }
-
 
   /// Update sync state
   void _setState(SyncOperationState newState) {

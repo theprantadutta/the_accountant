@@ -122,10 +122,10 @@ class SunriseColors extends ThemeExtension<SunriseColors> {
 
   /// The tokens for [brightness] painted in [accent].
   static SunriseColors resolve(Brightness brightness, SunriseAccent accent) =>
-      _cache.putIfAbsent(
-        (brightness, accent),
-        () => _build(brightness, accent.swatch(brightness)),
-      );
+      _cache.putIfAbsent((
+        brightness,
+        accent,
+      ), () => _build(brightness, accent.swatch(brightness)));
 
   static SunriseColors get light =>
       resolve(Brightness.light, SunriseAccent.sunrise);

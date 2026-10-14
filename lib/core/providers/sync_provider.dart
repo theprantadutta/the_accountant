@@ -74,6 +74,12 @@ class SyncNotifier extends Notifier<SyncOperationState> {
     final syncService = ref.read(syncServiceProvider);
     final result = await syncService.syncAll();
 
+    // Any complete sync starts the auto-sync cooldown, not just automatic
+    // ones. The startup restore calls this directly, and leaving the clock
+    // alone made the post-frame startup checks run a second full push and
+    // pull straight after it, which is what kept "Syncing…" up at sign-in.
+    if (result.success) _lastAutoSyncAt = DateTime.now();
+
     // Refresh whenever anything actually landed locally. A partial sync reports
     // success == false (so the user is told about the records that failed), but
     // the records that DID apply are already in the database and the UI must
@@ -148,10 +154,10 @@ class SyncNotifier extends Notifier<SyncOperationState> {
     try {
       final result = await syncAll();
 
-      // Only a sync that actually ran starts the clock. One that bounced off
-      // the in-progress guard, or failed offline, has said nothing about
-      // whether the server is up to date, and must not suppress the next try.
-      if (result.success) _lastAutoSyncAt = DateTime.now();
+      // Only a sync that actually ran starts the clock (syncAll sets it). One
+      // that bounced off the in-progress guard, or failed offline, has said
+      // nothing about whether the server is up to date, and must not suppress
+      // the next try.
       // Background recurrence generation runs in a WorkManager isolate that
       // cannot sync on its own; it leaves a flag instead. Clear it once a
       // foreground sync has actually pushed, so the generated occurrences are

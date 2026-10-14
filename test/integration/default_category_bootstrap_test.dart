@@ -49,6 +49,37 @@ void main() {
   Future<int> categoryCountOn(AppDatabase db) async =>
       (await db.getAllCategories()).length;
 
+  test('after a pull, an empty account gets the built-ins', () async {
+    final created = await CategoryInitializationService(
+      deviceA,
+    ).seedAfterPull();
+
+    expect(created, isNotEmpty);
+    expect(await slugsOn(deviceA), DefaultCategoryCatalog.byKey.keys.toSet());
+  });
+
+  test('after a pull, an account with its own categories gets only the '
+      'system ones, so deleted built-ins stay deleted', () async {
+    await CategoryInitializationService(deviceA).initializeDefaultCategories();
+    final keep = (await deviceA.getAllCategories()).firstWhere(
+      (c) => !SystemCategoryKeys.all.contains(c.defaultKey),
+    );
+    // The user deleted every other built-in.
+    for (final c in await deviceA.getAllCategories()) {
+      if (c.id != keep.id && !SystemCategoryKeys.all.contains(c.defaultKey)) {
+        await deviceA.softDeleteCategory(c.id);
+      }
+    }
+    final before = await categoryCountOn(deviceA);
+
+    final created = await CategoryInitializationService(
+      deviceA,
+    ).seedAfterPull();
+
+    expect(created, isEmpty);
+    expect(await categoryCountOn(deviceA), before);
+  });
+
   test('a fresh install seeds exactly one category per built-in', () async {
     await CategoryInitializationService(deviceA).initializeDefaultCategories();
 
