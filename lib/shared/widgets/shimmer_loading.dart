@@ -3,6 +3,22 @@ import 'package:shimmer/shimmer.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
 
+/// The sweep every skeleton shares.
+///
+/// Light runs white cards up to a warm border tone. Dark needs its own pair:
+/// the dark border token is translucent white, and as a shimmer highlight that
+/// let the page show through, so the sweep read as a dark gap rather than a
+/// glint. Both dark colours are opaque and warm, a step above the card.
+Widget _shimmer(BuildContext context, {required Widget child}) {
+  final dark = Theme.of(context).brightness == Brightness.dark;
+  return Shimmer.fromColors(
+    baseColor: dark ? const Color(0xFF221813) : AppColors.primarySurface,
+    highlightColor: dark ? const Color(0xFF3A2B22) : AppColors.glassBorder,
+    period: const Duration(milliseconds: 1400),
+    child: child,
+  );
+}
+
 /// A shimmer loading placeholder card.
 /// Use this to show loading state for cards in the app.
 class ShimmerCard extends StatelessWidget {
@@ -19,9 +35,8 @@ class ShimmerCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Shimmer.fromColors(
-      baseColor: AppColors.primarySurface,
-      highlightColor: AppColors.glassBorder,
+    return _shimmer(
+      context,
       child: Container(
         height: height,
         width: width ?? double.infinity,
@@ -40,9 +55,8 @@ class ShimmerTransactionItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Shimmer.fromColors(
-      baseColor: AppColors.primarySurface,
-      highlightColor: AppColors.glassBorder,
+    return _shimmer(
+      context,
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
         padding: AppSpacing.paddingMd,
@@ -136,9 +150,8 @@ class ShimmerStatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Shimmer.fromColors(
-      baseColor: AppColors.primarySurface,
-      highlightColor: AppColors.glassBorder,
+    return _shimmer(
+      context,
       child: Container(
         padding: AppSpacing.paddingCard,
         decoration: BoxDecoration(
@@ -201,9 +214,8 @@ class ShimmerWalletCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Shimmer.fromColors(
-      baseColor: AppColors.primarySurface,
-      highlightColor: AppColors.glassBorder,
+    return _shimmer(
+      context,
       child: Container(
         width: 160,
         height: 100,
@@ -279,9 +291,8 @@ class ShimmerBudgetItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Shimmer.fromColors(
-      baseColor: AppColors.primarySurface,
-      highlightColor: AppColors.glassBorder,
+    return _shimmer(
+      context,
       child: Container(
         margin: const EdgeInsets.only(bottom: 16),
         child: Column(
@@ -366,9 +377,8 @@ class ShimmerDashboard extends StatelessWidget {
     return SingleChildScrollView(
       physics: const NeverScrollableScrollPhysics(),
       padding: const EdgeInsets.fromLTRB(20, 18, 20, 120),
-      child: Shimmer.fromColors(
-        baseColor: AppColors.primarySurface,
-        highlightColor: AppColors.glassBorder,
+      child: _shimmer(
+        context,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
