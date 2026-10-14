@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -69,6 +71,20 @@ class ThemeNotifier extends StateNotifier<ThemeState> {
   /// premium theme name under. Read once to migrate, then removed.
   static const String _legacyKey = 'selected_theme';
 
+  /// When an ad-earned premium-theme trial ends (ISO 8601). Kept on the device
+  /// so the trial survives a restart before the server has been asked.
+  static const String _trialKey = 'theme_trial_ends_at';
+
+  /// Premium themes because of a subscription, as opposed to a trial.
+  bool _subscribed = false;
+  DateTime? _trialEndsAt;
+  Timer? _trialTimer;
+
+  bool get trialActive =>
+      _trialEndsAt != null && _trialEndsAt!.isAfter(DateTime.now());
+
+  DateTime? get trialEndsAt => trialActive ? _trialEndsAt : null;
+
   /// Follows the phone out of the box: Sunrise was designed light and dark as
   /// equals, and "Match system" is the first thing on the Appearance screen.
   ThemeNotifier()
@@ -109,8 +125,18 @@ class ThemeNotifier extends StateNotifier<ThemeState> {
         await prefs.remove(_legacyKey);
       }
 
+      final trial = DateTime.tryParse(prefs.getString(_trialKey) ?? '');
+      if (trial != null && trial.isAfter(DateTime.now())) {
+        _trialEndsAt = trial;
+        _scheduleTrialEnd();
+      }
+
       if (!mounted) return;
-      state = state.copyWith(mode: mode, accent: accent);
+      state = state.copyWith(
+        mode: mode,
+        accent: accent,
+        premiumUnlocked: trialActive ? true : null,
+      );
     } catch (_) {
       // A store that will not open is not a reason to fail to start; the
       // default theme is a perfectly good answer.
@@ -151,11 +177,40 @@ class ThemeNotifier extends StateNotifier<ThemeState> {
   }
 
   void unlockPremiumThemes() {
+    _subscribed = true;
     state = state.copyWith(premiumUnlocked: true);
   }
 
+  /// Premium themes until [endsAt], bought with a rewarded ad. Extends an
+  /// earlier trial rather than shortening it.
+  Future<void> startTrial(DateTime endsAt) async {
+    if (_trialEndsAt != null && !endsAt.isAfter(_trialEndsAt!)) return;
+    _trialEndsAt = endsAt;
+    _scheduleTrialEnd();
+    state = state.copyWith(premiumUnlocked: true);
+    await _persist(_trialKey, endsAt.toIso8601String());
+  }
+
+  void _scheduleTrialEnd() {
+    _trialTimer?.cancel();
+    final left = _trialEndsAt!.difference(DateTime.now());
+    _trialTimer = Timer(left.isNegative ? Duration.zero : left, () {
+      _trialEndsAt = null;
+      if (!_subscribed) lockPremiumThemes();
+    });
+  }
+
+  @override
+  void dispose() {
+    _trialTimer?.cancel();
+    super.dispose();
+  }
+
   /// Premium lapsed: back to Sunrise, keeping the brightness they chose.
+  /// A trial still running keeps its themes until it ends.
   void lockPremiumThemes() {
+    _subscribed = false;
+    if (trialActive) return;
     final wasPremium = state.accent.isPremium;
     state = state.copyWith(
       premiumUnlocked: false,

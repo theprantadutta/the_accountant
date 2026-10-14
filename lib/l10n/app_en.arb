@@ -1097,7 +1097,7 @@
   "paywallFeatSync": "Cloud sync",
   "paywallFeatSyncSub": "All devices",
   "paywallFeatAi": "AI assistant",
-  "paywallFeatAiSub": "Gemini-powered",
+  "paywallFeatAiSub": "Unlimited, no ads",
   "paywallFeatOcr": "Receipt scan",
   "paywallFeatOcrSub": "OCR with AI",
   "paywallFeatInsights": "Spending insights",
@@ -1213,5 +1213,45 @@
   "quickAddTitle": "Describe it",
   "quickAddSubtitle": "Type it the way you'd say it. The AI fills in the form for you to check.",
   "quickAddHint": "e.g. lunch 250 yesterday from bKash",
-  "quickAddFill": "Fill it in"
+  "quickAddFill": "Fill it in",
+  "summaryTitle": "Monthly summary",
+  "summarySpent": "Spent this month",
+  "summaryEarned": "Earned {amount}",
+  "@summaryEarned": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "summaryLessThanLast": "{percent}% less than last month",
+  "@summaryLessThanLast": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "summaryMoreThanLast": "{percent}% more than last month",
+  "@summaryMoreThanLast": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "summaryAiTitle": "Your month, in a nutshell",
+  "summaryAiBody": "The AI reads your month against last month and picks out what stood out, with one thing to try.",
+  "summaryWrite": "Write my summary",
+  "summaryWriting": "Writing your summary…",
+  "summaryByCategory": "By category",
+  "summaryNoSpending": "No spending recorded this month yet.",
+  "themeTrialUntil": "Premium themes unlocked until {time}",
+  "@themeTrialUntil": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  }
 }

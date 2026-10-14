@@ -776,7 +776,7 @@
   "paywallFeatSync": "ক্লাউড সিঙ্ক",
   "paywallFeatSyncSub": "সব ডিভাইসে",
   "paywallFeatAi": "এআই সহকারী",
-  "paywallFeatAiSub": "জেমিনি চালিত",
+  "paywallFeatAiSub": "সীমাহীন, বিজ্ঞাপন নেই",
   "paywallFeatOcr": "রসিদ স্ক্যান",
   "paywallFeatOcrSub": "এআই দিয়ে ওসিআর",
   "paywallFeatInsights": "খরচের বিশ্লেষণ",
@@ -868,5 +868,17 @@
   "quickAddTitle": "লিখে বলুন",
   "quickAddSubtitle": "যেভাবে বলেন সেভাবে লিখুন। এআই ফর্মটি পূরণ করবে, আপনি মিলিয়ে নেবেন।",
   "quickAddHint": "যেমন: গতকাল বিকাশ থেকে দুপুরের খাবার ২৫০",
-  "quickAddFill": "পূরণ করুন"
+  "quickAddFill": "পূরণ করুন",
+  "summaryTitle": "মাসিক সারাংশ",
+  "summarySpent": "এই মাসে খরচ",
+  "summaryEarned": "আয় {amount}",
+  "summaryLessThanLast": "গত মাসের চেয়ে {percent}% কম",
+  "summaryMoreThanLast": "গত মাসের চেয়ে {percent}% বেশি",
+  "summaryAiTitle": "এক নজরে আপনার মাস",
+  "summaryAiBody": "এআই আপনার এই মাসকে গত মাসের সাথে মিলিয়ে উল্লেখযোগ্য বিষয়গুলো তুলে ধরে, সাথে একটি পরামর্শ দেয়।",
+  "summaryWrite": "আমার সারাংশ লিখুন",
+  "summaryWriting": "আপনার সারাংশ লেখা হচ্ছে…",
+  "summaryByCategory": "ক্যাটাগরি অনুযায়ী",
+  "summaryNoSpending": "এই মাসে এখনো কোনো খরচ লেখা হয়নি।",
+  "themeTrialUntil": "{time} পর্যন্ত প্রিমিয়াম থিম আনলক"
 }

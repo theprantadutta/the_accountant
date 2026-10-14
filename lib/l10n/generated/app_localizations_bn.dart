@@ -2514,7 +2514,7 @@ class L10nBn extends L10n {
   String get paywallFeatAi => 'এআই সহকারী';
 
   @override
-  String get paywallFeatAiSub => 'জেমিনি চালিত';
+  String get paywallFeatAiSub => 'সীমাহীন, বিজ্ঞাপন নেই';
 
   @override
   String get paywallFeatOcr => 'রসিদ স্ক্যান';
@@ -2819,4 +2819,49 @@ class L10nBn extends L10n {
 
   @override
   String get quickAddFill => 'পূরণ করুন';
+
+  @override
+  String get summaryTitle => 'মাসিক সারাংশ';
+
+  @override
+  String get summarySpent => 'এই মাসে খরচ';
+
+  @override
+  String summaryEarned(String amount) {
+    return 'আয় $amount';
+  }
+
+  @override
+  String summaryLessThanLast(int percent) {
+    return 'গত মাসের চেয়ে $percent% কম';
+  }
+
+  @override
+  String summaryMoreThanLast(int percent) {
+    return 'গত মাসের চেয়ে $percent% বেশি';
+  }
+
+  @override
+  String get summaryAiTitle => 'এক নজরে আপনার মাস';
+
+  @override
+  String get summaryAiBody =>
+      'এআই আপনার এই মাসকে গত মাসের সাথে মিলিয়ে উল্লেখযোগ্য বিষয়গুলো তুলে ধরে, সাথে একটি পরামর্শ দেয়।';
+
+  @override
+  String get summaryWrite => 'আমার সারাংশ লিখুন';
+
+  @override
+  String get summaryWriting => 'আপনার সারাংশ লেখা হচ্ছে…';
+
+  @override
+  String get summaryByCategory => 'ক্যাটাগরি অনুযায়ী';
+
+  @override
+  String get summaryNoSpending => 'এই মাসে এখনো কোনো খরচ লেখা হয়নি।';
+
+  @override
+  String themeTrialUntil(String time) {
+    return '$time পর্যন্ত প্রিমিয়াম থিম আনলক';
+  }
 }

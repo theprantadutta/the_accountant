@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:the_accountant/features/ads/reward_flow.dart';
+import 'package:the_accountant/features/ads/rewarded_ads.dart';
+import 'package:the_accountant/features/ai_assistant/providers/ai_quota_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/providers/theme_provider.dart';
 import 'package:the_accountant/features/premium/providers/premium_provider.dart';
@@ -20,7 +24,10 @@ class ThemeSelectionScreen extends ConsumerWidget {
     final l10n = L10n.of(context);
     final theme = ref.watch(themeProvider);
     final notifier = ref.read(themeProvider.notifier);
-    final unlocked = ref.watch(premiumProvider).features.isUnlocked;
+    final subscribed = ref.watch(premiumProvider).features.isUnlocked;
+    // A subscription, or a trial earned by watching an ad.
+    final unlocked = theme.premiumUnlocked;
+    final trialEnds = subscribed ? null : notifier.trialEndsAt;
     final c = context.sunrise;
     final effective = theme.brightnessFor(
       MediaQuery.platformBrightnessOf(context),
@@ -28,7 +35,7 @@ class ThemeSelectionScreen extends ConsumerWidget {
 
     return SunrisePushPage(
       title: l10n.appearanceTitle,
-      bottom: unlocked
+      bottom: subscribed
           ? null
           : SunriseButton(
               label: l10n.themeUnlockAll,
@@ -103,6 +110,17 @@ class ThemeSelectionScreen extends ConsumerWidget {
             ),
           ],
         ),
+        if (trialEnds != null) ...[
+          const SizedBox(height: 10),
+          SunrisePill(
+            icon: Symbols.timer_rounded,
+            label: l10n.themeTrialUntil(
+              DateFormat.jm(
+                Localizations.localeOf(context).toString(),
+              ).format(trialEnds),
+            ),
+          ),
+        ],
         const SizedBox(height: 14),
         LayoutBuilder(
           builder: (context, box) {
@@ -122,7 +140,7 @@ class ThemeSelectionScreen extends ConsumerWidget {
                       locked: accent.isPremium && !unlocked,
                       onTap: () {
                         if (accent.isPremium && !unlocked) {
-                          Navigator.pushNamed(context, '/premium');
+                          _tryAccent(context, ref, accent);
                         } else {
                           notifier.setAccent(accent);
                         }
@@ -135,6 +153,25 @@ class ThemeSelectionScreen extends ConsumerWidget {
         ),
       ],
     );
+  }
+
+  /// A locked accent: watch an ad for a day of every premium theme, starting
+  /// with this one, or go Premium.
+  static Future<void> _tryAccent(
+    BuildContext context,
+    WidgetRef ref,
+    SunriseAccent accent,
+  ) async {
+    final earned = await earnWithAd(context, ref, RewardKind.themeTrial);
+    if (!earned) return;
+
+    await ref.read(aiQuotaProvider.notifier).refresh();
+    final ends =
+        ref.read(aiQuotaProvider).themeTrialEndsAt ??
+        DateTime.now().add(const Duration(hours: 24));
+    final theme = ref.read(themeProvider.notifier);
+    await theme.startTrial(ends);
+    theme.setAccent(accent);
   }
 
   /// The accent's name as the user reads it (stored names stay English).

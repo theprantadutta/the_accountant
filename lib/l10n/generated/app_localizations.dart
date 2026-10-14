@@ -4760,7 +4760,7 @@ abstract class L10n {
   /// No description provided for @paywallFeatAiSub.
   ///
   /// In en, this message translates to:
-  /// **'Gemini-powered'**
+  /// **'Unlimited, no ads'**
   String get paywallFeatAiSub;
 
   /// No description provided for @paywallFeatOcr.
@@ -5314,6 +5314,78 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'Fill it in'**
   String get quickAddFill;
+
+  /// No description provided for @summaryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly summary'**
+  String get summaryTitle;
+
+  /// No description provided for @summarySpent.
+  ///
+  /// In en, this message translates to:
+  /// **'Spent this month'**
+  String get summarySpent;
+
+  /// No description provided for @summaryEarned.
+  ///
+  /// In en, this message translates to:
+  /// **'Earned {amount}'**
+  String summaryEarned(String amount);
+
+  /// No description provided for @summaryLessThanLast.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% less than last month'**
+  String summaryLessThanLast(int percent);
+
+  /// No description provided for @summaryMoreThanLast.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% more than last month'**
+  String summaryMoreThanLast(int percent);
+
+  /// No description provided for @summaryAiTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your month, in a nutshell'**
+  String get summaryAiTitle;
+
+  /// No description provided for @summaryAiBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The AI reads your month against last month and picks out what stood out, with one thing to try.'**
+  String get summaryAiBody;
+
+  /// No description provided for @summaryWrite.
+  ///
+  /// In en, this message translates to:
+  /// **'Write my summary'**
+  String get summaryWrite;
+
+  /// No description provided for @summaryWriting.
+  ///
+  /// In en, this message translates to:
+  /// **'Writing your summary…'**
+  String get summaryWriting;
+
+  /// No description provided for @summaryByCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'By category'**
+  String get summaryByCategory;
+
+  /// No description provided for @summaryNoSpending.
+  ///
+  /// In en, this message translates to:
+  /// **'No spending recorded this month yet.'**
+  String get summaryNoSpending;
+
+  /// No description provided for @themeTrialUntil.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium themes unlocked until {time}'**
+  String themeTrialUntil(String time);
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

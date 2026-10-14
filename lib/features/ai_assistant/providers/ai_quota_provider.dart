@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:the_accountant/core/providers/theme_provider.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:the_accountant/features/ai_assistant/models/ai_quota.dart';
 import 'package:the_accountant/features/ai_assistant/services/ai_api.dart';
@@ -39,6 +40,11 @@ class AiQuotaNotifier extends StateNotifier<AiQuota> {
     }
     try {
       state = await _ref.read(aiApiProvider).quota();
+      // A theme trial bought on another install, or before a restart.
+      final trial = state.themeTrialEndsAt;
+      if (trial != null && state.themeTrialActive) {
+        await _ref.read(themeProvider.notifier).startTrial(trial);
+      }
     } catch (_) {
       // Keep the last known allowance; the server still enforces the real one.
     }

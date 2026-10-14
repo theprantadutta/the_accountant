@@ -16,6 +16,9 @@ import 'package:the_accountant/data/datasources/local/database_provider.dart';
 import 'package:the_accountant/features/premium/providers/premium_provider.dart';
 import 'package:the_accountant/features/settings/providers/settings_provider.dart';
 import 'package:the_accountant/features/settings/services/pdf_export_service.dart';
+import 'package:the_accountant/features/ads/reward_flow.dart';
+import 'package:the_accountant/features/ads/rewarded_ads.dart';
+import 'package:the_accountant/features/ai_assistant/providers/ai_quota_provider.dart';
 import 'package:the_accountant/core/providers/currency_provider.dart';
 
 class ExportScreen extends ConsumerStatefulWidget {
@@ -87,7 +90,9 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
               title: L10n.of(context).settingsPdfReport,
               subtitle: L10n.of(context).settingsFormattedSummaryWithBreakdowns,
               value: 'pdf',
-              locked: !isPremium,
+              // Selectable for everyone: free users export by watching an ad.
+              locked: false,
+              badge: !isPremium,
             ),
           ]),
           SizedBox(height: AppSpacing.lg),
@@ -280,6 +285,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
     required String subtitle,
     required String value,
     bool locked = false,
+    bool badge = false,
   }) {
     final isSelected = _selectedFormat == value && !locked;
 
@@ -307,7 +313,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
               fontWeight: FontWeight.w500,
             ),
           ),
-          if (locked) ...[const SizedBox(width: 8), _premiumBadge()],
+          if (locked || badge) ...[const SizedBox(width: 8), _premiumBadge()],
         ],
       ),
       subtitle: Text(
@@ -372,6 +378,24 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
         ),
       ),
     );
+  }
+
+  /// True once a PDF export has been paid for with an ad.
+  Future<bool> _earnPdfExport() async {
+    final quota = ref.read(aiQuotaProvider.notifier);
+    await quota.refresh();
+    if (!mounted) return false;
+    if (ref.read(aiQuotaProvider).pdfExportCredits <= 0) {
+      final earned = await earnWithAd(context, ref, RewardKind.pdfExport);
+      if (!earned || !mounted) return false;
+    }
+    try {
+      final spent = await ref.read(aiApiProvider).usePdfExport();
+      await quota.refresh();
+      return spent;
+    } catch (_) {
+      return false;
+    }
   }
 
   void _showPdfUpgradePrompt() {
@@ -541,10 +565,11 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
   }
 
   Future<void> _exportData() async {
-    // PDF reports are Premium-only; CSV is free for everyone.
+    // CSV is free for everyone. A PDF report is Premium, or one per rewarded
+    // ad: spend an export already earned, or offer the ad (which says that
+    // Premium needs no ads) and spend the one it buys.
     if (_selectedFormat == 'pdf' && !ref.read(premiumProvider).isPremium) {
-      _showPdfUpgradePrompt();
-      return;
+      if (!await _earnPdfExport()) return;
     }
 
     setState(() => _isExporting = true);

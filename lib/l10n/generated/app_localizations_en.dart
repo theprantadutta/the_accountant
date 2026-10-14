@@ -2541,7 +2541,7 @@ class L10nEn extends L10n {
   String get paywallFeatAi => 'AI assistant';
 
   @override
-  String get paywallFeatAiSub => 'Gemini-powered';
+  String get paywallFeatAiSub => 'Unlimited, no ads';
 
   @override
   String get paywallFeatOcr => 'Receipt scan';
@@ -2858,4 +2858,49 @@ class L10nEn extends L10n {
 
   @override
   String get quickAddFill => 'Fill it in';
+
+  @override
+  String get summaryTitle => 'Monthly summary';
+
+  @override
+  String get summarySpent => 'Spent this month';
+
+  @override
+  String summaryEarned(String amount) {
+    return 'Earned $amount';
+  }
+
+  @override
+  String summaryLessThanLast(int percent) {
+    return '$percent% less than last month';
+  }
+
+  @override
+  String summaryMoreThanLast(int percent) {
+    return '$percent% more than last month';
+  }
+
+  @override
+  String get summaryAiTitle => 'Your month, in a nutshell';
+
+  @override
+  String get summaryAiBody =>
+      'The AI reads your month against last month and picks out what stood out, with one thing to try.';
+
+  @override
+  String get summaryWrite => 'Write my summary';
+
+  @override
+  String get summaryWriting => 'Writing your summary…';
+
+  @override
+  String get summaryByCategory => 'By category';
+
+  @override
+  String get summaryNoSpending => 'No spending recorded this month yet.';
+
+  @override
+  String themeTrialUntil(String time) {
+    return 'Premium themes unlocked until $time';
+  }
 }

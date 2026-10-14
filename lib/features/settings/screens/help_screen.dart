@@ -156,7 +156,7 @@ class _HelpScreenState extends State<HelpScreen> {
       'section': 'Premium & AI Features',
       'question': 'What features are included in Premium?',
       'answer':
-          'Premium unlocks: Cloud Sync, AI Assistant, Receipt Scanner, AI Insights, Smart Categorization, Advanced Reports, Data Export, Premium Themes, and removes limits on wallets, categories, budgets, goals, and payment methods. You also get priority support.',
+          'Premium unlocks: unlimited AI (the coach, monthly summaries, receipt reading and Describe it) with no ads, Cloud Sync, PDF reports, Premium Themes, and removes limits on wallets, categories, budgets, goals, and payment methods. You also get priority support.',
     },
     {
       'section': 'Premium & AI Features',
@@ -168,25 +168,31 @@ class _HelpScreenState extends State<HelpScreen> {
       'section': 'Premium & AI Features',
       'question': 'What can the AI Assistant do?',
       'answer':
-          "The AI Assistant is your personal financial advisor powered by AI. You can chat with it to analyze your spending patterns, get budget tips, find ways to save money, or ask for investment advice. It also offers quick action buttons for common questions like 'Analyze Spending' and 'Budget Tips'. Your conversation history is saved so you can pick up where you left off. This is a Premium feature.",
+          "The money coach answers questions about your own money: where it went, whether you are on track with your budgets and goals, which bills are coming, and how to spend less or save more. It sees a summary of your figures (totals, categories, budgets, goals, bills and recent transactions) so its answers use your real numbers, and it suggests follow-up questions after each reply. It gives general guidance, not professional financial advice. Your conversations are saved so you can pick up where you left off, and you can delete them at any time.",
     },
     {
       'section': 'Premium & AI Features',
       'question': 'How do AI Insights work?',
       'answer':
-          'AI Insights generates a monthly financial summary that includes your total income, expenses, net savings, and spending trends compared to the previous month. It highlights your top spending categories and provides personalized recommendations to improve your finances. Access it from the app navigation. This is a Premium feature.',
+          'The monthly summary (Stats > Spending Insights) shows this month against last month: what you earned and spent, and how each category moved. Tap Write my summary and the AI picks out what stood out and suggests one thing to try. The numbers are free for everyone; the AI write-up uses one AI request.',
     },
     {
       'section': 'Premium & AI Features',
       'question': 'What is Smart Categorization?',
       'answer':
-          "Smart Categorization automatically suggests a category when you add a transaction based on its title. For example, typing 'Starbucks' would suggest the Food category. The system learns from your transaction patterns to improve suggestions over time. This is a Premium feature.",
+          "When you file a transaction by hand, the app remembers which category that title belongs to and picks it for you next time (you can see and edit these under Naming rules). For something new, tap the sparkle button on the add screen and Describe it: type something like 'lunch 250 yesterday from bKash' and the AI fills in the amount, date, category and account for you to check.",
     },
     {
       'section': 'Premium & AI Features',
       'question': 'How does the AI receipt scanner work?',
       'answer':
-          'The receipt scanner uses machine learning to read your receipts. Take a photo of your receipt, and the AI will automatically extract the amount, date, and merchant name. You can review and edit before saving. This feature requires Premium.',
+          'Take or pick a photo of a receipt. Your phone reads the text on the device and suggests the merchant and total. Tap Read with AI and the AI works out the real total, the date, each item and the right category, even on a messy receipt; only the text is sent, never the photo. You can review and edit before saving. Reading with AI uses one AI request.',
+    },
+    {
+      'section': 'Premium & AI Features',
+      'question': 'How many AI requests do I get, and what are the ads for?',
+      'answer':
+          'Everyone gets 2 free AI requests a day, and they come back at midnight. If you want more, you can choose to watch a short ad for one extra request, up to 10 a day. Ads can also unlock a 24-hour premium theme trial or a PDF export. An ad only ever plays after you tap a button and confirm; there are no banner ads and nothing appears on its own. Premium members get unlimited AI and everything else with no ads at all.',
     },
     {
       'section': 'Premium & AI Features',
