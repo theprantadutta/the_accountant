@@ -168,10 +168,10 @@ flutter_launcher_icons:
 
 # Native splash: `dart run flutter_native_splash:create`
 #
-# Light: the sunrise ground with the white glyph. Dark: the dark wash with the
-# glyph in the sunrise gradient. The Flutter intro starts from whichever of the
-# two the system drew (same image, same glyph box), so the hand-off is
-# invisible in both.
+# One orange ground with the white glyph in light and dark: the launch moment
+# is the brand, whatever the phone's mode. The Flutter intro starts from this
+# exact frame and then settles on the app's own theme, fading to the dark
+# intro when the app is dark.
 #
 # 4x assets: 1024px canvas -> 256dp, glyph at 45%. Android 12 crops rather than
 # scales: 1152px canvas, glyph kept inside the centred 768px circle.
@@ -179,16 +179,16 @@ flutter_native_splash:
   color: "#F97316"
   background_image: assets/launcher/splash-background.png
   image: assets/launcher/splash-glyph.png
-  color_dark: "#140D0A"
-  background_image_dark: assets/launcher/splash-background-dark.png
-  image_dark: assets/launcher/splash-glyph-dark.png
+  color_dark: "#F97316"
+  background_image_dark: assets/launcher/splash-background.png
+  image_dark: assets/launcher/splash-glyph.png
   android_12:
     color: "#F97316"
     image: assets/launcher/android12-splash-glyph.png
     icon_background_color: "#F97316"
-    color_dark: "#140D0A"
-    image_dark: assets/launcher/android12-splash-glyph-dark.png
-    icon_background_color_dark: "#140D0A"
+    color_dark: "#F97316"
+    image_dark: assets/launcher/android12-splash-glyph.png
+    icon_background_color_dark: "#F97316"
   ios: true
   android: true
   web: false
