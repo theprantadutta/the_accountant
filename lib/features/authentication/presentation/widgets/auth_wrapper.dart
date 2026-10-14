@@ -27,7 +27,7 @@ import 'package:the_accountant/core/providers/account_store_provider.dart';
 import 'package:the_accountant/core/providers/startup_flow_provider.dart';
 import 'package:the_accountant/features/startup/screens/startup_recovery_screen.dart';
 
-/// White on the intro's sunrise ground, which is the same in both themes.
+/// White on the intro's light sunrise ground.
 const _onBrand = Color(0xFFFFFFFF);
 
 class AuthWrapper extends ConsumerStatefulWidget {
@@ -323,15 +323,113 @@ class _AuthWrapperState extends ConsumerState<AuthWrapper>
   }
 }
 
+/// The intro's colours, light or dark.
+///
+/// Light is the sunrise ground with white on it; dark is the dark wash with
+/// the glyph in the sunrise gradient and orange light instead of white.
+class _IntroLook {
+  const _IntroLook._({
+    required this.ground,
+    required this.background,
+    required this.glyph,
+    required this.ink,
+    required this.inkSoft,
+    required this.glow,
+    required this.glowAlpha,
+    required this.chip,
+    required this.chipBorder,
+    required this.chipIcon,
+    required this.coinRim,
+    required this.track,
+    required this.fill,
+    required this.card,
+    required this.cardBorder,
+    required this.cardTile,
+    required this.cardIcon,
+    required this.cardLabel,
+  });
+
+  final Color ground;
+  final String background;
+  final String glyph;
+  final Color ink;
+  final Color inkSoft;
+
+  /// Rays and the glow behind the glyph, and how strong the glow is (the
+  /// rays are at 60% of it). White on orange needs much less than orange on
+  /// the dark wash before it glares.
+  final Color glow;
+  final double glowAlpha;
+  final Color chip;
+  final Color chipBorder;
+  final Color chipIcon;
+  final Color coinRim;
+  final Color track;
+  final Gradient fill;
+  final Color card;
+  final Color cardBorder;
+  final Color cardTile;
+  final Color cardIcon;
+  final Color cardLabel;
+
+  static const _orange = Color(0xFFF97316);
+  static const _sunrise = LinearGradient(
+    colors: [Color(0xFFF59E0B), Color(0xFFF97316), Color(0xFFF43F5E)],
+  );
+
+  static final light = _IntroLook._(
+    ground: _orange,
+    background: 'assets/launcher/splash-background.png',
+    glyph: 'assets/launcher/splash-glyph.png',
+    ink: _onBrand,
+    inkSoft: _onBrand.withValues(alpha: .88),
+    glow: _onBrand,
+    glowAlpha: .2,
+    chip: _onBrand.withValues(alpha: .22),
+    chipBorder: _onBrand.withValues(alpha: .45),
+    chipIcon: _onBrand,
+    coinRim: _onBrand.withValues(alpha: .7),
+    track: _onBrand.withValues(alpha: .25),
+    fill: const LinearGradient(colors: [_onBrand, _onBrand]),
+    card: _onBrand.withValues(alpha: .18),
+    cardBorder: _onBrand.withValues(alpha: .35),
+    cardTile: _onBrand.withValues(alpha: .25),
+    cardIcon: _onBrand,
+    cardLabel: _onBrand.withValues(alpha: .85),
+  );
+
+  static final dark = _IntroLook._(
+    ground: const Color(0xFF140D0A),
+    background: 'assets/launcher/splash-background-dark.png',
+    glyph: 'assets/launcher/splash-glyph-dark.png',
+    ink: const Color(0xFFFFF4EC),
+    inkSoft: const Color(0xFFFFF4EC).withValues(alpha: .7),
+    glow: _orange,
+    glowAlpha: .38,
+    chip: _orange.withValues(alpha: .14),
+    chipBorder: _orange.withValues(alpha: .4),
+    chipIcon: const Color(0xFFFB923C),
+    coinRim: const Color(0xFFFDBA74).withValues(alpha: .8),
+    track: const Color(0xFFFFF4EC).withValues(alpha: .12),
+    fill: _sunrise,
+    card: const Color(0xFF221813).withValues(alpha: .72),
+    cardBorder: const Color(0xFFFFF4EC).withValues(alpha: .08),
+    cardTile: _orange.withValues(alpha: .16),
+    cardIcon: const Color(0xFFFB923C),
+    cardLabel: const Color(0xFFFDBA74),
+  );
+}
+
 /// The Sunrise intro, shown while sign-in and the account store settle.
 ///
-/// The first frame is the native splash, pixel for pixel: flat sunrise orange
-/// with the glyph at the centre (Android 12 cannot draw more than that), so
-/// the hand-off is invisible. Then it comes alive: the gradient and a slow
-/// turning sunburst fade in behind the glyph, four little money icons orbit
-/// it, coins drift up the screen, the wordmark rises, a playful status line
-/// steps along a progress bar, and a money tip slides in. It never holds the
-/// app: the wrapper crossfades away the moment the real screen is ready.
+/// The first frame is the native splash, pixel for pixel: the flat ground the
+/// system drew for its own light or dark mode, with the glyph at the centre
+/// (Android 12 cannot draw more than that), so the hand-off is invisible. Then
+/// it comes alive in the app's own theme: the wash and a slow turning sunburst
+/// fade in behind the glyph, four little money icons orbit it, coins drift up
+/// the screen, the wordmark rises, a playful status line steps along a progress
+/// bar, and a money tip slides in. It never holds the app: the wrapper
+/// crossfades away the moment the real screen is ready.
 class AuthLoadingScreen extends StatefulWidget {
   const AuthLoadingScreen({super.key, this.steps});
 
@@ -409,19 +507,27 @@ class _AuthLoadingScreenState extends State<AuthLoadingScreen>
     final steps =
         widget.steps ??
         [l10n.introStep1, l10n.introStep2, l10n.introStep3, l10n.introStep4];
-    const white = _onBrand;
     final reduceMotion = MediaQuery.disableAnimationsOf(context);
     // Landscape phones: no room under the glyph, so the wordmark sits beside
     // it and the tip is left out.
     final compact = MediaQuery.sizeOf(context).height < 640;
 
+    // The native splash follows the phone's dark mode; the app may be set
+    // otherwise. Start from what the phone drew, then settle on the app's own.
+    final splash = MediaQuery.platformBrightnessOf(context) == Brightness.dark
+        ? _IntroLook.dark
+        : _IntroLook.light;
+    final look = Theme.of(context).brightness == Brightness.dark
+        ? _IntroLook.dark
+        : _IntroLook.light;
+
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light.copyWith(
         statusBarColor: Colors.transparent,
-        systemNavigationBarColor: const Color(0xFFF97316),
+        systemNavigationBarColor: look.ground,
       ),
       child: Scaffold(
-        backgroundColor: const Color(0xFFF97316),
+        backgroundColor: splash.ground,
         body: AnimatedBuilder(
           animation: Listenable.merge([_intro, _loop]),
           builder: (context, _) {
@@ -438,14 +544,11 @@ class _AuthLoadingScreenState extends State<AuthLoadingScreen>
                 alignment: Alignment.center,
                 children: [
                   // Android 12+ can only draw a flat ground on its splash,
-                  // so the gradient fades in rather than being there at once.
+                  // so the wash fades in rather than being there at once.
                   Positioned.fill(
                     child: Opacity(
                       opacity: _bg.value,
-                      child: Image.asset(
-                        'assets/launcher/splash-background.png',
-                        fit: BoxFit.cover,
-                      ),
+                      child: Image.asset(look.background, fit: BoxFit.cover),
                     ),
                   ),
 
@@ -457,6 +560,7 @@ class _AuthLoadingScreenState extends State<AuthLoadingScreen>
                         child: _Coin(
                           x: x,
                           size: size,
+                          rim: look.coinRim,
                           progress: (t * 1.6 + phase) % 1,
                         ),
                       ),
@@ -469,7 +573,7 @@ class _AuthLoadingScreenState extends State<AuthLoadingScreen>
                       angle: t * 2 * math.pi / 3,
                       child: CustomPaint(
                         size: const Size(420, 420),
-                        painter: _RaysPainter(),
+                        painter: _RaysPainter(look.glow, look.glowAlpha * .6),
                       ),
                     ),
                   ),
@@ -482,8 +586,10 @@ class _AuthLoadingScreenState extends State<AuthLoadingScreen>
                         shape: BoxShape.circle,
                         gradient: RadialGradient(
                           colors: [
-                            white.withValues(alpha: .38 * _bg.value),
-                            white.withValues(alpha: 0),
+                            look.glow.withValues(
+                              alpha: look.glowAlpha * _bg.value,
+                            ),
+                            look.glow.withValues(alpha: 0),
                           ],
                         ),
                       ),
@@ -495,6 +601,7 @@ class _AuthLoadingScreenState extends State<AuthLoadingScreen>
                     _orbiter(
                       i,
                       t,
+                      look,
                       [
                         Symbols.paid_rounded,
                         Symbols.trending_up_rounded,
@@ -503,12 +610,14 @@ class _AuthLoadingScreenState extends State<AuthLoadingScreen>
                       ][i],
                     ),
 
-                  // Same file, same box, same place as the native splash.
-                  Image.asset(
-                    'assets/launcher/splash-glyph.png',
-                    width: 256,
-                    height: 256,
-                  ),
+                  // Same file, same box, same place as the native splash,
+                  // crossfading to the app's own glyph if the two differ.
+                  Image.asset(splash.glyph, width: 256, height: 256),
+                  if (look.glyph != splash.glyph)
+                    Opacity(
+                      opacity: _bg.value,
+                      child: Image.asset(look.glyph, width: 256, height: 256),
+                    ),
 
                   Transform.translate(
                     offset: compact
@@ -522,7 +631,7 @@ class _AuthLoadingScreenState extends State<AuthLoadingScreen>
                           Text(
                             l10n.settingsTheAccountant,
                             style: SunriseType.heroTitle.copyWith(
-                              color: white,
+                              color: look.ink,
                               fontSize: 30,
                             ),
                           ),
@@ -530,7 +639,7 @@ class _AuthLoadingScreenState extends State<AuthLoadingScreen>
                           Text(
                             l10n.splashTagline,
                             style: SunriseType.body.copyWith(
-                              color: white.withValues(alpha: .88),
+                              color: look.inkSoft,
                               fontSize: 16,
                             ),
                           ),
@@ -554,7 +663,7 @@ class _AuthLoadingScreenState extends State<AuthLoadingScreen>
                                 steps[step],
                                 key: ValueKey(step),
                                 style: SunriseType.label.copyWith(
-                                  color: white,
+                                  color: look.ink,
                                   fontSize: 14,
                                 ),
                               ),
@@ -568,12 +677,15 @@ class _AuthLoadingScreenState extends State<AuthLoadingScreen>
                               height: 5,
                               child: Stack(
                                 children: [
-                                  Container(
-                                    color: white.withValues(alpha: .25),
-                                  ),
+                                  Container(color: look.track),
                                   FractionallySizedBox(
                                     widthFactor: progress,
-                                    child: Container(color: white),
+                                    child: DecoratedBox(
+                                      decoration: BoxDecoration(
+                                        gradient: look.fill,
+                                      ),
+                                      child: const SizedBox.expand(),
+                                    ),
                                   ),
                                 ],
                               ),
@@ -595,6 +707,7 @@ class _AuthLoadingScreenState extends State<AuthLoadingScreen>
                         child: Transform.translate(
                           offset: Offset(0, 24 * (1 - _tip.value)),
                           child: _TipCard(
+                            look: look,
                             label: l10n.introTipLabel,
                             text: _tipText(l10n),
                           ),
@@ -610,7 +723,7 @@ class _AuthLoadingScreenState extends State<AuthLoadingScreen>
     );
   }
 
-  Widget _orbiter(int i, double t, IconData icon) {
+  Widget _orbiter(int i, double t, _IntroLook look, IconData icon) {
     final angle = 2 * math.pi * (t + i / 4);
     final radius = 112 + 6 * math.sin(2 * math.pi * (t * 2 + i / 4));
     final dx = math.cos(angle) * radius;
@@ -626,11 +739,11 @@ class _AuthLoadingScreenState extends State<AuthLoadingScreen>
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: _onBrand.withValues(alpha: .22),
+              color: look.chip,
               shape: BoxShape.circle,
-              border: Border.all(color: _onBrand.withValues(alpha: .45)),
+              border: Border.all(color: look.chipBorder),
             ),
-            child: Icon(icon, color: _onBrand, size: 21, fill: 1),
+            child: Icon(icon, color: look.chipIcon, size: 21, fill: 1),
           ),
         ),
       ),
@@ -640,10 +753,16 @@ class _AuthLoadingScreenState extends State<AuthLoadingScreen>
 
 /// A coin rising from the bottom of the screen and fading out near the top.
 class _Coin extends StatelessWidget {
-  const _Coin({required this.x, required this.size, required this.progress});
+  const _Coin({
+    required this.x,
+    required this.size,
+    required this.rim,
+    required this.progress,
+  });
 
   final double x;
   final double size;
+  final Color rim;
   final double progress;
 
   @override
@@ -670,10 +789,7 @@ class _Coin extends StatelessWidget {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: const Color(0xFFFDE68A),
-                    border: Border.all(
-                      color: _onBrand.withValues(alpha: .7),
-                      width: 2,
-                    ),
+                    border: Border.all(color: rim, width: 2),
                   ),
                   alignment: Alignment.center,
                   child: Container(
@@ -696,6 +812,11 @@ class _Coin extends StatelessWidget {
 
 /// Soft sun rays.
 class _RaysPainter extends CustomPainter {
+  const _RaysPainter(this.color, this.alpha);
+
+  final Color color;
+  final double alpha;
+
   @override
   void paint(Canvas canvas, Size size) {
     final c = size.center(Offset.zero);
@@ -703,8 +824,8 @@ class _RaysPainter extends CustomPainter {
     final paint = Paint()
       ..shader = RadialGradient(
         colors: [
-          _onBrand.withValues(alpha: .22),
-          _onBrand.withValues(alpha: 0),
+          color.withValues(alpha: alpha),
+          color.withValues(alpha: 0),
         ],
       ).createShader(Rect.fromCircle(center: c, radius: r));
     const rays = 14;
@@ -720,23 +841,25 @@ class _RaysPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_RaysPainter oldDelegate) => false;
+  bool shouldRepaint(_RaysPainter oldDelegate) =>
+      oldDelegate.color != color || oldDelegate.alpha != alpha;
 }
 
 /// A frosted card holding the launch's money tip.
 class _TipCard extends StatelessWidget {
-  const _TipCard({required this.label, required this.text});
+  const _TipCard({required this.look, required this.label, required this.text});
 
+  final _IntroLook look;
   final String label;
   final String text;
 
   @override
   Widget build(BuildContext context) {
     return SunriseGlass(
-      color: _onBrand.withValues(alpha: .18),
+      color: look.card,
       radius: BorderRadius.circular(SunriseRadius.card),
       blur: 16,
-      border: Border.all(color: _onBrand.withValues(alpha: .35)),
+      border: Border.all(color: look.cardBorder),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
         child: Row(
@@ -746,12 +869,12 @@ class _TipCard extends StatelessWidget {
               width: 36,
               height: 36,
               decoration: BoxDecoration(
-                color: _onBrand.withValues(alpha: .25),
+                color: look.cardTile,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Icon(
+              child: Icon(
                 Symbols.lightbulb_rounded,
-                color: _onBrand,
+                color: look.cardIcon,
                 fill: 1,
                 size: 20,
               ),
@@ -764,7 +887,7 @@ class _TipCard extends StatelessWidget {
                   Text(
                     label.toUpperCase(),
                     style: SunriseType.overline.copyWith(
-                      color: _onBrand.withValues(alpha: .85),
+                      color: look.cardLabel,
                       fontSize: 11,
                     ),
                   ),
@@ -772,7 +895,7 @@ class _TipCard extends StatelessWidget {
                   Text(
                     text,
                     style: SunriseType.label.copyWith(
-                      color: _onBrand,
+                      color: look.ink,
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
                       height: 1.35,
