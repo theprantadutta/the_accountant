@@ -422,13 +422,13 @@ class _IntroLook {
 
 /// The Sunrise intro, shown while sign-in and the account store settle.
 ///
-/// The first frame is the native splash, pixel for pixel: the flat ground the
-/// system drew for its own light or dark mode, with the glyph at the centre
-/// (Android 12 cannot draw more than that), so the hand-off is invisible. Then
-/// it comes alive in the app's own theme: the wash and a slow turning sunburst
-/// fade in behind the glyph, four little money icons orbit it, coins drift up
-/// the screen, the wordmark rises, a playful status line steps along a progress
-/// bar, and a money tip slides in. It never holds the app: the wrapper
+/// The first frame is the native splash, pixel for pixel: the flat orange
+/// ground with the glyph at the centre (Android 12 cannot draw more than that),
+/// so the hand-off is invisible. Then it comes alive in the app's own theme,
+/// light or dark: the wash and a slow turning sunburst fade in behind the
+/// glyph, four little money icons orbit it, coins drift up the screen, the
+/// wordmark rises, a playful status line steps along a progress bar, and a
+/// money tip slides in. It never holds the app: the wrapper
 /// crossfades away the moment the real screen is ready.
 class AuthLoadingScreen extends StatefulWidget {
   const AuthLoadingScreen({super.key, this.steps});
@@ -512,11 +512,9 @@ class _AuthLoadingScreenState extends State<AuthLoadingScreen>
     // it and the tip is left out.
     final compact = MediaQuery.sizeOf(context).height < 640;
 
-    // The native splash follows the phone's dark mode; the app may be set
-    // otherwise. Start from what the phone drew, then settle on the app's own.
-    final splash = MediaQuery.platformBrightnessOf(context) == Brightness.dark
-        ? _IntroLook.dark
-        : _IntroLook.light;
+    // The native splash is the orange one in both modes; start from it, then
+    // settle on the app's own look.
+    final splash = _IntroLook.light;
     final look = Theme.of(context).brightness == Brightness.dark
         ? _IntroLook.dark
         : _IntroLook.light;
