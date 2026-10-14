@@ -112,15 +112,11 @@ class RewardedAds {
     return true;
   }
 
-  /// Shows one rewarded ad for [kind]. [userId] and the UTC offset ride along
-  /// to AdMob's server-side verification, which tells our server directly.
-  Future<AdResult> show(RewardKind kind, {required String? userId}) async {
+  /// Shows one rewarded ad for [kind]. The reward is the SDK's own
+  /// onUserEarnedReward, as in Snake Classic: there is no server-side
+  /// verification callback.
+  Future<AdResult> show(RewardKind kind) async {
     if (!await _ensureReady()) return const AdResult(AdOutcome.unavailable);
-
-    final ssv = ServerSideVerificationOptions(
-      userId: userId,
-      customData: '${kind.wire}:${DateTime.now().timeZoneOffset.inMinutes}',
-    );
 
     final interstitialFirst = kind != RewardKind.aiCall;
     final order = interstitialFirst
@@ -128,13 +124,13 @@ class RewardedAds {
         : [_showRewarded, _showInterstitial];
 
     for (final attempt in order) {
-      final result = await attempt(ssv);
+      final result = await attempt();
       if (result.outcome != AdOutcome.unavailable) return result;
     }
     return const AdResult(AdOutcome.unavailable);
   }
 
-  Future<AdResult> _showRewarded(ServerSideVerificationOptions ssv) async {
+  Future<AdResult> _showRewarded() async {
     final unit = AdUnits.rewarded;
     final loaded = Completer<RewardedAd?>();
     await RewardedAd.load(
@@ -154,7 +150,6 @@ class RewardedAds {
     );
     if (ad == null) return const AdResult(AdOutcome.unavailable);
 
-    await ad.setServerSideOptions(ssv);
     final done = Completer<AdResult>();
     var earned = false;
     ad.fullScreenContentCallback = FullScreenContentCallback(
@@ -173,7 +168,7 @@ class RewardedAds {
     return done.future;
   }
 
-  Future<AdResult> _showInterstitial(ServerSideVerificationOptions ssv) async {
+  Future<AdResult> _showInterstitial() async {
     final unit = AdUnits.rewardedInterstitial;
     final loaded = Completer<RewardedInterstitialAd?>();
     await RewardedInterstitialAd.load(
@@ -193,7 +188,6 @@ class RewardedAds {
     );
     if (ad == null) return const AdResult(AdOutcome.unavailable);
 
-    await ad.setServerSideOptions(ssv);
     final done = Completer<AdResult>();
     var earned = false;
     ad.fullScreenContentCallback = FullScreenContentCallback(

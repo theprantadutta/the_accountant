@@ -137,7 +137,7 @@ class AiApi {
   }
 
   /// Reports a finished rewarded ad. Returns the server's outcome
-  /// (`granted`, `already_granted`, `daily_cap_reached`, `pending_verification`)
+  /// (`granted`, `already_granted`, `daily_cap_reached`, `not_needed`)
   /// and the allowance after it.
   Future<({String outcome, AiQuota? quota})> claimReward({
     required String rewardType,

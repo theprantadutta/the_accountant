@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import 'package:the_accountant/features/ads/rewarded_ads.dart';
 import 'package:the_accountant/features/ai_assistant/providers/ai_quota_provider.dart';
-import 'package:the_accountant/features/authentication/providers/auth_provider.dart';
 import 'package:the_accountant/features/premium/utils/paywall_utils.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
@@ -42,11 +41,10 @@ Future<bool> earnWithAd(
   }
   if (choice != _Choice.watch) return false;
 
-  final userId = ref.read(authProvider).userId;
   final result = await _withLoading(
     context,
     l10n.adLoading,
-    RewardedAds.instance.show(kind, userId: userId),
+    RewardedAds.instance.show(kind),
   );
   if (!context.mounted) return false;
 
@@ -71,14 +69,6 @@ Future<bool> earnWithAd(
           adUnitId: result.adUnitId,
         );
     quotaNotifier.apply(claim.quota);
-
-    if (claim.outcome == 'pending_verification') {
-      // AdMob tells the server directly; give it a moment to arrive.
-      for (var i = 0; i < 5; i++) {
-        await Future<void>.delayed(const Duration(seconds: 2));
-        await quotaNotifier.refresh();
-      }
-    }
     if (!context.mounted) return false;
 
     if (claim.outcome == 'daily_cap_reached') {
