@@ -5,24 +5,19 @@ A modern, privacy-focused personal finance management app built with Flutter. Fe
 ## Screenshots
 
 <p align="center">
-  <img src="screenshots/1_home_screen.png" width="200" alt="Today"/>
-  <img src="screenshots/3_activity.png" width="200" alt="Activity"/>
-  <img src="screenshots/5_stats.png" width="200" alt="Stats"/>
-  <img src="screenshots/4_wallets.png" width="200" alt="Wallets"/>
+  <img src="screenshots/1_home_screen.png" width="160" alt="Today"/>
+  <img src="screenshots/2_ai_coach.png" width="160" alt="AI money coach"/>
+  <img src="screenshots/3_ai_monthly_summary.png" width="160" alt="AI monthly summary"/>
+  <img src="screenshots/4_stats.png" width="160" alt="Stats"/>
+  <img src="screenshots/5_activity.png" width="160" alt="Activity"/>
 </p>
 
 <p align="center">
-  <img src="screenshots/7_ai_coach_chat.png" width="200" alt="AI money coach"/>
-  <img src="screenshots/8_monthly_summary.png" width="200" alt="Monthly summary"/>
-  <img src="screenshots/15_describe_it.png" width="200" alt="Describe it"/>
-  <img src="screenshots/9_budgets.png" width="200" alt="Budgets"/>
-</p>
-
-<p align="center">
-  <img src="screenshots/13_transaction_detail.png" width="200" alt="Transaction"/>
-  <img src="screenshots/18_appearance.png" width="200" alt="Appearance"/>
-  <img src="screenshots/19_premium.png" width="200" alt="Premium"/>
-  <img src="screenshots/17_more.png" width="200" alt="More"/>
+  <img src="screenshots/6_wallets.png" width="160" alt="Wallets"/>
+  <img src="screenshots/7_budgets.png" width="160" alt="Budgets"/>
+  <img src="screenshots/8_ai_describe_it.png" width="160" alt="Describe it"/>
+  <img src="screenshots/9_appearance.png" width="160" alt="Appearance"/>
+  <img src="screenshots/10_premium.png" width="160" alt="Premium"/>
 </p>
 
 Tablet screenshots are in [`tablet_screenshots/`](tablet_screenshots/).
