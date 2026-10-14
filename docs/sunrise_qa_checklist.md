@@ -11,9 +11,9 @@ Legend: ✅ checked and fine · 🔧 fixed during QA, then re-checked · ⏳ not
 | Item | Light | Dark | Notes |
 |---|---|---|---|
 | Launcher icon (adaptive + monochrome) | ✅ | ✅ | One icon for both modes |
-| Native splash (Android 12+ and legacy) | ✅ | ✅ | Light: sunrise ground, white glyph. Dark: dark wash, gradient glyph |
+| Native splash (Android 12+ and legacy) | ✅ | ✅ | Orange ground with the white logo in both modes |
 | Splash → intro hand-off | 🔧 | ✅ | First intro frame is pixel-matched to the native splash |
-| Intro (sunburst, orbiting icons, coins, status steps, money tip) | 🔧 | ✅ | Follows the app theme; starts from the splash the phone drew and crossfades if they differ |
+| Intro (sunburst, orbiting icons, coins, status steps, money tip) | 🔧 | ✅ | Follows the app theme; starts from the orange splash and fades to dark when the app is dark |
 | Notification icon (status bar, FCM default) | ✅ | ✅ | `ic_stat_notify` |
 
 ## Tabs
