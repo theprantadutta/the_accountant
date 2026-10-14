@@ -814,7 +814,7 @@ class _PlanningGroup extends ConsumerWidget {
           title: l10n.walletsSubscriptions,
           subtitle: subs <= 0
               ? null
-              : '${money((subs * 100).round())} · ${l10n.todayMonthly}',
+              : '${money(subs.round())} · ${l10n.todayMonthly}',
           onTap: () => onOpen(const SubscriptionDashboardScreen()),
         ),
         SettingsRow(

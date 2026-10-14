@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
@@ -169,34 +170,35 @@ class _OnboardingScreenState extends State<OnboardingScreen>
             ),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: AppSpacing.xxl),
-              child: Column(
-                children: [
-                  _buildProgress(),
-                  AppSpacing.gapXxl,
-                  SizedBox(
-                    width: double.infinity,
-                    height: 56,
-                    child: FilledButton(
+              // A phone-width column on tablets, not a button across the
+              // whole screen.
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 480),
+                child: Column(
+                  children: [
+                    _buildProgress(),
+                    AppSpacing.gapXxl,
+                    SunriseButton(
+                      label: isLastStep ? 'Create your account' : 'Next',
                       onPressed: _advance,
-                      child: Text(isLastStep ? 'Create your account' : 'Next'),
                     ),
-                  ),
-                  AppSpacing.gapSm,
-                  SizedBox(
-                    height: 48,
-                    child: isLastStep
-                        ? null
-                        : TextButton(
-                            onPressed: _finish,
-                            child: Text(
-                              L10n.of(context).txSkip,
-                              style: AppTypography.labelLarge.copyWith(
-                                color: AppColors.textMuted,
+                    AppSpacing.gapSm,
+                    SizedBox(
+                      height: 48,
+                      child: isLastStep
+                          ? null
+                          : TextButton(
+                              onPressed: _finish,
+                              child: Text(
+                                L10n.of(context).txSkip,
+                                style: AppTypography.labelLarge.copyWith(
+                                  color: AppColors.textMuted,
+                                ),
                               ),
                             ),
-                          ),
-                  ),
-                ],
+                    ),
+                  ],
+                ),
               ),
             ),
             AppSpacing.gapLg,

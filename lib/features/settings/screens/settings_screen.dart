@@ -492,9 +492,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           iconColor: c.accent,
           iconBackground: c.tintOrange,
           title: l10n.settingsSubscription,
-          value: premiumState.isPremium
-              ? premiumState.tier.displayName
-              : l10n.moreUpgradeToPremium,
+          // The plan name is short enough to sit on the right; the free
+          // users' call to action is not, and squeezed the title onto a
+          // second line, so it goes underneath instead.
+          value: premiumState.isPremium ? premiumState.tier.displayName : null,
+          subtitle: premiumState.isPremium ? null : l10n.moreUpgradeToPremium,
           onTap: () => Navigator.pushNamed(context, '/premium'),
         ),
       ),

@@ -539,60 +539,71 @@ class _FeatureGrid extends StatelessWidget {
         l10n.paywallFeatSupportSub,
       ),
     ];
-    return LayoutBuilder(
-      builder: (context, box) {
-        final w = (box.maxWidth - 10) / 2;
-        return Wrap(
-          spacing: 10,
-          runSpacing: 10,
+    Widget tile((IconData, String, String) f) {
+      final (icon, title, sub) = f;
+      return SunriseCard(
+        radius: 18,
+        padding: const EdgeInsets.fromLTRB(14, 12, 10, 12),
+        child: Row(
           children: [
-            for (final (icon, title, sub) in features)
-              SizedBox(
-                width: w,
-                child: SunriseCard(
-                  radius: 18,
-                  padding: const EdgeInsets.fromLTRB(14, 12, 10, 12),
-                  child: Row(
-                    children: [
-                      Icon(icon, color: c.accent, size: 24),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              title,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: SunriseType.rowTitle.copyWith(
-                                color: c.ink,
-                              ),
-                            ),
-                            Text(
-                              sub,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: SunriseType.caption.copyWith(
-                                color: c.subtle,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      if (unlocked)
-                        Icon(
-                          Symbols.check_circle_rounded,
-                          fill: 1,
-                          size: 18,
-                          color: c.positive,
-                        ),
-                    ],
+            Icon(icon, color: c.accent, size: 24),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Two lines each: on a phone the names ("AI assistant",
+                  // "Spending insights") are cut off at one.
+                  Text(
+                    title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: SunriseType.rowTitle.copyWith(color: c.ink),
                   ),
-                ),
+                  Text(
+                    sub,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: SunriseType.caption.copyWith(color: c.subtle),
+                  ),
+                ],
+              ),
+            ),
+            if (unlocked)
+              Icon(
+                Symbols.check_circle_rounded,
+                fill: 1,
+                size: 18,
+                color: c.positive,
               ),
           ],
-        );
-      },
+        ),
+      );
+    }
+
+    // Pairs, each pair as tall as its taller tile so the grid stays even
+    // when one name wraps and its neighbour does not.
+    return Column(
+      children: [
+        for (var i = 0; i < features.length; i += 2) ...[
+          if (i > 0) const SizedBox(height: 10),
+          IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(child: tile(features[i])),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: i + 1 < features.length
+                      ? tile(features[i + 1])
+                      : const SizedBox(),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ],
     );
   }
 }

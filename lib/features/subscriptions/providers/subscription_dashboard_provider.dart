@@ -37,7 +37,8 @@ class SubscriptionDashboardState {
   List<SubscriptionItem> get pausedSubscriptions =>
       subscriptions.where((s) => !s.isActive).toList();
 
-  /// Total monthly cost (normalizes all subscriptions to monthly)
+  /// Total monthly cost in minor units (cents), every subscription normalised
+  /// to a month.
   double get totalMonthlyCost {
     return activeSubscriptions.fold(0.0, (sum, s) => sum + s.monthlyCost);
   }
@@ -73,7 +74,7 @@ class SubscriptionItem {
   String get walletId => baseTransaction.walletId;
   String? get categoryId => baseTransaction.categoryId;
 
-  /// Monthly cost normalized from the subscription's frequency
+  /// Monthly cost in minor units (cents), normalised from the frequency.
   double get monthlyCost {
     if (isIncome) return 0.0; // Don't count income subscriptions
     switch (frequency.toLowerCase()) {

@@ -370,9 +370,15 @@ class _MainNavigationContainerState
         backgroundColor: Colors.transparent,
         body: Row(
           children: [
-            SunriseGlass(
-              color: c.tabBar,
-              border: BorderDirectional(end: BorderSide(color: c.tabBarBorder)),
+            // No frosted layer: the rail has nothing scrolling under it to
+            // blur, and the blur hid its icons and labels on some tablets.
+            // The page's own wash shows through, status bar included.
+            DecoratedBox(
+              decoration: BoxDecoration(
+                border: BorderDirectional(
+                  end: BorderSide(color: c.tabBarBorder),
+                ),
+              ),
               child: SafeArea(right: false, child: _buildNavRail(l10n)),
             ),
             Expanded(child: body),

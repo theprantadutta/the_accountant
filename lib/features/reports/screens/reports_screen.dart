@@ -1,5 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:the_accountant/core/utils/color_utils.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/providers/currency_provider.dart';
@@ -513,6 +514,23 @@ class _CategoryGrid extends ConsumerWidget {
       return Symbols.category_rounded;
     }
 
+    // Names come from the live category list, not the report's snapshot: on a
+    // fresh restore the report can be worked out before the categories have
+    // loaded, which froze every name as "Unknown".
+    String nameFor(CategorySpendingData d) {
+      for (final cat in categories) {
+        if (cat.id == d.categoryId) return cat.name;
+      }
+      return d.categoryName;
+    }
+
+    Color colorFor(CategorySpendingData d) {
+      for (final cat in categories) {
+        if (cat.id == d.categoryId) return ColorUtils.hexToColor(cat.colorCode);
+      }
+      return d.color;
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -546,7 +564,7 @@ class _CategoryGrid extends ConsumerWidget {
                               children: [
                                 IconTile(
                                   icon: iconFor(d.categoryId),
-                                  color: d.color,
+                                  color: colorFor(d),
                                   size: 38,
                                 ),
                                 const Spacer(),
@@ -561,7 +579,7 @@ class _CategoryGrid extends ConsumerWidget {
                             ),
                             const SizedBox(height: 14),
                             Text(
-                              d.categoryName,
+                              nameFor(d),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: SunriseType.rowTitle.copyWith(

@@ -243,6 +243,9 @@ class _AmountInputSheetState extends State<_AmountInputSheet> {
                         style: big,
                         cursorColor: c.accent,
                         showCursor: true,
+                        // A calculator display: taps still place the cursor,
+                        // but no selection handles hang off it.
+                        enableInteractiveSelection: false,
                         decoration: InputDecoration(
                           hintText: '0.00',
                           hintStyle: big.copyWith(color: c.faint),

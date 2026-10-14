@@ -42,10 +42,12 @@ class BudgetProgressCard extends ConsumerWidget {
     final remaining = progress.remaining;
     final isOver = progress.isOver;
 
-    final (accent, _) = switch (fraction) {
-      < 0.5 => (AppColors.success, AppColors.successCardGradient),
-      < 0.8 => (AppColors.warning, AppColors.warningCardGradient),
-      _ => (AppColors.error, AppColors.errorCardGradient),
+    // The bar fill. The warning token is a dark amber meant for text, which
+    // reads as brown on a bar, so "getting there" uses the brand's amber.
+    final accent = switch (fraction) {
+      < 0.5 => AppColors.success,
+      < 0.8 => const Color(0xFFF59E0B),
+      _ => AppColors.error,
     };
 
     return Semantics(

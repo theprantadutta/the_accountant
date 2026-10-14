@@ -264,7 +264,8 @@ class _ResponsiveFinancialOverviewState
             icon: Symbols.autorenew_rounded,
             iconColor: c.accent,
             label: l10n.dashSubscriptions,
-            value: (subs * 100).round().formatCurrency(
+            // Already in cents (the provider normalises minor units).
+            value: subs.round().formatCurrency(
               currency,
               numberFormat: nf,
             ),

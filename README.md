@@ -1,26 +1,31 @@
 # The Accountant
 
-A modern, privacy-focused personal finance management app built with Flutter. Features a beautiful dark theme UI, local-first data storage, and optional cloud sync.
+A modern, privacy-focused personal finance management app built with Flutter. Features the Sunrise design in light and dark, local-first data storage, and optional cloud sync.
 
 ## Screenshots
 
 <p align="center">
-  <img src="screenshots/01_home_screen.jpg" width="200" alt="Home Screen"/>
-  <img src="screenshots/02_transaction_screen.jpg" width="200" alt="Transaction Screen"/>
-  <img src="screenshots/03_report_screen.jpg" width="200" alt="Reports Screen"/>
-  <img src="screenshots/04_settings_screen.jpg" width="200" alt="Settings Screen"/>
+  <img src="screenshots/1_home_screen.png" width="200" alt="Today"/>
+  <img src="screenshots/3_activity.png" width="200" alt="Activity"/>
+  <img src="screenshots/5_stats.png" width="200" alt="Stats"/>
+  <img src="screenshots/4_wallets.png" width="200" alt="Wallets"/>
 </p>
 
 <p align="center">
-  <img src="screenshots/05_ai_screen.jpg" width="200" alt="AI Assistant"/>
-  <img src="screenshots/06_premium_screen.jpg" width="200" alt="Premium Features"/>
-  <img src="screenshots/07_theme_screen.jpg" width="200" alt="Theme Selection"/>
-  <img src="screenshots/08_privacy_screen.jpg" width="200" alt="Privacy Settings"/>
+  <img src="screenshots/7_ai_coach_chat.png" width="200" alt="AI money coach"/>
+  <img src="screenshots/8_monthly_summary.png" width="200" alt="Monthly summary"/>
+  <img src="screenshots/15_describe_it.png" width="200" alt="Describe it"/>
+  <img src="screenshots/9_budgets.png" width="200" alt="Budgets"/>
 </p>
 
 <p align="center">
-  <img src="screenshots/09_faq_screen.jpg" width="200" alt="FAQ Screen"/>
+  <img src="screenshots/13_transaction_detail.png" width="200" alt="Transaction"/>
+  <img src="screenshots/18_appearance.png" width="200" alt="Appearance"/>
+  <img src="screenshots/19_premium.png" width="200" alt="Premium"/>
+  <img src="screenshots/17_more.png" width="200" alt="More"/>
 </p>
+
+Tablet screenshots are in [`tablet_screenshots/`](tablet_screenshots/).
 
 ## Features
 

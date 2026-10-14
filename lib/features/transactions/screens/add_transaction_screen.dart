@@ -253,6 +253,12 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
     HapticFeedback.lightImpact();
     final draft = await showQuickAddSheet(context);
     if (draft == null || !mounted) return;
+    // Closing the sheet hands focus back to the title field it was opened
+    // from; leave the filled-in form unfocused instead, so no cursor or
+    // keyboard sits over it. A frame later, once that hand-back has run.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _titleFocusNode.unfocus();
+    });
     _applyDraft(
       title: draft.title,
       amount: draft.amount,
