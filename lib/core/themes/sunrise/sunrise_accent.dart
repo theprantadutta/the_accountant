@@ -85,18 +85,58 @@ class AccentSwatch {
   final Color glow;
 }
 
-const _sunriseGradient = [Color(0xFFF59E0B), Color(0xFFF97316), Color(0xFFF43F5E)];
-const _sunriseHeader = [Color(0xFFFDBA74), Color(0xFFFB923C), Color(0xFFF43F5E)];
-const _sapphireGradient = [Color(0xFF60A5FA), Color(0xFF2563EB), Color(0xFF1E3A8A)];
-const _sapphireHeader = [Color(0xFF93C5FD), Color(0xFF60A5FA), Color(0xFF2563EB)];
-const _emeraldGradient = [Color(0xFF34D399), Color(0xFF059669), Color(0xFF065F46)];
-const _emeraldHeader = [Color(0xFF6EE7B7), Color(0xFF34D399), Color(0xFF059669)];
+const _sunriseGradient = [
+  Color(0xFFF59E0B),
+  Color(0xFFF97316),
+  Color(0xFFF43F5E),
+];
+const _sunriseHeader = [
+  Color(0xFFFDBA74),
+  Color(0xFFFB923C),
+  Color(0xFFF43F5E),
+];
+const _sapphireGradient = [
+  Color(0xFF60A5FA),
+  Color(0xFF2563EB),
+  Color(0xFF1E3A8A),
+];
+const _sapphireHeader = [
+  Color(0xFF93C5FD),
+  Color(0xFF60A5FA),
+  Color(0xFF2563EB),
+];
+const _emeraldGradient = [
+  Color(0xFF34D399),
+  Color(0xFF059669),
+  Color(0xFF065F46),
+];
+const _emeraldHeader = [
+  Color(0xFF6EE7B7),
+  Color(0xFF34D399),
+  Color(0xFF059669),
+];
 const _rubyGradient = [Color(0xFFFB7185), Color(0xFFE11D48), Color(0xFF9F1239)];
 const _rubyHeader = [Color(0xFFFDA4AF), Color(0xFFFB7185), Color(0xFFBE123C)];
-const _amethystGradient = [Color(0xFFA78BFA), Color(0xFF7C3AED), Color(0xFF5B21B6)];
-const _amethystHeader = [Color(0xFFC4B5FD), Color(0xFFA78BFA), Color(0xFF7C3AED)];
-const _graphiteGradient = [Color(0xFF9CA3AF), Color(0xFF4B5563), Color(0xFF111827)];
-const _graphiteHeader = [Color(0xFFBFC4CC), Color(0xFF6B7280), Color(0xFF374151)];
+const _amethystGradient = [
+  Color(0xFFA78BFA),
+  Color(0xFF7C3AED),
+  Color(0xFF5B21B6),
+];
+const _amethystHeader = [
+  Color(0xFFC4B5FD),
+  Color(0xFFA78BFA),
+  Color(0xFF7C3AED),
+];
+const _graphiteGradient = [
+  Color(0xFF9CA3AF),
+  Color(0xFF4B5563),
+  Color(0xFF111827),
+];
+const _graphiteHeader = [
+  Color(0xFFBFC4CC),
+  Color(0xFF6B7280),
+  Color(0xFF374151),
+];
 
 const Map<SunriseAccent, AccentSwatch> _light = {
   SunriseAccent.sunrise: AccentSwatch(

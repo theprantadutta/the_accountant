@@ -27,6 +27,26 @@ class CategoryInitializationService {
     }
   }
 
+  /// After a pull: the system categories always, the full built-in set only
+  /// when the account turned out to have no categories of its own.
+  ///
+  /// Filling every missing slug after every pull brought back built-ins the
+  /// user had deleted (a restore does not know about deletions it never saw)
+  /// and pushed a dozen or more new rows on each new device's first sync,
+  /// which is much of why "Syncing…" lingered after sign-in.
+  Future<List<String>> seedAfterPull() async {
+    try {
+      await _db.ensureSystemCategoriesExist();
+      final own = (await _db.getAllCategories()).where(
+        (c) => !SystemCategoryKeys.all.contains(c.defaultKey),
+      );
+      if (own.isNotEmpty) return const [];
+      return await _db.ensureDefaultCategories(DefaultCategoryCatalog.all);
+    } catch (_) {
+      return const [];
+    }
+  }
+
   /// Ensure only the internal system categories exist.
   Future<void> initializeSystemCategories() =>
       _db.ensureSystemCategoriesExist();
