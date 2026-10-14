@@ -7,6 +7,7 @@ import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/core/themes/app_typography.dart';
 import 'package:the_accountant/data/models/wallet.dart' show WalletType;
+import 'package:the_accountant/features/authentication/presentation/widgets/auth_brand_header.dart';
 import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
 import 'package:the_accountant/shared/widgets/color_picker.dart';
 import 'package:the_accountant/shared/widgets/currency_picker.dart';
@@ -134,41 +135,13 @@ class _CreateFirstWalletScreenState
               children: [
                 const SizedBox(height: 40),
 
-                // Welcome header
-                Center(
-                  child: Column(
-                    children: [
-                      Container(
-                        width: 80,
-                        height: 80,
-                        decoration: BoxDecoration(
-                          color: WalletColors.parseColor(
-                            _selectedColor,
-                          ).withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Icon(
-                          WalletIcons.getIcon(_selectedIcon),
-                          color: WalletColors.parseColor(_selectedColor),
-                          size: 40,
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      Text(
-                        L10n.of(context).walletCreateYourFirstAccount,
-                        style: AppTypography.headlineMedium,
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        L10n.of(context).walletYouNeedAtLeastOne,
-                        style: AppTypography.bodyMedium.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                  ),
+                // The brand mark, as on sign-in: this is the first screen a
+                // new account sees after it.
+                AuthBrandHeader(
+                  icon: Icons.account_balance_wallet_rounded,
+                  title: L10n.of(context).walletCreateYourFirstAccount,
+                  subtitle: L10n.of(context).walletYouNeedAtLeastOne,
+                  showWordmark: false,
                 ),
 
                 const SizedBox(height: 40),
