@@ -261,7 +261,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final money = [
       _Entry(
         title: l10n.moreAiAssistant,
-        keywords: const ['ai', 'assistant', 'chat', 'coach', 'gemini', 'ask'],
+        keywords: const ['ai', 'assistant', 'chat', 'coach', 'ask', 'money'],
         row: SettingsRow(
           icon: Symbols.auto_awesome_rounded,
           iconColor: c.accent,

@@ -1,6 +1,6 @@
 # Privacy Policy
 
-**Last updated: July 24, 2026**
+**Last updated: October 14, 2026**
 
 Pranta Dutta ("we", "our", or "us") operates The Accountant mobile application (the "App"). This Privacy Policy explains how we collect, use, and protect your personal information when you use the App.
 
@@ -37,11 +37,22 @@ If you use the receipt scanning feature:
 - Text recognition is performed **on your device** using an on-device machine-learning library
 - Receipt images are not uploaded to our servers unless you explicitly enable cloud backup
 - Extracted text is stored locally with your transaction records
+- If you choose to have the AI read a receipt, only the extracted **text** (never the photo) is sent for that one request, as described in section 1.5
 
 ### 1.5 AI Feature Data
-If you use Premium AI features (such as AI insights or the AI assistant), the content you submit for those features — for example your questions and a summary of the relevant financial context — is transmitted to our third-party AI provider (Google Gemini) solely to generate a response. We do not use this content to train third-party models. If you do not use these features, no such data is transmitted.
+The AI features (the money coach, the monthly summary, reading a receipt, and turning a typed note into a transaction) are available to all users. When you use one, the App sends what that feature needs to our servers, which forward it through our AI gateway to a third-party AI model provider (such as OpenAI or Anthropic) solely to generate the answer:
+- **The coach and the monthly summary:** your question and a summary of your figures, worked out on your device: this and last month's totals, spending by category, budgets, savings goals, upcoming bills, account names and balances, and up to 30 recent transactions (date, title, category, amount). Amounts are converted to your main currency.
+- **Receipts:** the text read from the receipt, and your category names.
+- **Typed notes:** the note, your category names and account names.
 
-### 1.6 Purchase Information
+Coach conversations are stored on our servers so you can return to them, and you can delete any conversation in the App. We do not use this content to train AI models, and we choose providers that do not train on it. Free users have a small number of AI requests per day; the number of requests used is stored with your account. If you do not use these features, none of this data is sent.
+
+### 1.6 Advertising
+The App shows ads **only when you ask for one**: a rewarded ad that you choose to watch, after a screen that tells you an ad is about to play, in exchange for something specific (an extra AI request, a 24-hour premium theme trial, or a PDF export). There are no banner ads and no ads that appear on their own, and Premium members never see ads.
+
+Rewarded ads are served by Google AdMob. When an ad is requested, AdMob may collect information such as your device's advertising identifier, IP address and the ad interaction, as described in Google's policies (https://policies.google.com/technologies/ads). Where the law requires consent (for example in the EEA and UK), you are asked before any ad is loaded, and you can change your choice later from the App's settings. To credit your reward, AdMob tells our servers that you finished the ad, identifying you by your account id.
+
+### 1.7 Purchase Information
 When you buy a subscription or one-time purchase, the transaction is processed by the app marketplace through which you downloaded the App. **We do not receive or store your full payment card details.** We receive a purchase receipt or token, which we and our subscription-verification service use to confirm, restore, and manage your entitlement.
 
 ## 2. How We Use Your Information
@@ -89,7 +100,8 @@ The App uses the following third-party services, each governed by its own privac
 | Firebase Cloud Messaging | Push notifications |
 | Google & Apple Sign-In | Optional social authentication |
 | On-device ML Kit | On-device receipt text recognition |
-| Google Gemini | Premium AI insights and assistant |
+| Our AI gateway and its model providers (such as OpenAI and Anthropic) | AI coach, monthly summary, receipt reading and quick add |
+| Google AdMob | Rewarded ads you choose to watch |
 
 Google services are described at https://policies.google.com/privacy and Apple services at https://www.apple.com/legal/privacy.
 

@@ -56,10 +56,14 @@ class SunriseChip extends StatelessWidget {
               Icon(icon, size: 16, color: fg, fill: selected ? 1 : 0),
               const SizedBox(width: 6),
             ],
-            Text(
-              label,
-              maxLines: 1,
-              style: SunriseType.label.copyWith(color: fg, fontSize: 14),
+            // Shrinks with an ellipsis rather than overflowing a narrow row.
+            Flexible(
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: SunriseType.label.copyWith(color: fg, fontSize: 14),
+              ),
             ),
           ],
         ),

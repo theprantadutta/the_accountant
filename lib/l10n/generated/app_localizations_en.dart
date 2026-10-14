@@ -1151,12 +1151,6 @@ class L10nEn extends L10n {
   String get aiChatName => 'Chat name';
 
   @override
-  String get aiRefreshSummary => 'Refresh Summary';
-
-  @override
-  String get aiNetSavings => 'Net Savings';
-
-  @override
   String get aiScanReceipt => 'Scan Receipt';
 
   @override
@@ -1454,9 +1448,6 @@ class L10nEn extends L10n {
   String get walletSelectColor => 'Select Color';
 
   @override
-  String get txScanReceipts => 'Scan receipts';
-
-  @override
   String get txYouNeedAtLeast2 =>
       'You need at least 2 accounts to make a transfer';
 
@@ -1679,12 +1670,6 @@ class L10nEn extends L10n {
 
   @override
   String get aiScanAReceipt => 'Scan a receipt';
-
-  @override
-  String get aiSpendingTrend => 'Spending Trend';
-
-  @override
-  String get aiTopSpendingCategories => 'Top Spending Categories';
 
   @override
   String get aiReadingYourReceipt => 'Reading your receipt…';
@@ -2433,22 +2418,6 @@ class L10nEn extends L10n {
       'Ask in plain words. Get answers, nudges and plans built from your own spending.';
 
   @override
-  String get aiSampleQuestion => 'Can I afford a weekend trip this month?';
-
-  @override
-  String get aiSampleAnswer =>
-      'Yes. You’d still have room in your budget, but skip extra shopping until the 31st.';
-
-  @override
-  String get aiChipInsights => 'Spending insights';
-
-  @override
-  String get aiChipReceipt => 'Receipt scan';
-
-  @override
-  String get aiChipBudgets => 'Smart budgets';
-
-  @override
   String get aiAssistantTitle => 'AI assistant';
 
   @override
@@ -2541,7 +2510,7 @@ class L10nEn extends L10n {
   String get paywallFeatAi => 'AI assistant';
 
   @override
-  String get paywallFeatAiSub => 'Gemini-powered';
+  String get paywallFeatAiSub => 'Unlimited, no ads';
 
   @override
   String get paywallFeatOcr => 'Receipt scan';
@@ -2710,4 +2679,197 @@ class L10nEn extends L10n {
   @override
   String get introTip8 =>
       'Celebrate small wins: every goal starts with the first deposit.';
+
+  @override
+  String get adConfirmTitleAiCall => 'Get one more AI request';
+
+  @override
+  String get adConfirmTitleTheme => 'Try premium themes for 24 hours';
+
+  @override
+  String get adConfirmTitlePdf => 'Export one PDF report';
+
+  @override
+  String get adConfirmBodyAiCall =>
+      'You\'ve used today\'s free AI requests. Watch a short ad and you get one more.';
+
+  @override
+  String get adConfirmBodyTheme =>
+      'Watch a short ad and every premium theme is yours for the next 24 hours.';
+
+  @override
+  String get adConfirmBodyPdf => 'Watch a short ad to export one PDF report.';
+
+  @override
+  String get adConfirmWarning => 'You\'re about to watch an ad. Continue?';
+
+  @override
+  String adConfirmLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count more ads available today',
+      one: '1 more ad available today',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get adPremiumPitch =>
+      'Premium members get unlimited AI, every theme and PDF reports, with no ads at all.';
+
+  @override
+  String get adWatch => 'Watch ad';
+
+  @override
+  String get adGetPremium => 'Get Premium';
+
+  @override
+  String get adNotNow => 'Not now';
+
+  @override
+  String get adLoading => 'Loading the ad…';
+
+  @override
+  String get adUnavailable =>
+      'No ad is available right now. Please try again in a little while.';
+
+  @override
+  String get adSkipped =>
+      'The ad was closed before the end, so nothing was unlocked.';
+
+  @override
+  String get adRewardAiCall => 'Done! You have one more AI request.';
+
+  @override
+  String get adRewardTheme => 'Premium themes unlocked for 24 hours.';
+
+  @override
+  String get adRewardPdf => 'One PDF export unlocked.';
+
+  @override
+  String get adDailyCapReached =>
+      'That\'s all the ads for today. Your free requests come back at midnight.';
+
+  @override
+  String get adRewardPending => 'Thanks! Your reward will appear in a moment.';
+
+  @override
+  String aiQuotaLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count free AI requests left today',
+      one: '1 free AI request left today',
+      zero: 'No free AI requests left today',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get aiQuotaPremiumUnlimited => 'Premium: unlimited';
+
+  @override
+  String get aiOutOfRequestsTitle => 'You\'ve used today\'s free requests';
+
+  @override
+  String get aiOutOfRequestsBody =>
+      'Watch a short ad to ask this one, or go Premium for unlimited answers with no ads. Free requests come back at midnight.';
+
+  @override
+  String get ocrNoCamera => 'Couldn\'t open the camera.';
+
+  @override
+  String get ocrNoGallery => 'Couldn\'t open the gallery.';
+
+  @override
+  String get ocrScanTitle => 'Scan a receipt';
+
+  @override
+  String get ocrScanAnother => 'Scan another';
+
+  @override
+  String get ocrScanBody =>
+      'Snap a photo or pick one. The app reads it and the AI fills in the details.';
+
+  @override
+  String get ocrReadingWithAi => 'The AI is reading your receipt…';
+
+  @override
+  String get ocrNothingRead =>
+      'No text could be read from that photo. Try again in better light, with the whole receipt in view.';
+
+  @override
+  String get ocrAiOfferTitle => 'Let the AI read it properly';
+
+  @override
+  String get ocrAiOfferBody =>
+      'It finds the real total, the date, each item and the right category, even on a messy receipt.';
+
+  @override
+  String get ocrReadWithAi => 'Read with AI';
+
+  @override
+  String get ocrReadByAi => 'Read by AI. Check it before saving.';
+
+  @override
+  String get ocrItems => 'Items';
+
+  @override
+  String get quickAddTitle => 'Describe it';
+
+  @override
+  String get quickAddSubtitle =>
+      'Type it the way you\'d say it. The AI fills in the form for you to check.';
+
+  @override
+  String get quickAddHint => 'e.g. lunch 250 yesterday from bKash';
+
+  @override
+  String get quickAddFill => 'Fill it in';
+
+  @override
+  String get summaryTitle => 'Monthly summary';
+
+  @override
+  String get summarySpent => 'Spent this month';
+
+  @override
+  String summaryEarned(String amount) {
+    return 'Earned $amount';
+  }
+
+  @override
+  String summaryLessThanLast(int percent) {
+    return '$percent% less than last month';
+  }
+
+  @override
+  String summaryMoreThanLast(int percent) {
+    return '$percent% more than last month';
+  }
+
+  @override
+  String get summaryAiTitle => 'Your month, in a nutshell';
+
+  @override
+  String get summaryAiBody =>
+      'The AI reads your month against last month and picks out what stood out, with one thing to try.';
+
+  @override
+  String get summaryWrite => 'Write my summary';
+
+  @override
+  String get summaryWriting => 'Writing your summary…';
+
+  @override
+  String get summaryByCategory => 'By category';
+
+  @override
+  String get summaryNoSpending => 'No spending recorded this month yet.';
+
+  @override
+  String themeTrialUntil(String time) {
+    return 'Premium themes unlocked until $time';
+  }
 }

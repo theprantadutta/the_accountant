@@ -1,59 +1,30 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:the_accountant/data/models/premium_features.dart';
 import 'package:the_accountant/features/ai/screens/receipt_scanner_screen.dart';
 import 'package:the_accountant/features/ai_assistant/models/chat_message.dart';
 import 'package:the_accountant/features/ai_assistant/models/conversation.dart';
 import 'package:the_accountant/features/ai_assistant/providers/ai_chat_provider.dart';
+import 'package:the_accountant/features/ai_assistant/providers/ai_quota_provider.dart';
+import 'package:the_accountant/features/ads/reward_flow.dart';
+import 'package:the_accountant/features/ads/rewarded_ads.dart';
 import 'package:the_accountant/features/budgets/providers/budget_provider.dart';
 import 'package:the_accountant/features/dashboard/providers/financial_data_provider.dart';
-import 'package:the_accountant/features/premium/widgets/premium_gate.dart';
+import 'package:the_accountant/features/premium/utils/paywall_utils.dart';
 import 'package:the_accountant/features/transactions/providers/upcoming_provider.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
 
-/// Shows the premium gate for free users, the chat for everyone else.
-class AIAssistantScreenGated extends ConsumerWidget {
+/// The coach is open to everyone now: Premium is unlimited, others spend a
+/// small daily allowance that rewarded ads can extend. Kept as its own name so
+/// the screens that open it need not change.
+class AIAssistantScreenGated extends StatelessWidget {
   const AIAssistantScreenGated({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = L10n.of(context);
-    return PremiumGate(
-      featureId: PremiumFeatureIds.aiAssistant,
-      featureName: 'AI Assistant',
-      headline: l10n.aiCoachTitle,
-      featureDescription: l10n.aiCoachBody,
-      featureIcon: Symbols.auto_awesome_rounded,
-      preview: _SampleChat(
-        question: l10n.aiSampleQuestion,
-        answer: l10n.aiSampleAnswer,
-      ),
-      highlights: [l10n.aiChipInsights, l10n.aiChipReceipt, l10n.aiChipBudgets],
-      child: const AIAssistantScreen(),
-    );
-  }
-}
-
-/// The locked screen's taste of a conversation.
-class _SampleChat extends StatelessWidget {
-  const _SampleChat({required this.question, required this.answer});
-
-  final String question;
-  final String answer;
-
-  @override
-  Widget build(BuildContext context) => Column(
-    children: [
-      _Bubble(fromUser: true, child: _BubbleText(question, fromUser: true)),
-      const SizedBox(height: 10),
-      _Bubble(fromUser: false, child: _BubbleText(answer, fromUser: false)),
-    ],
-  );
+  Widget build(BuildContext context) => const AIAssistantScreen();
 }
 
 /// The money coach chat.
@@ -63,8 +34,9 @@ class _SampleChat extends StatelessWidget {
 /// a freshly arrived reply animates (rebuilds never replay old ones), three
 /// staggered typing dots on one controller, starter prompts drawn from the
 /// user's own data, a growing composer whose send button wakes up only for
-/// real text, and long-press to copy. Unlike ai-persona, a failed reply offers
-/// Retry right on the message, and Retry resends the same question.
+/// real text, and long-press to copy. Replies stream in as they are written
+/// and end with follow-up questions to tap. A failed reply offers Retry right
+/// on the message, and Retry resends the same question.
 class AIAssistantScreen extends ConsumerStatefulWidget {
   const AIAssistantScreen({super.key});
 
@@ -82,16 +54,6 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
   );
 
   bool _canSend = false;
-
-  /// The one reply that should type itself out, once.
-  String? _revealId;
-
-  /// Every message id that existed when the screen last looked, so a reply is
-  /// only "new" if it was not already on screen.
-  final Set<String> _seenIds = {};
-
-  /// A send is in flight; the next AI message is its reply.
-  bool _awaitingReply = false;
 
   @override
   void initState() {
@@ -118,7 +80,6 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
     if (text.isEmpty || ref.read(aiChatProvider).isLoading) return;
     HapticFeedback.lightImpact();
     if (preset == null) _textController.clear();
-    _awaitingReply = true;
     await ref.read(aiChatProvider.notifier).sendMessage(text);
   }
 
@@ -127,23 +88,12 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
     ref.read(aiChatProvider.notifier).newChat();
   }
 
-  /// Track which reply is new, so only it animates.
-  ///
-  /// Only a reply that lands while this screen is waiting on a send counts:
-  /// history loaded on open, or a conversation picked from the list, never
-  /// types itself out again.
-  void _noteMessages(AiChatState state) {
-    final ids = state.messages.map((m) => m.id).toSet();
-    if (_awaitingReply && !state.isLoading) {
-      final fresh = state.messages.where(
-        (m) => !m.isFromUser && !_seenIds.contains(m.id),
-      );
-      if (fresh.isNotEmpty) _revealId = fresh.last.id;
-      _awaitingReply = false;
-    }
-    _seenIds
-      ..clear()
-      ..addAll(ids);
+  /// Out of free requests: offer the ad (or Premium), then send the question
+  /// that was waiting.
+  Future<void> _offerMore() async {
+    final earned = await earnWithAd(context, ref, RewardKind.aiCall);
+    if (!mounted) return;
+    if (earned) await ref.read(aiChatProvider.notifier).sendPending();
   }
 
   @override
@@ -151,7 +101,12 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
     final l10n = L10n.of(context);
     final c = context.sunrise;
     final chat = ref.watch(aiChatProvider);
-    _noteMessages(chat);
+    final quota = ref.watch(aiQuotaProvider);
+
+    // A question that hit the daily limit: offer the ad straight away.
+    ref.listen(aiChatProvider.select((s) => s.pendingQuestion), (was, now) {
+      if (now != null && was == null) _offerMore();
+    });
 
     if (chat.isLoading) {
       if (!_dots.isAnimating) _dots.repeat();
@@ -185,6 +140,16 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
                 ? _Welcome(onStarter: _send)
                 : _messageList(visible, chat),
           ),
+          if (chat.pendingQuestion != null)
+            _OutOfRequests(
+              question: chat.pendingQuestion!,
+              canWatchAd: quota.canWatchAd,
+              onWatchAd: _offerMore,
+              onPremium: () => PaywallUtils.showPaywall(context),
+              onDismiss: () => ref.read(aiChatProvider.notifier).dropPending(),
+            )
+          else if (!quota.unlimited)
+            _QuotaLine(quota: quota.remaining ?? 0),
           if (chat.hasError && !started)
             _ErrorBanner(
               message: chat.errorMessage,
@@ -209,7 +174,6 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
   Widget _messageList(List<ChatMessage> messages, AiChatState chat) {
     final reversed = messages.reversed.toList();
     final lastId = messages.isEmpty ? null : messages.last.id;
-    final typing = chat.isLoading ? 1 : 0;
 
     return ListView.builder(
       reverse: true,
@@ -220,42 +184,34 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
         SunriseSpace.screenX,
         12,
       ),
-      itemCount: reversed.length + typing,
-      itemBuilder: (context, index) {
-        if (typing == 1 && index == 0) {
-          return Padding(
-            padding: const EdgeInsets.only(top: 6),
-            child: _TypingDots(animation: _dots),
-          );
-        }
-        final i = index - typing;
+      itemCount: reversed.length,
+      itemBuilder: (context, i) {
         final m = reversed[i];
         // Reversed, so the next item down the list is the older message.
         final older = i + 1 < reversed.length ? reversed[i + 1] : null;
         final newDay =
             older == null || !DateUtils.isSameDay(older.timestamp, m.timestamp);
+        final isLast = m.id == lastId;
 
         return Column(
           key: ValueKey(m.id),
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (newDay) _DayDivider(date: m.timestamp),
             Padding(
               padding: const EdgeInsets.only(top: 10),
-              child: _MessageBubble(
-                message: m,
-                reveal: m.id == _revealId,
-                onRevealDone: () {
-                  if (_revealId == m.id && mounted) {
-                    setState(() => _revealId = null);
-                  }
-                },
-                showRetry: m.isAiFallback && m.id == lastId && !chat.isLoading,
-                onRetry: () {
-                  _awaitingReply = true;
-                  ref.read(aiChatProvider.notifier).retryLastMessage();
-                },
-              ),
+              // A reply that has not produced its first words yet.
+              child: m.isStreaming && m.text.isEmpty
+                  ? _TypingDots(animation: _dots)
+                  : _MessageBubble(
+                      message: m,
+                      showRetry: m.isAiFallback && isLast && !chat.isLoading,
+                      onRetry: () =>
+                          ref.read(aiChatProvider.notifier).retryLastMessage(),
+                    ),
             ),
+            if (isLast && !chat.isLoading && m.followUps.isNotEmpty)
+              _FollowUps(questions: m.followUps, onTap: _send),
           ],
         );
       },
@@ -601,15 +557,11 @@ class _BubbleText extends StatelessWidget {
 class _MessageBubble extends StatelessWidget {
   const _MessageBubble({
     required this.message,
-    required this.reveal,
-    required this.onRevealDone,
     required this.showRetry,
     required this.onRetry,
   });
 
   final ChatMessage message;
-  final bool reveal;
-  final VoidCallback onRevealDone;
   final bool showRetry;
   final VoidCallback onRetry;
 
@@ -636,9 +588,10 @@ class _MessageBubble extends StatelessWidget {
     final l10n = L10n.of(context);
     final c = context.sunrise;
     final fromUser = message.isFromUser;
-    final text = reveal && !fromUser
-        ? _Typewriter(text: message.text, onDone: onRevealDone)
-        : _BubbleText(message.text, fromUser: fromUser);
+    final text = _BubbleText(
+      message.isStreaming ? _balanced(message.text) : message.text,
+      fromUser: fromUser,
+    );
 
     return Column(
       crossAxisAlignment: fromUser
@@ -646,7 +599,7 @@ class _MessageBubble extends StatelessWidget {
           : CrossAxisAlignment.start,
       children: [
         GestureDetector(
-          onLongPress: reveal
+          onLongPress: message.isStreaming
               ? null
               : () {
                   HapticFeedback.selectionClick();
@@ -679,67 +632,14 @@ class _MessageBubble extends StatelessWidget {
   }
 }
 
-/// Types a fresh reply out a few characters at a time, then hands back to the
-/// markdown renderer. Selection waits until it has finished.
-class _Typewriter extends StatefulWidget {
-  const _Typewriter({required this.text, required this.onDone});
-
-  final String text;
-  final VoidCallback onDone;
-
-  @override
-  State<_Typewriter> createState() => _TypewriterState();
-}
-
-class _TypewriterState extends State<_Typewriter>
-    with SingleTickerProviderStateMixin {
-  late final Ticker _ticker = createTicker(_tick);
-  int _shown = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    _ticker.start();
-  }
-
-  void _tick(Duration elapsed) {
-    // About 160 characters a second, finishing long answers within ~2.5s.
-    final rate = (widget.text.length / 2.5).clamp(160, 2000);
-    final next = (elapsed.inMilliseconds * rate / 1000).floor();
-    if (next >= widget.text.length) {
-      _ticker.stop();
-      setState(() => _shown = widget.text.length);
-      WidgetsBinding.instance.addPostFrameCallback((_) => widget.onDone());
-      return;
-    }
-    if (next != _shown) setState(() => _shown = next);
-  }
-
-  @override
-  void dispose() {
-    _ticker.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) => Semantics(
-    label: widget.text,
-    excludeSemantics: true,
-    child: _BubbleText(
-      _balanced(widget.text.substring(0, _shown)),
-      fromUser: false,
-    ),
-  );
-
-  /// Close any bold or italic marker the cut left open, so a half-typed
-  /// reply never shows raw asterisks.
-  static String _balanced(String partial) {
-    var out = partial;
-    if ('**'.allMatches(out).length.isOdd) out = '$out**';
-    final singles = out.replaceAll('**', '');
-    if ('*'.allMatches(singles).length.isOdd) out = '$out*';
-    return out;
-  }
+/// Closes any bold or italic marker a half-written reply left open, so a
+/// streaming answer never shows raw asterisks.
+String _balanced(String partial) {
+  var out = partial;
+  if ('**'.allMatches(out).length.isOdd) out = '$out**';
+  final singles = out.replaceAll('**', '');
+  if ('*'.allMatches(singles).length.isOdd) out = '$out*';
+  return out;
 }
 
 /// Three dots fading in turn, all driven by one controller.
@@ -1046,6 +946,174 @@ class _ConversationRow extends StatelessWidget {
                   ),
                 ),
               ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// The coach's suggested next questions, as chips under its latest reply.
+class _FollowUps extends StatelessWidget {
+  const _FollowUps({required this.questions, required this.onTap});
+
+  final List<String> questions;
+  final ValueChanged<String> onTap;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.only(top: 10),
+    child: Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: [
+        for (final q in questions)
+          SunriseChip(
+            label: q,
+            selected: false,
+            icon: Symbols.subdirectory_arrow_right_rounded,
+            onTap: () => onTap(q),
+          ),
+      ],
+    ),
+  );
+}
+
+/// "2 free AI requests left today" above the composer, for free users.
+class _QuotaLine extends StatelessWidget {
+  const _QuotaLine({required this.quota});
+
+  final int quota;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
+    final c = context.sunrise;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        SunriseSpace.screenX,
+        4,
+        SunriseSpace.screenX,
+        2,
+      ),
+      child: Row(
+        children: [
+          Icon(Symbols.bolt_rounded, size: 16, color: c.accent, fill: 1),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Text(
+              l10n.aiQuotaLeft(quota),
+              style: SunriseType.caption.copyWith(color: c.muted),
+            ),
+          ),
+          GestureDetector(
+            onTap: () => PaywallUtils.showPaywall(context),
+            child: Text(
+              l10n.aiQuotaPremiumUnlimited,
+              style: SunriseType.caption.copyWith(
+                color: c.accentText,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Shown when a question hit the daily limit: what happened, the ad, and
+/// Premium as the no-ads way out.
+class _OutOfRequests extends StatelessWidget {
+  const _OutOfRequests({
+    required this.question,
+    required this.canWatchAd,
+    required this.onWatchAd,
+    required this.onPremium,
+    required this.onDismiss,
+  });
+
+  final String question;
+  final bool canWatchAd;
+  final VoidCallback onWatchAd;
+  final VoidCallback onPremium;
+  final VoidCallback onDismiss;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
+    final c = context.sunrise;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        SunriseSpace.screenX,
+        6,
+        SunriseSpace.screenX,
+        6,
+      ),
+      child: SunriseCard(
+        padding: const EdgeInsets.fromLTRB(16, 14, 8, 14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  Symbols.hourglass_bottom_rounded,
+                  color: c.accent,
+                  fill: 1,
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    l10n.aiOutOfRequestsTitle,
+                    style: SunriseType.rowTitle.copyWith(color: c.ink),
+                  ),
+                ),
+                SunriseIconButton(
+                  icon: Symbols.close_rounded,
+                  tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
+                  size: 32,
+                  iconSize: 18,
+                  background: Colors.transparent,
+                  onTap: onDismiss,
+                ),
+              ],
+            ),
+            Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: Text(
+                canWatchAd ? l10n.aiOutOfRequestsBody : l10n.adDailyCapReached,
+                style: SunriseType.caption.copyWith(color: c.muted),
+              ),
+            ),
+            const SizedBox(height: 10),
+            Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: Row(
+                children: [
+                  if (canWatchAd) ...[
+                    Expanded(
+                      child: SunriseButton(
+                        label: l10n.adWatch,
+                        icon: Symbols.play_circle_rounded,
+                        height: 44,
+                        onPressed: onWatchAd,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                  ],
+                  Expanded(
+                    child: SunriseButton(
+                      label: l10n.adGetPremium,
+                      icon: Symbols.workspace_premium_rounded,
+                      style: SunriseButtonStyle.secondary,
+                      height: 44,
+                      onPressed: onPremium,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),

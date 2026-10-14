@@ -16,6 +16,10 @@
         android:label="The Accountant"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+        <!-- AdMob: rewarded ads only, and only when the user asks for one. -->
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-9242904787767394~3056278794" />
         <!-- Push notifications use the white logo silhouette, tinted Sunrise. -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"

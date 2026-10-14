@@ -1145,12 +1145,6 @@ class L10nBn extends L10n {
   String get aiChatName => 'চ্যাটের নাম';
 
   @override
-  String get aiRefreshSummary => 'সারসংক্ষেপ হালনাগাদ করুন';
-
-  @override
-  String get aiNetSavings => 'নিট সঞ্চয়';
-
-  @override
   String get aiScanReceipt => 'রসিদ স্ক্যান করুন';
 
   @override
@@ -1447,9 +1441,6 @@ class L10nBn extends L10n {
   String get walletSelectColor => 'রঙ বাছুন';
 
   @override
-  String get txScanReceipts => 'রসিদ স্ক্যান করুন';
-
-  @override
   String get txYouNeedAtLeast2 => 'স্থানান্তর করতে অন্তত ২টি অ্যাকাউন্ট দরকার';
 
   @override
@@ -1669,12 +1660,6 @@ class L10nBn extends L10n {
 
   @override
   String get aiScanAReceipt => 'একটি রসিদ স্ক্যান করুন';
-
-  @override
-  String get aiSpendingTrend => 'খরচের ধারা';
-
-  @override
-  String get aiTopSpendingCategories => 'সবচেয়ে বেশি খরচের ক্যাটাগরি';
 
   @override
   String get aiReadingYourReceipt => 'আপনার রসিদ পড়া হচ্ছে…';
@@ -2406,22 +2391,6 @@ class L10nBn extends L10n {
       'সহজ ভাষায় জিজ্ঞেস করুন। নিজের খরচ থেকে উত্তর, পরামর্শ আর পরিকল্পনা পান।';
 
   @override
-  String get aiSampleQuestion => 'এই মাসে কি একটা উইকেন্ড ট্রিপ সম্ভব?';
-
-  @override
-  String get aiSampleAnswer =>
-      'হ্যাঁ। বাজেটে জায়গা থাকবে, তবে ৩১ তারিখ পর্যন্ত বাড়তি কেনাকাটা এড়িয়ে চলুন।';
-
-  @override
-  String get aiChipInsights => 'খরচের বিশ্লেষণ';
-
-  @override
-  String get aiChipReceipt => 'রসিদ স্ক্যান';
-
-  @override
-  String get aiChipBudgets => 'স্মার্ট বাজেট';
-
-  @override
   String get aiAssistantTitle => 'এআই সহকারী';
 
   @override
@@ -2514,7 +2483,7 @@ class L10nBn extends L10n {
   String get paywallFeatAi => 'এআই সহকারী';
 
   @override
-  String get paywallFeatAiSub => 'জেমিনি চালিত';
+  String get paywallFeatAiSub => 'সীমাহীন, বিজ্ঞাপন নেই';
 
   @override
   String get paywallFeatOcr => 'রসিদ স্ক্যান';
@@ -2680,4 +2649,188 @@ class L10nBn extends L10n {
   @override
   String get introTip8 =>
       'ছোট জয় উদযাপন করুন: প্রতিটি লক্ষ্য শুরু হয় প্রথম জমা থেকে।';
+
+  @override
+  String get adConfirmTitleAiCall => 'আরও একটি এআই অনুরোধ নিন';
+
+  @override
+  String get adConfirmTitleTheme =>
+      '২৪ ঘণ্টার জন্য প্রিমিয়াম থিম ব্যবহার করুন';
+
+  @override
+  String get adConfirmTitlePdf => 'একটি পিডিএফ রিপোর্ট এক্সপোর্ট করুন';
+
+  @override
+  String get adConfirmBodyAiCall =>
+      'আজকের বিনামূল্যের এআই অনুরোধ শেষ। একটি ছোট বিজ্ঞাপন দেখলে আরও একটি পাবেন।';
+
+  @override
+  String get adConfirmBodyTheme =>
+      'একটি ছোট বিজ্ঞাপন দেখলে পরের ২৪ ঘণ্টা সব প্রিমিয়াম থিম আপনার।';
+
+  @override
+  String get adConfirmBodyPdf =>
+      'একটি পিডিএফ রিপোর্ট এক্সপোর্ট করতে একটি ছোট বিজ্ঞাপন দেখুন।';
+
+  @override
+  String get adConfirmWarning =>
+      'আপনি একটি বিজ্ঞাপন দেখতে যাচ্ছেন। চালিয়ে যাবেন?';
+
+  @override
+  String adConfirmLeft(int count) {
+    return 'আজ আরও $countটি বিজ্ঞাপন দেখা যাবে';
+  }
+
+  @override
+  String get adPremiumPitch =>
+      'প্রিমিয়াম সদস্যরা কোনো বিজ্ঞাপন ছাড়াই সীমাহীন এআই, সব থিম ও পিডিএফ রিপোর্ট পান।';
+
+  @override
+  String get adWatch => 'বিজ্ঞাপন দেখুন';
+
+  @override
+  String get adGetPremium => 'প্রিমিয়াম নিন';
+
+  @override
+  String get adNotNow => 'এখন না';
+
+  @override
+  String get adLoading => 'বিজ্ঞাপন লোড হচ্ছে…';
+
+  @override
+  String get adUnavailable =>
+      'এই মুহূর্তে কোনো বিজ্ঞাপন নেই। একটু পরে আবার চেষ্টা করুন।';
+
+  @override
+  String get adSkipped =>
+      'বিজ্ঞাপন শেষ হওয়ার আগে বন্ধ করা হয়েছে, তাই কিছু আনলক হয়নি।';
+
+  @override
+  String get adRewardAiCall => 'হয়ে গেছে! আপনি আরও একটি এআই অনুরোধ পেয়েছেন।';
+
+  @override
+  String get adRewardTheme => '২৪ ঘণ্টার জন্য প্রিমিয়াম থিম আনলক হয়েছে।';
+
+  @override
+  String get adRewardPdf => 'একটি পিডিএফ এক্সপোর্ট আনলক হয়েছে।';
+
+  @override
+  String get adDailyCapReached =>
+      'আজকের সব বিজ্ঞাপন দেখা হয়ে গেছে। মধ্যরাতে বিনামূল্যের অনুরোধ আবার পাবেন।';
+
+  @override
+  String get adRewardPending =>
+      'ধন্যবাদ! আপনার পুরস্কার কিছুক্ষণের মধ্যে দেখা যাবে।';
+
+  @override
+  String aiQuotaLeft(int count) {
+    return 'আজ $countটি বিনামূল্যের এআই অনুরোধ বাকি';
+  }
+
+  @override
+  String get aiQuotaPremiumUnlimited => 'প্রিমিয়াম: সীমাহীন';
+
+  @override
+  String get aiOutOfRequestsTitle => 'আজকের বিনামূল্যের অনুরোধ শেষ';
+
+  @override
+  String get aiOutOfRequestsBody =>
+      'এই প্রশ্নটি করতে একটি ছোট বিজ্ঞাপন দেখুন, অথবা বিজ্ঞাপন ছাড়া সীমাহীন উত্তরের জন্য প্রিমিয়াম নিন। মধ্যরাতে বিনামূল্যের অনুরোধ আবার পাবেন।';
+
+  @override
+  String get ocrNoCamera => 'ক্যামেরা খোলা যায়নি।';
+
+  @override
+  String get ocrNoGallery => 'গ্যালারি খোলা যায়নি।';
+
+  @override
+  String get ocrScanTitle => 'রসিদ স্ক্যান করুন';
+
+  @override
+  String get ocrScanAnother => 'আরেকটি স্ক্যান করুন';
+
+  @override
+  String get ocrScanBody =>
+      'ছবি তুলুন বা বেছে নিন। অ্যাপ এটি পড়বে এবং এআই বিস্তারিত পূরণ করবে।';
+
+  @override
+  String get ocrReadingWithAi => 'এআই আপনার রসিদ পড়ছে…';
+
+  @override
+  String get ocrNothingRead =>
+      'ছবি থেকে কোনো লেখা পড়া যায়নি। ভালো আলোতে পুরো রসিদটি রেখে আবার চেষ্টা করুন।';
+
+  @override
+  String get ocrAiOfferTitle => 'এআই দিয়ে ঠিকভাবে পড়ান';
+
+  @override
+  String get ocrAiOfferBody =>
+      'এলোমেলো রসিদ থেকেও এটি আসল মোট, তারিখ, প্রতিটি আইটেম ও সঠিক ক্যাটাগরি খুঁজে নেয়।';
+
+  @override
+  String get ocrReadWithAi => 'এআই দিয়ে পড়ুন';
+
+  @override
+  String get ocrReadByAi => 'এআই পড়েছে। সেভ করার আগে মিলিয়ে নিন।';
+
+  @override
+  String get ocrItems => 'আইটেম';
+
+  @override
+  String get quickAddTitle => 'লিখে বলুন';
+
+  @override
+  String get quickAddSubtitle =>
+      'যেভাবে বলেন সেভাবে লিখুন। এআই ফর্মটি পূরণ করবে, আপনি মিলিয়ে নেবেন।';
+
+  @override
+  String get quickAddHint => 'যেমন: গতকাল বিকাশ থেকে দুপুরের খাবার ২৫০';
+
+  @override
+  String get quickAddFill => 'পূরণ করুন';
+
+  @override
+  String get summaryTitle => 'মাসিক সারাংশ';
+
+  @override
+  String get summarySpent => 'এই মাসে খরচ';
+
+  @override
+  String summaryEarned(String amount) {
+    return 'আয় $amount';
+  }
+
+  @override
+  String summaryLessThanLast(int percent) {
+    return 'গত মাসের চেয়ে $percent% কম';
+  }
+
+  @override
+  String summaryMoreThanLast(int percent) {
+    return 'গত মাসের চেয়ে $percent% বেশি';
+  }
+
+  @override
+  String get summaryAiTitle => 'এক নজরে আপনার মাস';
+
+  @override
+  String get summaryAiBody =>
+      'এআই আপনার এই মাসকে গত মাসের সাথে মিলিয়ে উল্লেখযোগ্য বিষয়গুলো তুলে ধরে, সাথে একটি পরামর্শ দেয়।';
+
+  @override
+  String get summaryWrite => 'আমার সারাংশ লিখুন';
+
+  @override
+  String get summaryWriting => 'আপনার সারাংশ লেখা হচ্ছে…';
+
+  @override
+  String get summaryByCategory => 'ক্যাটাগরি অনুযায়ী';
+
+  @override
+  String get summaryNoSpending => 'এই মাসে এখনো কোনো খরচ লেখা হয়নি।';
+
+  @override
+  String themeTrialUntil(String time) {
+    return '$time পর্যন্ত প্রিমিয়াম থিম আনলক';
+  }
 }

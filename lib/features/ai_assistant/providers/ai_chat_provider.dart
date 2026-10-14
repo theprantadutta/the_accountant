@@ -1,5 +1,11 @@
+import 'dart:async';
+
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:the_accountant/core/services/analytics_service.dart';
+import 'package:the_accountant/features/ai_assistant/providers/ai_quota_provider.dart';
+import 'package:the_accountant/features/ai_assistant/services/ai_api.dart';
+import 'package:the_accountant/features/ai_assistant/services/finance_context_builder.dart';
 import 'package:the_accountant/features/ai_assistant/models/chat_message.dart';
 import 'package:the_accountant/features/ai_assistant/models/conversation.dart';
 import 'package:the_accountant/features/ai_assistant/services/ai_chat_service.dart';
@@ -19,6 +25,10 @@ class AiChatState {
   final String? errorType;
   final bool hasError;
 
+  /// A question held back because today's free requests ran out. The screen
+  /// offers an ad (or Premium) and sends it once there is a request to spend.
+  final String? pendingQuestion;
+
   const AiChatState({
     this.messages = const [],
     this.conversations = const [],
@@ -29,6 +39,7 @@ class AiChatState {
     this.errorMessage,
     this.errorType,
     this.hasError = false,
+    this.pendingQuestion,
   });
 
   AiChatState copyWith({
@@ -41,6 +52,8 @@ class AiChatState {
     String? errorMessage,
     String? errorType,
     bool? hasError,
+    String? pendingQuestion,
+    bool clearPending = false,
   }) {
     return AiChatState(
       messages: messages ?? this.messages,
@@ -53,6 +66,9 @@ class AiChatState {
       errorMessage: errorMessage,
       errorType: errorType,
       hasError: hasError ?? this.hasError,
+      pendingQuestion: clearPending
+          ? null
+          : pendingQuestion ?? this.pendingQuestion,
     );
   }
 }
@@ -60,10 +76,18 @@ class AiChatState {
 /// Notifier for managing AI chat state
 class AiChatNotifier extends StateNotifier<AiChatState> {
   final AiChatService _aiChatService;
+  final Ref _ref;
+  StreamSubscription<ChatStreamEvent>? _reply;
 
-  AiChatNotifier()
+  AiChatNotifier(this._ref)
     : _aiChatService = AiChatService(),
       super(const AiChatState());
+
+  @override
+  void dispose() {
+    _reply?.cancel();
+    super.dispose();
+  }
 
   /// Initial load: fetch conversations and open the most recent one, or land on
   /// a fresh welcome screen when there are none yet.
@@ -191,89 +215,165 @@ class AiChatNotifier extends StateNotifier<AiChatState> {
     }
   }
 
-  /// Send a message and get AI response
+  /// Ask the coach. The reply streams into the conversation as it is written.
+  ///
+  /// Nothing is saved on the server until the reply is complete, so a failed
+  /// attempt leaves no trace and [retryLastMessage] sends the question once.
+  /// When today's free requests are used up the question is held in
+  /// [AiChatState.pendingQuestion] for the screen to offer an ad.
   Future<void> sendMessage(String text) async {
-    if (text.trim().isEmpty) return;
+    final question = text.trim();
+    if (question.isEmpty || state.isLoading) return;
+
+    final quota = _ref.read(aiQuotaProvider);
+    if (!quota.hasCallsLeft) {
+      state = state.copyWith(pendingQuestion: question);
+      return;
+    }
 
     AnalyticsService().logAiChatMessage();
 
     // Drop the client-only welcome placeholder once the chat really begins.
     final base = state.messages.where((m) => !m.isWelcome).toList();
+    final asked = ChatMessage.user(text: question);
+    final replyId = 'streaming-${DateTime.now().microsecondsSinceEpoch}';
+    final reply = ChatMessage.ai(
+      text: '',
+      id: replyId,
+    ).copyWith(isStreaming: true);
 
-    // Add user message immediately for UI feedback
-    final tempUserMessage = ChatMessage.user(text: text.trim());
     state = state.copyWith(
-      messages: [...base, tempUserMessage],
+      messages: [...base, asked, reply],
       isLoading: true,
       hasError: false,
-      errorMessage: null,
-      errorType: null,
+      clearPending: true,
     );
 
+    Map<String, dynamic>? context;
     try {
-      final response = await _aiChatService.sendMessage(
-        text.trim(),
-        conversationId: state.currentConversationId,
-      );
-
-      // Replace the temporary user message with the server's echoed pair.
-      final messages = state.messages.toList();
-      if (messages.isNotEmpty && messages.last.isFromUser) {
-        messages.removeLast();
-      }
-      messages.add(response.userMessage);
-
-      final aiMessage = response.aiMessage.copyWith(
-        isAiFallback: response.isAiFallback,
-        aiErrorType: response.aiErrorType,
-      );
-      messages.add(aiMessage);
-
-      state = state.copyWith(
-        messages: messages,
-        currentConversationId: response.conversationId.isNotEmpty
-            ? response.conversationId
-            : state.currentConversationId,
-        isLoading: false,
-        hasError: response.isAiFallback,
-        errorMessage: response.isAiFallback
-            ? _getErrorDescription(response.aiErrorType)
-            : null,
-        errorType: response.aiErrorType,
-      );
-
-      // Surface the new/updated thread in the chats list.
-      await _refreshConversations();
-    } on AiChatException catch (e) {
-      final fallbackMessage = ChatMessage.ai(
-        text: _getFallbackMessage(e.errorType),
-        isAiFallback: true,
-        aiErrorType: e.errorType,
-      );
-
-      state = state.copyWith(
-        messages: [...state.messages, fallbackMessage],
-        isLoading: false,
-        hasError: true,
-        errorMessage: e.message,
-        errorType: e.errorType,
-      );
-    } catch (e) {
-      final fallbackMessage = ChatMessage.ai(
-        text:
-            "I'm having trouble connecting right now. Please try again in a moment.",
-        isAiFallback: true,
-        aiErrorType: 'unknown_error',
-      );
-
-      state = state.copyWith(
-        messages: [...state.messages, fallbackMessage],
-        isLoading: false,
-        hasError: true,
-        errorMessage: e.toString(),
-        errorType: 'unknown_error',
-      );
+      context = await FinanceContextBuilder(_ref.read).build();
+    } catch (_) {
+      // The coach can still answer in general terms without the figures.
     }
+
+    final written = StringBuffer();
+    final done = Completer<void>();
+
+    _reply = _ref
+        .read(aiApiProvider)
+        .streamChat(
+          question,
+          conversationId: state.currentConversationId,
+          context: context,
+        )
+        .listen(
+          (event) {
+            switch (event) {
+              case ChatStarted(:final conversationId):
+                if (conversationId.isNotEmpty) {
+                  state = state.copyWith(currentConversationId: conversationId);
+                }
+              case ChatDelta(:final text):
+                written.write(text);
+                _updateReply(replyId, _visible(written.toString()));
+              case ChatDone(:final response):
+                final messages =
+                    state.messages
+                        .where((m) => m.id != replyId && m.id != asked.id)
+                        .toList()
+                      ..addAll([response.userMessage, response.aiMessage]);
+                state = state.copyWith(
+                  messages: messages,
+                  currentConversationId: response.conversationId,
+                  isLoading: false,
+                );
+                _ref.read(aiQuotaProvider.notifier).spendOne();
+            }
+          },
+          onError: (Object error) {
+            _failReply(asked, replyId, question, error);
+            if (!done.isCompleted) done.complete();
+          },
+          onDone: () {
+            if (!done.isCompleted) done.complete();
+          },
+          cancelOnError: true,
+        );
+
+    await done.future;
+    _reply = null;
+    if (state.isLoading) state = state.copyWith(isLoading: false);
+
+    unawaited(_ref.read(aiQuotaProvider.notifier).refresh());
+    await _refreshConversations();
+  }
+
+  /// Sends the question that was waiting for a request (after an ad).
+  Future<void> sendPending() async {
+    final question = state.pendingQuestion;
+    if (question == null) return;
+    state = state.copyWith(clearPending: true);
+    await sendMessage(question);
+  }
+
+  /// Gives up on the waiting question.
+  void dropPending() => state = state.copyWith(clearPending: true);
+
+  void _updateReply(String id, String text) {
+    state = state.copyWith(
+      messages: [
+        for (final m in state.messages)
+          if (m.id == id) m.copyWith(text: text) else m,
+      ],
+    );
+  }
+
+  void _failReply(
+    ChatMessage asked,
+    String replyId,
+    String question,
+    Object error,
+  ) {
+    final ai = error is AiException ? error : null;
+
+    if (ai != null && ai.isQuotaExhausted) {
+      // Not a failure: the question waits for an ad or Premium.
+      state = state.copyWith(
+        messages: state.messages
+            .where((m) => m.id != replyId && m.id != asked.id)
+            .toList(),
+        isLoading: false,
+        pendingQuestion: question,
+      );
+      unawaited(_ref.read(aiQuotaProvider.notifier).refresh());
+      return;
+    }
+
+    final notice = ChatMessage.ai(
+      text:
+          ai?.message ??
+          'The AI service is not answering right now. Nothing was charged; '
+              'please try again.',
+      id: replyId,
+      isAiFallback: true,
+      aiErrorType: ai?.code ?? AiException.unavailable,
+    );
+    state = state.copyWith(
+      messages: [
+        for (final m in state.messages)
+          if (m.id == replyId) notice else m,
+      ],
+      isLoading: false,
+      hasError: true,
+      errorMessage: notice.text,
+      errorType: notice.aiErrorType,
+    );
+  }
+
+  /// Hides the follow-up marker while it is still being written.
+  static String _visible(String text) {
+    final marker = text.indexOf('[[');
+    return (marker >= 0 ? text.substring(0, marker) : text).trimRight();
   }
 
   /// Clear error state
@@ -285,67 +385,23 @@ class AiChatNotifier extends StateNotifier<AiChatState> {
     );
   }
 
-  /// Retry the last failed message
+  /// Ask the last question again. The failed attempt was never saved, so this
+  /// sends it once.
   Future<void> retryLastMessage() async {
-    // Find the last user message
-    final lastUserMessage = state.messages.reversed.firstWhere(
-      (m) => m.isFromUser,
-      orElse: () => ChatMessage.user(text: ''),
-    );
+    final lastQuestion = state.messages.reversed
+        .where((m) => m.isFromUser)
+        .map((m) => m.text)
+        .firstOrNull;
+    if (lastQuestion == null) return;
 
-    if (lastUserMessage.text.isEmpty) return;
-
-    // Remove the last AI message (the error response)
     final messages = state.messages.toList();
-    if (messages.isNotEmpty && !messages.last.isFromUser) {
+    if (messages.isNotEmpty && messages.last.isAiFallback) {
       messages.removeLast();
     }
-    // Also remove the last user message
-    if (messages.isNotEmpty && messages.last.isFromUser) {
-      messages.removeLast();
-    }
+    if (messages.isNotEmpty && messages.last.isFromUser) messages.removeLast();
 
-    state = state.copyWith(
-      messages: messages,
-      hasError: false,
-      errorMessage: null,
-      errorType: null,
-    );
-
-    // Resend the message
-    await sendMessage(lastUserMessage.text);
-  }
-
-  String _getFallbackMessage(String? errorType) {
-    switch (errorType) {
-      case 'rate_limit':
-        return "I'm receiving too many requests right now. Please wait a moment and try again.";
-      case 'timeout':
-        return "The request took too long. Please try again.";
-      case 'service_unavailable':
-        return "The AI service is temporarily unavailable. Please try again later.";
-      case 'network_error':
-        return "I couldn't connect to the server. Please check your internet connection.";
-      case 'premium_required':
-        return "AI Assistant is a premium feature. Please upgrade to continue.";
-      default:
-        return "I'm having trouble connecting right now. Please try again in a moment.";
-    }
-  }
-
-  String? _getErrorDescription(String? errorType) {
-    switch (errorType) {
-      case 'rate_limit':
-        return 'Rate limit exceeded';
-      case 'timeout':
-        return 'Request timed out';
-      case 'service_unavailable':
-        return 'Service unavailable';
-      case 'network_error':
-        return 'Network error';
-      default:
-        return null;
-    }
+    state = state.copyWith(messages: messages, hasError: false);
+    await sendMessage(lastQuestion);
   }
 }
 
@@ -353,5 +409,5 @@ class AiChatNotifier extends StateNotifier<AiChatState> {
 final aiChatProvider = StateNotifierProvider<AiChatNotifier, AiChatState>((
   ref,
 ) {
-  return AiChatNotifier();
+  return AiChatNotifier(ref);
 });

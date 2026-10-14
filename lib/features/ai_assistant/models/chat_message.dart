@@ -10,6 +10,12 @@ class ChatMessage {
   final bool isAiFallback;
   final String? aiErrorType;
 
+  /// Questions the coach suggested asking next.
+  final List<String> followUps;
+
+  /// Still being written (a streamed reply that has not finished).
+  final bool isStreaming;
+
   const ChatMessage({
     required this.id,
     required this.text,
@@ -20,6 +26,8 @@ class ChatMessage {
     this.isWelcome = false,
     this.isAiFallback = false,
     this.aiErrorType,
+    this.followUps = const [],
+    this.isStreaming = false,
   });
 
   /// Creates a user message
@@ -96,6 +104,10 @@ class ChatMessage {
       isAiFallback:
           (json['is_ai_fallback'] ?? json['isAiFallback']) as bool? ?? false,
       aiErrorType: (json['ai_error_type'] ?? json['aiErrorType']) as String?,
+      followUps: [
+        for (final q in (json['follow_ups'] as List? ?? const []))
+          if (q is String && q.isNotEmpty) q,
+      ],
     );
   }
 
@@ -110,6 +122,8 @@ class ChatMessage {
     bool? isWelcome,
     bool? isAiFallback,
     String? aiErrorType,
+    List<String>? followUps,
+    bool? isStreaming,
   }) {
     return ChatMessage(
       id: id ?? this.id,
@@ -121,6 +135,8 @@ class ChatMessage {
       isWelcome: isWelcome ?? this.isWelcome,
       isAiFallback: isAiFallback ?? this.isAiFallback,
       aiErrorType: aiErrorType ?? this.aiErrorType,
+      followUps: followUps ?? this.followUps,
+      isStreaming: isStreaming ?? this.isStreaming,
     );
   }
 

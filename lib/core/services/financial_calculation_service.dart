@@ -271,16 +271,24 @@ class FinancialCalculationService {
   /// Calculate spending by category with currency conversion
   Future<Map<String, int>> getSpendingByCategoryConverted(
     String targetCurrency,
+  ) {
+    final now = DateTime.now();
+    return getSpendingByCategoryConvertedBetween(
+      DateTime(now.year, now.month, 1),
+      DateTime(now.year, now.month + 1, 0),
+      targetCurrency,
+    );
+  }
+
+  /// Spending per category id between [start] and [end], in [targetCurrency]
+  /// minor units.
+  Future<Map<String, int>> getSpendingByCategoryConvertedBetween(
+    DateTime start,
+    DateTime end,
+    String targetCurrency,
   ) async {
     try {
-      final now = DateTime.now();
-      final startOfMonth = DateTime(now.year, now.month, 1);
-      final endOfMonth = DateTime(now.year, now.month + 1, 0);
-
-      final transactions = await _db.getTransactionsByDateRange(
-        startOfMonth,
-        endOfMonth,
-      );
+      final transactions = await _db.getTransactionsByDateRange(start, end);
       final expenses = transactions.where(TransactionPolicy.countsAsExpense);
 
       final Map<String, int> categorySpending = {};
@@ -303,6 +311,13 @@ class FinancialCalculationService {
       return {};
     }
   }
+
+  /// [amountCents] from [walletId]'s currency into [targetCurrency].
+  Future<int> convertFromWallet(
+    int amountCents,
+    String? walletId,
+    String targetCurrency,
+  ) => _convertAmount(amountCents, walletId, targetCurrency);
 
   /// Share of its limit each running budget has used, as a percentage.
   ///
