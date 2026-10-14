@@ -1159,5 +1159,59 @@
   "introTip5": "Give every taka a job before the month starts.",
   "introTip6": "Wait 24 hours before any unplanned purchase.",
   "introTip7": "Budgets aren’t limits, they’re permission to spend on what matters.",
-  "introTip8": "Celebrate small wins: every goal starts with the first deposit."
+  "introTip8": "Celebrate small wins: every goal starts with the first deposit.",
+  "adConfirmTitleAiCall": "Get one more AI request",
+  "adConfirmTitleTheme": "Try premium themes for 24 hours",
+  "adConfirmTitlePdf": "Export one PDF report",
+  "adConfirmBodyAiCall": "You've used today's free AI requests. Watch a short ad and you get one more.",
+  "adConfirmBodyTheme": "Watch a short ad and every premium theme is yours for the next 24 hours.",
+  "adConfirmBodyPdf": "Watch a short ad to export one PDF report.",
+  "adConfirmWarning": "You're about to watch an ad. Continue?",
+  "adConfirmLeft": "{count, plural, =1{1 more ad available today} other{{count} more ads available today}}",
+  "@adConfirmLeft": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "adPremiumPitch": "Premium members get unlimited AI, every theme and PDF reports, with no ads at all.",
+  "adWatch": "Watch ad",
+  "adGetPremium": "Get Premium",
+  "adNotNow": "Not now",
+  "adLoading": "Loading the ad…",
+  "adUnavailable": "No ad is available right now. Please try again in a little while.",
+  "adSkipped": "The ad was closed before the end, so nothing was unlocked.",
+  "adRewardAiCall": "Done! You have one more AI request.",
+  "adRewardTheme": "Premium themes unlocked for 24 hours.",
+  "adRewardPdf": "One PDF export unlocked.",
+  "adDailyCapReached": "That's all the ads for today. Your free requests come back at midnight.",
+  "adRewardPending": "Thanks! Your reward will appear in a moment.",
+  "aiQuotaLeft": "{count, plural, =0{No free AI requests left today} =1{1 free AI request left today} other{{count} free AI requests left today}}",
+  "@aiQuotaLeft": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "aiQuotaPremiumUnlimited": "Premium: unlimited",
+  "aiOutOfRequestsTitle": "You've used today's free requests",
+  "aiOutOfRequestsBody": "Watch a short ad to ask this one, or go Premium for unlimited answers with no ads. Free requests come back at midnight.",
+  "ocrNoCamera": "Couldn't open the camera.",
+  "ocrNoGallery": "Couldn't open the gallery.",
+  "ocrScanTitle": "Scan a receipt",
+  "ocrScanAnother": "Scan another",
+  "ocrScanBody": "Snap a photo or pick one. The app reads it and the AI fills in the details.",
+  "ocrReadingWithAi": "The AI is reading your receipt…",
+  "ocrNothingRead": "No text could be read from that photo. Try again in better light, with the whole receipt in view.",
+  "ocrAiOfferTitle": "Let the AI read it properly",
+  "ocrAiOfferBody": "It finds the real total, the date, each item and the right category, even on a messy receipt.",
+  "ocrReadWithAi": "Read with AI",
+  "ocrReadByAi": "Read by AI. Check it before saving.",
+  "ocrItems": "Items",
+  "quickAddTitle": "Describe it",
+  "quickAddSubtitle": "Type it the way you'd say it. The AI fills in the form for you to check.",
+  "quickAddHint": "e.g. lunch 250 yesterday from bKash",
+  "quickAddFill": "Fill it in"
 }

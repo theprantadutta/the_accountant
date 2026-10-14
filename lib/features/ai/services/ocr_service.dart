@@ -120,6 +120,7 @@ class OcrService {
         date: _extractDate(text),
         total: _extractTotal(lines),
         items: const [],
+        rawText: text,
       );
     } catch (e) {
       debugPrint('Error extracting receipt data: $e');
@@ -319,6 +320,9 @@ class ReceiptData {
   final String? barcodeInfo; // New field for barcode information
   final List<String>? imageLabels; // New field for image labels
 
+  /// Everything OCR read, line by line: what the AI is given to make sense of.
+  final String rawText;
+
   ReceiptData({
     required this.merchant,
     this.date,
@@ -326,6 +330,7 @@ class ReceiptData {
     required this.items,
     this.barcodeInfo,
     this.imageLabels,
+    this.rawText = '',
   });
 }
 

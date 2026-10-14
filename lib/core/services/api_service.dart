@@ -125,6 +125,11 @@ class ApiService {
             await _refreshAccessToken();
           }
 
+          // Where "today" is for the server: the AI allowance resets at the
+          // user's midnight, not UTC's.
+          options.headers['X-Utc-Offset'] =
+              DateTime.now().timeZoneOffset.inMinutes.toString();
+
           final token = await getToken();
           if (token != null) {
             options.headers['Authorization'] = 'Bearer $token';

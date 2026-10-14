@@ -5074,6 +5074,246 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'Celebrate small wins: every goal starts with the first deposit.'**
   String get introTip8;
+
+  /// No description provided for @adConfirmTitleAiCall.
+  ///
+  /// In en, this message translates to:
+  /// **'Get one more AI request'**
+  String get adConfirmTitleAiCall;
+
+  /// No description provided for @adConfirmTitleTheme.
+  ///
+  /// In en, this message translates to:
+  /// **'Try premium themes for 24 hours'**
+  String get adConfirmTitleTheme;
+
+  /// No description provided for @adConfirmTitlePdf.
+  ///
+  /// In en, this message translates to:
+  /// **'Export one PDF report'**
+  String get adConfirmTitlePdf;
+
+  /// No description provided for @adConfirmBodyAiCall.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ve used today\'s free AI requests. Watch a short ad and you get one more.'**
+  String get adConfirmBodyAiCall;
+
+  /// No description provided for @adConfirmBodyTheme.
+  ///
+  /// In en, this message translates to:
+  /// **'Watch a short ad and every premium theme is yours for the next 24 hours.'**
+  String get adConfirmBodyTheme;
+
+  /// No description provided for @adConfirmBodyPdf.
+  ///
+  /// In en, this message translates to:
+  /// **'Watch a short ad to export one PDF report.'**
+  String get adConfirmBodyPdf;
+
+  /// No description provided for @adConfirmWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re about to watch an ad. Continue?'**
+  String get adConfirmWarning;
+
+  /// No description provided for @adConfirmLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 more ad available today} other{{count} more ads available today}}'**
+  String adConfirmLeft(int count);
+
+  /// No description provided for @adPremiumPitch.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium members get unlimited AI, every theme and PDF reports, with no ads at all.'**
+  String get adPremiumPitch;
+
+  /// No description provided for @adWatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Watch ad'**
+  String get adWatch;
+
+  /// No description provided for @adGetPremium.
+  ///
+  /// In en, this message translates to:
+  /// **'Get Premium'**
+  String get adGetPremium;
+
+  /// No description provided for @adNotNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get adNotNow;
+
+  /// No description provided for @adLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading the ad…'**
+  String get adLoading;
+
+  /// No description provided for @adUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No ad is available right now. Please try again in a little while.'**
+  String get adUnavailable;
+
+  /// No description provided for @adSkipped.
+  ///
+  /// In en, this message translates to:
+  /// **'The ad was closed before the end, so nothing was unlocked.'**
+  String get adSkipped;
+
+  /// No description provided for @adRewardAiCall.
+  ///
+  /// In en, this message translates to:
+  /// **'Done! You have one more AI request.'**
+  String get adRewardAiCall;
+
+  /// No description provided for @adRewardTheme.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium themes unlocked for 24 hours.'**
+  String get adRewardTheme;
+
+  /// No description provided for @adRewardPdf.
+  ///
+  /// In en, this message translates to:
+  /// **'One PDF export unlocked.'**
+  String get adRewardPdf;
+
+  /// No description provided for @adDailyCapReached.
+  ///
+  /// In en, this message translates to:
+  /// **'That\'s all the ads for today. Your free requests come back at midnight.'**
+  String get adDailyCapReached;
+
+  /// No description provided for @adRewardPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Thanks! Your reward will appear in a moment.'**
+  String get adRewardPending;
+
+  /// No description provided for @aiQuotaLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No free AI requests left today} =1{1 free AI request left today} other{{count} free AI requests left today}}'**
+  String aiQuotaLeft(int count);
+
+  /// No description provided for @aiQuotaPremiumUnlimited.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium: unlimited'**
+  String get aiQuotaPremiumUnlimited;
+
+  /// No description provided for @aiOutOfRequestsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ve used today\'s free requests'**
+  String get aiOutOfRequestsTitle;
+
+  /// No description provided for @aiOutOfRequestsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Watch a short ad to ask this one, or go Premium for unlimited answers with no ads. Free requests come back at midnight.'**
+  String get aiOutOfRequestsBody;
+
+  /// No description provided for @ocrNoCamera.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t open the camera.'**
+  String get ocrNoCamera;
+
+  /// No description provided for @ocrNoGallery.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t open the gallery.'**
+  String get ocrNoGallery;
+
+  /// No description provided for @ocrScanTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan a receipt'**
+  String get ocrScanTitle;
+
+  /// No description provided for @ocrScanAnother.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan another'**
+  String get ocrScanAnother;
+
+  /// No description provided for @ocrScanBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Snap a photo or pick one. The app reads it and the AI fills in the details.'**
+  String get ocrScanBody;
+
+  /// No description provided for @ocrReadingWithAi.
+  ///
+  /// In en, this message translates to:
+  /// **'The AI is reading your receipt…'**
+  String get ocrReadingWithAi;
+
+  /// No description provided for @ocrNothingRead.
+  ///
+  /// In en, this message translates to:
+  /// **'No text could be read from that photo. Try again in better light, with the whole receipt in view.'**
+  String get ocrNothingRead;
+
+  /// No description provided for @ocrAiOfferTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Let the AI read it properly'**
+  String get ocrAiOfferTitle;
+
+  /// No description provided for @ocrAiOfferBody.
+  ///
+  /// In en, this message translates to:
+  /// **'It finds the real total, the date, each item and the right category, even on a messy receipt.'**
+  String get ocrAiOfferBody;
+
+  /// No description provided for @ocrReadWithAi.
+  ///
+  /// In en, this message translates to:
+  /// **'Read with AI'**
+  String get ocrReadWithAi;
+
+  /// No description provided for @ocrReadByAi.
+  ///
+  /// In en, this message translates to:
+  /// **'Read by AI. Check it before saving.'**
+  String get ocrReadByAi;
+
+  /// No description provided for @ocrItems.
+  ///
+  /// In en, this message translates to:
+  /// **'Items'**
+  String get ocrItems;
+
+  /// No description provided for @quickAddTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Describe it'**
+  String get quickAddTitle;
+
+  /// No description provided for @quickAddSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Type it the way you\'d say it. The AI fills in the form for you to check.'**
+  String get quickAddSubtitle;
+
+  /// No description provided for @quickAddHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. lunch 250 yesterday from bKash'**
+  String get quickAddHint;
+
+  /// No description provided for @quickAddFill.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill it in'**
+  String get quickAddFill;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

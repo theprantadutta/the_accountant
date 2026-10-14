@@ -2710,4 +2710,152 @@ class L10nEn extends L10n {
   @override
   String get introTip8 =>
       'Celebrate small wins: every goal starts with the first deposit.';
+
+  @override
+  String get adConfirmTitleAiCall => 'Get one more AI request';
+
+  @override
+  String get adConfirmTitleTheme => 'Try premium themes for 24 hours';
+
+  @override
+  String get adConfirmTitlePdf => 'Export one PDF report';
+
+  @override
+  String get adConfirmBodyAiCall =>
+      'You\'ve used today\'s free AI requests. Watch a short ad and you get one more.';
+
+  @override
+  String get adConfirmBodyTheme =>
+      'Watch a short ad and every premium theme is yours for the next 24 hours.';
+
+  @override
+  String get adConfirmBodyPdf => 'Watch a short ad to export one PDF report.';
+
+  @override
+  String get adConfirmWarning => 'You\'re about to watch an ad. Continue?';
+
+  @override
+  String adConfirmLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count more ads available today',
+      one: '1 more ad available today',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get adPremiumPitch =>
+      'Premium members get unlimited AI, every theme and PDF reports, with no ads at all.';
+
+  @override
+  String get adWatch => 'Watch ad';
+
+  @override
+  String get adGetPremium => 'Get Premium';
+
+  @override
+  String get adNotNow => 'Not now';
+
+  @override
+  String get adLoading => 'Loading the ad…';
+
+  @override
+  String get adUnavailable =>
+      'No ad is available right now. Please try again in a little while.';
+
+  @override
+  String get adSkipped =>
+      'The ad was closed before the end, so nothing was unlocked.';
+
+  @override
+  String get adRewardAiCall => 'Done! You have one more AI request.';
+
+  @override
+  String get adRewardTheme => 'Premium themes unlocked for 24 hours.';
+
+  @override
+  String get adRewardPdf => 'One PDF export unlocked.';
+
+  @override
+  String get adDailyCapReached =>
+      'That\'s all the ads for today. Your free requests come back at midnight.';
+
+  @override
+  String get adRewardPending => 'Thanks! Your reward will appear in a moment.';
+
+  @override
+  String aiQuotaLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count free AI requests left today',
+      one: '1 free AI request left today',
+      zero: 'No free AI requests left today',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get aiQuotaPremiumUnlimited => 'Premium: unlimited';
+
+  @override
+  String get aiOutOfRequestsTitle => 'You\'ve used today\'s free requests';
+
+  @override
+  String get aiOutOfRequestsBody =>
+      'Watch a short ad to ask this one, or go Premium for unlimited answers with no ads. Free requests come back at midnight.';
+
+  @override
+  String get ocrNoCamera => 'Couldn\'t open the camera.';
+
+  @override
+  String get ocrNoGallery => 'Couldn\'t open the gallery.';
+
+  @override
+  String get ocrScanTitle => 'Scan a receipt';
+
+  @override
+  String get ocrScanAnother => 'Scan another';
+
+  @override
+  String get ocrScanBody =>
+      'Snap a photo or pick one. The app reads it and the AI fills in the details.';
+
+  @override
+  String get ocrReadingWithAi => 'The AI is reading your receipt…';
+
+  @override
+  String get ocrNothingRead =>
+      'No text could be read from that photo. Try again in better light, with the whole receipt in view.';
+
+  @override
+  String get ocrAiOfferTitle => 'Let the AI read it properly';
+
+  @override
+  String get ocrAiOfferBody =>
+      'It finds the real total, the date, each item and the right category, even on a messy receipt.';
+
+  @override
+  String get ocrReadWithAi => 'Read with AI';
+
+  @override
+  String get ocrReadByAi => 'Read by AI. Check it before saving.';
+
+  @override
+  String get ocrItems => 'Items';
+
+  @override
+  String get quickAddTitle => 'Describe it';
+
+  @override
+  String get quickAddSubtitle =>
+      'Type it the way you\'d say it. The AI fills in the form for you to check.';
+
+  @override
+  String get quickAddHint => 'e.g. lunch 250 yesterday from bKash';
+
+  @override
+  String get quickAddFill => 'Fill it in';
 }

@@ -2680,4 +2680,143 @@ class L10nBn extends L10n {
   @override
   String get introTip8 =>
       'ছোট জয় উদযাপন করুন: প্রতিটি লক্ষ্য শুরু হয় প্রথম জমা থেকে।';
+
+  @override
+  String get adConfirmTitleAiCall => 'আরও একটি এআই অনুরোধ নিন';
+
+  @override
+  String get adConfirmTitleTheme =>
+      '২৪ ঘণ্টার জন্য প্রিমিয়াম থিম ব্যবহার করুন';
+
+  @override
+  String get adConfirmTitlePdf => 'একটি পিডিএফ রিপোর্ট এক্সপোর্ট করুন';
+
+  @override
+  String get adConfirmBodyAiCall =>
+      'আজকের বিনামূল্যের এআই অনুরোধ শেষ। একটি ছোট বিজ্ঞাপন দেখলে আরও একটি পাবেন।';
+
+  @override
+  String get adConfirmBodyTheme =>
+      'একটি ছোট বিজ্ঞাপন দেখলে পরের ২৪ ঘণ্টা সব প্রিমিয়াম থিম আপনার।';
+
+  @override
+  String get adConfirmBodyPdf =>
+      'একটি পিডিএফ রিপোর্ট এক্সপোর্ট করতে একটি ছোট বিজ্ঞাপন দেখুন।';
+
+  @override
+  String get adConfirmWarning =>
+      'আপনি একটি বিজ্ঞাপন দেখতে যাচ্ছেন। চালিয়ে যাবেন?';
+
+  @override
+  String adConfirmLeft(int count) {
+    return 'আজ আরও $countটি বিজ্ঞাপন দেখা যাবে';
+  }
+
+  @override
+  String get adPremiumPitch =>
+      'প্রিমিয়াম সদস্যরা কোনো বিজ্ঞাপন ছাড়াই সীমাহীন এআই, সব থিম ও পিডিএফ রিপোর্ট পান।';
+
+  @override
+  String get adWatch => 'বিজ্ঞাপন দেখুন';
+
+  @override
+  String get adGetPremium => 'প্রিমিয়াম নিন';
+
+  @override
+  String get adNotNow => 'এখন না';
+
+  @override
+  String get adLoading => 'বিজ্ঞাপন লোড হচ্ছে…';
+
+  @override
+  String get adUnavailable =>
+      'এই মুহূর্তে কোনো বিজ্ঞাপন নেই। একটু পরে আবার চেষ্টা করুন।';
+
+  @override
+  String get adSkipped =>
+      'বিজ্ঞাপন শেষ হওয়ার আগে বন্ধ করা হয়েছে, তাই কিছু আনলক হয়নি।';
+
+  @override
+  String get adRewardAiCall => 'হয়ে গেছে! আপনি আরও একটি এআই অনুরোধ পেয়েছেন।';
+
+  @override
+  String get adRewardTheme => '২৪ ঘণ্টার জন্য প্রিমিয়াম থিম আনলক হয়েছে।';
+
+  @override
+  String get adRewardPdf => 'একটি পিডিএফ এক্সপোর্ট আনলক হয়েছে।';
+
+  @override
+  String get adDailyCapReached =>
+      'আজকের সব বিজ্ঞাপন দেখা হয়ে গেছে। মধ্যরাতে বিনামূল্যের অনুরোধ আবার পাবেন।';
+
+  @override
+  String get adRewardPending =>
+      'ধন্যবাদ! আপনার পুরস্কার কিছুক্ষণের মধ্যে দেখা যাবে।';
+
+  @override
+  String aiQuotaLeft(int count) {
+    return 'আজ $countটি বিনামূল্যের এআই অনুরোধ বাকি';
+  }
+
+  @override
+  String get aiQuotaPremiumUnlimited => 'প্রিমিয়াম: সীমাহীন';
+
+  @override
+  String get aiOutOfRequestsTitle => 'আজকের বিনামূল্যের অনুরোধ শেষ';
+
+  @override
+  String get aiOutOfRequestsBody =>
+      'এই প্রশ্নটি করতে একটি ছোট বিজ্ঞাপন দেখুন, অথবা বিজ্ঞাপন ছাড়া সীমাহীন উত্তরের জন্য প্রিমিয়াম নিন। মধ্যরাতে বিনামূল্যের অনুরোধ আবার পাবেন।';
+
+  @override
+  String get ocrNoCamera => 'ক্যামেরা খোলা যায়নি।';
+
+  @override
+  String get ocrNoGallery => 'গ্যালারি খোলা যায়নি।';
+
+  @override
+  String get ocrScanTitle => 'রসিদ স্ক্যান করুন';
+
+  @override
+  String get ocrScanAnother => 'আরেকটি স্ক্যান করুন';
+
+  @override
+  String get ocrScanBody =>
+      'ছবি তুলুন বা বেছে নিন। অ্যাপ এটি পড়বে এবং এআই বিস্তারিত পূরণ করবে।';
+
+  @override
+  String get ocrReadingWithAi => 'এআই আপনার রসিদ পড়ছে…';
+
+  @override
+  String get ocrNothingRead =>
+      'ছবি থেকে কোনো লেখা পড়া যায়নি। ভালো আলোতে পুরো রসিদটি রেখে আবার চেষ্টা করুন।';
+
+  @override
+  String get ocrAiOfferTitle => 'এআই দিয়ে ঠিকভাবে পড়ান';
+
+  @override
+  String get ocrAiOfferBody =>
+      'এলোমেলো রসিদ থেকেও এটি আসল মোট, তারিখ, প্রতিটি আইটেম ও সঠিক ক্যাটাগরি খুঁজে নেয়।';
+
+  @override
+  String get ocrReadWithAi => 'এআই দিয়ে পড়ুন';
+
+  @override
+  String get ocrReadByAi => 'এআই পড়েছে। সেভ করার আগে মিলিয়ে নিন।';
+
+  @override
+  String get ocrItems => 'আইটেম';
+
+  @override
+  String get quickAddTitle => 'লিখে বলুন';
+
+  @override
+  String get quickAddSubtitle =>
+      'যেভাবে বলেন সেভাবে লিখুন। এআই ফর্মটি পূরণ করবে, আপনি মিলিয়ে নেবেন।';
+
+  @override
+  String get quickAddHint => 'যেমন: গতকাল বিকাশ থেকে দুপুরের খাবার ২৫০';
+
+  @override
+  String get quickAddFill => 'পূরণ করুন';
 }

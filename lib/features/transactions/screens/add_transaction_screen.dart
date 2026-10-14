@@ -11,7 +11,7 @@ import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/core/themes/app_typography.dart';
 import 'package:the_accountant/core/utils/icon_registry.dart';
 import 'package:the_accountant/features/ai/screens/receipt_scanner_screen.dart';
-import 'package:the_accountant/features/premium/providers/premium_provider.dart';
+import 'package:the_accountant/features/ai_assistant/widgets/quick_add_sheet.dart';
 import 'package:the_accountant/shared/widgets/neo_button.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart'
     show Wallet, Transaction, TitleUsage;
@@ -47,6 +47,9 @@ Future<bool?> showAddTransactionScreen(
   double? prefillAmount,
   String? prefillTitle,
   TransactionSpecialType? initialSpecialType,
+  String? prefillCategoryName,
+  DateTime? prefillDate,
+  String? prefillNote,
 }) {
   return Navigator.of(context).push<bool>(
     PageRouteBuilder(
@@ -57,6 +60,9 @@ Future<bool?> showAddTransactionScreen(
           prefillAmount: prefillAmount,
           prefillTitle: prefillTitle,
           initialSpecialType: initialSpecialType,
+          prefillCategoryName: prefillCategoryName,
+          prefillDate: prefillDate,
+          prefillNote: prefillNote,
         );
       },
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
@@ -80,6 +86,11 @@ class AddTransactionScreen extends ConsumerStatefulWidget {
   final Transaction? existingTransaction;
   final double? prefillAmount;
   final String? prefillTitle;
+
+  /// A category picked by name (from a receipt or a typed note).
+  final String? prefillCategoryName;
+  final DateTime? prefillDate;
+  final String? prefillNote;
   final TransactionSpecialType? initialSpecialType;
 
   const AddTransactionScreen({
@@ -88,6 +99,9 @@ class AddTransactionScreen extends ConsumerStatefulWidget {
     this.existingTransaction,
     this.prefillAmount,
     this.prefillTitle,
+    this.prefillCategoryName,
+    this.prefillDate,
+    this.prefillNote,
     this.initialSpecialType,
   });
 
@@ -215,140 +229,104 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
     }
   }
 
-  /// Open the premium receipt scanner and prefill this form from the result.
-  /// Free users get a focused upgrade prompt instead.
+  /// Open the receipt scanner and prefill this form from what it read.
   Future<void> _scanReceipt() async {
     HapticFeedback.lightImpact();
-
-    if (!ref.read(premiumProvider).isPremium) {
-      _showScanUpgradeDialog();
-      return;
-    }
 
     final result = await Navigator.of(context).push<ReceiptScanResult>(
       MaterialPageRoute(
         builder: (_) => const ReceiptScannerScreenGated(returnResult: true),
       ),
     );
-    if (result != null && mounted) {
-      setState(() {
-        _amount = result.amount;
-        if (result.title.trim().isNotEmpty) {
-          _titleController.text = result.title.trim();
+    if (result == null || !mounted) return;
+    _applyDraft(
+      title: result.title,
+      amount: result.amount > 0 ? result.amount : null,
+      categoryName: result.category,
+      date: result.date,
+      note: result.note,
+    );
+  }
+
+  /// "Describe it": a typed note becomes a filled-in form.
+  Future<void> _quickAdd() async {
+    HapticFeedback.lightImpact();
+    final draft = await showQuickAddSheet(context);
+    if (draft == null || !mounted) return;
+    _applyDraft(
+      title: draft.title,
+      amount: draft.amount,
+      isIncome: draft.isIncome,
+      categoryName: draft.category,
+      walletName: draft.wallet,
+      date: draft.date,
+      note: draft.note,
+    );
+  }
+
+  /// Fills the form from an AI draft, leaving alone anything it did not say.
+  void _applyDraft({
+    String? title,
+    double? amount,
+    bool? isIncome,
+    String? categoryName,
+    String? walletName,
+    DateTime? date,
+    String? note,
+  }) {
+    setState(() {
+      if (isIncome != null && !_isTransfer) {
+        final type = isIncome
+            ? TransactionTypeSelection.income
+            : TransactionTypeSelection.expense;
+        if (type != _transactionType) {
+          _transactionType = type;
+          _selectedCategoryId = null;
+          _selectedCategory = null;
         }
+      }
+      if (amount != null && amount > 0) _amount = amount;
+      if ((title ?? '').trim().isNotEmpty) {
+        _titleController.text = title!.trim();
+      }
+      if (date != null) _selectedDateTime = _onDay(date);
+      if ((note ?? '').trim().isNotEmpty) _notesController.text = note!.trim();
+      if (walletName != null) {
+        final wallet = ref
+            .read(selectableWalletsProvider)
+            .where((w) => w.name.toLowerCase() == walletName.toLowerCase())
+            .firstOrNull;
+        if (wallet != null) _selectedWalletId = wallet.id;
+      }
+    });
+    _pickCategoryByName(categoryName);
+  }
+
+  /// Selects the category of that name for the current type, if there is one.
+  void _pickCategoryByName(String? name) {
+    if (name == null || name.trim().isEmpty) return;
+    final type = _isIncome ? 'income' : 'expense';
+    final match = ref
+        .read(categoryProvider)
+        .categories
+        .where(
+          (c) =>
+              c.type == type &&
+              c.name.toLowerCase() == name.trim().toLowerCase(),
+        )
+        .firstOrNull;
+    if (match != null) {
+      setState(() {
+        _selectedCategoryId = match.id;
+        _selectedCategory = match;
       });
     }
   }
 
-  void _showScanUpgradeDialog() {
-    showDialog(
-      context: context,
-      builder: (dialogContext) => Dialog(
-        backgroundColor: Colors.transparent,
-        insetPadding: const EdgeInsets.symmetric(horizontal: 32),
-        child: Container(
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: AppColors.primaryDark,
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: AppColors.glassBorder),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 64,
-                height: 64,
-                decoration: BoxDecoration(
-                  gradient: AppColors.primaryGradient,
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.primaryAccent.withValues(alpha: 0.4),
-                      blurRadius: 18,
-                      offset: const Offset(0, 6),
-                    ),
-                  ],
-                ),
-                child: const Icon(
-                  Icons.document_scanner_outlined,
-                  color: Colors.white,
-                  size: 30,
-                ),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                L10n.of(context).txScanReceipts,
-                style: TextStyle(
-                  color: AppColors.textPrimary,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                "Snap a photo and we'll auto-fill the amount and merchant. "
-                "It's a Premium feature.",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: AppColors.textSecondary,
-                  fontSize: 14,
-                  height: 1.4,
-                ),
-              ),
-              const SizedBox(height: 20),
-              _scanUpgradeBullet(Icons.bolt, 'Auto-fills amount & merchant'),
-              const SizedBox(height: 10),
-              _scanUpgradeBullet(
-                Icons.timer_outlined,
-                'Log an expense in seconds',
-              ),
-              const SizedBox(height: 24),
-              NeoButton(
-                label: L10n.of(context).settingsGoPremium,
-                leadingIcon: Icons.workspace_premium,
-                isExpanded: true,
-                onPressed: () {
-                  Navigator.pop(dialogContext);
-                  Navigator.pushNamed(context, '/premium');
-                },
-              ),
-              const SizedBox(height: 4),
-              TextButton(
-                onPressed: () => Navigator.pop(dialogContext),
-                child: Text(
-                  L10n.of(context).settingsNotNow,
-                  style: TextStyle(color: AppColors.textMuted),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _scanUpgradeBullet(IconData icon, String text) {
-    return Row(
-      children: [
-        Container(
-          width: 32,
-          height: 32,
-          decoration: BoxDecoration(
-            color: AppColors.primaryAccent.withValues(alpha: 0.12),
-            borderRadius: BorderRadius.circular(9),
-          ),
-          child: Icon(icon, color: AppColors.primaryAccent, size: 17),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Text(
-            text,
-            style: TextStyle(color: AppColors.textSecondary, fontSize: 13.5),
-          ),
-        ),
-      ],
-    );
+  /// [day] at the current time of day: an AI draft knows the date, not the time.
+  DateTime _onDay(DateTime day) {
+    final now = DateTime.now();
+    return DateTime(day.year, day.month, day.day, now.hour, now.minute);
   }
 
   void _initFromExisting() {
@@ -422,6 +400,17 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
     }
     if (widget.initialSpecialType != null) {
       _specialType = widget.initialSpecialType!;
+    }
+    if (widget.prefillDate != null) {
+      _selectedDateTime = _onDay(widget.prefillDate!);
+    }
+    if ((widget.prefillNote ?? '').isNotEmpty) {
+      _notesController.text = widget.prefillNote!;
+    }
+    if (widget.prefillCategoryName != null) {
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => _pickCategoryByName(widget.prefillCategoryName),
+      );
     }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -1122,7 +1111,15 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                   foreground: c.onFill,
                   onTap: _deleteTransaction,
                 )
-              else
+              else ...[
+                SunriseIconButton(
+                  icon: Symbols.auto_awesome_rounded,
+                  tooltip: l10n.quickAddTitle,
+                  background: onGlass,
+                  foreground: c.onFill,
+                  onTap: _quickAdd,
+                ),
+                const SizedBox(width: 8),
                 SunriseIconButton(
                   icon: Symbols.document_scanner_rounded,
                   tooltip: l10n.addScanReceipt,
@@ -1130,6 +1127,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                   foreground: c.onFill,
                   onTap: _scanReceipt,
                 ),
+              ],
             ],
           ),
           const SizedBox(height: 22),
