@@ -35,6 +35,9 @@ class ReceiptData {
   final String? barcodeInfo;
   final List<String>? imageLabels;
 
+  /// Everything OCR read, line by line: what the AI is given to make sense of.
+  final String rawText;
+
   ReceiptData({
     required this.merchant,
     this.date,
@@ -42,6 +45,7 @@ class ReceiptData {
     required this.items,
     this.barcodeInfo,
     this.imageLabels,
+    this.rawText = '',
   });
 }
 
