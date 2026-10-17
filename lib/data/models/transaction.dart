@@ -70,7 +70,7 @@ enum TransactionType {
   }
 }
 
-/// Transaction special types enum (like Cashew)
+/// Transaction special types enum
 /// Used for filtering and special handling of transactions
 enum TransactionSpecialType {
   /// Default transaction - no special handling
@@ -200,7 +200,7 @@ class Transactions extends Table {
   // Receipt image
   TextColumn get receiptImageUrl => text().nullable()();
 
-  // Special transaction type (like Cashew)
+  // Special transaction type
   IntColumn get specialType => intEnum<TransactionSpecialType>()
       .withDefault(const Constant(0))
       .nullable()();

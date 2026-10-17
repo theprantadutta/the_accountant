@@ -242,7 +242,7 @@ class TransactionPolicy {
   ///
   /// Realized cash movement that was genuinely earned or spent.
   ///
-  /// Loans are left out on both sides, as Cashew does by default. Lending a
+  /// Loans are left out on both sides. Lending a
   /// friend money is not spending it, borrowing is not income, and neither is
   /// the money coming back: counted, one loan and its repayment inflated a
   /// month's spending and income by the same amount, and a large borrowing

@@ -1,7 +1,6 @@
 /// How often a backup should go up on its own, once the user has asked for it.
 ///
-/// Cashew offers an interval and a number of files to keep, and that pairing is
-/// worth copying: an interval alone fills the account for ever, and a retained
+/// An interval and a number of files to keep go together: an interval alone fills the account for ever, and a retained
 /// count alone never runs.
 enum BackupFrequency {
   /// Only when the button is pressed.

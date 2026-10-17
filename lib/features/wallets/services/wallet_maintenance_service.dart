@@ -7,7 +7,7 @@ import 'package:uuid/uuid.dart';
 
 /// The two things people need to do to an account that are not editing it.
 ///
-/// Both existed in Cashew and in neither place here: a balance that has drifted
+/// Neither existed here before: a balance that has drifted
 /// from the bank's could only be fixed by hunting the missing transaction, and
 /// an account created by mistake could only be deleted, taking its history with
 /// it.

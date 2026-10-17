@@ -165,7 +165,7 @@ class TransferIntegrity {
 
 /// Service for managing wallet-to-wallet transfers.
 ///
-/// Transfers are implemented as paired transactions (like Cashew):
+/// Transfers are implemented as paired transactions:
 /// - one expense from the source wallet,
 /// - one income to the destination wallet,
 /// linked in both directions via `pairedTransactionId`.

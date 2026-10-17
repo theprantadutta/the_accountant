@@ -1888,9 +1888,8 @@ class AppDatabase extends _$AppDatabase {
   ///
   /// A soft delete leaves the row in place until the server confirms it and the
   /// cleanup sweep removes it, so the data to undo a mistake is already here.
-  /// Cashew keeps its own list of the last fifty in shared preferences, which
-  /// does not survive a reinstall and cannot be trusted after a sync; this is
-  /// just the table.
+  /// A separate list kept in shared preferences would not survive a reinstall
+  /// and could not be trusted after a sync; this is just the table.
   Future<List<Transaction>> getRecentlyDeletedTransactions({
     Duration within = const Duration(days: 30),
   }) {

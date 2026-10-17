@@ -29,8 +29,8 @@ enum HomeSection {
 
 /// Which blocks the home screen shows, and in what order.
 ///
-/// Cashew has fourteen reorderable sections; this app had eight in a fixed
-/// order with no way to touch them. What matters more than the count is that
+/// This app used to have eight sections in a fixed order with no way to touch
+/// them. What matters more than the count is that
 /// the stored layout survives the app changing underneath it — see [decode].
 class HomeLayout {
   const HomeLayout({required this.order, this.hidden = const {}});

@@ -146,49 +146,6 @@ class L10nEn extends L10n {
   String get settingsImportStatement => 'Import a statement';
 
   @override
-  String get settingsImportCashew => 'Import from Cashew';
-
-  @override
-  String get settingsImportCashewSubtitle =>
-      'Bring everything over from a Cashew backup';
-
-  @override
-  String get cashewIntro =>
-      'In Cashew, export a backup file from its Backups page, then choose it here. Everything in it comes across: accounts, categories, transactions, subscriptions, loans, budgets, goals and title rules.';
-
-  @override
-  String get cashewChoose => 'Choose Cashew backup';
-
-  @override
-  String get cashewNotBackup => 'That file is not a Cashew backup.';
-
-  @override
-  String cashewFound(
-    int transactions,
-    int accounts,
-    int categories,
-    int budgets,
-    int goals,
-  ) {
-    return '$transactions transactions in $accounts accounts, with $categories categories, $budgets budgets and $goals goals.';
-  }
-
-  @override
-  String get cashewImport => 'Import';
-
-  @override
-  String get cashewMergeNote =>
-      'Accounts come in as new ones. If you already keep one here for the same money, use Merge on it to combine them. Categories with the same name are filed together.';
-
-  @override
-  String cashewDone(int count) {
-    return '$count transactions imported.';
-  }
-
-  @override
-  String get cashewNothingNew => 'Everything in this backup is already here.';
-
-  @override
   String get settingsImportStatementSubtitle =>
       'Bring in a CSV from your bank, mapped once and remembered';
 

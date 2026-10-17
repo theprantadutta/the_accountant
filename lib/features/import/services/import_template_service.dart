@@ -6,8 +6,7 @@ import 'package:uuid/uuid.dart';
 
 /// Remembering how a particular bank writes its statements.
 ///
-/// This is the part Cashew does not have: it asks for the whole mapping every
-/// time. Here the answer is saved under a name, and the next file with the same
+/// Rather than asking for the whole mapping every time, the answer is saved under a name, and the next file with the same
 /// columns is recognised on sight.
 class ImportTemplateService {
   ImportTemplateService(this._db);

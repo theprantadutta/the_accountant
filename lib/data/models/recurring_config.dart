@@ -44,9 +44,8 @@ class RecurringConfigs extends Table {
   ///
   /// When false the payment is written as pending instead, and waits in
   /// Upcoming for the user to confirm it — with what was actually charged —
-  /// or skip it. Cashew offers the same choice as one switch for everything;
-  /// it is per schedule here, because a fixed rent and a card charge in
-  /// dollars want different answers.
+  /// or skip it. It is per schedule rather than one switch for everything,
+  /// because a fixed rent and a card charge in dollars want different answers.
   BoolColumn get autoPay => boolean().withDefault(const Constant(true))();
 
   // Sync fields

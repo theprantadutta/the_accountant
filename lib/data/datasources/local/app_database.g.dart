@@ -3544,9 +3544,8 @@ class RecurringConfig extends DataClass implements Insertable<RecurringConfig> {
   ///
   /// When false the payment is written as pending instead, and waits in
   /// Upcoming for the user to confirm it — with what was actually charged —
-  /// or skip it. Cashew offers the same choice as one switch for everything;
-  /// it is per schedule here, because a fixed rent and a card charge in
-  /// dollars want different answers.
+  /// or skip it. It is per schedule rather than one switch for everything,
+  /// because a fixed rent and a card charge in dollars want different answers.
   final bool autoPay;
   final String? serverId;
   final int syncStatus;
@@ -6475,9 +6474,8 @@ class Budget extends DataClass implements Insertable<Budget> {
 
   /// Whether an unspent balance carries into the next window.
   ///
-  /// Cashew has no equivalent: its budgets always restart at zero, so someone
-  /// who underspends one month and wants that headroom the next has to edit the
-  /// amount by hand.
+  /// Without it a budget always restarts at zero, so someone who underspends
+  /// one month and wants that headroom the next has to edit the amount by hand.
   final bool rollover;
   final bool isIncome;
   final bool isPinned;

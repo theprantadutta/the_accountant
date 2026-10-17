@@ -34,8 +34,8 @@ class CategoryLimitProgress {
 /// Where a budget is heading if the rest of the period looks like the part of
 /// it that has already happened.
 ///
-/// Cashew cannot produce this: it only creates a recurring transaction when the
-/// previous one is paid, so it does not know what is still coming. Here the
+/// An app that only creates a recurring transaction when the previous one is
+/// paid cannot produce this, because it does not know what is still coming. Here the
 /// recurring engine has already materialised the period's instances, and
 /// upcoming transactions carry a date, so both are knowable.
 class BudgetForecast {

@@ -2,7 +2,7 @@ import 'package:drift/drift.dart';
 
 /// A saved answer to "which column is which" for one bank's export.
 ///
-/// Cashew asks for the whole mapping every time a file is imported. Nobody
+/// Asking for the whole mapping every time a file is imported is a chore. Nobody
 /// should have to re-describe their bank's statement every month, so the answer
 /// is kept and offered back the next time a file with the same columns turns
 /// up.

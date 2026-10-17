@@ -60,9 +60,8 @@ class Budgets extends Table {
 
   /// Whether an unspent balance carries into the next window.
   ///
-  /// Cashew has no equivalent: its budgets always restart at zero, so someone
-  /// who underspends one month and wants that headroom the next has to edit the
-  /// amount by hand.
+  /// Without it a budget always restarts at zero, so someone who underspends
+  /// one month and wants that headroom the next has to edit the amount by hand.
   BoolColumn get rollover => boolean().withDefault(const Constant(false))();
 
   // Budget type: a budget either limits spending or targets earnings.

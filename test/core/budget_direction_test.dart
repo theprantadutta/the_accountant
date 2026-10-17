@@ -123,7 +123,7 @@ void main() {
       expect(TransactionPolicy.countsTowardBudget(repayment), isFalse);
 
       // The lend itself is money going out, but lending is not spending: it
-      // stays out of a spending budget, as Cashew keeps it by default.
+      // stays out of a spending budget.
       final lend = buildTransaction(
         amount: 20000,
         isIncome: false,

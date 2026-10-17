@@ -359,7 +359,7 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
     }
   }
 
-  /// Add a new transaction with full Cashew-style options.
+  /// Add a new transaction with every option.
   /// This method supports all new fields including special types,
   /// budget/objective assignment, and proper date+time handling.
   Future<String?> addTransactionFull({
@@ -821,8 +821,8 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
 
   /// Mark every unpaid transaction in [ids] as paid.
   ///
-  /// Cashew has no equivalent; its only way to settle a backlog is an automatic
-  /// pass on launch that the user does not choose. Rows that are already paid
+  /// Settling a backlog is the user's choice, not an automatic pass on launch.
+  /// Rows that are already paid
   /// are left alone rather than re-dated.
   Future<int> markManyPaid(Iterable<String> ids) async {
     return _bulk(ids, (id) async {

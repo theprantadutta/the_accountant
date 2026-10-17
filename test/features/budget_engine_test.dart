@@ -833,9 +833,7 @@ void main() {
         forecast!.scheduled,
         120000,
         reason:
-            'a dated bill that has not happened yet is knowable; Cashew cannot '
-            'see this because it only creates the next instance once the last '
-            'one is paid',
+            'a dated bill that has not happened yet is knowable',
       );
       expect(forecast.willExceed, isTrue);
     });

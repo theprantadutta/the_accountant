@@ -212,8 +212,8 @@ class TransactionFilters {
 /// A search box entry, read for the things people actually type into one.
 ///
 /// Someone hunting a transaction types "37.40" or "march" far more often than
-/// a substring of a shop name, and a plain `contains` finds neither. Cashew
-/// reads amounts and month names the same way; this also accepts a year.
+/// a substring of a shop name, and a plain `contains` finds neither. So amounts
+/// and month names are read as such, and a year too.
 class SearchQuery {
   /// The words left after any amount or month was recognised.
   final String text;

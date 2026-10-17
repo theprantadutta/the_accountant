@@ -8,10 +8,10 @@ import 'package:the_accountant/features/backup/services/drive_client.dart';
 /// Keeps a rolling set of backups in the folder on Google Drive that only this
 /// app can see.
 ///
-/// Modelled on how Cashew does it — an interval, a number of files to keep, and
-/// a list you can download, delete or restore from — but deliberately *not* on
-/// how Cashew syncs. Cashew merges whole database files by modification time,
-/// which means the device that saved last wins the whole database. This app has
+/// An interval, a number of files to keep, and a list you can download, delete
+/// or restore from — but deliberately *not* a way of syncing. Merging whole
+/// database files by modification time would mean the device that saved last
+/// wins the whole database. This app has
 /// a record-level delta protocol, so Drive here is only ever a safety net, and
 /// restoring from it is an explicit act rather than something that happens
 /// behind the user's back.

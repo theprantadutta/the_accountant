@@ -14,7 +14,6 @@ import 'package:the_accountant/features/budgets/screens/budget_list_screen.dart'
 import 'package:the_accountant/features/categories/screens/category_management_screen.dart';
 import 'package:the_accountant/features/dashboard/screens/home_layout_screen.dart';
 import 'package:the_accountant/features/import/screens/import_screen.dart';
-import 'package:the_accountant/features/import/screens/cashew_import_screen.dart';
 import 'package:the_accountant/features/objectives/screens/objectives_list_screen.dart';
 import 'package:the_accountant/features/premium/providers/premium_provider.dart';
 import 'package:the_accountant/features/settings/providers/settings_provider.dart';
@@ -402,18 +401,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           title: l10n.settingsImportStatement,
           subtitle: l10n.settingsImportStatementSubtitle,
           onTap: () => _push(const ImportScreen()),
-        ),
-      ),
-      _Entry(
-        title: l10n.settingsImportCashew,
-        keywords: const ['cashew', 'import', 'migrate', 'move', 'switch'],
-        row: SettingsRow(
-          icon: Symbols.move_down_rounded,
-          iconColor: const Color(0xFF7C3AED),
-          iconBackground: c.tintViolet,
-          title: l10n.settingsImportCashew,
-          subtitle: l10n.settingsImportCashewSubtitle,
-          onTap: () => _push(const CashewImportScreen()),
         ),
       ),
       _Entry(

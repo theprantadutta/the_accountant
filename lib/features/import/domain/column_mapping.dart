@@ -33,7 +33,7 @@ enum ImportField {
 
 /// Which column of the file holds which field.
 ///
-/// Beyond Cashew, which asks for this every time: a mapping is savable under a
+/// Rather than asking for this every time, a mapping is savable under a
 /// bank's name and offered back the next time a file with the same columns
 /// turns up. Nobody should have to re-describe their bank's export every month.
 class ColumnMapping {
