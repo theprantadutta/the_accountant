@@ -26,6 +26,40 @@ class SunriseContentWidth extends StatelessWidget {
   );
 }
 
+/// Keeps a screen's body at a phone's measure on a wide display, without
+/// changing it anywhere else.
+///
+/// For screens built on a plain [Scaffold]. Their bodies were written for a
+/// phone and stretched edge to edge on a tablet in landscape, stranding a
+/// row's trailing icons a thousand points from its name. Unlike
+/// [SunriseContentWidth] this passes tight constraints, so a body that sizes
+/// itself to its parent lays out exactly as it does on a phone; and below
+/// the cap it returns the body untouched.
+class CappedBody extends StatelessWidget {
+  const CappedBody({
+    super.key,
+    required this.child,
+    this.maxWidth = SunriseSpace.maxContentWidth,
+  });
+
+  final Widget child;
+  final double maxWidth;
+
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, constraints) {
+      if (constraints.maxWidth <= maxWidth) return child;
+      return Center(
+        child: SizedBox(
+          width: maxWidth,
+          height: constraints.maxHeight,
+          child: child,
+        ),
+      );
+    },
+  );
+}
+
 /// A pushed screen: short wash, [PushHeader], scrolling body, optional sticky
 /// bottom action over a fade.
 ///

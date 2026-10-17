@@ -37,38 +37,40 @@ class PaymentMethodsScreen extends ConsumerWidget {
         icon: const Icon(Icons.add),
         label: Text(L10n.of(context).actionAdd),
       ),
-      body: state.isLoading && state.paymentMethods.isEmpty
-          ? const Center(child: CircularProgressIndicator())
-          : state.paymentMethods.isEmpty
-          ? _empty(context, ref)
-          : ListView(
-              padding: const EdgeInsets.fromLTRB(
-                SunriseSpace.screenX,
-                8,
-                SunriseSpace.screenX,
-                112,
-              ),
-              children: [
-                SunriseCard(
-                  padding: const EdgeInsets.symmetric(vertical: 6),
-                  child: Column(
-                    children: [
-                      for (final (index, method)
-                          in state.paymentMethods.indexed) ...[
-                        if (index > 0)
-                          Divider(
-                            height: 1,
-                            indent: 68,
-                            endIndent: 16,
-                            color: context.sunrise.divider,
-                          ),
-                        _methodTile(context, ref, method),
-                      ],
-                    ],
-                  ),
+      body: CappedBody(
+        child: state.isLoading && state.paymentMethods.isEmpty
+            ? const Center(child: CircularProgressIndicator())
+            : state.paymentMethods.isEmpty
+            ? _empty(context, ref)
+            : ListView(
+                padding: const EdgeInsets.fromLTRB(
+                  SunriseSpace.screenX,
+                  8,
+                  SunriseSpace.screenX,
+                  112,
                 ),
-              ],
-            ),
+                children: [
+                  SunriseCard(
+                    padding: const EdgeInsets.symmetric(vertical: 6),
+                    child: Column(
+                      children: [
+                        for (final (index, method)
+                            in state.paymentMethods.indexed) ...[
+                          if (index > 0)
+                            Divider(
+                              height: 1,
+                              indent: 68,
+                              endIndent: 16,
+                              color: context.sunrise.divider,
+                            ),
+                          _methodTile(context, ref, method),
+                        ],
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+      ),
     );
   }
 

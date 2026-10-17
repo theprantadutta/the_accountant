@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/shared/widgets/sunrise/sunrise_page.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -758,53 +759,55 @@ class _TransactionTypeScreenState extends ConsumerState<TransactionTypeScreen> {
             ),
           ],
         ),
-        body: RefreshIndicator(
-          onRefresh: () async {
-            await ref.read(transactionProvider.notifier).loadTransactions();
-          },
-          color: _accentColor,
-          backgroundColor: AppColors.primarySurface,
-          child: Column(
-            children: [
-              // Summary card
-              _buildSummaryCard(transactionState.transactions),
+        body: CappedBody(
+          child: RefreshIndicator(
+            onRefresh: () async {
+              await ref.read(transactionProvider.notifier).loadTransactions();
+            },
+            color: _accentColor,
+            backgroundColor: AppColors.primarySurface,
+            child: Column(
+              children: [
+                // Summary card
+                _buildSummaryCard(transactionState.transactions),
 
-              MonthStrip(
-                months: _availableMonths,
-                selectedIndex: _currentPageIndex,
-                onSelected: _onMonthChipTapped,
-                controller: _monthScrollController,
-              ),
+                MonthStrip(
+                  months: _availableMonths,
+                  selectedIndex: _currentPageIndex,
+                  onSelected: _onMonthChipTapped,
+                  controller: _monthScrollController,
+                ),
 
-              TransactionSearchField(
-                controller: _searchController,
-                query: _searchQuery,
-                hint: widget.transactionType == 'income'
-                    ? 'Search income'
-                    : 'Search expenses',
-                onCleared: () {
-                  _searchController.clear();
-                  setState(() => _searchQuery = '');
-                },
-              ),
-
-              // Transaction pages
-              Expanded(
-                child: PageView.builder(
-                  controller: _pageController,
-                  onPageChanged: _onPageChanged,
-                  itemCount: _availableMonths.length,
-                  itemBuilder: (context, index) {
-                    final month = _availableMonths[index];
-                    return _buildMonthPage(
-                      month,
-                      transactionState.transactions,
-                      transactionState.isLoading,
-                    );
+                TransactionSearchField(
+                  controller: _searchController,
+                  query: _searchQuery,
+                  hint: widget.transactionType == 'income'
+                      ? 'Search income'
+                      : 'Search expenses',
+                  onCleared: () {
+                    _searchController.clear();
+                    setState(() => _searchQuery = '');
                   },
                 ),
-              ),
-            ],
+
+                // Transaction pages
+                Expanded(
+                  child: PageView.builder(
+                    controller: _pageController,
+                    onPageChanged: _onPageChanged,
+                    itemCount: _availableMonths.length,
+                    itemBuilder: (context, index) {
+                      final month = _availableMonths[index];
+                      return _buildMonthPage(
+                        month,
+                        transactionState.transactions,
+                        transactionState.isLoading,
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

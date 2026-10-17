@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/shared/widgets/sunrise/sunrise_page.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -79,46 +80,48 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
         elevation: 0,
         title: Text(L10n.of(context).settingsContactSupport),
       ),
-      body: ListView(
-        padding: EdgeInsets.all(AppSpacing.md),
-        children: [
-          _buildHero(),
-          if (isPremium) ...[
+      body: CappedBody(
+        child: ListView(
+          padding: EdgeInsets.all(AppSpacing.md),
+          children: [
+            _buildHero(),
+            if (isPremium) ...[
+              SizedBox(height: AppSpacing.md),
+              _buildPriorityNote(),
+            ],
+            SizedBox(height: AppSpacing.lg),
+            NeoTextField(
+              controller: _subjectController,
+              label: L10n.of(context).settingsSubject,
+              hint: "What's this about?",
+              prefixIcon: Icons.subject,
+              textCapitalization: TextCapitalization.sentences,
+            ),
             SizedBox(height: AppSpacing.md),
-            _buildPriorityNote(),
+            NeoTextField(
+              controller: _messageController,
+              label: L10n.of(context).settingsMessage,
+              hint: 'Describe your question, issue, or feedback…',
+              prefixIcon: Icons.chat_bubble_outline,
+              maxLines: 6,
+              minLines: 4,
+              textCapitalization: TextCapitalization.sentences,
+            ),
+            SizedBox(height: AppSpacing.lg),
+            NeoButton(
+              label: L10n.of(context).settingsSendMessage,
+              leadingIcon: Icons.send_rounded,
+              isExpanded: true,
+              isLoading: _isSending,
+              onPressed: _isSending ? null : _submit,
+            ),
+            SizedBox(height: AppSpacing.lg),
+            _buildTipsCard(),
+            SizedBox(height: AppSpacing.lg),
+            _buildEmailFallback(),
+            SizedBox(height: AppSpacing.lg),
           ],
-          SizedBox(height: AppSpacing.lg),
-          NeoTextField(
-            controller: _subjectController,
-            label: L10n.of(context).settingsSubject,
-            hint: "What's this about?",
-            prefixIcon: Icons.subject,
-            textCapitalization: TextCapitalization.sentences,
-          ),
-          SizedBox(height: AppSpacing.md),
-          NeoTextField(
-            controller: _messageController,
-            label: L10n.of(context).settingsMessage,
-            hint: 'Describe your question, issue, or feedback…',
-            prefixIcon: Icons.chat_bubble_outline,
-            maxLines: 6,
-            minLines: 4,
-            textCapitalization: TextCapitalization.sentences,
-          ),
-          SizedBox(height: AppSpacing.lg),
-          NeoButton(
-            label: L10n.of(context).settingsSendMessage,
-            leadingIcon: Icons.send_rounded,
-            isExpanded: true,
-            isLoading: _isSending,
-            onPressed: _isSending ? null : _submit,
-          ),
-          SizedBox(height: AppSpacing.lg),
-          _buildTipsCard(),
-          SizedBox(height: AppSpacing.lg),
-          _buildEmailFallback(),
-          SizedBox(height: AppSpacing.lg),
-        ],
+        ),
       ),
     );
   }

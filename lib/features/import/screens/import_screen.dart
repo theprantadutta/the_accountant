@@ -58,7 +58,7 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
         elevation: 0,
         title: Text(L10n.of(context).settingsImportStatement),
       ),
-      body: _document == null ? _chooseFile() : _configure(),
+      body: CappedBody(child: _document == null ? _chooseFile() : _configure()),
     );
   }
 

@@ -54,40 +54,42 @@ class _BudgetListScreenState extends ConsumerState<BudgetListScreen> {
           ),
         ],
       ),
-      body: budgetState.isLoading
-          ? const Padding(
-              padding: EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  ShimmerBudgetItem(),
-                  ShimmerBudgetItem(),
-                  ShimmerBudgetItem(),
-                ],
+      body: CappedBody(
+        child: budgetState.isLoading
+            ? const Padding(
+                padding: EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    ShimmerBudgetItem(),
+                    ShimmerBudgetItem(),
+                    ShimmerBudgetItem(),
+                  ],
+                ),
+              )
+            : visible.isEmpty
+            ? _EmptyBudgets(
+                archived: _showArchived,
+                onCreate: _showArchived ? null : _createBudget,
+              )
+            : RefreshIndicator(
+                onRefresh: () =>
+                    ref.read(budgetProvider.notifier).loadBudgets(silent: true),
+                child: ListView.builder(
+                  padding: const EdgeInsets.only(bottom: 24),
+                  itemCount: visible.length,
+                  itemBuilder: (context, index) {
+                    final budget = visible[index];
+                    return _BudgetRow(
+                      key: ValueKey(budget.id),
+                      budget: budget,
+                      currency: currency,
+                      onOpen: () => _openBudget(budget),
+                      onMenu: () => _showActions(budget),
+                    );
+                  },
+                ),
               ),
-            )
-          : visible.isEmpty
-          ? _EmptyBudgets(
-              archived: _showArchived,
-              onCreate: _showArchived ? null : _createBudget,
-            )
-          : RefreshIndicator(
-              onRefresh: () =>
-                  ref.read(budgetProvider.notifier).loadBudgets(silent: true),
-              child: ListView.builder(
-                padding: const EdgeInsets.only(bottom: 24),
-                itemCount: visible.length,
-                itemBuilder: (context, index) {
-                  final budget = visible[index];
-                  return _BudgetRow(
-                    key: ValueKey(budget.id),
-                    budget: budget,
-                    currency: currency,
-                    onOpen: () => _openBudget(budget),
-                    onMenu: () => _showActions(budget),
-                  );
-                },
-              ),
-            ),
+      ),
     );
   }
 

@@ -92,21 +92,23 @@ class _UpcomingTransactionsScreenState
             ],
           ),
         ),
-        body: state.isLoading
-            ? const SingleChildScrollView(child: ShimmerTransactionList())
-            : TabBarView(
-                controller: _tabController,
-                children: [
-                  _buildTransactionList(
-                    state.upcomingTransactions,
-                    isOverdue: false,
-                  ),
-                  _buildTransactionList(
-                    state.overdueTransactions,
-                    isOverdue: true,
-                  ),
-                ],
-              ),
+        body: CappedBody(
+          child: state.isLoading
+              ? const SingleChildScrollView(child: ShimmerTransactionList())
+              : TabBarView(
+                  controller: _tabController,
+                  children: [
+                    _buildTransactionList(
+                      state.upcomingTransactions,
+                      isOverdue: false,
+                    ),
+                    _buildTransactionList(
+                      state.overdueTransactions,
+                      isOverdue: true,
+                    ),
+                  ],
+                ),
+        ),
       ),
     );
   }

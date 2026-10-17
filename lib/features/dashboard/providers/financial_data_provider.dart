@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:the_accountant/features/dashboard/providers/net_worth_preferences_provider.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/core/services/financial_calculation_service.dart';
@@ -69,10 +70,12 @@ class FinancialDataNotifier extends Notifier<FinancialData> {
   late FinancialCalculationService _calculationService;
   late CurrencyService _currencyService;
   late String _displayCurrency;
+  late bool _includeCreditCards;
 
   @override
   FinancialData build() {
     final db = ref.watch(databaseProvider);
+    _includeCreditCards = ref.watch(creditCardsInNetWorthProvider);
     _currencyService = ref.watch(currencyServiceProvider);
     _displayCurrency = ref.watch(defaultCurrencyProvider);
     _calculationService = FinancialCalculationService(db, _currencyService);
@@ -106,7 +109,10 @@ class FinancialDataNotifier extends Notifier<FinancialData> {
 
       // Load all financial data in parallel with currency conversion
       final results = await Future.wait([
-        _calculationService.getTotalBalanceConverted(_displayCurrency),
+        _calculationService.getTotalBalanceConverted(
+          _displayCurrency,
+          includeCreditCards: _includeCreditCards,
+        ),
         _calculationService.getTotalIncomeConverted(
           startDate: startOfMonth,
           endDate: endOfMonth,

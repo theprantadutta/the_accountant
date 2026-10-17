@@ -53,73 +53,76 @@ class SubscriptionDashboardScreen extends ConsumerWidget {
           backgroundColor: AppColors.primaryAccent,
           child: const Icon(Icons.add, color: Colors.white),
         ),
-        body: state.isLoading
-            ? const SingleChildScrollView(
-                padding: EdgeInsets.all(16),
-                child: Column(
-                  children: [
-                    ShimmerCard(height: 100),
-                    SizedBox(height: 12),
-                    ShimmerCard(height: 100),
-                    SizedBox(height: 12),
-                    ShimmerCard(height: 100),
-                    SizedBox(height: 12),
-                    ShimmerCard(height: 100),
-                  ],
-                ),
-              )
-            : RefreshIndicator(
-                onRefresh: () =>
-                    ref.read(subscriptionDashboardProvider.notifier).refresh(),
-                child: state.subscriptions.isEmpty
-                    ? _buildEmptyState()
-                    : ListView(
-                        padding: AppSpacing.paddingScreen,
-                        children: [
-                          // Summary header
-                          _buildSummaryCard(state, ref),
-                          AppSpacing.gapLg,
-
-                          // Active subscriptions
-                          if (state.activeSubscriptions.isNotEmpty) ...[
-                            Text(
-                              'Active (${state.activeCount})',
-                              style: AppTypography.titleMedium.copyWith(
-                                color: AppColors.textPrimary,
-                              ),
-                            ),
-                            AppSpacing.gapSm,
-                            ...state.activeSubscriptions.map(
-                              (s) => _SubscriptionCard(
-                                item: s,
-                                key: ValueKey(s.id),
-                              ),
-                            ),
-                          ],
-
-                          // Paused subscriptions
-                          if (state.pausedSubscriptions.isNotEmpty) ...[
+        body: CappedBody(
+          child: state.isLoading
+              ? const SingleChildScrollView(
+                  padding: EdgeInsets.all(16),
+                  child: Column(
+                    children: [
+                      ShimmerCard(height: 100),
+                      SizedBox(height: 12),
+                      ShimmerCard(height: 100),
+                      SizedBox(height: 12),
+                      ShimmerCard(height: 100),
+                      SizedBox(height: 12),
+                      ShimmerCard(height: 100),
+                    ],
+                  ),
+                )
+              : RefreshIndicator(
+                  onRefresh: () => ref
+                      .read(subscriptionDashboardProvider.notifier)
+                      .refresh(),
+                  child: state.subscriptions.isEmpty
+                      ? _buildEmptyState()
+                      : ListView(
+                          padding: AppSpacing.paddingScreen,
+                          children: [
+                            // Summary header
+                            _buildSummaryCard(state, ref),
                             AppSpacing.gapLg,
-                            Text(
-                              'Paused (${state.pausedSubscriptions.length})',
-                              style: AppTypography.titleMedium.copyWith(
-                                color: AppColors.textSecondary,
-                              ),
-                            ),
-                            AppSpacing.gapSm,
-                            ...state.pausedSubscriptions.map(
-                              (s) => _SubscriptionCard(
-                                item: s,
-                                key: ValueKey(s.id),
-                              ),
-                            ),
-                          ],
 
-                          // Bottom spacing
-                          const SizedBox(height: 32),
-                        ],
-                      ),
-              ),
+                            // Active subscriptions
+                            if (state.activeSubscriptions.isNotEmpty) ...[
+                              Text(
+                                'Active (${state.activeCount})',
+                                style: AppTypography.titleMedium.copyWith(
+                                  color: AppColors.textPrimary,
+                                ),
+                              ),
+                              AppSpacing.gapSm,
+                              ...state.activeSubscriptions.map(
+                                (s) => _SubscriptionCard(
+                                  item: s,
+                                  key: ValueKey(s.id),
+                                ),
+                              ),
+                            ],
+
+                            // Paused subscriptions
+                            if (state.pausedSubscriptions.isNotEmpty) ...[
+                              AppSpacing.gapLg,
+                              Text(
+                                'Paused (${state.pausedSubscriptions.length})',
+                                style: AppTypography.titleMedium.copyWith(
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                              AppSpacing.gapSm,
+                              ...state.pausedSubscriptions.map(
+                                (s) => _SubscriptionCard(
+                                  item: s,
+                                  key: ValueKey(s.id),
+                                ),
+                              ),
+                            ],
+
+                            // Bottom spacing
+                            const SizedBox(height: 32),
+                          ],
+                        ),
+                ),
+        ),
       ),
     );
   }

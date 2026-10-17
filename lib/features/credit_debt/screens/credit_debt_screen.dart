@@ -127,53 +127,55 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
             ],
           ),
         ),
-        body: state.isLoading
-            ? const SingleChildScrollView(
-                child: Column(
+        body: CappedBody(
+          child: state.isLoading
+              ? const SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.all(16),
+                        child: ShimmerCard(height: 120),
+                      ),
+                      ShimmerTransactionList(),
+                    ],
+                  ),
+                )
+              : Column(
                   children: [
-                    Padding(
-                      padding: EdgeInsets.all(16),
-                      child: ShimmerCard(height: 120),
+                    // Summary card
+                    _buildSummaryCard(state),
+                    // Transaction list
+                    Expanded(
+                      child: TabBarView(
+                        controller: _tabController,
+                        children: [
+                          _buildTransactionList(
+                            _showOnlyUnpaid
+                                ? state.unpaidTransactions
+                                : state.allTransactions,
+                          ),
+                          _buildTransactionList(
+                            _showOnlyUnpaid
+                                ? state.creditTransactions
+                                      .where(TransactionPolicy.isOutstanding)
+                                      .toList()
+                                : state.creditTransactions,
+                            isCredit: true,
+                          ),
+                          _buildTransactionList(
+                            _showOnlyUnpaid
+                                ? state.debtTransactions
+                                      .where(TransactionPolicy.isOutstanding)
+                                      .toList()
+                                : state.debtTransactions,
+                            isCredit: false,
+                          ),
+                        ],
+                      ),
                     ),
-                    ShimmerTransactionList(),
                   ],
                 ),
-              )
-            : Column(
-                children: [
-                  // Summary card
-                  _buildSummaryCard(state),
-                  // Transaction list
-                  Expanded(
-                    child: TabBarView(
-                      controller: _tabController,
-                      children: [
-                        _buildTransactionList(
-                          _showOnlyUnpaid
-                              ? state.unpaidTransactions
-                              : state.allTransactions,
-                        ),
-                        _buildTransactionList(
-                          _showOnlyUnpaid
-                              ? state.creditTransactions
-                                    .where(TransactionPolicy.isOutstanding)
-                                    .toList()
-                              : state.creditTransactions,
-                          isCredit: true,
-                        ),
-                        _buildTransactionList(
-                          _showOnlyUnpaid
-                              ? state.debtTransactions
-                                    .where(TransactionPolicy.isOutstanding)
-                                    .toList()
-                              : state.debtTransactions,
-                          isCredit: false,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+        ),
       ),
     );
   }

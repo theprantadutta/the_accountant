@@ -56,80 +56,82 @@ class _TitleRulesScreenState extends ConsumerState<TitleRulesScreen> {
         icon: const Icon(Icons.add),
         label: Text(L10n.of(context).rulesAdd),
       ),
-      body: rules == null
-          ? const Center(child: CircularProgressIndicator())
-          : rules.isEmpty
-          ? _empty()
-          : ListView(
-              padding: const EdgeInsets.fromLTRB(
-                SunriseSpace.screenX,
-                8,
-                SunriseSpace.screenX,
-                112,
-              ),
-              children: [
-                SunriseCard(
-                  padding: const EdgeInsets.symmetric(vertical: 6),
-                  child: Column(
-                    children: [
-                      for (final (index, rule) in rules.indexed) ...[
-                        if (index > 0)
-                          Divider(
-                            height: 1,
-                            indent: 68,
-                            endIndent: 16,
-                            color: context.sunrise.divider,
-                          ),
-                        ListTile(
-                          contentPadding: const EdgeInsets.only(
-                            left: 16,
-                            right: 4,
-                          ),
-                          leading: IconTile(
-                            icon: rule.isExactMatch
-                                ? Symbols.check_circle_rounded
-                                : Symbols.manage_search_rounded,
-                            color: context.sunrise.accent,
-                          ),
-                          title: Text(
-                            rule.title,
-                            style: SunriseType.rowTitle.copyWith(
-                              color: context.sunrise.ink,
-                            ),
-                          ),
-                          subtitle: Text(
-                            '${rule.isExactMatch ? 'Exactly this' : 'Anything containing this'}'
-                            ' → ${categoryName(rule.categoryId)}',
-                            style: SunriseType.caption.copyWith(
-                              color: context.sunrise.muted,
-                            ),
-                          ),
-                          trailing: SunriseIconButton(
-                            tooltip: L10n.of(context).actionDelete,
-                            icon: Symbols.delete_rounded,
-                            foreground: context.sunrise.negative,
-                            background: Colors.transparent,
-                            onTap: () => _delete(rule),
-                          ),
-                          onTap: () => _edit(existing: rule),
-                        ),
-                      ],
-                    ],
-                  ),
+      body: CappedBody(
+        child: rules == null
+            ? const Center(child: CircularProgressIndicator())
+            : rules.isEmpty
+            ? _empty()
+            : ListView(
+                padding: const EdgeInsets.fromLTRB(
+                  SunriseSpace.screenX,
+                  8,
+                  SunriseSpace.screenX,
+                  112,
                 ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(4, 14, 4, 0),
-                  child: Text(
-                    'A rule matches anywhere in the title unless you make it '
-                    'exact. The app adds one for you each time you file '
-                    'something by hand.',
-                    style: SunriseType.caption.copyWith(
-                      color: context.sunrise.muted,
+                children: [
+                  SunriseCard(
+                    padding: const EdgeInsets.symmetric(vertical: 6),
+                    child: Column(
+                      children: [
+                        for (final (index, rule) in rules.indexed) ...[
+                          if (index > 0)
+                            Divider(
+                              height: 1,
+                              indent: 68,
+                              endIndent: 16,
+                              color: context.sunrise.divider,
+                            ),
+                          ListTile(
+                            contentPadding: const EdgeInsets.only(
+                              left: 16,
+                              right: 4,
+                            ),
+                            leading: IconTile(
+                              icon: rule.isExactMatch
+                                  ? Symbols.check_circle_rounded
+                                  : Symbols.manage_search_rounded,
+                              color: context.sunrise.accent,
+                            ),
+                            title: Text(
+                              rule.title,
+                              style: SunriseType.rowTitle.copyWith(
+                                color: context.sunrise.ink,
+                              ),
+                            ),
+                            subtitle: Text(
+                              '${rule.isExactMatch ? 'Exactly this' : 'Anything containing this'}'
+                              ' → ${categoryName(rule.categoryId)}',
+                              style: SunriseType.caption.copyWith(
+                                color: context.sunrise.muted,
+                              ),
+                            ),
+                            trailing: SunriseIconButton(
+                              tooltip: L10n.of(context).actionDelete,
+                              icon: Symbols.delete_rounded,
+                              foreground: context.sunrise.negative,
+                              background: Colors.transparent,
+                              onTap: () => _delete(rule),
+                            ),
+                            onTap: () => _edit(existing: rule),
+                          ),
+                        ],
+                      ],
                     ),
                   ),
-                ),
-              ],
-            ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(4, 14, 4, 0),
+                    child: Text(
+                      'A rule matches anywhere in the title unless you make it '
+                      'exact. The app adds one for you each time you file '
+                      'something by hand.',
+                      style: SunriseType.caption.copyWith(
+                        color: context.sunrise.muted,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+      ),
     );
   }
 

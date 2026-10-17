@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:the_accountant/shared/widgets/sunrise/sunrise_page.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:the_accountant/core/providers/locale_provider.dart';
 import 'package:the_accountant/core/utils/time_formatter.dart';
@@ -31,85 +32,87 @@ class RegionalSettingsScreen extends ConsumerWidget {
         elevation: 0,
         title: Text(l10n.settingsRegionalTitle),
       ),
-      body: ListView(
-        padding: EdgeInsets.symmetric(horizontal: AppSpacing.md),
-        children: [
-          // CURRENCY SECTION
-          SettingsSection(
-            title: l10n.settingsSectionCurrency,
-            tiles: [
-              SettingsNavigationTile(
-                icon: Icons.attach_money,
-                title: l10n.settingsDefaultCurrency,
-                subtitle: settingsState.currency,
-                onTap: () => _showCurrencyPicker(context, ref),
-              ),
-              SettingsNavigationTile(
-                icon: Icons.currency_exchange,
-                title: l10n.settingsExchangeRates,
-                subtitle: l10n.settingsExchangeRatesSubtitle,
-                onTap: () => Navigator.pushNamed(context, '/exchange-rates'),
-              ),
-            ],
-          ),
+      body: CappedBody(
+        child: ListView(
+          padding: EdgeInsets.symmetric(horizontal: AppSpacing.md),
+          children: [
+            // CURRENCY SECTION
+            SettingsSection(
+              title: l10n.settingsSectionCurrency,
+              tiles: [
+                SettingsNavigationTile(
+                  icon: Icons.attach_money,
+                  title: l10n.settingsDefaultCurrency,
+                  subtitle: settingsState.currency,
+                  onTap: () => _showCurrencyPicker(context, ref),
+                ),
+                SettingsNavigationTile(
+                  icon: Icons.currency_exchange,
+                  title: l10n.settingsExchangeRates,
+                  subtitle: l10n.settingsExchangeRatesSubtitle,
+                  onTap: () => Navigator.pushNamed(context, '/exchange-rates'),
+                ),
+              ],
+            ),
 
-          // FORMAT SECTION
-          SettingsSection(
-            title: l10n.settingsSectionDisplayFormat,
-            tiles: [
-              SettingsNavigationTile(
-                icon: Icons.calendar_today_outlined,
-                title: l10n.settingsDateFormat,
-                subtitle: _getDateFormatLabel(settingsState.dateFormat, ref),
-                onTap: () => _showDateFormatPicker(context, ref),
-              ),
-              SettingsNavigationTile(
-                icon: Icons.numbers,
-                title: l10n.settingsNumberFormat,
-                subtitle: _getNumberFormatExample(settingsState.numberFormat),
-                onTap: () => _showNumberFormatPicker(context, ref),
-              ),
-              SettingsNavigationTile(
-                icon: Icons.sell_outlined,
-                title: l10n.settingsCurrencySymbol,
-                subtitle: settingsState.symbolPosition.example,
-                onTap: () => _showSymbolPositionPicker(context, ref),
-              ),
-              SettingsNavigationTile(
-                icon: Icons.schedule,
-                title: l10n.settingsTimeFormat,
-                subtitle: _timeFormatLabel(settingsState.timeFormat, l10n),
-                onTap: () => _showTimeFormatPicker(context, ref),
-              ),
-              SettingsNavigationTile(
-                icon: Icons.view_week_outlined,
-                title: l10n.settingsFirstDayOfWeek,
-                subtitle: _weekdayLabel(settingsState.firstDayOfWeek, l10n),
-                onTap: () => _showFirstDayPicker(context, ref),
-              ),
-            ],
-          ),
+            // FORMAT SECTION
+            SettingsSection(
+              title: l10n.settingsSectionDisplayFormat,
+              tiles: [
+                SettingsNavigationTile(
+                  icon: Icons.calendar_today_outlined,
+                  title: l10n.settingsDateFormat,
+                  subtitle: _getDateFormatLabel(settingsState.dateFormat, ref),
+                  onTap: () => _showDateFormatPicker(context, ref),
+                ),
+                SettingsNavigationTile(
+                  icon: Icons.numbers,
+                  title: l10n.settingsNumberFormat,
+                  subtitle: _getNumberFormatExample(settingsState.numberFormat),
+                  onTap: () => _showNumberFormatPicker(context, ref),
+                ),
+                SettingsNavigationTile(
+                  icon: Icons.sell_outlined,
+                  title: l10n.settingsCurrencySymbol,
+                  subtitle: settingsState.symbolPosition.example,
+                  onTap: () => _showSymbolPositionPicker(context, ref),
+                ),
+                SettingsNavigationTile(
+                  icon: Icons.schedule,
+                  title: l10n.settingsTimeFormat,
+                  subtitle: _timeFormatLabel(settingsState.timeFormat, l10n),
+                  onTap: () => _showTimeFormatPicker(context, ref),
+                ),
+                SettingsNavigationTile(
+                  icon: Icons.view_week_outlined,
+                  title: l10n.settingsFirstDayOfWeek,
+                  subtitle: _weekdayLabel(settingsState.firstDayOfWeek, l10n),
+                  onTap: () => _showFirstDayPicker(context, ref),
+                ),
+              ],
+            ),
 
-          // LANGUAGE SECTION
-          SettingsSection(
-            title: l10n.settingsSectionLanguage,
-            tiles: [
-              SettingsNavigationTile(
-                icon: Icons.translate,
-                title: l10n.settingsLanguage,
-                subtitle: ref.watch(localeProvider) == null
-                    ? l10n.languageSystem
-                    : AppLanguages.labelFor(ref.watch(localeProvider)),
-                onTap: () => _showLanguagePicker(context, ref),
-              ),
-            ],
-          ),
+            // LANGUAGE SECTION
+            SettingsSection(
+              title: l10n.settingsSectionLanguage,
+              tiles: [
+                SettingsNavigationTile(
+                  icon: Icons.translate,
+                  title: l10n.settingsLanguage,
+                  subtitle: ref.watch(localeProvider) == null
+                      ? l10n.languageSystem
+                      : AppLanguages.labelFor(ref.watch(localeProvider)),
+                  onTap: () => _showLanguagePicker(context, ref),
+                ),
+              ],
+            ),
 
-          // PREVIEW SECTION
-          _buildPreviewCard(context, settingsState),
+            // PREVIEW SECTION
+            _buildPreviewCard(context, settingsState),
 
-          SizedBox(height: AppSpacing.xxl),
-        ],
+            SizedBox(height: AppSpacing.xxl),
+          ],
+        ),
       ),
     );
   }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/shared/widgets/sunrise/sunrise_page.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:the_accountant/core/services/backend_auth_service.dart';
@@ -147,52 +148,54 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             },
           ),
         ),
-        body: SafeArea(
-          child: SingleChildScrollView(
-            padding: AppSpacing.paddingScreen,
-            child: ConstrainedBox(
-              constraints: BoxConstraints(
-                minHeight:
-                    MediaQuery.of(context).size.height -
-                    MediaQuery.of(context).padding.top -
-                    MediaQuery.of(context).padding.bottom -
-                    kToolbarHeight -
-                    48,
-              ),
-              child: IntrinsicHeight(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    AuthBrandHeader(
-                      icon: _step == 0
-                          ? Icons.lock_reset_rounded
-                          : Icons.mark_email_read_rounded,
-                      title: _step == 0
-                          ? 'Forgot Password'
-                          : 'Check Your Email',
-                      subtitle: _step == 0
-                          ? 'Enter your email and we\'ll send you a code to reset '
-                                'your password.'
-                          : 'We sent a 6-digit code to ${_emailController.text.trim()}. '
-                                'Enter it below with your new password.',
-                      showWordmark: false,
-                    ),
+        body: CappedBody(
+          child: SafeArea(
+            child: SingleChildScrollView(
+              padding: AppSpacing.paddingScreen,
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight:
+                      MediaQuery.of(context).size.height -
+                      MediaQuery.of(context).padding.top -
+                      MediaQuery.of(context).padding.bottom -
+                      kToolbarHeight -
+                      48,
+                ),
+                child: IntrinsicHeight(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      AuthBrandHeader(
+                        icon: _step == 0
+                            ? Icons.lock_reset_rounded
+                            : Icons.mark_email_read_rounded,
+                        title: _step == 0
+                            ? 'Forgot Password'
+                            : 'Check Your Email',
+                        subtitle: _step == 0
+                            ? 'Enter your email and we\'ll send you a code to reset '
+                                  'your password.'
+                            : 'We sent a 6-digit code to ${_emailController.text.trim()}. '
+                                  'Enter it below with your new password.',
+                        showWordmark: false,
+                      ),
 
-                    AppSpacing.gapXxxl,
+                      AppSpacing.gapXxxl,
 
-                    AnimatedSwitcher(
-                      duration: AppAnimations.normal,
-                      child: _step == 0
-                          ? _buildRequestForm()
-                          : _buildResetForm(),
-                    ),
+                      AnimatedSwitcher(
+                        duration: AppAnimations.normal,
+                        child: _step == 0
+                            ? _buildRequestForm()
+                            : _buildResetForm(),
+                      ),
 
-                    if (_error != null) ...[
-                      AppSpacing.gapLg,
-                      _buildErrorMessage(_error!),
+                      if (_error != null) ...[
+                        AppSpacing.gapLg,
+                        _buildErrorMessage(_error!),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
               ),
             ),

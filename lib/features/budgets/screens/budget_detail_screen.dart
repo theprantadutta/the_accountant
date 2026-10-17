@@ -1,6 +1,7 @@
 import 'package:the_accountant/core/themes/sunrise/sunrise_colors.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:the_accountant/shared/widgets/sunrise/sunrise_page.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/providers/currency_provider.dart';
@@ -48,7 +49,9 @@ class _BudgetDetailScreenState extends ConsumerState<BudgetDetailScreen> {
     if (budget == null) {
       return Scaffold(
         appBar: AppBar(title: Text(L10n.of(context).entityBudget)),
-        body: Center(child: Text(L10n.of(context).budgetGone)),
+        body: CappedBody(
+          child: Center(child: Text(L10n.of(context).budgetGone)),
+        ),
       );
     }
 
@@ -70,51 +73,53 @@ class _BudgetDetailScreenState extends ConsumerState<BudgetDetailScreen> {
           ),
         ],
       ),
-      body: FutureBuilder<BudgetProgress>(
-        future: engine.progressFor(budget, offset: _offset),
-        builder: (context, snapshot) {
-          final progress = snapshot.data;
-          if (progress == null) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          return ListView(
-            padding: AppSpacing.paddingLg,
-            children: [
-              _PeriodNavigator(
-                budget: budget,
-                progress: progress,
-                offset: _offset,
-                onChanged: (next) => setState(() => _offset = next),
-              ),
-              AppSpacing.gapLg,
-              _Headline(progress: progress),
-              AppSpacing.gapLg,
-              _Forecast(budget: budget, progress: progress, engine: engine),
-              _CategoryCaps(
-                budget: budget,
-                progress: progress,
-                engine: engine,
-                onChanged: () => setState(() {}),
-              ),
-              AppSpacing.gapLg,
-              _SpendGraph(
-                budget: budget,
-                progress: progress,
-                engine: engine,
-                offset: _offset,
-              ),
-              AppSpacing.gapLg,
-              _CategoryBreakdown(
-                budget: budget,
-                progress: progress,
-                engine: engine,
-              ),
-              AppSpacing.gapLg,
-              _PastPeriods(budget: budget, engine: engine),
-              AppSpacing.gapXxl,
-            ],
-          );
-        },
+      body: CappedBody(
+        child: FutureBuilder<BudgetProgress>(
+          future: engine.progressFor(budget, offset: _offset),
+          builder: (context, snapshot) {
+            final progress = snapshot.data;
+            if (progress == null) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            return ListView(
+              padding: AppSpacing.paddingLg,
+              children: [
+                _PeriodNavigator(
+                  budget: budget,
+                  progress: progress,
+                  offset: _offset,
+                  onChanged: (next) => setState(() => _offset = next),
+                ),
+                AppSpacing.gapLg,
+                _Headline(progress: progress),
+                AppSpacing.gapLg,
+                _Forecast(budget: budget, progress: progress, engine: engine),
+                _CategoryCaps(
+                  budget: budget,
+                  progress: progress,
+                  engine: engine,
+                  onChanged: () => setState(() {}),
+                ),
+                AppSpacing.gapLg,
+                _SpendGraph(
+                  budget: budget,
+                  progress: progress,
+                  engine: engine,
+                  offset: _offset,
+                ),
+                AppSpacing.gapLg,
+                _CategoryBreakdown(
+                  budget: budget,
+                  progress: progress,
+                  engine: engine,
+                ),
+                AppSpacing.gapLg,
+                _PastPeriods(budget: budget, engine: engine),
+                AppSpacing.gapXxl,
+              ],
+            );
+          },
+        ),
       ),
     );
   }

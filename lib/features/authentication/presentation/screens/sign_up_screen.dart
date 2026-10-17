@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/shared/widgets/sunrise/sunrise_page.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -177,59 +178,61 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
             onPressed: () => Navigator.pop(context),
           ),
         ),
-        body: SafeArea(
-          child: SingleChildScrollView(
-            padding: AppSpacing.paddingScreen,
-            child: Form(
-              key: _formKey,
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  minHeight:
-                      MediaQuery.of(context).size.height -
-                      MediaQuery.of(context).padding.top -
-                      MediaQuery.of(context).padding.bottom -
-                      kToolbarHeight -
-                      48,
-                ),
-                child: IntrinsicHeight(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _entrance(
-                        start: 0.0,
-                        end: 0.5,
-                        child: AuthBrandHeader(
-                          icon: Icons.person_add_alt_1_rounded,
-                          title: L10n.of(context).walletCreateAccount,
-                          subtitle: L10n.of(context).authJoinUsToStartYour,
-                          gradient: AppColors.accentGradient,
-                          glowColor: AppColors.neonPurple,
-                          floatingAnimation: _floatingAnimation,
+        body: CappedBody(
+          child: SafeArea(
+            child: SingleChildScrollView(
+              padding: AppSpacing.paddingScreen,
+              child: Form(
+                key: _formKey,
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minHeight:
+                        MediaQuery.of(context).size.height -
+                        MediaQuery.of(context).padding.top -
+                        MediaQuery.of(context).padding.bottom -
+                        kToolbarHeight -
+                        48,
+                  ),
+                  child: IntrinsicHeight(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        _entrance(
+                          start: 0.0,
+                          end: 0.5,
+                          child: AuthBrandHeader(
+                            icon: Icons.person_add_alt_1_rounded,
+                            title: L10n.of(context).walletCreateAccount,
+                            subtitle: L10n.of(context).authJoinUsToStartYour,
+                            gradient: AppColors.accentGradient,
+                            glowColor: AppColors.neonPurple,
+                            floatingAnimation: _floatingAnimation,
+                          ),
                         ),
-                      ),
 
-                      AppSpacing.gapXxl,
+                        AppSpacing.gapXxl,
 
-                      _entrance(
-                        start: 0.2,
-                        end: 0.7,
-                        child: _buildSignUpForm(authState),
-                      ),
+                        _entrance(
+                          start: 0.2,
+                          end: 0.7,
+                          child: _buildSignUpForm(authState),
+                        ),
 
-                      AppSpacing.gapXl,
+                        AppSpacing.gapXl,
 
-                      _entrance(
-                        start: 0.6,
-                        end: 1.0,
-                        child: _buildSignInLink(),
-                      ),
+                        _entrance(
+                          start: 0.6,
+                          end: 1.0,
+                          child: _buildSignInLink(),
+                        ),
 
-                      AppSpacing.gapLg,
+                        AppSpacing.gapLg,
 
-                      if (authState.error != null)
-                        _buildErrorMessage(authState.error!),
-                    ],
+                        if (authState.error != null)
+                          _buildErrorMessage(authState.error!),
+                      ],
+                    ),
                   ),
                 ),
               ),

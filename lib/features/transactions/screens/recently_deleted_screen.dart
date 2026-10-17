@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/shared/widgets/sunrise/sunrise_page.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/providers/currency_provider.dart';
@@ -60,53 +61,55 @@ class _RecentlyDeletedScreenState extends ConsumerState<RecentlyDeletedScreen> {
 
     return Scaffold(
       appBar: AppBar(title: Text(L10n.of(context).trashTitle)),
-      body: rows == null
-          ? const Center(child: CircularProgressIndicator())
-          : rows.isEmpty
-          ? _empty()
-          : ListView.separated(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              itemCount: rows.length + 1,
-              separatorBuilder: (_, _) => const Divider(height: 1),
-              itemBuilder: (context, index) {
-                if (index == rows.length) {
-                  return Padding(
-                    padding: AppSpacing.paddingLg,
-                    child: Text(
-                      'Deleted transactions are kept for thirty days, then '
-                      'removed for good.',
-                      style: AppTypography.bodySmall.copyWith(
-                        color: AppColors.textMuted,
+      body: CappedBody(
+        child: rows == null
+            ? const Center(child: CircularProgressIndicator())
+            : rows.isEmpty
+            ? _empty()
+            : ListView.separated(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                itemCount: rows.length + 1,
+                separatorBuilder: (_, _) => const Divider(height: 1),
+                itemBuilder: (context, index) {
+                  if (index == rows.length) {
+                    return Padding(
+                      padding: AppSpacing.paddingLg,
+                      child: Text(
+                        'Deleted transactions are kept for thirty days, then '
+                        'removed for good.',
+                        style: AppTypography.bodySmall.copyWith(
+                          color: AppColors.textMuted,
+                        ),
                       ),
+                    );
+                  }
+
+                  final row = rows[index];
+                  final wallet = wallets
+                      .where((w) => w.id == row.walletId)
+                      .firstOrNull;
+
+                  return ListTile(
+                    title: Text(
+                      row.title.isEmpty ? money(row.amount) : row.title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    subtitle: Text(
+                      '${money(row.amount)} · ${wallet?.name ?? 'Unknown account'}'
+                      ' · deleted '
+                      '${AppDateFormatter.formatShortDate(row.deletedAt!, dateFormat)}',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    trailing: TextButton(
+                      onPressed: () => _restore(row),
+                      child: Text(L10n.of(context).trashRestore),
                     ),
                   );
-                }
-
-                final row = rows[index];
-                final wallet = wallets
-                    .where((w) => w.id == row.walletId)
-                    .firstOrNull;
-
-                return ListTile(
-                  title: Text(
-                    row.title.isEmpty ? money(row.amount) : row.title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  subtitle: Text(
-                    '${money(row.amount)} · ${wallet?.name ?? 'Unknown account'}'
-                    ' · deleted '
-                    '${AppDateFormatter.formatShortDate(row.deletedAt!, dateFormat)}',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  trailing: TextButton(
-                    onPressed: () => _restore(row),
-                    child: Text(L10n.of(context).trashRestore),
-                  ),
-                );
-              },
-            ),
+                },
+              ),
+      ),
     );
   }
 

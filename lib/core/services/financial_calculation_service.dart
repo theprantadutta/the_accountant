@@ -1,4 +1,5 @@
 import 'package:the_accountant/core/domain/transaction_policy.dart';
+import 'package:the_accountant/data/models/wallet.dart' show WalletType;
 import 'package:the_accountant/core/services/currency_service.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/features/budgets/domain/budget_engine.dart';
@@ -81,20 +82,36 @@ class FinancialCalculationService {
     }
   }
 
-  /// Every live account's balance, converted into [targetCurrency], in cents.
+  /// Whether [wallet] counts toward net worth.
   ///
-  /// Archived accounts and ones the user has excluded are left out. An archived
-  /// account is closed, so counting it would report money that is not there;
-  /// an excluded one is a balance the user has said is not theirs to spend, and
-  /// including it makes every summary figure wrong in a way nothing on screen
-  /// explains.
-  Future<int> getTotalBalanceConverted(String targetCurrency) async {
+  /// An archived account is closed, so counting it would report money that is
+  /// not there; an excluded one is a balance the user has said is not theirs
+  /// to spend. A credit card is left out unless [includeCreditCards]: its
+  /// balance is borrowing or a bill, not money the user has. The one rule for
+  /// the total and for the accounts listed beside it.
+  static bool countsInNetWorth(
+    Wallet wallet, {
+    required bool includeCreditCards,
+  }) {
+    if (wallet.isArchived || wallet.excludeFromTotal) return false;
+    if (wallet.walletType == WalletType.creditCard) return includeCreditCards;
+    return true;
+  }
+
+  /// Every account that counts toward net worth, converted into
+  /// [targetCurrency], in cents. See [countsInNetWorth].
+  Future<int> getTotalBalanceConverted(
+    String targetCurrency, {
+    bool includeCreditCards = false,
+  }) async {
     try {
       final wallets = await _db.getAllWallets();
       int totalBalance = 0;
 
       for (final wallet in wallets) {
-        if (wallet.isArchived || wallet.excludeFromTotal) continue;
+        if (!countsInNetWorth(wallet, includeCreditCards: includeCreditCards)) {
+          continue;
+        }
         // wallet.balance is the authoritative running balance (opening balance + realized
         // transaction effects). Do NOT also sum transactions here — that double-counted every
         // transaction (balance ≈ opening + 2×Σtxns).

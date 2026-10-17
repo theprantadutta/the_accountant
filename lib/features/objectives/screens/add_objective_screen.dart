@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/shared/widgets/sunrise/sunrise_page.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/providers/currency_provider.dart';
@@ -94,109 +95,111 @@ class _AddObjectiveScreenState extends ConsumerState<AddObjectiveScreen> {
           ),
         ],
       ),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: AppSpacing.paddingLg,
-          children: [
-            TextFormField(
-              controller: _nameController,
-              textCapitalization: TextCapitalization.sentences,
-              decoration: InputDecoration(
-                labelText: L10n.of(context).goalWhatAreYouSavingFor,
-                hintText: L10n.of(context).goalNewLaptop,
-                border: OutlineInputBorder(),
+      body: CappedBody(
+        child: Form(
+          key: _formKey,
+          child: ListView(
+            padding: AppSpacing.paddingLg,
+            children: [
+              TextFormField(
+                controller: _nameController,
+                textCapitalization: TextCapitalization.sentences,
+                decoration: InputDecoration(
+                  labelText: L10n.of(context).goalWhatAreYouSavingFor,
+                  hintText: L10n.of(context).goalNewLaptop,
+                  border: OutlineInputBorder(),
+                ),
+                validator: (v) => (v == null || v.trim().isEmpty)
+                    ? 'Give the goal a name'
+                    : null,
               ),
-              validator: (v) => (v == null || v.trim().isEmpty)
-                  ? 'Give the goal a name'
-                  : null,
-            ),
-            AppSpacing.gapLg,
+              AppSpacing.gapLg,
 
-            TextFormField(
-              controller: _amountController,
-              keyboardType: const TextInputType.numberWithOptions(
-                decimal: true,
+              TextFormField(
+                controller: _amountController,
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                decoration: InputDecoration(
+                  labelText: L10n.of(context).goalTarget,
+                  prefixText: '$currency ',
+                  border: const OutlineInputBorder(),
+                ),
+                validator: (v) {
+                  final cents = (v ?? '').toCentsOrNull();
+                  if (cents == null) return 'Enter an amount';
+                  if (cents <= 0) return 'The target must be more than zero';
+                  return null;
+                },
               ),
-              decoration: InputDecoration(
-                labelText: L10n.of(context).goalTarget,
-                prefixText: '$currency ',
-                border: const OutlineInputBorder(),
-              ),
-              validator: (v) {
-                final cents = (v ?? '').toCentsOrNull();
-                if (cents == null) return 'Enter an amount';
-                if (cents <= 0) return 'The target must be more than zero';
-                return null;
-              },
-            ),
-            AppSpacing.gapXl,
+              AppSpacing.gapXl,
 
-            IconPicker(
-              selectedIcon: _iconName,
-              selectedColor: ColorUtils.hexToColor(_color),
-              label: L10n.of(context).walletIcon,
-              onIconSelected: (name) => setState(() => _iconName = name),
-            ),
-            AppSpacing.gapLg,
-            ColorPicker(
-              selectedColor: _color,
-              label: L10n.of(context).goalColour,
-              onColorSelected: (hex) => setState(() => _color = hex),
-            ),
-            AppSpacing.gapXl,
+              IconPicker(
+                selectedIcon: _iconName,
+                selectedColor: ColorUtils.hexToColor(_color),
+                label: L10n.of(context).walletIcon,
+                onIconSelected: (name) => setState(() => _iconName = name),
+              ),
+              AppSpacing.gapLg,
+              ColorPicker(
+                selectedColor: _color,
+                label: L10n.of(context).goalColour,
+                onColorSelected: (hex) => setState(() => _color = hex),
+              ),
+              AppSpacing.gapXl,
 
-            Text(
-              L10n.of(context).goalStarted,
-              style: AppTypography.labelMedium.copyWith(
-                color: AppColors.textSecondary,
+              Text(
+                L10n.of(context).goalStarted,
+                style: AppTypography.labelMedium.copyWith(
+                  color: AppColors.textSecondary,
+                ),
               ),
-            ),
-            AppSpacing.gapSm,
-            _DateRow(
-              label: AppDateFormatter.formatDate(_startDate, dateFormat),
-              onTap: () => _pickDate(
-                initial: _startDate,
-                onPicked: (d) => setState(() => _startDate = d),
+              AppSpacing.gapSm,
+              _DateRow(
+                label: AppDateFormatter.formatDate(_startDate, dateFormat),
+                onTap: () => _pickDate(
+                  initial: _startDate,
+                  onPicked: (d) => setState(() => _startDate = d),
+                ),
               ),
-            ),
-            AppSpacing.gapLg,
-            Text(
-              L10n.of(context).goalTargetDate,
-              style: AppTypography.labelMedium.copyWith(
-                color: AppColors.textSecondary,
+              AppSpacing.gapLg,
+              Text(
+                L10n.of(context).goalTargetDate,
+                style: AppTypography.labelMedium.copyWith(
+                  color: AppColors.textSecondary,
+                ),
               ),
-            ),
-            AppSpacing.gapSm,
-            _DateRow(
-              label: _endDate == null
-                  ? 'No deadline'
-                  : AppDateFormatter.formatDate(_endDate!, dateFormat),
-              onClear: _endDate == null
-                  ? null
-                  : () => setState(() => _endDate = null),
-              onTap: () => _pickDate(
-                initial: _endDate ?? _startDate,
-                onPicked: (d) => setState(() => _endDate = d),
+              AppSpacing.gapSm,
+              _DateRow(
+                label: _endDate == null
+                    ? 'No deadline'
+                    : AppDateFormatter.formatDate(_endDate!, dateFormat),
+                onClear: _endDate == null
+                    ? null
+                    : () => setState(() => _endDate = null),
+                onTap: () => _pickDate(
+                  initial: _endDate ?? _startDate,
+                  onPicked: (d) => setState(() => _endDate = d),
+                ),
               ),
-            ),
-            AppSpacing.gapSm,
-            Text(
-              L10n.of(context).goalWithADateTheGoal,
-              style: AppTypography.bodySmall.copyWith(
-                color: AppColors.textMuted,
+              AppSpacing.gapSm,
+              Text(
+                L10n.of(context).goalWithADateTheGoal,
+                style: AppTypography.bodySmall.copyWith(
+                  color: AppColors.textMuted,
+                ),
               ),
-            ),
-            AppSpacing.gapXl,
+              AppSpacing.gapXl,
 
-            SwitchListTile(
-              contentPadding: EdgeInsets.zero,
-              value: _isPinned,
-              onChanged: (v) => setState(() => _isPinned = v),
-              title: Text(L10n.of(context).goalShowOnTheHomeScreen),
-            ),
-            AppSpacing.gapXxl,
-          ],
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                value: _isPinned,
+                onChanged: (v) => setState(() => _isPinned = v),
+                title: Text(L10n.of(context).goalShowOnTheHomeScreen),
+              ),
+              AppSpacing.gapXxl,
+            ],
+          ),
         ),
       ),
     );

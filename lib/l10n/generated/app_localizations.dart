@@ -1655,6 +1655,18 @@ abstract class L10n {
   /// **'Goals'**
   String get settingsGoals;
 
+  /// No description provided for @settingsCardsInNetWorth.
+  ///
+  /// In en, this message translates to:
+  /// **'Count credit cards in net worth'**
+  String get settingsCardsInNetWorth;
+
+  /// No description provided for @settingsCardsInNetWorthSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Off: only money you have counts, not card balances.'**
+  String get settingsCardsInNetWorthSub;
+
   /// No description provided for @settingsSaveTowardSomethingAndTrack.
   ///
   /// In en, this message translates to:
@@ -2398,6 +2410,18 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'Enter category name'**
   String get catEnterCategoryName;
+
+  /// No description provided for @catSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search categories'**
+  String get catSearch;
+
+  /// No description provided for @catNoMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'No category matches that.'**
+  String get catNoMatch;
 
   /// No description provided for @catUseEmoji.
   ///

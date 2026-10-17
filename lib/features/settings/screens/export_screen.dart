@@ -1,6 +1,7 @@
 import 'package:material_symbols_icons/symbols.dart';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:the_accountant/shared/widgets/sunrise/sunrise_page.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -57,82 +58,86 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
         elevation: 0,
         title: Text(L10n.of(context).settingsExportData),
       ),
-      body: ListView(
-        padding: EdgeInsets.all(AppSpacing.md),
-        children: [
-          // Export info
-          _buildInfoCard(),
-          SizedBox(height: AppSpacing.lg),
+      body: CappedBody(
+        child: ListView(
+          padding: EdgeInsets.all(AppSpacing.md),
+          children: [
+            // Export info
+            _buildInfoCard(),
+            SizedBox(height: AppSpacing.lg),
 
-          // Date range selection
-          _buildSectionHeader('DATE RANGE'),
-          _buildSettingsCard([_buildDateRangeTile()]),
-          SizedBox(height: AppSpacing.md),
+            // Date range selection
+            _buildSectionHeader('DATE RANGE'),
+            _buildSettingsCard([_buildDateRangeTile()]),
+            SizedBox(height: AppSpacing.md),
 
-          // Quick date options
-          _buildQuickDateOptions(),
-          SizedBox(height: AppSpacing.lg),
+            // Quick date options
+            _buildQuickDateOptions(),
+            SizedBox(height: AppSpacing.lg),
 
-          // Export format
-          _buildSectionHeader('FORMAT'),
-          _buildSettingsCard([
-            _buildFormatTile(
-              icon: Icons.table_chart_outlined,
-              title: L10n.of(context).settingsCsv,
-              subtitle: L10n.of(
-                context,
-              ).settingsSpreadsheetFormatForExcelGoogle,
-              value: 'csv',
-            ),
-            _buildDivider(),
-            _buildFormatTile(
-              icon: Icons.picture_as_pdf_outlined,
-              title: L10n.of(context).settingsPdfReport,
-              subtitle: L10n.of(context).settingsFormattedSummaryWithBreakdowns,
-              value: 'pdf',
-              // Selectable for everyone: free users export by watching an ad.
-              locked: false,
-              badge: !isPremium,
-            ),
-          ]),
-          SizedBox(height: AppSpacing.lg),
+            // Export format
+            _buildSectionHeader('FORMAT'),
+            _buildSettingsCard([
+              _buildFormatTile(
+                icon: Icons.table_chart_outlined,
+                title: L10n.of(context).settingsCsv,
+                subtitle: L10n.of(
+                  context,
+                ).settingsSpreadsheetFormatForExcelGoogle,
+                value: 'csv',
+              ),
+              _buildDivider(),
+              _buildFormatTile(
+                icon: Icons.picture_as_pdf_outlined,
+                title: L10n.of(context).settingsPdfReport,
+                subtitle: L10n.of(
+                  context,
+                ).settingsFormattedSummaryWithBreakdowns,
+                value: 'pdf',
+                // Selectable for everyone: free users export by watching an ad.
+                locked: false,
+                badge: !isPremium,
+              ),
+            ]),
+            SizedBox(height: AppSpacing.lg),
 
-          // Export options
-          _buildSectionHeader('INCLUDE'),
-          _buildSettingsCard([
-            _buildCheckboxTile(
-              title: L10n.of(context).navTransactions,
-              subtitle: L10n.of(context).settingsAllIncomeAndExpenseRecords,
-              checked: true,
-              enabled: false,
-              onChanged: null,
-            ),
-            _buildDivider(),
-            _buildCheckboxTile(
-              title: L10n.of(context).settingsCategories,
-              subtitle: L10n.of(context).settingsCategoryBreakdownAndTotals,
-              checked: _includeCategories,
-              enabled: true,
-              onChanged: (value) {
-                setState(() => _includeCategories = value);
-              },
-            ),
-            _buildDivider(),
-            _buildCheckboxTile(
-              title: L10n.of(context).settingsWallets,
-              subtitle: L10n.of(context).settingsWalletBalancesAndHistory,
-              checked: _includeWallets,
-              enabled: true,
-              onChanged: (value) {
-                setState(() => _includeWallets = value);
-              },
-            ),
-          ]),
-          SizedBox(height: AppSpacing.xl),
+            // Export options
+            _buildSectionHeader('INCLUDE'),
+            _buildSettingsCard([
+              _buildCheckboxTile(
+                title: L10n.of(context).navTransactions,
+                subtitle: L10n.of(context).settingsAllIncomeAndExpenseRecords,
+                checked: true,
+                enabled: false,
+                onChanged: null,
+              ),
+              _buildDivider(),
+              _buildCheckboxTile(
+                title: L10n.of(context).settingsCategories,
+                subtitle: L10n.of(context).settingsCategoryBreakdownAndTotals,
+                checked: _includeCategories,
+                enabled: true,
+                onChanged: (value) {
+                  setState(() => _includeCategories = value);
+                },
+              ),
+              _buildDivider(),
+              _buildCheckboxTile(
+                title: L10n.of(context).settingsWallets,
+                subtitle: L10n.of(context).settingsWalletBalancesAndHistory,
+                checked: _includeWallets,
+                enabled: true,
+                onChanged: (value) {
+                  setState(() => _includeWallets = value);
+                },
+              ),
+            ]),
+            SizedBox(height: AppSpacing.xl),
 
-          // Export button
-          _buildExportButton(),
-        ],
+            // Export button
+            _buildExportButton(),
+          ],
+        ),
       ),
     );
   }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/shared/widgets/sunrise/sunrise_page.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -79,12 +80,14 @@ class _NotificationInboxScreenState
           AppSpacing.gapHSm,
         ],
       ),
-      body: RefreshIndicator(
-        onRefresh: () =>
-            ref.read(notificationHistoryProvider.notifier).refresh(),
-        color: AppColors.primaryAccent,
-        backgroundColor: AppColors.primarySurface,
-        child: _buildBody(state),
+      body: CappedBody(
+        child: RefreshIndicator(
+          onRefresh: () =>
+              ref.read(notificationHistoryProvider.notifier).refresh(),
+          color: AppColors.primaryAccent,
+          backgroundColor: AppColors.primarySurface,
+          child: _buildBody(state),
+        ),
       ),
     );
   }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/shared/widgets/sunrise/sunrise_page.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -106,29 +107,31 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
             onPressed: _handleBack,
           ),
         ),
-        body: Column(
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                padding: EdgeInsets.fromLTRB(
-                  AppSpacing.lg,
-                  AppSpacing.sm,
-                  AppSpacing.lg,
-                  AppSpacing.lg,
-                ),
-                child: Column(
-                  children: [
-                    _buildProfileAvatar(authState),
-                    SizedBox(height: AppSpacing.xl),
-                    _buildProfileForm(authState),
-                    SizedBox(height: AppSpacing.lg),
-                    _buildAccountInfo(authState),
-                  ],
+        body: CappedBody(
+          child: Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.fromLTRB(
+                    AppSpacing.lg,
+                    AppSpacing.sm,
+                    AppSpacing.lg,
+                    AppSpacing.lg,
+                  ),
+                  child: Column(
+                    children: [
+                      _buildProfileAvatar(authState),
+                      SizedBox(height: AppSpacing.xl),
+                      _buildProfileForm(authState),
+                      SizedBox(height: AppSpacing.lg),
+                      _buildAccountInfo(authState),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            _buildSaveBar(),
-          ],
+              _buildSaveBar(),
+            ],
+          ),
         ),
       ),
     );

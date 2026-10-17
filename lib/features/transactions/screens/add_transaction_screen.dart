@@ -1628,7 +1628,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
       ),
       title: Text(_isEditing ? 'Edit Transaction' : 'New Transaction'),
     ),
-    body: const Center(child: CircularProgressIndicator()),
+    body: CappedBody(child: const Center(child: CircularProgressIndicator())),
   );
 
   /// What the form shows when there is no account it could write to.
@@ -1651,42 +1651,44 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
         ),
         title: Text(_isEditing ? 'Edit Transaction' : 'New Transaction'),
       ),
-      body: Center(
-        child: Padding(
-          padding: AppSpacing.paddingXl,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                Icons.account_balance_wallet_outlined,
-                size: 48,
-                color: AppColors.textMuted,
-              ),
-              AppSpacing.gapLg,
-              Text(
-                l10n.txNoAccountTitle,
-                textAlign: TextAlign.center,
-                style: AppTypography.titleMedium.copyWith(
-                  color: AppColors.textPrimary,
+      body: CappedBody(
+        child: Center(
+          child: Padding(
+            padding: AppSpacing.paddingXl,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.account_balance_wallet_outlined,
+                  size: 48,
+                  color: AppColors.textMuted,
                 ),
-              ),
-              AppSpacing.gapSm,
-              Text(
-                l10n.txNoAccountBody,
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 14, color: AppColors.textMuted),
-              ),
-              AppSpacing.gapXl,
-              NeoButton(
-                label: l10n.txNoAccountAction,
-                leadingIcon: Icons.account_balance_wallet_outlined,
-                onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute<void>(
-                    builder: (_) => const WalletManagementScreen(),
+                AppSpacing.gapLg,
+                Text(
+                  l10n.txNoAccountTitle,
+                  textAlign: TextAlign.center,
+                  style: AppTypography.titleMedium.copyWith(
+                    color: AppColors.textPrimary,
                   ),
                 ),
-              ),
-            ],
+                AppSpacing.gapSm,
+                Text(
+                  l10n.txNoAccountBody,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 14, color: AppColors.textMuted),
+                ),
+                AppSpacing.gapXl,
+                NeoButton(
+                  label: l10n.txNoAccountAction,
+                  leadingIcon: Icons.account_balance_wallet_outlined,
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => const WalletManagementScreen(),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

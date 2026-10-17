@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/shared/widgets/sunrise/sunrise_page.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
@@ -49,72 +50,74 @@ class HomeLayoutScreen extends ConsumerWidget {
             ),
         ],
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: EdgeInsets.all(AppSpacing.md),
-            child: Text(
-              l10n.layoutExplain,
-              style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
-            ),
-          ),
-          if (layout.visible.isEmpty)
+      body: CappedBody(
+        child: Column(
+          children: [
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: AppSpacing.md),
-              child: _warning(l10n.layoutAllHidden),
-            ),
-          Expanded(
-            child: ReorderableListView.builder(
               padding: EdgeInsets.all(AppSpacing.md),
-              itemCount: layout.order.length,
-              onReorderItem: (from, to) {
-                HapticFeedback.selectionClick();
-                notifier.move(from, to);
-              },
-              itemBuilder: (context, index) {
-                final section = layout.order[index];
-                final shown = layout.isVisible(section);
-
-                return Container(
-                  // The key is the section's stable id rather than its position,
-                  // or the list animates the wrong row after a reorder.
-                  key: ValueKey(section.storedAs),
-                  margin: EdgeInsets.only(bottom: AppSpacing.sm),
-                  decoration: BoxDecoration(
-                    color: AppColors.primarySurface,
-                    borderRadius: AppSpacing.borderRadiusLg,
-                    border: Border.all(color: AppColors.glassBorder),
-                  ),
-                  child: ListTile(
-                    leading: ReorderableDragStartListener(
-                      index: index,
-                      child: Icon(
-                        Icons.drag_handle,
-                        color: AppColors.textMuted,
-                      ),
-                    ),
-                    title: Text(
-                      labelFor(section, l10n),
-                      style: TextStyle(
-                        color: shown
-                            ? AppColors.textPrimary
-                            : AppColors.textMuted,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    trailing: Switch(
-                      value: shown,
-                      onChanged: (_) {
-                        HapticFeedback.selectionClick();
-                        notifier.toggle(section);
-                      },
-                    ),
-                  ),
-                );
-              },
+              child: Text(
+                l10n.layoutExplain,
+                style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
+              ),
             ),
-          ),
-        ],
+            if (layout.visible.isEmpty)
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                child: _warning(l10n.layoutAllHidden),
+              ),
+            Expanded(
+              child: ReorderableListView.builder(
+                padding: EdgeInsets.all(AppSpacing.md),
+                itemCount: layout.order.length,
+                onReorderItem: (from, to) {
+                  HapticFeedback.selectionClick();
+                  notifier.move(from, to);
+                },
+                itemBuilder: (context, index) {
+                  final section = layout.order[index];
+                  final shown = layout.isVisible(section);
+
+                  return Container(
+                    // The key is the section's stable id rather than its position,
+                    // or the list animates the wrong row after a reorder.
+                    key: ValueKey(section.storedAs),
+                    margin: EdgeInsets.only(bottom: AppSpacing.sm),
+                    decoration: BoxDecoration(
+                      color: AppColors.primarySurface,
+                      borderRadius: AppSpacing.borderRadiusLg,
+                      border: Border.all(color: AppColors.glassBorder),
+                    ),
+                    child: ListTile(
+                      leading: ReorderableDragStartListener(
+                        index: index,
+                        child: Icon(
+                          Icons.drag_handle,
+                          color: AppColors.textMuted,
+                        ),
+                      ),
+                      title: Text(
+                        labelFor(section, l10n),
+                        style: TextStyle(
+                          color: shown
+                              ? AppColors.textPrimary
+                              : AppColors.textMuted,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      trailing: Switch(
+                        value: shown,
+                        onChanged: (_) {
+                          HapticFeedback.selectionClick();
+                          notifier.toggle(section);
+                        },
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

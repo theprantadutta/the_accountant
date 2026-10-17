@@ -1,5 +1,6 @@
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter/material.dart';
+import 'package:the_accountant/shared/widgets/sunrise/sunrise_page.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -50,39 +51,41 @@ class _SyncSettingsScreenState extends ConsumerState<SyncSettingsScreen> {
         elevation: 0,
         title: Text(L10n.of(context).settingsCloudSync),
       ),
-      body: ListView(
-        padding: EdgeInsets.all(AppSpacing.md),
-        children: [
-          // SYNC STATUS
-          _buildSyncStatusCard(syncState, lastResult),
-          SizedBox(height: AppSpacing.lg),
+      body: CappedBody(
+        child: ListView(
+          padding: EdgeInsets.all(AppSpacing.md),
+          children: [
+            // SYNC STATUS
+            _buildSyncStatusCard(syncState, lastResult),
+            SizedBox(height: AppSpacing.lg),
 
-          // Questions the server raised that only the user can answer. Shown
-          // above the actions, because syncing will not fully complete until
-          // they are dealt with.
-          const CategoryReconciliationCard(),
+            // Questions the server raised that only the user can answer. Shown
+            // above the actions, because syncing will not fully complete until
+            // they are dealt with.
+            const CategoryReconciliationCard(),
 
-          // ACTIONS
-          _buildSectionHeader('ACTIONS'),
-          SizedBox(height: AppSpacing.sm),
-          _buildSettingsCard([
-            _buildSyncNowTile(isSyncing),
-            Divider(
-              height: 1,
-              color: AppColors.divider,
-              indent: AppSpacing.lg,
-              endIndent: AppSpacing.lg,
-            ),
-            _buildRestoreTile(isSyncing),
-          ]),
-          SizedBox(height: AppSpacing.lg),
+            // ACTIONS
+            _buildSectionHeader('ACTIONS'),
+            SizedBox(height: AppSpacing.sm),
+            _buildSettingsCard([
+              _buildSyncNowTile(isSyncing),
+              Divider(
+                height: 1,
+                color: AppColors.divider,
+                indent: AppSpacing.lg,
+                endIndent: AppSpacing.lg,
+              ),
+              _buildRestoreTile(isSyncing),
+            ]),
+            SizedBox(height: AppSpacing.lg),
 
-          // INFO
-          _buildSectionHeader('INFO'),
-          SizedBox(height: AppSpacing.sm),
-          _buildInfoCard(),
-          SizedBox(height: AppSpacing.lg),
-        ],
+            // INFO
+            _buildSectionHeader('INFO'),
+            SizedBox(height: AppSpacing.sm),
+            _buildInfoCard(),
+            SizedBox(height: AppSpacing.lg),
+          ],
+        ),
       ),
     );
   }

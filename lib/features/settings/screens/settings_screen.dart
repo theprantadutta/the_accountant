@@ -34,6 +34,7 @@ import 'package:the_accountant/features/transactions/screens/recently_deleted_sc
 import 'package:the_accountant/features/transactions/screens/title_rules_screen.dart';
 import 'package:the_accountant/features/transactions/screens/upcoming_transactions_screen.dart';
 import 'package:the_accountant/features/wallets/screens/wallet_management_screen.dart';
+import 'package:the_accountant/features/dashboard/providers/net_worth_preferences_provider.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -259,6 +260,26 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     ];
 
     final money = [
+      _Entry(
+        title: l10n.settingsCardsInNetWorth,
+        keywords: const [
+          'net worth',
+          'credit card',
+          'card',
+          'total',
+          'balance',
+        ],
+        row: SettingsRow.toggle(
+          icon: Symbols.credit_card_rounded,
+          iconColor: c.accent,
+          iconBackground: c.tintOrange,
+          title: l10n.settingsCardsInNetWorth,
+          subtitle: l10n.settingsCardsInNetWorthSub,
+          value: ref.watch(creditCardsInNetWorthProvider),
+          onChanged: (include) =>
+              ref.read(creditCardsInNetWorthProvider.notifier).set(include),
+        ),
+      ),
       _Entry(
         title: l10n.moreAiAssistant,
         keywords: const ['ai', 'assistant', 'chat', 'coach', 'ask', 'money'],

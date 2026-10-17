@@ -1,5 +1,6 @@
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter/material.dart';
+import 'package:the_accountant/shared/widgets/sunrise/sunrise_page.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -42,231 +43,239 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
         elevation: 0,
         title: Text(L10n.of(context).settingsNotifications),
       ),
-      body: prefsState.isLoading
-          ? const Padding(
-              padding: EdgeInsets.all(16),
-              child: Column(
+      body: CappedBody(
+        child: prefsState.isLoading
+            ? const Padding(
+                padding: EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    ShimmerCard(height: 80),
+                    SizedBox(height: 12),
+                    ShimmerCard(height: 64),
+                    SizedBox(height: 12),
+                    ShimmerCard(height: 64),
+                    SizedBox(height: 12),
+                    ShimmerCard(height: 64),
+                  ],
+                ),
+              )
+            : ListView(
+                padding: EdgeInsets.symmetric(horizontal: AppSpacing.md),
                 children: [
-                  ShimmerCard(height: 80),
-                  SizedBox(height: 12),
-                  ShimmerCard(height: 64),
-                  SizedBox(height: 12),
-                  ShimmerCard(height: 64),
-                  SizedBox(height: 12),
-                  ShimmerCard(height: 64),
-                ],
-              ),
-            )
-          : ListView(
-              padding: EdgeInsets.symmetric(horizontal: AppSpacing.md),
-              children: [
-                // INFO CARD
-                Container(
-                  margin: EdgeInsets.only(top: AppSpacing.lg),
-                  padding: EdgeInsets.all(AppSpacing.md),
-                  decoration: BoxDecoration(
-                    color: AppColors.primaryAccent.withValues(alpha: 0.08),
-                    borderRadius: AppSpacing.borderRadiusLg,
-                    border: Border.all(
-                      color: AppColors.primaryAccent.withValues(alpha: 0.2),
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Symbols.info_rounded,
-                        color: AppColors.primaryAccent,
-                        size: 24,
+                  // INFO CARD
+                  Container(
+                    margin: EdgeInsets.only(top: AppSpacing.lg),
+                    padding: EdgeInsets.all(AppSpacing.md),
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryAccent.withValues(alpha: 0.08),
+                      borderRadius: AppSpacing.borderRadiusLg,
+                      border: Border.all(
+                        color: AppColors.primaryAccent.withValues(alpha: 0.2),
                       ),
-                      SizedBox(width: AppSpacing.md),
-                      Expanded(
-                        child: Text(
-                          L10n.of(context).settingsConfigureWhenAndHowThe,
-                          style: TextStyle(
-                            color: AppColors.textSecondary,
-                            fontSize: 13,
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Symbols.info_rounded,
+                          color: AppColors.primaryAccent,
+                          size: 24,
+                        ),
+                        SizedBox(width: AppSpacing.md),
+                        Expanded(
+                          child: Text(
+                            L10n.of(context).settingsConfigureWhenAndHowThe,
+                            style: TextStyle(
+                              color: AppColors.textSecondary,
+                              fontSize: 13,
+                            ),
                           ),
                         ),
+                      ],
+                    ),
+                  ),
+
+                  // Error message if any
+                  if (prefsState.errorMessage != null)
+                    Container(
+                      margin: EdgeInsets.only(top: AppSpacing.md),
+                      padding: EdgeInsets.all(AppSpacing.md),
+                      decoration: BoxDecoration(
+                        color: AppColors.error.withValues(alpha: 0.1),
+                        borderRadius: AppSpacing.borderRadiusLg,
+                        border: Border.all(
+                          color: AppColors.error.withValues(alpha: 0.3),
+                        ),
+                      ),
+                      child: Text(
+                        prefsState.errorMessage!,
+                        style: TextStyle(color: AppColors.error, fontSize: 13),
+                      ),
+                    ),
+
+                  // DAILY REMINDERS SECTION
+                  SettingsSection(
+                    title: L10n.of(context).settingsDailyReminders,
+                    tiles: [
+                      SettingsSwitchTile(
+                        icon: Icons.notifications_outlined,
+                        title: L10n.of(context).settingsDailyReminders2,
+                        subtitle: L10n.of(
+                          context,
+                        ).settingsGetRemindedToTrackYour,
+                        value: prefsState.dailyReminderEnabled,
+                        onChanged: (value) {
+                          HapticFeedback.lightImpact();
+                          _setDailyReminders(value);
+                        },
+                      ),
+                      if (prefsState.dailyReminderEnabled)
+                        _ReminderTimeTile(
+                          reminderTime: prefsState.dailyReminderTime,
+                          onTap: () => _showReminderTimePicker(context),
+                        ),
+                    ],
+                  ),
+
+                  // BUDGET ALERTS SECTION
+                  SettingsSection(
+                    title: L10n.of(context).settingsBudgetAlerts,
+                    tiles: [
+                      SettingsSwitchTile(
+                        icon: Icons.account_balance_wallet_outlined,
+                        title: L10n.of(context).settingsBudgetAlerts2,
+                        subtitle: L10n.of(
+                          context,
+                        ).settingsNotifyWhenApproachingBudgetLimit,
+                        value: prefsState.budgetAlertsEnabled,
+                        onChanged: (value) async {
+                          HapticFeedback.lightImpact();
+                          await ref
+                              .read(notificationPreferencesProvider.notifier)
+                              .setBudgetAlertsEnabled(value);
+                        },
+                      ),
+                      if (prefsState.budgetAlertsEnabled)
+                        SettingsSliderTile(
+                          icon: Icons.warning_amber_outlined,
+                          iconColor: AppColors.warning,
+                          title: L10n.of(context).settingsWarningThreshold,
+                          subtitle:
+                              '${prefsState.budgetWarningThreshold.toInt()}% of budget',
+                          value: prefsState.budgetWarningThreshold,
+                          min: 50,
+                          max: 95,
+                          divisions: 9,
+                          onChanged: (value) async {
+                            await ref
+                                .read(notificationPreferencesProvider.notifier)
+                                .setBudgetWarningThreshold(value);
+                          },
+                        ),
+                    ],
+                  ),
+
+                  // TRANSACTION ALERTS SECTION
+                  SettingsSection(
+                    title: L10n.of(context).settingsTransactionAlerts,
+                    tiles: [
+                      SettingsSwitchTile(
+                        icon: Icons.receipt_long_outlined,
+                        title: L10n.of(context).settingsLargeTransactionAlerts,
+                        subtitle: L10n.of(
+                          context,
+                        ).settingsNotifyForTransactionsAboveThreshold,
+                        value: prefsState.largeTransactionAlertsEnabled,
+                        onChanged: (value) async {
+                          HapticFeedback.lightImpact();
+                          await ref
+                              .read(notificationPreferencesProvider.notifier)
+                              .setLargeTransactionAlertsEnabled(value);
+                        },
+                      ),
+                      if (prefsState.largeTransactionAlertsEnabled)
+                        SettingsNavigationTile(
+                          icon: Icons.attach_money,
+                          title: L10n.of(
+                            context,
+                          ).settingsLargeTransactionThreshold,
+                          subtitle:
+                              '\$${prefsState.largeTransactionThreshold.toStringAsFixed(0)}',
+                          onTap: () => _showThresholdDialog(context),
+                        ),
+                      SettingsSwitchTile(
+                        icon: Icons.repeat,
+                        title: L10n.of(
+                          context,
+                        ).settingsRecurringTransactionReminders,
+                        subtitle: L10n.of(
+                          context,
+                        ).settingsRemindAboutUpcomingRecurringPayments,
+                        value: prefsState.recurringTransactionRemindersEnabled,
+                        onChanged: (value) async {
+                          HapticFeedback.lightImpact();
+                          await ref
+                              .read(notificationPreferencesProvider.notifier)
+                              .setRecurringRemindersEnabled(value);
+                        },
+                      ),
+                      if (prefsState.recurringTransactionRemindersEnabled)
+                        SettingsNavigationTile(
+                          icon: Icons.calendar_today,
+                          title: L10n.of(context).settingsRemindMeBeforeDueDate,
+                          subtitle: BackgroundTaskConstants.offsetLabel(
+                            prefsState.reminderOffsetMinutes,
+                          ),
+                          onTap: () => _showReminderOffsetDialog(context),
+                        ),
+                    ],
+                  ),
+
+                  // SUBSCRIPTION & PROMOTIONAL SECTION
+                  SettingsSection(
+                    title: L10n.of(context).settingsOtherNotifications,
+                    tiles: [
+                      SettingsSwitchTile(
+                        icon: Icons.star_outline,
+                        title: L10n.of(
+                          context,
+                        ).settingsSubscriptionExpiryAlerts,
+                        subtitle: L10n.of(
+                          context,
+                        ).settingsGetNotifiedBeforeYourPremium,
+                        value: prefsState.subscriptionExpiryAlertsEnabled,
+                        onChanged: (value) async {
+                          HapticFeedback.lightImpact();
+                          await ref
+                              .read(notificationPreferencesProvider.notifier)
+                              .setSubscriptionExpiryAlertsEnabled(value);
+                        },
+                      ),
+                      SettingsSwitchTile(
+                        icon: Icons.campaign_outlined,
+                        title: L10n.of(
+                          context,
+                        ).settingsPromotionalNotifications,
+                        subtitle: L10n.of(
+                          context,
+                        ).settingsReceiveOffersAndFeatureUpdates,
+                        value: prefsState.promotionalNotificationsEnabled,
+                        onChanged: (value) async {
+                          HapticFeedback.lightImpact();
+                          await ref
+                              .read(notificationPreferencesProvider.notifier)
+                              .setPromotionalNotificationsEnabled(value);
+                        },
                       ),
                     ],
                   ),
-                ),
 
-                // Error message if any
-                if (prefsState.errorMessage != null)
-                  Container(
-                    margin: EdgeInsets.only(top: AppSpacing.md),
-                    padding: EdgeInsets.all(AppSpacing.md),
-                    decoration: BoxDecoration(
-                      color: AppColors.error.withValues(alpha: 0.1),
-                      borderRadius: AppSpacing.borderRadiusLg,
-                      border: Border.all(
-                        color: AppColors.error.withValues(alpha: 0.3),
-                      ),
-                    ),
-                    child: Text(
-                      prefsState.errorMessage!,
-                      style: TextStyle(color: AppColors.error, fontSize: 13),
-                    ),
-                  ),
+                  // DEBUG SECTION
+                  _NotificationDebugSection(),
 
-                // DAILY REMINDERS SECTION
-                SettingsSection(
-                  title: L10n.of(context).settingsDailyReminders,
-                  tiles: [
-                    SettingsSwitchTile(
-                      icon: Icons.notifications_outlined,
-                      title: L10n.of(context).settingsDailyReminders2,
-                      subtitle: L10n.of(context).settingsGetRemindedToTrackYour,
-                      value: prefsState.dailyReminderEnabled,
-                      onChanged: (value) {
-                        HapticFeedback.lightImpact();
-                        _setDailyReminders(value);
-                      },
-                    ),
-                    if (prefsState.dailyReminderEnabled)
-                      _ReminderTimeTile(
-                        reminderTime: prefsState.dailyReminderTime,
-                        onTap: () => _showReminderTimePicker(context),
-                      ),
-                  ],
-                ),
-
-                // BUDGET ALERTS SECTION
-                SettingsSection(
-                  title: L10n.of(context).settingsBudgetAlerts,
-                  tiles: [
-                    SettingsSwitchTile(
-                      icon: Icons.account_balance_wallet_outlined,
-                      title: L10n.of(context).settingsBudgetAlerts2,
-                      subtitle: L10n.of(
-                        context,
-                      ).settingsNotifyWhenApproachingBudgetLimit,
-                      value: prefsState.budgetAlertsEnabled,
-                      onChanged: (value) async {
-                        HapticFeedback.lightImpact();
-                        await ref
-                            .read(notificationPreferencesProvider.notifier)
-                            .setBudgetAlertsEnabled(value);
-                      },
-                    ),
-                    if (prefsState.budgetAlertsEnabled)
-                      SettingsSliderTile(
-                        icon: Icons.warning_amber_outlined,
-                        iconColor: AppColors.warning,
-                        title: L10n.of(context).settingsWarningThreshold,
-                        subtitle:
-                            '${prefsState.budgetWarningThreshold.toInt()}% of budget',
-                        value: prefsState.budgetWarningThreshold,
-                        min: 50,
-                        max: 95,
-                        divisions: 9,
-                        onChanged: (value) async {
-                          await ref
-                              .read(notificationPreferencesProvider.notifier)
-                              .setBudgetWarningThreshold(value);
-                        },
-                      ),
-                  ],
-                ),
-
-                // TRANSACTION ALERTS SECTION
-                SettingsSection(
-                  title: L10n.of(context).settingsTransactionAlerts,
-                  tiles: [
-                    SettingsSwitchTile(
-                      icon: Icons.receipt_long_outlined,
-                      title: L10n.of(context).settingsLargeTransactionAlerts,
-                      subtitle: L10n.of(
-                        context,
-                      ).settingsNotifyForTransactionsAboveThreshold,
-                      value: prefsState.largeTransactionAlertsEnabled,
-                      onChanged: (value) async {
-                        HapticFeedback.lightImpact();
-                        await ref
-                            .read(notificationPreferencesProvider.notifier)
-                            .setLargeTransactionAlertsEnabled(value);
-                      },
-                    ),
-                    if (prefsState.largeTransactionAlertsEnabled)
-                      SettingsNavigationTile(
-                        icon: Icons.attach_money,
-                        title: L10n.of(
-                          context,
-                        ).settingsLargeTransactionThreshold,
-                        subtitle:
-                            '\$${prefsState.largeTransactionThreshold.toStringAsFixed(0)}',
-                        onTap: () => _showThresholdDialog(context),
-                      ),
-                    SettingsSwitchTile(
-                      icon: Icons.repeat,
-                      title: L10n.of(
-                        context,
-                      ).settingsRecurringTransactionReminders,
-                      subtitle: L10n.of(
-                        context,
-                      ).settingsRemindAboutUpcomingRecurringPayments,
-                      value: prefsState.recurringTransactionRemindersEnabled,
-                      onChanged: (value) async {
-                        HapticFeedback.lightImpact();
-                        await ref
-                            .read(notificationPreferencesProvider.notifier)
-                            .setRecurringRemindersEnabled(value);
-                      },
-                    ),
-                    if (prefsState.recurringTransactionRemindersEnabled)
-                      SettingsNavigationTile(
-                        icon: Icons.calendar_today,
-                        title: L10n.of(context).settingsRemindMeBeforeDueDate,
-                        subtitle: BackgroundTaskConstants.offsetLabel(
-                          prefsState.reminderOffsetMinutes,
-                        ),
-                        onTap: () => _showReminderOffsetDialog(context),
-                      ),
-                  ],
-                ),
-
-                // SUBSCRIPTION & PROMOTIONAL SECTION
-                SettingsSection(
-                  title: L10n.of(context).settingsOtherNotifications,
-                  tiles: [
-                    SettingsSwitchTile(
-                      icon: Icons.star_outline,
-                      title: L10n.of(context).settingsSubscriptionExpiryAlerts,
-                      subtitle: L10n.of(
-                        context,
-                      ).settingsGetNotifiedBeforeYourPremium,
-                      value: prefsState.subscriptionExpiryAlertsEnabled,
-                      onChanged: (value) async {
-                        HapticFeedback.lightImpact();
-                        await ref
-                            .read(notificationPreferencesProvider.notifier)
-                            .setSubscriptionExpiryAlertsEnabled(value);
-                      },
-                    ),
-                    SettingsSwitchTile(
-                      icon: Icons.campaign_outlined,
-                      title: L10n.of(context).settingsPromotionalNotifications,
-                      subtitle: L10n.of(
-                        context,
-                      ).settingsReceiveOffersAndFeatureUpdates,
-                      value: prefsState.promotionalNotificationsEnabled,
-                      onChanged: (value) async {
-                        HapticFeedback.lightImpact();
-                        await ref
-                            .read(notificationPreferencesProvider.notifier)
-                            .setPromotionalNotificationsEnabled(value);
-                      },
-                    ),
-                  ],
-                ),
-
-                // DEBUG SECTION
-                _NotificationDebugSection(),
-
-                SizedBox(height: AppSpacing.xxl),
-              ],
-            ),
+                  SizedBox(height: AppSpacing.xxl),
+                ],
+              ),
+      ),
     );
   }
 

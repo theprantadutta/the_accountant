@@ -1,4 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
+import 'package:the_accountant/core/services/financial_calculation_service.dart';
+import 'package:the_accountant/features/dashboard/providers/net_worth_preferences_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -477,7 +479,16 @@ class _NetWorthCard extends ConsumerWidget {
     final walletState = ref.watch(walletProvider);
     final visibility = ref.watch(balanceVisibilityProvider);
 
-    final wallets = walletState.wallets.where((w) => !w.isArchived).toList();
+    // The accounts beside the total are the ones in it.
+    final includeCards = ref.watch(creditCardsInNetWorthProvider);
+    final wallets = walletState.wallets
+        .where(
+          (w) => FinancialCalculationService.countsInNetWorth(
+            w,
+            includeCreditCards: includeCards,
+          ),
+        )
+        .toList();
     final balances = walletState.walletBalances;
     int balanceOf(Wallet w) => balances[w.id] ?? w.balance;
 

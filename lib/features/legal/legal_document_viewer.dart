@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/shared/widgets/sunrise/sunrise_page.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:the_accountant/shared/widgets/legal_markdown_style.dart';
@@ -46,14 +47,16 @@ class _LegalDocumentViewerState extends State<LegalDocumentViewer> {
         elevation: 0,
         title: Text(widget.title),
       ),
-      body: _isLoading
-          ? const LegalLoadingPlaceholder()
-          : Markdown(
-              data: _content,
-              selectable: true,
-              padding: AppSpacing.paddingLg,
-              styleSheet: legalMarkdownStyleSheet(),
-            ),
+      body: CappedBody(
+        child: _isLoading
+            ? const LegalLoadingPlaceholder()
+            : Markdown(
+                data: _content,
+                selectable: true,
+                padding: AppSpacing.paddingLg,
+                styleSheet: legalMarkdownStyleSheet(),
+              ),
+      ),
     );
   }
 }

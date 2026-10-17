@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:the_accountant/features/dashboard/providers/net_worth_preferences_provider.dart';
 import 'package:the_accountant/core/domain/default_wallet.dart';
 import 'package:the_accountant/core/providers/currency_provider.dart';
 import 'package:the_accountant/core/services/financial_calculation_service.dart';
@@ -208,6 +209,7 @@ class WalletNotifier extends StateNotifier<WalletState> {
     String? color,
     bool? isDefault,
     bool? useDecimals,
+    WalletType? walletType,
     int? creditLimit,
     int? billingCycleDay,
     bool? isArchived,
@@ -230,6 +232,11 @@ class WalletNotifier extends StateNotifier<WalletState> {
         isDefault: isDefault != null ? Value(isDefault) : const Value.absent(),
         useDecimals: useDecimals != null
             ? Value(useDecimals)
+            : const Value.absent(),
+        // The edit form always offered the type, and it was never written:
+        // an account could not become a credit card after it was created.
+        walletType: walletType != null
+            ? Value(walletType)
             : const Value.absent(),
         creditLimit: creditLimit != null
             ? Value(creditLimit)
@@ -381,5 +388,8 @@ final convertedTotalBalanceProvider = FutureProvider<int>((ref) async {
     ref.watch(databaseProvider),
     ref.watch(currencyServiceProvider),
   );
-  return service.getTotalBalanceConverted(currency);
+  return service.getTotalBalanceConverted(
+    currency,
+    includeCreditCards: ref.watch(creditCardsInNetWorthProvider),
+  );
 });

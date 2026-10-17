@@ -215,6 +215,7 @@ class _WalletManagementScreenState
                       color: color,
                       isDefault: isDefault,
                       useDecimals: useDecimals,
+                      walletType: walletType,
                       creditLimit: creditLimit == null
                           ? null
                           : (creditLimit * 100).round(),

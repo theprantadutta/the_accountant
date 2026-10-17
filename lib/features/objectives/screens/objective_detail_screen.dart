@@ -1,5 +1,6 @@
 import 'package:the_accountant/core/themes/sunrise/sunrise_colors.dart';
 import 'package:flutter/material.dart';
+import 'package:the_accountant/shared/widgets/sunrise/sunrise_page.dart';
 import 'package:the_accountant/shared/widgets/registry_icon.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -39,9 +40,13 @@ class ObjectiveDetailScreen extends ConsumerWidget {
     if (objective == null) {
       return Scaffold(
         appBar: AppBar(title: Text(L10n.of(context).goalGoal)),
-        body: all.isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : Center(child: Text(L10n.of(context).goalThisGoalNoLongerExists)),
+        body: CappedBody(
+          child: all.isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : Center(
+                  child: Text(L10n.of(context).goalThisGoalNoLongerExists),
+                ),
+        ),
       );
     }
 
@@ -87,168 +92,170 @@ class ObjectiveDetailScreen extends ConsumerWidget {
         icon: const Icon(Icons.add),
         label: Text(L10n.of(context).goalAddToGoal),
       ),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
-        children: [
-          GlassCard(
-            padding: AppSpacing.paddingLg,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      width: 48,
-                      height: 48,
-                      decoration: BoxDecoration(
-                        color: tint.withValues(alpha: 0.18),
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      child: RegistryIcon(
-                        objective.objective.iconName,
-                        color: tint,
-                      ),
-                    ),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            money(objective.currentAmount),
-                            style: AppTypography.displaySmall,
-                          ),
-                          Text(
-                            'of ${money(objective.targetAmount)}',
-                            style: AppTypography.bodySmall.copyWith(
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                AppSpacing.gapLg,
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(4),
-                  child: LinearProgressIndicator(
-                    value: fraction,
-                    minHeight: 8,
-                    backgroundColor: context.sunrise.toggleOff,
-                    color: objective.isComplete ? AppColors.success : tint,
-                  ),
-                ),
-                AppSpacing.gapMd,
-                Text(
-                  objective.isComplete
-                      ? 'Reached. Nicely done.'
-                      : '${money(objective.remainingAmount)} still to go.',
-                  style: AppTypography.bodyMedium,
-                ),
-                if (!objective.isComplete && dailyTarget != null) ...[
-                  AppSpacing.gapSm,
-                  Text(
-                    '${money(dailyTarget)} a day to arrive on time.',
-                    style: AppTypography.bodySmall.copyWith(
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
-                ],
-                if (objective.timeRemainingText != null) ...[
-                  AppSpacing.gapSm,
+      body: CappedBody(
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
+          children: [
+            GlassCard(
+              padding: AppSpacing.paddingLg,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                   Row(
                     children: [
-                      Icon(
-                        Icons.schedule,
-                        size: 14,
-                        color: AppColors.textMuted,
+                      Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: tint.withValues(alpha: 0.18),
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: RegistryIcon(
+                          objective.objective.iconName,
+                          color: tint,
+                        ),
                       ),
-                      const SizedBox(width: 6),
-                      Text(
-                        objective.timeRemainingText!,
-                        style: AppTypography.bodySmall.copyWith(
-                          color: AppColors.textMuted,
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              money(objective.currentAmount),
+                              style: AppTypography.displaySmall,
+                            ),
+                            Text(
+                              'of ${money(objective.targetAmount)}',
+                              style: AppTypography.bodySmall.copyWith(
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
                   ),
-                ],
-              ],
-            ),
-          ),
-          AppSpacing.gapLg,
-
-          if (!objective.isComplete)
-            _PlanCard(objective: objective, currency: currency),
-
-          GlassCard(
-            padding: AppSpacing.paddingLg,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  L10n.of(context).goalCountedTowardThisGoal,
-                  style: AppTypography.titleSmall,
-                ),
-                AppSpacing.gapSm,
-                if (objective.linkedTransactions.isEmpty)
-                  Text(
-                    'Nothing linked yet. Pick this goal on a transaction and '
-                    'it will show up here.',
-                    style: AppTypography.bodySmall.copyWith(
-                      color: AppColors.textMuted,
+                  AppSpacing.gapLg,
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: LinearProgressIndicator(
+                      value: fraction,
+                      minHeight: 8,
+                      backgroundColor: context.sunrise.toggleOff,
+                      color: objective.isComplete ? AppColors.success : tint,
                     ),
-                  )
-                else
-                  for (final t in objective.linkedTransactions)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 10),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  t.title.isEmpty ? 'Transaction' : t.title,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: AppTypography.bodyMedium,
-                                ),
-                                Text(
-                                  AppDateFormatter.formatShortDate(
-                                    t.date,
-                                    dateFormat,
-                                  ),
-                                  style: AppTypography.labelSmall.copyWith(
-                                    color: AppColors.textMuted,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Text(
-                            money(t.amount),
-                            style: AppTypography.bodyMedium,
-                          ),
-                          IconButton(
-                            tooltip: L10n.of(context).goalUnlink,
-                            icon: const Icon(Icons.link_off, size: 18),
-                            onPressed: () async {
-                              await ref
-                                  .read(objectivesProvider.notifier)
-                                  .unlinkTransaction(objectiveId, t.id);
-                              ref.invalidate(allObjectivesProvider);
-                            },
-                          ),
-                        ],
+                  ),
+                  AppSpacing.gapMd,
+                  Text(
+                    objective.isComplete
+                        ? 'Reached. Nicely done.'
+                        : '${money(objective.remainingAmount)} still to go.',
+                    style: AppTypography.bodyMedium,
+                  ),
+                  if (!objective.isComplete && dailyTarget != null) ...[
+                    AppSpacing.gapSm,
+                    Text(
+                      '${money(dailyTarget)} a day to arrive on time.',
+                      style: AppTypography.bodySmall.copyWith(
+                        color: AppColors.textSecondary,
                       ),
                     ),
-              ],
+                  ],
+                  if (objective.timeRemainingText != null) ...[
+                    AppSpacing.gapSm,
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.schedule,
+                          size: 14,
+                          color: AppColors.textMuted,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          objective.timeRemainingText!,
+                          style: AppTypography.bodySmall.copyWith(
+                            color: AppColors.textMuted,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ],
+              ),
             ),
-          ),
-        ],
+            AppSpacing.gapLg,
+
+            if (!objective.isComplete)
+              _PlanCard(objective: objective, currency: currency),
+
+            GlassCard(
+              padding: AppSpacing.paddingLg,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    L10n.of(context).goalCountedTowardThisGoal,
+                    style: AppTypography.titleSmall,
+                  ),
+                  AppSpacing.gapSm,
+                  if (objective.linkedTransactions.isEmpty)
+                    Text(
+                      'Nothing linked yet. Pick this goal on a transaction and '
+                      'it will show up here.',
+                      style: AppTypography.bodySmall.copyWith(
+                        color: AppColors.textMuted,
+                      ),
+                    )
+                  else
+                    for (final t in objective.linkedTransactions)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 10),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    t.title.isEmpty ? 'Transaction' : t.title,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: AppTypography.bodyMedium,
+                                  ),
+                                  Text(
+                                    AppDateFormatter.formatShortDate(
+                                      t.date,
+                                      dateFormat,
+                                    ),
+                                    style: AppTypography.labelSmall.copyWith(
+                                      color: AppColors.textMuted,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Text(
+                              money(t.amount),
+                              style: AppTypography.bodyMedium,
+                            ),
+                            IconButton(
+                              tooltip: L10n.of(context).goalUnlink,
+                              icon: const Icon(Icons.link_off, size: 18),
+                              onPressed: () async {
+                                await ref
+                                    .read(objectivesProvider.notifier)
+                                    .unlinkTransaction(objectiveId, t.id);
+                                ref.invalidate(allObjectivesProvider);
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

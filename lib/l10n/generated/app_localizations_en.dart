@@ -839,6 +839,13 @@ class L10nEn extends L10n {
   String get settingsGoals => 'Goals';
 
   @override
+  String get settingsCardsInNetWorth => 'Count credit cards in net worth';
+
+  @override
+  String get settingsCardsInNetWorthSub =>
+      'Off: only money you have counts, not card balances.';
+
+  @override
   String get settingsSaveTowardSomethingAndTrack =>
       'Save toward something and track how far along you are';
 
@@ -1224,6 +1231,12 @@ class L10nEn extends L10n {
 
   @override
   String get catEnterCategoryName => 'Enter category name';
+
+  @override
+  String get catSearch => 'Search categories';
+
+  @override
+  String get catNoMatch => 'No category matches that.';
 
   @override
   String get catUseEmoji => 'Use an emoji';

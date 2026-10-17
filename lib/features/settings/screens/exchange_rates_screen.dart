@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/shared/widgets/sunrise/sunrise_page.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/providers/currency_provider.dart';
@@ -54,92 +55,94 @@ class _ExchangeRatesScreenState extends ConsumerState<ExchangeRatesScreen> {
             ),
           ],
         ),
-        body: Column(
-          children: [
-            // Header info
-            Padding(
-              padding: AppSpacing.horizontalPadding(AppSpacing.md),
-              child: Container(
-                padding: AppSpacing.paddingMd,
-                decoration: BoxDecoration(
-                  color: AppColors.primarySurface,
-                  borderRadius: AppSpacing.borderRadiusMd,
-                  border: Border.all(color: AppColors.glassBorder),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.currency_exchange,
-                          color: AppColors.primaryAccent,
-                        ),
-                        AppSpacing.gapHMd,
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Base Currency: $_baseCurrency',
-                                style: AppTypography.titleMedium,
-                              ),
-                              if (currencyState.lastFetched != null)
-                                Text(
-                                  'Last updated: ${_formatDate(currencyState.lastFetched!)}',
-                                  style: AppTypography.bodySmall.copyWith(
-                                    color: AppColors.textSecondary,
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ),
-                        if (currencyState.isLoading)
-                          const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            AppSpacing.gapMd,
-
-            // Search bar
-            Padding(
-              padding: AppSpacing.horizontalPadding(AppSpacing.md),
-              child: TextField(
-                controller: _searchController,
-                decoration: InputDecoration(
-                  hintText: L10n.of(context).settingsSearchCurrencies,
-                  prefixIcon: const Icon(Icons.search),
-                  suffixIcon: _searchQuery.isNotEmpty
-                      ? IconButton(
-                          icon: const Icon(Icons.clear),
-                          onPressed: () {
-                            _searchController.clear();
-                            setState(() => _searchQuery = '');
-                          },
-                        )
-                      : null,
-                  filled: true,
-                  fillColor: AppColors.glassWhite,
-                  border: OutlineInputBorder(
+        body: CappedBody(
+          child: Column(
+            children: [
+              // Header info
+              Padding(
+                padding: AppSpacing.horizontalPadding(AppSpacing.md),
+                child: Container(
+                  padding: AppSpacing.paddingMd,
+                  decoration: BoxDecoration(
+                    color: AppColors.primarySurface,
                     borderRadius: AppSpacing.borderRadiusMd,
-                    borderSide: BorderSide.none,
+                    border: Border.all(color: AppColors.glassBorder),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.currency_exchange,
+                            color: AppColors.primaryAccent,
+                          ),
+                          AppSpacing.gapHMd,
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Base Currency: $_baseCurrency',
+                                  style: AppTypography.titleMedium,
+                                ),
+                                if (currencyState.lastFetched != null)
+                                  Text(
+                                    'Last updated: ${_formatDate(currencyState.lastFetched!)}',
+                                    style: AppTypography.bodySmall.copyWith(
+                                      color: AppColors.textSecondary,
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                          if (currencyState.isLoading)
+                            const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
-                onChanged: (value) => setState(() => _searchQuery = value),
               ),
-            ),
-            AppSpacing.gapMd,
+              AppSpacing.gapMd,
 
-            // Rates list
-            Expanded(child: _buildRatesList(currencyState)),
-          ],
+              // Search bar
+              Padding(
+                padding: AppSpacing.horizontalPadding(AppSpacing.md),
+                child: TextField(
+                  controller: _searchController,
+                  decoration: InputDecoration(
+                    hintText: L10n.of(context).settingsSearchCurrencies,
+                    prefixIcon: const Icon(Icons.search),
+                    suffixIcon: _searchQuery.isNotEmpty
+                        ? IconButton(
+                            icon: const Icon(Icons.clear),
+                            onPressed: () {
+                              _searchController.clear();
+                              setState(() => _searchQuery = '');
+                            },
+                          )
+                        : null,
+                    filled: true,
+                    fillColor: AppColors.glassWhite,
+                    border: OutlineInputBorder(
+                      borderRadius: AppSpacing.borderRadiusMd,
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                  onChanged: (value) => setState(() => _searchQuery = value),
+                ),
+              ),
+              AppSpacing.gapMd,
+
+              // Rates list
+              Expanded(child: _buildRatesList(currencyState)),
+            ],
+          ),
         ),
       ),
     );

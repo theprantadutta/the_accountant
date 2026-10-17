@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:the_accountant/shared/widgets/sunrise/sunrise_page.dart';
 import 'package:the_accountant/core/providers/sync_provider.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart';
@@ -71,44 +72,46 @@ class _BackupScreenState extends ConsumerState<BackupScreen>
         elevation: 0,
         title: Text(L10n.of(context).settingsBackupRestore),
       ),
-      body: ListView(
-        padding: EdgeInsets.all(AppSpacing.md),
-        children: [
-          _infoCard(
-            'A backup is a single file holding everything on this device — '
-            'every transaction, account, budget and goal. Keep one somewhere '
-            'safe and nothing here is ever lost for good.',
-          ),
-          SizedBox(height: AppSpacing.lg),
-
-          _header('ON THIS DEVICE'),
-          _card([
-            _tile(
-              icon: Icons.save_alt,
-              title: L10n.of(context).backupSaveABackupFile,
-              subtitle: L10n.of(context).backupShareItToFilesEmail,
-              onTap: _busy ? null : _saveToFile,
+      body: CappedBody(
+        child: ListView(
+          padding: EdgeInsets.all(AppSpacing.md),
+          children: [
+            _infoCard(
+              'A backup is a single file holding everything on this device — '
+              'every transaction, account, budget and goal. Keep one somewhere '
+              'safe and nothing here is ever lost for good.',
             ),
-            _divider(),
-            _tile(
-              icon: Icons.settings_backup_restore,
-              title: L10n.of(context).backupRestoreFromAFile,
-              subtitle: L10n.of(
-                context,
-              ).backupReplacesEverythingCurrentlyOnThis,
-              onTap: _busy ? null : _restoreFromFile,
-            ),
-          ]),
-          SizedBox(height: AppSpacing.lg),
+            SizedBox(height: AppSpacing.lg),
 
-          _header('GOOGLE DRIVE'),
-          _driveSection(),
-          SizedBox(height: AppSpacing.lg),
+            _header('ON THIS DEVICE'),
+            _card([
+              _tile(
+                icon: Icons.save_alt,
+                title: L10n.of(context).backupSaveABackupFile,
+                subtitle: L10n.of(context).backupShareItToFilesEmail,
+                onTap: _busy ? null : _saveToFile,
+              ),
+              _divider(),
+              _tile(
+                icon: Icons.settings_backup_restore,
+                title: L10n.of(context).backupRestoreFromAFile,
+                subtitle: L10n.of(
+                  context,
+                ).backupReplacesEverythingCurrentlyOnThis,
+                onTap: _busy ? null : _restoreFromFile,
+              ),
+            ]),
+            SizedBox(height: AppSpacing.lg),
 
-          _header('BACKUPS IN DRIVE', action: _refreshDriveButton()),
-          _driveList(),
-          SizedBox(height: AppSpacing.xl),
-        ],
+            _header('GOOGLE DRIVE'),
+            _driveSection(),
+            SizedBox(height: AppSpacing.lg),
+
+            _header('BACKUPS IN DRIVE', action: _refreshDriveButton()),
+            _driveList(),
+            SizedBox(height: AppSpacing.xl),
+          ],
+        ),
       ),
     );
   }

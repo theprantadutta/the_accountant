@@ -54,16 +54,18 @@ class _ObjectivesListScreenState extends ConsumerState<ObjectivesListScreen> {
               icon: const Icon(Icons.add),
               label: Text(L10n.of(context).goalNew),
             ),
-      body: switch (all) {
-        AsyncData(:final value) => _body(value, currency),
-        AsyncError() => Center(child: Text(L10n.of(context).goalLoadFailed)),
-        _ => const Padding(
-          padding: EdgeInsets.all(16),
-          child: Column(
-            children: [ShimmerCard(), ShimmerCard(), ShimmerCard()],
+      body: CappedBody(
+        child: switch (all) {
+          AsyncData(:final value) => _body(value, currency),
+          AsyncError() => Center(child: Text(L10n.of(context).goalLoadFailed)),
+          _ => const Padding(
+            padding: EdgeInsets.all(16),
+            child: Column(
+              children: [ShimmerCard(), ShimmerCard(), ShimmerCard()],
+            ),
           ),
-        ),
-      },
+        },
+      ),
     );
   }
 

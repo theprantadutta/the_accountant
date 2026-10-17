@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import 'package:the_accountant/features/categories/providers/category_provider.dart'
     as category_provider;
 import 'package:the_accountant/features/categories/widgets/add_category_form.dart'
@@ -10,12 +11,24 @@ import 'package:the_accountant/features/categories/widgets/category_list_item.da
     as category_list_item;
 import 'package:the_accountant/shared/widgets/shimmer_loading.dart';
 
+/// What the search bar on this screen holds; empty shows everything.
+final _categoryQueryProvider = StateProvider.autoDispose<String>((ref) => '');
+
 class CategoryManagementScreen extends ConsumerWidget {
   const CategoryManagementScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final categoryState = ref.watch(category_provider.categoryProvider);
+    final query = ref.watch(_categoryQueryProvider).trim().toLowerCase();
+    // A name match, or a match on the parent, so searching "Food" also shows
+    // what is filed inside it.
+    final names = {for (final c in categoryState.categories) c.id: c.name};
+    bool matches(category_provider.Category c) =>
+        query.isEmpty ||
+        c.name.toLowerCase().contains(query) ||
+        (names[c.mainCategoryId]?.toLowerCase().contains(query) ?? false);
+    final shown = categoryState.categories.where(matches).toList();
 
     return Scaffold(
       appBar: AppBar(
@@ -29,68 +42,79 @@ class CategoryManagementScreen extends ConsumerWidget {
           ),
         ],
       ),
-      body: categoryState.isLoading
-          ? const Padding(
-              padding: EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  ShimmerCard(height: 64),
-                  SizedBox(height: 12),
-                  ShimmerCard(height: 64),
-                  SizedBox(height: 12),
-                  ShimmerCard(height: 64),
-                  SizedBox(height: 12),
-                  ShimmerCard(height: 64),
-                  SizedBox(height: 12),
-                  ShimmerCard(height: 64),
-                ],
-              ),
-            )
-          : SingleChildScrollView(
-              // The two lists used to sit in a plain Column, which overflowed
-              // as soon as there were more categories than fit on screen.
-              padding: const EdgeInsets.only(bottom: 32),
-              child: Column(
-                children: [
-                  // Expense categories section
-                  _buildCategorySection(
-                    context,
-                    ref,
-                    'Expense Categories',
-                    categoryState.categories
-                        .where((c) => c.type == 'expense' && !c.isArchived)
-                        .toList(),
-                  ),
-                  // Income categories section
-                  _buildCategorySection(
-                    context,
-                    ref,
-                    'Income Categories',
-                    categoryState.categories
-                        .where((c) => c.type == 'income' && !c.isArchived)
-                        .toList(),
-                  ),
-                  // Put away, but kept for their history
-                  if (categoryState.categories.any((c) => c.isArchived)) ...[
-                    _buildCategorySection(
-                      context,
-                      ref,
-                      L10n.of(context).catArchivedSection,
-                      categoryState.categories
-                          .where((c) => c.isArchived)
-                          .toList(),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(14, 4, 14, 0),
-                      child: Text(
-                        L10n.of(context).catArchivedHint,
-                        style: TextStyle(color: context.sunrise.subtle),
-                      ),
-                    ),
+      body: CappedBody(
+        child: categoryState.isLoading
+            ? const Padding(
+                padding: EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    ShimmerCard(height: 64),
+                    SizedBox(height: 12),
+                    ShimmerCard(height: 64),
+                    SizedBox(height: 12),
+                    ShimmerCard(height: 64),
+                    SizedBox(height: 12),
+                    ShimmerCard(height: 64),
+                    SizedBox(height: 12),
+                    ShimmerCard(height: 64),
                   ],
-                ],
+                ),
+              )
+            : SingleChildScrollView(
+                // The two lists used to sit in a plain Column, which overflowed
+                // as soon as there were more categories than fit on screen.
+                padding: const EdgeInsets.only(bottom: 32),
+                child: Column(
+                  children: [
+                    const _CategorySearchBar(),
+                    if (query.isNotEmpty && shown.isEmpty)
+                      Padding(
+                        padding: const EdgeInsets.all(24),
+                        child: Text(
+                          L10n.of(context).catNoMatch,
+                          style: TextStyle(color: context.sunrise.subtle),
+                        ),
+                      ),
+                    // Expense categories section
+                    if (query.isEmpty || shown.any((c) => c.type == 'expense'))
+                      _buildCategorySection(
+                        context,
+                        ref,
+                        'Expense Categories',
+                        shown
+                            .where((c) => c.type == 'expense' && !c.isArchived)
+                            .toList(),
+                      ),
+                    // Income categories section
+                    if (query.isEmpty || shown.any((c) => c.type == 'income'))
+                      _buildCategorySection(
+                        context,
+                        ref,
+                        'Income Categories',
+                        shown
+                            .where((c) => c.type == 'income' && !c.isArchived)
+                            .toList(),
+                      ),
+                    // Put away, but kept for their history
+                    if (shown.any((c) => c.isArchived)) ...[
+                      _buildCategorySection(
+                        context,
+                        ref,
+                        L10n.of(context).catArchivedSection,
+                        shown.where((c) => c.isArchived).toList(),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(14, 4, 14, 0),
+                        child: Text(
+                          L10n.of(context).catArchivedHint,
+                          style: TextStyle(color: context.sunrise.subtle),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
               ),
-            ),
+      ),
     );
   }
 
@@ -209,6 +233,41 @@ class CategoryManagementScreen extends ConsumerWidget {
           ],
         );
       },
+    );
+  }
+}
+
+/// The search bar at the top of the list. Owns its text so the × can clear it.
+class _CategorySearchBar extends ConsumerStatefulWidget {
+  const _CategorySearchBar();
+
+  @override
+  ConsumerState<_CategorySearchBar> createState() => _CategorySearchBarState();
+}
+
+class _CategorySearchBarState extends ConsumerState<_CategorySearchBar> {
+  final _controller = TextEditingController();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(14, 8, 14, 0),
+      child: SunriseSearchField(
+        hint: L10n.of(context).catSearch,
+        controller: _controller,
+        onChanged: (value) =>
+            ref.read(_categoryQueryProvider.notifier).state = value,
+        onClear: () {
+          _controller.clear();
+          ref.read(_categoryQueryProvider.notifier).state = '';
+        },
+      ),
     );
   }
 }

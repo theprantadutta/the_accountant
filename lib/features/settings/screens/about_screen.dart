@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/shared/widgets/sunrise/sunrise_page.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -19,114 +20,116 @@ class AboutScreen extends StatelessWidget {
         elevation: 0,
         title: Text(L10n.of(context).settingsAbout),
       ),
-      body: FutureBuilder<PackageInfo>(
-        future: PackageInfo.fromPlatform(),
-        builder: (context, snapshot) {
-          final version = snapshot.data?.version ?? '...';
-          final build = snapshot.data?.buildNumber ?? '...';
+      body: CappedBody(
+        child: FutureBuilder<PackageInfo>(
+          future: PackageInfo.fromPlatform(),
+          builder: (context, snapshot) {
+            final version = snapshot.data?.version ?? '...';
+            final build = snapshot.data?.buildNumber ?? '...';
 
-          return ListView(
-            padding: EdgeInsets.all(AppSpacing.md),
-            children: [
-              // App logo and name
-              _buildAppHeader(),
-              SizedBox(height: AppSpacing.xl),
+            return ListView(
+              padding: EdgeInsets.all(AppSpacing.md),
+              children: [
+                // App logo and name
+                _buildAppHeader(),
+                SizedBox(height: AppSpacing.xl),
 
-              // Version info
-              _buildInfoCard([
-                _buildInfoRow('Version', version),
-                _buildDivider(),
-                _buildInfoRow('Build', build),
-              ]),
-              SizedBox(height: AppSpacing.md),
+                // Version info
+                _buildInfoCard([
+                  _buildInfoRow('Version', version),
+                  _buildDivider(),
+                  _buildInfoRow('Build', build),
+                ]),
+                SizedBox(height: AppSpacing.md),
 
-              // Links
-              _buildInfoCard([
-                _buildLinkTile(
-                  icon: Icons.privacy_tip_outlined,
-                  title: L10n.of(context).settingsPrivacyPolicy,
-                  isExternal: false,
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => LegalDocumentViewer(
-                        title: L10n.of(context).settingsPrivacyPolicy,
-                        assetPath: 'assets/legal/privacy.md',
+                // Links
+                _buildInfoCard([
+                  _buildLinkTile(
+                    icon: Icons.privacy_tip_outlined,
+                    title: L10n.of(context).settingsPrivacyPolicy,
+                    isExternal: false,
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => LegalDocumentViewer(
+                          title: L10n.of(context).settingsPrivacyPolicy,
+                          assetPath: 'assets/legal/privacy.md',
+                        ),
                       ),
                     ),
                   ),
-                ),
-                _buildDivider(),
-                _buildLinkTile(
-                  icon: Icons.description_outlined,
-                  title: L10n.of(context).settingsTermsOfService,
-                  isExternal: false,
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => LegalDocumentViewer(
-                        title: L10n.of(context).settingsTermsOfService,
-                        assetPath: 'assets/legal/terms.md',
+                  _buildDivider(),
+                  _buildLinkTile(
+                    icon: Icons.description_outlined,
+                    title: L10n.of(context).settingsTermsOfService,
+                    isExternal: false,
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => LegalDocumentViewer(
+                          title: L10n.of(context).settingsTermsOfService,
+                          assetPath: 'assets/legal/terms.md',
+                        ),
                       ),
                     ),
                   ),
-                ),
-                _buildDivider(),
-                _buildLinkTile(
-                  icon: Icons.receipt_long_outlined,
-                  title: L10n.of(context).settingsRefundPolicy,
-                  isExternal: false,
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => LegalDocumentViewer(
-                        title: L10n.of(context).settingsRefundPolicy,
-                        assetPath: 'assets/legal/refund.md',
+                  _buildDivider(),
+                  _buildLinkTile(
+                    icon: Icons.receipt_long_outlined,
+                    title: L10n.of(context).settingsRefundPolicy,
+                    isExternal: false,
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => LegalDocumentViewer(
+                          title: L10n.of(context).settingsRefundPolicy,
+                          assetPath: 'assets/legal/refund.md',
+                        ),
                       ),
                     ),
                   ),
-                ),
-                _buildDivider(),
-                _buildLinkTile(
-                  icon: Icons.code,
-                  title: L10n.of(context).settingsOpenSourceLicenses,
-                  isExternal: false,
-                  onTap: () => _showLicenses(context, version),
-                ),
-              ]),
-              SizedBox(height: AppSpacing.md),
+                  _buildDivider(),
+                  _buildLinkTile(
+                    icon: Icons.code,
+                    title: L10n.of(context).settingsOpenSourceLicenses,
+                    isExternal: false,
+                    onTap: () => _showLicenses(context, version),
+                  ),
+                ]),
+                SizedBox(height: AppSpacing.md),
 
-              // Developer info
-              _buildInfoCard([
-                _buildLinkTile(
-                  icon: Icons.person_outline,
-                  title: L10n.of(context).settingsMeetTheDeveloper,
-                  isExternal: false,
-                  onTap: () => _showDeveloperDialog(context, version),
-                ),
-              ]),
-              SizedBox(height: AppSpacing.xl),
+                // Developer info
+                _buildInfoCard([
+                  _buildLinkTile(
+                    icon: Icons.person_outline,
+                    title: L10n.of(context).settingsMeetTheDeveloper,
+                    isExternal: false,
+                    onTap: () => _showDeveloperDialog(context, version),
+                  ),
+                ]),
+                SizedBox(height: AppSpacing.xl),
 
-              // Copyright
-              Center(
-                child: Text(
-                  '\u00a9 ${DateTime.now().year} The Accountant\nAll rights reserved.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: AppColors.textMuted, fontSize: 13),
+                // Copyright
+                Center(
+                  child: Text(
+                    '\u00a9 ${DateTime.now().year} The Accountant\nAll rights reserved.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: AppColors.textMuted, fontSize: 13),
+                  ),
                 ),
-              ),
-              SizedBox(height: AppSpacing.lg),
+                SizedBox(height: AppSpacing.lg),
 
-              // Made with love
-              Center(
-                child: Text(
-                  L10n.of(context).settingsMadeWithLoveForPersonal,
-                  style: TextStyle(color: AppColors.textMuted, fontSize: 12),
+                // Made with love
+                Center(
+                  child: Text(
+                    L10n.of(context).settingsMadeWithLoveForPersonal,
+                    style: TextStyle(color: AppColors.textMuted, fontSize: 12),
+                  ),
                 ),
-              ),
-            ],
-          );
-        },
+              ],
+            );
+          },
+        ),
       ),
     );
   }

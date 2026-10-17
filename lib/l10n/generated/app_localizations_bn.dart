@@ -834,6 +834,13 @@ class L10nBn extends L10n {
   String get settingsGoals => 'লক্ষ্য';
 
   @override
+  String get settingsCardsInNetWorth => 'নেট সম্পদে ক্রেডিট কার্ড ধরুন';
+
+  @override
+  String get settingsCardsInNetWorthSub =>
+      'বন্ধ থাকলে: শুধু আপনার টাকা ধরা হয়, কার্ডের ব্যালেন্স নয়।';
+
+  @override
   String get settingsSaveTowardSomethingAndTrack =>
       'কোনো কিছুর জন্য জমান এবং কতদূর এগোলেন দেখুন';
 
@@ -1219,6 +1226,12 @@ class L10nBn extends L10n {
 
   @override
   String get catEnterCategoryName => 'ক্যাটাগরির নাম লিখুন';
+
+  @override
+  String get catSearch => 'ক্যাটাগরি খুঁজুন';
+
+  @override
+  String get catNoMatch => 'এর সাথে মেলে এমন কোনো ক্যাটাগরি নেই।';
 
   @override
   String get catUseEmoji => 'ইমোজি ব্যবহার করুন';

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/shared/widgets/sunrise/sunrise_page.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/providers/currency_provider.dart';
@@ -122,214 +123,216 @@ class _AddBudgetScreenState extends ConsumerState<AddBudgetScreen> {
           ),
         ],
       ),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: AppSpacing.paddingLg,
-          children: [
-            TextFormField(
-              controller: _nameController,
-              textCapitalization: TextCapitalization.sentences,
-              decoration: InputDecoration(
-                labelText: L10n.of(context).payName,
-                hintText: L10n.of(context).budgetGroceries,
-                border: OutlineInputBorder(),
-              ),
-              validator: (v) => (v == null || v.trim().isEmpty)
-                  ? 'Give the budget a name'
-                  : null,
-            ),
-            AppSpacing.gapLg,
-
-            TextFormField(
-              controller: _amountController,
-              keyboardType: const TextInputType.numberWithOptions(
-                decimal: true,
-              ),
-              decoration: InputDecoration(
-                labelText: _isIncome ? 'Target' : 'Limit',
-                prefixText: '${_currencySymbol(currency)} ',
-                border: OutlineInputBorder(),
-              ),
-              validator: (v) {
-                final cents = (v ?? '').toCentsOrNull();
-                if (cents == null) return 'Enter an amount';
-                if (cents <= 0) return 'The amount must be more than zero';
-                return null;
-              },
-            ),
-            AppSpacing.gapXl,
-
-            _SectionLabel(
-              _isIncome ? 'Tracking earnings' : 'Tracking spending',
-            ),
-            SegmentedButton<bool>(
-              segments: [
-                ButtonSegment(
-                  value: false,
-                  label: Text(L10n.of(context).budgetSpending),
+      body: CappedBody(
+        child: Form(
+          key: _formKey,
+          child: ListView(
+            padding: AppSpacing.paddingLg,
+            children: [
+              TextFormField(
+                controller: _nameController,
+                textCapitalization: TextCapitalization.sentences,
+                decoration: InputDecoration(
+                  labelText: L10n.of(context).payName,
+                  hintText: L10n.of(context).budgetGroceries,
+                  border: OutlineInputBorder(),
                 ),
-                ButtonSegment(
-                  value: true,
-                  label: Text(L10n.of(context).budgetEarnings),
-                ),
-              ],
-              selected: {_isIncome},
-              onSelectionChanged: (s) => setState(() {
-                _isIncome = s.first;
-                // The categories on the other side are not valid here.
-                _categoryIds = {};
-              }),
-            ),
-            AppSpacing.gapXl,
+                validator: (v) => (v == null || v.trim().isEmpty)
+                    ? 'Give the budget a name'
+                    : null,
+              ),
+              AppSpacing.gapLg,
 
-            const _SectionLabel('Repeats'),
-            Wrap(
-              spacing: 8,
-              children: [
-                for (final p in BudgetPeriod.values)
-                  ChoiceChip(
-                    label: Text(_periodLabel(p)),
-                    selected: _period == p,
-                    onSelected: (_) => setState(() => _period = p),
+              TextFormField(
+                controller: _amountController,
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                decoration: InputDecoration(
+                  labelText: _isIncome ? 'Target' : 'Limit',
+                  prefixText: '${_currencySymbol(currency)} ',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (v) {
+                  final cents = (v ?? '').toCentsOrNull();
+                  if (cents == null) return 'Enter an amount';
+                  if (cents <= 0) return 'The amount must be more than zero';
+                  return null;
+                },
+              ),
+              AppSpacing.gapXl,
+
+              _SectionLabel(
+                _isIncome ? 'Tracking earnings' : 'Tracking spending',
+              ),
+              SegmentedButton<bool>(
+                segments: [
+                  ButtonSegment(
+                    value: false,
+                    label: Text(L10n.of(context).budgetSpending),
                   ),
-              ],
-            ),
-            if (_period != BudgetPeriod.custom) ...[
-              AppSpacing.gapMd,
-              Row(
+                  ButtonSegment(
+                    value: true,
+                    label: Text(L10n.of(context).budgetEarnings),
+                  ),
+                ],
+                selected: {_isIncome},
+                onSelectionChanged: (s) => setState(() {
+                  _isIncome = s.first;
+                  // The categories on the other side are not valid here.
+                  _categoryIds = {};
+                }),
+              ),
+              AppSpacing.gapXl,
+
+              const _SectionLabel('Repeats'),
+              Wrap(
+                spacing: 8,
                 children: [
-                  Text(L10n.of(context).budgetEvery),
-                  const SizedBox(width: 12),
-                  SizedBox(
-                    width: 72,
-                    child: TextFormField(
-                      controller: _intervalController,
-                      keyboardType: TextInputType.number,
-                      textAlign: TextAlign.center,
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        isDense: true,
-                      ),
-                      validator: (v) {
-                        final n = int.tryParse(v ?? '');
-                        if (n == null || n < 1) return '1+';
-                        if (n > 999) return 'Too big';
-                        return null;
-                      },
+                  for (final p in BudgetPeriod.values)
+                    ChoiceChip(
+                      label: Text(_periodLabel(p)),
+                      selected: _period == p,
+                      onSelected: (_) => setState(() => _period = p),
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  Text(_periodUnit(_period)),
                 ],
               ),
-            ],
-            AppSpacing.gapXl,
+              if (_period != BudgetPeriod.custom) ...[
+                AppSpacing.gapMd,
+                Row(
+                  children: [
+                    Text(L10n.of(context).budgetEvery),
+                    const SizedBox(width: 12),
+                    SizedBox(
+                      width: 72,
+                      child: TextFormField(
+                        controller: _intervalController,
+                        keyboardType: TextInputType.number,
+                        textAlign: TextAlign.center,
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                          isDense: true,
+                        ),
+                        validator: (v) {
+                          final n = int.tryParse(v ?? '');
+                          if (n == null || n < 1) return '1+';
+                          if (n > 999) return 'Too big';
+                          return null;
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Text(_periodUnit(_period)),
+                  ],
+                ),
+              ],
+              AppSpacing.gapXl,
 
-            const _SectionLabel('Starts'),
-            _DateRow(
-              label: AppDateFormatter.formatDate(_startDate, dateFormat),
-              onTap: () => _pickDate(
-                initial: _startDate,
-                onPicked: (d) => setState(() => _startDate = d),
+              const _SectionLabel('Starts'),
+              _DateRow(
+                label: AppDateFormatter.formatDate(_startDate, dateFormat),
+                onTap: () => _pickDate(
+                  initial: _startDate,
+                  onPicked: (d) => setState(() => _startDate = d),
+                ),
               ),
-            ),
-            AppSpacing.gapMd,
-            _SectionLabel(
-              _period == BudgetPeriod.custom ? 'Ends' : 'Stops repeating',
-            ),
-            _DateRow(
-              label: _endDate == null
-                  ? 'Never'
-                  : AppDateFormatter.formatDate(_endDate!, dateFormat),
-              onClear: _endDate == null
-                  ? null
-                  : () => setState(() => _endDate = null),
-              onTap: () => _pickDate(
-                initial: _endDate ?? _startDate,
-                onPicked: (d) => setState(() => _endDate = d),
+              AppSpacing.gapMd,
+              _SectionLabel(
+                _period == BudgetPeriod.custom ? 'Ends' : 'Stops repeating',
               ),
-            ),
-            AppSpacing.gapXl,
+              _DateRow(
+                label: _endDate == null
+                    ? 'Never'
+                    : AppDateFormatter.formatDate(_endDate!, dateFormat),
+                onClear: _endDate == null
+                    ? null
+                    : () => setState(() => _endDate = null),
+                onTap: () => _pickDate(
+                  initial: _endDate ?? _startDate,
+                  onPicked: (d) => setState(() => _endDate = d),
+                ),
+              ),
+              AppSpacing.gapXl,
 
-            _SectionLabel(
-              _categoryIds.isEmpty
-                  ? 'Categories: all of them'
-                  : 'Categories: ${_categoryIds.length} selected',
-            ),
-            if (selectable.isEmpty)
+              _SectionLabel(
+                _categoryIds.isEmpty
+                    ? 'Categories: all of them'
+                    : 'Categories: ${_categoryIds.length} selected',
+              ),
+              if (selectable.isEmpty)
+                Text(
+                  'No ${_isIncome ? 'income' : 'expense'} categories yet.',
+                  style: AppTypography.bodySmall.copyWith(
+                    color: AppColors.textMuted,
+                  ),
+                )
+              else
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 4,
+                  children: [
+                    for (final c in selectable)
+                      FilterChip(
+                        label: Text(c.name),
+                        selected: _categoryIds.contains(c.id),
+                        onSelected: (on) => setState(() {
+                          if (on) {
+                            _categoryIds.add(c.id);
+                          } else {
+                            _categoryIds.remove(c.id);
+                          }
+                        }),
+                      ),
+                  ],
+                ),
+              AppSpacing.gapSm,
               Text(
-                'No ${_isIncome ? 'income' : 'expense'} categories yet.',
+                'Leave empty to watch every category. Anything filed inside a '
+                'chosen category counts toward it too.',
                 style: AppTypography.bodySmall.copyWith(
                   color: AppColors.textMuted,
                 ),
-              )
-            else
+              ),
+              AppSpacing.gapXl,
+
+              _SectionLabel(
+                _walletIds.isEmpty
+                    ? 'Accounts: all of them'
+                    : 'Accounts: ${_walletIds.length} selected',
+              ),
               Wrap(
                 spacing: 8,
                 runSpacing: 4,
                 children: [
-                  for (final c in selectable)
+                  for (final w in wallets)
                     FilterChip(
-                      label: Text(c.name),
-                      selected: _categoryIds.contains(c.id),
+                      label: Text(w.name),
+                      selected: _walletIds.contains(w.id),
                       onSelected: (on) => setState(() {
                         if (on) {
-                          _categoryIds.add(c.id);
+                          _walletIds.add(w.id);
                         } else {
-                          _categoryIds.remove(c.id);
+                          _walletIds.remove(w.id);
                         }
                       }),
                     ),
                 ],
               ),
-            AppSpacing.gapSm,
-            Text(
-              'Leave empty to watch every category. Anything filed inside a '
-              'chosen category counts toward it too.',
-              style: AppTypography.bodySmall.copyWith(
-                color: AppColors.textMuted,
-              ),
-            ),
-            AppSpacing.gapXl,
+              AppSpacing.gapXl,
 
-            _SectionLabel(
-              _walletIds.isEmpty
-                  ? 'Accounts: all of them'
-                  : 'Accounts: ${_walletIds.length} selected',
-            ),
-            Wrap(
-              spacing: 8,
-              runSpacing: 4,
-              children: [
-                for (final w in wallets)
-                  FilterChip(
-                    label: Text(w.name),
-                    selected: _walletIds.contains(w.id),
-                    onSelected: (on) => setState(() {
-                      if (on) {
-                        _walletIds.add(w.id);
-                      } else {
-                        _walletIds.remove(w.id);
-                      }
-                    }),
-                  ),
-              ],
-            ),
-            AppSpacing.gapXl,
-
-            SwitchListTile(
-              contentPadding: EdgeInsets.zero,
-              value: _rollover,
-              onChanged: (v) => setState(() => _rollover = v),
-              title: Text(L10n.of(context).budgetCarryOverWhatIsLeft),
-              subtitle: const Text(
-                'Anything unspent is added to the next period. Going over does '
-                'not carry a debt forward.',
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                value: _rollover,
+                onChanged: (v) => setState(() => _rollover = v),
+                title: Text(L10n.of(context).budgetCarryOverWhatIsLeft),
+                subtitle: const Text(
+                  'Anything unspent is added to the next period. Going over does '
+                  'not carry a debt forward.',
+                ),
               ),
-            ),
-            AppSpacing.gapXxl,
-          ],
+              AppSpacing.gapXxl,
+            ],
+          ),
         ),
       ),
     );
