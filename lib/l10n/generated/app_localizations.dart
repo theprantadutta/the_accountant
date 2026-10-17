@@ -3479,6 +3479,12 @@ abstract class L10n {
   /// **'Paused'**
   String get subPaused;
 
+  /// No description provided for @subAsksFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Asks first'**
+  String get subAsksFirst;
+
   /// No description provided for @subFrequency.
   ///
   /// In en, this message translates to:

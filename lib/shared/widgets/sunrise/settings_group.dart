@@ -37,7 +37,10 @@ class SettingsGroup extends StatelessWidget {
         if (label != null)
           SectionLabel(label!, color: danger ? c.negative : null),
         SunriseCard(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+          padding: const EdgeInsets.symmetric(
+            horizontal: SunriseSpace.card,
+            vertical: 2,
+          ),
           border: danger
               ? Border.all(color: c.negative.withValues(alpha: .25))
               : null,
@@ -184,11 +187,15 @@ class SettingsRow extends StatelessWidget {
           ),
           if (value != null) ...[
             const SizedBox(width: 8),
+            // Room for a real account or category name ("Standard Chartered
+            // Bank"), which a fixed 140 on one line cut off.
             ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 140),
+              constraints: BoxConstraints(
+                maxWidth: MediaQuery.sizeOf(context).width * .45,
+              ),
               child: Text(
                 value!,
-                maxLines: 1,
+                maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.end,
                 style: SunriseType.label.copyWith(color: c.subtle),

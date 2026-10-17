@@ -31,13 +31,18 @@ abstract final class SunriseRadius {
 }
 
 /// Spacing (dp).
+///
+/// Sized for a 360dp phone, the narrowest common width. The page gutter and a
+/// card's own padding both come out of the same few hundred points, and at 20
+/// and 16 they took a fifth of the screen between them: account names, plan
+/// names and subtitles were cut off on exactly the phones most people have.
 abstract final class SunriseSpace {
-  static const double screenX = 20;
+  static const double screenX = 14;
   static const double screenTop = 10;
   static const double section = 18;
   static const double sectionTight = 14;
-  static const double card = 16;
-  static const double hero = 20;
+  static const double card = 14;
+  static const double hero = 16;
   static const double rowY = 10;
   static const double rowYSettings = 12;
   static const double gap = 12;

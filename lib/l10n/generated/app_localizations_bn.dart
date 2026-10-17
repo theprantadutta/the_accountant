@@ -1808,6 +1808,9 @@ class L10nBn extends L10n {
   String get subPaused => 'থামানো';
 
   @override
+  String get subAsksFirst => 'আগে জিজ্ঞাসা করে';
+
+  @override
   String get subFrequency => 'কত ঘন ঘন';
 
   @override

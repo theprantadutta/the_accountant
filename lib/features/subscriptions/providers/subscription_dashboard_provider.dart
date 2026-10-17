@@ -1,4 +1,6 @@
 import 'package:flutter_riverpod/legacy.dart';
+import 'package:the_accountant/core/providers/currency_provider.dart';
+import 'package:the_accountant/core/services/currency_service.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
 import 'package:the_accountant/data/models/transaction.dart'
@@ -11,21 +13,35 @@ class SubscriptionDashboardState {
   final bool isLoading;
   final String? error;
 
+  /// The currency [totalMonthlyCost] is stated in: the user's default.
+  final String currency;
+
+  /// Monthly cost of the active subscriptions, each converted from its own
+  /// account's currency. Worked out when loading, because conversion needs
+  /// the rate table.
+  final double convertedMonthlyCost;
+
   const SubscriptionDashboardState({
     this.subscriptions = const [],
     this.isLoading = false,
     this.error,
+    this.currency = 'USD',
+    this.convertedMonthlyCost = 0,
   });
 
   SubscriptionDashboardState copyWith({
     List<SubscriptionItem>? subscriptions,
     bool? isLoading,
     String? error,
+    String? currency,
+    double? convertedMonthlyCost,
   }) {
     return SubscriptionDashboardState(
       subscriptions: subscriptions ?? this.subscriptions,
       isLoading: isLoading ?? this.isLoading,
       error: error,
+      currency: currency ?? this.currency,
+      convertedMonthlyCost: convertedMonthlyCost ?? this.convertedMonthlyCost,
     );
   }
 
@@ -37,11 +53,13 @@ class SubscriptionDashboardState {
   List<SubscriptionItem> get pausedSubscriptions =>
       subscriptions.where((s) => !s.isActive).toList();
 
-  /// Total monthly cost in minor units (cents), every subscription normalised
-  /// to a month.
-  double get totalMonthlyCost {
-    return activeSubscriptions.fold(0.0, (sum, s) => sum + s.monthlyCost);
-  }
+  /// Total monthly cost in minor units of [currency], every subscription
+  /// normalised to a month.
+  ///
+  /// It used to add each subscription's own amount as it stood, so a dollar
+  /// subscription and a taka one were summed as the same money, and the
+  /// dashboard then labelled the result in dollars whatever it was.
+  double get totalMonthlyCost => convertedMonthlyCost;
 
   /// Total yearly cost
   double get totalYearlyCost => totalMonthlyCost * 12;
@@ -131,10 +149,28 @@ class SubscriptionDashboardNotifier
     extends StateNotifier<SubscriptionDashboardState> {
   final RecurringService _recurringService;
 
-  SubscriptionDashboardNotifier(AppDatabase db)
-    : _recurringService = RecurringService(database: db),
+  SubscriptionDashboardNotifier(AppDatabase db, {this.currency = 'USD'})
+    : _db = db,
+      _recurringService = RecurringService(database: db),
       super(const SubscriptionDashboardState()) {
     loadSubscriptions();
+  }
+
+  final AppDatabase _db;
+
+  /// The user's default currency, which the total is converted into.
+  final String currency;
+
+  Future<double> _convertedMonthly(List<SubscriptionItem> items) async {
+    final rates = CurrencyService(_db);
+    var total = 0.0;
+    for (final item in items.where((s) => s.isActive)) {
+      final from = (await _db.findWalletById(item.walletId))?.currency;
+      total += from == null || from == currency
+          ? item.monthlyCost
+          : await rates.convert(item.monthlyCost, from, currency);
+    }
+    return total;
   }
 
   /// Load all subscription recurring configs
@@ -169,7 +205,12 @@ class SubscriptionDashboardNotifier
         return a.nextPayment.compareTo(b.nextPayment);
       });
 
-      state = state.copyWith(subscriptions: items, isLoading: false);
+      state = state.copyWith(
+        subscriptions: items,
+        isLoading: false,
+        currency: currency,
+        convertedMonthlyCost: await _convertedMonthly(items),
+      );
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
@@ -264,5 +305,8 @@ final subscriptionDashboardProvider =
       SubscriptionDashboardState
     >((ref) {
       final db = ref.watch(databaseProvider);
-      return SubscriptionDashboardNotifier(db);
+      return SubscriptionDashboardNotifier(
+        db,
+        currency: ref.watch(defaultCurrencyProvider),
+      );
     });

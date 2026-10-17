@@ -376,7 +376,7 @@ class ShimmerDashboard extends StatelessWidget {
     // and the day's list.
     return SingleChildScrollView(
       physics: const NeverScrollableScrollPhysics(),
-      padding: const EdgeInsets.fromLTRB(20, 18, 20, 120),
+      padding: const EdgeInsets.fromLTRB(14, 18, 14, 120),
       child: _shimmer(
         context,
         child: Column(

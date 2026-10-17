@@ -64,6 +64,8 @@ class LoanTypeChips extends StatelessWidget {
           // Chips row
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
+            // On to the screen edge, like the other chip rows.
+            clipBehavior: Clip.none,
             child: Row(
               children: [
                 // No Loan chip

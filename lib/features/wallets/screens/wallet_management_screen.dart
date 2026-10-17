@@ -601,9 +601,12 @@ class _WalletRow extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Two lines: account names are often long ("Standard
+                  // Chartered Bank"), and one line beside the balance cut
+                  // most of them off on a 360dp phone.
                   Text(
                     wallet.name,
-                    maxLines: 1,
+                    maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: SunriseType.rowTitle.copyWith(
                       color: c.ink,

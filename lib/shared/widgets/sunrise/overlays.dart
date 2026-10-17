@@ -16,7 +16,7 @@ class SunriseBottomSheet extends StatelessWidget {
     required this.child,
     this.title,
     this.subtitle,
-    this.padding = const EdgeInsets.fromLTRB(20, 0, 20, 20),
+    this.padding = const EdgeInsets.fromLTRB(16, 0, 16, 20),
     this.scrollable = true,
     this.actions,
   });
@@ -68,7 +68,7 @@ class SunriseBottomSheet extends StatelessWidget {
             ),
             if (title != null)
               Padding(
-                padding: const EdgeInsets.fromLTRB(20, 18, 20, 14),
+                padding: const EdgeInsets.fromLTRB(16, 18, 16, 14),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -97,7 +97,7 @@ class SunriseBottomSheet extends StatelessWidget {
             content,
             if (actions != null && actions!.isNotEmpty)
               Padding(
-                padding: const EdgeInsets.fromLTRB(20, 4, 20, 16),
+                padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [

@@ -220,7 +220,7 @@ class _CurrencyPickerSheetState extends ConsumerState<_CurrencyPickerSheet> {
           const SizedBox(height: 20),
           // Header
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
               children: [
                 Text(
@@ -244,7 +244,7 @@ class _CurrencyPickerSheetState extends ConsumerState<_CurrencyPickerSheet> {
           const SizedBox(height: 16),
           // Search bar
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: SunriseSearchField(
               hint: L10n.of(context).settingsSearchByCodeOrName,
               controller: _searchController,
@@ -258,7 +258,7 @@ class _CurrencyPickerSheetState extends ConsumerState<_CurrencyPickerSheet> {
           const SizedBox(height: 16),
           // Include crypto currencies toggle (off by default)
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
               onTap: () => setState(() => _includeCrypto = !_includeCrypto),
@@ -349,7 +349,7 @@ class _CurrencyPickerSheetState extends ConsumerState<_CurrencyPickerSheet> {
           else
             Expanded(
               child: ListView.builder(
-                padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
                 itemCount: filteredCurrencies.length,
                 itemBuilder: (context, index) {
                   final entry = filteredCurrencies[index];

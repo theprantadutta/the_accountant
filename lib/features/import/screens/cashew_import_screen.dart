@@ -115,7 +115,7 @@ class _CashewImportScreenState extends ConsumerState<CashewImportScreen> {
         title: Text(l10n.settingsImportCashew),
       ),
       body: ListView(
-        padding: EdgeInsets.all(AppSpacing.md),
+        padding: AppSpacing.paddingScreen,
         children: [
           Text(
             l10n.cashewIntro,
@@ -130,7 +130,7 @@ class _CashewImportScreenState extends ConsumerState<CashewImportScreen> {
           if (summary != null) ...[
             SizedBox(height: AppSpacing.lg),
             SunriseCard(
-              padding: EdgeInsets.all(AppSpacing.md),
+              padding: AppSpacing.paddingScreen,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

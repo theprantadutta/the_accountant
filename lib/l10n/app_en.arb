@@ -666,6 +666,7 @@
   "creditRecord": "Record",
   "subRecurring": "Recurring",
   "subPaused": "Paused",
+  "subAsksFirst": "Asks first",
   "subFrequency": "Frequency",
   "notifMarkAllRead": "Mark all read",
   "notifTryAgain": "Try again",

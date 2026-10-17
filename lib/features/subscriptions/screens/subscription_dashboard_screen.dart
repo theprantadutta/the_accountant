@@ -135,7 +135,7 @@ class SubscriptionDashboardScreen extends ConsumerWidget {
 
   Widget _buildSummaryCard(SubscriptionDashboardState state, WidgetRef ref) {
     final monthlyFormat = AppNumberFormatter.currency(
-      '\$',
+      CurrencyInfo.getSymbol(state.currency),
       ref.watch(numberFormatSettingProvider),
     );
 
@@ -250,174 +250,125 @@ class _SubscriptionCard extends ConsumerWidget {
             ref.read(subscriptionDashboardProvider.notifier).refresh();
           }
         },
-        child: Column(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                // Icon
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: (isPaused ? AppColors.textMuted : accentColor)
-                        .withValues(alpha: 0.2),
-                    borderRadius: AppSpacing.borderRadiusMd,
-                  ),
-                  child: Icon(
-                    cardIcon,
-                    color: isPaused ? AppColors.textMuted : accentColor,
-                    size: 22,
-                  ),
-                ),
-                AppSpacing.gapHMd,
-                // Info
-                Expanded(
-                  child: Column(
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: (isPaused ? AppColors.textMuted : accentColor)
+                    .withValues(alpha: 0.2),
+                borderRadius: AppSpacing.borderRadiusMd,
+              ),
+              child: Icon(
+                cardIcon,
+                color: isPaused ? AppColors.textMuted : accentColor,
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: 12),
+            // The name gets the width and may take two lines. It used to be
+            // one line between a fixed icon and the amount, so on a 360dp
+            // phone most names ended in "…".
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              item.name,
-                              style: AppTypography.titleSmall.copyWith(
-                                color: isPaused
-                                    ? AppColors.textMuted
-                                    : AppColors.textPrimary,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
+                      Expanded(
+                        child: Text(
+                          item.name,
+                          style: AppTypography.titleSmall.copyWith(
+                            color: isPaused
+                                ? AppColors.textMuted
+                                : AppColors.textPrimary,
                           ),
-                          if (isPaused)
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 2,
-                              ),
-                              decoration: BoxDecoration(
-                                color: AppColors.textMuted.withValues(
-                                  alpha: 0.2,
-                                ),
-                                borderRadius: AppSpacing.borderRadiusSm,
-                              ),
-                              child: Text(
-                                L10n.of(context).subPaused,
-                                style: AppTypography.labelSmall.copyWith(
-                                  color: AppColors.textMuted,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                        ],
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
-                      AppSpacing.gapXs,
-                      Row(
-                        children: [
-                          // Frequency
-                          Text(
-                            item.frequencyText,
-                            style: AppTypography.labelSmall.copyWith(
-                              color: AppColors.textMuted,
+                      const SizedBox(width: 8),
+                      ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxWidth: MediaQuery.sizeOf(context).width * .34,
+                        ),
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.topRight,
+                          child: Text(
+                            '$symbol${AppNumberFormatter.get(ref.watch(numberFormatSettingProvider)).format(item.amount / 100.0)}',
+                            style: AppTypography.titleMedium.copyWith(
+                              color: isPaused
+                                  ? AppColors.textMuted
+                                  : AppColors.textPrimary,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
-                          const SizedBox(width: 8),
-                          // Next payment
-                          if (item.isActive) ...[
-                            Icon(
-                              Icons.calendar_today,
-                              size: 10,
-                              color: AppColors.textMuted,
-                            ),
-                            const SizedBox(width: 3),
-                            Text(
-                              'Next: ${AppDateFormatter.formatDate(item.nextPayment, df)}',
-                              style: AppTypography.labelSmall.copyWith(
-                                color: AppColors.textMuted,
-                                fontSize: 9,
-                              ),
-                            ),
-                          ],
-                        ],
+                        ),
                       ),
                     ],
                   ),
-                ),
-                // Amount
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      '$symbol${AppNumberFormatter.get(ref.watch(numberFormatSettingProvider)).format(item.amount / 100.0)}',
-                      style: AppTypography.titleMedium.copyWith(
-                        color: isPaused
-                            ? AppColors.textMuted
-                            : AppColors.textPrimary,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
+                  const SizedBox(height: 4),
+                  Text(
+                    [
                       item.frequencyText,
-                      style: AppTypography.labelSmall.copyWith(
-                        color: AppColors.textMuted,
-                        fontSize: 9,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            // Actions
-            AppSpacing.gapMd,
-            Row(
-              children: [
-                // Pause/Resume button
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () {
-                      HapticFeedback.lightImpact();
-                      if (isPaused) {
-                        ref
-                            .read(subscriptionDashboardProvider.notifier)
-                            .resumeSubscription(item.id);
-                      } else {
-                        ref
-                            .read(subscriptionDashboardProvider.notifier)
-                            .pauseSubscription(item.id);
-                      }
-                    },
-                    icon: Icon(
-                      isPaused ? Icons.play_arrow : Icons.pause,
-                      size: 16,
-                    ),
-                    label: Text(isPaused ? 'Resume' : 'Pause'),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: AppColors.textSecondary,
-                      side: BorderSide(color: AppColors.glassBorder),
-                      padding: const EdgeInsets.symmetric(vertical: 6),
-                      minimumSize: const Size(0, 42),
-                      shape: const StadiumBorder(),
+                      if (isPaused)
+                        L10n.of(context).subPaused
+                      else
+                        'Next ${AppDateFormatter.formatDate(item.nextPayment, df)}',
+                      if (!item.autoPay) L10n.of(context).subAsksFirst,
+                    ].join(' · '),
+                    style: AppTypography.labelSmall.copyWith(
+                      color: AppColors.textMuted,
                     ),
                   ),
+                ],
+              ),
+            ),
+            // Pause and cancel are occasional, so they live in a menu rather
+            // than as two full-width buttons on every card.
+            PopupMenuButton<String>(
+              tooltip: MaterialLocalizations.of(context).showMenuTooltip,
+              padding: EdgeInsets.zero,
+              icon: Icon(Icons.more_vert, color: AppColors.textMuted),
+              onSelected: (action) {
+                final notifier = ref.read(
+                  subscriptionDashboardProvider.notifier,
+                );
+                switch (action) {
+                  case 'pause':
+                    HapticFeedback.lightImpact();
+                    isPaused
+                        ? notifier.resumeSubscription(item.id)
+                        : notifier.pauseSubscription(item.id);
+                  case 'cancel':
+                    HapticFeedback.mediumImpact();
+                    _showCancelConfirmation(context, ref);
+                }
+              },
+              itemBuilder: (context) => [
+                PopupMenuItem(
+                  value: 'pause',
+                  child: ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: Icon(isPaused ? Icons.play_arrow : Icons.pause),
+                    title: Text(isPaused ? 'Resume' : 'Pause'),
+                  ),
                 ),
-                const SizedBox(width: 8),
-                // Cancel button
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () {
-                      HapticFeedback.mediumImpact();
-                      _showCancelConfirmation(context, ref);
-                    },
-                    icon: const Icon(Icons.cancel_outlined, size: 16),
-                    label: Text(L10n.of(context).actionCancel),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: AppColors.error,
-                      side: BorderSide(
-                        color: AppColors.error.withValues(alpha: 0.4),
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 6),
-                      minimumSize: const Size(0, 42),
-                      shape: const StadiumBorder(),
+                PopupMenuItem(
+                  value: 'cancel',
+                  child: ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: Icon(
+                      Icons.cancel_outlined,
+                      color: AppColors.error,
+                    ),
+                    title: Text(
+                      L10n.of(context).actionCancel,
+                      style: TextStyle(color: AppColors.error),
                     ),
                   ),
                 ),

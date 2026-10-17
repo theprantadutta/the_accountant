@@ -102,14 +102,18 @@ class AppSpacing {
   /// 24px all sides
   static const EdgeInsets paddingXxl = EdgeInsets.all(xxl);
 
-  /// Screen content padding (horizontal: 20, vertical: 16)
+  /// Screen content padding (horizontal: 14, vertical: 16).
+  ///
+  /// The same side gutter as the Sunrise screens ([SunriseSpace.screenX]), so
+  /// an older screen lines up with the newer ones; 20 cost too much width on
+  /// a 360dp phone.
   static const EdgeInsets paddingScreen = EdgeInsets.symmetric(
-    horizontal: xl,
+    horizontal: 14,
     vertical: lg,
   );
 
-  /// Card content padding (16px all)
-  static const EdgeInsets paddingCard = EdgeInsets.all(lg);
+  /// Card content padding (14px all), as [SunriseSpace.card].
+  static const EdgeInsets paddingCard = EdgeInsets.all(14);
 
   /// Button padding (horizontal: 24, vertical: 16)
   static const EdgeInsets paddingButton = EdgeInsets.symmetric(

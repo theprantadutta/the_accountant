@@ -312,7 +312,8 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
             Flexible(
               child: Text(
                 label,
-                maxLines: 1,
+                maxLines: 2,
+                textAlign: TextAlign.center,
                 overflow: TextOverflow.ellipsis,
                 style: AppTypography.labelSmall.copyWith(
                   color: AppColors.textSecondary,
@@ -442,64 +443,24 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              transaction.title.isNotEmpty
-                                  ? transaction.title
-                                  : (isCredit
-                                        ? 'Money Lent'
-                                        : 'Money Borrowed'),
-                              style: AppTypography.titleSmall.copyWith(
-                                decoration: isSettled
-                                    ? TextDecoration.lineThrough
-                                    : null,
-                                color: isSettled
-                                    ? AppColors.textMuted
-                                    : AppColors.textPrimary,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          if (isSettled)
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 2,
-                              ),
-                              decoration: BoxDecoration(
-                                color: AppColors.success.withValues(alpha: 0.2),
-                                borderRadius: AppSpacing.borderRadiusSm,
-                              ),
-                              child: Text(
-                                L10n.of(context).creditSettled,
-                                style: AppTypography.labelSmall.copyWith(
-                                  color: AppColors.success,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            )
-                          else if (isOverdue)
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 2,
-                              ),
-                              decoration: BoxDecoration(
-                                color: AppColors.error.withValues(alpha: 0.2),
-                                borderRadius: AppSpacing.borderRadiusSm,
-                              ),
-                              child: Text(
-                                L10n.of(context).creditOverdue,
-                                style: AppTypography.labelSmall.copyWith(
-                                  color: AppColors.error,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                        ],
+                      // The name gets the full width and two lines. A
+                      // "Settled" chip used to sit beside it, cutting it off
+                      // and colliding with the amount — which already says
+                      // "Settled" underneath.
+                      Text(
+                        transaction.title.isNotEmpty
+                            ? transaction.title
+                            : (isCredit ? 'Money Lent' : 'Money Borrowed'),
+                        style: AppTypography.titleSmall.copyWith(
+                          decoration: isSettled
+                              ? TextDecoration.lineThrough
+                              : null,
+                          color: isSettled
+                              ? AppColors.textMuted
+                              : AppColors.textPrimary,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
                       AppSpacing.gapXs,
                       Row(
@@ -520,6 +481,26 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
                                   : AppColors.textMuted,
                             ),
                           ),
+                          if (isOverdue && !isSettled) ...[
+                            const SizedBox(width: 6),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 1,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColors.error.withValues(alpha: 0.2),
+                                borderRadius: AppSpacing.borderRadiusSm,
+                              ),
+                              child: Text(
+                                L10n.of(context).creditOverdue,
+                                style: AppTypography.labelSmall.copyWith(
+                                  color: AppColors.error,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ],
                           if (transaction.notes != null &&
                               transaction.notes!.isNotEmpty) ...[
                             const SizedBox(width: 8),
@@ -545,6 +526,7 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
                     ],
                   ),
                 ),
+                const SizedBox(width: 10),
                 // Amount
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
@@ -568,7 +550,7 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
                     ),
                     Text(
                       isSettled
-                          ? 'Settled'
+                          ? L10n.of(context).creditSettled
                           : (isCredit ? 'They owe you' : 'You owe'),
                       style: AppTypography.labelSmall.copyWith(
                         color: AppColors.textMuted,

@@ -68,17 +68,20 @@ class TransactionTile extends StatelessWidget {
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              // Up to two lines each: beside the amount, one line cut off
+              // ordinary titles and the time on a 360dp phone. A row only
+              // grows when its text needs it.
               children: [
                 Text(
                   title,
-                  maxLines: 1,
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: SunriseType.rowTitle.copyWith(color: c.ink),
                 ),
                 const SizedBox(height: 1),
                 Text(
                   subtitle,
-                  maxLines: 1,
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: SunriseType.caption.copyWith(color: c.subtle),
                 ),

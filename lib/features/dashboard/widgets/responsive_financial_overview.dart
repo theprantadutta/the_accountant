@@ -265,10 +265,7 @@ class _ResponsiveFinancialOverviewState
             iconColor: c.accent,
             label: l10n.dashSubscriptions,
             // Already in cents (the provider normalises minor units).
-            value: subs.round().formatCurrency(
-              currency,
-              numberFormat: nf,
-            ),
+            value: subs.round().formatCurrency(currency, numberFormat: nf),
             footer: Text(
               l10n.todayMonthly,
               style: SunriseType.caption.copyWith(color: c.subtle),
@@ -508,26 +505,28 @@ class _NetWorthCard extends ConsumerWidget {
         children: [
           Row(
             children: [
-              Expanded(
-                child: Text(
-                  l10n.todayNetWorth,
-                  style: SunriseType.label.copyWith(
-                    color: c.muted,
-                    fontSize: 15,
-                  ),
-                ),
+              // The label takes what it needs and the pill the rest. Both used
+              // to flex, so they split the row in half and the pill's
+              // "this month" was cut off however much room the label left.
+              Text(
+                l10n.todayNetWorth,
+                style: SunriseType.label.copyWith(color: c.muted, fontSize: 15),
               ),
-              Flexible(
-                child: SunrisePill(
-                  label: l10n.todayThisMonthDelta(
-                    deltaText.replaceFirst('-', '−'),
-                  ),
-                  color: deltaCents >= 0 ? c.accentText : c.negative,
-                  background: deltaCents >= 0 ? c.tintPeach : c.tintRose,
-                  fontSize: 13,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
+              const SizedBox(width: 10),
+              Expanded(
+                child: Align(
+                  alignment: AlignmentDirectional.centerEnd,
+                  child: SunrisePill(
+                    label: l10n.todayThisMonthDelta(
+                      deltaText.replaceFirst('-', '−'),
+                    ),
+                    color: deltaCents >= 0 ? c.accentText : c.negative,
+                    background: deltaCents >= 0 ? c.tintPeach : c.tintRose,
+                    fontSize: 13,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
                   ),
                 ),
               ),
@@ -642,11 +641,15 @@ class _Legend extends StatelessWidget {
           decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
         const SizedBox(width: 8),
+        // As wide as the card allows, rather than a fixed 200: long account
+        // names ("Standard Chartered Bank") were cut off with room to spare.
         ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 200),
+          constraints: BoxConstraints(
+            maxWidth: MediaQuery.sizeOf(context).width - 96,
+          ),
           child: Text(
             '$label $value',
-            maxLines: 1,
+            maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: SunriseType.label.copyWith(color: c.ink, fontSize: 14),
           ),
@@ -699,7 +702,7 @@ class _CoachCard extends StatelessWidget {
                 ),
                 Text(
                   l10n.todayCoachBody,
-                  maxLines: 1,
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: SunriseType.caption.copyWith(color: c.subtle),
                 ),
@@ -880,7 +883,7 @@ class _BudgetBar extends StatelessWidget {
             Expanded(
               child: Text(
                 name,
-                maxLines: 1,
+                maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: SunriseType.rowTitle.copyWith(color: c.ink),
               ),

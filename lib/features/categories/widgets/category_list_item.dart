@@ -4,9 +4,8 @@ import 'package:the_accountant/core/utils/color_utils.dart';
 import 'package:the_accountant/core/utils/icon_registry.dart';
 import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
 
-/// One category as a Sunrise row: its own icon on its colour, the name, and
-/// a lock (built-in) or edit and delete (the user's own), and a way to put it
-/// away or bring it back.
+/// One category as a Sunrise row: its own icon on its colour, the name, a
+/// lock on a built-in, and a menu to edit, archive or delete it.
 class CategoryListItem extends StatelessWidget {
   final Category category;
   final VoidCallback? onDelete;
@@ -36,23 +35,36 @@ class CategoryListItem extends StatelessWidget {
               ? Symbols.north_east_rounded
               : Symbols.south_west_rounded);
 
-    final archiveButton = onArchive == null
-        ? null
-        : IconButton(
-            tooltip: isArchived
-                ? L10n.of(context).catUnarchive
-                : L10n.of(context).catArchive,
-            icon: Icon(
-              isArchived ? Symbols.unarchive_rounded : Symbols.archive_rounded,
-              size: 20,
-              color: c.subtle,
-            ),
-            onPressed: onArchive,
-          );
+    // One menu rather than three buttons. Archive, edit and delete side by
+    // side left a 360dp phone about a hundred points for the name, so most
+    // ended in "…". Tapping the row still edits.
+    final actions = <(String, IconData, String, Color?)>[
+      if (onEdit != null && !isArchived && !category.isDefault)
+        ('edit', Symbols.edit_rounded, L10n.of(context).actionEdit, null),
+      if (onArchive != null)
+        (
+          'archive',
+          isArchived ? Symbols.unarchive_rounded : Symbols.archive_rounded,
+          isArchived
+              ? L10n.of(context).catUnarchive
+              : L10n.of(context).catArchive,
+          null,
+        ),
+      if (onDelete != null && !isArchived && !category.isDefault)
+        (
+          'delete',
+          Symbols.delete_rounded,
+          MaterialLocalizations.of(context).deleteButtonTooltip,
+          c.negative,
+        ),
+    ];
 
     final row = SunriseCard(
-      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-      padding: const EdgeInsets.fromLTRB(14, 10, 6, 10),
+      margin: const EdgeInsets.symmetric(
+        horizontal: SunriseSpace.screenX,
+        vertical: 5,
+      ),
+      padding: const EdgeInsets.fromLTRB(12, 10, 4, 10),
       onTap: category.isDefault || isArchived ? null : onEdit,
       child: Row(
         children: [
@@ -60,36 +72,48 @@ class CategoryListItem extends StatelessWidget {
             icon: icon,
             emoji: IconRegistry.emojiOf(category.iconName),
             color: color,
-            size: 42,
+            size: 40,
           ),
-          const SizedBox(width: 14),
+          const SizedBox(width: 12),
           Expanded(
             child: Text(
               category.name,
-              maxLines: 1,
+              maxLines: 2,
               overflow: TextOverflow.ellipsis,
               style: SunriseType.rowTitle.copyWith(color: c.ink),
             ),
           ),
-          ?archiveButton,
-          if (isArchived)
-            const SizedBox.shrink()
-          else if (category.isDefault)
+          if (category.isDefault && !isArchived)
             Padding(
-              padding: const EdgeInsets.all(12),
-              child: Icon(Symbols.lock_rounded, size: 18, color: c.faint),
-            )
-          else ...[
-            IconButton(
-              icon: Icon(Symbols.edit_rounded, size: 20, color: c.subtle),
-              onPressed: onEdit,
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: Icon(Symbols.lock_rounded, size: 16, color: c.faint),
             ),
-            IconButton(
-              tooltip: MaterialLocalizations.of(context).deleteButtonTooltip,
-              icon: Icon(Symbols.delete_rounded, size: 20, color: c.negative),
-              onPressed: onDelete,
+          if (actions.isEmpty)
+            const SizedBox(width: 8)
+          else
+            PopupMenuButton<String>(
+              tooltip: MaterialLocalizations.of(context).showMenuTooltip,
+              icon: Icon(Symbols.more_vert_rounded, color: c.subtle),
+              onSelected: (action) => switch (action) {
+                'edit' => onEdit?.call(),
+                'archive' => onArchive?.call(),
+                'delete' => onDelete?.call(),
+                _ => null,
+              },
+              itemBuilder: (context) => [
+                for (final (value, glyph, label, tint) in actions)
+                  PopupMenuItem(
+                    value: value,
+                    child: Row(
+                      children: [
+                        Icon(glyph, size: 20, color: tint),
+                        const SizedBox(width: 12),
+                        Text(label, style: TextStyle(color: tint)),
+                      ],
+                    ),
+                  ),
+              ],
             ),
-          ],
         ],
       ),
     );

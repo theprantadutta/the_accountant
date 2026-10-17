@@ -81,7 +81,7 @@ class CategoryManagementScreen extends ConsumerWidget {
                           .toList(),
                     ),
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 4, 20, 0),
+                      padding: const EdgeInsets.fromLTRB(14, 4, 14, 0),
                       child: Text(
                         L10n.of(context).catArchivedHint,
                         style: TextStyle(color: context.sunrise.subtle),
@@ -104,7 +104,7 @@ class CategoryManagementScreen extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(20, 18, 20, 0),
+          padding: const EdgeInsets.fromLTRB(14, 18, 14, 0),
           child: SectionLabel(title),
         ),
         if (categories.isEmpty)

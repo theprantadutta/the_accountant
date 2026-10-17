@@ -1816,6 +1816,9 @@ class L10nEn extends L10n {
   String get subPaused => 'Paused';
 
   @override
+  String get subAsksFirst => 'Asks first';
+
+  @override
   String get subFrequency => 'Frequency';
 
   @override

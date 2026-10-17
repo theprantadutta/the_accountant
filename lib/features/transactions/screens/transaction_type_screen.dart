@@ -307,7 +307,7 @@ class _TransactionTypeScreenState extends ConsumerState<TransactionTypeScreen> {
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setModalState) {
             return Container(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(16),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -369,6 +369,7 @@ class _TransactionTypeScreenState extends ConsumerState<TransactionTypeScreen> {
                     height: 40,
                     child: ListView.builder(
                       scrollDirection: Axis.horizontal,
+                      clipBehavior: Clip.none,
                       itemCount: categories.length + 1,
                       itemBuilder: (context, index) {
                         if (index == 0) {
@@ -626,7 +627,7 @@ class _TransactionTypeScreenState extends ConsumerState<TransactionTypeScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: _accentColor.withValues(alpha: 0.1),
               shape: BoxShape.circle,

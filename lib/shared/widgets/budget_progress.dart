@@ -60,7 +60,7 @@ class BudgetProgressCard extends ConsumerWidget {
         onLongPress: onLongPress,
         borderRadius: SunriseRadius.cardAll,
         child: Container(
-          margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+          margin: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
           decoration: BoxDecoration(
             color: context.sunrise.surface,
             borderRadius: SunriseRadius.cardAll,

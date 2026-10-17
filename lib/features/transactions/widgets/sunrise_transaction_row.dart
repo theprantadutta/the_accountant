@@ -66,9 +66,12 @@ class SunriseTransactionRow extends ConsumerWidget {
         ? t.notes!.trim()
         : categoryName;
 
-    final time = AppTimeFormatter.of(context, t.date);
+    // Each part kept whole, so a subtitle too long for one line breaks
+    // between parts ("· 4:02 PM") rather than inside one ("4:02 / PM").
+    String whole(String part) => part.replaceAll(' ', ' ');
+    final time = whole(AppTimeFormatter.of(context, t.date));
     final when = showDate
-        ? '${MaterialLocalizations.of(context).formatShortMonthDay(t.date)} · $time'
+        ? '${whole(MaterialLocalizations.of(context).formatShortMonthDay(t.date))} · $time'
         : time;
 
     final currency = ref.watch(walletCurrencyProvider(t.walletId));

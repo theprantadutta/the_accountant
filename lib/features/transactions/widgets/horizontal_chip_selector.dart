@@ -59,6 +59,10 @@ class HorizontalChipSelector<T> extends StatelessWidget {
           Expanded(
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
+              // Run on to the screen edge rather than stopping at the page's
+              // margin: cut off at the margin, a chip ("Shopping Budge")
+              // looked broken instead of looking like more to scroll to.
+              clipBehavior: Clip.none,
               padding: EdgeInsets.only(
                 left: showLeadingIcon ? 0 : padding.left,
                 right: trailing != null ? 8 : padding.right,

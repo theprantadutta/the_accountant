@@ -541,42 +541,41 @@ class _FeatureGrid extends StatelessWidget {
     ];
     Widget tile((IconData, String, String) f) {
       final (icon, title, sub) = f;
+      // Icon above the words, not beside them. Beside them, an icon and a
+      // check mark left a half-width tile about eighty points for the name,
+      // so "AI assistant" and "PDF reports" broke mid-phrase on a phone.
       return SunriseCard(
         radius: 18,
-        padding: const EdgeInsets.fromLTRB(14, 12, 10, 12),
-        child: Row(
+        padding: const EdgeInsets.fromLTRB(12, 12, 10, 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(icon, color: c.accent, size: 24),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Two lines each: on a phone the names ("AI assistant",
-                  // "Spending insights") are cut off at one.
-                  Text(
-                    title,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: SunriseType.rowTitle.copyWith(color: c.ink),
+            Row(
+              children: [
+                Icon(icon, color: c.accent, size: 22),
+                const Spacer(),
+                if (unlocked)
+                  Icon(
+                    Symbols.check_circle_rounded,
+                    fill: 1,
+                    size: 18,
+                    color: c.positive,
                   ),
-                  Text(
-                    sub,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: SunriseType.caption.copyWith(color: c.subtle),
-                  ),
-                ],
-              ),
+              ],
             ),
-            if (unlocked)
-              Icon(
-                Symbols.check_circle_rounded,
-                fill: 1,
-                size: 18,
-                color: c.positive,
-              ),
+            const SizedBox(height: 8),
+            Text(
+              title,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: SunriseType.rowTitle.copyWith(color: c.ink),
+            ),
+            Text(
+              sub,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: SunriseType.caption.copyWith(color: c.subtle),
+            ),
           ],
         ),
       );
@@ -668,33 +667,31 @@ class _PlanCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      children: [
-                        Flexible(
-                          child: Text(
-                            plan.title,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: SunriseType.rowTitle.copyWith(
-                              color: c.ink,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
+                    // The badge sits above the name rather than beside it.
+                    // Beside it, a badge and a local-currency price left the
+                    // name a few letters on a 360dp phone — "Lif…", and
+                    // nothing at all for the yearly plan.
+                    if (plan.badge != null) ...[
+                      SunrisePill(
+                        label: plan.badge!,
+                        gradient: c.gradient,
+                        fontSize: 10,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 3,
                         ),
-                        if (plan.badge != null) ...[
-                          const SizedBox(width: 8),
-                          SunrisePill(
-                            label: plan.badge!,
-                            gradient: c.gradient,
-                            fontSize: 10,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 3,
-                            ),
-                          ),
-                        ],
-                      ],
+                      ),
+                      const SizedBox(height: 4),
+                    ],
+                    Text(
+                      plan.title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: SunriseType.rowTitle.copyWith(
+                        color: c.ink,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     const SizedBox(height: 2),
                     Text(
@@ -707,21 +704,32 @@ class _PlanCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 10),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    plan.price,
-                    style: SunriseType.statValue.copyWith(
-                      color: c.ink,
-                      fontSize: 19,
-                    ),
+              // A price in some currencies is long ("BDT 7,100.00"); it
+              // shrinks to fit before it takes the name's room.
+              ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxWidth: MediaQuery.sizeOf(context).width * .36,
+                ),
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerRight,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        plan.price,
+                        style: SunriseType.statValue.copyWith(
+                          color: c.ink,
+                          fontSize: 19,
+                        ),
+                      ),
+                      Text(
+                        plan.period,
+                        style: SunriseType.caption.copyWith(color: c.subtle),
+                      ),
+                    ],
                   ),
-                  Text(
-                    plan.period,
-                    style: SunriseType.caption.copyWith(color: c.subtle),
-                  ),
-                ],
+                ),
               ),
             ],
           ),

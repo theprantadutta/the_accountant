@@ -81,7 +81,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
       backgroundColor: Colors.transparent,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -357,7 +357,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
   Widget _buildPersonalInfo() {
     return AppTheme.glassmorphicContainer(
       child: Container(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -445,7 +445,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
     if (!isPremium) {
       return AppTheme.glassmorphicContainer(
         child: Container(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(16),
           child: Column(
             children: [
               Row(
@@ -529,7 +529,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
 
     return AppTheme.glassmorphicContainer(
       child: Container(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
           border: Border.all(

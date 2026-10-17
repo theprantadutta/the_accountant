@@ -198,7 +198,7 @@ class _AddCategoryFormState extends ConsumerState<AddCategoryForm> {
 
             // Header
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
                 children: [
                   Text(
@@ -291,7 +291,7 @@ class _AddCategoryFormState extends ConsumerState<AddCategoryForm> {
 
   Widget _buildPreviewCard() {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.textPrimary.withValues(alpha: 0.03),
         borderRadius: BorderRadius.circular(20),

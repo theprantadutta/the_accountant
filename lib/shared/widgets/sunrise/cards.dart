@@ -231,7 +231,12 @@ class SunriseStatCard extends StatelessWidget {
     final c = context.sunrise;
     return SunriseCard(
       onTap: onTap,
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 18),
+      padding: const EdgeInsets.fromLTRB(
+        SunriseSpace.card,
+        16,
+        SunriseSpace.card,
+        18,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
