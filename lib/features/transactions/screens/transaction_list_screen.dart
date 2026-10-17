@@ -548,12 +548,12 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
     return text.replaceFirst('-', '−');
   }
 
-  /// Money in and out over [rows], leaving transfers and unpaid rows aside.
+  /// Money in and out over [rows], by the same rule as reports and budgets.
   (int income, int expense) _totals(List<Transaction> rows) {
     var income = 0;
     var expense = 0;
     for (final t in rows) {
-      if (t.isTransferLeg || !t.isPaid) continue;
+      if (!t.countsInAnalytics) continue;
       if (t.type == 'income') {
         income += t.amount.abs();
       } else {

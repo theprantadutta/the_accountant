@@ -24,7 +24,13 @@ import 'package:the_accountant/data/models/recurring_config.dart';
 enum TransactionType {
   regular('regular', 0),
   transfer('transfer', 1),
-  recurringInstance('recurring_instance', 2);
+  recurringInstance('recurring_instance', 2),
+
+  /// A balance correction: the gap between what the app recorded and what the
+  /// account really holds. It moves the balance but is not money earned or
+  /// spent. Derived from the row's category by a database trigger, never set
+  /// by hand — see `AppDatabase._installAdjustmentKindTriggers`.
+  adjustment('adjustment', 3);
 
   const TransactionType(this.storageValue, this.wireValue);
 

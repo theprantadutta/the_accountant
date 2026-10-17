@@ -192,6 +192,12 @@ class AppDatabase extends _$AppDatabase {
       }
     },
     onUpgrade: (m, from, to) async {
+      // These triggers read columns of `categories` and `transactions`, and
+      // SQLite refuses to alter a column a trigger names. They are put back by
+      // `beforeOpen` once the upgrade is done, so a step that rebuilds either
+      // table never has to know they exist.
+      await _dropAdjustmentKindTriggers();
+
       // Columns first, before any step that reads rows.
       //
       // The steps below use typed selects, and those go through the CURRENT
@@ -341,8 +347,96 @@ class AppDatabase extends _$AppDatabase {
       await _installSyncStatusGuards();
       await _installRowVersionTriggers();
       await _installPartialIndexes();
+      await _installAdjustmentKindTriggers();
     },
   );
+
+  /// The triggers that derive a balance correction's kind, by name and event.
+  @visibleForTesting
+  static const adjustmentKindTriggers = [
+    ('trg_transactions_adjustment_kind_insert', 'AFTER INSERT'),
+    (
+      'trg_transactions_adjustment_kind_update',
+      'AFTER UPDATE OF category_id, transaction_type',
+    ),
+  ];
+
+  Future<void> _dropAdjustmentKindTriggers() async {
+    for (final (name, _) in adjustmentKindTriggers) {
+      await customStatement('DROP TRIGGER IF EXISTS $name');
+    }
+  }
+
+  /// SQL deciding the kind a `regular`/`adjustment` row should carry, from
+  /// the category of the row named `NEW` (in a trigger) or `transactions`.
+  static String _adjustmentKindSql(String row) =>
+      '''
+      CASE WHEN EXISTS (
+        SELECT 1 FROM categories c
+         WHERE c.id = $row.category_id
+           AND c.default_key = '${SystemCategoryKeys.balanceCorrection}'
+      ) THEN '${TransactionType.adjustment.storageValue}'
+        ELSE '${TransactionType.regular.storageValue}' END''';
+
+  /// Keep `transaction_type` reading `adjustment` exactly when a row is filed
+  /// under the balance-correction category.
+  ///
+  /// A correction is not money earned or spent, and analytics can only leave
+  /// it out if the row says what it is: [TransactionPolicy] works on the row
+  /// alone and cannot know the category's id, which is random per install.
+  /// The category stays the single source of truth; the kind is derived from
+  /// it, the same way a transfer is marked as well as filed under Transfer.
+  ///
+  /// Triggers rather than call sites, because a row reaches that category by
+  /// more routes than any of them can be trusted to cover: the correction
+  /// sheet, an edit that re-files a row, a pull from another device or from an
+  /// older build that never set the kind, a restore, and the system-category
+  /// merge that re-keys rows. Only `regular` and `adjustment` rows are touched —
+  /// a transfer leg or a generated occurrence keeps its kind wherever it is
+  /// filed. The derived kind does not change `sync_status`: it is a reading of
+  /// data the server already holds, not an edit.
+  ///
+  /// The closing UPDATE brings rows written before the triggers existed, or
+  /// whose category gained its slug later, into line.
+  ///
+  /// Both halves look before they write. A settled store must open without a
+  /// write lock — other isolates write to the same file — and an UPDATE takes
+  /// one even when it matches nothing.
+  Future<void> _installAdjustmentKindTriggers() async {
+    final regular = TransactionType.regular.storageValue;
+    final adjustment = TransactionType.adjustment.storageValue;
+    final existing = await _existingObjectNames('trigger');
+
+    for (final (name, event) in adjustmentKindTriggers) {
+      if (existing.contains(name)) continue;
+      await customStatement('''
+        CREATE TRIGGER IF NOT EXISTS $name
+        $event ON transactions
+        WHEN NEW.transaction_type IN ('$regular', '$adjustment')
+         AND NEW.transaction_type IS NOT ${_adjustmentKindSql('NEW')}
+        BEGIN
+          UPDATE transactions
+             SET transaction_type = ${_adjustmentKindSql('NEW')}
+           WHERE id = NEW.id;
+        END;
+      ''');
+    }
+
+    final misfiled =
+        '''
+      transaction_type IN ('$regular', '$adjustment')
+      AND transaction_type IS NOT ${_adjustmentKindSql('transactions')}''';
+    final anyMisfiled = await customSelect(
+      'SELECT 1 FROM transactions WHERE $misfiled LIMIT 1',
+    ).get();
+    if (anyMisfiled.isEmpty) return;
+
+    await customStatement('''
+      UPDATE transactions
+         SET transaction_type = ${_adjustmentKindSql('transactions')}
+       WHERE $misfiled
+    ''');
+  }
 
   /// Schema 25 gives every existing budget the currency it was already being
   /// read in, so nothing changes meaning at the upgrade.
@@ -3594,7 +3688,7 @@ class AppDatabase extends _$AppDatabase {
         FROM transactions t
        WHERE t.deleted_at IS NULL
          AND TRIM(t.title) <> ''
-         AND t.transaction_type <> ?
+         AND t.transaction_type NOT IN (?, ?)
          AND t.fee_for_transaction_id IS NULL
          AND LOWER(t.title) LIKE ? ESCAPE '\'
        GROUP BY LOWER(t.title)
@@ -3603,6 +3697,7 @@ class AppDatabase extends _$AppDatabase {
       ''',
       variables: [
         Variable<String>(TransactionPolicy.transferType),
+        Variable<String>(TransactionPolicy.adjustmentType),
         Variable<String>('%$escaped%'),
         Variable<int>(limit),
       ],

@@ -51,6 +51,12 @@ void main() {
     final db = AppDatabase(NativeDatabase(file));
     await db.customSelect('SELECT 1').get(); // force open + createAll
 
+    // Triggers schema 25's release did not have. They name columns stripped
+    // below, and SQLite will not drop a column a trigger reads.
+    for (final (name, _) in AppDatabase.adjustmentKindTriggers) {
+      await db.customStatement('DROP TRIGGER IF EXISTS $name');
+    }
+
     // Columns schema 18 removed. The tables here are built from the CURRENT
     // definitions, so anything since deleted has to be put back before the seed
     // runs, or a fixture describing an older store cannot write the rows that

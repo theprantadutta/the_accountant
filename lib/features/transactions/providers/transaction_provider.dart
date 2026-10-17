@@ -14,7 +14,7 @@ import 'package:the_accountant/data/datasources/local/app_database.dart'
     show AppDatabase, TransactionsCompanion, SyncStatus;
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
 import 'package:the_accountant/data/models/transaction.dart'
-    show TransactionSpecialType;
+    show TransactionSpecialType, TransactionType;
 import 'package:the_accountant/core/services/reminder_scheduler_service.dart';
 import 'package:the_accountant/features/ai/services/category_assignment_service.dart';
 import 'package:the_accountant/features/settings/providers/notification_preferences_provider.dart';
@@ -126,6 +126,15 @@ class Transaction {
 
   /// Whether this row is one leg of a wallet-to-wallet transfer.
   bool get isTransferLeg => transactionType == TransactionPolicy.transferType;
+
+  /// Whether this row is earned or spent money, by the same rule as every
+  /// report and budget. Rows in this list are always live.
+  bool get countsInAnalytics => TransactionPolicy.countsInAnalyticsOf(
+    live: true,
+    isPaid: isPaid,
+    specialType: specialType,
+    kind: TransactionType.fromStorage(transactionType),
+  );
 
   /// Convert to new TransactionViewModel
   TransactionViewModel toViewModel() => TransactionViewModel(

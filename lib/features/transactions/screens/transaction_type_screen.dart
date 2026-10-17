@@ -183,14 +183,15 @@ class _TransactionTypeScreenState extends ConsumerState<TransactionTypeScreen> {
     List<Transaction> transactions,
     DateTime month,
   ) {
-    // Pre-filter by direction, and drop transfers.
+    // Pre-filter by direction, keeping only money genuinely earned or spent.
     //
     // A transfer's two legs look exactly like an expense and an income to
     // anything that only reads the direction the money moved, so this screen
     // was counting every move between the user's own wallets as both. Moving
-    // money you already have is neither.
+    // money you already have is neither, and nor is correcting the record of
+    // it.
     List<Transaction> filtered = transactions
-        .where((t) => t.type == widget.transactionType && !t.isTransferLeg)
+        .where((t) => t.type == widget.transactionType && t.countsInAnalytics)
         .toList();
 
     // Apply month filter
@@ -488,7 +489,7 @@ class _TransactionTypeScreenState extends ConsumerState<TransactionTypeScreen> {
         .where(
           (t) =>
               t.type == widget.transactionType &&
-              !t.isTransferLeg &&
+              t.countsInAnalytics &&
               t.date.year == month.year &&
               t.date.month == month.month,
         )

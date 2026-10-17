@@ -1,4 +1,5 @@
 import 'package:drift/drift.dart' show Value;
+import 'package:the_accountant/core/domain/transaction_policy.dart';
 import 'package:the_accountant/core/services/currency_service.dart';
 import 'package:the_accountant/core/services/wallet_balance_service.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
@@ -62,6 +63,9 @@ class WalletMaintenanceService {
         isIncome: Value(difference > 0),
         categoryId: Value(categoryId),
         walletId: walletId,
+        // The trigger would derive this from the category anyway; saying it
+        // here keeps the row honest even before that runs.
+        transactionType: Value(TransactionPolicy.adjustmentType),
         isPaid: const Value(true),
         syncStatus: const Value(SyncStatus.pendingCreate),
         createdAt: Value(now),
@@ -377,6 +381,7 @@ class WalletMaintenanceService {
         isIncome: Value(amount > 0),
         categoryId: Value(categoryId),
         walletId: walletId,
+        transactionType: Value(TransactionPolicy.adjustmentType),
         isPaid: const Value(true),
         syncStatus: const Value(SyncStatus.pendingCreate),
         createdAt: Value(now),

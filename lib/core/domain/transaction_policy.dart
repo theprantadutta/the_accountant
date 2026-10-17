@@ -26,8 +26,8 @@ import 'package:the_accountant/data/models/transaction.dart'
 ///    Conflating these two was the "new loan shows as Settled" defect.
 /// 3. **Analytics eligibility** ([countsAsIncome] / [countsAsExpense] /
 ///    [countsTowardCategorySpending]) — should the row appear in gross
-///    earnings/spending? Realized *and* not an internal wallet-to-wallet
-///    transfer.
+///    earnings/spending? Realized *and* genuinely earned or spent: not an
+///    internal wallet-to-wallet transfer, and not a balance correction.
 /// 4. **Forecast eligibility** ([isForecast]) — is this a not-yet-happened item
 ///    that belongs in upcoming/projection views only, never in realized totals?
 class TransactionPolicy {
@@ -48,6 +48,9 @@ class TransactionPolicy {
   static String get recurringInstanceType =>
       TransactionType.recurringInstance.storageValue;
 
+  /// Value stored in [Transaction.transactionType] for a balance correction.
+  static String get adjustmentType => TransactionType.adjustment.storageValue;
+
   /// How this row came to exist. Parsing goes through [TransactionType] so the
   /// column, the wire format, and this policy can never disagree about what a
   /// generated occurrence or a transfer leg looks like.
@@ -67,6 +70,16 @@ class TransactionPolicy {
   /// inflates gross income and gross expense by the same amount.
   static bool isTransfer(Transaction t) =>
       kindOf(t) == TransactionType.transfer;
+
+  /// Whether the row is a balance correction.
+  ///
+  /// A correction records that the app's figure and the bank's disagreed, not
+  /// that money was earned or spent. Counting it as either made a month of
+  /// reconciling accounts read as overspending: the corrections landed in the
+  /// budget alongside the purchases, and a large opening correction showed up
+  /// as income nobody earned.
+  static bool isAdjustment(Transaction t) =>
+      kindOf(t) == TransactionType.adjustment;
 
   /// Whether the row is a lend (`credit`) or borrow (`debt`) entry.
   static bool isCreditOrDebt(Transaction t) =>
@@ -104,9 +117,21 @@ class TransactionPolicy {
   /// principal genuinely left (lend) or entered (borrow) the wallet when the
   /// loan was recorded; their repayment is tracked separately by
   /// [Transaction.paidAmount] and by the separate repayment transactions.
-  static bool affectsWalletBalance(Transaction t) {
-    if (!isLive(t)) return false;
-    return t.isPaid || isCreditOrDebt(t);
+  static bool affectsWalletBalance(Transaction t) =>
+      isRealized(live: isLive(t), isPaid: t.isPaid, specialType: t.specialType);
+
+  /// [affectsWalletBalance] over plain fields, for models that are not a
+  /// database row (the transaction list's view model). One definition, so a
+  /// list total and a report can never disagree about which rows moved money.
+  static bool isRealized({
+    required bool live,
+    required bool isPaid,
+    required TransactionSpecialType? specialType,
+  }) {
+    if (!live) return false;
+    return isPaid ||
+        specialType == TransactionSpecialType.credit ||
+        specialType == TransactionSpecialType.debt;
   }
 
   /// Whether [t] counts toward the goal it is linked to.
@@ -191,9 +216,27 @@ class TransactionPolicy {
 
   /// Whether the row belongs in *any* earnings/spending analytic.
   ///
-  /// Realized cash movement that is not an internal transfer.
-  static bool countsInAnalytics(Transaction t) =>
-      affectsWalletBalance(t) && !isTransfer(t);
+  /// Realized cash movement that was genuinely earned or spent.
+  static bool countsInAnalytics(Transaction t) => countsInAnalyticsOf(
+    live: isLive(t),
+    isPaid: t.isPaid,
+    specialType: t.specialType,
+    kind: kindOf(t),
+  );
+
+  /// [countsInAnalytics] over plain fields; see [isRealized] for why.
+  static bool countsInAnalyticsOf({
+    required bool live,
+    required bool isPaid,
+    required TransactionSpecialType? specialType,
+    required TransactionType kind,
+  }) {
+    if (!isRealized(live: live, isPaid: isPaid, specialType: specialType)) {
+      return false;
+    }
+    return kind != TransactionType.transfer &&
+        kind != TransactionType.adjustment;
+  }
 
   /// Whether the row counts toward gross income / report earnings.
   static bool countsAsIncome(Transaction t) =>
