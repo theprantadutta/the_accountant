@@ -81,6 +81,13 @@ void main() {
         'ALTER TABLE transactions DROP COLUMN settles_transaction_id',
       );
     }
+    if (version < 26 && !keep.contains('recurring_configs.template')) {
+      for (final column in ['amount', 'wallet_id', 'auto_pay']) {
+        await db.customStatement(
+          'ALTER TABLE recurring_configs DROP COLUMN $column',
+        );
+      }
+    }
 
     if (version < 23 && !keep.contains('settings.regional')) {
       for (final column in [

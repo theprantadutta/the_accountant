@@ -3160,6 +3160,41 @@ class $RecurringConfigsTable extends RecurringConfigs
     ),
     defaultValue: const Constant(true),
   );
+  static const VerificationMeta _amountMeta = const VerificationMeta('amount');
+  @override
+  late final GeneratedColumn<int> amount = GeneratedColumn<int>(
+    'amount',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _walletIdMeta = const VerificationMeta(
+    'walletId',
+  );
+  @override
+  late final GeneratedColumn<String> walletId = GeneratedColumn<String>(
+    'wallet_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _autoPayMeta = const VerificationMeta(
+    'autoPay',
+  );
+  @override
+  late final GeneratedColumn<bool> autoPay = GeneratedColumn<bool>(
+    'auto_pay',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("auto_pay" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
   static const VerificationMeta _serverIdMeta = const VerificationMeta(
     'serverId',
   );
@@ -3217,6 +3252,9 @@ class $RecurringConfigsTable extends RecurringConfigs
     endDate,
     nextOccurrence,
     isActive,
+    amount,
+    walletId,
+    autoPay,
     serverId,
     syncStatus,
     createdAt,
@@ -3299,6 +3337,24 @@ class $RecurringConfigsTable extends RecurringConfigs
         isActive.isAcceptableOrUnknown(data['is_active']!, _isActiveMeta),
       );
     }
+    if (data.containsKey('amount')) {
+      context.handle(
+        _amountMeta,
+        amount.isAcceptableOrUnknown(data['amount']!, _amountMeta),
+      );
+    }
+    if (data.containsKey('wallet_id')) {
+      context.handle(
+        _walletIdMeta,
+        walletId.isAcceptableOrUnknown(data['wallet_id']!, _walletIdMeta),
+      );
+    }
+    if (data.containsKey('auto_pay')) {
+      context.handle(
+        _autoPayMeta,
+        autoPay.isAcceptableOrUnknown(data['auto_pay']!, _autoPayMeta),
+      );
+    }
     if (data.containsKey('server_id')) {
       context.handle(
         _serverIdMeta,
@@ -3364,6 +3420,18 @@ class $RecurringConfigsTable extends RecurringConfigs
         DriftSqlType.bool,
         data['${effectivePrefix}is_active'],
       )!,
+      amount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}amount'],
+      ),
+      walletId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}wallet_id'],
+      ),
+      autoPay: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}auto_pay'],
+      )!,
       serverId: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}server_id'],
@@ -3398,6 +3466,29 @@ class RecurringConfig extends DataClass implements Insertable<RecurringConfig> {
   final DateTime? endDate;
   final DateTime nextOccurrence;
   final bool isActive;
+
+  /// What each payment from now on is for, in minor units, or null to use the
+  /// base transaction's amount.
+  ///
+  /// The base transaction is the first real payment, so changing the price on
+  /// it rewrote what that payment had been. Prices change — a plan is
+  /// upgraded, a charge in another currency moves with the rate — and the
+  /// change belongs to the payments still to come, so it lives here.
+  final int? amount;
+
+  /// The wallet each payment from now on comes from, or null for the base
+  /// transaction's. Paying from a new card is a change to the future, not a
+  /// reason to move last year's payments onto it.
+  final String? walletId;
+
+  /// Whether a payment is recorded as paid on the day it falls due.
+  ///
+  /// When false the payment is written as pending instead, and waits in
+  /// Upcoming for the user to confirm it — with what was actually charged —
+  /// or skip it. Cashew offers the same choice as one switch for everything;
+  /// it is per schedule here, because a fixed rent and a card charge in
+  /// dollars want different answers.
+  final bool autoPay;
   final String? serverId;
   final int syncStatus;
   final DateTime createdAt;
@@ -3411,6 +3502,9 @@ class RecurringConfig extends DataClass implements Insertable<RecurringConfig> {
     this.endDate,
     required this.nextOccurrence,
     required this.isActive,
+    this.amount,
+    this.walletId,
+    required this.autoPay,
     this.serverId,
     required this.syncStatus,
     required this.createdAt,
@@ -3429,6 +3523,13 @@ class RecurringConfig extends DataClass implements Insertable<RecurringConfig> {
     }
     map['next_occurrence'] = Variable<DateTime>(nextOccurrence);
     map['is_active'] = Variable<bool>(isActive);
+    if (!nullToAbsent || amount != null) {
+      map['amount'] = Variable<int>(amount);
+    }
+    if (!nullToAbsent || walletId != null) {
+      map['wallet_id'] = Variable<String>(walletId);
+    }
+    map['auto_pay'] = Variable<bool>(autoPay);
     if (!nullToAbsent || serverId != null) {
       map['server_id'] = Variable<String>(serverId);
     }
@@ -3450,6 +3551,13 @@ class RecurringConfig extends DataClass implements Insertable<RecurringConfig> {
           : Value(endDate),
       nextOccurrence: Value(nextOccurrence),
       isActive: Value(isActive),
+      amount: amount == null && nullToAbsent
+          ? const Value.absent()
+          : Value(amount),
+      walletId: walletId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(walletId),
+      autoPay: Value(autoPay),
       serverId: serverId == null && nullToAbsent
           ? const Value.absent()
           : Value(serverId),
@@ -3473,6 +3581,9 @@ class RecurringConfig extends DataClass implements Insertable<RecurringConfig> {
       endDate: serializer.fromJson<DateTime?>(json['endDate']),
       nextOccurrence: serializer.fromJson<DateTime>(json['nextOccurrence']),
       isActive: serializer.fromJson<bool>(json['isActive']),
+      amount: serializer.fromJson<int?>(json['amount']),
+      walletId: serializer.fromJson<String?>(json['walletId']),
+      autoPay: serializer.fromJson<bool>(json['autoPay']),
       serverId: serializer.fromJson<String?>(json['serverId']),
       syncStatus: serializer.fromJson<int>(json['syncStatus']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
@@ -3491,6 +3602,9 @@ class RecurringConfig extends DataClass implements Insertable<RecurringConfig> {
       'endDate': serializer.toJson<DateTime?>(endDate),
       'nextOccurrence': serializer.toJson<DateTime>(nextOccurrence),
       'isActive': serializer.toJson<bool>(isActive),
+      'amount': serializer.toJson<int?>(amount),
+      'walletId': serializer.toJson<String?>(walletId),
+      'autoPay': serializer.toJson<bool>(autoPay),
       'serverId': serializer.toJson<String?>(serverId),
       'syncStatus': serializer.toJson<int>(syncStatus),
       'createdAt': serializer.toJson<DateTime>(createdAt),
@@ -3507,6 +3621,9 @@ class RecurringConfig extends DataClass implements Insertable<RecurringConfig> {
     Value<DateTime?> endDate = const Value.absent(),
     DateTime? nextOccurrence,
     bool? isActive,
+    Value<int?> amount = const Value.absent(),
+    Value<String?> walletId = const Value.absent(),
+    bool? autoPay,
     Value<String?> serverId = const Value.absent(),
     int? syncStatus,
     DateTime? createdAt,
@@ -3520,6 +3637,9 @@ class RecurringConfig extends DataClass implements Insertable<RecurringConfig> {
     endDate: endDate.present ? endDate.value : this.endDate,
     nextOccurrence: nextOccurrence ?? this.nextOccurrence,
     isActive: isActive ?? this.isActive,
+    amount: amount.present ? amount.value : this.amount,
+    walletId: walletId.present ? walletId.value : this.walletId,
+    autoPay: autoPay ?? this.autoPay,
     serverId: serverId.present ? serverId.value : this.serverId,
     syncStatus: syncStatus ?? this.syncStatus,
     createdAt: createdAt ?? this.createdAt,
@@ -3543,6 +3663,9 @@ class RecurringConfig extends DataClass implements Insertable<RecurringConfig> {
           ? data.nextOccurrence.value
           : this.nextOccurrence,
       isActive: data.isActive.present ? data.isActive.value : this.isActive,
+      amount: data.amount.present ? data.amount.value : this.amount,
+      walletId: data.walletId.present ? data.walletId.value : this.walletId,
+      autoPay: data.autoPay.present ? data.autoPay.value : this.autoPay,
       serverId: data.serverId.present ? data.serverId.value : this.serverId,
       syncStatus: data.syncStatus.present
           ? data.syncStatus.value
@@ -3563,6 +3686,9 @@ class RecurringConfig extends DataClass implements Insertable<RecurringConfig> {
           ..write('endDate: $endDate, ')
           ..write('nextOccurrence: $nextOccurrence, ')
           ..write('isActive: $isActive, ')
+          ..write('amount: $amount, ')
+          ..write('walletId: $walletId, ')
+          ..write('autoPay: $autoPay, ')
           ..write('serverId: $serverId, ')
           ..write('syncStatus: $syncStatus, ')
           ..write('createdAt: $createdAt, ')
@@ -3581,6 +3707,9 @@ class RecurringConfig extends DataClass implements Insertable<RecurringConfig> {
     endDate,
     nextOccurrence,
     isActive,
+    amount,
+    walletId,
+    autoPay,
     serverId,
     syncStatus,
     createdAt,
@@ -3598,6 +3727,9 @@ class RecurringConfig extends DataClass implements Insertable<RecurringConfig> {
           other.endDate == this.endDate &&
           other.nextOccurrence == this.nextOccurrence &&
           other.isActive == this.isActive &&
+          other.amount == this.amount &&
+          other.walletId == this.walletId &&
+          other.autoPay == this.autoPay &&
           other.serverId == this.serverId &&
           other.syncStatus == this.syncStatus &&
           other.createdAt == this.createdAt &&
@@ -3613,6 +3745,9 @@ class RecurringConfigsCompanion extends UpdateCompanion<RecurringConfig> {
   final Value<DateTime?> endDate;
   final Value<DateTime> nextOccurrence;
   final Value<bool> isActive;
+  final Value<int?> amount;
+  final Value<String?> walletId;
+  final Value<bool> autoPay;
   final Value<String?> serverId;
   final Value<int> syncStatus;
   final Value<DateTime> createdAt;
@@ -3627,6 +3762,9 @@ class RecurringConfigsCompanion extends UpdateCompanion<RecurringConfig> {
     this.endDate = const Value.absent(),
     this.nextOccurrence = const Value.absent(),
     this.isActive = const Value.absent(),
+    this.amount = const Value.absent(),
+    this.walletId = const Value.absent(),
+    this.autoPay = const Value.absent(),
     this.serverId = const Value.absent(),
     this.syncStatus = const Value.absent(),
     this.createdAt = const Value.absent(),
@@ -3642,6 +3780,9 @@ class RecurringConfigsCompanion extends UpdateCompanion<RecurringConfig> {
     this.endDate = const Value.absent(),
     required DateTime nextOccurrence,
     this.isActive = const Value.absent(),
+    this.amount = const Value.absent(),
+    this.walletId = const Value.absent(),
+    this.autoPay = const Value.absent(),
     this.serverId = const Value.absent(),
     this.syncStatus = const Value.absent(),
     this.createdAt = const Value.absent(),
@@ -3660,6 +3801,9 @@ class RecurringConfigsCompanion extends UpdateCompanion<RecurringConfig> {
     Expression<DateTime>? endDate,
     Expression<DateTime>? nextOccurrence,
     Expression<bool>? isActive,
+    Expression<int>? amount,
+    Expression<String>? walletId,
+    Expression<bool>? autoPay,
     Expression<String>? serverId,
     Expression<int>? syncStatus,
     Expression<DateTime>? createdAt,
@@ -3675,6 +3819,9 @@ class RecurringConfigsCompanion extends UpdateCompanion<RecurringConfig> {
       if (endDate != null) 'end_date': endDate,
       if (nextOccurrence != null) 'next_occurrence': nextOccurrence,
       if (isActive != null) 'is_active': isActive,
+      if (amount != null) 'amount': amount,
+      if (walletId != null) 'wallet_id': walletId,
+      if (autoPay != null) 'auto_pay': autoPay,
       if (serverId != null) 'server_id': serverId,
       if (syncStatus != null) 'sync_status': syncStatus,
       if (createdAt != null) 'created_at': createdAt,
@@ -3692,6 +3839,9 @@ class RecurringConfigsCompanion extends UpdateCompanion<RecurringConfig> {
     Value<DateTime?>? endDate,
     Value<DateTime>? nextOccurrence,
     Value<bool>? isActive,
+    Value<int?>? amount,
+    Value<String?>? walletId,
+    Value<bool>? autoPay,
     Value<String?>? serverId,
     Value<int>? syncStatus,
     Value<DateTime>? createdAt,
@@ -3707,6 +3857,9 @@ class RecurringConfigsCompanion extends UpdateCompanion<RecurringConfig> {
       endDate: endDate ?? this.endDate,
       nextOccurrence: nextOccurrence ?? this.nextOccurrence,
       isActive: isActive ?? this.isActive,
+      amount: amount ?? this.amount,
+      walletId: walletId ?? this.walletId,
+      autoPay: autoPay ?? this.autoPay,
       serverId: serverId ?? this.serverId,
       syncStatus: syncStatus ?? this.syncStatus,
       createdAt: createdAt ?? this.createdAt,
@@ -3742,6 +3895,15 @@ class RecurringConfigsCompanion extends UpdateCompanion<RecurringConfig> {
     if (isActive.present) {
       map['is_active'] = Variable<bool>(isActive.value);
     }
+    if (amount.present) {
+      map['amount'] = Variable<int>(amount.value);
+    }
+    if (walletId.present) {
+      map['wallet_id'] = Variable<String>(walletId.value);
+    }
+    if (autoPay.present) {
+      map['auto_pay'] = Variable<bool>(autoPay.value);
+    }
     if (serverId.present) {
       map['server_id'] = Variable<String>(serverId.value);
     }
@@ -3771,6 +3933,9 @@ class RecurringConfigsCompanion extends UpdateCompanion<RecurringConfig> {
           ..write('endDate: $endDate, ')
           ..write('nextOccurrence: $nextOccurrence, ')
           ..write('isActive: $isActive, ')
+          ..write('amount: $amount, ')
+          ..write('walletId: $walletId, ')
+          ..write('autoPay: $autoPay, ')
           ..write('serverId: $serverId, ')
           ..write('syncStatus: $syncStatus, ')
           ..write('createdAt: $createdAt, ')
@@ -16138,6 +16303,9 @@ typedef $$RecurringConfigsTableCreateCompanionBuilder =
       Value<DateTime?> endDate,
       required DateTime nextOccurrence,
       Value<bool> isActive,
+      Value<int?> amount,
+      Value<String?> walletId,
+      Value<bool> autoPay,
       Value<String?> serverId,
       Value<int> syncStatus,
       Value<DateTime> createdAt,
@@ -16154,6 +16322,9 @@ typedef $$RecurringConfigsTableUpdateCompanionBuilder =
       Value<DateTime?> endDate,
       Value<DateTime> nextOccurrence,
       Value<bool> isActive,
+      Value<int?> amount,
+      Value<String?> walletId,
+      Value<bool> autoPay,
       Value<String?> serverId,
       Value<int> syncStatus,
       Value<DateTime> createdAt,
@@ -16235,6 +16406,21 @@ class $$RecurringConfigsTableFilterComposer
 
   ColumnFilters<bool> get isActive => $composableBuilder(
     column: $table.isActive,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get amount => $composableBuilder(
+    column: $table.amount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get walletId => $composableBuilder(
+    column: $table.walletId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get autoPay => $composableBuilder(
+    column: $table.autoPay,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -16333,6 +16519,21 @@ class $$RecurringConfigsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get amount => $composableBuilder(
+    column: $table.amount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get walletId => $composableBuilder(
+    column: $table.walletId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get autoPay => $composableBuilder(
+    column: $table.autoPay,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get serverId => $composableBuilder(
     column: $table.serverId,
     builder: (column) => ColumnOrderings(column),
@@ -16394,6 +16595,15 @@ class $$RecurringConfigsTableAnnotationComposer
 
   GeneratedColumn<bool> get isActive =>
       $composableBuilder(column: $table.isActive, builder: (column) => column);
+
+  GeneratedColumn<int> get amount =>
+      $composableBuilder(column: $table.amount, builder: (column) => column);
+
+  GeneratedColumn<String> get walletId =>
+      $composableBuilder(column: $table.walletId, builder: (column) => column);
+
+  GeneratedColumn<bool> get autoPay =>
+      $composableBuilder(column: $table.autoPay, builder: (column) => column);
 
   GeneratedColumn<String> get serverId =>
       $composableBuilder(column: $table.serverId, builder: (column) => column);
@@ -16473,6 +16683,9 @@ class $$RecurringConfigsTableTableManager
                 Value<DateTime?> endDate = const Value.absent(),
                 Value<DateTime> nextOccurrence = const Value.absent(),
                 Value<bool> isActive = const Value.absent(),
+                Value<int?> amount = const Value.absent(),
+                Value<String?> walletId = const Value.absent(),
+                Value<bool> autoPay = const Value.absent(),
                 Value<String?> serverId = const Value.absent(),
                 Value<int> syncStatus = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
@@ -16487,6 +16700,9 @@ class $$RecurringConfigsTableTableManager
                 endDate: endDate,
                 nextOccurrence: nextOccurrence,
                 isActive: isActive,
+                amount: amount,
+                walletId: walletId,
+                autoPay: autoPay,
                 serverId: serverId,
                 syncStatus: syncStatus,
                 createdAt: createdAt,
@@ -16503,6 +16719,9 @@ class $$RecurringConfigsTableTableManager
                 Value<DateTime?> endDate = const Value.absent(),
                 required DateTime nextOccurrence,
                 Value<bool> isActive = const Value.absent(),
+                Value<int?> amount = const Value.absent(),
+                Value<String?> walletId = const Value.absent(),
+                Value<bool> autoPay = const Value.absent(),
                 Value<String?> serverId = const Value.absent(),
                 Value<int> syncStatus = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
@@ -16517,6 +16736,9 @@ class $$RecurringConfigsTableTableManager
                 endDate: endDate,
                 nextOccurrence: nextOccurrence,
                 isActive: isActive,
+                amount: amount,
+                walletId: walletId,
+                autoPay: autoPay,
                 serverId: serverId,
                 syncStatus: syncStatus,
                 createdAt: createdAt,

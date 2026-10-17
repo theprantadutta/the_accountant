@@ -78,10 +78,11 @@ class UpcomingNotifier extends StateNotifier<UpcomingState> {
     }
   }
 
-  /// Mark a transaction as paid
-  Future<void> markAsPaid(String transactionId) async {
+  /// Mark a transaction as paid, at [amount] when what was charged differs
+  /// from what was expected.
+  Future<void> markAsPaid(String transactionId, {int? amount}) async {
     try {
-      await _db.markTransactionAsPaid(transactionId);
+      await _db.markTransactionAsPaid(transactionId, amount: amount);
 
       // Update wallet balance — the transaction is now paid so it should
       // affect the wallet balance
@@ -97,13 +98,14 @@ class UpcomingNotifier extends StateNotifier<UpcomingState> {
     }
   }
 
-  /// Mark a transaction as unpaid
-  Future<void> markAsUnpaid(String transactionId) async {
+  /// Mark a transaction as unpaid, putting back [amount] if confirming it
+  /// changed what it was for.
+  Future<void> markAsUnpaid(String transactionId, {int? amount}) async {
     try {
       // Read the transaction before marking unpaid to get its current state
       final transaction = await _db.findTransactionById(transactionId);
 
-      await _db.markTransactionAsUnpaid(transactionId);
+      await _db.markTransactionAsUnpaid(transactionId, amount: amount);
 
       // Reverse the wallet balance effect — the transaction is no longer paid
       // so its effect on the wallet should be removed

@@ -332,8 +332,17 @@ class TransactionPolicy {
   ///
   /// Skipped occurrences are excluded: the user has explicitly said this one
   /// will not happen.
+  ///
+  /// A subscription or repeating payment waiting to be confirmed is one too:
+  /// its schedule asks before recording each payment, and until the user does
+  /// it is expected money, not spent money.
   static bool isForecast(Transaction t) =>
-      isLive(t) && !t.isPaid && !t.skipPaid && isUpcoming(t);
+      isLive(t) &&
+      !t.isPaid &&
+      !t.skipPaid &&
+      (isUpcoming(t) ||
+          t.specialType == TransactionSpecialType.subscription ||
+          t.specialType == TransactionSpecialType.repetitive);
 
   /// Whether a forecast item is due in the future.
   static bool isFutureForecast(Transaction t, {DateTime? now}) =>

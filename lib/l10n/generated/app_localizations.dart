@@ -2009,6 +2009,18 @@ abstract class L10n {
   /// **'Mark as Paid'**
   String get txMarkAsPaid2;
 
+  /// No description provided for @txConfirmPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm payment'**
+  String get txConfirmPayment;
+
+  /// No description provided for @txAmountCharged.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount charged'**
+  String get txAmountCharged;
+
   /// No description provided for @txUndo.
   ///
   /// In en, this message translates to:
@@ -2338,6 +2350,24 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'Subscription name'**
   String get subSubscriptionName;
+
+  /// No description provided for @subAskBeforeEachPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask before recording each payment'**
+  String get subAskBeforeEachPayment;
+
+  /// No description provided for @subAskBeforeEachPaymentHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Each payment waits in Upcoming until you confirm what was charged, or skip it. Best for charges that vary, like a card paid in another currency.'**
+  String get subAskBeforeEachPaymentHint;
+
+  /// No description provided for @subChangesApplyFromNext.
+  ///
+  /// In en, this message translates to:
+  /// **'A new amount or account applies from the next payment. Payments already made stay as they were.'**
+  String get subChangesApplyFromNext;
 
   /// No description provided for @catDeleteCategory.
   ///

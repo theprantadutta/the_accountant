@@ -1840,6 +1840,18 @@ class SyncService {
             : DateTime.now(),
       ),
       isActive: Value(data['IsActive'] ?? true),
+      // Each only when the server sent it. One that predates them sends none,
+      // and writing the defaults over local values would quietly reset a
+      // price, a wallet, or the user's choice to confirm each payment.
+      amount: data.containsKey('Amount')
+          ? Value((data['Amount'] as num?)?.toInt())
+          : const Value.absent(),
+      walletId: data.containsKey('WalletId')
+          ? Value(data['WalletId'] as String?)
+          : const Value.absent(),
+      autoPay: data['AutoPay'] is bool
+          ? Value(data['AutoPay'] as bool)
+          : const Value.absent(),
       syncStatus: const Value(SyncStatus.synced),
       updatedAt: Value(DateTime.now()),
     );
@@ -2133,6 +2145,9 @@ class SyncService {
     'NextOccurrence': r.nextOccurrence.toUtc().toIso8601String(),
     'IsActive': r.isActive,
     'UpdatedAt': r.updatedAt.toUtc().toIso8601String(),
+    'Amount': r.amount,
+    'WalletId': r.walletId,
+    'AutoPay': r.autoPay,
   };
 
   int _transactionTypeToInt(String type) =>

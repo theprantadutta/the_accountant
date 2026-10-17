@@ -26,6 +26,29 @@ class RecurringConfigs extends Table {
   // Status
   BoolColumn get isActive => boolean().withDefault(const Constant(true))();
 
+  /// What each payment from now on is for, in minor units, or null to use the
+  /// base transaction's amount.
+  ///
+  /// The base transaction is the first real payment, so changing the price on
+  /// it rewrote what that payment had been. Prices change — a plan is
+  /// upgraded, a charge in another currency moves with the rate — and the
+  /// change belongs to the payments still to come, so it lives here.
+  IntColumn get amount => integer().nullable()();
+
+  /// The wallet each payment from now on comes from, or null for the base
+  /// transaction's. Paying from a new card is a change to the future, not a
+  /// reason to move last year's payments onto it.
+  TextColumn get walletId => text().nullable()();
+
+  /// Whether a payment is recorded as paid on the day it falls due.
+  ///
+  /// When false the payment is written as pending instead, and waits in
+  /// Upcoming for the user to confirm it — with what was actually charged —
+  /// or skip it. Cashew offers the same choice as one switch for everything;
+  /// it is per schedule here, because a fixed rent and a card charge in
+  /// dollars want different answers.
+  BoolColumn get autoPay => boolean().withDefault(const Constant(true))();
+
   // Sync fields
   TextColumn get serverId => text().nullable()();
   IntColumn get syncStatus => integer().withDefault(

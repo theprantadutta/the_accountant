@@ -1000,6 +1000,10 @@ class AppDatabase extends _$AppDatabase {
   Future<void> _addV26Columns(Migrator m) async {
     if (!await _tableExists('transactions')) return;
     await _ensureColumn(m, transactions, transactions.settlesTransactionId);
+    if (!await _tableExists('recurring_configs')) return;
+    await _ensureColumn(m, recurringConfigs, recurringConfigs.amount);
+    await _ensureColumn(m, recurringConfigs, recurringConfigs.walletId);
+    await _ensureColumn(m, recurringConfigs, recurringConfigs.autoPay);
   }
 
   Future<void> _addV25Columns(Migrator m) async {
@@ -2002,6 +2006,21 @@ class AppDatabase extends _$AppDatabase {
             ..where((t) => t.deletedAt.isNull()))
           .get();
 
+  /// Scheduled payments that have fallen due and are waiting for the user to
+  /// confirm or skip them — written by a schedule that asks first.
+  Future<List<Transaction>> getPaymentsAwaitingConfirmation() =>
+      (select(transactions)
+            ..where(
+              (t) => t.transactionType.equals(
+                TransactionType.recurringInstance.storageValue,
+              ),
+            )
+            ..where((t) => t.isPaid.equals(false))
+            ..where((t) => t.skipPaid.equals(false))
+            ..where((t) => t.deletedAt.isNull())
+            ..orderBy([(t) => OrderingTerm.asc(t.date)]))
+          .get();
+
   /// Get upcoming (unpaid future) transactions
   Future<List<Transaction>> getUpcomingTransactions() =>
       (select(transactions)
@@ -2076,13 +2095,21 @@ class AppDatabase extends _$AppDatabase {
           .get();
 
   /// Mark transaction as paid
-  Future<void> markTransactionAsPaid(String id, {DateTime? paymentDate}) async {
+  ///
+  /// [amount] records what was really charged, when that differs from what was
+  /// expected — the norm for a card payment in another currency.
+  Future<void> markTransactionAsPaid(
+    String id, {
+    DateTime? paymentDate,
+    int? amount,
+  }) async {
     final transaction = await findTransactionById(id);
     if (transaction == null) return;
 
     await (update(transactions)..where((t) => t.id.equals(id))).write(
       TransactionsCompanion(
         isPaid: const Value(true),
+        amount: amount != null ? Value(amount) : const Value.absent(),
         originalDueDate: Value(transaction.originalDueDate ?? transaction.date),
         date: Value(paymentDate ?? DateTime.now()),
         syncStatus: Value(SyncStatus.markEdited(transaction.syncStatus)),
@@ -2106,13 +2133,17 @@ class AppDatabase extends _$AppDatabase {
   }
 
   /// Mark transaction as unpaid
-  Future<void> markTransactionAsUnpaid(String id) async {
+  ///
+  /// [amount] puts back what was expected, when undoing a confirmation that
+  /// recorded a different charge.
+  Future<void> markTransactionAsUnpaid(String id, {int? amount}) async {
     final transaction = await findTransactionById(id);
     if (transaction == null) return;
 
     await (update(transactions)..where((t) => t.id.equals(id))).write(
       TransactionsCompanion(
         isPaid: const Value(false),
+        amount: amount != null ? Value(amount) : const Value.absent(),
         // Restore original due date if available
         date: Value(transaction.originalDueDate ?? transaction.date),
         syncStatus: Value(SyncStatus.markEdited(transaction.syncStatus)),

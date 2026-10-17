@@ -1021,6 +1021,12 @@ class L10nBn extends L10n {
   String get txMarkAsPaid2 => 'পরিশোধিত হিসেবে চিহ্নিত করুন';
 
   @override
+  String get txConfirmPayment => 'পেমেন্ট নিশ্চিত করুন';
+
+  @override
+  String get txAmountCharged => 'চার্জ হওয়া পরিমাণ';
+
+  @override
   String get txUndo => 'ফেরান';
 
   @override
@@ -1186,6 +1192,18 @@ class L10nBn extends L10n {
 
   @override
   String get subSubscriptionName => 'সাবস্ক্রিপশনের নাম';
+
+  @override
+  String get subAskBeforeEachPayment =>
+      'প্রতিটি পেমেন্ট রেকর্ড করার আগে জিজ্ঞাসা করুন';
+
+  @override
+  String get subAskBeforeEachPaymentHint =>
+      'প্রতিটি পেমেন্ট আসন্ন তালিকায় অপেক্ষা করবে, যতক্ষণ না আপনি আসলে কত চার্জ হয়েছে তা নিশ্চিত করেন বা এড়িয়ে যান। যেসব চার্জ বদলায়, যেমন অন্য মুদ্রায় কার্ডে পরিশোধ, সেগুলোর জন্য উপযুক্ত।';
+
+  @override
+  String get subChangesApplyFromNext =>
+      'নতুন পরিমাণ বা অ্যাকাউন্ট পরবর্তী পেমেন্ট থেকে প্রযোজ্য হবে। আগের পেমেন্টগুলো যেমন ছিল তেমনই থাকবে।';
 
   @override
   String get catDeleteCategory => 'ক্যাটাগরি মুছুন';

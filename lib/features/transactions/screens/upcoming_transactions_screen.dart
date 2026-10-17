@@ -381,8 +381,20 @@ class _UpcomingTransactionsScreenState
     );
   }
 
+  /// Record the payment, at what was actually charged.
+  ///
+  /// The expected amount is filled in, so a payment that matched is one tap
+  /// more than before; one that did not — a card charge in another currency,
+  /// a bill that came in higher — is corrected here rather than recorded
+  /// wrong and fixed later.
   void _markAsPaid(Transaction transaction) async {
-    await ref.read(upcomingProvider.notifier).markAsPaid(transaction.id);
+    final charged = await _askAmountCharged(transaction);
+    if (charged == null || !mounted) return;
+
+    final changed = charged != transaction.amount;
+    await ref
+        .read(upcomingProvider.notifier)
+        .markAsPaid(transaction.id, amount: changed ? charged : null);
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -392,12 +404,61 @@ class _UpcomingTransactionsScreenState
             label: L10n.of(context).txUndo,
             textColor: Colors.white,
             onPressed: () {
-              ref.read(upcomingProvider.notifier).markAsUnpaid(transaction.id);
+              ref
+                  .read(upcomingProvider.notifier)
+                  .markAsUnpaid(
+                    transaction.id,
+                    amount: changed ? transaction.amount : null,
+                  );
             },
           ),
         ),
       );
     }
+  }
+
+  /// The amount charged, in minor units, or null if the user backed out.
+  Future<int?> _askAmountCharged(Transaction transaction) {
+    final controller = TextEditingController(
+      text: (transaction.amount / 100).toStringAsFixed(2),
+    );
+    int? parse() {
+      final value = double.tryParse(controller.text.trim().replaceAll(',', ''));
+      if (value == null || value <= 0) return null;
+      return (value * 100).round();
+    }
+
+    return showDialog<int>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(L10n.of(context).txConfirmPayment),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          decoration: InputDecoration(
+            labelText: L10n.of(context).txAmountCharged,
+          ),
+          onSubmitted: (_) {
+            final amount = parse();
+            if (amount != null) Navigator.of(context).pop(amount);
+          },
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(L10n.of(context).actionCancel),
+          ),
+          FilledButton(
+            onPressed: () {
+              final amount = parse();
+              if (amount != null) Navigator.of(context).pop(amount);
+            },
+            child: Text(L10n.of(context).actionConfirm),
+          ),
+        ],
+      ),
+    ).whenComplete(controller.dispose);
   }
 
   void _skipTransaction(Transaction transaction) async {

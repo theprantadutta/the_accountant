@@ -1027,6 +1027,12 @@ class L10nEn extends L10n {
   String get txMarkAsPaid2 => 'Mark as Paid';
 
   @override
+  String get txConfirmPayment => 'Confirm payment';
+
+  @override
+  String get txAmountCharged => 'Amount charged';
+
+  @override
   String get txUndo => 'Undo';
 
   @override
@@ -1192,6 +1198,17 @@ class L10nEn extends L10n {
 
   @override
   String get subSubscriptionName => 'Subscription name';
+
+  @override
+  String get subAskBeforeEachPayment => 'Ask before recording each payment';
+
+  @override
+  String get subAskBeforeEachPaymentHint =>
+      'Each payment waits in Upcoming until you confirm what was charged, or skip it. Best for charges that vary, like a card paid in another currency.';
+
+  @override
+  String get subChangesApplyFromNext =>
+      'A new amount or account applies from the next payment. Payments already made stay as they were.';
 
   @override
   String get catDeleteCategory => 'Delete Category';

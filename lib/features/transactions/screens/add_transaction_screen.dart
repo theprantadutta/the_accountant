@@ -132,6 +132,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
   String _subscriptionFrequency = 'monthly';
   int _subscriptionPeriodLength = 1;
   DateTime? _subscriptionEndDate;
+  bool _subscriptionAskFirst = false;
 
   // Transfer specific
   String? _fromWalletId;
@@ -390,6 +391,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
             _subscriptionFrequency = config.reoccurrence;
             _subscriptionPeriodLength = config.periodLength;
             _subscriptionEndDate = config.endDate;
+            _subscriptionAskFirst = !config.autoPay;
           });
         }
       }
@@ -721,6 +723,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
             periodLength: _subscriptionPeriodLength,
             startDate: _selectedDateTime,
             endDate: _subscriptionEndDate,
+            autoPay: !_subscriptionAskFirst,
           );
           ref.read(subscriptionDashboardProvider.notifier).refresh();
         }
@@ -769,6 +772,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
           reoccurrence: _subscriptionFrequency,
           periodLength: _subscriptionPeriodLength,
           endDate: _subscriptionEndDate,
+          autoPay: !_subscriptionAskFirst,
         );
       } else {
         await recurringService.createRecurringConfig(
@@ -777,6 +781,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
           periodLength: _subscriptionPeriodLength,
           startDate: _selectedDateTime,
           endDate: _subscriptionEndDate,
+          autoPay: !_subscriptionAskFirst,
         );
       }
     } else if (existingConfig != null) {
@@ -1588,6 +1593,20 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                     ),
                 ],
               ),
+            ),
+          ),
+          SwitchListTile.adaptive(
+            contentPadding: EdgeInsets.zero,
+            value: _subscriptionAskFirst,
+            activeTrackColor: sectionColor,
+            onChanged: (value) => setState(() => _subscriptionAskFirst = value),
+            title: Text(
+              L10n.of(context).subAskBeforeEachPayment,
+              style: TextStyle(fontSize: 14, color: AppColors.textPrimary),
+            ),
+            subtitle: Text(
+              L10n.of(context).subAskBeforeEachPaymentHint,
+              style: TextStyle(fontSize: 12, color: AppColors.textMuted),
             ),
           ),
         ],
