@@ -48,6 +48,42 @@
   "settingsBackupRestore": "Backup & Restore",
   "settingsBackupRestoreSubtitle": "A file you keep, or automatic copies in Google Drive",
   "settingsImportStatement": "Import a statement",
+  "settingsImportCashew": "Import from Cashew",
+  "settingsImportCashewSubtitle": "Bring everything over from a Cashew backup",
+  "cashewIntro": "In Cashew, export a backup file from its Backups page, then choose it here. Everything in it comes across: accounts, categories, transactions, subscriptions, loans, budgets, goals and title rules.",
+  "cashewChoose": "Choose Cashew backup",
+  "cashewNotBackup": "That file is not a Cashew backup.",
+  "cashewFound": "{transactions} transactions in {accounts} accounts, with {categories} categories, {budgets} budgets and {goals} goals.",
+  "@cashewFound": {
+    "placeholders": {
+      "transactions": {
+        "type": "int"
+      },
+      "accounts": {
+        "type": "int"
+      },
+      "categories": {
+        "type": "int"
+      },
+      "budgets": {
+        "type": "int"
+      },
+      "goals": {
+        "type": "int"
+      }
+    }
+  },
+  "cashewImport": "Import",
+  "cashewMergeNote": "Accounts come in as new ones. If you already keep one here for the same money, use Merge on it to combine them. Categories with the same name are filed together.",
+  "cashewDone": "{count} transactions imported.",
+  "@cashewDone": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cashewNothingNew": "Everything in this backup is already here.",
   "settingsImportStatementSubtitle": "Bring in a CSV from your bank, mapped once and remembered",
   "settingsExportData": "Export Data",
   "settingsRecentlyDeleted": "Recently deleted",

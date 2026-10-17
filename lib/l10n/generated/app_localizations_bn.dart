@@ -146,6 +146,49 @@ class L10nBn extends L10n {
   String get settingsImportStatement => 'স্টেটমেন্ট আমদানি করুন';
 
   @override
+  String get settingsImportCashew => 'Cashew থেকে আনুন';
+
+  @override
+  String get settingsImportCashewSubtitle =>
+      'Cashew ব্যাকআপ থেকে সবকিছু নিয়ে আসুন';
+
+  @override
+  String get cashewIntro =>
+      'Cashew-এর ব্যাকআপ পেজ থেকে একটি ব্যাকআপ ফাইল এক্সপোর্ট করুন, তারপর এখানে বেছে নিন। এর সবকিছু চলে আসবে: অ্যাকাউন্ট, ক্যাটাগরি, লেনদেন, সাবস্ক্রিপশন, ঋণ, বাজেট, লক্ষ্য এবং শিরোনামের নিয়ম।';
+
+  @override
+  String get cashewChoose => 'Cashew ব্যাকআপ বেছে নিন';
+
+  @override
+  String get cashewNotBackup => 'এই ফাইলটি Cashew ব্যাকআপ নয়।';
+
+  @override
+  String cashewFound(
+    int transactions,
+    int accounts,
+    int categories,
+    int budgets,
+    int goals,
+  ) {
+    return '$accountsটি অ্যাকাউন্টে $transactionsটি লেনদেন, সাথে $categoriesটি ক্যাটাগরি, $budgetsটি বাজেট এবং $goalsটি লক্ষ্য।';
+  }
+
+  @override
+  String get cashewImport => 'আনুন';
+
+  @override
+  String get cashewMergeNote =>
+      'অ্যাকাউন্টগুলো নতুন হিসেবে আসবে। একই টাকার জন্য এখানে আগে থেকে কোনো অ্যাকাউন্ট থাকলে, দুটো একসাথে করতে সেটিতে মার্জ ব্যবহার করুন। একই নামের ক্যাটাগরি একসাথে রাখা হবে।';
+
+  @override
+  String cashewDone(int count) {
+    return '$countটি লেনদেন আনা হয়েছে।';
+  }
+
+  @override
+  String get cashewNothingNew => 'এই ব্যাকআপের সবকিছু ইতিমধ্যে এখানে আছে।';
+
+  @override
   String get settingsImportStatementSubtitle =>
       'ব্যাংকের CSV আনুন — একবার মিলিয়ে দিন, মনে রাখা হবে';
 
