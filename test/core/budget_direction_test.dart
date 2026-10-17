@@ -109,9 +109,8 @@ void main() {
       expect(TransactionPolicy.countsTowardBudget(pending), isFalse);
     });
 
-    test('a credit repayment counts on the side its cash moved', () {
-      // Recording a repayment on a lend brings money in, so it belongs to an
-      // income budget and not to an expense one.
+    test('money in counts toward an income budget, a loan toward neither', () {
+      // Money coming in belongs to an income budget and not to an expense one.
       final repayment = buildTransaction(
         amount: 2000,
         isIncome: true,
@@ -123,14 +122,15 @@ void main() {
       );
       expect(TransactionPolicy.countsTowardBudget(repayment), isFalse);
 
-      // The lend itself is money going out.
+      // The lend itself is money going out, but lending is not spending: it
+      // stays out of a spending budget, as Cashew keeps it by default.
       final lend = buildTransaction(
         amount: 20000,
         isIncome: false,
         specialType: TransactionSpecialType.credit,
         categoryId: 'loan_expense',
       );
-      expect(TransactionPolicy.countsTowardBudget(lend), isTrue);
+      expect(TransactionPolicy.countsTowardBudget(lend), isFalse);
     });
   });
 

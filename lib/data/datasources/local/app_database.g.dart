@@ -3946,6 +3946,17 @@ class $TransactionsTable extends Transactions
         type: DriftSqlType.string,
         requiredDuringInsert: false,
       );
+  static const VerificationMeta _settlesTransactionIdMeta =
+      const VerificationMeta('settlesTransactionId');
+  @override
+  late final GeneratedColumn<String> settlesTransactionId =
+      GeneratedColumn<String>(
+        'settles_transaction_id',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
   static const VerificationMeta _recurringConfigIdMeta = const VerificationMeta(
     'recurringConfigId',
   );
@@ -4191,6 +4202,7 @@ class $TransactionsTable extends Transactions
     paymentMethod,
     pairedTransactionId,
     feeForTransactionId,
+    settlesTransactionId,
     recurringConfigId,
     occurrenceKey,
     fxRate,
@@ -4324,6 +4336,15 @@ class $TransactionsTable extends Transactions
         feeForTransactionId.isAcceptableOrUnknown(
           data['fee_for_transaction_id']!,
           _feeForTransactionIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('settles_transaction_id')) {
+      context.handle(
+        _settlesTransactionIdMeta,
+        settlesTransactionId.isAcceptableOrUnknown(
+          data['settles_transaction_id']!,
+          _settlesTransactionIdMeta,
         ),
       );
     }
@@ -4524,6 +4545,10 @@ class $TransactionsTable extends Transactions
         DriftSqlType.string,
         data['${effectivePrefix}fee_for_transaction_id'],
       ),
+      settlesTransactionId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}settles_transaction_id'],
+      ),
       recurringConfigId: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}recurring_config_id'],
@@ -4647,6 +4672,18 @@ class Transaction extends DataClass implements Insertable<Transaction> {
   /// cascade on delete lives in `TransferService`, which is where the rule
   /// belongs anyway.
   final String? feeForTransactionId;
+
+  /// The lend or borrow entry this row repays, or null.
+  ///
+  /// A repayment is real money moving, so it changes the wallet like any other
+  /// row — but being paid back is not earning, and paying back is not
+  /// spending. This link is what tells the two apart; before it, a repayment
+  /// could only be recognised by the words in its title. It is also how
+  /// "mark as pending" finds exactly the rows to undo, and how deleting a loan
+  /// takes its repayments with it.
+  ///
+  /// A soft link, like [feeForTransactionId], so insert order never matters.
+  final String? settlesTransactionId;
   final String? recurringConfigId;
 
   /// Deterministic idempotency key for a generated recurrence occurrence:
@@ -4700,6 +4737,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     this.paymentMethod,
     this.pairedTransactionId,
     this.feeForTransactionId,
+    this.settlesTransactionId,
     this.recurringConfigId,
     this.occurrenceKey,
     this.fxRate,
@@ -4748,6 +4786,9 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     }
     if (!nullToAbsent || feeForTransactionId != null) {
       map['fee_for_transaction_id'] = Variable<String>(feeForTransactionId);
+    }
+    if (!nullToAbsent || settlesTransactionId != null) {
+      map['settles_transaction_id'] = Variable<String>(settlesTransactionId);
     }
     if (!nullToAbsent || recurringConfigId != null) {
       map['recurring_config_id'] = Variable<String>(recurringConfigId);
@@ -4825,6 +4866,9 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       feeForTransactionId: feeForTransactionId == null && nullToAbsent
           ? const Value.absent()
           : Value(feeForTransactionId),
+      settlesTransactionId: settlesTransactionId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(settlesTransactionId),
       recurringConfigId: recurringConfigId == null && nullToAbsent
           ? const Value.absent()
           : Value(recurringConfigId),
@@ -4895,6 +4939,9 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       feeForTransactionId: serializer.fromJson<String?>(
         json['feeForTransactionId'],
       ),
+      settlesTransactionId: serializer.fromJson<String?>(
+        json['settlesTransactionId'],
+      ),
       recurringConfigId: serializer.fromJson<String?>(
         json['recurringConfigId'],
       ),
@@ -4940,6 +4987,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       'paymentMethod': serializer.toJson<String?>(paymentMethod),
       'pairedTransactionId': serializer.toJson<String?>(pairedTransactionId),
       'feeForTransactionId': serializer.toJson<String?>(feeForTransactionId),
+      'settlesTransactionId': serializer.toJson<String?>(settlesTransactionId),
       'recurringConfigId': serializer.toJson<String?>(recurringConfigId),
       'occurrenceKey': serializer.toJson<String?>(occurrenceKey),
       'fxRate': serializer.toJson<double?>(fxRate),
@@ -4979,6 +5027,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     Value<String?> paymentMethod = const Value.absent(),
     Value<String?> pairedTransactionId = const Value.absent(),
     Value<String?> feeForTransactionId = const Value.absent(),
+    Value<String?> settlesTransactionId = const Value.absent(),
     Value<String?> recurringConfigId = const Value.absent(),
     Value<String?> occurrenceKey = const Value.absent(),
     Value<double?> fxRate = const Value.absent(),
@@ -5021,6 +5070,9 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     feeForTransactionId: feeForTransactionId.present
         ? feeForTransactionId.value
         : this.feeForTransactionId,
+    settlesTransactionId: settlesTransactionId.present
+        ? settlesTransactionId.value
+        : this.settlesTransactionId,
     recurringConfigId: recurringConfigId.present
         ? recurringConfigId.value
         : this.recurringConfigId,
@@ -5081,6 +5133,9 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       feeForTransactionId: data.feeForTransactionId.present
           ? data.feeForTransactionId.value
           : this.feeForTransactionId,
+      settlesTransactionId: data.settlesTransactionId.present
+          ? data.settlesTransactionId.value
+          : this.settlesTransactionId,
       recurringConfigId: data.recurringConfigId.present
           ? data.recurringConfigId.value
           : this.recurringConfigId,
@@ -5142,6 +5197,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
           ..write('paymentMethod: $paymentMethod, ')
           ..write('pairedTransactionId: $pairedTransactionId, ')
           ..write('feeForTransactionId: $feeForTransactionId, ')
+          ..write('settlesTransactionId: $settlesTransactionId, ')
           ..write('recurringConfigId: $recurringConfigId, ')
           ..write('occurrenceKey: $occurrenceKey, ')
           ..write('fxRate: $fxRate, ')
@@ -5181,6 +5237,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     paymentMethod,
     pairedTransactionId,
     feeForTransactionId,
+    settlesTransactionId,
     recurringConfigId,
     occurrenceKey,
     fxRate,
@@ -5219,6 +5276,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
           other.paymentMethod == this.paymentMethod &&
           other.pairedTransactionId == this.pairedTransactionId &&
           other.feeForTransactionId == this.feeForTransactionId &&
+          other.settlesTransactionId == this.settlesTransactionId &&
           other.recurringConfigId == this.recurringConfigId &&
           other.occurrenceKey == this.occurrenceKey &&
           other.fxRate == this.fxRate &&
@@ -5255,6 +5313,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
   final Value<String?> paymentMethod;
   final Value<String?> pairedTransactionId;
   final Value<String?> feeForTransactionId;
+  final Value<String?> settlesTransactionId;
   final Value<String?> recurringConfigId;
   final Value<String?> occurrenceKey;
   final Value<double?> fxRate;
@@ -5290,6 +5349,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     this.paymentMethod = const Value.absent(),
     this.pairedTransactionId = const Value.absent(),
     this.feeForTransactionId = const Value.absent(),
+    this.settlesTransactionId = const Value.absent(),
     this.recurringConfigId = const Value.absent(),
     this.occurrenceKey = const Value.absent(),
     this.fxRate = const Value.absent(),
@@ -5326,6 +5386,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     this.paymentMethod = const Value.absent(),
     this.pairedTransactionId = const Value.absent(),
     this.feeForTransactionId = const Value.absent(),
+    this.settlesTransactionId = const Value.absent(),
     this.recurringConfigId = const Value.absent(),
     this.occurrenceKey = const Value.absent(),
     this.fxRate = const Value.absent(),
@@ -5365,6 +5426,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     Expression<String>? paymentMethod,
     Expression<String>? pairedTransactionId,
     Expression<String>? feeForTransactionId,
+    Expression<String>? settlesTransactionId,
     Expression<String>? recurringConfigId,
     Expression<String>? occurrenceKey,
     Expression<double>? fxRate,
@@ -5403,6 +5465,8 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
         'paired_transaction_id': pairedTransactionId,
       if (feeForTransactionId != null)
         'fee_for_transaction_id': feeForTransactionId,
+      if (settlesTransactionId != null)
+        'settles_transaction_id': settlesTransactionId,
       if (recurringConfigId != null) 'recurring_config_id': recurringConfigId,
       if (occurrenceKey != null) 'occurrence_key': occurrenceKey,
       if (fxRate != null) 'fx_rate': fxRate,
@@ -5441,6 +5505,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     Value<String?>? paymentMethod,
     Value<String?>? pairedTransactionId,
     Value<String?>? feeForTransactionId,
+    Value<String?>? settlesTransactionId,
     Value<String?>? recurringConfigId,
     Value<String?>? occurrenceKey,
     Value<double?>? fxRate,
@@ -5477,6 +5542,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
       paymentMethod: paymentMethod ?? this.paymentMethod,
       pairedTransactionId: pairedTransactionId ?? this.pairedTransactionId,
       feeForTransactionId: feeForTransactionId ?? this.feeForTransactionId,
+      settlesTransactionId: settlesTransactionId ?? this.settlesTransactionId,
       recurringConfigId: recurringConfigId ?? this.recurringConfigId,
       occurrenceKey: occurrenceKey ?? this.occurrenceKey,
       fxRate: fxRate ?? this.fxRate,
@@ -5547,6 +5613,11 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     if (feeForTransactionId.present) {
       map['fee_for_transaction_id'] = Variable<String>(
         feeForTransactionId.value,
+      );
+    }
+    if (settlesTransactionId.present) {
+      map['settles_transaction_id'] = Variable<String>(
+        settlesTransactionId.value,
       );
     }
     if (recurringConfigId.present) {
@@ -5631,6 +5702,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
           ..write('paymentMethod: $paymentMethod, ')
           ..write('pairedTransactionId: $pairedTransactionId, ')
           ..write('feeForTransactionId: $feeForTransactionId, ')
+          ..write('settlesTransactionId: $settlesTransactionId, ')
           ..write('recurringConfigId: $recurringConfigId, ')
           ..write('occurrenceKey: $occurrenceKey, ')
           ..write('fxRate: $fxRate, ')
@@ -16525,6 +16597,7 @@ typedef $$TransactionsTableCreateCompanionBuilder =
       Value<String?> paymentMethod,
       Value<String?> pairedTransactionId,
       Value<String?> feeForTransactionId,
+      Value<String?> settlesTransactionId,
       Value<String?> recurringConfigId,
       Value<String?> occurrenceKey,
       Value<double?> fxRate,
@@ -16562,6 +16635,7 @@ typedef $$TransactionsTableUpdateCompanionBuilder =
       Value<String?> paymentMethod,
       Value<String?> pairedTransactionId,
       Value<String?> feeForTransactionId,
+      Value<String?> settlesTransactionId,
       Value<String?> recurringConfigId,
       Value<String?> occurrenceKey,
       Value<double?> fxRate,
@@ -16745,6 +16819,11 @@ class $$TransactionsTableFilterComposer
 
   ColumnFilters<String> get feeForTransactionId => $composableBuilder(
     column: $table.feeForTransactionId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get settlesTransactionId => $composableBuilder(
+    column: $table.settlesTransactionId,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -17026,6 +17105,11 @@ class $$TransactionsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get settlesTransactionId => $composableBuilder(
+    column: $table.settlesTransactionId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get occurrenceKey => $composableBuilder(
     column: $table.occurrenceKey,
     builder: (column) => ColumnOrderings(column),
@@ -17256,6 +17340,11 @@ class $$TransactionsTableAnnotationComposer
 
   GeneratedColumn<String> get feeForTransactionId => $composableBuilder(
     column: $table.feeForTransactionId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get settlesTransactionId => $composableBuilder(
+    column: $table.settlesTransactionId,
     builder: (column) => column,
   );
 
@@ -17501,6 +17590,7 @@ class $$TransactionsTableTableManager
                 Value<String?> paymentMethod = const Value.absent(),
                 Value<String?> pairedTransactionId = const Value.absent(),
                 Value<String?> feeForTransactionId = const Value.absent(),
+                Value<String?> settlesTransactionId = const Value.absent(),
                 Value<String?> recurringConfigId = const Value.absent(),
                 Value<String?> occurrenceKey = const Value.absent(),
                 Value<double?> fxRate = const Value.absent(),
@@ -17537,6 +17627,7 @@ class $$TransactionsTableTableManager
                 paymentMethod: paymentMethod,
                 pairedTransactionId: pairedTransactionId,
                 feeForTransactionId: feeForTransactionId,
+                settlesTransactionId: settlesTransactionId,
                 recurringConfigId: recurringConfigId,
                 occurrenceKey: occurrenceKey,
                 fxRate: fxRate,
@@ -17574,6 +17665,7 @@ class $$TransactionsTableTableManager
                 Value<String?> paymentMethod = const Value.absent(),
                 Value<String?> pairedTransactionId = const Value.absent(),
                 Value<String?> feeForTransactionId = const Value.absent(),
+                Value<String?> settlesTransactionId = const Value.absent(),
                 Value<String?> recurringConfigId = const Value.absent(),
                 Value<String?> occurrenceKey = const Value.absent(),
                 Value<double?> fxRate = const Value.absent(),
@@ -17610,6 +17702,7 @@ class $$TransactionsTableTableManager
                 paymentMethod: paymentMethod,
                 pairedTransactionId: pairedTransactionId,
                 feeForTransactionId: feeForTransactionId,
+                settlesTransactionId: settlesTransactionId,
                 recurringConfigId: recurringConfigId,
                 occurrenceKey: occurrenceKey,
                 fxRate: fxRate,

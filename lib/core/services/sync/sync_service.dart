@@ -1381,6 +1381,12 @@ class SyncService {
       skipPaid: Value(data['SkipPaid'] ?? false),
       pairedTransactionId: Value(data['PairedTransactionId']),
       feeForTransactionId: Value(data['FeeForTransactionId']),
+      // Only when the server sent it. One that predates the link sends
+      // nothing, and writing null over a local link would turn a repayment
+      // back into income on this device.
+      settlesTransactionId: data.containsKey('SettlesTransactionId')
+          ? Value(data['SettlesTransactionId'] as String?)
+          : const Value.absent(),
       recurringConfigId: Value(data['RecurringConfigId']),
       occurrenceKey: Value(data['OccurrenceKey'] as String?),
       budgetId: Value(data['BudgetId']),
@@ -2008,6 +2014,7 @@ class SyncService {
     'PaidAmount': t.paidAmount,
     'PairedTransactionId': t.pairedTransactionId,
     'FeeForTransactionId': t.feeForTransactionId,
+    'SettlesTransactionId': t.settlesTransactionId,
     'RecurringConfigId': t.recurringConfigId,
     // Deterministic key for a generated recurrence occurrence. The server has a
     // matching uniqueness constraint, so two offline devices that generated the

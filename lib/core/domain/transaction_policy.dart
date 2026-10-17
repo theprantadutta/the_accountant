@@ -27,7 +27,8 @@ import 'package:the_accountant/data/models/transaction.dart'
 /// 3. **Analytics eligibility** ([countsAsIncome] / [countsAsExpense] /
 ///    [countsTowardCategorySpending]) — should the row appear in gross
 ///    earnings/spending? Realized *and* genuinely earned or spent: not an
-///    internal wallet-to-wallet transfer, and not a balance correction.
+///    internal wallet-to-wallet transfer, not a balance correction, and not a
+///    loan or its repayment.
 /// 4. **Forecast eligibility** ([isForecast]) — is this a not-yet-happened item
 ///    that belongs in upcoming/projection views only, never in realized totals?
 class TransactionPolicy {
@@ -80,6 +81,12 @@ class TransactionPolicy {
   /// as income nobody earned.
   static bool isAdjustment(Transaction t) =>
       kindOf(t) == TransactionType.adjustment;
+
+  /// Whether the row repays (or reverses repayments of) a lend or borrow entry.
+  ///
+  /// Real money moving, so it changes the wallet — but being paid back is not
+  /// earning, and paying a debt off is not spending.
+  static bool isSettlement(Transaction t) => t.settlesTransactionId != null;
 
   /// Whether the row is a lend (`credit`) or borrow (`debt`) entry.
   static bool isCreditOrDebt(Transaction t) =>
@@ -217,11 +224,18 @@ class TransactionPolicy {
   /// Whether the row belongs in *any* earnings/spending analytic.
   ///
   /// Realized cash movement that was genuinely earned or spent.
+  ///
+  /// Loans are left out on both sides, as Cashew does by default. Lending a
+  /// friend money is not spending it, borrowing is not income, and neither is
+  /// the money coming back: counted, one loan and its repayment inflated a
+  /// month's spending and income by the same amount, and a large borrowing
+  /// read as a windfall. The Credit & Debt screen is where loans are tracked.
   static bool countsInAnalytics(Transaction t) => countsInAnalyticsOf(
     live: isLive(t),
     isPaid: t.isPaid,
     specialType: t.specialType,
     kind: kindOf(t),
+    settlesTransactionId: t.settlesTransactionId,
   );
 
   /// [countsInAnalytics] over plain fields; see [isRealized] for why.
@@ -230,8 +244,14 @@ class TransactionPolicy {
     required bool isPaid,
     required TransactionSpecialType? specialType,
     required TransactionType kind,
+    required String? settlesTransactionId,
   }) {
     if (!isRealized(live: live, isPaid: isPaid, specialType: specialType)) {
+      return false;
+    }
+    if (specialType == TransactionSpecialType.credit ||
+        specialType == TransactionSpecialType.debt ||
+        settlesTransactionId != null) {
       return false;
     }
     return kind != TransactionType.transfer &&

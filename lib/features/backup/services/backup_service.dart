@@ -152,6 +152,10 @@ class BackupService {
       // the app with no transfer or correction category to file against.
       await _db.ensureSystemCategoriesExist();
 
+      // A backup from before repayments were linked to their loans carries
+      // them unlinked, and they would count as income and spending again.
+      await _db.linkLegacySettlements();
+
       // Balances are a cache over the rows that were just replaced.
       await WalletBalanceService(_db).recalculateAllWalletBalancesLocal();
     });

@@ -102,6 +102,9 @@ class Transaction {
   final String? budgetId;
   final String? objectiveId;
 
+  /// The loan this row repays, when it is a repayment.
+  final String? settlesTransactionId;
+
   Transaction({
     required this.id,
     required this.amount,
@@ -122,6 +125,7 @@ class Transaction {
     this.paidAmount = 0,
     this.budgetId,
     this.objectiveId,
+    this.settlesTransactionId,
   });
 
   /// Whether this row is one leg of a wallet-to-wallet transfer.
@@ -134,6 +138,7 @@ class Transaction {
     isPaid: isPaid,
     specialType: specialType,
     kind: TransactionType.fromStorage(transactionType),
+    settlesTransactionId: settlesTransactionId,
   );
 
   /// Convert to new TransactionViewModel
@@ -215,6 +220,7 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
       paidAmount: t.paidAmount,
       budgetId: t.budgetId,
       objectiveId: t.objectiveId,
+      settlesTransactionId: t.settlesTransactionId,
     );
   }
 

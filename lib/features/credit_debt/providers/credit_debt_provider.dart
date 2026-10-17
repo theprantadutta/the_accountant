@@ -285,6 +285,9 @@ class CreditDebtNotifier extends StateNotifier<CreditDebtState> {
         categoryId: Value(parent.categoryId),
         paymentMethodId: Value(parent.paymentMethodId),
         objectiveId: Value(parent.objectiveId),
+        // What keeps the money coming back out of income and spending, and
+        // lets the loan find its repayments again.
+        settlesTransactionId: Value(parent.id),
         specialType: const Value(TransactionSpecialType.none),
         isPaid: const Value(true),
         syncStatus: const Value(SyncStatus.pendingCreate),
@@ -296,21 +299,31 @@ class CreditDebtNotifier extends StateNotifier<CreditDebtState> {
 
   /// Reset a loan back to fully outstanding.
   ///
-  /// History is preserved: instead of deleting the repayment rows, a single
-  /// compensating transaction cancels their cash effect, then `paidAmount` is
-  /// zeroed. The wallet is recomputed from its surviving transactions, so the
-  /// balance always matches the ledger.
+  /// Marking a loan pending says the repayments did not happen, so they are
+  /// deleted — recoverable from Recently Deleted like anything else — rather
+  /// than cancelled out by a further row. That reversal row was the only
+  /// option while repayments could not be told apart from other rows; now
+  /// they carry a link to their loan. It is still written for any repaid
+  /// amount no linked row accounts for, such as one recorded by an older
+  /// build that the upgrade could not match.
   Future<void> markAsPending(String transactionId) async {
     try {
       await _db.transaction(() async {
         final transaction = await _db.findTransactionById(transactionId);
         if (transaction == null) return;
 
-        if (transaction.paidAmount > 0) {
-          final isCredit = TransactionPolicy.isCredit(transaction);
+        final isCredit = TransactionPolicy.isCredit(transaction);
+        var unaccounted = transaction.paidAmount;
+        for (final row in await _db.getSettlementsOf(transactionId)) {
+          final repays = row.isIncome == isCredit;
+          unaccounted -= repays ? row.amount : -row.amount;
+          await _db.softDeleteTransaction(row.id);
+        }
+
+        if (unaccounted > 0) {
           await _recordRepaymentRow(
             parent: transaction,
-            amount: transaction.paidAmount,
+            amount: unaccounted,
             // Opposite direction to the repayments being undone.
             isIncome: !isCredit,
             label: 'Reversed: ${transaction.title}',

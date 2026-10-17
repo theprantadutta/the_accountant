@@ -148,6 +148,18 @@ class Transactions extends Table {
   /// belongs anyway.
   TextColumn get feeForTransactionId => text().nullable()();
 
+  /// The lend or borrow entry this row repays, or null.
+  ///
+  /// A repayment is real money moving, so it changes the wallet like any other
+  /// row — but being paid back is not earning, and paying back is not
+  /// spending. This link is what tells the two apart; before it, a repayment
+  /// could only be recognised by the words in its title. It is also how
+  /// "mark as pending" finds exactly the rows to undo, and how deleting a loan
+  /// takes its repayments with it.
+  ///
+  /// A soft link, like [feeForTransactionId], so insert order never matters.
+  TextColumn get settlesTransactionId => text().nullable()();
+
   // For recurring instances
   TextColumn get recurringConfigId =>
       text().nullable().references(RecurringConfigs, #id)();
