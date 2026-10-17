@@ -18,6 +18,7 @@ import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
 import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
 import 'package:the_accountant/features/transactions/widgets/sunrise_transaction_row.dart';
 import 'package:the_accountant/shared/widgets/icon_picker.dart';
+import 'package:the_accountant/features/wallets/domain/credit_card_position.dart';
 
 /// One account: what is in it, what has moved through it, and what to do next.
 ///
@@ -413,10 +414,8 @@ class _WalletDetailScreenState extends ConsumerState<WalletDetailScreen> {
   }
 }
 
-/// What is owed on a card and what is left to spend.
-///
-/// A credit card's balance runs negative as it is used, so the amount
-/// outstanding is its magnitude rather than the figure itself.
+/// What is owed on a card and what is left to spend; see
+/// [CreditCardPosition].
 class _CreditSummary extends StatelessWidget {
   final int balanceCents;
   final int limitCents;
@@ -430,11 +429,10 @@ class _CreditSummary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final outstanding = balanceCents < 0 ? -balanceCents : 0;
-    final available = limitCents - outstanding;
-    final used = limitCents <= 0
-        ? 0.0
-        : (outstanding / limitCents).clamp(0.0, 1.0);
+    final position = CreditCardPosition.of(
+      balance: balanceCents,
+      limit: limitCents,
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -442,7 +440,7 @@ class _CreditSummary extends StatelessWidget {
         ClipRRect(
           borderRadius: BorderRadius.circular(4),
           child: LinearProgressIndicator(
-            value: used,
+            value: position.usage,
             minHeight: 6,
             backgroundColor: context.sunrise.onFill.withValues(alpha: .25),
             color: context.sunrise.onFill,
@@ -450,7 +448,11 @@ class _CreditSummary extends StatelessWidget {
         ),
         AppSpacing.gapSm,
         Text(
-          '${money(outstanding)} owed · ${money(available)} still available',
+          position.inCredit > 0
+              ? '${money(position.inCredit)} in credit · '
+                    '${money(position.available)} available'
+              : '${money(position.owed)} owed · '
+                    '${money(position.available)} still available',
           style: SunriseType.body.copyWith(
             color: context.sunrise.onFill.withValues(alpha: .9),
           ),

@@ -367,6 +367,72 @@ abstract class L10n {
   /// **'Import a statement'**
   String get settingsImportStatement;
 
+  /// No description provided for @settingsImportCashew.
+  ///
+  /// In en, this message translates to:
+  /// **'Import from Cashew'**
+  String get settingsImportCashew;
+
+  /// No description provided for @settingsImportCashewSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bring everything over from a Cashew backup'**
+  String get settingsImportCashewSubtitle;
+
+  /// No description provided for @cashewIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'In Cashew, export a backup file from its Backups page, then choose it here. Everything in it comes across: accounts, categories, transactions, subscriptions, loans, budgets, goals and title rules.'**
+  String get cashewIntro;
+
+  /// No description provided for @cashewChoose.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose Cashew backup'**
+  String get cashewChoose;
+
+  /// No description provided for @cashewNotBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'That file is not a Cashew backup.'**
+  String get cashewNotBackup;
+
+  /// No description provided for @cashewFound.
+  ///
+  /// In en, this message translates to:
+  /// **'{transactions} transactions in {accounts} accounts, with {categories} categories, {budgets} budgets and {goals} goals.'**
+  String cashewFound(
+    int transactions,
+    int accounts,
+    int categories,
+    int budgets,
+    int goals,
+  );
+
+  /// No description provided for @cashewImport.
+  ///
+  /// In en, this message translates to:
+  /// **'Import'**
+  String get cashewImport;
+
+  /// No description provided for @cashewMergeNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Accounts come in as new ones. If you already keep one here for the same money, use Merge on it to combine them. Categories with the same name are filed together.'**
+  String get cashewMergeNote;
+
+  /// No description provided for @cashewDone.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} transactions imported.'**
+  String cashewDone(int count);
+
+  /// No description provided for @cashewNothingNew.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything in this backup is already here.'**
+  String get cashewNothingNew;
+
   /// No description provided for @settingsImportStatementSubtitle.
   ///
   /// In en, this message translates to:
@@ -2009,6 +2075,18 @@ abstract class L10n {
   /// **'Mark as Paid'**
   String get txMarkAsPaid2;
 
+  /// No description provided for @txConfirmPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm payment'**
+  String get txConfirmPayment;
+
+  /// No description provided for @txAmountCharged.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount charged'**
+  String get txAmountCharged;
+
   /// No description provided for @txUndo.
   ///
   /// In en, this message translates to:
@@ -2333,11 +2411,41 @@ abstract class L10n {
   /// **'Payment Amount'**
   String get creditPaymentAmount;
 
+  /// No description provided for @creditPaidOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid on'**
+  String get creditPaidOn;
+
+  /// No description provided for @creditFullAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Full amount'**
+  String get creditFullAmount;
+
   /// No description provided for @subSubscriptionName.
   ///
   /// In en, this message translates to:
   /// **'Subscription name'**
   String get subSubscriptionName;
+
+  /// No description provided for @subAskBeforeEachPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask before recording each payment'**
+  String get subAskBeforeEachPayment;
+
+  /// No description provided for @subAskBeforeEachPaymentHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Each payment waits in Upcoming until you confirm what was charged, or skip it. Best for charges that vary, like a card paid in another currency.'**
+  String get subAskBeforeEachPaymentHint;
+
+  /// No description provided for @subChangesApplyFromNext.
+  ///
+  /// In en, this message translates to:
+  /// **'A new amount or account applies from the next payment. Payments already made stay as they were.'**
+  String get subChangesApplyFromNext;
 
   /// No description provided for @catDeleteCategory.
   ///
@@ -2356,6 +2464,42 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'Enter category name'**
   String get catEnterCategoryName;
+
+  /// No description provided for @catUseEmoji.
+  ///
+  /// In en, this message translates to:
+  /// **'Use an emoji'**
+  String get catUseEmoji;
+
+  /// No description provided for @catEmojiHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Type or pick one emoji'**
+  String get catEmojiHint;
+
+  /// No description provided for @catArchive.
+  ///
+  /// In en, this message translates to:
+  /// **'Archive'**
+  String get catArchive;
+
+  /// No description provided for @catUnarchive.
+  ///
+  /// In en, this message translates to:
+  /// **'Unarchive'**
+  String get catUnarchive;
+
+  /// No description provided for @catArchivedSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Archived'**
+  String get catArchivedSection;
+
+  /// No description provided for @catArchivedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Kept for their history, but not offered when you add a transaction.'**
+  String get catArchivedHint;
 
   /// No description provided for @catNothingItsOwnCategory.
   ///

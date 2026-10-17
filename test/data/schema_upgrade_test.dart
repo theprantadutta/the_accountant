@@ -51,6 +51,12 @@ void main() {
     final db = AppDatabase(NativeDatabase(file));
     await db.customSelect('SELECT 1').get(); // force open + createAll
 
+    // Triggers schema 25's release did not have. They name columns stripped
+    // below, and SQLite will not drop a column a trigger reads.
+    for (final (name, _) in AppDatabase.adjustmentKindTriggers) {
+      await db.customStatement('DROP TRIGGER IF EXISTS $name');
+    }
+
     // Columns schema 18 removed. The tables here are built from the CURRENT
     // definitions, so anything since deleted has to be put back before the seed
     // runs, or a fixture describing an older store cannot write the rows that
@@ -69,6 +75,24 @@ void main() {
     }
 
     await seed?.call(db);
+
+    if (version < 26 && !keep.contains('transactions.settles_transaction_id')) {
+      await db.customStatement(
+        'ALTER TABLE transactions DROP COLUMN settles_transaction_id',
+      );
+    }
+    if (version < 26 && !keep.contains('categories.is_archived')) {
+      await db.customStatement(
+        'ALTER TABLE categories DROP COLUMN is_archived',
+      );
+    }
+    if (version < 26 && !keep.contains('recurring_configs.template')) {
+      for (final column in ['amount', 'wallet_id', 'auto_pay']) {
+        await db.customStatement(
+          'ALTER TABLE recurring_configs DROP COLUMN $column',
+        );
+      }
+    }
 
     if (version < 23 && !keep.contains('settings.regional')) {
       for (final column in [
@@ -143,6 +167,48 @@ void main() {
     expect(await hasColumn('transactions', 'occurrence_key'), isTrue);
     expect(await hasColumn('categories', 'default_key'), isTrue);
   }
+
+  test(
+    'a schema-25 store links its repayments to their loans on upgrade',
+    () async {
+      final file = await buildLegacyDatabase(
+        25,
+        seed: (legacy) async {
+          await legacy.customStatement(
+            'INSERT INTO wallets (id, name, icon_name, color, currency, balance, '
+            'opening_balance, is_default, wallet_type, order_index, sync_status, '
+            "created_at, updated_at) VALUES ('w1', 'Cash', 'wallet', '#fff', "
+            "'USD', 0, 0, 1, 0, 0, 0, 1, 1)",
+          );
+          // A lend, and the repayment the credit/debt screen wrote for it.
+          for (final (id, title, notes, isIncome, specialType) in [
+            ('loan', 'Lent to Sam', null, 0, 4),
+            (
+              'repaid',
+              'Received: Lent to Sam',
+              'Settlement for credit: Lent to Sam',
+              1,
+              0,
+            ),
+          ]) {
+            await legacy.customStatement(
+              'INSERT INTO transactions (id, amount, title, notes, date, '
+              'is_income, wallet_id, special_type, is_paid, paid_amount, '
+              'sync_status, created_at, updated_at) '
+              'VALUES (?, 5000, ?, ?, 1, ?, ?, ?, 1, 0, 0, 1, 1)',
+              [id, title, notes, isIncome, 'w1', specialType],
+            );
+          }
+        },
+      );
+
+      final db = AppDatabase(NativeDatabase(file));
+      addTearDown(db.close);
+      final repaid = (await db.findTransactionById('repaid'))!;
+      expect(repaid.settlesTransactionId, 'loan');
+      expect(repaid.syncStatus, 2, reason: 'the link has to reach the server');
+    },
+  );
 
   test('a schema-12 database upgrades cleanly to the current schema', () async {
     final file = await buildLegacyDatabase(

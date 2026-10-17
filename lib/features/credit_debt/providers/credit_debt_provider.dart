@@ -132,7 +132,10 @@ class CreditDebtNotifier extends StateNotifier<CreditDebtState> {
   /// alone: for a loan it means "the principal already moved", which was true
   /// from the moment the loan was created and stays true afterwards. Settlement
   /// is derived from amounts by [TransactionPolicy.isSettled].
-  Future<void> markAsSettled(String transactionId) async {
+  ///
+  /// [paidOn] is when the money actually changed hands, which is often not
+  /// the moment it is recorded; see [_recordRepaymentRow].
+  Future<void> markAsSettled(String transactionId, {DateTime? paidOn}) async {
     try {
       await _db.transaction(() async {
         final transaction = await _db.findTransactionById(transactionId);
@@ -149,6 +152,7 @@ class CreditDebtNotifier extends StateNotifier<CreditDebtState> {
             label: '${isCredit ? "Received" : "Paid"}: ${transaction.title}',
             note:
                 'Settlement for ${isCredit ? "credit" : "debt"}: ${transaction.title}',
+            paidOn: paidOn,
           );
         }
 
@@ -194,6 +198,7 @@ class CreditDebtNotifier extends StateNotifier<CreditDebtState> {
   Future<void> recordPayment({
     required String transactionId,
     required int paymentAmount, // integer minor units / cents
+    DateTime? paidOn,
   }) async {
     if (paymentAmount <= 0) {
       state = state.copyWith(error: 'Payment amount must be positive');
@@ -227,6 +232,7 @@ class CreditDebtNotifier extends StateNotifier<CreditDebtState> {
           label: '${isCredit ? "Received" : "Paid"}: ${transaction.title}',
           note:
               'Partial payment for ${isCredit ? "credit" : "debt"}: ${transaction.title}',
+          paidOn: paidOn,
         );
 
         await (_db.update(
@@ -271,20 +277,31 @@ class CreditDebtNotifier extends StateNotifier<CreditDebtState> {
     required bool isIncome,
     required String label,
     required String note,
+    DateTime? paidOn,
   }) async {
     final now = DateTime.now();
+    // When the money changed hands. A repayment is usually recorded some time
+    // after it happened, and dating it today put it in the wrong week or month
+    // of the account's history. Never later than now, and never before the
+    // loan itself.
+    var date = paidOn ?? now;
+    if (date.isAfter(now)) date = now;
+    if (date.isBefore(parent.date)) date = parent.date;
     await _db.addTransaction(
       TransactionsCompanion(
         id: Value(const Uuid().v4()),
         amount: Value(amount),
         title: Value(label),
         notes: Value(note),
-        date: Value(now),
+        date: Value(date),
         isIncome: Value(isIncome),
         walletId: Value(parent.walletId),
         categoryId: Value(parent.categoryId),
         paymentMethodId: Value(parent.paymentMethodId),
         objectiveId: Value(parent.objectiveId),
+        // What keeps the money coming back out of income and spending, and
+        // lets the loan find its repayments again.
+        settlesTransactionId: Value(parent.id),
         specialType: const Value(TransactionSpecialType.none),
         isPaid: const Value(true),
         syncStatus: const Value(SyncStatus.pendingCreate),
@@ -296,21 +313,31 @@ class CreditDebtNotifier extends StateNotifier<CreditDebtState> {
 
   /// Reset a loan back to fully outstanding.
   ///
-  /// History is preserved: instead of deleting the repayment rows, a single
-  /// compensating transaction cancels their cash effect, then `paidAmount` is
-  /// zeroed. The wallet is recomputed from its surviving transactions, so the
-  /// balance always matches the ledger.
+  /// Marking a loan pending says the repayments did not happen, so they are
+  /// deleted — recoverable from Recently Deleted like anything else — rather
+  /// than cancelled out by a further row. That reversal row was the only
+  /// option while repayments could not be told apart from other rows; now
+  /// they carry a link to their loan. It is still written for any repaid
+  /// amount no linked row accounts for, such as one recorded by an older
+  /// build that the upgrade could not match.
   Future<void> markAsPending(String transactionId) async {
     try {
       await _db.transaction(() async {
         final transaction = await _db.findTransactionById(transactionId);
         if (transaction == null) return;
 
-        if (transaction.paidAmount > 0) {
-          final isCredit = TransactionPolicy.isCredit(transaction);
+        final isCredit = TransactionPolicy.isCredit(transaction);
+        var unaccounted = transaction.paidAmount;
+        for (final row in await _db.getSettlementsOf(transactionId)) {
+          final repays = row.isIncome == isCredit;
+          unaccounted -= repays ? row.amount : -row.amount;
+          await _db.softDeleteTransaction(row.id);
+        }
+
+        if (unaccounted > 0) {
           await _recordRepaymentRow(
             parent: transaction,
-            amount: transaction.paidAmount,
+            amount: unaccounted,
             // Opposite direction to the repayments being undone.
             isIncome: !isCredit,
             label: 'Reversed: ${transaction.title}',

@@ -19,12 +19,14 @@ void main() {
         TransactionType.recurringInstance.storageValue,
         'recurring_instance',
       );
+      expect(TransactionType.adjustment.storageValue, 'adjustment');
     });
 
     test('wire values match the backend enum ordinals', () {
       expect(TransactionType.regular.wireValue, 0);
       expect(TransactionType.transfer.wireValue, 1);
       expect(TransactionType.recurringInstance.wireValue, 2);
+      expect(TransactionType.adjustment.wireValue, 3);
     });
 
     test('the policy constants come from the enum', () {

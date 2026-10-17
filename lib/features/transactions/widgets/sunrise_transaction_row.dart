@@ -89,6 +89,7 @@ class SunriseTransactionRow extends ConsumerWidget {
 
     return TransactionTile(
       icon: icon,
+      emoji: isTransfer ? null : IconRegistry.emojiOf(category?.iconName),
       iconColor: tint,
       title: title,
       subtitle: '$categoryName · $when',

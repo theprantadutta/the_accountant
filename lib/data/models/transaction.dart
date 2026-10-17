@@ -24,7 +24,13 @@ import 'package:the_accountant/data/models/recurring_config.dart';
 enum TransactionType {
   regular('regular', 0),
   transfer('transfer', 1),
-  recurringInstance('recurring_instance', 2);
+  recurringInstance('recurring_instance', 2),
+
+  /// A balance correction: the gap between what the app recorded and what the
+  /// account really holds. It moves the balance but is not money earned or
+  /// spent. Derived from the row's category by a database trigger, never set
+  /// by hand — see `AppDatabase._installAdjustmentKindTriggers`.
+  adjustment('adjustment', 3);
 
   const TransactionType(this.storageValue, this.wireValue);
 
@@ -141,6 +147,18 @@ class Transactions extends Table {
   /// cascade on delete lives in `TransferService`, which is where the rule
   /// belongs anyway.
   TextColumn get feeForTransactionId => text().nullable()();
+
+  /// The lend or borrow entry this row repays, or null.
+  ///
+  /// A repayment is real money moving, so it changes the wallet like any other
+  /// row — but being paid back is not earning, and paying back is not
+  /// spending. This link is what tells the two apart; before it, a repayment
+  /// could only be recognised by the words in its title. It is also how
+  /// "mark as pending" finds exactly the rows to undo, and how deleting a loan
+  /// takes its repayments with it.
+  ///
+  /// A soft link, like [feeForTransactionId], so insert order never matters.
+  TextColumn get settlesTransactionId => text().nullable()();
 
   // For recurring instances
   TextColumn get recurringConfigId =>

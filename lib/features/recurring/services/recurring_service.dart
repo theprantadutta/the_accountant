@@ -159,10 +159,13 @@ class RecurringService {
 
     final newId = _uuid.v4();
     final now = DateTime.now();
+    final walletId = config.walletId ?? baseTransaction.walletId;
 
     final companion = TransactionsCompanion(
       id: Value(newId),
-      amount: Value(baseTransaction.amount),
+      // The schedule's own price and wallet when it has them: those describe
+      // the payments still to come, while the base is a payment already made.
+      amount: Value(config.amount ?? baseTransaction.amount),
       title: Value(baseTransaction.title),
       notes: Value(baseTransaction.notes),
       date: Value(date),
@@ -170,12 +173,15 @@ class RecurringService {
       type: Value(baseTransaction.isIncome ? 'income' : 'expense'),
       transactionType: Value(TransactionPolicy.recurringInstanceType),
       categoryId: Value(baseTransaction.categoryId),
-      walletId: Value(baseTransaction.walletId),
+      walletId: Value(walletId),
       paymentMethodId: Value(baseTransaction.paymentMethodId),
       recurringConfigId: Value(config.id),
       occurrenceKey: Value(occurrenceKey),
       specialType: Value(baseTransaction.specialType),
-      isPaid: const Value(true),
+      // A schedule that asks first writes the payment as pending: it waits in
+      // Upcoming to be confirmed, at what was really charged, or skipped, and
+      // moves no money until it is.
+      isPaid: Value(config.autoPay),
       budgetId: Value(baseTransaction.budgetId),
       objectiveId: Value(baseTransaction.objectiveId),
       syncStatus: const Value(SyncStatus.pendingCreate),
@@ -198,9 +204,7 @@ class RecurringService {
 
     // Recompute the wallet from its transactions rather than nudging a delta,
     // so the balance is correct even if a previous run was interrupted.
-    await WalletBalanceService(
-      _database,
-    ).updateWalletBalance(baseTransaction.walletId);
+    await WalletBalanceService(_database).updateWalletBalance(walletId);
 
     _logger.d('Created recurring transaction instance: $newId');
     return true;
@@ -266,6 +270,7 @@ class RecurringService {
     int periodLength = 1,
     required DateTime startDate,
     DateTime? endDate,
+    bool autoPay = true,
   }) async {
     final id = _uuid.v4();
 
@@ -285,6 +290,7 @@ class RecurringService {
       endDate: Value(endDate),
       nextOccurrence: Value(nextOccurrence),
       isActive: const Value(true),
+      autoPay: Value(autoPay),
       syncStatus: const Value(SyncStatus.pendingCreate),
       createdAt: Value(DateTime.now()),
       updatedAt: Value(DateTime.now()),
@@ -403,20 +409,33 @@ class RecurringService {
     int? periodLength,
     Object? endDate = keepEndDate,
     bool? isActive,
+    int? amount,
+    String? walletId,
+    bool? autoPay,
   }) async {
-    // If the cadence changed, recompute nextOccurrence from the config's start date
-    // so the processor generates the next instance on the new schedule.
+    // Only a real change of cadence moves the next payment, and then to the
+    // first date on the new cadence that is still ahead.
+    //
+    // This used to reset it to one period after the start date whenever a
+    // cadence was passed at all — and the edit sheet always passes one. That
+    // date is usually long gone, so saving a subscription unchanged made the
+    // scheduler back-fill every "missed" payment since it began; only the ones
+    // whose dates happened to match an existing payment's were caught as
+    // duplicates.
     var nextOccurrence = const Value<DateTime>.absent();
     if (reoccurrence != null || periodLength != null) {
       final config = await _database.findRecurringConfigById(configId);
-      if (config != null) {
-        nextOccurrence = Value(
-          calculateNextOccurrence(
-            config.startDate,
-            reoccurrence ?? config.reoccurrence,
-            periodLength ?? config.periodLength,
-          ),
-        );
+      final newCadence = reoccurrence ?? config?.reoccurrence;
+      final newLength = periodLength ?? config?.periodLength;
+      if (config != null &&
+          (newCadence != config.reoccurrence ||
+              newLength != config.periodLength)) {
+        final now = DateTime.now();
+        var next = config.startDate;
+        while (!next.isAfter(now)) {
+          next = calculateNextOccurrence(next, newCadence!, newLength!);
+        }
+        nextOccurrence = Value(next);
       }
     }
 
@@ -431,6 +450,9 @@ class RecurringService {
           ? const Value.absent()
           : Value(endDate as DateTime?),
       isActive: isActive != null ? Value(isActive) : const Value.absent(),
+      amount: amount != null ? Value(amount) : const Value.absent(),
+      walletId: walletId != null ? Value(walletId) : const Value.absent(),
+      autoPay: autoPay != null ? Value(autoPay) : const Value.absent(),
       nextOccurrence: nextOccurrence,
       syncStatus: const Value(SyncStatus.pendingUpdate),
       updatedAt: Value(DateTime.now()),
@@ -533,7 +555,11 @@ class RecurringConfigWithTransaction {
       ? baseTransaction.title
       : 'Recurring Transaction';
 
-  int get amount => baseTransaction.amount; // integer minor units / cents
+  /// What each payment from now on is for, in minor units.
+  int get amount => config.amount ?? baseTransaction.amount;
+
+  /// The wallet each payment from now on comes from.
+  String get walletId => config.walletId ?? baseTransaction.walletId;
   bool get isIncome => baseTransaction.isIncome;
   bool get isActive => config.isActive;
   DateTime get nextOccurrence => config.nextOccurrence;

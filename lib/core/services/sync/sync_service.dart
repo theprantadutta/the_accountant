@@ -1381,6 +1381,12 @@ class SyncService {
       skipPaid: Value(data['SkipPaid'] ?? false),
       pairedTransactionId: Value(data['PairedTransactionId']),
       feeForTransactionId: Value(data['FeeForTransactionId']),
+      // Only when the server sent it. One that predates the link sends
+      // nothing, and writing null over a local link would turn a repayment
+      // back into income on this device.
+      settlesTransactionId: data.containsKey('SettlesTransactionId')
+          ? Value(data['SettlesTransactionId'] as String?)
+          : const Value.absent(),
       recurringConfigId: Value(data['RecurringConfigId']),
       occurrenceKey: Value(data['OccurrenceKey'] as String?),
       budgetId: Value(data['BudgetId']),
@@ -1516,6 +1522,11 @@ class SyncService {
       // cross-device identity.
       isDefault: Value(data['IsDefault'] ?? false),
       defaultKey: Value(data['DefaultKey'] as String?),
+      // Only when the server sent it: one that predates archiving sends
+      // nothing, and that must not put an archived category back.
+      isArchived: data['IsArchived'] is bool
+          ? Value(data['IsArchived'] as bool)
+          : const Value.absent(),
       syncStatus: const Value(SyncStatus.synced),
       updatedAt: Value(DateTime.now()),
     );
@@ -1834,6 +1845,18 @@ class SyncService {
             : DateTime.now(),
       ),
       isActive: Value(data['IsActive'] ?? true),
+      // Each only when the server sent it. One that predates them sends none,
+      // and writing the defaults over local values would quietly reset a
+      // price, a wallet, or the user's choice to confirm each payment.
+      amount: data.containsKey('Amount')
+          ? Value((data['Amount'] as num?)?.toInt())
+          : const Value.absent(),
+      walletId: data.containsKey('WalletId')
+          ? Value(data['WalletId'] as String?)
+          : const Value.absent(),
+      autoPay: data['AutoPay'] is bool
+          ? Value(data['AutoPay'] as bool)
+          : const Value.absent(),
       syncStatus: const Value(SyncStatus.synced),
       updatedAt: Value(DateTime.now()),
     );
@@ -2008,6 +2031,7 @@ class SyncService {
     'PaidAmount': t.paidAmount,
     'PairedTransactionId': t.pairedTransactionId,
     'FeeForTransactionId': t.feeForTransactionId,
+    'SettlesTransactionId': t.settlesTransactionId,
     'RecurringConfigId': t.recurringConfigId,
     // Deterministic key for a generated recurrence occurrence. The server has a
     // matching uniqueness constraint, so two offline devices that generated the
@@ -2052,6 +2076,7 @@ class SyncService {
     // deletion, and so the server can enforce one built-in per slug per user.
     'IsDefault': c.isDefault,
     'DefaultKey': c.defaultKey,
+    'IsArchived': c.isArchived,
     'UpdatedAt': c.updatedAt.toUtc().toIso8601String(),
   };
 
@@ -2126,6 +2151,9 @@ class SyncService {
     'NextOccurrence': r.nextOccurrence.toUtc().toIso8601String(),
     'IsActive': r.isActive,
     'UpdatedAt': r.updatedAt.toUtc().toIso8601String(),
+    'Amount': r.amount,
+    'WalletId': r.walletId,
+    'AutoPay': r.autoPay,
   };
 
   int _transactionTypeToInt(String type) =>

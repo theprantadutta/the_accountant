@@ -132,6 +132,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
   String _subscriptionFrequency = 'monthly';
   int _subscriptionPeriodLength = 1;
   DateTime? _subscriptionEndDate;
+  bool _subscriptionAskFirst = false;
 
   // Transfer specific
   String? _fromWalletId;
@@ -314,7 +315,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
     final type = _isIncome ? 'income' : 'expense';
     final match = ref
         .read(categoryProvider)
-        .categories
+        .selectable
         .where(
           (c) =>
               c.type == type &&
@@ -390,6 +391,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
             _subscriptionFrequency = config.reoccurrence;
             _subscriptionPeriodLength = config.periodLength;
             _subscriptionEndDate = config.endDate;
+            _subscriptionAskFirst = !config.autoPay;
           });
         }
       }
@@ -721,6 +723,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
             periodLength: _subscriptionPeriodLength,
             startDate: _selectedDateTime,
             endDate: _subscriptionEndDate,
+            autoPay: !_subscriptionAskFirst,
           );
           ref.read(subscriptionDashboardProvider.notifier).refresh();
         }
@@ -769,6 +772,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
           reoccurrence: _subscriptionFrequency,
           periodLength: _subscriptionPeriodLength,
           endDate: _subscriptionEndDate,
+          autoPay: !_subscriptionAskFirst,
         );
       } else {
         await recurringService.createRecurringConfig(
@@ -777,6 +781,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
           periodLength: _subscriptionPeriodLength,
           startDate: _selectedDateTime,
           endDate: _subscriptionEndDate,
+          autoPay: !_subscriptionAskFirst,
         );
       }
     } else if (existingConfig != null) {
@@ -1250,7 +1255,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
     final wantType = _isIncome ? 'income' : 'expense';
     final usable = ref
         .watch(categoryProvider)
-        .categories
+        .selectable
         .where((cat) => !cat.isSystem && cat.mainCategoryId == null)
         .toList();
     final ofType = usable.where((cat) => cat.type == wantType).toList();
@@ -1276,6 +1281,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                 icon: cat.iconName != null
                     ? IconRegistry.getIcon(cat.iconName!)
                     : Symbols.category_rounded,
+                emoji: IconRegistry.emojiOf(cat.iconName),
                 label: cat.name,
                 size: tile,
                 width: slot - 4,
@@ -1588,6 +1594,20 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                     ),
                 ],
               ),
+            ),
+          ),
+          SwitchListTile.adaptive(
+            contentPadding: EdgeInsets.zero,
+            value: _subscriptionAskFirst,
+            activeTrackColor: sectionColor,
+            onChanged: (value) => setState(() => _subscriptionAskFirst = value),
+            title: Text(
+              L10n.of(context).subAskBeforeEachPayment,
+              style: TextStyle(fontSize: 14, color: AppColors.textPrimary),
+            ),
+            subtitle: Text(
+              L10n.of(context).subAskBeforeEachPaymentHint,
+              style: TextStyle(fontSize: 12, color: AppColors.textMuted),
             ),
           ),
         ],
@@ -2131,7 +2151,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
 
     final category = ref
         .read(categoryProvider)
-        .categories
+        .selectable
         .where((c) => c.id == suggestion.categoryId)
         .firstOrNull;
 

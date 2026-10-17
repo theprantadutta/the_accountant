@@ -57,7 +57,7 @@ class _QuickAddSheetState extends ConsumerState<_QuickAddSheet> {
     try {
       final categories = ref
           .read(categoryProvider)
-          .categories
+          .selectable
           .map((c) => c.name)
           .toList();
       final wallets = ref

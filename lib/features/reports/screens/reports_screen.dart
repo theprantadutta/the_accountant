@@ -514,6 +514,13 @@ class _CategoryGrid extends ConsumerWidget {
       return Symbols.category_rounded;
     }
 
+    String? emojiFor(String id) {
+      for (final cat in categories) {
+        if (cat.id == id) return IconRegistry.emojiOf(cat.iconName);
+      }
+      return null;
+    }
+
     // Names come from the live category list, not the report's snapshot: on a
     // fresh restore the report can be worked out before the categories have
     // loaded, which froze every name as "Unknown".
@@ -564,6 +571,7 @@ class _CategoryGrid extends ConsumerWidget {
                               children: [
                                 IconTile(
                                   icon: iconFor(d.categoryId),
+                                  emoji: emojiFor(d.categoryId),
                                   color: colorFor(d),
                                   size: 38,
                                 ),

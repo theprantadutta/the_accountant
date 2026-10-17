@@ -120,7 +120,7 @@ class _ReceiptScannerScreenState extends ConsumerState<ReceiptScannerScreen> {
     try {
       final categories = ref
           .read(categoryProvider)
-          .categories
+          .selectable
           .where((c) => c.type == 'expense')
           .map((c) => c.name)
           .toList();

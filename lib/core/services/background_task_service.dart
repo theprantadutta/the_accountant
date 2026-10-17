@@ -69,15 +69,42 @@ class BackgroundTaskService {
 
       // 5. Process recurring transactions
       final recurringService = RecurringService(database: db);
+      final awaitingBefore =
+          (await db.getPaymentsAwaitingConfirmation()).length;
       final processedCount = await recurringService
           .processRecurringTransactions();
+      final awaiting = await db.getPaymentsAwaitingConfirmation();
+      // A schedule that asks first writes its payment as pending. That is a
+      // question for the user, not a report, so it is told apart from the
+      // payments recorded by themselves.
+      final newlyAwaiting = awaiting.length - awaitingBefore;
+      final recorded = processedCount - newlyAwaiting;
 
-      if (processedCount > 0) {
+      if (recorded > 0) {
         await notifier.showNotification(
           id: BackgroundTaskConstants.recurringNotificationIdBase,
           title: 'Recurring Transactions Processed',
           body:
-              '$processedCount recurring transaction${processedCount == 1 ? '' : 's'} created.',
+              '$recorded recurring transaction${recorded == 1 ? '' : 's'} created.',
+          channelId: BackgroundTaskConstants.recurringChannelId,
+          channelName: BackgroundTaskConstants.recurringChannelName,
+          channelDesc: BackgroundTaskConstants.recurringChannelDesc,
+        );
+      }
+
+      if (newlyAwaiting > 0) {
+        final names = awaiting
+            .map((t) => t.title)
+            .where((title) => title.isNotEmpty)
+            .take(3)
+            .join(', ');
+        await notifier.showNotification(
+          id: BackgroundTaskConstants.recurringNotificationIdBase + 1,
+          title:
+              '${awaiting.length} payment${awaiting.length == 1 ? '' : 's'} to confirm',
+          body: names.isEmpty
+              ? 'Confirm what was charged, or skip it, in Upcoming.'
+              : '$names — confirm what was charged, or skip it, in Upcoming.',
           channelId: BackgroundTaskConstants.recurringChannelId,
           channelName: BackgroundTaskConstants.recurringChannelName,
           channelDesc: BackgroundTaskConstants.recurringChannelDesc,

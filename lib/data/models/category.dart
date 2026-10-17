@@ -44,6 +44,15 @@ class Categories extends Table {
   /// See `DefaultCategoryCatalog`.
   TextColumn get defaultKey => text().nullable()();
 
+  /// Kept for its history, but no longer offered when filing a transaction.
+  ///
+  /// Deleting a category leaves its transactions with nothing to say what they
+  /// were, and a built-in cannot be deleted at all — so before this, a
+  /// category someone had stopped using sat in every picker for ever. An
+  /// archived one still shows wherever history is shown: reports, the
+  /// transactions filed under it, a budget that already counts it.
+  BoolColumn get isArchived => boolean().withDefault(const Constant(false))();
+
   // Sync fields
   TextColumn get serverId => text().nullable()();
   IntColumn get syncStatus => integer().withDefault(

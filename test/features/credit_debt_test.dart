@@ -275,11 +275,14 @@ void main() {
       await n.recordPayment(transactionId: loanId, paymentAmount: 5000);
 
       final all = await db.getAllTransactions();
-      // The lend is an expense, the repayment is income — both real cash
-      // movements, both reportable. What must NOT happen is the loan being
-      // silently excluded or double counted.
-      expect(TransactionPolicy.totalExpense(all), 20000);
-      expect(TransactionPolicy.totalIncome(all), 5000);
+      // Both are real cash movements and both move the wallet, but lending is
+      // not spending and being paid back is not earning. Counted, one loan and
+      // its repayment inflated the month's spending and income alike.
+      expect(TransactionPolicy.totalExpense(all), 0);
+      expect(TransactionPolicy.totalIncome(all), 0);
+      final repayment = all.singleWhere((t) => t.id != loanId);
+      expect(repayment.settlesTransactionId, loanId);
+      expect(TransactionPolicy.walletBalanceEffect(repayment), 5000);
     });
   });
 }

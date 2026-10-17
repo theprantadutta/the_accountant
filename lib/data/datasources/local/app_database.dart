@@ -168,7 +168,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 25;
+  int get schemaVersion => 26;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -192,6 +192,12 @@ class AppDatabase extends _$AppDatabase {
       }
     },
     onUpgrade: (m, from, to) async {
+      // These triggers read columns of `categories` and `transactions`, and
+      // SQLite refuses to alter a column a trigger names. They are put back by
+      // `beforeOpen` once the upgrade is done, so a step that rebuilds either
+      // table never has to know they exist.
+      await _dropAdjustmentKindTriggers();
+
       // Columns first, before any step that reads rows.
       //
       // The steps below use typed selects, and those go through the CURRENT
@@ -203,6 +209,7 @@ class AppDatabase extends _$AppDatabase {
       // all of them up front, and it keeps that trap from being re-set.
       if (from < 18) await _addV18Columns(m);
       if (from < 25) await _addV25Columns(m);
+      if (from < 26) await _addV26Columns(m);
 
       if (from < 10) {
         // Fix credit/debt isIncome values and recalculate wallet balances
@@ -324,6 +331,10 @@ class AppDatabase extends _$AppDatabase {
       if (from < 25) {
         await _migrateToV25(m);
       }
+
+      if (from < 26) {
+        await linkLegacySettlements();
+      }
     },
     beforeOpen: (details) async {
       // NOTE on foreign keys: SQLite leaves FK enforcement off by default and we
@@ -341,8 +352,96 @@ class AppDatabase extends _$AppDatabase {
       await _installSyncStatusGuards();
       await _installRowVersionTriggers();
       await _installPartialIndexes();
+      await _installAdjustmentKindTriggers();
     },
   );
+
+  /// The triggers that derive a balance correction's kind, by name and event.
+  @visibleForTesting
+  static const adjustmentKindTriggers = [
+    ('trg_transactions_adjustment_kind_insert', 'AFTER INSERT'),
+    (
+      'trg_transactions_adjustment_kind_update',
+      'AFTER UPDATE OF category_id, transaction_type',
+    ),
+  ];
+
+  Future<void> _dropAdjustmentKindTriggers() async {
+    for (final (name, _) in adjustmentKindTriggers) {
+      await customStatement('DROP TRIGGER IF EXISTS $name');
+    }
+  }
+
+  /// SQL deciding the kind a `regular`/`adjustment` row should carry, from
+  /// the category of the row named `NEW` (in a trigger) or `transactions`.
+  static String _adjustmentKindSql(String row) =>
+      '''
+      CASE WHEN EXISTS (
+        SELECT 1 FROM categories c
+         WHERE c.id = $row.category_id
+           AND c.default_key = '${SystemCategoryKeys.balanceCorrection}'
+      ) THEN '${TransactionType.adjustment.storageValue}'
+        ELSE '${TransactionType.regular.storageValue}' END''';
+
+  /// Keep `transaction_type` reading `adjustment` exactly when a row is filed
+  /// under the balance-correction category.
+  ///
+  /// A correction is not money earned or spent, and analytics can only leave
+  /// it out if the row says what it is: [TransactionPolicy] works on the row
+  /// alone and cannot know the category's id, which is random per install.
+  /// The category stays the single source of truth; the kind is derived from
+  /// it, the same way a transfer is marked as well as filed under Transfer.
+  ///
+  /// Triggers rather than call sites, because a row reaches that category by
+  /// more routes than any of them can be trusted to cover: the correction
+  /// sheet, an edit that re-files a row, a pull from another device or from an
+  /// older build that never set the kind, a restore, and the system-category
+  /// merge that re-keys rows. Only `regular` and `adjustment` rows are touched —
+  /// a transfer leg or a generated occurrence keeps its kind wherever it is
+  /// filed. The derived kind does not change `sync_status`: it is a reading of
+  /// data the server already holds, not an edit.
+  ///
+  /// The closing UPDATE brings rows written before the triggers existed, or
+  /// whose category gained its slug later, into line.
+  ///
+  /// Both halves look before they write. A settled store must open without a
+  /// write lock — other isolates write to the same file — and an UPDATE takes
+  /// one even when it matches nothing.
+  Future<void> _installAdjustmentKindTriggers() async {
+    final regular = TransactionType.regular.storageValue;
+    final adjustment = TransactionType.adjustment.storageValue;
+    final existing = await _existingObjectNames('trigger');
+
+    for (final (name, event) in adjustmentKindTriggers) {
+      if (existing.contains(name)) continue;
+      await customStatement('''
+        CREATE TRIGGER IF NOT EXISTS $name
+        $event ON transactions
+        WHEN NEW.transaction_type IN ('$regular', '$adjustment')
+         AND NEW.transaction_type IS NOT ${_adjustmentKindSql('NEW')}
+        BEGIN
+          UPDATE transactions
+             SET transaction_type = ${_adjustmentKindSql('NEW')}
+           WHERE id = NEW.id;
+        END;
+      ''');
+    }
+
+    final misfiled =
+        '''
+      transaction_type IN ('$regular', '$adjustment')
+      AND transaction_type IS NOT ${_adjustmentKindSql('transactions')}''';
+    final anyMisfiled = await customSelect(
+      'SELECT 1 FROM transactions WHERE $misfiled LIMIT 1',
+    ).get();
+    if (anyMisfiled.isEmpty) return;
+
+    await customStatement('''
+      UPDATE transactions
+         SET transaction_type = ${_adjustmentKindSql('transactions')}
+       WHERE $misfiled
+    ''');
+  }
 
   /// Schema 25 gives every existing budget the currency it was already being
   /// read in, so nothing changes meaning at the upgrade.
@@ -898,6 +997,17 @@ class AppDatabase extends _$AppDatabase {
   /// The budget currency column, added with the other columns rather than in
   /// its own step: everything below reads rows through the current generated
   /// mapper, which expects every column this build knows about.
+  Future<void> _addV26Columns(Migrator m) async {
+    if (!await _tableExists('transactions')) return;
+    await _ensureColumn(m, transactions, transactions.settlesTransactionId);
+    if (!await _tableExists('recurring_configs')) return;
+    await _ensureColumn(m, recurringConfigs, recurringConfigs.amount);
+    await _ensureColumn(m, recurringConfigs, recurringConfigs.walletId);
+    await _ensureColumn(m, recurringConfigs, recurringConfigs.autoPay);
+    if (!await _tableExists('categories')) return;
+    await _ensureColumn(m, categories, categories.isArchived);
+  }
+
   Future<void> _addV25Columns(Migrator m) async {
     if (!await _tableExists('budgets')) return;
     await _ensureColumn(m, budgets, budgets.currency);
@@ -1694,16 +1804,60 @@ class AppDatabase extends _$AppDatabase {
   /// Queuing a delete the server may not need is safe now: a delete for a row
   /// it does not hold is answered as satisfied rather than as a conflict, so
   /// the change clears on the next sync instead of retrying for ever.
+  ///
+  /// A loan takes its repayments with it. Left behind, they would keep moving
+  /// the balance for money that, as far as the record now says, was never lent
+  /// or borrowed. They are tombstoned at the same instant as the loan, which is
+  /// how [restoreTransaction] knows to bring exactly those back with it.
   Future<void> softDeleteTransaction(String id) async {
     final row = await findTransactionById(id);
     if (row == null) return;
 
-    await (update(transactions)..where((t) => t.id.equals(id))).write(
-      TransactionsCompanion(
-        deletedAt: Value(DateTime.now()),
-        syncStatus: const Value(SyncStatus.pendingDelete),
-        updatedAt: Value(DateTime.now()),
-      ),
+    final now = DateTime.now();
+    final tombstone = TransactionsCompanion(
+      deletedAt: Value(now),
+      syncStatus: const Value(SyncStatus.pendingDelete),
+      updatedAt: Value(now),
+    );
+
+    await transaction(() async {
+      await (update(
+        transactions,
+      )..where((t) => t.id.equals(id))).write(tombstone);
+      await (update(transactions)..where(
+            (t) => t.settlesTransactionId.equals(id) & t.deletedAt.isNull(),
+          ))
+          .write(tombstone);
+      await _shiftLoanRepaid(row, removing: true);
+    });
+  }
+
+  /// Keep a loan's repaid amount in step when one of its repayments is
+  /// deleted or put back.
+  ///
+  /// Deleting a repayment used to leave `paidAmount` where it was, so a loan
+  /// whose only repayment had been removed still read as settled. A reversal
+  /// moves it the other way. Clamped to the loan's own range, because rows
+  /// from before the link existed may not add up to it exactly.
+  Future<void> _shiftLoanRepaid(
+    Transaction settlement, {
+    required bool removing,
+  }) async {
+    final loanId = settlement.settlesTransactionId;
+    if (loanId == null) return;
+    final loan = await findTransactionById(loanId);
+    if (loan == null || loan.deletedAt != null) return;
+
+    final isCredit = loan.specialType == TransactionSpecialType.credit;
+    final repays = settlement.isIncome == isCredit;
+    final change = (repays ? 1 : -1) * (removing ? -1 : 1) * settlement.amount;
+    final paid = (loan.paidAmount + change).clamp(0, loan.amount);
+    if (paid == loan.paidAmount) return;
+
+    await customStatement(
+      'UPDATE transactions SET paid_amount = ?, updated_at = ?, '
+      'sync_status = ${SyncStatus.markEditedSql} WHERE id = ?',
+      [paid, DateTime.now().millisecondsSinceEpoch ~/ 1000, loanId],
     );
   }
 
@@ -1753,11 +1907,28 @@ class AppDatabase extends _$AppDatabase {
   /// The row goes back to pending-create rather than pending-update when it had
   /// never reached the server: an update names a row the server has no record
   /// of, and would be rejected every time it was pushed.
+  ///
+  /// A loan's repayments come back with it — the ones deleted together with
+  /// it, not ones the user had removed on their own before.
   Future<void> restoreTransaction(String id) async {
     final row = await findTransactionById(id);
     if (row == null) return;
 
-    await (update(transactions)..where((t) => t.id.equals(id))).write(
+    final deletedAt = row.deletedAt;
+    final restoredIds = [
+      id,
+      if (deletedAt != null)
+        for (final repayment
+            in await (select(transactions)..where(
+                  (t) =>
+                      t.settlesTransactionId.equals(id) &
+                      t.deletedAt.equals(deletedAt),
+                ))
+                .get())
+          repayment.id,
+    ];
+
+    await (update(transactions)..where((t) => t.id.isIn(restoredIds))).write(
       TransactionsCompanion(
         deletedAt: const Value(null),
         updatedAt: Value(DateTime.now()),
@@ -1774,6 +1945,7 @@ class AppDatabase extends _$AppDatabase {
         syncStatus: const Value(SyncStatus.pendingCreate),
       ),
     );
+    await _shiftLoanRepaid(row, removing: false);
   }
 
   /// @deprecated - Use getIncomeTransactions or getExpenseTransactions instead
@@ -1834,6 +2006,21 @@ class AppDatabase extends _$AppDatabase {
       (select(transactions)
             ..where((t) => t.recurringConfigId.equals(recurringConfigId))
             ..where((t) => t.deletedAt.isNull()))
+          .get();
+
+  /// Scheduled payments that have fallen due and are waiting for the user to
+  /// confirm or skip them — written by a schedule that asks first.
+  Future<List<Transaction>> getPaymentsAwaitingConfirmation() =>
+      (select(transactions)
+            ..where(
+              (t) => t.transactionType.equals(
+                TransactionType.recurringInstance.storageValue,
+              ),
+            )
+            ..where((t) => t.isPaid.equals(false))
+            ..where((t) => t.skipPaid.equals(false))
+            ..where((t) => t.deletedAt.isNull())
+            ..orderBy([(t) => OrderingTerm.asc(t.date)]))
           .get();
 
   /// Get upcoming (unpaid future) transactions
@@ -1910,13 +2097,21 @@ class AppDatabase extends _$AppDatabase {
           .get();
 
   /// Mark transaction as paid
-  Future<void> markTransactionAsPaid(String id, {DateTime? paymentDate}) async {
+  ///
+  /// [amount] records what was really charged, when that differs from what was
+  /// expected — the norm for a card payment in another currency.
+  Future<void> markTransactionAsPaid(
+    String id, {
+    DateTime? paymentDate,
+    int? amount,
+  }) async {
     final transaction = await findTransactionById(id);
     if (transaction == null) return;
 
     await (update(transactions)..where((t) => t.id.equals(id))).write(
       TransactionsCompanion(
         isPaid: const Value(true),
+        amount: amount != null ? Value(amount) : const Value.absent(),
         originalDueDate: Value(transaction.originalDueDate ?? transaction.date),
         date: Value(paymentDate ?? DateTime.now()),
         syncStatus: Value(SyncStatus.markEdited(transaction.syncStatus)),
@@ -1940,13 +2135,17 @@ class AppDatabase extends _$AppDatabase {
   }
 
   /// Mark transaction as unpaid
-  Future<void> markTransactionAsUnpaid(String id) async {
+  ///
+  /// [amount] puts back what was expected, when undoing a confirmation that
+  /// recorded a different charge.
+  Future<void> markTransactionAsUnpaid(String id, {int? amount}) async {
     final transaction = await findTransactionById(id);
     if (transaction == null) return;
 
     await (update(transactions)..where((t) => t.id.equals(id))).write(
       TransactionsCompanion(
         isPaid: const Value(false),
+        amount: amount != null ? Value(amount) : const Value.absent(),
         // Restore original due date if available
         date: Value(transaction.originalDueDate ?? transaction.date),
         syncStatus: Value(SyncStatus.markEdited(transaction.syncStatus)),
@@ -2223,6 +2422,23 @@ class AppDatabase extends _$AppDatabase {
   Future<Category?> findCategoryById(String id) =>
       (select(categories)..where((c) => c.id.equals(id))).getSingleOrNull();
 
+  /// Archive or bring back a category; see [Categories.isArchived].
+  ///
+  /// The two built-in system categories are the app's own bookkeeping and are
+  /// never offered anyway, so they are left alone.
+  Future<void> setCategoryArchived(String id, bool archived) async {
+    final category = await findCategoryById(id);
+    if (category == null ||
+        SystemCategoryKeys.all.contains(category.defaultKey)) {
+      return;
+    }
+    await customStatement(
+      'UPDATE categories SET is_archived = ?, updated_at = ?, '
+      'sync_status = ${SyncStatus.markEditedSql} WHERE id = ?',
+      [archived ? 1 : 0, DateTime.now().millisecondsSinceEpoch ~/ 1000, id],
+    );
+  }
+
   Future<int> addCategory(CategoriesCompanion entry) =>
       into(categories).insert(entry);
 
@@ -2384,6 +2600,109 @@ class AppDatabase extends _$AppDatabase {
   /// [includeDeleted] is for putting a transfer back: the fee was tombstoned
   /// alongside the legs, so the restore has to be able to see it. Everywhere
   /// else only live rows are wanted, which is why that is the default.
+  /// The live repayments (and reversals) recorded against a loan.
+  Future<List<Transaction>> getSettlementsOf(String loanId) =>
+      (select(transactions)
+            ..where((t) => t.settlesTransactionId.equals(loanId))
+            ..where((t) => t.deletedAt.isNull()))
+          .get();
+
+  /// What the credit/debt screen has always written in a repayment's notes,
+  /// parsed back into which kind of loan it named and that loan's title.
+  ///
+  /// Kind is null for a reversal, which never said.
+  static final _legacySettlementNote = RegExp(
+    r'^(?:(?:Settlement|Partial payment) for (credit|debt)|'
+    r'Reversal of repayments for): (.*)$',
+    dotAll: true,
+  );
+
+  /// Link repayments written before [Transactions.settlesTransactionId] existed
+  /// to the loan they repay.
+  ///
+  /// Those rows can only be recognised by the notes the credit/debt screen gave
+  /// them, which name the kind of loan and its title. A repayment is matched to
+  /// a live loan of that title on the same account, going the opposite way to
+  /// what it repays (a reversal goes the same way). Where several loans share a
+  /// title, the one made most recently before the repayment wins, then a
+  /// matching category; a repayment with no candidate at all is left alone
+  /// rather than guessed at — it keeps counting as ordinary income or spending,
+  /// which is what it did before.
+  ///
+  /// Run by the schema-26 upgrade and after a restore, since a backup from an
+  /// older build carries the same unlinked rows. Linking is a real correction
+  /// of the record, so it is marked for sync. Looks before it writes.
+  Future<int> linkLegacySettlements() async {
+    final orphans =
+        await (select(transactions)..where(
+              (t) =>
+                  t.settlesTransactionId.isNull() &
+                  t.deletedAt.isNull() &
+                  (t.notes.like('Settlement for %') |
+                      t.notes.like('Partial payment for %') |
+                      t.notes.like('Reversal of repayments for: %')),
+            ))
+            .get();
+    if (orphans.isEmpty) return 0;
+
+    final loans =
+        await (select(transactions)..where(
+              (t) =>
+                  t.deletedAt.isNull() &
+                  t.specialType.isInValues([
+                    TransactionSpecialType.credit,
+                    TransactionSpecialType.debt,
+                  ]),
+            ))
+            .get();
+
+    var linked = 0;
+    for (final orphan in orphans) {
+      final match = _legacySettlementNote.firstMatch(orphan.notes!);
+      if (match == null) continue;
+      final kind = match.group(1);
+      final title = match.group(2)!;
+      final isReversal = kind == null;
+
+      final candidates = loans.where((loan) {
+        if (loan.title != title || loan.walletId != orphan.walletId) {
+          return false;
+        }
+        final isCredit = loan.specialType == TransactionSpecialType.credit;
+        if (kind != null && (kind == 'credit') != isCredit) return false;
+        // Being repaid on a credit is money in; on a debt, money out. A
+        // reversal undoes that, so it goes the other way.
+        return orphan.isIncome == (isCredit != isReversal);
+      }).toList();
+      if (candidates.isEmpty) continue;
+
+      int rank(Transaction loan) =>
+          (loan.date.isAfter(orphan.date) ? 0 : 2) +
+          (loan.categoryId == orphan.categoryId ? 1 : 0);
+      candidates.sort((a, b) {
+        final byRank = rank(b).compareTo(rank(a));
+        if (byRank != 0) return byRank;
+        // Among loans made before it, the latest; among later ones, the
+        // earliest — either way, the nearest in time.
+        return rank(a) >= 2
+            ? b.date.compareTo(a.date)
+            : a.date.compareTo(b.date);
+      });
+
+      await customStatement(
+        'UPDATE transactions SET settles_transaction_id = ?, updated_at = ?, '
+        'sync_status = ${SyncStatus.markEditedSql} WHERE id = ?',
+        [
+          candidates.first.id,
+          DateTime.now().millisecondsSinceEpoch ~/ 1000,
+          orphan.id,
+        ],
+      );
+      linked++;
+    }
+    return linked;
+  }
+
   Future<Transaction?> findFeeForTransfer(
     String transferTransactionId, {
     bool includeDeleted = false,
@@ -3480,11 +3799,18 @@ class AppDatabase extends _$AppDatabase {
   /// progress and a goal could report itself complete on money that had not
   /// left anyone's account. It was the last money surface in the app not going
   /// through the shared policy.
+  ///
+  /// What counts as progress depends on the kind of objective; see
+  /// [TransactionPolicy.objectiveContribution].
   Future<int> getObjectiveProgress(String objectiveId) async {
+    final objective = await findObjectiveById(objectiveId);
+    final isLoan = objective?.type == ObjectiveType.loan.name;
     final linked = await getTransactionsForObjective(objectiveId);
-    return linked
-        .where(TransactionPolicy.countsTowardObjective)
-        .fold<int>(0, (sum, t) => sum + t.amount);
+    return linked.fold<int>(
+      0,
+      (sum, t) =>
+          sum + TransactionPolicy.objectiveContribution(t, isLoan: isLoan),
+    );
   }
 
   /// Assign [transactionId] to [objectiveId], marking the row for sync so the
@@ -3594,7 +3920,7 @@ class AppDatabase extends _$AppDatabase {
         FROM transactions t
        WHERE t.deleted_at IS NULL
          AND TRIM(t.title) <> ''
-         AND t.transaction_type <> ?
+         AND t.transaction_type NOT IN (?, ?)
          AND t.fee_for_transaction_id IS NULL
          AND LOWER(t.title) LIKE ? ESCAPE '\'
        GROUP BY LOWER(t.title)
@@ -3603,6 +3929,7 @@ class AppDatabase extends _$AppDatabase {
       ''',
       variables: [
         Variable<String>(TransactionPolicy.transferType),
+        Variable<String>(TransactionPolicy.adjustmentType),
         Variable<String>('%$escaped%'),
         Variable<int>(limit),
       ],
@@ -3634,7 +3961,18 @@ class AppDatabase extends _$AppDatabase {
     final normalized = title.trim().toLowerCase();
     if (normalized.isEmpty) return null;
 
-    final rules = await getAllAssociatedTitles();
+    // A rule filing into an archived category is set aside rather than
+    // obeyed: the user has said not to file there any more, and a broader
+    // rule may still have a live answer.
+    final archived = {
+      for (final c in await (select(
+        categories,
+      )..where((c) => c.isArchived.equals(true))).get())
+        c.id,
+    };
+    final rules = (await getAllAssociatedTitles())
+        .where((rule) => !archived.contains(rule.categoryId))
+        .toList();
 
     for (final rule in rules) {
       if (rule.title.trim().toLowerCase() == normalized) return rule.categoryId;

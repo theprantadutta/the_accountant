@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:the_accountant/shared/widgets/registry_icon.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -305,10 +306,8 @@ class _AddCategoryFormState extends ConsumerState<AddCategoryForm> {
               color: _color.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(16),
             ),
-            child: Icon(
-              IconRegistry.getIcon(_selectedIcon),
-              size: 28,
-              color: _color,
+            child: Center(
+              child: RegistryIcon(_selectedIcon, size: 28, color: _color),
             ),
           ),
           const SizedBox(width: 16),
@@ -370,7 +369,7 @@ class _AddCategoryFormState extends ConsumerState<AddCategoryForm> {
   /// offered its own name either — a category that is part of itself has no
   /// place in any total.
   Widget _buildParentSelector() {
-    final all = ref.watch(categoryProvider).categories;
+    final all = ref.watch(categoryProvider).selectable;
     final editingId = widget.category?.id;
     final parents = all
         .where(
@@ -499,40 +498,114 @@ class _AddCategoryFormState extends ConsumerState<AddCategoryForm> {
     );
   }
 
+  /// Ask for an emoji to use as the icon.
+  ///
+  /// The keyboard's own emoji picker is the best one there is, so this is a
+  /// field for it rather than a grid of our own. Only the first character is
+  /// kept: an icon is one symbol.
+  Future<void> _pickEmoji() async {
+    final controller = TextEditingController(
+      text: IconRegistry.emojiOf(_selectedIcon) ?? '',
+    );
+    final picked = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(L10n.of(context).catUseEmoji),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          textAlign: TextAlign.center,
+          style: const TextStyle(fontSize: 32),
+          decoration: InputDecoration(hintText: L10n.of(context).catEmojiHint),
+          onSubmitted: (value) => Navigator.of(context).pop(value),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(L10n.of(context).actionCancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(controller.text),
+            child: Text(L10n.of(context).actionConfirm),
+          ),
+        ],
+      ),
+    );
+    controller.dispose();
+    final symbol = picked?.trim().characters.firstOrNull;
+    if (symbol == null || !mounted) return;
+    setState(() => _selectedIcon = IconRegistry.nameForEmoji(symbol));
+  }
+
   Widget _buildIconGrid() {
+    final chosenEmoji = IconRegistry.emojiOf(_selectedIcon);
     return Wrap(
       spacing: 10,
       runSpacing: 10,
-      children: _icons.map((iconName) {
-        final isSelected = _selectedIcon == iconName;
-
-        return GestureDetector(
-          onTap: () {
-            HapticFeedback.lightImpact();
-            setState(() => _selectedIcon = iconName);
-          },
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: isSelected
-                  ? _color.withValues(alpha: 0.2)
-                  : AppColors.textPrimary.withValues(alpha: 0.05),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: isSelected ? _color : Colors.transparent,
-                width: 2,
+      children: [
+        Tooltip(
+          message: L10n.of(context).catUseEmoji,
+          child: GestureDetector(
+            onTap: () {
+              HapticFeedback.lightImpact();
+              _pickEmoji();
+            },
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              width: 48,
+              height: 48,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: chosenEmoji != null
+                    ? _color.withValues(alpha: 0.2)
+                    : AppColors.textPrimary.withValues(alpha: 0.05),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: chosenEmoji != null ? _color : Colors.transparent,
+                  width: 2,
+                ),
               ),
-            ),
-            child: Icon(
-              IconRegistry.getIcon(iconName),
-              size: 24,
-              color: isSelected ? _color : AppColors.textSecondary,
+              child: chosenEmoji != null
+                  ? Text(chosenEmoji, style: const TextStyle(fontSize: 22))
+                  : Icon(
+                      Icons.add_reaction_outlined,
+                      size: 24,
+                      color: AppColors.textSecondary,
+                    ),
             ),
           ),
-        );
-      }).toList(),
+        ),
+        ..._icons.map((iconName) {
+          final isSelected = _selectedIcon == iconName;
+
+          return GestureDetector(
+            onTap: () {
+              HapticFeedback.lightImpact();
+              setState(() => _selectedIcon = iconName);
+            },
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: isSelected
+                    ? _color.withValues(alpha: 0.2)
+                    : AppColors.textPrimary.withValues(alpha: 0.05),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: isSelected ? _color : Colors.transparent,
+                  width: 2,
+                ),
+              ),
+              child: Icon(
+                IconRegistry.getIcon(iconName),
+                size: 24,
+                color: isSelected ? _color : AppColors.textSecondary,
+              ),
+            ),
+          );
+        }),
+      ],
     );
   }
 

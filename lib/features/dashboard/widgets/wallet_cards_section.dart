@@ -12,6 +12,7 @@ import 'package:the_accountant/core/themes/app_typography.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/data/models/wallet.dart' show WalletType;
 import 'package:the_accountant/features/dashboard/providers/balance_visibility_provider.dart';
+import 'package:the_accountant/features/wallets/domain/credit_card_position.dart';
 import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
 import 'package:the_accountant/features/wallets/screens/wallet_management_screen.dart';
 import 'package:the_accountant/features/wallets/widgets/add_wallet_form.dart';
@@ -156,11 +157,14 @@ class _WalletCardState extends ConsumerState<_WalletCard>
     final balance = (walletBalances[wallet.id] ?? wallet.balance) / 100.0;
     final isCreditCard = wallet.walletType == WalletType.creditCard;
     final creditLimit = (wallet.creditLimit ?? 0) / 100.0;
-    final outstanding = isCreditCard ? balance.abs() : 0.0;
-    final available = isCreditCard ? (creditLimit - outstanding) : 0.0;
-    final usageRatio = isCreditCard && creditLimit > 0
-        ? (outstanding / creditLimit).clamp(0.0, 1.0)
-        : 0.0;
+    final card = CreditCardPosition.of(
+      balance: walletBalances[wallet.id] ?? wallet.balance,
+      limit: wallet.creditLimit ?? 0,
+    );
+    // Owed, or — for a card paid in advance — the credit, shown as positive.
+    final headline = (card.owed > 0 ? card.owed : card.inCredit) / 100.0;
+    final available = card.available / 100.0;
+    final usageRatio = card.usage;
 
     // Start animation when widget is built
     WidgetsBinding.instance.addPostFrameCallback((_) => _startAnimation());
@@ -262,7 +266,7 @@ class _WalletCardState extends ConsumerState<_WalletCard>
                         animation: _balanceAnimation,
                         builder: (context, child) {
                           final animOutstanding =
-                              outstanding * _balanceAnimation.value;
+                              headline * _balanceAnimation.value;
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -300,7 +304,7 @@ class _WalletCardState extends ConsumerState<_WalletCard>
                               const SizedBox(height: 4),
                               if (isVisible)
                                 Text(
-                                  'Available: ${_formatCurrency(available * _balanceAnimation.value, wallet.currency, wallet.useDecimals)}',
+                                  '${card.inCredit > 0 ? 'In credit · ' : ''}Available: ${_formatCurrency(available * _balanceAnimation.value, wallet.currency, wallet.useDecimals)}',
                                   style: AppTypography.labelSmall.copyWith(
                                     color: AppColors.textSecondary,
                                     fontSize: 9,

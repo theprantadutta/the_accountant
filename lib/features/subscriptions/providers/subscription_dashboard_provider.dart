@@ -65,13 +65,18 @@ class SubscriptionItem {
       : (specialType == TransactionSpecialType.repetitive
             ? 'Recurring Bill'
             : 'Subscription');
-  int get amount => baseTransaction.amount; // integer minor units / cents
+
+  /// What each payment from now on is for, in minor units.
+  int get amount => config.amount ?? baseTransaction.amount;
   bool get isActive => config.isActive;
   bool get isIncome => baseTransaction.isIncome;
   String get frequency => config.reoccurrence;
   int get periodLength => config.periodLength;
   DateTime get nextPayment => config.nextOccurrence;
-  String get walletId => baseTransaction.walletId;
+  String get walletId => config.walletId ?? baseTransaction.walletId;
+
+  /// Whether payments are recorded as they fall due, or wait to be confirmed.
+  bool get autoPay => config.autoPay;
   String? get categoryId => baseTransaction.categoryId;
 
   /// Monthly cost in minor units (cents), normalised from the frequency.
@@ -118,29 +123,6 @@ class SubscriptionItem {
         return 'Every $periodLength years';
       default:
         return 'Every $periodLength $frequency';
-    }
-  }
-
-  /// Formatted amount with frequency suffix
-  String get amountDisplay {
-    final suffix = periodLength == 1
-        ? _shortFrequency(frequency)
-        : '/$periodLength${_shortFrequency(frequency)}';
-    return '\$${(amount / 100).toStringAsFixed(2)}$suffix';
-  }
-
-  static String _shortFrequency(String freq) {
-    switch (freq.toLowerCase()) {
-      case 'daily':
-        return '/day';
-      case 'weekly':
-        return '/week';
-      case 'monthly':
-        return '/mo';
-      case 'yearly':
-        return '/yr';
-      default:
-        return '';
     }
   }
 }
@@ -237,6 +219,9 @@ class SubscriptionDashboardNotifier
     String? reoccurrence,
     int? periodLength,
     Object? endDate = RecurringService.keepEndDate,
+    int? amount,
+    String? walletId,
+    bool? autoPay,
   }) async {
     try {
       await _recurringService.updateRecurringConfig(
@@ -244,6 +229,9 @@ class SubscriptionDashboardNotifier
         reoccurrence: reoccurrence,
         periodLength: periodLength,
         endDate: endDate,
+        amount: amount,
+        walletId: walletId,
+        autoPay: autoPay,
       );
       await loadSubscriptions();
     } catch (e) {

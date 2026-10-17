@@ -46,6 +46,7 @@ class _EditSubscriptionBottomSheetState
   late int _periodLength;
   DateTime? _endDate;
   late String _walletId;
+  late bool _askFirst;
   bool _isSaving = false;
 
   @override
@@ -59,6 +60,7 @@ class _EditSubscriptionBottomSheetState
     _periodLength = item.periodLength;
     _endDate = item.config.endDate;
     _walletId = item.walletId;
+    _askFirst = !item.autoPay;
   }
 
   @override
@@ -93,17 +95,21 @@ class _EditSubscriptionBottomSheetState
     setState(() => _isSaving = true);
 
     try {
-      // Update the base transaction
-      await ref
-          .read(transactionProvider.notifier)
-          .updateTransaction(
-            id: widget.item.baseTransaction.id,
-            title: _titleController.text.isEmpty ? null : _titleController.text,
-            amount: (_amount * 100).round(), // dollars -> integer cents
-            walletId: _walletId,
-          );
+      // Only the name goes onto the base transaction. It is the first real
+      // payment: writing the new price or account onto it rewrote what that
+      // payment had been, and moved it between accounts after the fact.
+      final title = _titleController.text;
+      if (title.isNotEmpty && title != widget.item.baseTransaction.title) {
+        await ref
+            .read(transactionProvider.notifier)
+            .updateTransaction(
+              id: widget.item.baseTransaction.id,
+              title: title,
+            );
+      }
 
-      // Update recurring config
+      // Everything about the payments still to come belongs to the schedule.
+      final amount = (_amount * 100).round(); // dollars -> integer cents
       await ref
           .read(subscriptionDashboardProvider.notifier)
           .updateSubscriptionConfig(
@@ -111,6 +117,9 @@ class _EditSubscriptionBottomSheetState
             reoccurrence: _frequency,
             periodLength: _periodLength,
             endDate: _endDate,
+            amount: amount != widget.item.amount ? amount : null,
+            walletId: _walletId != widget.item.walletId ? _walletId : null,
+            autoPay: !_askFirst != widget.item.autoPay ? !_askFirst : null,
           );
 
       if (mounted) {
@@ -474,6 +483,34 @@ class _EditSubscriptionBottomSheetState
                       setState(() => _walletId = wallet.id);
                     },
                     padding: EdgeInsets.zero,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    L10n.of(context).subChangesApplyFromNext,
+                    style: TextStyle(fontSize: 12, color: AppColors.textMuted),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Whether each payment is recorded by itself or confirmed
+                  SwitchListTile.adaptive(
+                    contentPadding: EdgeInsets.zero,
+                    value: _askFirst,
+                    activeTrackColor: accentColor,
+                    onChanged: (value) => setState(() => _askFirst = value),
+                    title: Text(
+                      L10n.of(context).subAskBeforeEachPayment,
+                      style: TextStyle(
+                        fontSize: 15,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    subtitle: Text(
+                      L10n.of(context).subAskBeforeEachPaymentHint,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: AppColors.textMuted,
+                      ),
+                    ),
                   ),
                 ],
               ),

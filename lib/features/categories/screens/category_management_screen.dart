@@ -58,7 +58,7 @@ class CategoryManagementScreen extends ConsumerWidget {
                     ref,
                     'Expense Categories',
                     categoryState.categories
-                        .where((c) => c.type == 'expense')
+                        .where((c) => c.type == 'expense' && !c.isArchived)
                         .toList(),
                   ),
                   // Income categories section
@@ -67,9 +67,27 @@ class CategoryManagementScreen extends ConsumerWidget {
                     ref,
                     'Income Categories',
                     categoryState.categories
-                        .where((c) => c.type == 'income')
+                        .where((c) => c.type == 'income' && !c.isArchived)
                         .toList(),
                   ),
+                  // Put away, but kept for their history
+                  if (categoryState.categories.any((c) => c.isArchived)) ...[
+                    _buildCategorySection(
+                      context,
+                      ref,
+                      L10n.of(context).catArchivedSection,
+                      categoryState.categories
+                          .where((c) => c.isArchived)
+                          .toList(),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 4, 20, 0),
+                      child: Text(
+                        L10n.of(context).catArchivedHint,
+                        style: TextStyle(color: context.sunrise.subtle),
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -116,6 +134,12 @@ class CategoryManagementScreen extends ConsumerWidget {
 
               return category_list_item.CategoryListItem(
                 category: listItemCategory,
+                isArchived: category.isArchived,
+                onArchive: category.isSystem
+                    ? null
+                    : () => ref
+                          .read(category_provider.categoryProvider.notifier)
+                          .setArchived(category.id, !category.isArchived),
                 onDelete: category.isDefault
                     ? null
                     : () {

@@ -48,6 +48,42 @@
   "settingsBackupRestore": "Backup & Restore",
   "settingsBackupRestoreSubtitle": "A file you keep, or automatic copies in Google Drive",
   "settingsImportStatement": "Import a statement",
+  "settingsImportCashew": "Import from Cashew",
+  "settingsImportCashewSubtitle": "Bring everything over from a Cashew backup",
+  "cashewIntro": "In Cashew, export a backup file from its Backups page, then choose it here. Everything in it comes across: accounts, categories, transactions, subscriptions, loans, budgets, goals and title rules.",
+  "cashewChoose": "Choose Cashew backup",
+  "cashewNotBackup": "That file is not a Cashew backup.",
+  "cashewFound": "{transactions} transactions in {accounts} accounts, with {categories} categories, {budgets} budgets and {goals} goals.",
+  "@cashewFound": {
+    "placeholders": {
+      "transactions": {
+        "type": "int"
+      },
+      "accounts": {
+        "type": "int"
+      },
+      "categories": {
+        "type": "int"
+      },
+      "budgets": {
+        "type": "int"
+      },
+      "goals": {
+        "type": "int"
+      }
+    }
+  },
+  "cashewImport": "Import",
+  "cashewMergeNote": "Accounts come in as new ones. If you already keep one here for the same money, use Merge on it to combine them. Categories with the same name are filed together.",
+  "cashewDone": "{count} transactions imported.",
+  "@cashewDone": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cashewNothingNew": "Everything in this backup is already here.",
   "settingsImportStatementSubtitle": "Bring in a CSV from your bank, mapped once and remembered",
   "settingsExportData": "Export Data",
   "settingsRecentlyDeleted": "Recently deleted",
@@ -386,6 +422,8 @@
   "txAll": "All",
   "txSkip": "Skip",
   "txMarkAsPaid2": "Mark as Paid",
+  "txConfirmPayment": "Confirm payment",
+  "txAmountCharged": "Amount charged",
   "txUndo": "Undo",
   "txNoLoan": "No loan",
   "txLentMoney": "Lent Money",
@@ -440,10 +478,21 @@
   "creditPleaseEnterAValidAmount": "Please enter a valid amount",
   "creditAmountExceedsRemainingBalance": "Amount exceeds remaining balance",
   "creditPaymentAmount": "Payment Amount",
+  "creditPaidOn": "Paid on",
+  "creditFullAmount": "Full amount",
   "subSubscriptionName": "Subscription name",
+  "subAskBeforeEachPayment": "Ask before recording each payment",
+  "subAskBeforeEachPaymentHint": "Each payment waits in Upcoming until you confirm what was charged, or skip it. Best for charges that vary, like a card paid in another currency.",
+  "subChangesApplyFromNext": "A new amount or account applies from the next payment. Payments already made stay as they were.",
   "catDeleteCategory": "Delete Category",
   "catPleaseEnterACategoryName": "Please enter a category name",
   "catEnterCategoryName": "Enter category name",
+  "catUseEmoji": "Use an emoji",
+  "catEmojiHint": "Type or pick one emoji",
+  "catArchive": "Archive",
+  "catUnarchive": "Unarchive",
+  "catArchivedSection": "Archived",
+  "catArchivedHint": "Kept for their history, but not offered when you add a transaction.",
   "catNothingItsOwnCategory": "Nothing — its own category",
   "notifEnableNotifications": "Enable Notifications",
   "startupContinueWithoutChecking": "Continue without checking?",

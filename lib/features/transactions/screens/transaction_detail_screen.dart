@@ -131,6 +131,9 @@ class _TransactionDetailScreenState
         ? money(row.amount)
         : '${row.isIncome ? '+' : '−'}${money(row.amount)}';
     final onGlass = Colors.white.withValues(alpha: .22);
+    final categoryEmoji = isTransfer
+        ? null
+        : IconRegistry.emojiOf(category?.iconName);
 
     return SunrisePushPage(
       title: l10n.entityTransaction,
@@ -158,6 +161,7 @@ class _TransactionDetailScreenState
                 children: [
                   IconTile(
                     icon: categoryIcon,
+                    emoji: categoryEmoji,
                     color: Colors.white,
                     background: onGlass,
                     size: 48,
@@ -271,6 +275,7 @@ class _TransactionDetailScreenState
           children: [
             SettingsRow(
               icon: categoryIcon,
+              emoji: categoryEmoji,
               iconColor: tint,
               title: l10n.entityCategory,
               value: isTransfer

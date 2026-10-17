@@ -40,7 +40,7 @@ So the answer to "are we doing everything Cashew does?" is **no, not yet**, and 
 | Wallets | derived balance, merge, correct balance, detail page | stored balance, types incl. credit card, reorder, no detail page | **Mixed** |
 | Multi-currency | per-wallet, conversion in amount field, cross-currency transfer | per-wallet, rates screen with overrides, header sums unconverted | **Behind** |
 | Budgets | periods, history, limits, filters, income budgets, archive | broken create flow, weekly/monthly only, no edit/delete UI | **Far behind** |
-| Categories | 277 icons + emoji, merge, promote, reorder, titles editor | 31 slug-keyed defaults, subcategories, 18 icons, no reorder/merge UI | **Behind** |
+| Categories | 277 icons + emoji, archive, merge, promote, reorder, titles editor | Slug-keyed defaults, subcategories, icon library + emoji, archive (built-ins too), no reorder/merge UI | **Behind** |
 | Auto-categorisation | associated titles with editor | title-history suggestions, unused `AssociatedTitles` table | **Behind** |
 | Transaction list | month pager, deep filters, drag-select, bulk edit, duplicate | month strip, type + one category filter | **Far behind** |
 | Search | title/note/category/budget/goal/amount/date parsing | title/notes/category/payment method | **Behind** |
@@ -99,7 +99,7 @@ The add form covers title with history suggestions, amount, category with one le
 - **Attachments.** Cashew at least links a Drive file. Our `receiptImageUrl` column is never written locally. We should store attachments properly (see §16).
 - **Exclude from specific budgets.** Cashew has `budgetFksExclude`. We have nothing equivalent.
 - **Per-transaction currency conversion chip.** When the wallet's currency differs from the primary, Cashew offers a one-tap conversion.
-- **Pending recurring instances.** In Cashew a subscription instance sits as an unpaid, visible "due" item until the user confirms it, and auto-pay can be turned off per type. Ours posts instances as `isPaid = true` immediately. Power users like the confirmation step. We should offer it as an option (see §3).
+- **Pending recurring instances.** In Cashew a subscription instance sits as an unpaid, visible "due" item until the user confirms it, and auto-pay can be turned off per type. **Shipped, per schedule rather than per type:** a schedule can ask before each payment, which then waits in Upcoming to be confirmed at the amount actually charged, or skipped. Price and account live on the schedule, so changing either no longer rewrites the first payment.
 - **Transaction detail screen.** Cashew opens the edit page too, but it exposes duplicate, delete-pair, and type actions there. We have only Edit and Delete on long-press.
 
 ### Divergence to fix in our own code
@@ -285,7 +285,7 @@ Slug-keyed defaults with a reconciliation flow is the right way to sync categori
 
 ### Where we are behind
 
-- **Icon library.** Eighteen versus 277 plus emoji. Add emoji support (free, zero assets) and expand the icon registry.
+- **Icon library.** Emoji support shipped (stored as `emoji:…` in the icon name, so no schema or server change). The registry is still far smaller than Cashew's 277.
 - **Category management screen.** Wire it up. Add reorder, merge, promote-to-main, and delete-with-move.
 - **Associated titles editor.** The table exists. Build the screen and use it in the title suggestions.
 - **Custom colour picker.**
@@ -377,6 +377,7 @@ Heatmap, past-period overlays, category-over-time, wallet history. Fix the incom
 ### What to do
 
 - **Server-assigned version counters** instead of client timestamps for conflict detection. The infrastructure is already there; `SyncStatus.conflict` is defined and never assigned.
+- **Import from Cashew** shipped: a Cashew backup is read directly and merged in, translating transfers, corrections, settled loans and subscription chains, idempotently.
 - **Google Sheets import**, which Cashew has and this does not. Lower value than CSV now that CSV is done, since a Sheet exports to CSV in two clicks.
 - **Raw SQLite export**, which Cashew has. The JSON backup covers the same need more portably, so this is optional.
 
@@ -504,7 +505,7 @@ Fix everything in §18. Wire the unreachable screens. Rewrite budgets on the exi
 
 ### Phase 1: reach parity on daily-use surfaces
 
-Transaction filters, search parsing, multi-select and bulk edit, duplicate, detail screen, recently deleted. Wallet detail page and All Spending. Cross-currency transfers. Category management with reorder, merge, emoji, larger icon set, and the associated-titles editor. Budget detail with periods, limits, and history. Home page layout editor. Local backup and restore. CSV import. Heatmap. Calculator in the amount field. Pending confirmation option for recurring instances.
+Transaction filters, search parsing, multi-select and bulk edit, duplicate, detail screen, recently deleted. Wallet detail page and All Spending. Cross-currency transfers. Category management with reorder, merge, larger icon set, and the associated-titles editor. Budget detail with periods, limits, and history. Home page layout editor. Local backup and restore. CSV import. Heatmap. Calculator in the amount field.
 
 ### Phase 2: surpass
 

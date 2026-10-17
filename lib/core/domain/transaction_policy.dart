@@ -26,8 +26,9 @@ import 'package:the_accountant/data/models/transaction.dart'
 ///    Conflating these two was the "new loan shows as Settled" defect.
 /// 3. **Analytics eligibility** ([countsAsIncome] / [countsAsExpense] /
 ///    [countsTowardCategorySpending]) — should the row appear in gross
-///    earnings/spending? Realized *and* not an internal wallet-to-wallet
-///    transfer.
+///    earnings/spending? Realized *and* genuinely earned or spent: not an
+///    internal wallet-to-wallet transfer, not a balance correction, and not a
+///    loan or its repayment.
 /// 4. **Forecast eligibility** ([isForecast]) — is this a not-yet-happened item
 ///    that belongs in upcoming/projection views only, never in realized totals?
 class TransactionPolicy {
@@ -48,6 +49,9 @@ class TransactionPolicy {
   static String get recurringInstanceType =>
       TransactionType.recurringInstance.storageValue;
 
+  /// Value stored in [Transaction.transactionType] for a balance correction.
+  static String get adjustmentType => TransactionType.adjustment.storageValue;
+
   /// How this row came to exist. Parsing goes through [TransactionType] so the
   /// column, the wire format, and this policy can never disagree about what a
   /// generated occurrence or a transfer leg looks like.
@@ -67,6 +71,22 @@ class TransactionPolicy {
   /// inflates gross income and gross expense by the same amount.
   static bool isTransfer(Transaction t) =>
       kindOf(t) == TransactionType.transfer;
+
+  /// Whether the row is a balance correction.
+  ///
+  /// A correction records that the app's figure and the bank's disagreed, not
+  /// that money was earned or spent. Counting it as either made a month of
+  /// reconciling accounts read as overspending: the corrections landed in the
+  /// budget alongside the purchases, and a large opening correction showed up
+  /// as income nobody earned.
+  static bool isAdjustment(Transaction t) =>
+      kindOf(t) == TransactionType.adjustment;
+
+  /// Whether the row repays (or reverses repayments of) a lend or borrow entry.
+  ///
+  /// Real money moving, so it changes the wallet — but being paid back is not
+  /// earning, and paying a debt off is not spending.
+  static bool isSettlement(Transaction t) => t.settlesTransactionId != null;
 
   /// Whether the row is a lend (`credit`) or borrow (`debt`) entry.
   static bool isCreditOrDebt(Transaction t) =>
@@ -104,9 +124,21 @@ class TransactionPolicy {
   /// principal genuinely left (lend) or entered (borrow) the wallet when the
   /// loan was recorded; their repayment is tracked separately by
   /// [Transaction.paidAmount] and by the separate repayment transactions.
-  static bool affectsWalletBalance(Transaction t) {
-    if (!isLive(t)) return false;
-    return t.isPaid || isCreditOrDebt(t);
+  static bool affectsWalletBalance(Transaction t) =>
+      isRealized(live: isLive(t), isPaid: t.isPaid, specialType: t.specialType);
+
+  /// [affectsWalletBalance] over plain fields, for models that are not a
+  /// database row (the transaction list's view model). One definition, so a
+  /// list total and a report can never disagree about which rows moved money.
+  static bool isRealized({
+    required bool live,
+    required bool isPaid,
+    required TransactionSpecialType? specialType,
+  }) {
+    if (!live) return false;
+    return isPaid ||
+        specialType == TransactionSpecialType.credit ||
+        specialType == TransactionSpecialType.debt;
   }
 
   /// Whether [t] counts toward the goal it is linked to.
@@ -123,6 +155,23 @@ class TransactionPolicy {
   /// goal invisible to it. Only the leg the user linked is counted, so the two
   /// halves of one transfer cannot both land on the same goal.
   static bool countsTowardObjective(Transaction t) => affectsWalletBalance(t);
+
+  /// How much [t] moves an objective toward its target, in minor units.
+  ///
+  /// For a goal, every linked row that moved money is progress: a deposit to
+  /// savings can be linked from either leg of its transfer, so direction says
+  /// nothing about whether it was money set aside.
+  ///
+  /// A loan is different. It is a debt being paid off, so progress is money
+  /// going out. The money borrowed is often linked to it too — it is the
+  /// natural record of how the loan began — and counting it as progress made a
+  /// loan read as paid off the moment it was taken out, and as more than 100%
+  /// repaid after the first instalment.
+  static int objectiveContribution(Transaction t, {required bool isLoan}) {
+    if (!countsTowardObjective(t)) return 0;
+    if (isLoan && t.isIncome) return 0;
+    return t.amount.abs();
+  }
 
   /// Signed effect of [t] on its wallet's balance, in integer minor units.
   ///
@@ -191,9 +240,40 @@ class TransactionPolicy {
 
   /// Whether the row belongs in *any* earnings/spending analytic.
   ///
-  /// Realized cash movement that is not an internal transfer.
-  static bool countsInAnalytics(Transaction t) =>
-      affectsWalletBalance(t) && !isTransfer(t);
+  /// Realized cash movement that was genuinely earned or spent.
+  ///
+  /// Loans are left out on both sides, as Cashew does by default. Lending a
+  /// friend money is not spending it, borrowing is not income, and neither is
+  /// the money coming back: counted, one loan and its repayment inflated a
+  /// month's spending and income by the same amount, and a large borrowing
+  /// read as a windfall. The Credit & Debt screen is where loans are tracked.
+  static bool countsInAnalytics(Transaction t) => countsInAnalyticsOf(
+    live: isLive(t),
+    isPaid: t.isPaid,
+    specialType: t.specialType,
+    kind: kindOf(t),
+    settlesTransactionId: t.settlesTransactionId,
+  );
+
+  /// [countsInAnalytics] over plain fields; see [isRealized] for why.
+  static bool countsInAnalyticsOf({
+    required bool live,
+    required bool isPaid,
+    required TransactionSpecialType? specialType,
+    required TransactionType kind,
+    required String? settlesTransactionId,
+  }) {
+    if (!isRealized(live: live, isPaid: isPaid, specialType: specialType)) {
+      return false;
+    }
+    if (specialType == TransactionSpecialType.credit ||
+        specialType == TransactionSpecialType.debt ||
+        settlesTransactionId != null) {
+      return false;
+    }
+    return kind != TransactionType.transfer &&
+        kind != TransactionType.adjustment;
+  }
 
   /// Whether the row counts toward gross income / report earnings.
   static bool countsAsIncome(Transaction t) =>
@@ -252,8 +332,17 @@ class TransactionPolicy {
   ///
   /// Skipped occurrences are excluded: the user has explicitly said this one
   /// will not happen.
+  ///
+  /// A subscription or repeating payment waiting to be confirmed is one too:
+  /// its schedule asks before recording each payment, and until the user does
+  /// it is expected money, not spent money.
   static bool isForecast(Transaction t) =>
-      isLive(t) && !t.isPaid && !t.skipPaid && isUpcoming(t);
+      isLive(t) &&
+      !t.isPaid &&
+      !t.skipPaid &&
+      (isUpcoming(t) ||
+          t.specialType == TransactionSpecialType.subscription ||
+          t.specialType == TransactionSpecialType.repetitive);
 
   /// Whether a forecast item is due in the future.
   static bool isFutureForecast(Transaction t, {DateTime? now}) =>

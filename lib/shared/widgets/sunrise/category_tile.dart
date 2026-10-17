@@ -11,6 +11,7 @@ class CategoryTile extends StatelessWidget {
   const CategoryTile({
     super.key,
     required this.icon,
+    this.emoji,
     required this.label,
     required this.selected,
     required this.onTap,
@@ -21,6 +22,9 @@ class CategoryTile extends StatelessWidget {
   });
 
   final IconData icon;
+
+  /// Shown instead of [icon] when the category has an emoji.
+  final String? emoji;
   final String label;
   final bool selected;
   final VoidCallback? onTap;
@@ -60,12 +64,17 @@ class CategoryTile extends StatelessWidget {
                 boxShadow: selected ? c.selectedShadow : null,
               ),
               alignment: Alignment.center,
-              child: Icon(
-                icon,
-                size: size * .46,
-                color: selected ? Colors.white : glyph,
-                fill: selected ? 1 : 0,
-              ),
+              child: emoji != null
+                  ? Text(
+                      emoji!,
+                      style: TextStyle(fontSize: size * .42, height: 1),
+                    )
+                  : Icon(
+                      icon,
+                      size: size * .46,
+                      color: selected ? Colors.white : glyph,
+                      fill: selected ? 1 : 0,
+                    ),
             ),
             const SizedBox(height: 8),
             Text(
