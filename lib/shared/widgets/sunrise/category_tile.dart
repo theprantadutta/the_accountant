@@ -39,6 +39,11 @@ class CategoryTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.sunrise;
     final glyph = color ?? c.accent;
+    final labelStyle = SunriseType.label.copyWith(
+      color: c.ink,
+      fontSize: 12.5,
+      fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+    );
     return Pressable(
       onTap: onTap,
       onLongPress: onLongPress,
@@ -77,17 +82,23 @@ class CategoryTile extends StatelessWidget {
                     ),
             ),
             const SizedBox(height: 8),
-            Text(
-              label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.center,
-              style: SunriseType.label.copyWith(
-                color: c.ink,
-                fontSize: 12.5,
-                fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+            // Under a 56dp tile one line cut ordinary names short. Names with
+            // a space wrap onto a second line there; a single long word
+            // ("Transportation") shrinks a little instead, since wrapping it
+            // would break it mid-word.
+            if (label.trim().contains(' '))
+              Text(
+                label,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: labelStyle,
+              )
+            else
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(label, maxLines: 1, style: labelStyle),
               ),
-            ),
           ],
         ),
       ),

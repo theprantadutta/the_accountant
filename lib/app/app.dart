@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:the_accountant/core/providers/deep_link_provider.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:the_accountant/core/providers/locale_provider.dart';
@@ -178,9 +179,21 @@ class _MyAppState extends ConsumerState<MyApp> {
       // The short Sunrise wash behind every route. Scaffolds are transparent,
       // so screens that have not painted their own wash still sit on Sunrise;
       // tab roots paint the tall wash over it.
-      builder: (context, child) => AppBackground(
-        key: _backgroundKey,
-        child: child ?? const SizedBox.shrink(),
+      //
+      // The status bar follows the app's theme, not the phone's. Only AppBar
+      // screens declared a style, so on the Sunrise screens the bar kept
+      // whatever came last — the splash's white icons — and some phones
+      // (ColorOS in system dark mode among them) left those white icons on
+      // a light app. Declared here once, for every route; a screen with its
+      // own look (the splash, the add form's hero) still overrides it.
+      builder: (context, child) => AnnotatedRegion<SystemUiOverlayStyle>(
+        value:
+            Theme.of(context).appBarTheme.systemOverlayStyle ??
+            SystemUiOverlayStyle.dark,
+        child: AppBackground(
+          key: _backgroundKey,
+          child: child ?? const SizedBox.shrink(),
+        ),
       ),
       home: const AuthWrapper(),
       routes: {
