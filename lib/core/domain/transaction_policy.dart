@@ -156,6 +156,23 @@ class TransactionPolicy {
   /// halves of one transfer cannot both land on the same goal.
   static bool countsTowardObjective(Transaction t) => affectsWalletBalance(t);
 
+  /// How much [t] moves an objective toward its target, in minor units.
+  ///
+  /// For a goal, every linked row that moved money is progress: a deposit to
+  /// savings can be linked from either leg of its transfer, so direction says
+  /// nothing about whether it was money set aside.
+  ///
+  /// A loan is different. It is a debt being paid off, so progress is money
+  /// going out. The money borrowed is often linked to it too — it is the
+  /// natural record of how the loan began — and counting it as progress made a
+  /// loan read as paid off the moment it was taken out, and as more than 100%
+  /// repaid after the first instalment.
+  static int objectiveContribution(Transaction t, {required bool isLoan}) {
+    if (!countsTowardObjective(t)) return 0;
+    if (isLoan && t.isIncome) return 0;
+    return t.amount.abs();
+  }
+
   /// Signed effect of [t] on its wallet's balance, in integer minor units.
   ///
   /// Returns 0 when the transaction is not realized. Amounts are stored as

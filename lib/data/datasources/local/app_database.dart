@@ -3749,11 +3749,18 @@ class AppDatabase extends _$AppDatabase {
   /// progress and a goal could report itself complete on money that had not
   /// left anyone's account. It was the last money surface in the app not going
   /// through the shared policy.
+  ///
+  /// What counts as progress depends on the kind of objective; see
+  /// [TransactionPolicy.objectiveContribution].
   Future<int> getObjectiveProgress(String objectiveId) async {
+    final objective = await findObjectiveById(objectiveId);
+    final isLoan = objective?.type == ObjectiveType.loan.name;
     final linked = await getTransactionsForObjective(objectiveId);
-    return linked
-        .where(TransactionPolicy.countsTowardObjective)
-        .fold<int>(0, (sum, t) => sum + t.amount);
+    return linked.fold<int>(
+      0,
+      (sum, t) =>
+          sum + TransactionPolicy.objectiveContribution(t, isLoan: isLoan),
+    );
   }
 
   /// Assign [transactionId] to [objectiveId], marking the row for sync so the

@@ -57,6 +57,39 @@ void main() {
     expect(progress.isComplete, isFalse);
   });
 
+  test(
+    'a loan counts what has been paid back, not what was borrowed',
+    () async {
+      final id = await service.createObjective(
+        name: 'Loan from the bank',
+        targetAmount: 100000,
+        type: 'loan',
+        startDate: DateTime(2026, 1, 1),
+      );
+      // Linking the money borrowed is the natural record of how a loan began.
+      final borrowed = await seedTransaction(
+        db,
+        walletId: walletId,
+        amount: 100000,
+        isIncome: true,
+        date: DateTime(2026, 1, 1),
+      );
+      final instalment = await seedTransaction(
+        db,
+        walletId: walletId,
+        amount: 30000,
+        date: DateTime(2026, 2, 1),
+      );
+      await service.linkTransaction(id, borrowed);
+      await service.linkTransaction(id, instalment);
+
+      final progress = await service.getObjectiveWithProgress(id);
+      expect(progress.currentAmount, 30000);
+      expect(progress.isComplete, isFalse);
+      expect(progress.progressText, '30% complete');
+    },
+  );
+
   test('an unpaid bill scheduled for later does not', () async {
     final id = await goal();
     final txn = await seedTransaction(

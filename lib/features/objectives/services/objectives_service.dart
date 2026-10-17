@@ -329,7 +329,7 @@ class ObjectiveWithProgress {
 
   String get progressText {
     if (isComplete) {
-      return 'Completed!';
+      return isLoan ? 'Paid off!' : 'Completed!';
     }
     return '${progressPercent.toStringAsFixed(0)}% complete';
   }
