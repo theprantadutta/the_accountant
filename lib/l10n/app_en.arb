@@ -442,6 +442,8 @@
   "creditPleaseEnterAValidAmount": "Please enter a valid amount",
   "creditAmountExceedsRemainingBalance": "Amount exceeds remaining balance",
   "creditPaymentAmount": "Payment Amount",
+  "creditPaidOn": "Paid on",
+  "creditFullAmount": "Full amount",
   "subSubscriptionName": "Subscription name",
   "subAskBeforeEachPayment": "Ask before recording each payment",
   "subAskBeforeEachPaymentHint": "Each payment waits in Upcoming until you confirm what was charged, or skip it. Best for charges that vary, like a card paid in another currency.",

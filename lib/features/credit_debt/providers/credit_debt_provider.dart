@@ -132,7 +132,10 @@ class CreditDebtNotifier extends StateNotifier<CreditDebtState> {
   /// alone: for a loan it means "the principal already moved", which was true
   /// from the moment the loan was created and stays true afterwards. Settlement
   /// is derived from amounts by [TransactionPolicy.isSettled].
-  Future<void> markAsSettled(String transactionId) async {
+  ///
+  /// [paidOn] is when the money actually changed hands, which is often not
+  /// the moment it is recorded; see [_recordRepaymentRow].
+  Future<void> markAsSettled(String transactionId, {DateTime? paidOn}) async {
     try {
       await _db.transaction(() async {
         final transaction = await _db.findTransactionById(transactionId);
@@ -149,6 +152,7 @@ class CreditDebtNotifier extends StateNotifier<CreditDebtState> {
             label: '${isCredit ? "Received" : "Paid"}: ${transaction.title}',
             note:
                 'Settlement for ${isCredit ? "credit" : "debt"}: ${transaction.title}',
+            paidOn: paidOn,
           );
         }
 
@@ -194,6 +198,7 @@ class CreditDebtNotifier extends StateNotifier<CreditDebtState> {
   Future<void> recordPayment({
     required String transactionId,
     required int paymentAmount, // integer minor units / cents
+    DateTime? paidOn,
   }) async {
     if (paymentAmount <= 0) {
       state = state.copyWith(error: 'Payment amount must be positive');
@@ -227,6 +232,7 @@ class CreditDebtNotifier extends StateNotifier<CreditDebtState> {
           label: '${isCredit ? "Received" : "Paid"}: ${transaction.title}',
           note:
               'Partial payment for ${isCredit ? "credit" : "debt"}: ${transaction.title}',
+          paidOn: paidOn,
         );
 
         await (_db.update(
@@ -271,15 +277,23 @@ class CreditDebtNotifier extends StateNotifier<CreditDebtState> {
     required bool isIncome,
     required String label,
     required String note,
+    DateTime? paidOn,
   }) async {
     final now = DateTime.now();
+    // When the money changed hands. A repayment is usually recorded some time
+    // after it happened, and dating it today put it in the wrong week or month
+    // of the account's history. Never later than now, and never before the
+    // loan itself.
+    var date = paidOn ?? now;
+    if (date.isAfter(now)) date = now;
+    if (date.isBefore(parent.date)) date = parent.date;
     await _db.addTransaction(
       TransactionsCompanion(
         id: Value(const Uuid().v4()),
         amount: Value(amount),
         title: Value(label),
         notes: Value(note),
-        date: Value(now),
+        date: Value(date),
         isIncome: Value(isIncome),
         walletId: Value(parent.walletId),
         categoryId: Value(parent.categoryId),

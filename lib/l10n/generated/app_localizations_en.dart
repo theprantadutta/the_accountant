@@ -1197,6 +1197,12 @@ class L10nEn extends L10n {
   String get creditPaymentAmount => 'Payment Amount';
 
   @override
+  String get creditPaidOn => 'Paid on';
+
+  @override
+  String get creditFullAmount => 'Full amount';
+
+  @override
   String get subSubscriptionName => 'Subscription name';
 
   @override

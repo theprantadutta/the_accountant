@@ -103,6 +103,39 @@ void main() {
     expect((await db.findTransactionById(loan))!.paidAmount, 20000);
   });
 
+  test('a repayment is dated when the money changed hands, within the life '
+      'of the loan', () async {
+    await (db.update(db.transactions)..where((t) => t.id.equals(loan))).write(
+      TransactionsCompanion(date: Value(DateTime(2026, 3, 1))),
+    );
+    final n = await notifier();
+
+    await n.recordPayment(
+      transactionId: loan,
+      paymentAmount: 5000,
+      paidOn: DateTime(2026, 4, 10, 9),
+    );
+    await n.recordPayment(
+      transactionId: loan,
+      paymentAmount: 5000,
+      paidOn: DateTime(2020, 1, 1),
+    );
+    await n.markAsSettled(
+      loan,
+      paidOn: DateTime.now().add(const Duration(days: 30)),
+    );
+
+    final dates = (await db.getSettlementsOf(loan)).map((t) => t.date).toList()
+      ..sort();
+    expect(dates[0], DateTime(2026, 3, 1), reason: 'not before the loan');
+    expect(dates[1], DateTime(2026, 4, 10, 9));
+    expect(
+      dates[2].isAfter(DateTime.now()),
+      isFalse,
+      reason: 'not in the future',
+    );
+  });
+
   group('repayments recorded before the link', () {
     /// Exactly what the credit/debt screen used to write.
     Future<String> legacyRepayment({

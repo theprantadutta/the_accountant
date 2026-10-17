@@ -374,6 +374,8 @@
   "creditPleaseEnterAValidAmount": "একটি সঠিক পরিমাণ লিখুন",
   "creditAmountExceedsRemainingBalance": "পরিমাণটি বাকি ব্যালেন্সের চেয়ে বেশি",
   "creditPaymentAmount": "পরিশোধের পরিমাণ",
+  "creditPaidOn": "পরিশোধের তারিখ",
+  "creditFullAmount": "পুরো পরিমাণ",
   "subSubscriptionName": "সাবস্ক্রিপশনের নাম",
   "subAskBeforeEachPayment": "প্রতিটি পেমেন্ট রেকর্ড করার আগে জিজ্ঞাসা করুন",
   "subAskBeforeEachPaymentHint": "প্রতিটি পেমেন্ট আসন্ন তালিকায় অপেক্ষা করবে, যতক্ষণ না আপনি আসলে কত চার্জ হয়েছে তা নিশ্চিত করেন বা এড়িয়ে যান। যেসব চার্জ বদলায়, যেমন অন্য মুদ্রায় কার্ডে পরিশোধ, সেগুলোর জন্য উপযুক্ত।",

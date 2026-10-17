@@ -680,132 +680,185 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
       walletCurrencyProvider(transaction.walletId),
     );
     final symbol = CurrencyInfo.getSymbol(walletCurrency);
+    final dateFormat = ref.read(dateFormatSettingProvider);
+    // When the money changed hands; today unless the user says otherwise.
+    var paidOn = DateTime.now();
 
     showDialog(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color:
-                      (isCredit ? AppColors.success : AppColors.primaryAccent)
-                          .withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(8),
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) {
+          return AlertDialog(
+            title: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color:
+                        (isCredit ? AppColors.success : AppColors.primaryAccent)
+                            .withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    Icons.payments_outlined,
+                    color: isCredit
+                        ? AppColors.success
+                        : AppColors.primaryAccent,
+                    size: 20,
+                  ),
                 ),
-                child: Icon(
-                  Icons.payments_outlined,
-                  color: isCredit ? AppColors.success : AppColors.primaryAccent,
-                  size: 20,
+                const SizedBox(width: 12),
+                Text(
+                  L10n.of(context).creditRecordPayment,
+                  style: TextStyle(color: AppColors.textPrimary, fontSize: 18),
+                ),
+              ],
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  transaction.title.isNotEmpty
+                      ? transaction.title
+                      : (isCredit ? 'Money Lent' : 'Money Borrowed'),
+                  style: TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 14,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Remaining: $symbol${AppNumberFormatter.get(ref.watch(numberFormatSettingProvider)).format(remaining / 100.0)}',
+                  style: TextStyle(color: AppColors.textMuted, fontSize: 12),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: paymentController,
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  autofocus: true,
+                  style: TextStyle(color: AppColors.textPrimary),
+                  decoration: InputDecoration(
+                    labelText: L10n.of(context).creditPaymentAmount,
+                    prefixText: '$symbol ',
+                    prefixStyle: TextStyle(color: AppColors.textSecondary),
+                    labelStyle: TextStyle(color: AppColors.textSecondary),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: AppColors.glassBorder),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        color: isCredit
+                            ? AppColors.success
+                            : AppColors.primaryAccent,
+                      ),
+                    ),
+                    filled: true,
+                    fillColor: AppColors.glassWhite,
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () => paymentController.text =
+                        (remaining / 100.0).toStringAsFixed(2),
+                    child: Text(L10n.of(context).creditFullAmount),
+                  ),
+                ),
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: Icon(Icons.event, color: AppColors.textMuted),
+                  title: Text(
+                    L10n.of(context).creditPaidOn,
+                    style: TextStyle(color: AppColors.textSecondary),
+                  ),
+                  trailing: Text(
+                    DateUtils.isSameDay(paidOn, DateTime.now())
+                        ? L10n.of(context).dateToday
+                        : AppDateFormatter.formatDate(paidOn, dateFormat),
+                    style: TextStyle(color: AppColors.textPrimary),
+                  ),
+                  onTap: () async {
+                    final picked = await showDatePicker(
+                      context: context,
+                      initialDate: paidOn,
+                      firstDate: DateUtils.dateOnly(transaction.date),
+                      lastDate: DateTime.now(),
+                    );
+                    if (picked == null) return;
+                    final now = DateTime.now();
+                    setDialogState(
+                      () => paidOn = DateUtils.isSameDay(picked, now)
+                          ? now
+                          : DateTime(
+                              picked.year,
+                              picked.month,
+                              picked.day,
+                              now.hour,
+                              now.minute,
+                            ),
+                    );
+                  },
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(
+                  L10n.of(context).actionCancel,
+                  style: TextStyle(color: AppColors.textSecondary),
                 ),
               ),
-              const SizedBox(width: 12),
-              Text(
-                L10n.of(context).creditRecordPayment,
-                style: TextStyle(color: AppColors.textPrimary, fontSize: 18),
+              ElevatedButton(
+                onPressed: () {
+                  final amount = double.tryParse(paymentController.text);
+                  if (amount == null || amount <= 0) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          L10n.of(context).creditPleaseEnterAValidAmount,
+                        ),
+                        backgroundColor: AppColors.error,
+                      ),
+                    );
+                    return;
+                  }
+                  if (amount > remaining / 100.0) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          L10n.of(context).creditAmountExceedsRemainingBalance,
+                        ),
+                        backgroundColor: AppColors.error,
+                      ),
+                    );
+                    return;
+                  }
+                  Navigator.of(context).pop();
+                  _recordPayment(transaction, amount, isCredit, paidOn);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: isCredit
+                      ? AppColors.success
+                      : AppColors.primaryAccent,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: Text(
+                  L10n.of(context).creditRecord,
+                  style: TextStyle(color: Colors.white),
+                ),
               ),
             ],
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                transaction.title.isNotEmpty
-                    ? transaction.title
-                    : (isCredit ? 'Money Lent' : 'Money Borrowed'),
-                style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                'Remaining: $symbol${AppNumberFormatter.get(ref.watch(numberFormatSettingProvider)).format(remaining / 100.0)}',
-                style: TextStyle(color: AppColors.textMuted, fontSize: 12),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: paymentController,
-                keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true,
-                ),
-                autofocus: true,
-                style: TextStyle(color: AppColors.textPrimary),
-                decoration: InputDecoration(
-                  labelText: L10n.of(context).creditPaymentAmount,
-                  prefixText: '$symbol ',
-                  prefixStyle: TextStyle(color: AppColors.textSecondary),
-                  labelStyle: TextStyle(color: AppColors.textSecondary),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: AppColors.glassBorder),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(
-                      color: isCredit
-                          ? AppColors.success
-                          : AppColors.primaryAccent,
-                    ),
-                  ),
-                  filled: true,
-                  fillColor: AppColors.glassWhite,
-                ),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text(
-                L10n.of(context).actionCancel,
-                style: TextStyle(color: AppColors.textSecondary),
-              ),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                final amount = double.tryParse(paymentController.text);
-                if (amount == null || amount <= 0) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        L10n.of(context).creditPleaseEnterAValidAmount,
-                      ),
-                      backgroundColor: AppColors.error,
-                    ),
-                  );
-                  return;
-                }
-                if (amount > remaining / 100.0) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        L10n.of(context).creditAmountExceedsRemainingBalance,
-                      ),
-                      backgroundColor: AppColors.error,
-                    ),
-                  );
-                  return;
-                }
-                Navigator.of(context).pop();
-                _recordPayment(transaction, amount, isCredit);
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: isCredit
-                    ? AppColors.success
-                    : AppColors.primaryAccent,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              child: Text(
-                L10n.of(context).creditRecord,
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-          ],
-        );
-      },
+          );
+        },
+      ),
     );
   }
 
@@ -813,12 +866,14 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
     Transaction transaction,
     double amount,
     bool isCredit,
+    DateTime paidOn,
   ) async {
     await ref
         .read(creditDebtProvider.notifier)
         .recordPayment(
           transactionId: transaction.id,
           paymentAmount: (amount * 100).round(), // dollars -> integer cents
+          paidOn: paidOn,
         );
     if (mounted) {
       final walletCurrency = ref.read(

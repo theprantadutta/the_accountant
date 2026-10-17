@@ -2345,6 +2345,18 @@ abstract class L10n {
   /// **'Payment Amount'**
   String get creditPaymentAmount;
 
+  /// No description provided for @creditPaidOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid on'**
+  String get creditPaidOn;
+
+  /// No description provided for @creditFullAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Full amount'**
+  String get creditFullAmount;
+
   /// No description provided for @subSubscriptionName.
   ///
   /// In en, this message translates to:

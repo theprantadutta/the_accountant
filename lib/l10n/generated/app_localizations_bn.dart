@@ -1191,6 +1191,12 @@ class L10nBn extends L10n {
   String get creditPaymentAmount => 'পরিশোধের পরিমাণ';
 
   @override
+  String get creditPaidOn => 'পরিশোধের তারিখ';
+
+  @override
+  String get creditFullAmount => 'পুরো পরিমাণ';
+
+  @override
   String get subSubscriptionName => 'সাবস্ক্রিপশনের নাম';
 
   @override
