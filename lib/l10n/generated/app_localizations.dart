@@ -2399,6 +2399,18 @@ abstract class L10n {
   /// **'Enter category name'**
   String get catEnterCategoryName;
 
+  /// No description provided for @catUseEmoji.
+  ///
+  /// In en, this message translates to:
+  /// **'Use an emoji'**
+  String get catUseEmoji;
+
+  /// No description provided for @catEmojiHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Type or pick one emoji'**
+  String get catEmojiHint;
+
   /// No description provided for @catArchive.
   ///
   /// In en, this message translates to:

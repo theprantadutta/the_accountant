@@ -138,11 +138,29 @@ class GradientCard extends StatelessWidget {
   }
 }
 
+/// An emoji drawn where an icon of [size] would be.
+///
+/// Emoji glyphs carry their own colour, so unlike an icon this takes none.
+class EmojiGlyph extends StatelessWidget {
+  const EmojiGlyph(this.emoji, {super.key, required this.size});
+
+  final String emoji;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) => Text(
+    emoji,
+    textAlign: TextAlign.center,
+    style: TextStyle(fontSize: size * .9, height: 1),
+  );
+}
+
 /// A rounded square holding an icon on a tinted fill.
 class IconTile extends StatelessWidget {
   const IconTile({
     super.key,
     required this.icon,
+    this.emoji,
     required this.color,
     this.background,
     this.size = 40,
@@ -154,6 +172,9 @@ class IconTile extends StatelessWidget {
 
   final IconData icon;
   final Color color;
+
+  /// Shown instead of [icon] when the user chose an emoji.
+  final String? emoji;
 
   /// Defaults to [color] at 12%.
   final Color? background;
@@ -177,7 +198,9 @@ class IconTile extends StatelessWidget {
         borderRadius: BorderRadius.circular(radius),
       ),
       alignment: Alignment.center,
-      child: Icon(icon, size: iconSize ?? size * .5, color: color, fill: fill),
+      child: emoji != null
+          ? EmojiGlyph(emoji!, size: iconSize ?? size * .5)
+          : Icon(icon, size: iconSize ?? size * .5, color: color, fill: fill),
     );
   }
 }

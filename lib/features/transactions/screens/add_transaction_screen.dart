@@ -1281,6 +1281,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                 icon: cat.iconName != null
                     ? IconRegistry.getIcon(cat.iconName!)
                     : Symbols.category_rounded,
+                emoji: IconRegistry.emojiOf(cat.iconName),
                 label: cat.name,
                 size: tile,
                 width: slot - 4,

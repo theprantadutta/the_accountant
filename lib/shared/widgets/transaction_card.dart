@@ -102,6 +102,7 @@ class TransactionCard extends ConsumerWidget {
       selected: selected,
       child: TransactionTile(
         icon: icon,
+        emoji: isTransfer ? null : IconRegistry.emojiOf(categoryIcon),
         iconColor: tint,
         title: title.isNotEmpty ? title : category,
         subtitle: subtitle,

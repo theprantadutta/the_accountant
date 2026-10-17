@@ -1226,6 +1226,12 @@ class L10nEn extends L10n {
   String get catEnterCategoryName => 'Enter category name';
 
   @override
+  String get catUseEmoji => 'Use an emoji';
+
+  @override
+  String get catEmojiHint => 'Type or pick one emoji';
+
+  @override
   String get catArchive => 'Archive';
 
   @override

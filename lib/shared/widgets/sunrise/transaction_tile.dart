@@ -15,6 +15,7 @@ class TransactionTile extends StatelessWidget {
   const TransactionTile({
     super.key,
     required this.icon,
+    this.emoji,
     required this.iconColor,
     required this.title,
     required this.subtitle,
@@ -28,6 +29,9 @@ class TransactionTile extends StatelessWidget {
   });
 
   final IconData icon;
+
+  /// Shown instead of [icon] when the category has an emoji.
+  final String? emoji;
   final Color iconColor;
   final String title;
   final String subtitle;
@@ -59,7 +63,7 @@ class TransactionTile extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 12),
       child: Row(
         children: [
-          leading ?? IconTile(icon: icon, color: iconColor),
+          leading ?? IconTile(icon: icon, emoji: emoji, color: iconColor),
           const SizedBox(width: 12),
           Expanded(
             child: Column(

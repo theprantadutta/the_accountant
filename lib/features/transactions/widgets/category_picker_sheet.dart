@@ -1,12 +1,12 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:the_accountant/shared/widgets/registry_icon.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/core/themes/app_typography.dart';
-import 'package:the_accountant/core/utils/icon_registry.dart';
 import 'package:the_accountant/features/categories/providers/category_provider.dart';
 import 'package:the_accountant/features/categories/widgets/add_category_form.dart'
     as add_category_form;
@@ -295,11 +295,7 @@ class _CategoryTile extends StatelessWidget {
             child: Stack(
               alignment: Alignment.center,
               children: [
-                Icon(
-                  IconRegistry.getIcon(iconName),
-                  size: AppSpacing.iconMd,
-                  color: tint,
-                ),
+                RegistryIcon(iconName, size: AppSpacing.iconMd, color: tint),
                 if (subcategoryCount > 0)
                   Positioned(
                     right: 4,

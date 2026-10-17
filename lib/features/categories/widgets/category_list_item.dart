@@ -56,7 +56,12 @@ class CategoryListItem extends StatelessWidget {
       onTap: category.isDefault || isArchived ? null : onEdit,
       child: Row(
         children: [
-          IconTile(icon: icon, color: color, size: 42),
+          IconTile(
+            icon: icon,
+            emoji: IconRegistry.emojiOf(category.iconName),
+            color: color,
+            size: 42,
+          ),
           const SizedBox(width: 14),
           Expanded(
             child: Text(

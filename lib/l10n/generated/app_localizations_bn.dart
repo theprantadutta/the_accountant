@@ -1221,6 +1221,12 @@ class L10nBn extends L10n {
   String get catEnterCategoryName => 'ক্যাটাগরির নাম লিখুন';
 
   @override
+  String get catUseEmoji => 'ইমোজি ব্যবহার করুন';
+
+  @override
+  String get catEmojiHint => 'একটি ইমোজি লিখুন বা বেছে নিন';
+
+  @override
   String get catArchive => 'আর্কাইভ করুন';
 
   @override

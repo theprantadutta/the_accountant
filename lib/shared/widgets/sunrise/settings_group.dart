@@ -75,6 +75,7 @@ class SettingsRow extends StatelessWidget {
   const SettingsRow({
     super.key,
     required this.icon,
+    this.emoji,
     required this.title,
     this.subtitle,
     this.iconColor,
@@ -115,6 +116,9 @@ class SettingsRow extends StatelessWidget {
   );
 
   final IconData icon;
+
+  /// Shown instead of [icon] when what the row names has an emoji.
+  final String? emoji;
   final String title;
   final String? subtitle;
   final Color? iconColor;
@@ -139,6 +143,7 @@ class SettingsRow extends StatelessWidget {
         children: [
           IconTile(
             icon: icon,
+            emoji: emoji,
             color: tint,
             background: destructive ? c.tintRose : iconBackground,
             size: 36,

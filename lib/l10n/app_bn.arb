@@ -383,6 +383,8 @@
   "catDeleteCategory": "ক্যাটাগরি মুছুন",
   "catPleaseEnterACategoryName": "একটি ক্যাটাগরির নাম লিখুন",
   "catEnterCategoryName": "ক্যাটাগরির নাম লিখুন",
+  "catUseEmoji": "ইমোজি ব্যবহার করুন",
+  "catEmojiHint": "একটি ইমোজি লিখুন বা বেছে নিন",
   "catArchive": "আর্কাইভ করুন",
   "catUnarchive": "আর্কাইভ থেকে ফেরান",
   "catArchivedSection": "আর্কাইভ করা",

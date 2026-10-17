@@ -1,5 +1,6 @@
 import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
 import 'package:flutter/material.dart';
+import 'package:the_accountant/shared/widgets/registry_icon.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/providers/currency_provider.dart';
@@ -8,7 +9,6 @@ import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/core/themes/app_typography.dart';
 import 'package:the_accountant/core/utils/color_utils.dart';
 import 'package:the_accountant/core/utils/currency_formatter.dart';
-import 'package:the_accountant/core/utils/icon_registry.dart';
 import 'package:the_accountant/features/objectives/providers/objectives_provider.dart';
 import 'package:the_accountant/features/objectives/screens/add_objective_screen.dart';
 import 'package:the_accountant/features/objectives/screens/objective_detail_screen.dart';
@@ -223,8 +223,8 @@ class ObjectiveCard extends ConsumerWidget {
                   color: tint.withValues(alpha: 0.18),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(
-                  IconRegistry.getIcon(objective.objective.iconName),
+                child: RegistryIcon(
+                  objective.objective.iconName,
                   size: 20,
                   color: tint,
                 ),

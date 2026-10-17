@@ -7,6 +7,20 @@ class IconRegistry {
   /// Private constructor to prevent instantiation
   IconRegistry._();
 
+  /// Marks an icon name that is an emoji rather than one of the icons below,
+  /// as in `emoji:🍕`. Stored in the same field, so it needs nothing new in the
+  /// database or on the server.
+  static const String emojiPrefix = 'emoji:';
+
+  /// The emoji an icon name stands for, or null when it names an icon.
+  static String? emojiOf(String? name) =>
+      name != null && name.startsWith(emojiPrefix)
+      ? name.substring(emojiPrefix.length)
+      : null;
+
+  /// The icon name that stores [emoji].
+  static String nameForEmoji(String emoji) => '$emojiPrefix$emoji';
+
   /// Comprehensive map of icon names to IconData.
   /// Organized by category for easy maintenance.
   static final Map<String, IconData> _icons = {

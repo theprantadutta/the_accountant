@@ -451,6 +451,8 @@
   "catDeleteCategory": "Delete Category",
   "catPleaseEnterACategoryName": "Please enter a category name",
   "catEnterCategoryName": "Enter category name",
+  "catUseEmoji": "Use an emoji",
+  "catEmojiHint": "Type or pick one emoji",
   "catArchive": "Archive",
   "catUnarchive": "Unarchive",
   "catArchivedSection": "Archived",
