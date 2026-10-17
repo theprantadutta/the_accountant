@@ -1522,6 +1522,11 @@ class SyncService {
       // cross-device identity.
       isDefault: Value(data['IsDefault'] ?? false),
       defaultKey: Value(data['DefaultKey'] as String?),
+      // Only when the server sent it: one that predates archiving sends
+      // nothing, and that must not put an archived category back.
+      isArchived: data['IsArchived'] is bool
+          ? Value(data['IsArchived'] as bool)
+          : const Value.absent(),
       syncStatus: const Value(SyncStatus.synced),
       updatedAt: Value(DateTime.now()),
     );
@@ -2071,6 +2076,7 @@ class SyncService {
     // deletion, and so the server can enforce one built-in per slug per user.
     'IsDefault': c.isDefault,
     'DefaultKey': c.defaultKey,
+    'IsArchived': c.isArchived,
     'UpdatedAt': c.updatedAt.toUtc().toIso8601String(),
   };
 

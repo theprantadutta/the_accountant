@@ -1226,6 +1226,19 @@ class L10nEn extends L10n {
   String get catEnterCategoryName => 'Enter category name';
 
   @override
+  String get catArchive => 'Archive';
+
+  @override
+  String get catUnarchive => 'Unarchive';
+
+  @override
+  String get catArchivedSection => 'Archived';
+
+  @override
+  String get catArchivedHint =>
+      'Kept for their history, but not offered when you add a transaction.';
+
+  @override
   String get catNothingItsOwnCategory => 'Nothing — its own category';
 
   @override

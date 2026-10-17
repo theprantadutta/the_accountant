@@ -91,8 +91,19 @@ class _AddBudgetScreenState extends ConsumerState<AddBudgetScreen> {
 
     // A budget watches one side of the ledger, so only offer categories from
     // that side. Picking "Salary" for a spending budget can only ever read zero.
+    // Archived ones are put away, except one this budget already counts: it
+    // stays visible so it can be seen, and taken out.
+    final archivedIds = {
+      for (final c in categories)
+        if (c.isArchived) c.id,
+    };
     final selectable = categories
         .where((c) => (c.type == 'income') == _isIncome)
+        .where(
+          (c) =>
+              _categoryIds.contains(c.id) ||
+              (!c.isArchived && !archivedIds.contains(c.mainCategoryId)),
+        )
         .toList();
 
     return Scaffold(

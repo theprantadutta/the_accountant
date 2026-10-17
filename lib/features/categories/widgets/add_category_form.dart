@@ -370,7 +370,7 @@ class _AddCategoryFormState extends ConsumerState<AddCategoryForm> {
   /// offered its own name either — a category that is part of itself has no
   /// place in any total.
   Widget _buildParentSelector() {
-    final all = ref.watch(categoryProvider).categories;
+    final all = ref.watch(categoryProvider).selectable;
     final editingId = widget.category?.id;
     final parents = all
         .where(

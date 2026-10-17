@@ -1004,6 +1004,8 @@ class AppDatabase extends _$AppDatabase {
     await _ensureColumn(m, recurringConfigs, recurringConfigs.amount);
     await _ensureColumn(m, recurringConfigs, recurringConfigs.walletId);
     await _ensureColumn(m, recurringConfigs, recurringConfigs.autoPay);
+    if (!await _tableExists('categories')) return;
+    await _ensureColumn(m, categories, categories.isArchived);
   }
 
   Future<void> _addV25Columns(Migrator m) async {
@@ -2419,6 +2421,23 @@ class AppDatabase extends _$AppDatabase {
 
   Future<Category?> findCategoryById(String id) =>
       (select(categories)..where((c) => c.id.equals(id))).getSingleOrNull();
+
+  /// Archive or bring back a category; see [Categories.isArchived].
+  ///
+  /// The two built-in system categories are the app's own bookkeeping and are
+  /// never offered anyway, so they are left alone.
+  Future<void> setCategoryArchived(String id, bool archived) async {
+    final category = await findCategoryById(id);
+    if (category == null ||
+        SystemCategoryKeys.all.contains(category.defaultKey)) {
+      return;
+    }
+    await customStatement(
+      'UPDATE categories SET is_archived = ?, updated_at = ?, '
+      'sync_status = ${SyncStatus.markEditedSql} WHERE id = ?',
+      [archived ? 1 : 0, DateTime.now().millisecondsSinceEpoch ~/ 1000, id],
+    );
+  }
 
   Future<int> addCategory(CategoriesCompanion entry) =>
       into(categories).insert(entry);
@@ -3942,7 +3961,18 @@ class AppDatabase extends _$AppDatabase {
     final normalized = title.trim().toLowerCase();
     if (normalized.isEmpty) return null;
 
-    final rules = await getAllAssociatedTitles();
+    // A rule filing into an archived category is set aside rather than
+    // obeyed: the user has said not to file there any more, and a broader
+    // rule may still have a live answer.
+    final archived = {
+      for (final c in await (select(
+        categories,
+      )..where((c) => c.isArchived.equals(true))).get())
+        c.id,
+    };
+    final rules = (await getAllAssociatedTitles())
+        .where((rule) => !archived.contains(rule.categoryId))
+        .toList();
 
     for (final rule in rules) {
       if (rule.title.trim().toLowerCase() == normalized) return rule.categoryId;

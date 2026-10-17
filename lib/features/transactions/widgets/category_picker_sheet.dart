@@ -91,7 +91,7 @@ class _CategoryPickerSheetState extends ConsumerState<_CategoryPickerSheet> {
     // Transfer and Balance Correction stay out: those are the app's own
     // bookkeeping, written when it moves money between wallets or reconciles a
     // balance, and nothing should be filed under them by hand.
-    final usable = categoryState.categories.where((c) => !c.isSystem).toList();
+    final usable = categoryState.selectable.where((c) => !c.isSystem).toList();
 
     final openParent = _openParentId == null
         ? null

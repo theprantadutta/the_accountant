@@ -485,6 +485,21 @@ class $CategoriesTable extends Categories
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _isArchivedMeta = const VerificationMeta(
+    'isArchived',
+  );
+  @override
+  late final GeneratedColumn<bool> isArchived = GeneratedColumn<bool>(
+    'is_archived',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_archived" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
   static const VerificationMeta _serverIdMeta = const VerificationMeta(
     'serverId',
   );
@@ -555,6 +570,7 @@ class $CategoriesTable extends Categories
     type,
     isDefault,
     defaultKey,
+    isArchived,
     serverId,
     syncStatus,
     createdAt,
@@ -637,6 +653,12 @@ class $CategoriesTable extends Categories
         defaultKey.isAcceptableOrUnknown(data['default_key']!, _defaultKeyMeta),
       );
     }
+    if (data.containsKey('is_archived')) {
+      context.handle(
+        _isArchivedMeta,
+        isArchived.isAcceptableOrUnknown(data['is_archived']!, _isArchivedMeta),
+      );
+    }
     if (data.containsKey('server_id')) {
       context.handle(
         _serverIdMeta,
@@ -716,6 +738,10 @@ class $CategoriesTable extends Categories
         DriftSqlType.string,
         data['${effectivePrefix}default_key'],
       ),
+      isArchived: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_archived'],
+      )!,
       serverId: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}server_id'],
@@ -766,6 +792,15 @@ class Category extends DataClass implements Insertable<Category> {
   /// and how duplicates that already exist can be merged *provably* safely.
   /// See `DefaultCategoryCatalog`.
   final String? defaultKey;
+
+  /// Kept for its history, but no longer offered when filing a transaction.
+  ///
+  /// Deleting a category leaves its transactions with nothing to say what they
+  /// were, and a built-in cannot be deleted at all — so before this, a
+  /// category someone had stopped using sat in every picker for ever. An
+  /// archived one still shows wherever history is shown: reports, the
+  /// transactions filed under it, a budget that already counts it.
+  final bool isArchived;
   final String? serverId;
   final int syncStatus;
   final DateTime createdAt;
@@ -782,6 +817,7 @@ class Category extends DataClass implements Insertable<Category> {
     this.type,
     required this.isDefault,
     this.defaultKey,
+    required this.isArchived,
     this.serverId,
     required this.syncStatus,
     required this.createdAt,
@@ -807,6 +843,7 @@ class Category extends DataClass implements Insertable<Category> {
     if (!nullToAbsent || defaultKey != null) {
       map['default_key'] = Variable<String>(defaultKey);
     }
+    map['is_archived'] = Variable<bool>(isArchived);
     if (!nullToAbsent || serverId != null) {
       map['server_id'] = Variable<String>(serverId);
     }
@@ -835,6 +872,7 @@ class Category extends DataClass implements Insertable<Category> {
       defaultKey: defaultKey == null && nullToAbsent
           ? const Value.absent()
           : Value(defaultKey),
+      isArchived: Value(isArchived),
       serverId: serverId == null && nullToAbsent
           ? const Value.absent()
           : Value(serverId),
@@ -863,6 +901,7 @@ class Category extends DataClass implements Insertable<Category> {
       type: serializer.fromJson<String?>(json['type']),
       isDefault: serializer.fromJson<bool>(json['isDefault']),
       defaultKey: serializer.fromJson<String?>(json['defaultKey']),
+      isArchived: serializer.fromJson<bool>(json['isArchived']),
       serverId: serializer.fromJson<String?>(json['serverId']),
       syncStatus: serializer.fromJson<int>(json['syncStatus']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
@@ -884,6 +923,7 @@ class Category extends DataClass implements Insertable<Category> {
       'type': serializer.toJson<String?>(type),
       'isDefault': serializer.toJson<bool>(isDefault),
       'defaultKey': serializer.toJson<String?>(defaultKey),
+      'isArchived': serializer.toJson<bool>(isArchived),
       'serverId': serializer.toJson<String?>(serverId),
       'syncStatus': serializer.toJson<int>(syncStatus),
       'createdAt': serializer.toJson<DateTime>(createdAt),
@@ -903,6 +943,7 @@ class Category extends DataClass implements Insertable<Category> {
     Value<String?> type = const Value.absent(),
     bool? isDefault,
     Value<String?> defaultKey = const Value.absent(),
+    bool? isArchived,
     Value<String?> serverId = const Value.absent(),
     int? syncStatus,
     DateTime? createdAt,
@@ -921,6 +962,7 @@ class Category extends DataClass implements Insertable<Category> {
     type: type.present ? type.value : this.type,
     isDefault: isDefault ?? this.isDefault,
     defaultKey: defaultKey.present ? defaultKey.value : this.defaultKey,
+    isArchived: isArchived ?? this.isArchived,
     serverId: serverId.present ? serverId.value : this.serverId,
     syncStatus: syncStatus ?? this.syncStatus,
     createdAt: createdAt ?? this.createdAt,
@@ -945,6 +987,9 @@ class Category extends DataClass implements Insertable<Category> {
       defaultKey: data.defaultKey.present
           ? data.defaultKey.value
           : this.defaultKey,
+      isArchived: data.isArchived.present
+          ? data.isArchived.value
+          : this.isArchived,
       serverId: data.serverId.present ? data.serverId.value : this.serverId,
       syncStatus: data.syncStatus.present
           ? data.syncStatus.value
@@ -968,6 +1013,7 @@ class Category extends DataClass implements Insertable<Category> {
           ..write('type: $type, ')
           ..write('isDefault: $isDefault, ')
           ..write('defaultKey: $defaultKey, ')
+          ..write('isArchived: $isArchived, ')
           ..write('serverId: $serverId, ')
           ..write('syncStatus: $syncStatus, ')
           ..write('createdAt: $createdAt, ')
@@ -989,6 +1035,7 @@ class Category extends DataClass implements Insertable<Category> {
     type,
     isDefault,
     defaultKey,
+    isArchived,
     serverId,
     syncStatus,
     createdAt,
@@ -1009,6 +1056,7 @@ class Category extends DataClass implements Insertable<Category> {
           other.type == this.type &&
           other.isDefault == this.isDefault &&
           other.defaultKey == this.defaultKey &&
+          other.isArchived == this.isArchived &&
           other.serverId == this.serverId &&
           other.syncStatus == this.syncStatus &&
           other.createdAt == this.createdAt &&
@@ -1027,6 +1075,7 @@ class CategoriesCompanion extends UpdateCompanion<Category> {
   final Value<String?> type;
   final Value<bool> isDefault;
   final Value<String?> defaultKey;
+  final Value<bool> isArchived;
   final Value<String?> serverId;
   final Value<int> syncStatus;
   final Value<DateTime> createdAt;
@@ -1044,6 +1093,7 @@ class CategoriesCompanion extends UpdateCompanion<Category> {
     this.type = const Value.absent(),
     this.isDefault = const Value.absent(),
     this.defaultKey = const Value.absent(),
+    this.isArchived = const Value.absent(),
     this.serverId = const Value.absent(),
     this.syncStatus = const Value.absent(),
     this.createdAt = const Value.absent(),
@@ -1062,6 +1112,7 @@ class CategoriesCompanion extends UpdateCompanion<Category> {
     this.type = const Value.absent(),
     this.isDefault = const Value.absent(),
     this.defaultKey = const Value.absent(),
+    this.isArchived = const Value.absent(),
     this.serverId = const Value.absent(),
     this.syncStatus = const Value.absent(),
     this.createdAt = const Value.absent(),
@@ -1081,6 +1132,7 @@ class CategoriesCompanion extends UpdateCompanion<Category> {
     Expression<String>? type,
     Expression<bool>? isDefault,
     Expression<String>? defaultKey,
+    Expression<bool>? isArchived,
     Expression<String>? serverId,
     Expression<int>? syncStatus,
     Expression<DateTime>? createdAt,
@@ -1099,6 +1151,7 @@ class CategoriesCompanion extends UpdateCompanion<Category> {
       if (type != null) 'type': type,
       if (isDefault != null) 'is_default': isDefault,
       if (defaultKey != null) 'default_key': defaultKey,
+      if (isArchived != null) 'is_archived': isArchived,
       if (serverId != null) 'server_id': serverId,
       if (syncStatus != null) 'sync_status': syncStatus,
       if (createdAt != null) 'created_at': createdAt,
@@ -1119,6 +1172,7 @@ class CategoriesCompanion extends UpdateCompanion<Category> {
     Value<String?>? type,
     Value<bool>? isDefault,
     Value<String?>? defaultKey,
+    Value<bool>? isArchived,
     Value<String?>? serverId,
     Value<int>? syncStatus,
     Value<DateTime>? createdAt,
@@ -1137,6 +1191,7 @@ class CategoriesCompanion extends UpdateCompanion<Category> {
       type: type ?? this.type,
       isDefault: isDefault ?? this.isDefault,
       defaultKey: defaultKey ?? this.defaultKey,
+      isArchived: isArchived ?? this.isArchived,
       serverId: serverId ?? this.serverId,
       syncStatus: syncStatus ?? this.syncStatus,
       createdAt: createdAt ?? this.createdAt,
@@ -1179,6 +1234,9 @@ class CategoriesCompanion extends UpdateCompanion<Category> {
     if (defaultKey.present) {
       map['default_key'] = Variable<String>(defaultKey.value);
     }
+    if (isArchived.present) {
+      map['is_archived'] = Variable<bool>(isArchived.value);
+    }
     if (serverId.present) {
       map['server_id'] = Variable<String>(serverId.value);
     }
@@ -1213,6 +1271,7 @@ class CategoriesCompanion extends UpdateCompanion<Category> {
           ..write('type: $type, ')
           ..write('isDefault: $isDefault, ')
           ..write('defaultKey: $defaultKey, ')
+          ..write('isArchived: $isArchived, ')
           ..write('serverId: $serverId, ')
           ..write('syncStatus: $syncStatus, ')
           ..write('createdAt: $createdAt, ')
@@ -14557,6 +14616,7 @@ typedef $$CategoriesTableCreateCompanionBuilder =
       Value<String?> type,
       Value<bool> isDefault,
       Value<String?> defaultKey,
+      Value<bool> isArchived,
       Value<String?> serverId,
       Value<int> syncStatus,
       Value<DateTime> createdAt,
@@ -14576,6 +14636,7 @@ typedef $$CategoriesTableUpdateCompanionBuilder =
       Value<String?> type,
       Value<bool> isDefault,
       Value<String?> defaultKey,
+      Value<bool> isArchived,
       Value<String?> serverId,
       Value<int> syncStatus,
       Value<DateTime> createdAt,
@@ -14683,6 +14744,11 @@ class $$CategoriesTableFilterComposer
 
   ColumnFilters<String> get defaultKey => $composableBuilder(
     column: $table.defaultKey,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isArchived => $composableBuilder(
+    column: $table.isArchived,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -14821,6 +14887,11 @@ class $$CategoriesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<bool> get isArchived => $composableBuilder(
+    column: $table.isArchived,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get serverId => $composableBuilder(
     column: $table.serverId,
     builder: (column) => ColumnOrderings(column),
@@ -14889,6 +14960,11 @@ class $$CategoriesTableAnnotationComposer
 
   GeneratedColumn<String> get defaultKey => $composableBuilder(
     column: $table.defaultKey,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get isArchived => $composableBuilder(
+    column: $table.isArchived,
     builder: (column) => column,
   );
 
@@ -15001,6 +15077,7 @@ class $$CategoriesTableTableManager
                 Value<String?> type = const Value.absent(),
                 Value<bool> isDefault = const Value.absent(),
                 Value<String?> defaultKey = const Value.absent(),
+                Value<bool> isArchived = const Value.absent(),
                 Value<String?> serverId = const Value.absent(),
                 Value<int> syncStatus = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
@@ -15018,6 +15095,7 @@ class $$CategoriesTableTableManager
                 type: type,
                 isDefault: isDefault,
                 defaultKey: defaultKey,
+                isArchived: isArchived,
                 serverId: serverId,
                 syncStatus: syncStatus,
                 createdAt: createdAt,
@@ -15037,6 +15115,7 @@ class $$CategoriesTableTableManager
                 Value<String?> type = const Value.absent(),
                 Value<bool> isDefault = const Value.absent(),
                 Value<String?> defaultKey = const Value.absent(),
+                Value<bool> isArchived = const Value.absent(),
                 Value<String?> serverId = const Value.absent(),
                 Value<int> syncStatus = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
@@ -15054,6 +15133,7 @@ class $$CategoriesTableTableManager
                 type: type,
                 isDefault: isDefault,
                 defaultKey: defaultKey,
+                isArchived: isArchived,
                 serverId: serverId,
                 syncStatus: syncStatus,
                 createdAt: createdAt,

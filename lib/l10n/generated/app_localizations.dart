@@ -2399,6 +2399,30 @@ abstract class L10n {
   /// **'Enter category name'**
   String get catEnterCategoryName;
 
+  /// No description provided for @catArchive.
+  ///
+  /// In en, this message translates to:
+  /// **'Archive'**
+  String get catArchive;
+
+  /// No description provided for @catUnarchive.
+  ///
+  /// In en, this message translates to:
+  /// **'Unarchive'**
+  String get catUnarchive;
+
+  /// No description provided for @catArchivedSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Archived'**
+  String get catArchivedSection;
+
+  /// No description provided for @catArchivedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Kept for their history, but not offered when you add a transaction.'**
+  String get catArchivedHint;
+
   /// No description provided for @catNothingItsOwnCategory.
   ///
   /// In en, this message translates to:

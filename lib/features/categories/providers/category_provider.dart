@@ -55,6 +55,9 @@ class Category {
   /// keeps for its own bookkeeping.
   final String? defaultKey;
 
+  /// Put away by the user; see [CategoryState.selectable].
+  final bool isArchived;
+
   Category({
     required this.id,
     required this.name,
@@ -64,6 +67,7 @@ class Category {
     required this.isDefault,
     this.defaultKey,
     this.mainCategoryId,
+    this.isArchived = false,
   });
 
   /// Helper to check if this is an income category
@@ -90,6 +94,23 @@ class CategoryState {
     required this.isLoading,
     this.errorMessage,
   });
+
+  /// The categories a transaction can be filed under now: not archived, and
+  /// not inside an archived parent.
+  ///
+  /// Pickers read this. Anything that shows history — reports, a transaction
+  /// already filed under an archived category, filters over past rows — reads
+  /// [categories], so putting a category away never hides what it holds.
+  List<Category> get selectable {
+    final archived = {
+      for (final c in categories)
+        if (c.isArchived) c.id,
+    };
+    return [
+      for (final c in categories)
+        if (!c.isArchived && !archived.contains(c.mainCategoryId)) c,
+    ];
+  }
 
   CategoryState copyWith({
     List<Category>? categories,
@@ -128,6 +149,7 @@ class CategoryNotifier extends StateNotifier<CategoryState> {
               isDefault: c.isDefault,
               defaultKey: c.defaultKey,
               mainCategoryId: c.mainCategoryId,
+              isArchived: c.isArchived,
             ),
           )
           .toList();
@@ -237,6 +259,12 @@ class CategoryNotifier extends StateNotifier<CategoryState> {
         errorMessage: 'Failed to update category',
       );
     }
+  }
+
+  /// Archive or bring back a category.
+  Future<void> setArchived(String id, bool archived) async {
+    await _db.setCategoryArchived(id, archived);
+    await loadCategories(silent: true);
   }
 
   Future<void> deleteCategory(String id) async {

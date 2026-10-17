@@ -81,6 +81,11 @@ void main() {
         'ALTER TABLE transactions DROP COLUMN settles_transaction_id',
       );
     }
+    if (version < 26 && !keep.contains('categories.is_archived')) {
+      await db.customStatement(
+        'ALTER TABLE categories DROP COLUMN is_archived',
+      );
+    }
     if (version < 26 && !keep.contains('recurring_configs.template')) {
       for (final column in ['amount', 'wallet_id', 'auto_pay']) {
         await db.customStatement(

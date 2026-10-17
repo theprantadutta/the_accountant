@@ -1221,6 +1221,19 @@ class L10nBn extends L10n {
   String get catEnterCategoryName => 'ক্যাটাগরির নাম লিখুন';
 
   @override
+  String get catArchive => 'আর্কাইভ করুন';
+
+  @override
+  String get catUnarchive => 'আর্কাইভ থেকে ফেরান';
+
+  @override
+  String get catArchivedSection => 'আর্কাইভ করা';
+
+  @override
+  String get catArchivedHint =>
+      'ইতিহাসের জন্য রাখা আছে, তবে নতুন লেনদেন যোগ করার সময় দেখানো হবে না।';
+
+  @override
   String get catNothingItsOwnCategory => 'কিছু নয় — এটি নিজেই একটি ক্যাটাগরি';
 
   @override

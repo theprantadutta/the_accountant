@@ -315,7 +315,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
     final type = _isIncome ? 'income' : 'expense';
     final match = ref
         .read(categoryProvider)
-        .categories
+        .selectable
         .where(
           (c) =>
               c.type == type &&
@@ -1255,7 +1255,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
     final wantType = _isIncome ? 'income' : 'expense';
     final usable = ref
         .watch(categoryProvider)
-        .categories
+        .selectable
         .where((cat) => !cat.isSystem && cat.mainCategoryId == null)
         .toList();
     final ofType = usable.where((cat) => cat.type == wantType).toList();
@@ -2150,7 +2150,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
 
     final category = ref
         .read(categoryProvider)
-        .categories
+        .selectable
         .where((c) => c.id == suggestion.categoryId)
         .firstOrNull;
 

@@ -1,20 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:the_accountant/core/utils/color_utils.dart';
 import 'package:the_accountant/core/utils/icon_registry.dart';
 import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
 
 /// One category as a Sunrise row: its own icon on its colour, the name, and
-/// a lock (built-in) or edit and delete (the user's own).
+/// a lock (built-in) or edit and delete (the user's own), and a way to put it
+/// away or bring it back.
 class CategoryListItem extends StatelessWidget {
   final Category category;
   final VoidCallback? onDelete;
   final VoidCallback? onEdit;
+
+  /// Archives the category, or brings it back when [isArchived]. Null for the
+  /// app's own bookkeeping categories, which are never offered anyway.
+  final VoidCallback? onArchive;
+  final bool isArchived;
 
   const CategoryListItem({
     super.key,
     required this.category,
     this.onDelete,
     this.onEdit,
+    this.onArchive,
+    this.isArchived = false,
   });
 
   @override
@@ -27,10 +36,24 @@ class CategoryListItem extends StatelessWidget {
               ? Symbols.north_east_rounded
               : Symbols.south_west_rounded);
 
-    return SunriseCard(
+    final archiveButton = onArchive == null
+        ? null
+        : IconButton(
+            tooltip: isArchived
+                ? L10n.of(context).catUnarchive
+                : L10n.of(context).catArchive,
+            icon: Icon(
+              isArchived ? Symbols.unarchive_rounded : Symbols.archive_rounded,
+              size: 20,
+              color: c.subtle,
+            ),
+            onPressed: onArchive,
+          );
+
+    final row = SunriseCard(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
       padding: const EdgeInsets.fromLTRB(14, 10, 6, 10),
-      onTap: category.isDefault ? null : onEdit,
+      onTap: category.isDefault || isArchived ? null : onEdit,
       child: Row(
         children: [
           IconTile(icon: icon, color: color, size: 42),
@@ -43,7 +66,10 @@ class CategoryListItem extends StatelessWidget {
               style: SunriseType.rowTitle.copyWith(color: c.ink),
             ),
           ),
-          if (category.isDefault)
+          ?archiveButton,
+          if (isArchived)
+            const SizedBox.shrink()
+          else if (category.isDefault)
             Padding(
               padding: const EdgeInsets.all(12),
               child: Icon(Symbols.lock_rounded, size: 18, color: c.faint),
@@ -62,6 +88,7 @@ class CategoryListItem extends StatelessWidget {
         ],
       ),
     );
+    return isArchived ? Opacity(opacity: .55, child: row) : row;
   }
 }
 
