@@ -66,6 +66,7 @@ class IconRegistry {
     'shopping': Icons.shopping_bag,
     'shopping_cart': Icons.shopping_cart,
     'cart': Icons.shopping_cart,
+    'local_grocery_store': Icons.local_grocery_store,
     'local_mall': Icons.local_mall,
     'mall': Icons.local_mall,
     'store': Icons.store,
@@ -347,6 +348,15 @@ class IconRegistry {
     'donate': Icons.volunteer_activism,
     'handshake': Icons.handshake,
 
+    // === WORSHIP & OCCASIONS ===
+    'temple_hindu': Icons.temple_hindu,
+    'mosque': Icons.mosque,
+    'church': Icons.church,
+    'temple_buddhist': Icons.temple_buddhist,
+    'synagogue': Icons.synagogue,
+    'celebration': Icons.celebration,
+    'replay': Icons.replay,
+
     // === INSURANCE ===
     'security': Icons.security,
     'insurance': Icons.security,
@@ -516,6 +526,7 @@ class IconRegistry {
     'Shopping': [
       'shopping_bag',
       'shopping_cart',
+      'local_grocery_store',
       'local_mall',
       'store',
       'checkroom',
@@ -607,6 +618,15 @@ class IconRegistry {
       'explore',
       'location_on',
       'tour',
+    ],
+    'Worship & Occasions': [
+      'temple_hindu',
+      'mosque',
+      'church',
+      'temple_buddhist',
+      'synagogue',
+      'celebration',
+      'volunteer_activism',
     ],
     'Income': [
       'trending_up',

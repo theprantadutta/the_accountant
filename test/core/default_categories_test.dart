@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:the_accountant/core/domain/default_categories.dart';
+import 'package:the_accountant/core/utils/icon_registry.dart';
 
 /// Slugs are the permanent cross-device identity of a built-in category.
 ///
@@ -181,5 +182,25 @@ void main() {
         isNull,
       );
     });
+  });
+
+  test('every built-in category has an icon the app can draw', () {
+    // An unknown name falls back to a generic icon without complaint, which is
+    // how Groceries and Refund shipped without theirs.
+    for (final spec in DefaultCategoryCatalog.all) {
+      expect(
+        IconRegistry.hasIcon(spec.iconName),
+        isTrue,
+        reason: '${spec.name} uses "${spec.iconName}"',
+      );
+    }
+  });
+
+  test('every icon offered in the picker can be drawn', () {
+    for (final names in IconRegistry.iconsByCategory.values) {
+      for (final name in names) {
+        expect(IconRegistry.hasIcon(name), isTrue, reason: name);
+      }
+    }
   });
 }
