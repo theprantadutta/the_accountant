@@ -1,18 +1,18 @@
 PODS:
   - Flutter (1.0.0)
-  - google_mlkit_barcode_scanning (0.15.0):
+  - google_mlkit_barcode_scanning (0.16.1):
     - Flutter
     - google_mlkit_commons
     - GoogleMLKit/BarcodeScanning (~> 9.0.0)
-  - google_mlkit_commons (0.12.0):
+  - google_mlkit_commons (0.13.0):
     - Flutter
     - MLKitVision (~> 10.0.0)
-  - google_mlkit_image_labeling (0.15.0):
+  - google_mlkit_image_labeling (0.16.1):
     - Flutter
     - google_mlkit_commons
     - GoogleMLKit/ImageLabeling (~> 9.0.0)
     - GoogleMLKit/ImageLabelingCustom (~> 9.0.0)
-  - google_mlkit_text_recognition (0.16.0):
+  - google_mlkit_text_recognition (0.17.1):
     - Flutter
     - google_mlkit_commons
     - GoogleMLKit/TextRecognition (~> 9.0.0)
@@ -99,8 +99,6 @@ PODS:
   - nanopb/decode (3.30910.0)
   - nanopb/encode (3.30910.0)
   - PromisesObjC (2.4.1)
-  - workmanager_apple (0.0.1):
-    - Flutter
 
 DEPENDENCIES:
   - Flutter (from `Flutter`)
@@ -108,7 +106,6 @@ DEPENDENCIES:
   - google_mlkit_commons (from `.symlinks/plugins/google_mlkit_commons/ios`)
   - google_mlkit_image_labeling (from `.symlinks/plugins/google_mlkit_image_labeling/ios`)
   - google_mlkit_text_recognition (from `.symlinks/plugins/google_mlkit_text_recognition/ios`)
-  - workmanager_apple (from `.symlinks/plugins/workmanager_apple/ios`)
 
 SPEC REPOS:
   trunk:
@@ -142,15 +139,13 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/google_mlkit_image_labeling/ios"
   google_mlkit_text_recognition:
     :path: ".symlinks/plugins/google_mlkit_text_recognition/ios"
-  workmanager_apple:
-    :path: ".symlinks/plugins/workmanager_apple/ios"
 
 SPEC CHECKSUMS:
   Flutter: 71a624a5bc0c04062bf19101d501e466baf2fb47
-  google_mlkit_barcode_scanning: f69335a73c797a582d5effc61175d1721020d770
-  google_mlkit_commons: b4dfe2f6ae4cbf24010dc6640a28984d01343c86
-  google_mlkit_image_labeling: 16690f4e44478c86a2864b5072483e4c5d0cc95c
-  google_mlkit_text_recognition: 9b164471713e3afdb4c129cabe6d1d64fef7e817
+  google_mlkit_barcode_scanning: 39675a630c62ebd2fbf77a2a7f36deaba1215f25
+  google_mlkit_commons: b2c0a76e7ef4ff555e70e5d71f21d66ce3d08a97
+  google_mlkit_image_labeling: 160fe1e9cb0dc87b27daa02be38ddd1ef96bbcb2
+  google_mlkit_text_recognition: 5a8cb8b73c765938fb7111de6f5f883b90f15d52
   GoogleDataTransport: aae35b7ea0c09004c3797d53c8c41f66f219d6a7
   GoogleMLKit: b1eee21a41c57704fe72483b15c85cb2c0cd7444
   GoogleToolboxForMac: d1a2cbf009c453f4d6ded37c105e2f67a32206d8
@@ -169,7 +164,6 @@ SPEC CHECKSUMS:
   MLKitVisionKit: 316cd349468797ef4e7fd785bf658ca838984de3
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
   PromisesObjC: 752c3227f599e3467650e47ea36f433eeb10c273
-  workmanager_apple: 904529ae31e97fc5be632cf628507652294a0778
 
 PODFILE CHECKSUM: 1a1700f90e350bc1d16b76577946077d8a8099e4
 
