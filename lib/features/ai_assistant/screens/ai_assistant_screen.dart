@@ -143,7 +143,7 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
           if (chat.pendingQuestion != null)
             _OutOfRequests(
               question: chat.pendingQuestion!,
-              canWatchAd: quota.canWatchAd,
+              canWatchAd: quota.canEarnAiCall,
               onWatchAd: _offerMore,
               onPremium: () => PaywallUtils.showPaywall(context),
               onDismiss: () => ref.read(aiChatProvider.notifier).dropPending(),
@@ -1083,7 +1083,7 @@ class _OutOfRequests extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(right: 8),
               child: Text(
-                canWatchAd ? l10n.aiOutOfRequestsBody : l10n.adDailyCapReached,
+                canWatchAd ? l10n.aiOutOfRequestsBody : l10n.adMonthlyCapReached,
                 style: SunriseType.caption.copyWith(color: c.muted),
               ),
             ),

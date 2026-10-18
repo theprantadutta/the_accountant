@@ -136,30 +136,6 @@ class AiApi {
     return AiQuota.fromJson(data);
   }
 
-  /// Reports a finished rewarded ad. Returns the server's outcome
-  /// (`granted`, `already_granted`, `daily_cap_reached`, `not_needed`)
-  /// and the allowance after it.
-  Future<({String outcome, AiQuota? quota})> claimReward({
-    required String rewardType,
-    required String clientRewardId,
-    String? adUnitId,
-  }) async {
-    try {
-      final response = await _dio.post(
-        '/ai/rewards/claim',
-        data: {
-          'reward_type': rewardType,
-          'client_reward_id': clientRewardId,
-          'ad_unit_id': ?adUnitId,
-        },
-      );
-      return _rewardResult(response.data);
-    } on DioException catch (e) {
-      if (e.response?.statusCode == 429) return _rewardResult(e.response?.data);
-      throw _toAiException(e);
-    }
-  }
-
   /// Spends one ad-earned PDF export; false when there is none.
   Future<bool> usePdfExport() async {
     try {
@@ -293,15 +269,6 @@ class AiApi {
     final now = DateTime.now();
     String two(int n) => n.toString().padLeft(2, '0');
     return '${now.year}-${two(now.month)}-${two(now.day)}';
-  }
-
-  ({String outcome, AiQuota? quota}) _rewardResult(Object? data) {
-    final map = data is Map<String, dynamic> ? data : const <String, dynamic>{};
-    final quota = map['quota'];
-    return (
-      outcome: map['outcome'] as String? ?? 'unknown',
-      quota: quota is Map<String, dynamic> ? AiQuota.fromJson(quota) : null,
-    );
   }
 
   Future<Map<String, dynamic>> _call(

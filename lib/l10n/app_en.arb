@@ -573,7 +573,13 @@
   "walletCurrentBalance": "Current balance",
   "walletCurrentBalanceHelp": "A change is saved as a balance correction, so your history still adds up.",
   "walletCardBalanceQuestion": "What is {amount} on this card?",
-  "@walletCardBalanceQuestion": {"placeholders": {"amount": {"type": "String"}}},
+  "@walletCardBalanceQuestion": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "walletCardBalanceCreditLeft": "Credit I have left",
   "walletCardBalanceOwed": "What I owe",
   "walletCardBalanceChoose": "Choose what this amount is, so the debt is worked out right.",
@@ -968,9 +974,21 @@
   },
   "activityNet": "{amount} net",
   "activitySearchFound": "{count, plural, =1{1 match across all months} other{{count} matches across all months}}",
-  "@activitySearchFound": {"placeholders": {"count": {"type": "int"}}},
+  "@activitySearchFound": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "activitySearchNothingTitle": "Nothing matches “{query}”",
-  "@activitySearchNothingTitle": {"placeholders": {"query": {"type": "String"}}},
+  "@activitySearchNothingTitle": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
   "activitySearchNothingBody": "Every month was searched. Try fewer words, another spelling, or clear a filter.",
   "@activityNet": {
     "placeholders": {
@@ -1219,11 +1237,11 @@
   "adConfirmTitleAiCall": "Get one more AI request",
   "adConfirmTitleTheme": "Try premium themes for 24 hours",
   "adConfirmTitlePdf": "Export one PDF report",
-  "adConfirmBodyAiCall": "You've used today's free AI requests. Watch a short ad and you get one more.",
+  "adConfirmBodyAiCall": "You've used this month's free AI requests. Watch a short ad and you get one more.",
   "adConfirmBodyTheme": "Watch a short ad and every premium theme is yours for the next 24 hours.",
   "adConfirmBodyPdf": "Watch a short ad to export one PDF report.",
   "adConfirmWarning": "You're about to watch an ad. Continue?",
-  "adConfirmLeft": "{count, plural, =1{1 more ad available today} other{{count} more ads available today}}",
+  "adConfirmLeft": "{count, plural, =1{1 more ad available this month} other{{count} more ads available this month}}",
   "@adConfirmLeft": {
     "placeholders": {
       "count": {
@@ -1236,14 +1254,15 @@
   "adGetPremium": "Get Premium",
   "adNotNow": "Not now",
   "adLoading": "Loading the ad…",
+  "adVerifying": "Confirming your reward…",
   "adUnavailable": "No ad is available right now. Please try again in a little while.",
   "adSkipped": "The ad was closed before the end, so nothing was unlocked.",
   "adRewardAiCall": "Done! You have one more AI request.",
   "adRewardTheme": "Premium themes unlocked for 24 hours.",
   "adRewardPdf": "One PDF export unlocked.",
-  "adDailyCapReached": "That's all the ads for today. Your free requests come back at midnight.",
+  "adMonthlyCapReached": "That's all the ads for this month. Your free requests come back on the 1st, or go Premium for unlimited.",
   "adRewardPending": "Thanks! Your reward will appear in a moment.",
-  "aiQuotaLeft": "{count, plural, =0{No free AI requests left today} =1{1 free AI request left today} other{{count} free AI requests left today}}",
+  "aiQuotaLeft": "{count, plural, =0{No free AI requests left this month} =1{1 free AI request left this month} other{{count} free AI requests left this month}}",
   "@aiQuotaLeft": {
     "placeholders": {
       "count": {
@@ -1252,8 +1271,8 @@
     }
   },
   "aiQuotaPremiumUnlimited": "Premium: unlimited",
-  "aiOutOfRequestsTitle": "You've used today's free requests",
-  "aiOutOfRequestsBody": "Watch a short ad to ask this one, or go Premium for unlimited answers with no ads. Free requests come back at midnight.",
+  "aiOutOfRequestsTitle": "You've used this month's free requests",
+  "aiOutOfRequestsBody": "Watch a short ad to ask this one, or go Premium for unlimited answers with no ads. Free requests come back on the 1st.",
   "ocrNoCamera": "Couldn't open the camera.",
   "ocrNoGallery": "Couldn't open the gallery.",
   "ocrScanTitle": "Scan a receipt",

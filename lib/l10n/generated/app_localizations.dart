@@ -5330,7 +5330,7 @@ abstract class L10n {
   /// No description provided for @adConfirmBodyAiCall.
   ///
   /// In en, this message translates to:
-  /// **'You\'ve used today\'s free AI requests. Watch a short ad and you get one more.'**
+  /// **'You\'ve used this month\'s free AI requests. Watch a short ad and you get one more.'**
   String get adConfirmBodyAiCall;
 
   /// No description provided for @adConfirmBodyTheme.
@@ -5354,7 +5354,7 @@ abstract class L10n {
   /// No description provided for @adConfirmLeft.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, =1{1 more ad available today} other{{count} more ads available today}}'**
+  /// **'{count, plural, =1{1 more ad available this month} other{{count} more ads available this month}}'**
   String adConfirmLeft(int count);
 
   /// No description provided for @adPremiumPitch.
@@ -5387,6 +5387,12 @@ abstract class L10n {
   /// **'Loading the ad…'**
   String get adLoading;
 
+  /// No description provided for @adVerifying.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirming your reward…'**
+  String get adVerifying;
+
   /// No description provided for @adUnavailable.
   ///
   /// In en, this message translates to:
@@ -5417,11 +5423,11 @@ abstract class L10n {
   /// **'One PDF export unlocked.'**
   String get adRewardPdf;
 
-  /// No description provided for @adDailyCapReached.
+  /// No description provided for @adMonthlyCapReached.
   ///
   /// In en, this message translates to:
-  /// **'That\'s all the ads for today. Your free requests come back at midnight.'**
-  String get adDailyCapReached;
+  /// **'That\'s all the ads for this month. Your free requests come back on the 1st, or go Premium for unlimited.'**
+  String get adMonthlyCapReached;
 
   /// No description provided for @adRewardPending.
   ///
@@ -5432,7 +5438,7 @@ abstract class L10n {
   /// No description provided for @aiQuotaLeft.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, =0{No free AI requests left today} =1{1 free AI request left today} other{{count} free AI requests left today}}'**
+  /// **'{count, plural, =0{No free AI requests left this month} =1{1 free AI request left this month} other{{count} free AI requests left this month}}'**
   String aiQuotaLeft(int count);
 
   /// No description provided for @aiQuotaPremiumUnlimited.
@@ -5444,13 +5450,13 @@ abstract class L10n {
   /// No description provided for @aiOutOfRequestsTitle.
   ///
   /// In en, this message translates to:
-  /// **'You\'ve used today\'s free requests'**
+  /// **'You\'ve used this month\'s free requests'**
   String get aiOutOfRequestsTitle;
 
   /// No description provided for @aiOutOfRequestsBody.
   ///
   /// In en, this message translates to:
-  /// **'Watch a short ad to ask this one, or go Premium for unlimited answers with no ads. Free requests come back at midnight.'**
+  /// **'Watch a short ad to ask this one, or go Premium for unlimited answers with no ads. Free requests come back on the 1st.'**
   String get aiOutOfRequestsBody;
 
   /// No description provided for @ocrNoCamera.

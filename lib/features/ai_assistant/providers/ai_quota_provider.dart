@@ -8,10 +8,10 @@ import 'package:the_accountant/features/premium/providers/premium_provider.dart'
 /// The shared AI client.
 final aiApiProvider = Provider<AiApi>((ref) => AiApi());
 
-/// Today's AI allowance.
+/// This month's AI allowance.
 ///
 /// The server is the authority; this holds its last answer so screens can say
-/// "1 free request left today" without asking each time. Refresh after any AI
+/// "3 free requests left this month" without asking each time. Refresh after any AI
 /// call or ad. Premium is unlimited and never needs to ask.
 class AiQuotaNotifier extends StateNotifier<AiQuota> {
   AiQuotaNotifier(this._ref) : super(AiQuota.initial) {
@@ -20,22 +20,11 @@ class AiQuotaNotifier extends StateNotifier<AiQuota> {
 
   final Ref _ref;
 
-  static const _unlimited = AiQuota(
-    unlimited: true,
-    freeDaily: 2,
-    used: 0,
-    adCredits: 0,
-    remaining: null,
-    adsWatched: 0,
-    maxAdsPerDay: 10,
-    canWatchAd: false,
-  );
-
   bool get _isPremium => _ref.read(premiumProvider).isPremium;
 
   Future<void> refresh() async {
     if (_isPremium) {
-      state = _unlimited;
+      state = AiQuota.premium;
       return;
     }
     try {
@@ -50,6 +39,25 @@ class AiQuotaNotifier extends StateNotifier<AiQuota> {
     }
   }
 
+  /// Waits for a rewarded ad's reward to land.
+  ///
+  /// The reward is paid by AdMob calling the server, not by the app, so it
+  /// arrives a moment after the ad closes. Polls until the server's count of
+  /// ads moves past [adsBefore], or gives up after about fifteen seconds.
+  Future<bool> waitForReward(int adsBefore) async {
+    for (var i = 0; i < 8; i++) {
+      await Future<void>.delayed(Duration(milliseconds: i == 0 ? 1200 : 1800));
+      try {
+        final latest = await _ref.read(aiApiProvider).quota();
+        state = latest;
+        if (latest.adsWatched > adsBefore) return true;
+      } catch (_) {
+        // Try again; a dropped request is not a lost reward.
+      }
+    }
+    return false;
+  }
+
   /// Applies an allowance the server sent back with another answer.
   void apply(AiQuota? quota) {
     if (quota != null) state = quota;
@@ -59,19 +67,7 @@ class AiQuotaNotifier extends StateNotifier<AiQuota> {
   void spendOne() {
     if (state.unlimited) return;
     final left = (state.remaining ?? 0) - 1;
-    state = AiQuota(
-      unlimited: false,
-      freeDaily: state.freeDaily,
-      used: state.used + 1,
-      adCredits: state.adCredits,
-      remaining: left < 0 ? 0 : left,
-      adsWatched: state.adsWatched,
-      maxAdsPerDay: state.maxAdsPerDay,
-      canWatchAd: state.canWatchAd,
-      resetsAt: state.resetsAt,
-      themeTrialEndsAt: state.themeTrialEndsAt,
-      pdfExportCredits: state.pdfExportCredits,
-    );
+    state = state.copyWith(used: state.used + 1, remaining: left < 0 ? 0 : left);
   }
 }
 

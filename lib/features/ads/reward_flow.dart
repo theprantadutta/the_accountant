@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:uuid/uuid.dart';
 import 'package:the_accountant/features/ads/rewarded_ads.dart';
+import 'package:the_accountant/features/authentication/providers/auth_provider.dart';
 import 'package:the_accountant/features/ai_assistant/providers/ai_quota_provider.dart';
 import 'package:the_accountant/features/premium/utils/paywall_utils.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
@@ -20,9 +20,13 @@ Future<bool> earnWithAd(
 ) async {
   final l10n = L10n.of(context);
   final quota = ref.read(aiQuotaProvider);
+  final userId = ref.read(authProvider).userId;
 
-  if (!quota.canWatchAd && !quota.unlimited) {
-    showSunriseSnack(context, l10n.adDailyCapReached, tone: SnackTone.info);
+  final canEarn = kind == RewardKind.aiCall
+      ? quota.canEarnAiCall
+      : quota.canWatchAd;
+  if (!canEarn || userId == null) {
+    showSunriseSnack(context, l10n.adMonthlyCapReached, tone: SnackTone.info);
     return false;
   }
 
@@ -30,7 +34,9 @@ Future<bool> earnWithAd(
     context: context,
     builder: (sheet) => _RewardSheet(
       kind: kind,
-      adsLeft: quota.maxAdsPerDay - quota.adsWatched,
+      adsLeft: kind == RewardKind.aiCall
+          ? quota.adCreditsLeft
+          : quota.maxAds - quota.adsWatched,
     ),
   );
 
@@ -44,7 +50,7 @@ Future<bool> earnWithAd(
   final result = await _withLoading(
     context,
     l10n.adLoading,
-    RewardedAds.instance.show(kind),
+    RewardedAds.instance.show(kind, userId: userId),
   );
   if (!context.mounted) return false;
 
@@ -59,36 +65,29 @@ Future<bool> earnWithAd(
       break;
   }
 
+  // AdMob tells the server, which pays the reward; wait for it to land.
   final quotaNotifier = ref.read(aiQuotaProvider.notifier);
-  try {
-    final claim = await ref
-        .read(aiApiProvider)
-        .claimReward(
-          rewardType: kind.wire,
-          clientRewardId: const Uuid().v4(),
-          adUnitId: result.adUnitId,
-        );
-    quotaNotifier.apply(claim.quota);
-    if (!context.mounted) return false;
+  final landed = await _withLoading(
+    context,
+    l10n.adVerifying,
+    quotaNotifier.waitForReward(quota.adsWatched),
+  );
+  if (!context.mounted) return false;
 
-    if (claim.outcome == 'daily_cap_reached') {
-      showSunriseSnack(context, l10n.adDailyCapReached, tone: SnackTone.info);
-      return false;
-    }
-
-    showSunriseSnack(context, switch (kind) {
-      RewardKind.aiCall => l10n.adRewardAiCall,
-      RewardKind.themeTrial => l10n.adRewardTheme,
-      RewardKind.pdfExport => l10n.adRewardPdf,
-    }, tone: SnackTone.success);
-    return true;
-  } catch (_) {
-    await quotaNotifier.refresh();
-    if (context.mounted) {
-      showSunriseSnack(context, l10n.adRewardPending, tone: SnackTone.info);
-    }
+  if (!landed) {
+    showSunriseSnack(context, l10n.adRewardPending, tone: SnackTone.info);
     return false;
   }
+
+  // Picks up a theme trial the reward started.
+  await quotaNotifier.refresh();
+  if (!context.mounted) return true;
+  showSunriseSnack(context, switch (kind) {
+    RewardKind.aiCall => l10n.adRewardAiCall,
+    RewardKind.themeTrial => l10n.adRewardTheme,
+    RewardKind.pdfExport => l10n.adRewardPdf,
+  }, tone: SnackTone.success);
+  return true;
 }
 
 enum _Choice { watch, premium }

@@ -192,7 +192,7 @@ class _HelpScreenState extends State<HelpScreen> {
       'section': 'Premium & AI Features',
       'question': 'How many AI requests do I get, and what are the ads for?',
       'answer':
-          'Everyone gets 2 free AI requests a day, and they come back at midnight. If you want more, you can choose to watch a short ad for one extra request, up to 10 a day. Ads can also unlock a 24-hour premium theme trial or a PDF export. An ad only ever plays after you tap a button and confirm; there are no banner ads and nothing appears on its own. Premium members get unlimited AI and everything else with no ads at all.',
+          'Everyone gets 10 free AI requests a month, and they come back on the 1st. If you want more, you can choose to watch a short ad for one extra request, up to 10 more a month. Ads can also unlock a 24-hour premium theme trial or a PDF export. An ad only ever plays after you tap a button and confirm; there are no banner ads and nothing appears on its own. Premium members get unlimited AI and everything else with no ads at all.',
     },
     {
       'section': 'Premium & AI Features',

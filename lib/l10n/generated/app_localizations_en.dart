@@ -2870,7 +2870,7 @@ class L10nEn extends L10n {
 
   @override
   String get adConfirmBodyAiCall =>
-      'You\'ve used today\'s free AI requests. Watch a short ad and you get one more.';
+      'You\'ve used this month\'s free AI requests. Watch a short ad and you get one more.';
 
   @override
   String get adConfirmBodyTheme =>
@@ -2887,8 +2887,8 @@ class L10nEn extends L10n {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count more ads available today',
-      one: '1 more ad available today',
+      other: '$count more ads available this month',
+      one: '1 more ad available this month',
     );
     return '$_temp0';
   }
@@ -2910,6 +2910,9 @@ class L10nEn extends L10n {
   String get adLoading => 'Loading the ad…';
 
   @override
+  String get adVerifying => 'Confirming your reward…';
+
+  @override
   String get adUnavailable =>
       'No ad is available right now. Please try again in a little while.';
 
@@ -2927,8 +2930,8 @@ class L10nEn extends L10n {
   String get adRewardPdf => 'One PDF export unlocked.';
 
   @override
-  String get adDailyCapReached =>
-      'That\'s all the ads for today. Your free requests come back at midnight.';
+  String get adMonthlyCapReached =>
+      'That\'s all the ads for this month. Your free requests come back on the 1st, or go Premium for unlimited.';
 
   @override
   String get adRewardPending => 'Thanks! Your reward will appear in a moment.';
@@ -2938,9 +2941,9 @@ class L10nEn extends L10n {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count free AI requests left today',
-      one: '1 free AI request left today',
-      zero: 'No free AI requests left today',
+      other: '$count free AI requests left this month',
+      one: '1 free AI request left this month',
+      zero: 'No free AI requests left this month',
     );
     return '$_temp0';
   }
@@ -2949,11 +2952,11 @@ class L10nEn extends L10n {
   String get aiQuotaPremiumUnlimited => 'Premium: unlimited';
 
   @override
-  String get aiOutOfRequestsTitle => 'You\'ve used today\'s free requests';
+  String get aiOutOfRequestsTitle => 'You\'ve used this month\'s free requests';
 
   @override
   String get aiOutOfRequestsBody =>
-      'Watch a short ad to ask this one, or go Premium for unlimited answers with no ads. Free requests come back at midnight.';
+      'Watch a short ad to ask this one, or go Premium for unlimited answers with no ads. Free requests come back on the 1st.';
 
   @override
   String get ocrNoCamera => 'Couldn\'t open the camera.';

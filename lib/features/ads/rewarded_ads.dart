@@ -3,11 +3,12 @@ import 'dart:io' show Platform;
 
 import 'package:flutter/foundation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:uuid/uuid.dart';
 import 'package:logger/logger.dart';
 
 /// What a rewarded ad buys. The [wire] name is what the server understands.
 enum RewardKind {
-  /// One more AI request today (chat, summary, receipt, quick add).
+  /// One more AI request this month (chat, summary, receipt, quick add).
   aiCall('ai_call'),
 
   /// Premium themes for 24 hours.
@@ -112,11 +113,24 @@ class RewardedAds {
     return true;
   }
 
-  /// Shows one rewarded ad for [kind]. The reward is the SDK's own
-  /// onUserEarnedReward, as in Snake Classic: there is no server-side
-  /// verification callback.
-  Future<AdResult> show(RewardKind kind) async {
+  /// Shows one rewarded ad for [kind], tagged for [userId].
+  ///
+  /// The reward is not paid here. AdMob calls the server when the ad finishes
+  /// (server-side verification), signed so that a modified app cannot fake
+  /// it; the tag tells the server whose reward it is, what it is for, and the
+  /// user's UTC offset so it lands in the right month. [AdOutcome.earned] only
+  /// means the reward is on its way.
+  Future<AdResult> show(RewardKind kind, {required String userId}) async {
     if (!await _ensureReady()) return const AdResult(AdOutcome.unavailable);
+
+    final ssv = ServerSideVerificationOptions(
+      userId: userId,
+      customData: [
+        kind.wire,
+        DateTime.now().timeZoneOffset.inMinutes,
+        const Uuid().v4(),
+      ].join('|'),
+    );
 
     final interstitialFirst = kind != RewardKind.aiCall;
     final order = interstitialFirst
@@ -124,13 +138,13 @@ class RewardedAds {
         : [_showRewarded, _showInterstitial];
 
     for (final attempt in order) {
-      final result = await attempt();
+      final result = await attempt(ssv);
       if (result.outcome != AdOutcome.unavailable) return result;
     }
     return const AdResult(AdOutcome.unavailable);
   }
 
-  Future<AdResult> _showRewarded() async {
+  Future<AdResult> _showRewarded(ServerSideVerificationOptions ssv) async {
     final unit = AdUnits.rewarded;
     final loaded = Completer<RewardedAd?>();
     await RewardedAd.load(
@@ -149,6 +163,7 @@ class RewardedAds {
       onTimeout: () => null,
     );
     if (ad == null) return const AdResult(AdOutcome.unavailable);
+    await ad.setServerSideOptions(ssv);
 
     final done = Completer<AdResult>();
     var earned = false;
@@ -168,7 +183,7 @@ class RewardedAds {
     return done.future;
   }
 
-  Future<AdResult> _showInterstitial() async {
+  Future<AdResult> _showInterstitial(ServerSideVerificationOptions ssv) async {
     final unit = AdUnits.rewardedInterstitial;
     final loaded = Completer<RewardedInterstitialAd?>();
     await RewardedInterstitialAd.load(
@@ -187,6 +202,7 @@ class RewardedAds {
       onTimeout: () => null,
     );
     if (ad == null) return const AdResult(AdOutcome.unavailable);
+    await ad.setServerSideOptions(ssv);
 
     final done = Completer<AdResult>();
     var earned = false;

@@ -2842,7 +2842,7 @@ class L10nBn extends L10n {
 
   @override
   String get adConfirmBodyAiCall =>
-      'আজকের বিনামূল্যের এআই অনুরোধ শেষ। একটি ছোট বিজ্ঞাপন দেখলে আরও একটি পাবেন।';
+      'এই মাসের বিনামূল্যের এআই অনুরোধ শেষ। একটি ছোট বিজ্ঞাপন দেখলে আরও একটি পাবেন।';
 
   @override
   String get adConfirmBodyTheme =>
@@ -2858,7 +2858,7 @@ class L10nBn extends L10n {
 
   @override
   String adConfirmLeft(int count) {
-    return 'আজ আরও $countটি বিজ্ঞাপন দেখা যাবে';
+    return 'এই মাসে আরও $countটি বিজ্ঞাপন দেখা যাবে';
   }
 
   @override
@@ -2878,6 +2878,9 @@ class L10nBn extends L10n {
   String get adLoading => 'বিজ্ঞাপন লোড হচ্ছে…';
 
   @override
+  String get adVerifying => 'আপনার পুরস্কার নিশ্চিত করা হচ্ছে…';
+
+  @override
   String get adUnavailable =>
       'এই মুহূর্তে কোনো বিজ্ঞাপন নেই। একটু পরে আবার চেষ্টা করুন।';
 
@@ -2895,8 +2898,8 @@ class L10nBn extends L10n {
   String get adRewardPdf => 'একটি পিডিএফ এক্সপোর্ট আনলক হয়েছে।';
 
   @override
-  String get adDailyCapReached =>
-      'আজকের সব বিজ্ঞাপন দেখা হয়ে গেছে। মধ্যরাতে বিনামূল্যের অনুরোধ আবার পাবেন।';
+  String get adMonthlyCapReached =>
+      'এই মাসের সব বিজ্ঞাপন দেখা হয়ে গেছে। ১ তারিখে বিনামূল্যের অনুরোধ আবার পাবেন, অথবা সীমাহীনের জন্য প্রিমিয়াম নিন।';
 
   @override
   String get adRewardPending =>
@@ -2904,18 +2907,18 @@ class L10nBn extends L10n {
 
   @override
   String aiQuotaLeft(int count) {
-    return 'আজ $countটি বিনামূল্যের এআই অনুরোধ বাকি';
+    return 'এই মাসে $countটি বিনামূল্যের এআই অনুরোধ বাকি';
   }
 
   @override
   String get aiQuotaPremiumUnlimited => 'প্রিমিয়াম: সীমাহীন';
 
   @override
-  String get aiOutOfRequestsTitle => 'আজকের বিনামূল্যের অনুরোধ শেষ';
+  String get aiOutOfRequestsTitle => 'এই মাসের বিনামূল্যের অনুরোধ শেষ';
 
   @override
   String get aiOutOfRequestsBody =>
-      'এই প্রশ্নটি করতে একটি ছোট বিজ্ঞাপন দেখুন, অথবা বিজ্ঞাপন ছাড়া সীমাহীন উত্তরের জন্য প্রিমিয়াম নিন। মধ্যরাতে বিনামূল্যের অনুরোধ আবার পাবেন।';
+      'এই প্রশ্নটি করতে একটি ছোট বিজ্ঞাপন দেখুন, অথবা বিজ্ঞাপন ছাড়া সীমাহীন উত্তরের জন্য প্রিমিয়াম নিন। ১ তারিখে বিনামূল্যের অনুরোধ আবার পাবেন।';
 
   @override
   String get ocrNoCamera => 'ক্যামেরা খোলা যায়নি।';
