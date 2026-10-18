@@ -5447,6 +5447,126 @@ abstract class L10n {
   /// **'Premium: unlimited'**
   String get aiQuotaPremiumUnlimited;
 
+  /// No description provided for @aiToolSearching.
+  ///
+  /// In en, this message translates to:
+  /// **'Searching your transactions…'**
+  String get aiToolSearching;
+
+  /// No description provided for @aiToolSummarizing.
+  ///
+  /// In en, this message translates to:
+  /// **'Adding up the numbers…'**
+  String get aiToolSummarizing;
+
+  /// No description provided for @aiToolAccounts.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking your accounts…'**
+  String get aiToolAccounts;
+
+  /// No description provided for @aiToolCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'Looking at your categories…'**
+  String get aiToolCategories;
+
+  /// No description provided for @aiToolSaving.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving…'**
+  String get aiToolSaving;
+
+  /// No description provided for @aiActionAddTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add this transaction?'**
+  String get aiActionAddTitle;
+
+  /// No description provided for @aiActionUpdateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Change this transaction?'**
+  String get aiActionUpdateTitle;
+
+  /// No description provided for @aiActionDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this transaction?'**
+  String get aiActionDeleteTitle;
+
+  /// No description provided for @aiActionDeleteNote.
+  ///
+  /// In en, this message translates to:
+  /// **'It goes to Recently deleted, where you can restore it for 30 days.'**
+  String get aiActionDeleteNote;
+
+  /// No description provided for @aiActionAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add it'**
+  String get aiActionAdd;
+
+  /// No description provided for @aiActionSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save change'**
+  String get aiActionSave;
+
+  /// No description provided for @aiActionDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete it'**
+  String get aiActionDelete;
+
+  /// No description provided for @aiActionCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'No, leave it'**
+  String get aiActionCancel;
+
+  /// No description provided for @aiActionAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get aiActionAmount;
+
+  /// No description provided for @aiActionKind.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get aiActionKind;
+
+  /// No description provided for @aiActionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Title'**
+  String get aiActionTitle;
+
+  /// No description provided for @aiActionCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get aiActionCategory;
+
+  /// No description provided for @aiActionAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get aiActionAccount;
+
+  /// No description provided for @aiActionDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get aiActionDate;
+
+  /// No description provided for @aiActionNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get aiActionNotes;
+
   /// No description provided for @aiOutOfRequestsTitle.
   ///
   /// In en, this message translates to:

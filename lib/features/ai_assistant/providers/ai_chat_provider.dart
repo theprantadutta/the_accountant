@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/legacy.dart';
 import 'package:the_accountant/core/services/analytics_service.dart';
 import 'package:the_accountant/features/ai_assistant/providers/ai_quota_provider.dart';
 import 'package:the_accountant/features/ai_assistant/services/ai_api.dart';
+import 'package:the_accountant/features/ai_assistant/services/coach_tool_runner.dart';
 import 'package:the_accountant/features/ai_assistant/services/finance_context_builder.dart';
 import 'package:the_accountant/features/ai_assistant/models/chat_message.dart';
 import 'package:the_accountant/features/ai_assistant/models/conversation.dart';
@@ -25,9 +26,17 @@ class AiChatState {
   final String? errorType;
   final bool hasError;
 
-  /// A question held back because today's free requests ran out. The screen
-  /// offers an ad (or Premium) and sends it once there is a request to spend.
+  /// A question held back because this month's free requests ran out. The
+  /// screen offers an ad (or Premium) and sends it once there is a request to
+  /// spend.
   final String? pendingQuestion;
+
+  /// The tool the coach is running right now (`search_transactions`, ...),
+  /// so the screen can say what it is doing while the answer is not ready.
+  final String? toolStatus;
+
+  /// A change the coach wants to make, waiting for the user to confirm it.
+  final CoachActionPreview? pendingAction;
 
   const AiChatState({
     this.messages = const [],
@@ -40,6 +49,8 @@ class AiChatState {
     this.errorType,
     this.hasError = false,
     this.pendingQuestion,
+    this.toolStatus,
+    this.pendingAction,
   });
 
   AiChatState copyWith({
@@ -54,6 +65,10 @@ class AiChatState {
     bool? hasError,
     String? pendingQuestion,
     bool clearPending = false,
+    String? toolStatus,
+    bool clearToolStatus = false,
+    CoachActionPreview? pendingAction,
+    bool clearAction = false,
   }) {
     return AiChatState(
       messages: messages ?? this.messages,
@@ -69,6 +84,8 @@ class AiChatState {
       pendingQuestion: clearPending
           ? null
           : pendingQuestion ?? this.pendingQuestion,
+      toolStatus: clearToolStatus ? null : toolStatus ?? this.toolStatus,
+      pendingAction: clearAction ? null : pendingAction ?? this.pendingAction,
     );
   }
 }
@@ -77,7 +94,9 @@ class AiChatState {
 class AiChatNotifier extends StateNotifier<AiChatState> {
   final AiChatService _aiChatService;
   final Ref _ref;
-  StreamSubscription<ChatStreamEvent>? _reply;
+
+  /// Completed by [decideAction] when the user answers a confirmation card.
+  Completer<bool>? _decision;
 
   AiChatNotifier(this._ref)
     : _aiChatService = AiChatService(),
@@ -85,8 +104,14 @@ class AiChatNotifier extends StateNotifier<AiChatState> {
 
   @override
   void dispose() {
-    _reply?.cancel();
+    // A change waiting for an answer that will never come is a no.
+    if (_decision?.isCompleted == false) _decision!.complete(false);
     super.dispose();
+  }
+
+  /// The user's answer to [AiChatState.pendingAction].
+  void decideAction(bool confirmed) {
+    if (_decision?.isCompleted == false) _decision!.complete(confirmed);
   }
 
   /// Initial load: fetch conversations and open the most recent one, or land on
@@ -217,9 +242,13 @@ class AiChatNotifier extends StateNotifier<AiChatState> {
 
   /// Ask the coach. The reply streams into the conversation as it is written.
   ///
-  /// Nothing is saved on the server until the reply is complete, so a failed
-  /// attempt leaves no trace and [retryLastMessage] sends the question once.
-  /// When today's free requests are used up the question is held in
+  /// The coach may first ask the app to run tools: searches and summaries run
+  /// straight away, and any change waits in [AiChatState.pendingAction] until
+  /// the user confirms or cancels it. The results go back to the coach, which
+  /// may ask for more, until it answers. The question costs one request
+  /// however many rounds that takes.
+  ///
+  /// When this month's free requests are used up the question is held in
   /// [AiChatState.pendingQuestion] for the screen to offer an ad.
   Future<void> sendMessage(String text) async {
     final question = text.trim();
@@ -256,56 +285,117 @@ class AiChatNotifier extends StateNotifier<AiChatState> {
       // The coach can still answer in general terms without the figures.
     }
 
-    final written = StringBuffer();
-    final done = Completer<void>();
+    final api = _ref.read(aiApiProvider);
+    final runner = CoachToolRunner(_ref.read);
+    String? message = question;
+    Map<String, String>? results;
+    var counted = false;
 
-    _reply = _ref
-        .read(aiApiProvider)
-        .streamChat(
-          question,
+    try {
+      while (mounted) {
+        final written = StringBuffer();
+        ChatToolCalls? wanted;
+
+        await for (final event in api.streamChat(
+          message,
           conversationId: state.currentConversationId,
           context: context,
-        )
-        .listen(
-          (event) {
-            switch (event) {
-              case ChatStarted(:final conversationId):
-                if (conversationId.isNotEmpty) {
-                  state = state.copyWith(currentConversationId: conversationId);
-                }
-              case ChatDelta(:final text):
-                written.write(text);
-                _updateReply(replyId, _visible(written.toString()));
-              case ChatDone(:final response):
-                final messages =
-                    state.messages
-                        .where((m) => m.id != replyId && m.id != asked.id)
-                        .toList()
-                      ..addAll([response.userMessage, response.aiMessage]);
+          toolResults: results,
+        )) {
+          if (!mounted) return;
+          switch (event) {
+            case ChatStarted(:final conversationId):
+              if (conversationId.isNotEmpty) {
+                state = state.copyWith(currentConversationId: conversationId);
+              }
+            case ChatDelta(:final text):
+              written.write(text);
+              _updateReply(replyId, _visible(written.toString()));
+            case ChatToolCalls():
+              wanted = event;
+              if (event.conversationId.isNotEmpty) {
                 state = state.copyWith(
-                  messages: messages,
-                  currentConversationId: response.conversationId,
-                  isLoading: false,
+                  currentConversationId: event.conversationId,
                 );
-                _ref.read(aiQuotaProvider.notifier).spendOne();
-            }
-          },
-          onError: (Object error) {
-            _failReply(asked, replyId, question, error);
-            if (!done.isCompleted) done.complete();
-          },
-          onDone: () {
-            if (!done.isCompleted) done.complete();
-          },
-          cancelOnError: true,
+              }
+            case ChatDone(:final response):
+              final messages =
+                  state.messages
+                      .where((m) => m.id != replyId && m.id != asked.id)
+                      .toList()
+                    ..addAll([response.userMessage, response.aiMessage]);
+              state = state.copyWith(
+                messages: messages,
+                currentConversationId: response.conversationId,
+                isLoading: false,
+              );
+          }
+        }
+
+        if (!counted) {
+          _ref.read(aiQuotaProvider.notifier).spendOne();
+          counted = true;
+        }
+        final calls = wanted;
+        if (calls == null) break;
+
+        // Anything written before the calls was the coach thinking aloud.
+        _updateReply(replyId, '');
+        results = await _runTools(runner, calls.calls);
+        message = null;
+      }
+    } catch (error) {
+      if (mounted) _failReply(asked, replyId, question, error);
+    } finally {
+      if (mounted) {
+        state = state.copyWith(
+          isLoading: false,
+          clearToolStatus: true,
+          clearAction: true,
         );
+      }
+    }
 
-    await done.future;
-    _reply = null;
-    if (state.isLoading) state = state.copyWith(isLoading: false);
-
+    if (!mounted) return;
     unawaited(_ref.read(aiQuotaProvider.notifier).refresh());
     await _refreshConversations();
+  }
+
+  /// Runs the coach's tool calls in order. Reads answer at once; each change
+  /// is shown to the user and only made if they confirm it.
+  Future<Map<String, String>> _runTools(
+    CoachToolRunner runner,
+    List<CoachToolCall> calls,
+  ) async {
+    final results = <String, String>{};
+    for (final call in calls) {
+      if (!mounted) break;
+      if (!runner.isWrite(call)) {
+        state = state.copyWith(toolStatus: call.name);
+        results[call.id] = await runner.read(call);
+        continue;
+      }
+
+      final plan = await runner.plan(call);
+      if (plan.error != null) {
+        results[call.id] = plan.error!;
+        continue;
+      }
+
+      final decision = _decision = Completer<bool>();
+      state = state.copyWith(
+        pendingAction: plan.preview,
+        clearToolStatus: true,
+      );
+      final confirmed = await decision.future;
+      if (!mounted) break;
+      state = state.copyWith(clearAction: true, toolStatus: call.name);
+      results[call.id] = confirmed
+          ? await plan.execute!()
+          : CoachToolRunner.cancelled();
+    }
+    if (mounted) state = state.copyWith(clearToolStatus: true);
+    return results;
   }
 
   /// Sends the question that was waiting for a request (after an ad).

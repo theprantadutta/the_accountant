@@ -2914,6 +2914,67 @@ class L10nBn extends L10n {
   String get aiQuotaPremiumUnlimited => 'প্রিমিয়াম: সীমাহীন';
 
   @override
+  String get aiToolSearching => 'আপনার লেনদেন খোঁজা হচ্ছে…';
+
+  @override
+  String get aiToolSummarizing => 'হিসাব যোগ করা হচ্ছে…';
+
+  @override
+  String get aiToolAccounts => 'আপনার অ্যাকাউন্ট দেখা হচ্ছে…';
+
+  @override
+  String get aiToolCategories => 'আপনার ক্যাটাগরি দেখা হচ্ছে…';
+
+  @override
+  String get aiToolSaving => 'সংরক্ষণ করা হচ্ছে…';
+
+  @override
+  String get aiActionAddTitle => 'এই লেনদেনটি যোগ করবেন?';
+
+  @override
+  String get aiActionUpdateTitle => 'এই লেনদেনটি বদলাবেন?';
+
+  @override
+  String get aiActionDeleteTitle => 'এই লেনদেনটি মুছবেন?';
+
+  @override
+  String get aiActionDeleteNote =>
+      'এটি সম্প্রতি মোছা তালিকায় যাবে, যেখান থেকে ৩০ দিন পর্যন্ত ফিরিয়ে আনতে পারবেন।';
+
+  @override
+  String get aiActionAdd => 'যোগ করুন';
+
+  @override
+  String get aiActionSave => 'পরিবর্তন সংরক্ষণ করুন';
+
+  @override
+  String get aiActionDelete => 'মুছে ফেলুন';
+
+  @override
+  String get aiActionCancel => 'না, থাক';
+
+  @override
+  String get aiActionAmount => 'পরিমাণ';
+
+  @override
+  String get aiActionKind => 'ধরন';
+
+  @override
+  String get aiActionTitle => 'শিরোনাম';
+
+  @override
+  String get aiActionCategory => 'ক্যাটাগরি';
+
+  @override
+  String get aiActionAccount => 'অ্যাকাউন্ট';
+
+  @override
+  String get aiActionDate => 'তারিখ';
+
+  @override
+  String get aiActionNotes => 'নোট';
+
+  @override
   String get aiOutOfRequestsTitle => 'এই মাসের বিনামূল্যের অনুরোধ শেষ';
 
   @override

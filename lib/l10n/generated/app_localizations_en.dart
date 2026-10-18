@@ -2952,6 +2952,67 @@ class L10nEn extends L10n {
   String get aiQuotaPremiumUnlimited => 'Premium: unlimited';
 
   @override
+  String get aiToolSearching => 'Searching your transactions…';
+
+  @override
+  String get aiToolSummarizing => 'Adding up the numbers…';
+
+  @override
+  String get aiToolAccounts => 'Checking your accounts…';
+
+  @override
+  String get aiToolCategories => 'Looking at your categories…';
+
+  @override
+  String get aiToolSaving => 'Saving…';
+
+  @override
+  String get aiActionAddTitle => 'Add this transaction?';
+
+  @override
+  String get aiActionUpdateTitle => 'Change this transaction?';
+
+  @override
+  String get aiActionDeleteTitle => 'Delete this transaction?';
+
+  @override
+  String get aiActionDeleteNote =>
+      'It goes to Recently deleted, where you can restore it for 30 days.';
+
+  @override
+  String get aiActionAdd => 'Add it';
+
+  @override
+  String get aiActionSave => 'Save change';
+
+  @override
+  String get aiActionDelete => 'Delete it';
+
+  @override
+  String get aiActionCancel => 'No, leave it';
+
+  @override
+  String get aiActionAmount => 'Amount';
+
+  @override
+  String get aiActionKind => 'Type';
+
+  @override
+  String get aiActionTitle => 'Title';
+
+  @override
+  String get aiActionCategory => 'Category';
+
+  @override
+  String get aiActionAccount => 'Account';
+
+  @override
+  String get aiActionDate => 'Date';
+
+  @override
+  String get aiActionNotes => 'Notes';
+
+  @override
   String get aiOutOfRequestsTitle => 'You\'ve used this month\'s free requests';
 
   @override

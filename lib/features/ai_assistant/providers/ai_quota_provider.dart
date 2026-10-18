@@ -67,7 +67,10 @@ class AiQuotaNotifier extends StateNotifier<AiQuota> {
   void spendOne() {
     if (state.unlimited) return;
     final left = (state.remaining ?? 0) - 1;
-    state = state.copyWith(used: state.used + 1, remaining: left < 0 ? 0 : left);
+    state = state.copyWith(
+      used: state.used + 1,
+      remaining: left < 0 ? 0 : left,
+    );
   }
 }
 

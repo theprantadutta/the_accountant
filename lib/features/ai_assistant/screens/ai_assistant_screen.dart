@@ -8,6 +8,7 @@ import 'package:the_accountant/features/ai_assistant/models/chat_message.dart';
 import 'package:the_accountant/features/ai_assistant/models/conversation.dart';
 import 'package:the_accountant/features/ai_assistant/providers/ai_chat_provider.dart';
 import 'package:the_accountant/features/ai_assistant/providers/ai_quota_provider.dart';
+import 'package:the_accountant/features/ai_assistant/widgets/coach_action_card.dart';
 import 'package:the_accountant/features/ads/reward_flow.dart';
 import 'package:the_accountant/features/ads/rewarded_ads.dart';
 import 'package:the_accountant/features/budgets/providers/budget_provider.dart';
@@ -200,9 +201,22 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
             if (newDay) _DayDivider(date: m.timestamp),
             Padding(
               padding: const EdgeInsets.only(top: 10),
-              // A reply that has not produced its first words yet.
+              // A reply that has not produced its first words yet: a change
+              // waiting to be confirmed, a tool at work, or the coach thinking.
               child: m.isStreaming && m.text.isEmpty
-                  ? _TypingDots(animation: _dots)
+                  ? (chat.pendingAction != null
+                        ? CoachActionCard(
+                            action: chat.pendingAction!,
+                            onConfirm: () => ref
+                                .read(aiChatProvider.notifier)
+                                .decideAction(true),
+                            onCancel: () => ref
+                                .read(aiChatProvider.notifier)
+                                .decideAction(false),
+                          )
+                        : chat.toolStatus != null
+                        ? CoachToolStatus(tool: chat.toolStatus!)
+                        : _TypingDots(animation: _dots))
                   : _MessageBubble(
                       message: m,
                       showRetry: m.isAiFallback && isLast && !chat.isLoading,
@@ -1083,7 +1097,9 @@ class _OutOfRequests extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(right: 8),
               child: Text(
-                canWatchAd ? l10n.aiOutOfRequestsBody : l10n.adMonthlyCapReached,
+                canWatchAd
+                    ? l10n.aiOutOfRequestsBody
+                    : l10n.adMonthlyCapReached,
                 style: SunriseType.caption.copyWith(color: c.muted),
               ),
             ),

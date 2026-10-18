@@ -50,6 +50,28 @@ class ChatDone extends ChatStreamEvent {
   const ChatDone(this.response);
 }
 
+/// One tool the coach wants the app to run.
+class CoachToolCall {
+  final String id;
+  final String name;
+  final Map<String, dynamic> args;
+  const CoachToolCall(this.id, this.name, this.args);
+
+  factory CoachToolCall.fromJson(Map<String, dynamic> json) => CoachToolCall(
+    json['id'] as String? ?? '',
+    json['name'] as String? ?? '',
+    (json['args'] as Map?)?.cast<String, dynamic>() ?? const {},
+  );
+}
+
+/// The coach needs the app to run [calls] before it can answer. Post the
+/// results with [AiApi.streamChat]'s `toolResults` to carry on.
+class ChatToolCalls extends ChatStreamEvent {
+  final String conversationId;
+  final List<CoachToolCall> calls;
+  const ChatToolCalls(this.conversationId, this.calls);
+}
+
 class ReceiptReading {
   final String? merchant;
   final double? total;
@@ -148,19 +170,29 @@ class AiApi {
   }
 
   /// Asks the coach and yields the reply as it is written.
+  ///
+  /// Pass [toolResults] (call id to JSON result) instead of a [message] to
+  /// carry on after a [ChatToolCalls]; that costs no request.
   Stream<ChatStreamEvent> streamChat(
-    String message, {
+    String? message, {
     String? conversationId,
     Map<String, dynamic>? context,
+    Map<String, String>? toolResults,
   }) async* {
     final Response<ResponseBody> response;
     try {
       response = await _dio.post<ResponseBody>(
         '/ai-chat/message/stream',
         data: {
-          'message': message,
+          'message': ?message,
           'conversation_id': ?conversationId,
           'context': ?context,
+          'tools': true,
+          if (toolResults != null)
+            'tool_results': [
+              for (final e in toolResults.entries)
+                {'id': e.key, 'content': e.value},
+            ],
         },
         options: Options(
           responseType: ResponseType.stream,
@@ -193,6 +225,12 @@ class AiApi {
           yield ChatDelta(data['text'] as String? ?? '');
         case 'done':
           yield ChatDone(SendMessageResponse.fromJson(data));
+          return;
+        case 'tool':
+          yield ChatToolCalls(data['conversation_id'] as String? ?? '', [
+            for (final c in (data['calls'] as List? ?? const []))
+              CoachToolCall.fromJson((c as Map).cast<String, dynamic>()),
+          ]);
           return;
         case 'error':
           throw AiException(
