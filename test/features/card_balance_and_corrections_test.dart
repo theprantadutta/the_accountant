@@ -208,6 +208,7 @@ void main() {
 
       int? submitted;
       var called = false;
+      final balance = TextEditingController(text: '95310.48');
       await tester.pumpWidget(
         ProviderScope(
           child: localizedApp(
@@ -216,7 +217,7 @@ void main() {
                 child: AddWalletForm(
                   formKey: GlobalKey<FormState>(),
                   nameController: TextEditingController(text: 'SCB'),
-                  balanceController: TextEditingController(text: '95310.48'),
+                  balanceController: balance,
                   initialCurrency: 'BDT',
                   initialWalletType: WalletType.bankAccount,
                   isEditing: true,
@@ -247,6 +248,11 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.text('Credit Card'));
       await tester.pumpAndSettle();
+
+      // Nothing is shown as owed until the balance has been explained, and
+      // the question names the amount the way the app writes money.
+      expect(balance.text, isEmpty);
+      expect(find.text('What is ৳95,310.48 on this card?'), findsOneWidget);
       await tester.enterText(
         find.descendant(
           of: find.widgetWithText(NeoTextField, 'Credit Limit'),

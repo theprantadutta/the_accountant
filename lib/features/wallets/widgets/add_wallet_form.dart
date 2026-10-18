@@ -162,10 +162,18 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
       _cardBalanceMeaning = null;
       _showMeaningError = false;
       // The field shows the amount owed on a card and the balance elsewhere,
-      // so an existing balance flips sign when the account crosses over.
-      if (widget.isEditing && crossesCard) {
-        final entered = widget.balanceController.text.toCentsOrNull();
-        if (entered != null) _setAmountField(-entered);
+      // so an existing balance flips sign when the account crosses over. A
+      // balance in credit cannot be shown as owed until its owner says what
+      // it was, so the field waits for that answer.
+      final opening = _openingBalance;
+      if (widget.isEditing && crossesCard && opening != null) {
+        if (_needsCardBalanceMeaning) {
+          widget.balanceController.clear();
+        } else {
+          _setAmountField(
+            _walletType == WalletType.creditCard ? -opening : opening,
+          );
+        }
       }
     });
   }
@@ -410,7 +418,7 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
           if (_needsCardBalanceMeaning) ...[
             Text(
               l10n.walletCardBalanceQuestion(
-                '$symbol${(_openingBalance! / 100).toStringAsFixed(2)}',
+                _openingBalance!.formatCurrency(_selectedCurrency),
               ),
               style: SunriseType.rowTitle.copyWith(color: c.ink),
             ),
