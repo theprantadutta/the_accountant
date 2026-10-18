@@ -28,8 +28,17 @@ enum RewardKind {
 abstract final class AdUnits {
   static bool get _ios => !kIsWeb && Platform.isIOS;
 
+  /// `--dart-define=ADS_LIVE_UNITS=true` makes a debug build use the real
+  /// units. On a phone registered in [testDevices] Google still serves test
+  /// ads, but the rewards go through server-side verification the way they
+  /// do for users, which Google's sample units never do.
+  static const _liveUnits = bool.fromEnvironment('ADS_LIVE_UNITS');
+
+  /// Phones that get test ads from the real units (the A24 test device).
+  static const testDevices = ['245721C02AABB0F5FDB14764DD880B29'];
+
   static String get rewarded {
-    if (!kReleaseMode) {
+    if (!kReleaseMode && !_liveUnits) {
       return _ios
           ? 'ca-app-pub-3940256099942544/1712485313'
           : 'ca-app-pub-3940256099942544/5224354917';
@@ -40,7 +49,7 @@ abstract final class AdUnits {
   }
 
   static String get rewardedInterstitial {
-    if (!kReleaseMode) {
+    if (!kReleaseMode && !_liveUnits) {
       return _ios
           ? 'ca-app-pub-3940256099942544/6978759866'
           : 'ca-app-pub-3940256099942544/5354046379';
@@ -109,6 +118,9 @@ class RewardedAds {
     await consent.future;
 
     if (!await ConsentInformation.instance.canRequestAds()) return false;
+    await MobileAds.instance.updateRequestConfiguration(
+      RequestConfiguration(testDeviceIds: AdUnits.testDevices),
+    );
     await MobileAds.instance.initialize();
     return true;
   }

@@ -42,11 +42,12 @@ class AiQuotaNotifier extends StateNotifier<AiQuota> {
   /// Waits for a rewarded ad's reward to land.
   ///
   /// The reward is paid by AdMob calling the server, not by the app, so it
-  /// arrives a moment after the ad closes. Polls until the server's count of
-  /// ads moves past [adsBefore], or gives up after about fifteen seconds.
+  /// arrives a moment after the ad closes, usually within a couple of
+  /// seconds. Asks again with growing gaps until the server's count of ads
+  /// moves past [adsBefore], giving up after about sixteen seconds.
   Future<bool> waitForReward(int adsBefore) async {
-    for (var i = 0; i < 8; i++) {
-      await Future<void>.delayed(Duration(milliseconds: i == 0 ? 1200 : 1800));
+    for (final wait in const [1500, 2000, 3000, 4000, 5500]) {
+      await Future<void>.delayed(Duration(milliseconds: wait));
       try {
         final latest = await _ref.read(aiApiProvider).quota();
         state = latest;
