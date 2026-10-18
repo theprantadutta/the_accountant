@@ -206,9 +206,15 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
     });
   }
 
+  /// A search looks through every month. Someone looking for one payment
+  /// rarely knows which month it fell in, and finding it should not mean
+  /// paging back through the year.
+  bool get _searching => _searchQuery.trim().isNotEmpty;
+
+  /// The rows shown for [month], or for every month when it is null.
   List<Transaction> _filterTransactionsForMonth(
     List<Transaction> transactions,
-    DateTime month,
+    DateTime? month,
   ) {
     final categories = ref.read(categoryProvider).categories;
     // Choosing a parent category means the things filed inside it too, so the
@@ -220,7 +226,8 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
     };
 
     return transactions.where((t) {
-      if (t.date.year != month.year || t.date.month != month.month) {
+      if (month != null &&
+          (t.date.year != month.year || t.date.month != month.month)) {
         return false;
       }
       return _filters.matches(t, familyOf: familyOf);
@@ -246,13 +253,19 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
     return grouped;
   }
 
-  /// "Today · Tue 11", "Yesterday · Mon 10", "Wed 5".
-  String _formatDateHeader(DateTime date) {
+  /// "Today · Tue 11", "Yesterday · Mon 10", "Wed 5". With [withMonth], as
+  /// in search results that span months, "Wed 5 Mar" or "Wed 5 Mar 2025".
+  String _formatDateHeader(DateTime date, {bool withMonth = false}) {
     final l10n = L10n.of(context);
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
+    final pattern = !withMonth
+        ? 'EEE d'
+        : date.year == now.year
+        ? 'EEE d MMM'
+        : 'EEE d MMM yyyy';
     final day = DateFormat(
-      'EEE d',
+      pattern,
       Localizations.localeOf(context).toString(),
     ).format(date);
     final diff = date.difference(today).inDays;
@@ -474,8 +487,22 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
     if (updated != null) setState(() => _filters = updated);
   }
 
-  Widget _buildEmptyState(DateTime month) {
+  Widget _buildEmptyState(DateTime? month) {
     final l10n = L10n.of(context);
+    if (month == null) {
+      return ListView(
+        padding: const EdgeInsets.only(top: 40),
+        children: [
+          EmptyState(
+            icon: Symbols.search_off_rounded,
+            title: l10n.activitySearchNothingTitle(
+              _searchController.text.trim(),
+            ),
+            message: l10n.activitySearchNothingBody,
+          ),
+        ],
+      );
+    }
     final now = DateTime.now();
     final isFutureMonth = month.isAfter(DateTime(now.year, now.month));
     final isCurrentMonth = month.year == now.year && month.month == now.month;
@@ -574,8 +601,10 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
     return (income, expense);
   }
 
+  /// One month of transactions, or every match for a search when [month] is
+  /// null.
   Widget _buildMonthPage(
-    DateTime month,
+    DateTime? month,
     List<Transaction> allTransactions,
     bool isLoading,
   ) {
@@ -614,7 +643,9 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
           return Padding(
             padding: const EdgeInsets.only(bottom: SunriseSpace.section),
             child: _MonthSummary(
-              label: DateUtils.isSameMonth(month, DateTime.now())
+              label: month == null
+                  ? l10n.activitySearchFound(filteredTransactions.length)
+                  : DateUtils.isSameMonth(month, DateTime.now())
                   ? l10n.activitySoFar(DateFormat('MMMM', locale).format(month))
                   : DateFormat('MMMM yyyy', locale).format(month),
               net: l10n.activityNet(_money(monthIn - monthOut, sign: true)),
@@ -633,7 +664,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
         return Padding(
           padding: const EdgeInsets.only(bottom: SunriseSpace.section),
           child: DayGroupCard(
-            label: _formatDateHeader(date),
+            label: _formatDateHeader(date, withMonth: month == null),
             total: dayIn == 0 && dayOut == 0
                 ? null
                 : _money(dayNet, sign: true),
@@ -823,22 +854,40 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                       ],
                     ),
                   ),
-                  MonthStrip(
-                    months: _availableMonths,
-                    selectedIndex: _currentPageIndex,
-                    onSelected: _onMonthChipTapped,
-                    controller: _monthScrollController,
+                  // Kept in the tree while searching, so clearing the search
+                  // lands back on the month that was open.
+                  Offstage(
+                    offstage: _searching,
+                    child: MonthStrip(
+                      months: _availableMonths,
+                      selectedIndex: _currentPageIndex,
+                      onSelected: _onMonthChipTapped,
+                      controller: _monthScrollController,
+                    ),
                   ),
                   Expanded(
-                    child: PageView.builder(
-                      controller: _pageController,
-                      onPageChanged: _onPageChanged,
-                      itemCount: _availableMonths.length,
-                      itemBuilder: (context, index) => _buildMonthPage(
-                        _availableMonths[index],
-                        transactionState.transactions,
-                        transactionState.isLoading,
-                      ),
+                    child: Stack(
+                      children: [
+                        Offstage(
+                          offstage: _searching,
+                          child: PageView.builder(
+                            controller: _pageController,
+                            onPageChanged: _onPageChanged,
+                            itemCount: _availableMonths.length,
+                            itemBuilder: (context, index) => _buildMonthPage(
+                              _availableMonths[index],
+                              transactionState.transactions,
+                              transactionState.isLoading,
+                            ),
+                          ),
+                        ),
+                        if (_searching)
+                          _buildMonthPage(
+                            null,
+                            transactionState.transactions,
+                            transactionState.isLoading,
+                          ),
+                      ],
                     ),
                   ),
                 ],

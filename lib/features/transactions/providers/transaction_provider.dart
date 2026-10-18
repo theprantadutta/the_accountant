@@ -11,7 +11,7 @@ import 'package:the_accountant/core/services/wallet_balance_service.dart';
 import 'package:the_accountant/features/transactions/services/transfer_service.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart' as db;
 import 'package:the_accountant/data/datasources/local/app_database.dart'
-    show AppDatabase, TransactionsCompanion, SyncStatus;
+    show AppDatabase, TransactionsCompanion, SyncStatus, SystemCategories;
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
 import 'package:the_accountant/data/models/transaction.dart'
     show TransactionSpecialType, TransactionType;
@@ -835,6 +835,42 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
       }
       return true;
     });
+  }
+
+  /// Whether [row] can be re-filed as a balance correction: an ordinary
+  /// income or expense. A transfer leg, a loan or its repayment, and a row
+  /// that already is a correction each mean something of their own.
+  static bool canMarkAsCorrection(db.Transaction row) =>
+      TransactionPolicy.kindOf(row) == TransactionType.regular &&
+      !TransactionPolicy.isCreditOrDebt(row) &&
+      !TransactionPolicy.isSettlement(row);
+
+  /// File [id] as a balance correction.
+  ///
+  /// For a row that recorded money that was neither earned nor spent, a card's
+  /// limit going up being the usual one. The amount stays where it is, so the
+  /// balance does not move; the row just stops counting as income or spending.
+  /// The correction category is hidden from the pickers, which is why this is
+  /// its own action rather than a category change.
+  Future<bool> markAsCorrection(String id) async {
+    final changed = await _bulk([id], (id) async {
+      final row = await _db.findTransactionById(id);
+      if (row == null || !canMarkAsCorrection(row)) return false;
+      final categoryId = await _db.requireSystemCategoryId(
+        SystemCategories.balanceCorrectionKey,
+      );
+      await _db.updateTransaction(
+        TransactionsCompanion(
+          id: Value(id),
+          categoryId: Value(categoryId),
+          transactionType: Value(TransactionPolicy.adjustmentType),
+          syncStatus: const Value(SyncStatus.pendingUpdate),
+          updatedAt: Value(DateTime.now()),
+        ),
+      );
+      return true;
+    });
+    return changed > 0;
   }
 
   /// Copy every transaction in [ids], dated [date] or their own date.

@@ -224,6 +224,22 @@ class L10nEn extends L10n {
   String get txMarkAsPaid => 'Mark as paid';
 
   @override
+  String get txMarkAsCorrection => 'Mark as balance correction';
+
+  @override
+  String get txMarkAsCorrectionTitle => 'Not income or spending?';
+
+  @override
+  String get txMarkAsCorrectionBody =>
+      'Use this for money that was neither earned nor spent, like a card\'s limit going up. The balance stays the same; it just stops counting as income or spending.';
+
+  @override
+  String get txMarkedAsCorrection => 'Now a balance correction.';
+
+  @override
+  String get txMarkAsCorrectionFailed => 'This one cannot be a correction.';
+
+  @override
   String get txDuplicate => 'Duplicate';
 
   @override
@@ -1511,14 +1527,43 @@ class L10nEn extends L10n {
   String get walletAccountType => 'Account Type';
 
   @override
-  String get walletAccountTypeCannotBeChanged =>
-      'Account type cannot be changed later';
-
-  @override
   String get walletAccountName => 'Account Name';
 
   @override
   String get walletCreditLimit => 'Credit Limit';
+
+  @override
+  String get walletCreditLimitHelp =>
+      'Limit went up? Change it here. A new limit is not income.';
+
+  @override
+  String get walletAmountOwed => 'Amount owed';
+
+  @override
+  String get walletAmountOwedHelp =>
+      'What you owe on the card right now. Use 0 if it is paid off.';
+
+  @override
+  String get walletCurrentBalance => 'Current balance';
+
+  @override
+  String get walletCurrentBalanceHelp =>
+      'A change is saved as a balance correction, so your history still adds up.';
+
+  @override
+  String walletCardBalanceQuestion(String amount) {
+    return 'What is $amount on this card?';
+  }
+
+  @override
+  String get walletCardBalanceCreditLeft => 'Credit I have left';
+
+  @override
+  String get walletCardBalanceOwed => 'What I owe';
+
+  @override
+  String get walletCardBalanceChoose =>
+      'Choose what this amount is, so the debt is worked out right.';
 
   @override
   String get walletBillingCycleDayOptional => 'Billing Cycle Day (optional)';
@@ -2366,6 +2411,26 @@ class L10nEn extends L10n {
   String activityNet(String amount) {
     return '$amount net';
   }
+
+  @override
+  String activitySearchFound(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count matches across all months',
+      one: '1 match across all months',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String activitySearchNothingTitle(String query) {
+    return 'Nothing matches “$query”';
+  }
+
+  @override
+  String get activitySearchNothingBody =>
+      'Every month was searched. Try fewer words, another spelling, or clear a filter.';
 
   @override
   String get activityIn => 'In';

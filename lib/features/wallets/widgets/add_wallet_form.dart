@@ -4,6 +4,7 @@ import 'package:the_accountant/shared/widgets/neo_text_field.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/services/currency_service.dart';
+import 'package:the_accountant/core/utils/currency_formatter.dart';
 import 'package:the_accountant/data/models/wallet.dart' show WalletType;
 import 'package:the_accountant/shared/widgets/color_picker.dart';
 import 'package:the_accountant/shared/widgets/currency_picker.dart';
@@ -20,9 +21,22 @@ typedef WalletFormSubmitCallback =
       required WalletType walletType,
       required double? creditLimit,
       required int? billingCycleDay,
+      required int? balance,
     });
 
-/// Form for adding/editing a wallet with enhanced features
+/// What a positive balance meant on an account that is becoming a card.
+///
+/// Some people track a card as the credit they have left, counting down from
+/// the limit; others track what they owe. The figure alone cannot say which,
+/// and reading it the wrong way turns a debt into savings.
+enum _CardBalanceMeaning { creditLeft, owed }
+
+/// Form for adding/editing a wallet with enhanced features.
+///
+/// [balanceController] holds the balance as the account stands, signed the
+/// way balances are stored: negative on a card means money owed. On a credit
+/// card the field shows the amount owed instead, so it reads the way a
+/// statement does, and the form turns it back into a signed balance on submit.
 class AddWalletForm extends ConsumerStatefulWidget {
   final GlobalKey<FormState> formKey;
   final TextEditingController nameController;
@@ -71,6 +85,11 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
   final TextEditingController _creditLimitController = TextEditingController();
   int? _billingCycleDay;
 
+  /// The balance when the form opened, in cents.
+  int? _openingBalance;
+  _CardBalanceMeaning? _cardBalanceMeaning;
+  bool _showMeaningError = false;
+
   static const _defaultIcons = {
     WalletType.cash: 'wallet',
     WalletType.bankAccount: 'account_balance',
@@ -99,24 +118,84 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
       _creditLimitController.text = widget.initialCreditLimit.toString();
     }
     _billingCycleDay = widget.initialBillingCycleDay;
+    _openingBalance = widget.balanceController.text.toCentsOrNull();
+    if (widget.isEditing &&
+        _walletType == WalletType.creditCard &&
+        _openingBalance != null) {
+      _setAmountField(-_openingBalance!);
+    }
+    _creditLimitController.addListener(_onLimitChanged);
   }
 
   @override
   void dispose() {
+    _creditLimitController.removeListener(_onLimitChanged);
     _creditLimitController.dispose();
     super.dispose();
   }
 
+  void _setAmountField(int cents) {
+    widget.balanceController.text = (cents / 100).toStringAsFixed(2);
+  }
+
+  /// An existing account in credit, now being called a card, whose balance
+  /// has to be read one way or the other before it can be saved.
+  bool get _needsCardBalanceMeaning =>
+      widget.isEditing &&
+      widget.initialWalletType != WalletType.creditCard &&
+      _walletType == WalletType.creditCard &&
+      (_openingBalance ?? 0) > 0;
+
   void _onWalletTypeChanged(WalletType type) {
-    if (widget.isEditing) return; // Type is immutable after creation
+    if (type == _walletType) return;
+    final crossesCard =
+        (type == WalletType.creditCard) !=
+        (_walletType == WalletType.creditCard);
     setState(() {
-      _walletType = type;
-      // Set default icon and color for the type if user hasn't customized
+      // A new account takes the look of its type; an existing one keeps the
+      // look its owner gave it.
       if (!widget.isEditing) {
         _selectedIcon = _defaultIcons[type] ?? 'wallet';
         _selectedColor = _defaultColors[type]!;
       }
+      _walletType = type;
+      _cardBalanceMeaning = null;
+      _showMeaningError = false;
+      // The field shows the amount owed on a card and the balance elsewhere,
+      // so an existing balance flips sign when the account crosses over.
+      if (widget.isEditing && crossesCard) {
+        final entered = widget.balanceController.text.toCentsOrNull();
+        if (entered != null) _setAmountField(-entered);
+      }
     });
+  }
+
+  void _onCardBalanceMeaning(_CardBalanceMeaning meaning) {
+    setState(() {
+      _cardBalanceMeaning = meaning;
+      _showMeaningError = false;
+    });
+    _applyCardBalanceMeaning();
+  }
+
+  void _onLimitChanged() {
+    if (_cardBalanceMeaning == _CardBalanceMeaning.creditLeft) {
+      _applyCardBalanceMeaning();
+    }
+  }
+
+  /// Fill in what is owed from the old balance and how it was meant.
+  void _applyCardBalanceMeaning() {
+    final balance = _openingBalance ?? 0;
+    switch (_cardBalanceMeaning) {
+      case _CardBalanceMeaning.owed:
+        _setAmountField(balance);
+      case _CardBalanceMeaning.creditLeft:
+        final limit = _creditLimitController.text.toCentsOrNull();
+        if (limit != null) _setAmountField(limit - balance);
+      case null:
+        break;
+    }
   }
 
   String get selectedCurrency => _selectedCurrency;
@@ -182,7 +261,13 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
   }
 
   void _submit() {
-    if (!(widget.formKey.currentState?.validate() ?? false)) return;
+    final valid = widget.formKey.currentState?.validate() ?? false;
+    if (_needsCardBalanceMeaning && _cardBalanceMeaning == null) {
+      setState(() => _showMeaningError = true);
+      return;
+    }
+    if (!valid) return;
+    final entered = widget.balanceController.text.toCentsOrNull();
     widget.onSubmit(
       currency: _selectedCurrency,
       icon: _selectedIcon,
@@ -196,6 +281,11 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
       billingCycleDay: _walletType == WalletType.creditCard
           ? _billingCycleDay
           : null,
+      balance: entered == null
+          ? null
+          : _walletType == WalletType.creditCard
+          ? -entered
+          : entered,
     );
   }
 
@@ -256,25 +346,13 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
                     label: typeLabel(type),
                     icon: typeIcon(type),
                     selected: _walletType == type,
-                    onTap: widget.isEditing
-                        ? null
-                        : () => _onWalletTypeChanged(type),
+                    onTap: () => _onWalletTypeChanged(type),
                   ),
                   const SizedBox(width: 8),
                 ],
               ],
             ),
           ),
-          if (!widget.isEditing) ...[
-            const SizedBox(height: 8),
-            Padding(
-              padding: const EdgeInsetsDirectional.only(start: 4),
-              child: Text(
-                l10n.walletAccountTypeCannotBeChanged,
-                style: SunriseType.caption.copyWith(color: c.subtle),
-              ),
-            ),
-          ],
           const SizedBox(height: 18),
 
           NeoTextField(
@@ -301,9 +379,82 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
           ),
           const SizedBox(height: 16),
 
+          // The limit comes before what is owed: reading a balance as credit
+          // left needs the limit to work out the debt.
+          if (_walletType == WalletType.creditCard) ...[
+            NeoTextField(
+              controller: _creditLimitController,
+              label: l10n.walletCreditLimit,
+              hint: l10n.walletEnterCreditLimit,
+              helperText: l10n.walletCreditLimitHelp,
+              prefixIcon: Symbols.credit_score_rounded,
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+              validator: (value) {
+                if (_walletType == WalletType.creditCard) {
+                  if (value == null || value.isEmpty) {
+                    return 'Credit limit is required';
+                  }
+                  final limit = double.tryParse(value);
+                  if (limit == null || limit <= 0) {
+                    return 'Please enter a valid credit limit greater than 0';
+                  }
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 16),
+          ],
+
+          if (_needsCardBalanceMeaning) ...[
+            Text(
+              l10n.walletCardBalanceQuestion(
+                '$symbol${(_openingBalance! / 100).toStringAsFixed(2)}',
+              ),
+              style: SunriseType.rowTitle.copyWith(color: c.ink),
+            ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                SunriseChip(
+                  label: l10n.walletCardBalanceCreditLeft,
+                  selected:
+                      _cardBalanceMeaning == _CardBalanceMeaning.creditLeft,
+                  onTap: () =>
+                      _onCardBalanceMeaning(_CardBalanceMeaning.creditLeft),
+                ),
+                SunriseChip(
+                  label: l10n.walletCardBalanceOwed,
+                  selected: _cardBalanceMeaning == _CardBalanceMeaning.owed,
+                  onTap: () => _onCardBalanceMeaning(_CardBalanceMeaning.owed),
+                ),
+              ],
+            ),
+            if (_showMeaningError) ...[
+              const SizedBox(height: 6),
+              Text(
+                l10n.walletCardBalanceChoose,
+                style: SunriseType.caption.copyWith(color: c.negative),
+              ),
+            ],
+            const SizedBox(height: 16),
+          ],
+
           NeoTextField(
             controller: widget.balanceController,
-            label: l10n.walletInitialBalance,
+            label: _walletType == WalletType.creditCard
+                ? l10n.walletAmountOwed
+                : widget.isEditing
+                ? l10n.walletCurrentBalance
+                : l10n.walletInitialBalance,
+            helperText: _walletType == WalletType.creditCard
+                ? l10n.walletAmountOwedHelp
+                : widget.isEditing
+                ? l10n.walletCurrentBalanceHelp
+                : null,
             hint: '0.00',
             prefixIcon: Symbols.account_balance_wallet_rounded,
             suffixIcon: Padding(
@@ -329,31 +480,6 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
               return null;
             },
           ),
-
-          if (_walletType == WalletType.creditCard) ...[
-            const SizedBox(height: 16),
-            NeoTextField(
-              controller: _creditLimitController,
-              label: l10n.walletCreditLimit,
-              hint: l10n.walletEnterCreditLimit,
-              prefixIcon: Symbols.credit_score_rounded,
-              keyboardType: const TextInputType.numberWithOptions(
-                decimal: true,
-              ),
-              validator: (value) {
-                if (_walletType == WalletType.creditCard) {
-                  if (value == null || value.isEmpty) {
-                    return 'Credit limit is required';
-                  }
-                  final limit = double.tryParse(value);
-                  if (limit == null || limit <= 0) {
-                    return 'Please enter a valid credit limit greater than 0';
-                  }
-                }
-                return null;
-              },
-            ),
-          ],
           const SizedBox(height: 20),
 
           SettingsGroup(

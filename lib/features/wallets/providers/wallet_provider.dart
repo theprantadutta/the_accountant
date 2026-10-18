@@ -10,6 +10,7 @@ import 'package:the_accountant/core/services/wallet_balance_service.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/data/models/wallet.dart' show WalletType;
+import 'package:the_accountant/features/wallets/services/wallet_maintenance_service.dart';
 import 'package:drift/drift.dart' show Value;
 import 'package:uuid/uuid.dart';
 
@@ -259,6 +260,46 @@ class WalletNotifier extends StateNotifier<WalletState> {
     } catch (e) {
       state = state.copyWith(error: e.toString());
     }
+  }
+
+  /// Save what was changed on the edit form.
+  ///
+  /// Everything but the balance is written as it is. A new [balance] is
+  /// recorded as a correction for the difference, the same as the correction
+  /// sheet does, instead of overwriting the stored figure: a balance here is
+  /// the sum of what happened, and one set by hand disagrees with its own
+  /// transactions until the next recalculation quietly undoes it.
+  Future<void> saveEdits({
+    required Wallet wallet,
+    required String name,
+    required String currency,
+    required String iconName,
+    required String color,
+    required bool isDefault,
+    required bool useDecimals,
+    required WalletType walletType,
+    required int? creditLimit,
+    required int? billingCycleDay,
+    int? balance,
+  }) async {
+    await updateWallet(
+      id: wallet.id,
+      name: name,
+      currency: currency,
+      iconName: iconName,
+      color: color,
+      isDefault: isDefault,
+      useDecimals: useDecimals,
+      walletType: walletType,
+      creditLimit: creditLimit,
+      billingCycleDay: billingCycleDay,
+    );
+    if (balance != null && balance != wallet.balance) {
+      await WalletMaintenanceService(
+        _database,
+      ).correctBalance(walletId: wallet.id, actualBalance: balance);
+    }
+    await loadWallets();
   }
 
   /// Close an account without losing what it explains.

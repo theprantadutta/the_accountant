@@ -6,7 +6,6 @@ import 'package:the_accountant/core/services/currency_service.dart';
 import 'package:the_accountant/core/utils/number_formatter.dart';
 import 'package:the_accountant/features/settings/providers/settings_provider.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
-import 'package:the_accountant/core/utils/currency_formatter.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/core/themes/app_typography.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
@@ -15,7 +14,7 @@ import 'package:the_accountant/features/dashboard/providers/balance_visibility_p
 import 'package:the_accountant/features/wallets/domain/credit_card_position.dart';
 import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
 import 'package:the_accountant/features/wallets/screens/wallet_management_screen.dart';
-import 'package:the_accountant/features/wallets/widgets/add_wallet_form.dart';
+import 'package:the_accountant/features/wallets/widgets/edit_wallet_sheet.dart';
 import 'package:the_accountant/shared/widgets/color_picker.dart';
 import 'package:the_accountant/shared/widgets/icon_picker.dart';
 import 'package:the_accountant/shared/widgets/shimmer_loading.dart';
@@ -424,101 +423,7 @@ class _WalletCardState extends ConsumerState<_WalletCard>
   }
 
   void _showEditWalletSheet(BuildContext context) {
-    final wallet = widget.wallet;
-    final editNameController = TextEditingController(text: wallet.name);
-    final editBalanceController = TextEditingController(
-      text: (wallet.balance / 100.0).toStringAsFixed(2),
-    );
-    final editFormKey = GlobalKey<FormState>();
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder: (sheetContext) => Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(sheetContext).viewInsets.bottom,
-        ),
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: AppSpacing.paddingLg,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 40,
-                  height: 4,
-                  margin: const EdgeInsets.only(bottom: 20),
-                  decoration: BoxDecoration(
-                    color: AppColors.divider,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-                AddWalletForm(
-                  formKey: editFormKey,
-                  nameController: editNameController,
-                  balanceController: editBalanceController,
-                  initialCurrency: wallet.currency,
-                  initialIcon: wallet.iconName,
-                  initialColor: wallet.color,
-                  initialIsDefault: wallet.isDefault,
-                  initialUseDecimals: wallet.useDecimals,
-                  initialWalletType: wallet.walletType,
-                  initialCreditLimit: wallet.creditLimit == null
-                      ? null
-                      : wallet.creditLimit! / 100.0,
-                  initialBillingCycleDay: wallet.billingCycleDay,
-                  isEditing: true,
-                  onSubmit:
-                      ({
-                        required String currency,
-                        required String icon,
-                        required String color,
-                        required bool isDefault,
-                        required bool useDecimals,
-                        required WalletType walletType,
-                        required double? creditLimit,
-                        required int? billingCycleDay,
-                      }) {
-                        ref
-                            .read(walletProvider.notifier)
-                            .updateWallet(
-                              id: wallet.id,
-                              name: editNameController.text,
-                              currency: currency,
-                              balance: editBalanceController.text
-                                  .toCentsOrNull(),
-                              iconName: icon,
-                              color: color,
-                              isDefault: isDefault,
-                              useDecimals: useDecimals,
-                              walletType: walletType,
-                              creditLimit: creditLimit == null
-                                  ? null
-                                  : (creditLimit * 100).round(),
-                              billingCycleDay: billingCycleDay,
-                            );
-                        Navigator.pop(sheetContext);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              L10n.of(context).walletAccountUpdatedSuccessfully,
-                            ),
-                            backgroundColor: AppColors.success,
-                            behavior: SnackBarBehavior.floating,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                        );
-                      },
-                  onCancel: () => Navigator.pop(sheetContext),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
+    showEditWalletSheet(context, ref, widget.wallet);
   }
 
   static String _walletTypeLabel(WalletType type) {

@@ -505,6 +505,36 @@ abstract class L10n {
   /// **'Mark as paid'**
   String get txMarkAsPaid;
 
+  /// No description provided for @txMarkAsCorrection.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as balance correction'**
+  String get txMarkAsCorrection;
+
+  /// No description provided for @txMarkAsCorrectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Not income or spending?'**
+  String get txMarkAsCorrectionTitle;
+
+  /// No description provided for @txMarkAsCorrectionBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Use this for money that was neither earned nor spent, like a card\'s limit going up. The balance stays the same; it just stops counting as income or spending.'**
+  String get txMarkAsCorrectionBody;
+
+  /// No description provided for @txMarkedAsCorrection.
+  ///
+  /// In en, this message translates to:
+  /// **'Now a balance correction.'**
+  String get txMarkedAsCorrection;
+
+  /// No description provided for @txMarkAsCorrectionFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'This one cannot be a correction.'**
+  String get txMarkAsCorrectionFailed;
+
   /// No description provided for @txDuplicate.
   ///
   /// In en, this message translates to:
@@ -2909,12 +2939,6 @@ abstract class L10n {
   /// **'Account Type'**
   String get walletAccountType;
 
-  /// No description provided for @walletAccountTypeCannotBeChanged.
-  ///
-  /// In en, this message translates to:
-  /// **'Account type cannot be changed later'**
-  String get walletAccountTypeCannotBeChanged;
-
   /// No description provided for @walletAccountName.
   ///
   /// In en, this message translates to:
@@ -2926,6 +2950,60 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'Credit Limit'**
   String get walletCreditLimit;
+
+  /// No description provided for @walletCreditLimitHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Limit went up? Change it here. A new limit is not income.'**
+  String get walletCreditLimitHelp;
+
+  /// No description provided for @walletAmountOwed.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount owed'**
+  String get walletAmountOwed;
+
+  /// No description provided for @walletAmountOwedHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'What you owe on the card right now. Use 0 if it is paid off.'**
+  String get walletAmountOwedHelp;
+
+  /// No description provided for @walletCurrentBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Current balance'**
+  String get walletCurrentBalance;
+
+  /// No description provided for @walletCurrentBalanceHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'A change is saved as a balance correction, so your history still adds up.'**
+  String get walletCurrentBalanceHelp;
+
+  /// No description provided for @walletCardBalanceQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'What is {amount} on this card?'**
+  String walletCardBalanceQuestion(String amount);
+
+  /// No description provided for @walletCardBalanceCreditLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'Credit I have left'**
+  String get walletCardBalanceCreditLeft;
+
+  /// No description provided for @walletCardBalanceOwed.
+  ///
+  /// In en, this message translates to:
+  /// **'What I owe'**
+  String get walletCardBalanceOwed;
+
+  /// No description provided for @walletCardBalanceChoose.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose what this amount is, so the debt is worked out right.'**
+  String get walletCardBalanceChoose;
 
   /// No description provided for @walletBillingCycleDayOptional.
   ///
@@ -4456,6 +4534,24 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'{amount} net'**
   String activityNet(String amount);
+
+  /// No description provided for @activitySearchFound.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 match across all months} other{{count} matches across all months}}'**
+  String activitySearchFound(int count);
+
+  /// No description provided for @activitySearchNothingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing matches “{query}”'**
+  String activitySearchNothingTitle(String query);
+
+  /// No description provided for @activitySearchNothingBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Every month was searched. Try fewer words, another spelling, or clear a filter.'**
+  String get activitySearchNothingBody;
 
   /// No description provided for @activityIn.
   ///

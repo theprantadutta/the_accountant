@@ -378,6 +378,15 @@ class _TransactionDetailScreenState
                   _onAction('paid');
                 },
               ),
+            if (TransactionNotifier.canMarkAsCorrection(row))
+              SheetAction(
+                icon: Symbols.balance_rounded,
+                label: l10n.txMarkAsCorrection,
+                onTap: () {
+                  Navigator.pop(sheet);
+                  _onAction('correction');
+                },
+              ),
             SheetAction(
               icon: Symbols.delete_rounded,
               label: l10n.actionDelete,
@@ -421,6 +430,24 @@ class _TransactionDetailScreenState
       case 'paid':
         await notifier.markManyPaid([widget.transactionId]);
         await _load();
+
+      case 'correction':
+        final l10n = L10n.of(context);
+        final confirmed = await showConfirmationDialog(
+          context: context,
+          title: l10n.txMarkAsCorrectionTitle,
+          message: l10n.txMarkAsCorrectionBody,
+          confirmText: l10n.txMarkAsCorrection,
+        );
+        if (confirmed != true || !mounted) return;
+        final done = await notifier.markAsCorrection(widget.transactionId);
+        await _load();
+        if (!mounted) return;
+        showSunriseSnack(
+          context,
+          done ? l10n.txMarkedAsCorrection : l10n.txMarkAsCorrectionFailed,
+          tone: done ? SnackTone.success : SnackTone.error,
+        );
 
       case 'delete':
         final confirmed = await showConfirmationDialog(

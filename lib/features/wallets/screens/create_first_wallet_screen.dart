@@ -80,8 +80,11 @@ class _CreateFirstWalletScreenState
       await walletNotifier.addWallet(
         name: _nameController.text.trim(),
         currency: _selectedCurrency,
-        balance: ((double.tryParse(_balanceController.text) ?? 0.0) * 100)
-            .round(), // dollars -> integer cents
+        // A card is asked for what is owed, which is a negative balance.
+        balance:
+            ((double.tryParse(_balanceController.text) ?? 0.0) *
+                    (_walletType == WalletType.creditCard ? -100 : 100))
+                .round(),
         iconName: _selectedIcon,
         color: _selectedColor,
         isDefault: true, // First wallet is always default
@@ -215,14 +218,6 @@ class _CreateFirstWalletScreenState
                   ),
                 ),
 
-                const SizedBox(height: 6),
-                Text(
-                  L10n.of(context).walletAccountTypeCannotBeChanged,
-                  style: AppTypography.bodySmall.copyWith(
-                    color: AppColors.textMuted,
-                  ),
-                ),
-
                 const SizedBox(height: 24),
 
                 // Wallet name
@@ -280,7 +275,9 @@ class _CreateFirstWalletScreenState
 
                 // Initial balance
                 Text(
-                  L10n.of(context).walletInitialBalance,
+                  _walletType == WalletType.creditCard
+                      ? L10n.of(context).walletAmountOwed
+                      : L10n.of(context).walletInitialBalance,
                   style: AppTypography.labelLarge,
                 ),
                 const SizedBox(height: 8),

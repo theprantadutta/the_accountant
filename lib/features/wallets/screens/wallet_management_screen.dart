@@ -23,6 +23,7 @@ import 'package:the_accountant/features/transactions/widgets/transaction_type_he
 import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
 import 'package:the_accountant/features/wallets/screens/wallet_detail_screen.dart';
 import 'package:the_accountant/features/wallets/widgets/add_wallet_form.dart';
+import 'package:the_accountant/features/wallets/widgets/edit_wallet_sheet.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:the_accountant/shared/widgets/color_picker.dart';
 import 'package:the_accountant/shared/widgets/icon_picker.dart';
@@ -85,6 +86,7 @@ class _WalletManagementScreenState
     required WalletType walletType,
     required double? creditLimit,
     required int? billingCycleDay,
+    required int? balance,
   }) async {
     final walletNotifier = ref.read(walletProvider.notifier);
     final l10n = L10n.of(context);
@@ -93,7 +95,7 @@ class _WalletManagementScreenState
       await walletNotifier.addWallet(
         name: _nameController.text,
         currency: currency,
-        balance: _balanceController.text.toCentsOrNull() ?? 0,
+        balance: balance ?? 0,
         iconName: icon,
         color: color,
         isDefault: isDefault,
@@ -169,69 +171,7 @@ class _WalletManagementScreenState
   }
 
   void _showEditWalletSheet(Wallet wallet) {
-    final editNameController = TextEditingController(text: wallet.name);
-    final editBalanceController = TextEditingController(
-      text: (wallet.balance / 100.0).toStringAsFixed(2),
-    );
-    final editFormKey = GlobalKey<FormState>();
-
-    showSunriseSheet<void>(
-      context: context,
-      builder: (sheetContext) => SunriseBottomSheet(
-        child: AddWalletForm(
-          formKey: editFormKey,
-          nameController: editNameController,
-          balanceController: editBalanceController,
-          initialCurrency: wallet.currency,
-          initialIcon: wallet.iconName,
-          initialColor: wallet.color,
-          initialIsDefault: wallet.isDefault,
-          initialUseDecimals: wallet.useDecimals,
-          initialWalletType: wallet.walletType,
-          initialCreditLimit: wallet.creditLimit == null
-              ? null
-              : wallet.creditLimit! / 100.0,
-          initialBillingCycleDay: wallet.billingCycleDay,
-          isEditing: true,
-          onSubmit:
-              ({
-                required String currency,
-                required String icon,
-                required String color,
-                required bool isDefault,
-                required bool useDecimals,
-                required WalletType walletType,
-                required double? creditLimit,
-                required int? billingCycleDay,
-              }) {
-                ref
-                    .read(walletProvider.notifier)
-                    .updateWallet(
-                      id: wallet.id,
-                      name: editNameController.text,
-                      currency: currency,
-                      balance: editBalanceController.text.toCentsOrNull(),
-                      iconName: icon,
-                      color: color,
-                      isDefault: isDefault,
-                      useDecimals: useDecimals,
-                      walletType: walletType,
-                      creditLimit: creditLimit == null
-                          ? null
-                          : (creditLimit * 100).round(),
-                      billingCycleDay: billingCycleDay,
-                    );
-                Navigator.pop(sheetContext);
-                showSunriseSnack(
-                  context,
-                  L10n.of(context).walletAccountUpdatedSuccessfully,
-                  tone: SnackTone.success,
-                );
-              },
-          onCancel: () => Navigator.pop(sheetContext),
-        ),
-      ),
-    );
+    showEditWalletSheet(context, ref, wallet);
   }
 
   void _showOptions(Wallet wallet) {

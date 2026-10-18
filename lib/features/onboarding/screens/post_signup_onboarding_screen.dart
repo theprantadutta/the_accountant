@@ -95,7 +95,9 @@ class _PostSignupOnboardingScreenState
   }
 
   Future<void> _completeOnboarding() async {
-    final balance = double.tryParse(_balanceController.text) ?? 0.0;
+    final entered = double.tryParse(_balanceController.text) ?? 0.0;
+    // A card is asked for what is owed, which is a negative balance.
+    final balance = _walletType == WalletType.creditCard ? -entered : entered;
 
     await ref
         .read(onboardingProvider.notifier)
@@ -431,11 +433,6 @@ class _PostSignupOnboardingScreenState
               }).toList(),
             ),
           ),
-          const SizedBox(height: 6),
-          Text(
-            L10n.of(context).walletAccountTypeCannotBeChanged,
-            style: AppTypography.bodySmall.copyWith(color: AppColors.textMuted),
-          ),
           AppSpacing.gapMd,
 
           // Wallet name
@@ -461,7 +458,9 @@ class _PostSignupOnboardingScreenState
 
           // Initial balance
           Text(
-            L10n.of(context).onboardInitialBalanceOptional,
+            _walletType == WalletType.creditCard
+                ? L10n.of(context).walletAmountOwed
+                : L10n.of(context).onboardInitialBalanceOptional,
             style: AppTypography.labelMedium,
           ),
           AppSpacing.gapSm,
@@ -685,7 +684,9 @@ class _PostSignupOnboardingScreenState
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      L10n.of(context).walletInitialBalance,
+                      _walletType == WalletType.creditCard
+                          ? L10n.of(context).walletAmountOwed
+                          : L10n.of(context).walletInitialBalance,
                       style: AppTypography.bodyMedium.copyWith(
                         color: AppColors.textSecondary,
                       ),

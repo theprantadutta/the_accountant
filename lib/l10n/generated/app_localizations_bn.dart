@@ -224,6 +224,22 @@ class L10nBn extends L10n {
   String get txMarkAsPaid => 'পরিশোধিত হিসেবে চিহ্নিত করুন';
 
   @override
+  String get txMarkAsCorrection => 'ব্যালেন্স সংশোধন হিসেবে চিহ্নিত করুন';
+
+  @override
+  String get txMarkAsCorrectionTitle => 'এটি আয় বা খরচ নয়?';
+
+  @override
+  String get txMarkAsCorrectionBody =>
+      'যে টাকা আয়ও নয়, খরচও নয় — যেমন কার্ডের সীমা বাড়া — তার জন্য এটি ব্যবহার করুন। ব্যালেন্স একই থাকে; শুধু এটি আর আয় বা খরচ হিসেবে গোনা হয় না।';
+
+  @override
+  String get txMarkedAsCorrection => 'এখন এটি একটি ব্যালেন্স সংশোধন।';
+
+  @override
+  String get txMarkAsCorrectionFailed => 'এটিকে সংশোধন করা যায় না।';
+
+  @override
   String get txDuplicate => 'নকল তৈরি করুন';
 
   @override
@@ -1505,14 +1521,43 @@ class L10nBn extends L10n {
   String get walletAccountType => 'অ্যাকাউন্টের ধরন';
 
   @override
-  String get walletAccountTypeCannotBeChanged =>
-      'অ্যাকাউন্টের ধরন পরে বদলানো যাবে না';
-
-  @override
   String get walletAccountName => 'অ্যাকাউন্টের নাম';
 
   @override
   String get walletCreditLimit => 'ক্রেডিট সীমা';
+
+  @override
+  String get walletCreditLimitHelp =>
+      'সীমা বেড়েছে? এখানে বদলান। নতুন সীমা আয় নয়।';
+
+  @override
+  String get walletAmountOwed => 'বকেয়া';
+
+  @override
+  String get walletAmountOwedHelp =>
+      'এই মুহূর্তে কার্ডে আপনার যত বকেয়া। পরিশোধ হয়ে থাকলে ০ দিন।';
+
+  @override
+  String get walletCurrentBalance => 'বর্তমান ব্যালেন্স';
+
+  @override
+  String get walletCurrentBalanceHelp =>
+      'পরিবর্তনটি ব্যালেন্স সংশোধন হিসেবে সংরক্ষিত হয়, তাই আপনার হিসাব মিলে থাকে।';
+
+  @override
+  String walletCardBalanceQuestion(String amount) {
+    return 'এই কার্ডে $amount আসলে কী?';
+  }
+
+  @override
+  String get walletCardBalanceCreditLeft => 'বাকি থাকা ক্রেডিট';
+
+  @override
+  String get walletCardBalanceOwed => 'আমার বকেয়া';
+
+  @override
+  String get walletCardBalanceChoose =>
+      'এই অঙ্কটি কী তা বেছে নিন, যাতে বকেয়া ঠিকভাবে হিসাব হয়।';
 
   @override
   String get walletBillingCycleDayOptional => 'বিল চক্রের দিন (ঐচ্ছিক)';
@@ -2346,6 +2391,26 @@ class L10nBn extends L10n {
   String activityNet(String amount) {
     return 'নিট $amount';
   }
+
+  @override
+  String activitySearchFound(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'সব মাস মিলিয়ে $countটি মিল',
+      one: 'সব মাস মিলিয়ে ১টি মিল',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String activitySearchNothingTitle(String query) {
+    return '“$query” এর সাথে কিছু মেলেনি';
+  }
+
+  @override
+  String get activitySearchNothingBody =>
+      'সব মাস খোঁজা হয়েছে। কম শব্দ, অন্য বানান চেষ্টা করুন, বা একটি ফিল্টার সরান।';
 
   @override
   String get activityIn => 'আয়';
