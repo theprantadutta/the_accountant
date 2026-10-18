@@ -85,12 +85,15 @@ class _AuthWrapperState extends ConsumerState<AuthWrapper>
       _checkBiometricLockOnResume();
       // When app returns to foreground, check if token needs refresh
       _checkAndRefreshTokenOnResume();
-      // Trigger auto-sync on resume
-      ref.read(syncNotifierProvider.notifier).triggerAutoSync();
+      // Catch up, and restart the periodic sync the pause stopped. It used to
+      // be stopped here for good: one trip to the background and the app never
+      // synced on its own again until it was restarted.
+      ref.read(syncNotifierProvider.notifier).onAppResumed();
     } else if (state == AppLifecycleState.paused) {
       _pausedAt = DateTime.now();
-      // Stop periodic sync when app goes to background
-      ref.read(syncNotifierProvider.notifier).stopPeriodicSync();
+      // Stop the periodic timer while in the background, and send any edit
+      // still waiting for its sync before the OS suspends the app.
+      ref.read(syncNotifierProvider.notifier).onAppPaused();
     }
   }
 

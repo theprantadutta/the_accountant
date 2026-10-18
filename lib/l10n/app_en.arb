@@ -392,6 +392,7 @@
   "settingsSyncing": "Syncing...",
   "settingsSynced": "Synced",
   "settingsSyncError": "Sync Error",
+  "syncBackgroundFailed": "Couldn't sync. Your changes are safe on this device and will sync later.",
   "settingsOffline": "Offline",
   "settingsReady": "Ready",
   "settingsYesUseThis": "Yes, use this",
