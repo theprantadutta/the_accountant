@@ -1214,30 +1214,30 @@ class _OutOfRequests extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 10),
+            // Stacked, so each label has the full width on a narrow phone
+            // and in longer languages. Premium leads: it is the real answer
+            // to running out, and an ad is the stopgap.
             Padding(
               padding: const EdgeInsets.only(right: 8),
-              child: Row(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  if (canWatchAd) ...[
-                    Expanded(
-                      child: SunriseButton(
-                        label: l10n.adWatch,
-                        icon: Symbols.play_circle_rounded,
-                        height: 44,
-                        onPressed: onWatchAd,
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                  ],
-                  Expanded(
-                    child: SunriseButton(
-                      label: l10n.adGetPremium,
-                      icon: Symbols.workspace_premium_rounded,
-                      style: SunriseButtonStyle.secondary,
-                      height: 44,
-                      onPressed: onPremium,
-                    ),
+                  SunriseButton(
+                    label: l10n.adGetPremium,
+                    icon: Symbols.workspace_premium_rounded,
+                    height: 46,
+                    onPressed: onPremium,
                   ),
+                  if (canWatchAd) ...[
+                    const SizedBox(height: 8),
+                    SunriseButton(
+                      label: l10n.adWatch,
+                      icon: Symbols.play_circle_rounded,
+                      style: SunriseButtonStyle.secondary,
+                      height: 46,
+                      onPressed: onWatchAd,
+                    ),
+                  ],
                 ],
               ),
             ),
