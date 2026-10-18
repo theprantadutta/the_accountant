@@ -230,6 +230,68 @@ class L10nEn extends L10n {
   String get filterTitle => 'Filter';
 
   @override
+  String get filterDirection => 'Direction';
+
+  @override
+  String get filterState => 'State';
+
+  @override
+  String get filterKind => 'Kind';
+
+  @override
+  String get filterTransfers => 'Transfers';
+
+  @override
+  String get filterAccounts => 'Accounts';
+
+  @override
+  String get filterCategories => 'Categories';
+
+  @override
+  String get filterDates => 'Dates';
+
+  @override
+  String get filterBudget => 'Budget';
+
+  @override
+  String get filterGoal => 'Goal';
+
+  @override
+  String get filterNone => 'None';
+
+  @override
+  String filterShowAll(int count) {
+    return 'Show all ($count)';
+  }
+
+  @override
+  String get filterShowLess => 'Show less';
+
+  @override
+  String get filterThisMonth => 'This month';
+
+  @override
+  String get filterLastMonth => 'Last month';
+
+  @override
+  String get filterLast3Months => 'Last 3 months';
+
+  @override
+  String get filterThisYear => 'This year';
+
+  @override
+  String filterShowCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Show $count transactions',
+      one: 'Show 1 transaction',
+      zero: 'No transactions match',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get filterClearAll => 'Clear all';
 
   @override
@@ -1952,9 +2014,6 @@ class L10nEn extends L10n {
   String get navToday => 'Today';
 
   @override
-  String get navWallets => 'Wallets';
-
-  @override
   String get navAdd => 'Add';
 
   @override
@@ -1978,11 +2037,11 @@ class L10nEn extends L10n {
       'Tap Add to record an expense, income or transfer.';
 
   @override
-  String get walkthroughWalletsTitle => 'Wallets and planning';
+  String get walkthroughTransactionsTitle => 'Your transactions';
 
   @override
-  String get walkthroughWalletsBody =>
-      'Your accounts, plus upcoming bills, lend & borrow, goals and budgets.';
+  String get walkthroughTransactionsBody =>
+      'Every transaction, month by month. Search and filter to find anything.';
 
   @override
   String get walkthroughStatsTitle => 'See where it goes';
@@ -2285,9 +2344,6 @@ class L10nEn extends L10n {
   String statsRemaining(String percent) {
     return '$percent% remaining';
   }
-
-  @override
-  String get activityTitle => 'Activity';
 
   @override
   String get activityAll => 'All';

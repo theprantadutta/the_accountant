@@ -230,6 +230,68 @@ class L10nBn extends L10n {
   String get filterTitle => 'ফিল্টার';
 
   @override
+  String get filterDirection => 'দিক';
+
+  @override
+  String get filterState => 'অবস্থা';
+
+  @override
+  String get filterKind => 'ধরন';
+
+  @override
+  String get filterTransfers => 'ট্রান্সফার';
+
+  @override
+  String get filterAccounts => 'অ্যাকাউন্ট';
+
+  @override
+  String get filterCategories => 'ক্যাটাগরি';
+
+  @override
+  String get filterDates => 'তারিখ';
+
+  @override
+  String get filterBudget => 'বাজেট';
+
+  @override
+  String get filterGoal => 'লক্ষ্য';
+
+  @override
+  String get filterNone => 'কোনোটি নয়';
+
+  @override
+  String filterShowAll(int count) {
+    return 'সব দেখুন ($count)';
+  }
+
+  @override
+  String get filterShowLess => 'কম দেখুন';
+
+  @override
+  String get filterThisMonth => 'এই মাস';
+
+  @override
+  String get filterLastMonth => 'গত মাস';
+
+  @override
+  String get filterLast3Months => 'গত ৩ মাস';
+
+  @override
+  String get filterThisYear => 'এই বছর';
+
+  @override
+  String filterShowCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countটি লেনদেন দেখুন',
+      one: '১টি লেনদেন দেখুন',
+      zero: 'কোনো লেনদেন মেলেনি',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get filterClearAll => 'সব মুছুন';
 
   @override
@@ -1933,9 +1995,6 @@ class L10nBn extends L10n {
   String get navToday => 'আজ';
 
   @override
-  String get navWallets => 'ওয়ালেট';
-
-  @override
   String get navAdd => 'যোগ';
 
   @override
@@ -1957,11 +2016,11 @@ class L10nBn extends L10n {
   String get walkthroughAddBody => 'খরচ, আয় বা ট্রান্সফার লিখতে যোগ চাপুন।';
 
   @override
-  String get walkthroughWalletsTitle => 'ওয়ালেট ও পরিকল্পনা';
+  String get walkthroughTransactionsTitle => 'আপনার লেনদেন';
 
   @override
-  String get walkthroughWalletsBody =>
-      'আপনার অ্যাকাউন্ট, আসন্ন বিল, ধার-দেনা, লক্ষ্য ও বাজেট।';
+  String get walkthroughTransactionsBody =>
+      'মাস অনুযায়ী সব লেনদেন। যেকোনো কিছু খুঁজে পেতে সার্চ ও ফিল্টার করুন।';
 
   @override
   String get walkthroughStatsTitle => 'টাকা কোথায় যায় দেখুন';
@@ -2265,9 +2324,6 @@ class L10nBn extends L10n {
   String statsRemaining(String percent) {
     return '$percent% বাকি';
   }
-
-  @override
-  String get activityTitle => 'লেনদেন';
 
   @override
   String get activityAll => 'সব';

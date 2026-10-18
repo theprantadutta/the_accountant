@@ -94,6 +94,37 @@
   "txMarkAsPaid": "Mark as paid",
   "txDuplicate": "Duplicate",
   "filterTitle": "Filter",
+  "filterDirection": "Direction",
+  "filterState": "State",
+  "filterKind": "Kind",
+  "filterTransfers": "Transfers",
+  "filterAccounts": "Accounts",
+  "filterCategories": "Categories",
+  "filterDates": "Dates",
+  "filterBudget": "Budget",
+  "filterGoal": "Goal",
+  "filterNone": "None",
+  "filterShowAll": "Show all ({count})",
+  "@filterShowAll": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filterShowLess": "Show less",
+  "filterThisMonth": "This month",
+  "filterLastMonth": "Last month",
+  "filterLast3Months": "Last 3 months",
+  "filterThisYear": "This year",
+  "filterShowCount": "{count, plural, =0{No transactions match} =1{Show 1 transaction} other{Show {count} transactions}}",
+  "@filterShowCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "filterClearAll": "Clear all",
   "filterAny": "Any",
   "filterSpent": "Spent",
@@ -703,7 +734,6 @@
     }
   },
   "navToday": "Today",
-  "navWallets": "Wallets",
   "navAdd": "Add",
   "navStats": "Stats",
   "navMore": "More",
@@ -711,8 +741,8 @@
   "walkthroughTodayBody": "Net worth, what you earned and spent, and today’s activity.",
   "walkthroughAddTitle": "Add in seconds",
   "walkthroughAddBody": "Tap Add to record an expense, income or transfer.",
-  "walkthroughWalletsTitle": "Wallets and planning",
-  "walkthroughWalletsBody": "Your accounts, plus upcoming bills, lend & borrow, goals and budgets.",
+  "walkthroughTransactionsTitle": "Your transactions",
+  "walkthroughTransactionsBody": "Every transaction, month by month. Search and filter to find anything.",
   "walkthroughStatsTitle": "See where it goes",
   "walkthroughStatsBody": "Charts by week, month and year, by category.",
   "walkthroughBellTitle": "Stay informed",
@@ -910,7 +940,6 @@
       }
     }
   },
-  "activityTitle": "Activity",
   "activityAll": "All",
   "activitySpent": "Spent",
   "activityEarned": "Earned",

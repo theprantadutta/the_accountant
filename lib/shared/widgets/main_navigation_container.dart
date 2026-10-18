@@ -27,7 +27,6 @@ import 'package:the_accountant/features/transactions/widgets/transaction_type_he
 import 'package:the_accountant/features/walkthrough/walkthrough_service.dart';
 import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
 import 'package:the_accountant/features/wallets/screens/create_first_wallet_screen.dart';
-import 'package:the_accountant/features/wallets/screens/wallet_management_screen.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:the_accountant/shared/widgets/shimmer_loading.dart';
 import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
@@ -56,7 +55,7 @@ class _MainNavigationContainerState
   final GlobalKey _addKey = GlobalKey();
   final GlobalKey _notificationKey = GlobalKey();
   final GlobalKey _navTodayKey = GlobalKey();
-  final GlobalKey _navWalletsKey = GlobalKey();
+  final GlobalKey _navTransactionsKey = GlobalKey();
   final GlobalKey _navStatsKey = GlobalKey();
 
   /// Crossfade plus a 6dp rise on every tab switch.
@@ -71,7 +70,10 @@ class _MainNavigationContainerState
       balanceKey: _balanceKey,
       notificationKey: _notificationKey,
     ),
-    const WalletManagementScreen(asTab: true),
+    // Transactions rather than wallets: what was spent, month by month, is
+    // what people come back to every day. Wallets are a tap away on the
+    // net-worth card and under More.
+    const TransactionListScreen(),
     const ReportsScreen(),
     const SettingsScreen(),
   ];
@@ -79,7 +81,7 @@ class _MainNavigationContainerState
   /// Stable English names, for analytics. Event identifiers, not labels.
   static const List<String> _screenTitles = [
     'Dashboard',
-    'Wallets',
+    'Transactions',
     'Reports',
     'Settings',
   ];
@@ -87,6 +89,7 @@ class _MainNavigationContainerState
   /// The tab each destination lives on, for the ones that are tabs.
   static const Map<AppDestination, int> _tabFor = {
     AppDestination.dashboard: 0,
+    AppDestination.transactions: 1,
     AppDestination.reports: 2,
     AppDestination.settings: 3,
   };
@@ -227,7 +230,7 @@ class _MainNavigationContainerState
       'balance': _balanceKey,
       'add': _addKey,
       'navToday': _navTodayKey,
-      'navWallets': _navWalletsKey,
+      'navTransactions': _navTransactionsKey,
       'navStats': _navStatsKey,
       'notification': _notificationKey,
     });
@@ -265,9 +268,9 @@ class _MainNavigationContainerState
         badge: unread > 0 && _currentIndex != 0,
       ),
       SunriseTabItem(
-        icon: Symbols.account_balance_wallet_rounded,
-        label: l10n.navWallets,
-        key: _navWalletsKey,
+        icon: Symbols.receipt_long_rounded,
+        label: l10n.navTransactions,
+        key: _navTransactionsKey,
       ),
       SunriseTabItem(
         icon: Symbols.leaderboard_rounded,

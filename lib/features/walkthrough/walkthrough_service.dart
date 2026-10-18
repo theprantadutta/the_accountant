@@ -37,11 +37,11 @@ class WalkthroughService {
         description: l10n.walkthroughTodayBody,
       ),
       _WalkthroughStep(
-        key: keys['navWallets']!,
+        key: keys['navTransactions']!,
         align: ContentAlign.top,
-        icon: Symbols.account_balance_wallet_rounded,
-        title: l10n.walkthroughWalletsTitle,
-        description: l10n.walkthroughWalletsBody,
+        icon: Symbols.receipt_long_rounded,
+        title: l10n.walkthroughTransactionsTitle,
+        description: l10n.walkthroughTransactionsBody,
       ),
       _WalkthroughStep(
         key: keys['navStats']!,

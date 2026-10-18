@@ -25,6 +25,8 @@ void main() {
     bool isPaid = true,
     bool skipPaid = false,
     TransactionSpecialType specialType = TransactionSpecialType.none,
+    String? budgetId,
+    String? objectiveId,
   }) => Transaction(
     id: id,
     amount: amount,
@@ -40,7 +42,28 @@ void main() {
     isPaid: isPaid,
     skipPaid: skipPaid,
     specialType: specialType,
+    budgetId: budgetId,
+    objectiveId: objectiveId,
   );
+
+  group('budgets and goals', () {
+    test('a budget keeps only what was assigned to it', () {
+      const f = TransactionFilters(budgetIds: {'food'});
+      expect(f.matches(txn(budgetId: 'food')), isTrue);
+      expect(f.matches(txn(budgetId: 'fun')), isFalse);
+      expect(f.matches(txn()), isFalse);
+    });
+
+    test('"none" finds what was assigned to nothing, alongside named ones', () {
+      const f = TransactionFilters(
+        objectiveIds: {TransactionFilters.unassigned, 'laptop'},
+      );
+      expect(f.matches(txn()), isTrue);
+      expect(f.matches(txn(objectiveId: 'laptop')), isTrue);
+      expect(f.matches(txn(objectiveId: 'trip')), isFalse);
+      expect(f.activeCount, 1);
+    });
+  });
 
   group('transfers', () {
     final transfer = txn(transactionType: 'transfer');

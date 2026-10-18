@@ -456,9 +456,20 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
   }
 
   Future<void> _showFilterOptions(BuildContext context) async {
+    final transactions = ref.read(transactionProvider).transactions;
+    final categories = ref.read(categoryProvider).categories;
+    Set<String> familyOf(String id) => {
+      id,
+      for (final c in categories)
+        if (c.mainCategoryId == id) c.id,
+    };
     final updated = await showTransactionFilterSheet(
       context: context,
       current: _filters,
+      // Across every month, so the button can say what applying will show.
+      countFor: (filters) => transactions
+          .where((t) => filters.matches(t, familyOf: familyOf))
+          .length,
     );
     if (updated != null) setState(() => _filters = updated);
   }
@@ -754,7 +765,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                         ],
                         Expanded(
                           child: Text(
-                            l10n.activityTitle,
+                            l10n.navTransactions,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: SunriseType.largeTitle.copyWith(

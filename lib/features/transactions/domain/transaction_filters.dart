@@ -42,6 +42,15 @@ class TransactionFilters {
   /// Free text matched against title, notes, and category name.
   final String query;
 
+  /// The budgets, or goals, a row must be assigned to. [unassigned] stands
+  /// for "none", so "no budget" can be asked for alongside particular ones.
+  final Set<String> budgetIds;
+  final Set<String> objectiveIds;
+
+  /// The id that means "not assigned to any" in [budgetIds] and
+  /// [objectiveIds].
+  static const String unassigned = '';
+
   const TransactionFilters({
     this.walletIds = const {},
     this.categoryIds = const {},
@@ -54,6 +63,8 @@ class TransactionFilters {
     this.from,
     this.to,
     this.query = '',
+    this.budgetIds = const {},
+    this.objectiveIds = const {},
   });
 
   static const TransactionFilters none = TransactionFilters();
@@ -72,7 +83,9 @@ class TransactionFilters {
       minAmount != null ||
       maxAmount != null ||
       from != null ||
-      to != null;
+      to != null ||
+      budgetIds.isNotEmpty ||
+      objectiveIds.isNotEmpty;
 
   /// How many separate narrowings are in force, for the badge on the button.
   int get activeCount => [
@@ -84,6 +97,8 @@ class TransactionFilters {
     transfers != TransferFilter.hide,
     minAmount != null || maxAmount != null,
     from != null || to != null,
+    budgetIds.isNotEmpty,
+    objectiveIds.isNotEmpty,
   ].where((on) => on).length;
 
   TransactionFilters copyWith({
@@ -98,6 +113,8 @@ class TransactionFilters {
     Object? from = _keep,
     Object? to = _keep,
     String? query,
+    Set<String>? budgetIds,
+    Set<String>? objectiveIds,
   }) {
     return TransactionFilters(
       walletIds: walletIds ?? this.walletIds,
@@ -115,6 +132,8 @@ class TransactionFilters {
       from: identical(from, _keep) ? this.from : from as DateTime?,
       to: identical(to, _keep) ? this.to : to as DateTime?,
       query: query ?? this.query,
+      budgetIds: budgetIds ?? this.budgetIds,
+      objectiveIds: objectiveIds ?? this.objectiveIds,
     );
   }
 
@@ -166,6 +185,14 @@ class TransactionFilters {
     }
 
     if (specialTypes.isNotEmpty && !specialTypes.contains(t.specialType)) {
+      return false;
+    }
+
+    if (budgetIds.isNotEmpty && !budgetIds.contains(t.budgetId ?? unassigned)) {
+      return false;
+    }
+    if (objectiveIds.isNotEmpty &&
+        !objectiveIds.contains(t.objectiveId ?? unassigned)) {
       return false;
     }
 

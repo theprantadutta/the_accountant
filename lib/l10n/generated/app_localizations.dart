@@ -517,6 +517,108 @@ abstract class L10n {
   /// **'Filter'**
   String get filterTitle;
 
+  /// No description provided for @filterDirection.
+  ///
+  /// In en, this message translates to:
+  /// **'Direction'**
+  String get filterDirection;
+
+  /// No description provided for @filterState.
+  ///
+  /// In en, this message translates to:
+  /// **'State'**
+  String get filterState;
+
+  /// No description provided for @filterKind.
+  ///
+  /// In en, this message translates to:
+  /// **'Kind'**
+  String get filterKind;
+
+  /// No description provided for @filterTransfers.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfers'**
+  String get filterTransfers;
+
+  /// No description provided for @filterAccounts.
+  ///
+  /// In en, this message translates to:
+  /// **'Accounts'**
+  String get filterAccounts;
+
+  /// No description provided for @filterCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'Categories'**
+  String get filterCategories;
+
+  /// No description provided for @filterDates.
+  ///
+  /// In en, this message translates to:
+  /// **'Dates'**
+  String get filterDates;
+
+  /// No description provided for @filterBudget.
+  ///
+  /// In en, this message translates to:
+  /// **'Budget'**
+  String get filterBudget;
+
+  /// No description provided for @filterGoal.
+  ///
+  /// In en, this message translates to:
+  /// **'Goal'**
+  String get filterGoal;
+
+  /// No description provided for @filterNone.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get filterNone;
+
+  /// No description provided for @filterShowAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Show all ({count})'**
+  String filterShowAll(int count);
+
+  /// No description provided for @filterShowLess.
+  ///
+  /// In en, this message translates to:
+  /// **'Show less'**
+  String get filterShowLess;
+
+  /// No description provided for @filterThisMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'This month'**
+  String get filterThisMonth;
+
+  /// No description provided for @filterLastMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Last month'**
+  String get filterLastMonth;
+
+  /// No description provided for @filterLast3Months.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 3 months'**
+  String get filterLast3Months;
+
+  /// No description provided for @filterThisYear.
+  ///
+  /// In en, this message translates to:
+  /// **'This year'**
+  String get filterThisYear;
+
+  /// No description provided for @filterShowCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No transactions match} =1{Show 1 transaction} other{Show {count} transactions}}'**
+  String filterShowCount(int count);
+
   /// No description provided for @filterClearAll.
   ///
   /// In en, this message translates to:
@@ -3731,12 +3833,6 @@ abstract class L10n {
   /// **'Today'**
   String get navToday;
 
-  /// No description provided for @navWallets.
-  ///
-  /// In en, this message translates to:
-  /// **'Wallets'**
-  String get navWallets;
-
   /// No description provided for @navAdd.
   ///
   /// In en, this message translates to:
@@ -3779,17 +3875,17 @@ abstract class L10n {
   /// **'Tap Add to record an expense, income or transfer.'**
   String get walkthroughAddBody;
 
-  /// No description provided for @walkthroughWalletsTitle.
+  /// No description provided for @walkthroughTransactionsTitle.
   ///
   /// In en, this message translates to:
-  /// **'Wallets and planning'**
-  String get walkthroughWalletsTitle;
+  /// **'Your transactions'**
+  String get walkthroughTransactionsTitle;
 
-  /// No description provided for @walkthroughWalletsBody.
+  /// No description provided for @walkthroughTransactionsBody.
   ///
   /// In en, this message translates to:
-  /// **'Your accounts, plus upcoming bills, lend & borrow, goals and budgets.'**
-  String get walkthroughWalletsBody;
+  /// **'Every transaction, month by month. Search and filter to find anything.'**
+  String get walkthroughTransactionsBody;
 
   /// No description provided for @walkthroughStatsTitle.
   ///
@@ -4324,12 +4420,6 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'{percent}% remaining'**
   String statsRemaining(String percent);
-
-  /// No description provided for @activityTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Activity'**
-  String get activityTitle;
 
   /// No description provided for @activityAll.
   ///
