@@ -3013,6 +3013,53 @@ class L10nEn extends L10n {
   String get aiActionNotes => 'Notes';
 
   @override
+  String get aiReport => 'Report a problem';
+
+  @override
+  String get aiReportWrongAnswer => 'The coach got something wrong';
+
+  @override
+  String get aiReportWrongAnswerHint =>
+      'A wrong number, a made-up fact, or a change you did not ask for';
+
+  @override
+  String get aiReportWrongAnswerSubject => 'Money coach: wrong answer';
+
+  @override
+  String get aiReportBug => 'Report a bug';
+
+  @override
+  String get aiReportBugHint => 'Something broke, froze or did not load';
+
+  @override
+  String get aiReportBugSubject => 'Money coach: bug report';
+
+  @override
+  String get aiAboutCoach => 'How the coach works';
+
+  @override
+  String get aiDisclaimerTitle => 'Before you ask the coach';
+
+  @override
+  String get aiDisclaimerMistakes =>
+      'The coach is an AI. It can get a number wrong, misread a question or state something that is not true, so check anything important against your own transactions.';
+
+  @override
+  String get aiDisclaimerData =>
+      'Your figures are read on your phone. To answer, the app sends your question and the figures it needs to our server and its AI model.';
+
+  @override
+  String get aiDisclaimerChanges =>
+      'It never changes your money on its own. Every add, edit or delete is shown to you first and only happens if you confirm it.';
+
+  @override
+  String get aiDisclaimerReport =>
+      'If an answer looks wrong, tap the flag at the top to tell us.';
+
+  @override
+  String get aiDisclaimerAccept => 'I understand';
+
+  @override
   String get aiOutOfRequestsTitle => 'You\'ve used this month\'s free requests';
 
   @override

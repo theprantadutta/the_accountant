@@ -2975,6 +2975,53 @@ class L10nBn extends L10n {
   String get aiActionNotes => 'নোট';
 
   @override
+  String get aiReport => 'সমস্যা জানান';
+
+  @override
+  String get aiReportWrongAnswer => 'কোচ কিছু ভুল বলেছে';
+
+  @override
+  String get aiReportWrongAnswerHint =>
+      'ভুল সংখ্যা, বানানো তথ্য, বা না চাওয়া কোনো পরিবর্তন';
+
+  @override
+  String get aiReportWrongAnswerSubject => 'মানি কোচ: ভুল উত্তর';
+
+  @override
+  String get aiReportBug => 'বাগ রিপোর্ট করুন';
+
+  @override
+  String get aiReportBugHint => 'কিছু ভেঙে গেছে, আটকে গেছে বা লোড হয়নি';
+
+  @override
+  String get aiReportBugSubject => 'মানি কোচ: বাগ রিপোর্ট';
+
+  @override
+  String get aiAboutCoach => 'কোচ কীভাবে কাজ করে';
+
+  @override
+  String get aiDisclaimerTitle => 'কোচকে প্রশ্ন করার আগে';
+
+  @override
+  String get aiDisclaimerMistakes =>
+      'কোচ একটি এআই। এটি ভুল সংখ্যা দিতে পারে, প্রশ্ন ভুল বুঝতে পারে বা সত্য নয় এমন কিছু বলতে পারে, তাই গুরুত্বপূর্ণ কিছু নিজের লেনদেনের সাথে মিলিয়ে নিন।';
+
+  @override
+  String get aiDisclaimerData =>
+      'আপনার হিসাব আপনার ফোনেই পড়া হয়। উত্তর দিতে অ্যাপটি আপনার প্রশ্ন ও প্রয়োজনীয় হিসাব আমাদের সার্ভার ও এর এআই মডেলে পাঠায়।';
+
+  @override
+  String get aiDisclaimerChanges =>
+      'এটি নিজে থেকে কখনো আপনার হিসাব বদলায় না। প্রতিটি যোগ, পরিবর্তন বা মোছা আগে আপনাকে দেখানো হয় এবং আপনি নিশ্চিত করলেই হয়।';
+
+  @override
+  String get aiDisclaimerReport =>
+      'কোনো উত্তর ভুল মনে হলে উপরের পতাকায় ট্যাপ করে আমাদের জানান।';
+
+  @override
+  String get aiDisclaimerAccept => 'বুঝেছি';
+
+  @override
   String get aiOutOfRequestsTitle => 'এই মাসের বিনামূল্যের অনুরোধ শেষ';
 
   @override

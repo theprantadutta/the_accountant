@@ -5567,6 +5567,90 @@ abstract class L10n {
   /// **'Notes'**
   String get aiActionNotes;
 
+  /// No description provided for @aiReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Report a problem'**
+  String get aiReport;
+
+  /// No description provided for @aiReportWrongAnswer.
+  ///
+  /// In en, this message translates to:
+  /// **'The coach got something wrong'**
+  String get aiReportWrongAnswer;
+
+  /// No description provided for @aiReportWrongAnswerHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A wrong number, a made-up fact, or a change you did not ask for'**
+  String get aiReportWrongAnswerHint;
+
+  /// No description provided for @aiReportWrongAnswerSubject.
+  ///
+  /// In en, this message translates to:
+  /// **'Money coach: wrong answer'**
+  String get aiReportWrongAnswerSubject;
+
+  /// No description provided for @aiReportBug.
+  ///
+  /// In en, this message translates to:
+  /// **'Report a bug'**
+  String get aiReportBug;
+
+  /// No description provided for @aiReportBugHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Something broke, froze or did not load'**
+  String get aiReportBugHint;
+
+  /// No description provided for @aiReportBugSubject.
+  ///
+  /// In en, this message translates to:
+  /// **'Money coach: bug report'**
+  String get aiReportBugSubject;
+
+  /// No description provided for @aiAboutCoach.
+  ///
+  /// In en, this message translates to:
+  /// **'How the coach works'**
+  String get aiAboutCoach;
+
+  /// No description provided for @aiDisclaimerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Before you ask the coach'**
+  String get aiDisclaimerTitle;
+
+  /// No description provided for @aiDisclaimerMistakes.
+  ///
+  /// In en, this message translates to:
+  /// **'The coach is an AI. It can get a number wrong, misread a question or state something that is not true, so check anything important against your own transactions.'**
+  String get aiDisclaimerMistakes;
+
+  /// No description provided for @aiDisclaimerData.
+  ///
+  /// In en, this message translates to:
+  /// **'Your figures are read on your phone. To answer, the app sends your question and the figures it needs to our server and its AI model.'**
+  String get aiDisclaimerData;
+
+  /// No description provided for @aiDisclaimerChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'It never changes your money on its own. Every add, edit or delete is shown to you first and only happens if you confirm it.'**
+  String get aiDisclaimerChanges;
+
+  /// No description provided for @aiDisclaimerReport.
+  ///
+  /// In en, this message translates to:
+  /// **'If an answer looks wrong, tap the flag at the top to tell us.'**
+  String get aiDisclaimerReport;
+
+  /// No description provided for @aiDisclaimerAccept.
+  ///
+  /// In en, this message translates to:
+  /// **'I understand'**
+  String get aiDisclaimerAccept;
+
   /// No description provided for @aiOutOfRequestsTitle.
   ///
   /// In en, this message translates to:

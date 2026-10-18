@@ -12,7 +12,15 @@ import 'package:the_accountant/shared/widgets/neo_text_field.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ContactSupportScreen extends ConsumerStatefulWidget {
-  const ContactSupportScreen({super.key});
+  const ContactSupportScreen({super.key, this.subject, this.details});
+
+  /// Filled in for the user when they come from a specific place, such as
+  /// reporting a coach answer.
+  final String? subject;
+
+  /// Sent below what the user writes, so a report arrives with what it is
+  /// about (a conversation, an answer) without asking them to copy it.
+  final String? details;
 
   static const _email = 'prantadutta1997@gmail.com';
 
@@ -25,6 +33,12 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
   final _subjectController = TextEditingController();
   final _messageController = TextEditingController();
   bool _isSending = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.subject != null) _subjectController.text = widget.subject!;
+  }
 
   @override
   void dispose() {
@@ -44,7 +58,12 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
     try {
       await ApiService().post(
         '/support',
-        data: {'subject': _subjectController.text.trim(), 'message': message},
+        data: {
+          'subject': _subjectController.text.trim(),
+          'message': widget.details == null
+              ? message
+              : '$message\n\n---\n${widget.details}',
+        },
       );
       if (!mounted) return;
       _snack('Thanks! Your message has been sent.', AppColors.success);

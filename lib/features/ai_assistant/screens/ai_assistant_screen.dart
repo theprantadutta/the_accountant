@@ -9,6 +9,8 @@ import 'package:the_accountant/features/ai_assistant/models/conversation.dart';
 import 'package:the_accountant/features/ai_assistant/providers/ai_chat_provider.dart';
 import 'package:the_accountant/features/ai_assistant/providers/ai_quota_provider.dart';
 import 'package:the_accountant/features/ai_assistant/widgets/coach_action_card.dart';
+import 'package:the_accountant/features/ai_assistant/widgets/coach_disclaimer.dart';
+import 'package:the_accountant/features/settings/screens/contact_support_screen.dart';
 import 'package:the_accountant/features/ads/reward_flow.dart';
 import 'package:the_accountant/features/ads/rewarded_ads.dart';
 import 'package:the_accountant/features/budgets/providers/budget_provider.dart';
@@ -65,6 +67,7 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(aiChatProvider.notifier).init();
+      CoachDisclaimer.showIfNeeded(context);
     });
   }
 
@@ -122,6 +125,11 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
       title: l10n.aiAssistantTitle,
       actions: [
         SunriseIconButton(
+          icon: Symbols.flag_rounded,
+          tooltip: l10n.aiReport,
+          onTap: () => _report(chat),
+        ),
+        SunriseIconButton(
           icon: Symbols.forum_rounded,
           tooltip: l10n.aiChats,
           onTap: () => _showConversations(chat),
@@ -168,6 +176,74 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
             background: c.tabBar,
           ),
         ],
+      ),
+    );
+  }
+
+  /// Report a wrong answer or a bug, with the conversation attached so it
+  /// can be looked into without asking the user to describe it again.
+  void _report(AiChatState chat) {
+    final l10n = L10n.of(context);
+    final lastAnswer = chat.messages.reversed
+        .where((m) => !m.isFromUser && !m.isWelcome && m.text.isNotEmpty)
+        .firstOrNull
+        ?.text;
+    final lastQuestion = chat.messages.reversed
+        .where((m) => m.isFromUser)
+        .firstOrNull
+        ?.text;
+    String clip(String text) =>
+        text.length > 800 ? '${text.substring(0, 800)}…' : text;
+    final details = [
+      'Money coach',
+      if (chat.currentConversationId != null)
+        'Conversation: ${chat.currentConversationId}',
+      if (lastQuestion != null) 'Last question: ${clip(lastQuestion)}',
+      if (lastAnswer != null) 'Last answer: ${clip(lastAnswer)}',
+    ].join('\n');
+
+    void open(String subject) => Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) =>
+            ContactSupportScreen(subject: subject, details: details),
+      ),
+    );
+
+    showSunriseSheet<void>(
+      context: context,
+      builder: (sheet) => SunriseBottomSheet(
+        title: l10n.aiReport,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SheetAction(
+              icon: Symbols.report_rounded,
+              label: l10n.aiReportWrongAnswer,
+              subtitle: l10n.aiReportWrongAnswerHint,
+              onTap: () {
+                Navigator.pop(sheet);
+                open(l10n.aiReportWrongAnswerSubject);
+              },
+            ),
+            SheetAction(
+              icon: Symbols.bug_report_rounded,
+              label: l10n.aiReportBug,
+              subtitle: l10n.aiReportBugHint,
+              onTap: () {
+                Navigator.pop(sheet);
+                open(l10n.aiReportBugSubject);
+              },
+            ),
+            SheetAction(
+              icon: Symbols.info_rounded,
+              label: l10n.aiAboutCoach,
+              onTap: () {
+                Navigator.pop(sheet);
+                CoachDisclaimer.show(context);
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
