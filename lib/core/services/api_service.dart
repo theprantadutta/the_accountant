@@ -58,7 +58,13 @@ class ApiService {
       dotenv.env['API_BASE_URL_DEV'] ?? 'http://localhost:8002';
   static final String _prodUrl =
       dotenv.env['API_BASE_URL_PROD'] ?? 'https://theaccountant.pranta.dev';
-  static final String baseUrl = kReleaseMode ? _prodUrl : _devUrl;
+
+  /// `--dart-define=API_BASE_URL=...` points any build at a chosen server,
+  /// such as a debug build at production to test a deploy on a real phone.
+  static const String _forcedUrl = String.fromEnvironment('API_BASE_URL');
+  static final String baseUrl = _forcedUrl.isNotEmpty
+      ? _forcedUrl
+      : (kReleaseMode ? _prodUrl : _devUrl);
   static const String apiV1 = '/api/v1';
 
   final Dio _dio = Dio();

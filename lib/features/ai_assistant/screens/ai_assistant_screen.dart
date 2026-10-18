@@ -51,6 +51,9 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
     with SingleTickerProviderStateMixin {
   final _textController = TextEditingController();
   final _focusNode = FocusNode();
+
+  /// The list is built bottom-up, so offset 0 is the newest message.
+  final _scroll = ScrollController();
   late final AnimationController _dots = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 1200),
@@ -75,6 +78,7 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
   void dispose() {
     _textController.dispose();
     _focusNode.dispose();
+    _scroll.dispose();
     _dots.dispose();
     super.dispose();
   }
@@ -84,7 +88,22 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
     if (text.isEmpty || ref.read(aiChatProvider).isLoading) return;
     HapticFeedback.lightImpact();
     if (preset == null) _textController.clear();
+    // The answer needs the room the keyboard takes.
+    _focusNode.unfocus();
+    _toBottom();
     await ref.read(aiChatProvider.notifier).sendMessage(text);
+  }
+
+  /// Brings the newest message into view, after the frame that added it.
+  void _toBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_scroll.hasClients || _scroll.offset == 0) return;
+      _scroll.animateTo(
+        0,
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeOut,
+      );
+    });
   }
 
   void _newChat() {
@@ -108,6 +127,20 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
     final quota = ref.watch(aiQuotaProvider);
 
     // A question that hit the daily limit: offer the ad straight away.
+    // A new message, every new piece of a reply, a tool at work or a change
+    // to confirm: whatever just appeared at the bottom is what to look at.
+    ref.listen(
+      aiChatProvider.select(
+        (s) => (
+          s.messages.length,
+          s.messages.lastOrNull?.text.length,
+          s.toolStatus,
+          s.pendingAction,
+        ),
+      ),
+      (was, now) => _toBottom(),
+    );
+
     ref.listen(aiChatProvider.select((s) => s.pendingQuestion), (was, now) {
       if (now != null && was == null) _offerMore();
     });
@@ -253,6 +286,7 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
     final lastId = messages.isEmpty ? null : messages.last.id;
 
     return ListView.builder(
+      controller: _scroll,
       reverse: true,
       keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       padding: const EdgeInsets.fromLTRB(
