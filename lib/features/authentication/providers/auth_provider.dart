@@ -472,6 +472,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
       await _backendAuth.logout();
       await _googleSignIn.signOut();
       await SecureTokenStorage.clearAllTokens();
+      // The cached entitlement is the signed-out account's; the next one to
+      // sign in must not borrow it while the server is asked.
+      await SecureTokenStorage.clearPremiumEntitlement();
 
       state = const AuthState(isAuthenticated: false, isLoading: false);
     } catch (e) {

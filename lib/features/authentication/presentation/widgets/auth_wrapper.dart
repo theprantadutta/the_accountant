@@ -16,6 +16,10 @@ import 'package:the_accountant/features/budgets/providers/budget_notification_pr
 import 'package:the_accountant/core/services/secure_token_storage.dart';
 import 'package:the_accountant/core/services/api_service.dart';
 import 'package:the_accountant/features/premium/providers/premium_provider.dart';
+import 'package:the_accountant/features/ai_assistant/providers/ai_chat_provider.dart';
+import 'package:the_accountant/features/ai_assistant/providers/ai_quota_provider.dart';
+import 'package:the_accountant/features/notifications/providers/notification_history_provider.dart';
+import 'package:the_accountant/features/settings/providers/notification_preferences_provider.dart';
 import 'package:the_accountant/data/models/premium_features.dart';
 import 'package:the_accountant/core/providers/sync_provider.dart';
 import 'package:the_accountant/core/providers/intro_legal_provider.dart';
@@ -169,6 +173,20 @@ class _AuthWrapperState extends ConsumerState<AuthWrapper>
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
     final onboardingState = ref.watch(onboardingProvider);
+
+    // What the app holds in memory about an account goes with it. Anything
+    // read from the local store already follows the store, which is per
+    // account; these come from the server or a device-wide cache, and would
+    // otherwise show the next person the last one's chats, notifications and
+    // Premium until something happened to reload them.
+    ref.listen(authProvider.select((s) => s.userId), (previous, next) {
+      if (previous == null || previous == next) return;
+      ref.invalidate(premiumProvider);
+      ref.invalidate(aiChatProvider);
+      ref.invalidate(aiQuotaProvider);
+      ref.invalidate(notificationHistoryProvider);
+      ref.invalidate(notificationPreferencesProvider);
+    });
 
     // Listen for auth state changes to sync premium status
     ref.listen<AuthState>(authProvider, (previous, next) {
