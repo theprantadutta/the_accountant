@@ -97,7 +97,10 @@ class SyncService {
     // connectivity-restored, the periodic timer) cannot start two syncs concurrently and
     // double-push the same pending set.
     if (_syncInProgress) {
-      return SyncResult.failure('Sync already in progress');
+      return SyncResult.notRun(
+        SyncNotRunReason.busy,
+        'Sync already in progress',
+      );
     }
     _syncInProgress = true;
     try {
@@ -248,7 +251,10 @@ class SyncService {
       final premiumState = _ref.read(premiumProvider);
       if (!premiumState.isPremium) {
         _setState(SyncOperationState.error);
-        return SyncResult.failure('Cloud sync requires Premium subscription');
+        return SyncResult.notRun(
+          SyncNotRunReason.notPremium,
+          'Cloud sync requires Premium subscription',
+        );
       }
     }
 
@@ -258,13 +264,19 @@ class SyncService {
     // Check connectivity
     if (!await isOnline()) {
       _setState(SyncOperationState.offline);
-      return SyncResult.failure('No internet connection');
+      return SyncResult.notRun(
+        SyncNotRunReason.offline,
+        'No internet connection',
+      );
     }
 
     // Check authentication
     if (!await _transport.hasToken()) {
       _setState(SyncOperationState.error);
-      return SyncResult.failure('Not authenticated');
+      return SyncResult.notRun(
+        SyncNotRunReason.notSignedIn,
+        'Not authenticated',
+      );
     }
 
     // Refuse to sync a store that belongs to a different account. This is the
@@ -284,51 +296,85 @@ class SyncService {
     // Pulled records held back because this device still has unsent work on
     // them. They keep the cursor where it is; see the cursor decision below.
     final deferredPulls = <String>[];
+    // What this sync actually changed locally, for the caller's refresh.
+    final changedTables = <String>{};
 
     try {
       // Step 1: Push all local changes (chunked; see [_pushAllChanges]).
       final push = await _pushAllChanges();
       totalPushed = push.appliedCount;
       conflicts.addAll(push.conflicts);
+      if (push.settledLocally) {
+        changedTables.addAll(const [
+          'categories',
+          'transactions',
+          'category_budget_limits',
+        ]);
+      }
 
       // Step 2: Pull the remote changes since the stored cursor.
       //
-      // Read here, not cached: see _pullAllChanges. Read AFTER the push, so a
-      // row this device just uploaded is not pulled straight back.
-      final pullResult = await _pullAllChanges(
-        since: await _database.getLastSyncTimestamp(),
-      );
+      // Read here, not cached: see _pullAllChanges. Read AFTER the push; the
+      // rows this device just uploaded still come back, because the server
+      // stamps them later than the cursor, and the apply step below recognises
+      // them as what this device already holds.
+      final since = await _database.getLastSyncTimestamp();
+      final pullResult = await _pullAllChanges(since: since);
       if (pullResult != null) {
-        totalPulled = pullResult.totalChanges;
-
         // Apply the whole batch in dependency order inside one database
         // transaction. Parents (wallets, categories, payment methods) land
         // before the transactions that reference them, and deletes run in
         // reverse order so a parent is never removed out from under a child.
         final outcome = await _database.transaction(() async {
           final result = await _applyOrderedChanges(pullResult);
-          if (result.applied > 0) {
-            // Balance is a last-write-wins scalar on the server and can be
-            // stale across devices, so we never trust the pulled value — we
-            // derive it and persist it WITHOUT a pending flag (no re-push, no
-            // ping-pong).
-            await WalletBalanceService(
-              _database,
-            ).recalculateAllWalletBalancesLocal();
+          await _confirmUnchanged(result.effects);
+          // Balance is a last-write-wins scalar on the server and can be stale
+          // across devices, so we never trust the pulled value — we derive it
+          // and persist it WITHOUT a pending flag (no re-push, no ping-pong).
+          //
+          // Only for the wallets something landed in. A balance is a function
+          // of its own wallet's opening figure and transactions and nothing
+          // else, so recomputing every wallet in the account after one pulled
+          // edit did the whole ledger's arithmetic to change one number.
+          final balances = WalletBalanceService(_database);
+          for (final walletId in result.effects.walletIds) {
+            await balances.recalculateWalletBalanceLocal(walletId);
           }
           return result;
         });
         applyFailures.addAll(outcome.failures);
         deferredPulls.addAll(outcome.deferred);
+        totalPulled = outcome.applied;
+        changedTables.addAll(outcome.effects.tables);
+        if (outcome.effects.walletIds.isNotEmpty) changedTables.add('wallets');
+
+        // A first pull has no history to go on, so the housekeeping below runs
+        // whatever arrived; after that, only when the tables it reads moved.
+        final firstPull = since == null;
 
         // Reconcile transfer pairs where one leg was deleted on another device,
         // so a half-transfer can never sit in the ledger skewing one wallet's
         // balance. Skipped when anything failed to apply: mid-failure the local
         // picture is incomplete, and acting on it could tombstone a leg whose
         // partner simply hasn't landed yet.
-        if (applyFailures.isEmpty) {
-          await TransferService(_database).reconcileTransferPairs();
+        if (applyFailures.isEmpty &&
+            (firstPull || outcome.effects.tables.contains('transactions'))) {
+          final repaired = await TransferService(
+            _database,
+          ).reconcileTransferPairs();
+          if (repaired > 0) {
+            changedTables.addAll(const ['transactions', 'wallets']);
+          }
+        }
 
+        // Category housekeeping, when categories could have changed: pulled,
+        // pushed (a push can settle a reconciliation and adopt a category), or
+        // a first pull, where an account with nothing yet still needs its
+        // built-ins.
+        if (applyFailures.isEmpty &&
+            (firstPull ||
+                outcome.effects.tables.contains('categories') ||
+                push.tables.contains('categories'))) {
           // Collapse duplicate built-in categories. A device that seeded its own
           // defaults before it had seen the account's cloud data now holds both
           // its copy and the canonical one; they share a `defaultKey`, which is
@@ -337,11 +383,15 @@ class SyncService {
           final merged = await _database.mergeDuplicateDefaultCategories();
           if (merged > 0) {
             _logger.i('Merged $merged duplicate default categories');
+            changedTables.addAll(const ['categories', 'transactions']);
           }
 
           // An account with no categories at all (brand new) gets the
           // built-ins; one that already has its own keeps exactly those.
-          await CategoryInitializationService(_database).seedAfterPull();
+          final seeded = await CategoryInitializationService(
+            _database,
+          ).seedAfterPull();
+          if (seeded.isNotEmpty) changedTables.add('categories');
         }
 
         if (applyFailures.isEmpty && deferredPulls.isEmpty) {
@@ -375,11 +425,12 @@ class SyncService {
       if (applyFailures.isNotEmpty) {
         _lastResult = SyncResult.partial(
           pushedCount: totalPushed,
-          pulledCount: totalPulled - applyFailures.length,
+          pulledCount: totalPulled,
           conflictCount: conflicts.length,
           duration: duration,
           conflicts: conflicts,
           applyFailures: applyFailures,
+          changedTables: changedTables,
         );
         _setState(SyncOperationState.error);
         return _lastResult!;
@@ -391,6 +442,7 @@ class SyncService {
         conflictCount: conflicts.length,
         duration: duration,
         conflicts: conflicts,
+        changedTables: changedTables,
       );
 
       _setState(SyncOperationState.success);
@@ -401,6 +453,19 @@ class SyncService {
 
       return _lastResult!;
     } catch (e, stack) {
+      if (e is ApiException && e.isNetworkError) {
+        // The request never reached the server. Connectivity said the device
+        // was online, but that only means a network interface is up; a dead
+        // hotspot or a lift between floors looks the same from here. That is
+        // being offline, not a sync fault, and it is reported as such. Whatever
+        // the server did acknowledge is already settled, the rest is still
+        // pending, and the next trigger simply carries on.
+        _logger.w('Sync could not reach the server: $e');
+        _setState(SyncOperationState.offline);
+        _lastResult = SyncResult.notRun(SyncNotRunReason.offline, e.toString());
+        return _lastResult!;
+      }
+
       _logger.e('Sync error: $e', error: e, stackTrace: stack);
       _setState(SyncOperationState.error);
       _lastResult = SyncResult.failure(e.toString());
@@ -498,7 +563,14 @@ class SyncService {
   /// copy instead of the local edit being silently discarded. If a chunk fails
   /// outright, earlier chunks keep their acknowledged state and the error
   /// propagates — a later chunk can never mark an unsent record as synced.
-  Future<({int appliedCount, List<SyncConflict> conflicts})>
+  Future<
+    ({
+      int appliedCount,
+      List<SyncConflict> conflicts,
+      Set<String> tables,
+      bool settledLocally,
+    })
+  >
   _pushAllChanges() async {
     var pass = await _pushPendingChanges();
 
@@ -509,15 +581,26 @@ class SyncService {
     // upload are the same sync, rather than "answer, sync, sync again".
     //
     // At most one extra pass: the second cannot settle anything new, because a
-    // resolution is only ever created by the user.
+    // resolution is only ever created by the user. It collects afresh, and
+    // collection only ever reads rows still marked pending, so what the first
+    // pass had acknowledged is not sent again.
     if (pass.resolutionsApplied == 0) {
-      return (appliedCount: pass.appliedCount, conflicts: pass.conflicts);
+      return (
+        appliedCount: pass.appliedCount,
+        conflicts: pass.conflicts,
+        tables: pass.tables,
+        settledLocally: false,
+      );
     }
 
     final second = await _pushPendingChanges();
     return (
       appliedCount: pass.appliedCount + second.appliedCount,
       conflicts: [...pass.conflicts, ...second.conflicts],
+      tables: {...pass.tables, ...second.tables, 'categories'},
+      // Settling folds and re-keys rows on this device, so the screens showing
+      // them have something new to show.
+      settledLocally: true,
     );
   }
 
@@ -579,7 +662,12 @@ class SyncService {
   }
 
   Future<
-    ({int appliedCount, List<SyncConflict> conflicts, int resolutionsApplied})
+    ({
+      int appliedCount,
+      List<SyncConflict> conflicts,
+      int resolutionsApplied,
+      Set<String> tables,
+    })
   >
   // Collects pending changes grouped by table, then flattens them in the shared
   // dependency order so a chunk boundary can never place a child ahead of the
@@ -608,6 +696,7 @@ class SyncService {
         appliedCount: 0,
         conflicts: <SyncConflict>[],
         resolutionsApplied: 0,
+        tables: <String>{},
       );
     }
 
@@ -694,6 +783,7 @@ class SyncService {
       appliedCount: appliedCount,
       conflicts: conflicts,
       resolutionsApplied: resolutionsApplied,
+      tables: {for (final c in allChanges) c.tableName},
     );
   }
 
@@ -703,13 +793,23 @@ class SyncService {
   /// rejected *before* it is written when a parent it references is missing, so
   /// the failure carries an actionable reason instead of surfacing later as an
   /// orphaned row that silently breaks joins and balances.
+  ///
+  /// A record identical to what this device already holds is counted as
+  /// neither: it is recorded in the returned effects as confirmed, and nothing
+  /// else happens to it. See [_wouldNotChange].
   Future<
-    ({int applied, List<SyncApplyFailure> failures, List<String> deferred})
+    ({
+      int applied,
+      List<SyncApplyFailure> failures,
+      List<String> deferred,
+      _PulledEffects effects,
+    })
   >
   _applyOrderedChanges(SyncPullResponse pull) async {
     var applied = 0;
     final failures = <SyncApplyFailure>[];
     final deferred = <String>[];
+    final effects = _PulledEffects();
 
     for (final entry in pull.orderedChanges) {
       final table = entry.table;
@@ -738,8 +838,10 @@ class SyncService {
           continue;
         }
 
-        await _applyPulledChange(table, change);
-        applied++;
+        if (await _applyPulledChange(table, change, effects)) {
+          effects.tables.add(table);
+          applied++;
+        }
       } catch (e, s) {
         _logger.w(
           'Failed to apply $table record ${change.entityId}: $e',
@@ -756,7 +858,66 @@ class SyncService {
       }
     }
 
-    return (applied: applied, failures: failures, deferred: deferred);
+    return (
+      applied: applied,
+      failures: failures,
+      deferred: deferred,
+      effects: effects,
+    );
+  }
+
+  /// Whether writing [incoming] over [existing] would leave every stored value
+  /// exactly as it is.
+  ///
+  /// This is what recognises the echo. The server stamps every row it accepts
+  /// with its own clock, later than the cursor the next pull asks from, so each
+  /// row this device pushes comes straight back in the following pull. Applying
+  /// it rewrote the row with what was already there, and because something had
+  /// been "applied" the sync then recomputed every balance and reloaded every
+  /// screen — after almost every edit, for nothing.
+  ///
+  /// Comparing what would be stored, rather than remembering what was pushed,
+  /// is what makes skipping safe. A row another device has changed differs in
+  /// some column and is applied as before; a row that matches in every column
+  /// would not have been changed by applying it, whoever sent it. No timestamp
+  /// or acknowledgement can be wrong in a way that hides someone else's edit,
+  /// because none is consulted.
+  ///
+  /// Values are compared as the database would store them, so a date the server
+  /// sends back with more precision than the column keeps still matches. The
+  /// sync status is part of the comparison: a row with unsent work never counts
+  /// as unchanged, and is left to the rules in [_acceptsPulledChange].
+  /// `updated_at` is not, because the pulled companion always sets it to now.
+  bool _wouldNotChange(
+    Insertable<Object> existing,
+    Insertable<Object> incoming, {
+    Set<String> ignoring = const {},
+  }) {
+    final context = GenerationContext.fromDb(_database);
+    final current = existing.toColumns(false);
+    for (final entry in incoming.toColumns(false).entries) {
+      if (entry.key == 'updated_at' || ignoring.contains(entry.key)) continue;
+      final next = entry.value;
+      final now = current[entry.key];
+      if (next is! Variable || now is! Variable) return false;
+      if (next.mapToSimpleValue(context) != now.mapToSimpleValue(context)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /// Stamp the rows a pull confirmed as just seen, without rewriting them.
+  ///
+  /// Applying a pulled row has always set its `updated_at` to now, and the next
+  /// push of that row carries that time into the server's last-write-wins
+  /// check. A confirmed row is given the same stamp so that check sees exactly
+  /// what it saw before rows were skipped. One statement per table, rather than
+  /// the full write per row it replaces.
+  Future<void> _confirmUnchanged(_PulledEffects effects) async {
+    for (final entry in effects.confirmed.entries) {
+      await _database.stampConfirmedRows(entry.key, entry.value);
+    }
   }
 
   /// Describe the first missing parent for [change], or null when every
@@ -1283,37 +1444,33 @@ class SyncService {
 
   // ==================== APPLY PULLED CHANGES ====================
 
-  Future<void> _applyPulledChange(String tableName, SyncChange change) async {
-    if (change.data == null && change.operation != 'delete') return;
+  /// Apply one pulled record. Returns whether anything local changed.
+  Future<bool> _applyPulledChange(
+    String tableName,
+    SyncChange change,
+    _PulledEffects effects,
+  ) async {
+    if (change.data == null && change.operation != 'delete') return false;
 
     switch (tableName) {
       case 'transactions':
-        await _applyTransactionChange(change);
-        break;
+        return _applyTransactionChange(change, effects);
       case 'wallets':
-        await _applyWalletChange(change);
-        break;
+        return _applyWalletChange(change, effects);
       case 'categories':
-        await _applyCategoryChange(change);
-        break;
+        return _applyCategoryChange(change, effects);
       case 'budgets':
-        await _applyBudgetChange(change);
-        break;
+        return _applyBudgetChange(change, effects);
       case 'category_budget_limits':
-        await _applyCategoryLimitChange(change);
-        break;
+        return _applyCategoryLimitChange(change, effects);
       case 'associated_titles':
-        await _applyAssociatedTitleChange(change);
-        break;
+        return _applyAssociatedTitleChange(change, effects);
       case 'objectives':
-        await _applyObjectiveChange(change);
-        break;
+        return _applyObjectiveChange(change, effects);
       case 'payment_methods':
-        await _applyPaymentMethodChange(change);
-        break;
+        return _applyPaymentMethodChange(change, effects);
       case 'recurring_configs':
-        await _applyRecurringConfigChange(change);
-        break;
+        return _applyRecurringConfigChange(change, effects);
       default:
         // A table this build does not know about. Falling through silently
         // would let the cursor advance past these rows, and because the cursor
@@ -1328,9 +1485,20 @@ class SyncService {
     }
   }
 
-  Future<void> _applyTransactionChange(SyncChange change) async {
+  Future<bool> _applyTransactionChange(
+    SyncChange change,
+    _PulledEffects effects,
+  ) async {
     final rawData = change.data;
+    final existing = await (_database.select(
+      _database.transactions,
+    )..where((t) => t.id.equals(change.entityId))).getSingleOrNull();
+
     if (change.operation == 'delete') {
+      if (existing == null ||
+          _alreadyDeleted(existing.deletedAt, existing.syncStatus)) {
+        return false;
+      }
       await (_database.update(
         _database.transactions,
       )..where((t) => t.id.equals(change.entityId))).write(
@@ -1339,16 +1507,12 @@ class SyncService {
           syncStatus: const Value(SyncStatus.synced),
         ),
       );
-      return;
+      effects.walletIds.add(existing.walletId);
+      return true;
     }
 
-    if (rawData == null) return;
+    if (rawData == null) return false;
     final data = _normalizeKeys(rawData);
-
-    // Check if record exists
-    final existing = await (_database.select(
-      _database.transactions,
-    )..where((t) => t.id.equals(change.entityId))).getSingleOrNull();
 
     final companion = TransactionsCompanion(
       id: Value(change.entityId),
@@ -1401,10 +1565,18 @@ class SyncService {
     );
 
     if (existing != null) {
+      if (_wouldNotChange(existing, companion)) {
+        effects.confirm('transactions', change.entityId);
+        return false;
+      }
       await (_database.update(
         _database.transactions,
       )..where((t) => t.id.equals(change.entityId))).write(companion);
-      return;
+      // Both wallets: the row may have moved from one to the other.
+      effects.walletIds
+        ..add(existing.walletId)
+        ..add(companion.walletId.value);
+      return true;
     }
 
     // Two offline devices can generate the same recurrence occurrence with
@@ -1425,15 +1597,29 @@ class SyncService {
         await (_database.delete(
           _database.transactions,
         )..where((t) => t.id.equals(duplicate.id))).go();
+        effects.walletIds.add(duplicate.walletId);
       }
     }
 
     await _database.into(_database.transactions).insert(companion);
+    effects.walletIds.add(companion.walletId.value);
+    return true;
   }
 
-  Future<void> _applyWalletChange(SyncChange change) async {
+  Future<bool> _applyWalletChange(
+    SyncChange change,
+    _PulledEffects effects,
+  ) async {
     final rawData = change.data;
+    final existing = await (_database.select(
+      _database.wallets,
+    )..where((w) => w.id.equals(change.entityId))).getSingleOrNull();
+
     if (change.operation == 'delete') {
+      if (existing == null ||
+          _alreadyDeleted(existing.deletedAt, existing.syncStatus)) {
+        return false;
+      }
       await (_database.update(
         _database.wallets,
       )..where((w) => w.id.equals(change.entityId))).write(
@@ -1445,15 +1631,11 @@ class SyncService {
       // A wallet deleted on another device leaves the same stale budget scoping
       // behind as one deleted here, so it is pruned the same way.
       await _database.pruneWalletFromBudgets(change.entityId);
-      return;
+      return true;
     }
 
-    if (rawData == null) return;
+    if (rawData == null) return false;
     final data = _normalizeKeys(rawData);
-
-    final existing = await (_database.select(
-      _database.wallets,
-    )..where((w) => w.id.equals(change.entityId))).getSingleOrNull();
 
     final companion = WalletsCompanion(
       id: Value(change.entityId),
@@ -1476,17 +1658,37 @@ class SyncService {
     );
 
     if (existing != null) {
+      // The pulled balance is never kept — it is recomputed from this device's
+      // own transactions straight after — so a difference there alone is not a
+      // change worth applying.
+      if (_wouldNotChange(existing, companion, ignoring: const {'balance'})) {
+        effects.confirm('wallets', change.entityId);
+        return false;
+      }
       await (_database.update(
         _database.wallets,
       )..where((w) => w.id.equals(change.entityId))).write(companion);
     } else {
       await _database.into(_database.wallets).insert(companion);
     }
+    effects.walletIds.add(change.entityId);
+    return true;
   }
 
-  Future<void> _applyCategoryChange(SyncChange change) async {
+  Future<bool> _applyCategoryChange(
+    SyncChange change,
+    _PulledEffects effects,
+  ) async {
     final rawData = change.data;
+    final existing = await (_database.select(
+      _database.categories,
+    )..where((c) => c.id.equals(change.entityId))).getSingleOrNull();
+
     if (change.operation == 'delete') {
+      if (existing == null ||
+          _alreadyDeleted(existing.deletedAt, existing.syncStatus)) {
+        return false;
+      }
       await (_database.update(
         _database.categories,
       )..where((c) => c.id.equals(change.entityId))).write(
@@ -1498,15 +1700,11 @@ class SyncService {
       // A category deleted on another device leaves the same stale budget
       // scoping behind as one deleted here, so it is pruned the same way.
       await _database.pruneCategoryFromBudgets(change.entityId);
-      return;
+      return true;
     }
 
-    if (rawData == null) return;
+    if (rawData == null) return false;
     final data = _normalizeKeys(rawData);
-
-    final existing = await (_database.select(
-      _database.categories,
-    )..where((c) => c.id.equals(change.entityId))).getSingleOrNull();
 
     final companion = CategoriesCompanion(
       id: Value(change.entityId),
@@ -1532,10 +1730,14 @@ class SyncService {
     );
 
     if (existing != null) {
+      if (_wouldNotChange(existing, companion)) {
+        effects.confirm('categories', change.entityId);
+        return false;
+      }
       await (_database.update(
         _database.categories,
       )..where((c) => c.id.equals(change.entityId))).write(companion);
-      return;
+      return true;
     }
 
     // This device may already hold its own provisional copy of the same built-in
@@ -1562,11 +1764,23 @@ class SyncService {
     }
 
     await _database.into(_database.categories).insert(companion);
+    return true;
   }
 
-  Future<void> _applyBudgetChange(SyncChange change) async {
+  Future<bool> _applyBudgetChange(
+    SyncChange change,
+    _PulledEffects effects,
+  ) async {
     final rawData = change.data;
+    final existing = await (_database.select(
+      _database.budgets,
+    )..where((b) => b.id.equals(change.entityId))).getSingleOrNull();
+
     if (change.operation == 'delete') {
+      if (existing == null ||
+          _alreadyDeleted(existing.deletedAt, existing.syncStatus)) {
+        return false;
+      }
       await (_database.update(
         _database.budgets,
       )..where((b) => b.id.equals(change.entityId))).write(
@@ -1575,15 +1789,11 @@ class SyncService {
           syncStatus: const Value(SyncStatus.synced),
         ),
       );
-      return;
+      return true;
     }
 
-    if (rawData == null) return;
+    if (rawData == null) return false;
     final data = _normalizeKeys(rawData);
-
-    final existing = await (_database.select(
-      _database.budgets,
-    )..where((b) => b.id.equals(change.entityId))).getSingleOrNull();
 
     final companion = BudgetsCompanion(
       id: Value(change.entityId),
@@ -1622,16 +1832,32 @@ class SyncService {
     );
 
     if (existing != null) {
+      if (_wouldNotChange(existing, companion)) {
+        effects.confirm('budgets', change.entityId);
+        return false;
+      }
       await (_database.update(
         _database.budgets,
       )..where((b) => b.id.equals(change.entityId))).write(companion);
     } else {
       await _database.into(_database.budgets).insert(companion);
     }
+    return true;
   }
 
-  Future<void> _applyAssociatedTitleChange(SyncChange change) async {
+  Future<bool> _applyAssociatedTitleChange(
+    SyncChange change,
+    _PulledEffects effects,
+  ) async {
+    final existing = await (_database.select(
+      _database.associatedTitles,
+    )..where((a) => a.id.equals(change.entityId))).getSingleOrNull();
+
     if (change.operation == 'delete') {
+      if (existing == null ||
+          _alreadyDeleted(existing.deletedAt, existing.syncStatus)) {
+        return false;
+      }
       await (_database.update(
         _database.associatedTitles,
       )..where((a) => a.id.equals(change.entityId))).write(
@@ -1640,7 +1866,7 @@ class SyncService {
           syncStatus: const Value(SyncStatus.synced),
         ),
       );
-      return;
+      return true;
     }
 
     final data = _normalizeKeys(change.data!);
@@ -1655,21 +1881,33 @@ class SyncService {
       updatedAt: Value(DateTime.now()),
     );
 
-    final existing = await (_database.select(
-      _database.associatedTitles,
-    )..where((a) => a.id.equals(change.entityId))).getSingleOrNull();
-
     if (existing == null) {
       await _database.into(_database.associatedTitles).insert(companion);
     } else {
+      if (_wouldNotChange(existing, companion)) {
+        effects.confirm('associated_titles', change.entityId);
+        return false;
+      }
       await (_database.update(
         _database.associatedTitles,
       )..where((a) => a.id.equals(change.entityId))).write(companion);
     }
+    return true;
   }
 
-  Future<void> _applyCategoryLimitChange(SyncChange change) async {
+  Future<bool> _applyCategoryLimitChange(
+    SyncChange change,
+    _PulledEffects effects,
+  ) async {
+    final existing = await (_database.select(
+      _database.categoryBudgetLimits,
+    )..where((l) => l.id.equals(change.entityId))).getSingleOrNull();
+
     if (change.operation == 'delete') {
+      if (existing == null ||
+          _alreadyDeleted(existing.deletedAt, existing.syncStatus)) {
+        return false;
+      }
       await (_database.update(
         _database.categoryBudgetLimits,
       )..where((l) => l.id.equals(change.entityId))).write(
@@ -1678,7 +1916,7 @@ class SyncService {
           syncStatus: const Value(SyncStatus.synced),
         ),
       );
-      return;
+      return true;
     }
 
     final data = _normalizeKeys(change.data!);
@@ -1693,22 +1931,34 @@ class SyncService {
       updatedAt: Value(DateTime.now()),
     );
 
-    final existing = await (_database.select(
-      _database.categoryBudgetLimits,
-    )..where((l) => l.id.equals(change.entityId))).getSingleOrNull();
-
     if (existing == null) {
       await _database.into(_database.categoryBudgetLimits).insert(companion);
     } else {
+      if (_wouldNotChange(existing, companion)) {
+        effects.confirm('category_budget_limits', change.entityId);
+        return false;
+      }
       await (_database.update(
         _database.categoryBudgetLimits,
       )..where((l) => l.id.equals(change.entityId))).write(companion);
     }
+    return true;
   }
 
-  Future<void> _applyObjectiveChange(SyncChange change) async {
+  Future<bool> _applyObjectiveChange(
+    SyncChange change,
+    _PulledEffects effects,
+  ) async {
     final rawData = change.data;
+    final existing = await (_database.select(
+      _database.objectives,
+    )..where((o) => o.id.equals(change.entityId))).getSingleOrNull();
+
     if (change.operation == 'delete') {
+      if (existing == null ||
+          _alreadyDeleted(existing.deletedAt, existing.syncStatus)) {
+        return false;
+      }
       await (_database.update(
         _database.objectives,
       )..where((o) => o.id.equals(change.entityId))).write(
@@ -1717,15 +1967,11 @@ class SyncService {
           syncStatus: const Value(SyncStatus.synced),
         ),
       );
-      return;
+      return true;
     }
 
-    if (rawData == null) return;
+    if (rawData == null) return false;
     final data = _normalizeKeys(rawData);
-
-    final existing = await (_database.select(
-      _database.objectives,
-    )..where((o) => o.id.equals(change.entityId))).getSingleOrNull();
 
     final companion = ObjectivesCompanion(
       id: Value(change.entityId),
@@ -1750,17 +1996,33 @@ class SyncService {
     );
 
     if (existing != null) {
+      if (_wouldNotChange(existing, companion)) {
+        effects.confirm('objectives', change.entityId);
+        return false;
+      }
       await (_database.update(
         _database.objectives,
       )..where((o) => o.id.equals(change.entityId))).write(companion);
     } else {
       await _database.into(_database.objectives).insert(companion);
     }
+    return true;
   }
 
-  Future<void> _applyPaymentMethodChange(SyncChange change) async {
+  Future<bool> _applyPaymentMethodChange(
+    SyncChange change,
+    _PulledEffects effects,
+  ) async {
     final rawData = change.data;
+    final existing = await (_database.select(
+      _database.paymentMethods,
+    )..where((p) => p.id.equals(change.entityId))).getSingleOrNull();
+
     if (change.operation == 'delete') {
+      if (existing == null ||
+          _alreadyDeleted(existing.deletedAt, existing.syncStatus)) {
+        return false;
+      }
       await (_database.update(
         _database.paymentMethods,
       )..where((p) => p.id.equals(change.entityId))).write(
@@ -1769,15 +2031,11 @@ class SyncService {
           syncStatus: const Value(SyncStatus.synced),
         ),
       );
-      return;
+      return true;
     }
 
-    if (rawData == null) return;
+    if (rawData == null) return false;
     final data = _normalizeKeys(rawData);
-
-    final existing = await (_database.select(
-      _database.paymentMethods,
-    )..where((p) => p.id.equals(change.entityId))).getSingleOrNull();
 
     final companion = PaymentMethodsCompanion(
       id: Value(change.entityId),
@@ -1795,18 +2053,37 @@ class SyncService {
     );
 
     if (existing != null) {
+      if (_wouldNotChange(existing, companion)) {
+        effects.confirm('payment_methods', change.entityId);
+        return false;
+      }
       await (_database.update(
         _database.paymentMethods,
       )..where((p) => p.id.equals(change.entityId))).write(companion);
     } else {
       await _database.into(_database.paymentMethods).insert(companion);
     }
+    return true;
   }
 
-  Future<void> _applyRecurringConfigChange(SyncChange change) async {
+  Future<bool> _applyRecurringConfigChange(
+    SyncChange change,
+    _PulledEffects effects,
+  ) async {
     final rawData = change.data;
+    final existing = await (_database.select(
+      _database.recurringConfigs,
+    )..where((r) => r.id.equals(change.entityId))).getSingleOrNull();
+
     // RecurringConfig has no deletedAt - uses isActive flag
     if (change.operation == 'delete') {
+      if (existing == null) return false;
+      if (!existing.isActive && existing.syncStatus == SyncStatus.synced) {
+        // Already stopped here. Applying it again would only restamp the row,
+        // which [_confirmUnchanged] does without the rewrite.
+        effects.confirm('recurring_configs', change.entityId);
+        return false;
+      }
       await (_database.update(
         _database.recurringConfigs,
       )..where((r) => r.id.equals(change.entityId))).write(
@@ -1816,15 +2093,11 @@ class SyncService {
           updatedAt: Value(DateTime.now()),
         ),
       );
-      return;
+      return true;
     }
 
-    if (rawData == null) return;
+    if (rawData == null) return false;
     final data = _normalizeKeys(rawData);
-
-    final existing = await (_database.select(
-      _database.recurringConfigs,
-    )..where((r) => r.id.equals(change.entityId))).getSingleOrNull();
 
     final companion = RecurringConfigsCompanion(
       id: Value(change.entityId),
@@ -1862,12 +2135,17 @@ class SyncService {
     );
 
     if (existing != null) {
+      if (_wouldNotChange(existing, companion)) {
+        effects.confirm('recurring_configs', change.entityId);
+        return false;
+      }
       await (_database.update(
         _database.recurringConfigs,
       )..where((r) => r.id.equals(change.entityId))).write(companion);
     } else {
       await _database.into(_database.recurringConfigs).insert(companion);
     }
+    return true;
   }
 
   // ==================== CONVERSION HELPERS ====================
@@ -2234,7 +2512,19 @@ class SyncService {
   ///
   /// Records NOT in [applied] (i.e. server conflicts) are intentionally left
   /// pending.
+  ///
+  /// The whole batch is settled in one database transaction. Each row is still
+  /// its own compare-and-set statement, so nothing about which rows are cleared
+  /// changes; what changes is that a push of four hundred rows commits once
+  /// instead of four hundred times, each commit a separate trip to storage.
   Future<void> _markChangesSynced(List<SyncChange> applied) async {
+    if (applied.isEmpty) return;
+    await _database.transaction(() async {
+      await _markEachSynced(applied);
+    });
+  }
+
+  Future<void> _markEachSynced(List<SyncChange> applied) async {
     for (final c in applied) {
       final revision = c.sourceRevision;
 
@@ -2320,6 +2610,14 @@ class SyncService {
     return await _database.rowRevision(table, id) == submitted;
   }
 
+  /// Whether a pulled delete has nothing left to do: the row is already a
+  /// tombstone this device has no unsent work on.
+  ///
+  /// Re-applying it used to move the deletion time to now, which also restarted
+  /// the thirty days the row stays in Recently Deleted.
+  static bool _alreadyDeleted(DateTime? deletedAt, int syncStatus) =>
+      deletedAt != null && syncStatus == SyncStatus.synced;
+
   /// Update sync state
   void _setState(SyncOperationState newState) {
     _state = newState;
@@ -2343,4 +2641,23 @@ class SyncService {
   void dispose() {
     _stateController.close();
   }
+}
+
+/// What applying one pull did to the local database, beyond the row counts.
+///
+/// Gathered while the batch is applied so the work that follows it — balances,
+/// housekeeping, refreshing screens — can be limited to what actually moved.
+class _PulledEffects {
+  /// Tables in which at least one row was written.
+  final Set<String> tables = {};
+
+  /// Wallets whose balance may have moved: every wallet a written transaction
+  /// was in before or after the write, and every wallet written itself.
+  final Set<String> walletIds = {};
+
+  /// Rows the server sent back exactly as this device holds them, by table.
+  final Map<String, Set<String>> confirmed = {};
+
+  void confirm(String table, String id) =>
+      confirmed.putIfAbsent(table, () => {}).add(id);
 }

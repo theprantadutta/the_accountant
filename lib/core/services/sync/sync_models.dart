@@ -709,6 +709,22 @@ class SyncResult {
   /// is what stops a data error from being reported to the user as a clean sync.
   final List<SyncApplyFailure> applyFailures;
 
+  /// Set when the sync never got as far as talking to the server for a reason
+  /// that is not a fault: another sync was already running, the account cannot
+  /// sync, or the device is offline.
+  ///
+  /// Kept apart from a real failure so a background trigger can stay quiet about
+  /// it. Telling someone on a train that their sync "failed" every few minutes is
+  /// noise; telling them once that the server refused their data is not.
+  final SyncNotRunReason? notRunReason;
+
+  /// Local tables whose contents this sync actually changed.
+  ///
+  /// Client-only. Lets the caller reload just the screens that can have moved,
+  /// rather than every list in the app after a sync that only confirmed what the
+  /// device already had.
+  final Set<String> changedTables;
+
   SyncResult({
     required this.success,
     this.error,
@@ -718,7 +734,13 @@ class SyncResult {
     this.duration = Duration.zero,
     this.conflicts = const [],
     this.applyFailures = const [],
+    this.notRunReason,
+    this.changedTables = const {},
   });
+
+  /// Whether this is a failure worth telling the user about, as opposed to a
+  /// sync that simply did not run.
+  bool get isRealFailure => !success && notRunReason == null;
 
   /// True when some changes applied but at least one could not.
   bool get isPartial => applyFailures.isNotEmpty;
@@ -744,6 +766,7 @@ class SyncResult {
     int conflictCount = 0,
     Duration duration = Duration.zero,
     List<SyncConflict> conflicts = const [],
+    Set<String> changedTables = const {},
   }) => SyncResult(
     success: true,
     pushedCount: pushedCount,
@@ -751,6 +774,7 @@ class SyncResult {
     conflictCount: conflictCount,
     duration: duration,
     conflicts: conflicts,
+    changedTables: changedTables,
   );
 
   /// Some changes applied, at least one did not. Reported as NOT successful so
@@ -762,6 +786,7 @@ class SyncResult {
     Duration duration = Duration.zero,
     List<SyncConflict> conflicts = const [],
     required List<SyncApplyFailure> applyFailures,
+    Set<String> changedTables = const {},
   }) => SyncResult(
     success: false,
     pushedCount: pushedCount,
@@ -770,11 +795,20 @@ class SyncResult {
     duration: duration,
     conflicts: conflicts,
     applyFailures: applyFailures,
+    changedTables: changedTables,
   );
 
   factory SyncResult.failure(String error) =>
       SyncResult(success: false, error: error);
+
+  /// The sync did not run, for [reason]. Still reported as unsuccessful, with
+  /// the same message as before, so a screen that shows the result is unchanged.
+  factory SyncResult.notRun(SyncNotRunReason reason, String error) =>
+      SyncResult(success: false, error: error, notRunReason: reason);
 }
+
+/// Why a sync stopped before it reached the server. See [SyncResult.notRunReason].
+enum SyncNotRunReason { busy, notPremium, notSignedIn, offline }
 
 /// Enum for sync operation state (not to be confused with database SyncState table)
 enum SyncOperationState { idle, syncing, success, error, offline }
