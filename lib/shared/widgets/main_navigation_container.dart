@@ -7,6 +7,7 @@ import 'package:the_accountant/core/domain/app_destination.dart';
 import 'package:the_accountant/core/providers/deep_link_provider.dart';
 import 'package:the_accountant/core/providers/default_wallet_provider.dart';
 import 'package:the_accountant/core/providers/startup_flow_provider.dart';
+import 'package:the_accountant/core/providers/sync_provider.dart';
 import 'package:the_accountant/core/providers/walkthrough_provider.dart';
 import 'package:the_accountant/core/services/analytics_service.dart';
 import 'package:the_accountant/core/services/deep_link_service.dart';
@@ -30,7 +31,6 @@ import 'package:the_accountant/features/wallets/screens/create_first_wallet_scre
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:the_accountant/shared/widgets/shimmer_loading.dart';
 import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
-import 'package:the_accountant/shared/widgets/sync_status_banner.dart';
 
 /// The signed-in shell: Today, Wallets, the Add pill, Stats and More.
 ///
@@ -312,6 +312,19 @@ class _MainNavigationContainerState
         });
       }
     });
+    // Background syncs run silently. The one thing worth interrupting for is a
+    // sync that failed, and [SyncNotifier] raises that once per run of
+    // failures, never for being offline. Manual syncs report on their own
+    // screen.
+    ref.listen<int>(syncFailureNoticeProvider, (previous, next) {
+      if (next > (previous ?? 0)) {
+        showSunriseSnack(
+          context,
+          L10n.of(context).syncBackgroundFailed,
+          duration: const Duration(seconds: 4),
+        );
+      }
+    });
     final l10n = L10n.of(context);
     final hasWallets = ref.watch(hasWalletsProvider);
     final isLoadingWallets = ref.watch(walletsLoadingProvider);
@@ -346,23 +359,10 @@ class _MainNavigationContainerState
       );
     }
 
-    final body = Stack(
-      children: [
-        _tabBody(IndexedStack(index: _currentIndex, children: _screens)),
-        // Non-blocking sync indicator, a toast just above the tab bar so it
-        // never covers a screen's header.
-        Positioned(
-          left: 0,
-          right: 0,
-          bottom:
-              (isTablet(context) ? 16 : 90) +
-              MediaQuery.paddingOf(context).bottom,
-          child: const Center(child: SyncStatusBanner()),
-        ),
-      ],
+    return _chrome(
+      l10n,
+      _tabBody(IndexedStack(index: _currentIndex, children: _screens)),
     );
-
-    return _chrome(l10n, body);
   }
 
   /// The shell around a body: tab bar on phones, a rail on tablets.

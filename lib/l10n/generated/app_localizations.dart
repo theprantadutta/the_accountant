@@ -1961,6 +1961,12 @@ abstract class L10n {
   /// **'Sync Error'**
   String get settingsSyncError;
 
+  /// No description provided for @syncBackgroundFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t sync. Your changes are safe on this device and will sync later.'**
+  String get syncBackgroundFailed;
+
   /// No description provided for @settingsOffline.
   ///
   /// In en, this message translates to:

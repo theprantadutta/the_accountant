@@ -85,9 +85,15 @@ class WalletBalanceService {
     final wallets = await _db.getAllWallets();
 
     for (final wallet in wallets) {
-      final calculatedBalance = await calculateWalletBalance(wallet.id);
-      await _db.setWalletBalanceLocal(wallet.id, calculatedBalance);
+      await recalculateWalletBalanceLocal(wallet.id);
     }
+  }
+
+  /// [recalculateAllWalletBalancesLocal] for one wallet: recompute it and
+  /// persist the result without marking it for sync.
+  Future<void> recalculateWalletBalanceLocal(String walletId) async {
+    final calculatedBalance = await calculateWalletBalance(walletId);
+    await _db.setWalletBalanceLocal(walletId, calculatedBalance);
   }
 
   /// Get all wallets with their calculated balances.

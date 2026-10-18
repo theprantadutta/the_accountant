@@ -1,5 +1,4 @@
-import 'dart:io';
-
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:the_accountant/core/services/api_service.dart';
 import 'package:the_accountant/core/services/sync/sync_models.dart';
 
@@ -34,13 +33,22 @@ class ApiSyncTransport implements SyncTransport {
 
   ApiSyncTransport(this._apiService);
 
+  /// Whether any network interface is up, from the platform's own record.
+  ///
+  /// This used to resolve google.com before every sync: a DNS round trip, on a
+  /// phone often a slow one, spent proving something the sync request is about
+  /// to prove anyway. A device that is genuinely offline is caught here at no
+  /// cost, and one that only looks connected fails its first request quickly,
+  /// which the sync reports as offline rather than as a fault.
   @override
   Future<bool> isOnline() async {
     try {
-      final result = await InternetAddress.lookup('google.com');
-      return result.isNotEmpty && result[0].rawAddress.isNotEmpty;
-    } on SocketException catch (_) {
-      return false;
+      final results = await Connectivity().checkConnectivity();
+      return !results.contains(ConnectivityResult.none);
+    } catch (_) {
+      // No answer from the platform is not evidence of being offline; let the
+      // request itself decide.
+      return true;
     }
   }
 

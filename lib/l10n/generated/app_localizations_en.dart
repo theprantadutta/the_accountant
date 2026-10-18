@@ -1015,6 +1015,10 @@ class L10nEn extends L10n {
   String get settingsSyncError => 'Sync Error';
 
   @override
+  String get syncBackgroundFailed =>
+      'Couldn\'t sync. Your changes are safe on this device and will sync later.';
+
+  @override
   String get settingsOffline => 'Offline';
 
   @override

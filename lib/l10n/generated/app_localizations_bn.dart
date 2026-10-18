@@ -1009,6 +1009,10 @@ class L10nBn extends L10n {
   String get settingsSyncError => 'সিঙ্কে ত্রুটি';
 
   @override
+  String get syncBackgroundFailed =>
+      'সিঙ্ক করা যায়নি। আপনার পরিবর্তনগুলো এই ডিভাইসে নিরাপদ আছে, পরে সিঙ্ক হবে।';
+
+  @override
   String get settingsOffline => 'অফলাইন';
 
   @override

@@ -606,6 +606,59 @@ class AppDatabase extends _$AppDatabase {
     );
   }
 
+  /// Every row with something to push, as `table:id:version`.
+  ///
+  /// The version is part of it so a row edited again reads as a different
+  /// entry: the question callers ask is whether there is work a sync has not
+  /// yet seen, not merely whether anything is pending.
+  Future<Set<String>> pendingRowFingerprints() async {
+    final out = <String>{};
+    for (final table in syncedTableNames) {
+      final rows = await customSelect(
+        'SELECT t.id AS id, v.revision AS revision FROM $table t '
+        'LEFT JOIN local_row_versions v '
+        'ON v.sync_table = ? AND v.entity_id = t.id '
+        'WHERE t.sync_status > 0',
+        variables: [Variable<String>(table)],
+      ).get();
+      for (final row in rows) {
+        out.add(
+          '$table:${row.read<String>('id')}:'
+          '${row.readNullable<int>('revision')}',
+        );
+      }
+    }
+    return out;
+  }
+
+  /// Set `updated_at` to now on rows a pull found unchanged, leaving everything
+  /// else about them alone.
+  ///
+  /// Guarded on the row still being synced, so a row the user edited after the
+  /// pull compared it keeps the time of that edit.
+  Future<void> stampConfirmedRows(String table, Iterable<String> ids) async {
+    if (!syncedTableNames.contains(table)) return;
+    final all = ids.toList();
+    if (all.isEmpty) return;
+
+    // The same representation every other raw write to these columns uses.
+    final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+    // Well under SQLite's bound-variable limit, whatever it is set to.
+    const chunkSize = 500;
+    for (var start = 0; start < all.length; start += chunkSize) {
+      final chunk = all.sublist(
+        start,
+        (start + chunkSize).clamp(0, all.length),
+      );
+      final marks = List.filled(chunk.length, '?').join(', ');
+      await customStatement(
+        'UPDATE $table SET updated_at = ? '
+        'WHERE sync_status = ${SyncStatus.synced} AND id IN ($marks)',
+        [now, ...chunk],
+      );
+    }
+  }
+
   @visibleForTesting
   Future<void> installRowVersionTriggersForTest() =>
       _installRowVersionTriggers();

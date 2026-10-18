@@ -310,6 +310,7 @@
   "settingsSyncing": "সিঙ্ক হচ্ছে...",
   "settingsSynced": "সিঙ্ক হয়েছে",
   "settingsSyncError": "সিঙ্কে ত্রুটি",
+  "syncBackgroundFailed": "সিঙ্ক করা যায়নি। আপনার পরিবর্তনগুলো এই ডিভাইসে নিরাপদ আছে, পরে সিঙ্ক হবে।",
   "settingsOffline": "অফলাইন",
   "settingsReady": "প্রস্তুত",
   "settingsYesUseThis": "হ্যাঁ, এটিই ব্যবহার করুন",
