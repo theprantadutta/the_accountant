@@ -77,7 +77,10 @@ class LocalNotificationLog {
     await _write([
       for (final i in items)
         i.id == id
-            ? i.copyWith(status: NotificationStatus.read, readAt: DateTime.now())
+            ? i.copyWith(
+                status: NotificationStatus.read,
+                readAt: DateTime.now(),
+              )
             : i,
     ]);
   }

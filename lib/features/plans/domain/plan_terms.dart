@@ -236,6 +236,7 @@ List<PlanEvent> planEvents(Plan plan) {
 
   switch (plan.kind) {
     case PlanKind.emi:
+    case PlanKind.sip:
       return installments();
     case PlanKind.insurance:
       final payout = plan.maturityAmount ?? 0;

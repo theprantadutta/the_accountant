@@ -506,4 +506,124 @@ void main() {
       },
     );
   });
+  group('funds, shares and SIPs', () {
+    Future<CoachPlan> plan(String name, Map<String, dynamic> args) =>
+        runner.plan(CoachToolCall('i1', name, args));
+    Future<Map> holding() async =>
+        ((await read('list_investments', {}))['investments'] as List).single
+            as Map;
+
+    test(
+      'adds a fund with its first buy, revalues it, sells and pays out',
+      () async {
+        final created = await plan('create_investment', {
+          'name': 'Growth Fund',
+          'kind': 'fund',
+          'symbol': 'gf1',
+          'account': 'Bkash',
+          'amount': 2000,
+          'units': 1000,
+        });
+        expect(created.error, isNull);
+        expect(created.preview!.kind, CoachActionKind.createInvestment);
+        expect(created.preview!.amount, 200000);
+        expect(await read('list_investments', {}), {
+          'investments': [],
+        }, reason: 'nothing until confirmed');
+        final done = jsonDecode(await created.execute!()) as Map;
+        expect(done['status'], 'done');
+
+        var h = await holding();
+        expect(h['units'], 1000.0);
+        expect(h['price'], 2.0);
+        expect(h['value'], 2000.0);
+        expect(h['symbol'], 'GF1');
+
+        final again = await plan('create_investment', {'name': 'growth fund'});
+        expect(again.error, contains('already tracked'));
+
+        final price = await plan('update_investment_price', {
+          'investment': 'GF1',
+          'price': 2.5,
+        });
+        expect(price.preview!.changes.keys, containsAll(['price', 'value']));
+        await price.execute!();
+        h = await holding();
+        expect(h['value'], 2500.0);
+        expect(h['gain'], 500.0);
+        expect(h['gain_percent'], 25.0);
+
+        final tooMany = await plan('trade_investment', {
+          'investment': 'Growth Fund',
+          'action': 'sell',
+          'amount': 100,
+          'units': 5000,
+        });
+        expect(tooMany.error, contains('Only'));
+
+        final sell = await plan('trade_investment', {
+          'investment': 'Growth Fund',
+          'action': 'sell',
+          'amount': 1200,
+          'units': 400,
+          'account': 'Bkash',
+        });
+        expect(sell.preview!.isIncome, isTrue);
+        await sell.execute!();
+        h = await holding();
+        expect(h['units'], 600.0);
+        expect(h['value'], 1800.0, reason: '600 at 3.00, the sale price');
+        expect(h['taken_out'], 1200.0);
+
+        final dividend = await plan('trade_investment', {
+          'investment': 'Growth Fund',
+          'action': 'dividend',
+          'amount': 50,
+        });
+        final paid = jsonDecode(await dividend.execute!()) as Map;
+        expect(paid['status'], 'done');
+      },
+    );
+
+    test('a SIP buys into a fund the coach names', () async {
+      final created = await plan('create_investment', {
+        'name': 'Index Fund',
+        'kind': 'fund',
+      });
+      await created.execute!();
+      await (await plan('update_investment_price', {
+        'investment': 'Index Fund',
+        'price': 10,
+      })).execute!();
+
+      final sip = await plan('create_plan', {
+        'kind': 'sip',
+        'name': 'Index SIP',
+        'account': 'Bkash',
+        'investment': 'Index Fund',
+        'installment_amount': 500,
+        'installments': 12,
+      });
+      expect(sip.error, isNull);
+      final lines = Map.fromEntries(
+        sip.preview!.lines.map((l) => MapEntry(l.$1, l.$2)),
+      );
+      expect(lines['buys'], 'Index Fund');
+      await sip.execute!();
+
+      // The first one is due today, so it has already bought.
+      final h = await holding();
+      expect(h['units'], 50.0);
+      expect(h['put_in'], 500.0);
+
+      final missing = await plan('create_plan', {
+        'kind': 'sip',
+        'name': 'Other SIP',
+        'investment': 'Nothing',
+        'installment_amount': 500,
+        'installments': 12,
+      });
+      expect(missing.error, contains('No investment'));
+    });
+  });
 }

@@ -11,7 +11,10 @@ import 'package:the_accountant/features/ai_assistant/services/finance_context_bu
 import 'package:the_accountant/features/categories/providers/category_provider.dart'
     as cat;
 import 'package:the_accountant/data/models/plan.dart';
+import 'package:the_accountant/data/models/investment.dart';
 import 'package:the_accountant/features/cards/domain/card_statement.dart';
+import 'package:the_accountant/features/investments/providers/investments_provider.dart';
+import 'package:the_accountant/features/investments/services/investment_service.dart';
 import 'package:the_accountant/features/plans/domain/plan_terms.dart';
 import 'package:the_accountant/features/plans/providers/plans_provider.dart';
 import 'package:the_accountant/features/plans/services/plan_service.dart';
@@ -46,6 +49,15 @@ enum CoachActionKind {
 
   /// A plan's name, reminder or collection changed.
   updatePlan,
+
+  /// A fund, share or other holding started, with what was first bought.
+  createInvestment,
+
+  /// Units bought or sold, or a dividend received.
+  tradeInvestment,
+
+  /// A holding's price updated, and its value with it.
+  updateInvestment,
 }
 
 /// A change the coach wants to make, as the user is shown it before it happens.
@@ -121,6 +133,9 @@ class CoachToolRunner {
     'pay_plan',
     'close_plan',
     'update_plan',
+    'create_investment',
+    'trade_investment',
+    'update_investment_price',
   };
 
   static const _maxResults = 50;
@@ -145,6 +160,7 @@ class CoachToolRunner {
         'list_categories' => _categories(call.args),
         'card_bills' => await _cardBills(call.args),
         'list_plans' => await _plans(call.args),
+        'list_investments' => await _investmentsList(),
         _ => _error('There is no tool called ${call.name}.'),
       };
     } on _ToolError catch (e) {
@@ -168,6 +184,9 @@ class CoachToolRunner {
         'pay_plan' => await _planPayPlan(call.args),
         'close_plan' => await _planClosePlan(call.args),
         'update_plan' => await _planUpdatePlan(call.args),
+        'create_investment' => await _planCreateInvestment(call.args),
+        'trade_investment' => await _planTradeInvestment(call.args),
+        'update_investment_price' => await _planInvestmentPrice(call.args),
         _ => CoachPlan.failed(_error('There is no tool called ${call.name}.')),
       };
     } on _ToolError catch (e) {
@@ -336,6 +355,7 @@ class CoachToolRunner {
               WalletType.creditCard => 'credit_card',
               WalletType.subscription => 'subscription',
               WalletType.deposit => 'deposit',
+              WalletType.investment => 'investment',
             },
             'currency': w.currency,
             'balance': (w.balance) / 100,
@@ -752,6 +772,7 @@ class CoachToolRunner {
         'dps' => PlanKind.dps,
         'fdr' => PlanKind.fdr,
         'insurance' || 'policy' => PlanKind.insurance,
+        'sip' => PlanKind.sip,
         'bond' ||
         'savings_certificate' ||
         'sanchayapatra' ||
@@ -851,7 +872,7 @@ class CoachToolRunner {
     final kind =
         _planKind(args['kind']) ??
         (throw _ToolError(
-          'kind must be emi, loan, dps, fdr, insurance or bond.',
+          'kind must be emi, loan, dps, fdr, insurance, bond or sip.',
         ));
     final name = (args['name'] as String?)?.trim() ?? '';
     if (name.isEmpty) throw _ToolError('name is required.');
@@ -872,7 +893,7 @@ class CoachToolRunner {
                   .firstOrNull ??
               _defaultWallet())
         : _defaultWallet();
-    if (wallet.walletType == WalletType.deposit) {
+    if (wallet.walletType.isManaged) {
       throw _ToolError('A plan is paid from an ordinary account.');
     }
     final count = (args['installments'] as num?)?.toInt() ?? 0;
@@ -930,6 +951,10 @@ class CoachToolRunner {
         if (installment <= 0) {
           throw _ToolError('installment_amount, the premium, is required.');
         }
+      case PlanKind.sip:
+        if (installment <= 0) {
+          throw _ToolError('installment_amount, each SIP, is required.');
+        }
       case PlanKind.fdr:
       case PlanKind.bond:
         if (amount <= 0) {
@@ -946,6 +971,9 @@ class CoachToolRunner {
     }
     final category = args['category'] is String
         ? _category(args['category'] as String, kind: 'expense')
+        : null;
+    final investment = kind == PlanKind.sip
+        ? await _investmentNamed(args['investment'])
         : null;
     final autoCollect = args['auto_collect'] as bool? ?? true;
     final remind = (args['remind_days_before'] as num?)?.toInt() ?? 3;
@@ -971,6 +999,7 @@ class CoachToolRunner {
       provider: provider,
       reference: reference,
       taxRate: tax,
+      investmentId: investment?.id,
     );
 
     final cycle = switch ((frequency, interval)) {
@@ -989,6 +1018,7 @@ class CoachToolRunner {
       date: start,
       lines: [
         ('account', wallet.name),
+        if (investment != null) ('buys', investment.name),
         if (provider != null && provider.isNotEmpty) ('provider', provider),
         if (reference != null && reference.isNotEmpty) ('reference', reference),
         if (!fixed) ...[
@@ -1184,6 +1214,262 @@ class CoachToolRunner {
   }
 
   /// The screens read the notifiers; a plan writes underneath them.
+  // ------------------------------------------------- funds, shares, SIPs
+
+  InvestmentService get _investmentService => _read(investmentServiceProvider);
+
+  static InvestmentKind _investmentKind(Object? v) =>
+      switch ((v as String?)?.toLowerCase()) {
+        'stock' || 'share' || 'shares' || 'equity' => InvestmentKind.stock,
+        'other' || 'gold' || 'crypto' => InvestmentKind.other,
+        _ => InvestmentKind.fund,
+      };
+
+  /// The holding a call names, by id, name or symbol.
+  Future<Investment> _investmentNamed(Object? ref) async {
+    final all = await _investmentService.all();
+    if (ref is! String || ref.trim().isEmpty) {
+      throw _ToolError(
+        'Which investment? Use list_investments to find its name.',
+      );
+    }
+    final exact = all.where(
+      (i) =>
+          i.id == ref ||
+          (i.symbol != null && i.symbol!.toLowerCase() == ref.toLowerCase()),
+    );
+    if (exact.isNotEmpty) return exact.first;
+    final match = _byName(all, ref, (i) => i.name);
+    if (match != null) return match;
+    throw _ToolError(
+      all.isEmpty
+          ? 'No investments are tracked yet; create_investment adds one.'
+          : 'No investment is called "$ref". They are: '
+                '${all.map((i) => i.name).join(', ')}.',
+    );
+  }
+
+  static String _unitsText(double u) =>
+      u == u.roundToDouble() ? u.toStringAsFixed(0) : '$u';
+
+  static double? _units(Object? v) => switch (v) {
+    num n => n.toDouble(),
+    String s => double.tryParse(s.trim()),
+    _ => null,
+  };
+
+  Map<String, Object?> _holdingJson(InvestmentHolding h) {
+    final i = h.investment;
+    return {
+      'id': i.id,
+      'name': i.name,
+      'kind': i.kind.name,
+      if (i.symbol != null) 'symbol': i.symbol,
+      'currency': h.currency,
+      'units': h.units,
+      'price': i.price / 100,
+      if (i.priceDate != null) 'price_date': _date8(i.priceDate!),
+      'value': h.value / 100,
+      'put_in': h.putIn / 100,
+      'taken_out': h.takenOut / 100,
+      'gain': h.gain / 100,
+      if (h.gainPercent != null)
+        'gain_percent': double.parse(h.gainPercent!.toStringAsFixed(2)),
+    };
+  }
+
+  Future<String> _investmentsList() async {
+    final holdings = await _investmentService.holdings();
+    return jsonEncode({
+      'investments': [for (final h in holdings) _holdingJson(h)],
+    });
+  }
+
+  Future<CoachPlan> _planCreateInvestment(Map<String, dynamic> args) async {
+    final name = (args['name'] as String?)?.trim() ?? '';
+    if (name.isEmpty) throw _ToolError('name is required.');
+    final existing = (await _investmentService.all()).where(
+      (i) => i.name.toLowerCase() == name.toLowerCase(),
+    );
+    if (existing.isNotEmpty) {
+      throw _ToolError(
+        '$name is already tracked; use trade_investment to buy more.',
+      );
+    }
+    final kind = _investmentKind(args['kind']);
+    final symbol = (args['symbol'] as String?)?.trim();
+    final wallet = args['account'] is String
+        ? _wallet(args['account'] as String)
+        : _defaultWallet();
+    final amount = _amount(args['amount']) ?? 0;
+    final units = _units(args['units']);
+    final fee = _amount(args['fee']) ?? 0;
+    if (amount > 0 && (units == null || units <= 0)) {
+      throw _ToolError('units is required with amount: how many were bought.');
+    }
+    final c = wallet.currency;
+    final preview = CoachActionPreview(
+      kind: CoachActionKind.createInvestment,
+      title: name,
+      amount: amount,
+      currency: c,
+      isIncome: false,
+      date: DateTime.now(),
+      lines: [
+        ('kind', kind.name),
+        if (symbol != null && symbol.isNotEmpty) ('symbol', symbol),
+        if (amount > 0) ...[
+          ('account', wallet.name),
+          ('units', _unitsText(units!)),
+          ('per_unit', (amount / units).round().formatCurrency(c)),
+          if (fee > 0) ('fee', fee.formatCurrency(c)),
+        ],
+      ],
+    );
+    return CoachPlan.ready(preview, () async {
+      final id = await _investmentService.create(
+        InvestmentDraft(
+          name: name,
+          kind: kind,
+          symbol: symbol,
+          currency: c,
+          useDecimals: wallet.useDecimals,
+        ),
+      );
+      if (amount > 0) {
+        await _investmentService.buy(
+          id,
+          fromWalletId: wallet.id,
+          amount: amount,
+          units: units,
+          fee: fee,
+        );
+      }
+      await _refresh();
+      final h = await _investmentService.holdingOf(
+        (await _investmentService.find(id))!,
+      );
+      final account = await _read(databaseProvider).findWalletById(wallet.id);
+      return jsonEncode({
+        'status': 'done',
+        'investment': h == null ? null : _holdingJson(h),
+        if (amount > 0 && account != null)
+          'account_balance_now': account.balance / 100,
+      });
+    });
+  }
+
+  Future<CoachPlan> _planTradeInvestment(Map<String, dynamic> args) async {
+    final i = await _investmentNamed(args['investment'] ?? args['name']);
+    final holding = (await _investmentService.holdingOf(i))!;
+    final action = (args['action'] as String?)?.toLowerCase() ?? 'buy';
+    if (action != 'buy' && action != 'sell' && action != 'dividend') {
+      throw _ToolError('action must be buy, sell or dividend.');
+    }
+    final c = holding.currency;
+    final wallet = args['account'] is String
+        ? _wallet(args['account'] as String)
+        : (_selectableWallets.where((w) => w.currency == c).firstOrNull ??
+              _defaultWallet());
+    final amount = _amount(args['amount']) ?? 0;
+    if (amount <= 0) throw _ToolError('amount is required.');
+    final units = _units(args['units']);
+    final fee = _amount(args['fee']) ?? 0;
+    if (action == 'sell') {
+      if (units == null || units <= 0) {
+        throw _ToolError('units is required to sell.');
+      }
+      if (units > holding.units + 1e-6) {
+        throw _ToolError('Only ${holding.units} units of ${i.name} are held.');
+      }
+    }
+    final preview = CoachActionPreview(
+      kind: CoachActionKind.tradeInvestment,
+      title: '${i.name}: $action',
+      amount: amount,
+      currency: c,
+      isIncome: action != 'buy',
+      date: DateTime.now(),
+      lines: [
+        ('account', wallet.name),
+        if (units != null && action != 'dividend') ...[
+          ('units', _unitsText(units)),
+          ('per_unit', (amount / units).round().formatCurrency(c)),
+        ],
+        if (fee > 0 && action != 'dividend') ('fee', fee.formatCurrency(c)),
+        ('held', _unitsText(holding.units)),
+      ],
+    );
+    return CoachPlan.ready(preview, () async {
+      switch (action) {
+        case 'buy':
+          await _investmentService.buy(
+            i.id,
+            fromWalletId: wallet.id,
+            amount: amount,
+            units: units,
+            fee: fee,
+          );
+        case 'sell':
+          await _investmentService.sell(
+            i.id,
+            toWalletId: wallet.id,
+            amount: amount,
+            units: units!,
+            fee: fee,
+          );
+        default:
+          await _investmentService.dividend(
+            i.id,
+            toWalletId: wallet.id,
+            amount: amount,
+          );
+      }
+      await _refresh();
+      final after = await _investmentService.holdingOf(
+        (await _investmentService.find(i.id))!,
+      );
+      final account = await _read(databaseProvider).findWalletById(wallet.id);
+      return jsonEncode({
+        'status': 'done',
+        'investment': after == null ? null : _holdingJson(after),
+        if (account != null) 'account_balance_now': account.balance / 100,
+      });
+    });
+  }
+
+  Future<CoachPlan> _planInvestmentPrice(Map<String, dynamic> args) async {
+    final i = await _investmentNamed(args['investment'] ?? args['name']);
+    final holding = (await _investmentService.holdingOf(i))!;
+    final price = _amount(args['price']) ?? 0;
+    if (price <= 0) throw _ToolError('price, for one unit, is required.');
+    final c = holding.currency;
+    final newValue = (holding.units * price).round();
+    final preview = CoachActionPreview(
+      kind: CoachActionKind.updateInvestment,
+      title: i.name,
+      amount: newValue,
+      currency: c,
+      isIncome: newValue >= holding.value,
+      date: DateTime.now(),
+      changes: {
+        'price': (i.price.formatCurrency(c), price.formatCurrency(c)),
+        'value': (holding.value.formatCurrency(c), newValue.formatCurrency(c)),
+      },
+    );
+    return CoachPlan.ready(preview, () async {
+      await _investmentService.updatePrice(i.id, price);
+      await _refresh();
+      final after = await _investmentService.holdingOf(
+        (await _investmentService.find(i.id))!,
+      );
+      return jsonEncode({
+        'status': 'done',
+        'investment': after == null ? null : _holdingJson(after),
+      });
+    });
+  }
+
   Future<void> _refresh() async {
     await _read(transactionProvider.notifier).loadTransactions(silent: true);
     await _read(walletProvider.notifier).loadWallets();

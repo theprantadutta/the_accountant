@@ -11,6 +11,7 @@ import 'package:the_accountant/core/services/sync/sync_transport.dart';
 import 'package:the_accountant/core/services/wallet_balance_service.dart';
 import 'package:the_accountant/features/transactions/services/transfer_service.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
+import 'package:the_accountant/data/models/investment.dart';
 import 'package:the_accountant/data/models/plan.dart';
 import 'package:the_accountant/data/models/wallet.dart' show WalletType;
 import 'package:the_accountant/data/models/transaction.dart'
@@ -620,6 +621,7 @@ class SyncService {
       'category_budget_limits',
       'objectives',
       'plans',
+      'investments',
       'transactions',
       'recurring_configs',
     ];
@@ -651,6 +653,7 @@ class SyncService {
       'category_budget_limits': await _getPendingCategoryLimitChanges(),
       'objectives': await _getPendingObjectiveChanges(),
       'plans': await _getPendingPlanChanges(),
+      'investments': await _getPendingInvestmentChanges(),
       'transactions': await _getPendingTransactionChanges(),
       'recurring_configs': await _getPendingRecurringConfigChanges(),
     };
@@ -986,6 +989,9 @@ class SyncService {
         return _liveWallet(data['WalletId'] as String?);
 
       case 'plans':
+        return _liveWallet(data['WalletId'] as String?);
+
+      case 'investments':
         return _liveWallet(data['WalletId'] as String?);
 
       case 'budgets':
@@ -1425,6 +1431,21 @@ class SyncService {
     ];
   }
 
+  Future<List<SyncChange>> _getPendingInvestmentChanges() async {
+    final records = await (_database.select(
+      _database.investments,
+    )..where((i) => i.syncStatus.isBiggerThanValue(0))).get();
+    return [
+      for (final r in records)
+        SyncChange(
+          tableName: 'investments',
+          entityId: r.id,
+          operation: _getOperationFromStatus(r.syncStatus),
+          data: _investmentToMap(r),
+        ),
+    ];
+  }
+
   Future<List<SyncChange>> _getPendingPaymentMethodChanges() async {
     final changes = <SyncChange>[];
     final records = await (_database.select(
@@ -1490,6 +1511,8 @@ class SyncService {
         return _applyObjectiveChange(change, effects);
       case 'plans':
         return _applyPlanChange(change, effects);
+      case 'investments':
+        return _applyInvestmentChange(change, effects);
       case 'payment_methods':
         return _applyPaymentMethodChange(change, effects);
       case 'recurring_configs':
@@ -2135,6 +2158,69 @@ class SyncService {
     return true;
   }
 
+  Future<bool> _applyInvestmentChange(
+    SyncChange change,
+    _PulledEffects effects,
+  ) async {
+    final existing = await (_database.select(
+      _database.investments,
+    )..where((i) => i.id.equals(change.entityId))).getSingleOrNull();
+
+    if (change.operation == 'delete') {
+      if (existing == null ||
+          _alreadyDeleted(existing.deletedAt, existing.syncStatus)) {
+        return false;
+      }
+      await (_database.update(
+        _database.investments,
+      )..where((i) => i.id.equals(change.entityId))).write(
+        InvestmentsCompanion(
+          deletedAt: Value(DateTime.now()),
+          syncStatus: const Value(SyncStatus.synced),
+        ),
+      );
+      return true;
+    }
+
+    final rawData = change.data;
+    if (rawData == null) return false;
+    final data = _normalizeKeys(rawData);
+    final kind = (data['Kind'] as num?)?.toInt() ?? 0;
+    final priceDate = data['PriceDate'];
+
+    final companion = InvestmentsCompanion(
+      id: Value(change.entityId),
+      name: Value(data['Name'] as String? ?? ''),
+      kind: Value(
+        InvestmentKind.values[kind < 0 || kind >= InvestmentKind.values.length
+            ? InvestmentKind.other.index
+            : kind],
+      ),
+      symbol: Value(data['Symbol'] as String?),
+      walletId: Value(data['WalletId'] as String),
+      price: Value((data['Price'] as num?)?.toInt() ?? 0),
+      priceDate: Value(
+        priceDate is String ? DateTime.parse(priceDate).toLocal() : null,
+      ),
+      notes: Value(data['Notes'] as String?),
+      syncStatus: const Value(SyncStatus.synced),
+      updatedAt: Value(DateTime.now()),
+    );
+
+    if (existing != null) {
+      if (_wouldNotChange(existing, companion)) {
+        effects.confirm('investments', change.entityId);
+        return false;
+      }
+      await (_database.update(
+        _database.investments,
+      )..where((i) => i.id.equals(change.entityId))).write(companion);
+    } else {
+      await _database.into(_database.investments).insert(companion);
+    }
+    return true;
+  }
+
   Future<bool> _applyPaymentMethodChange(
     SyncChange change,
     _PulledEffects effects,
@@ -2535,6 +2621,17 @@ class SyncService {
     'IsPinned': o.isPinned,
     'IsArchived': o.isArchived,
     'UpdatedAt': o.updatedAt.toUtc().toIso8601String(),
+  };
+
+  Map<String, dynamic> _investmentToMap(Investment i) => {
+    'Name': i.name,
+    'Kind': i.kind.index,
+    'Symbol': i.symbol,
+    'WalletId': i.walletId,
+    'Price': i.price,
+    'PriceDate': i.priceDate?.toUtc().toIso8601String(),
+    'Notes': i.notes,
+    'UpdatedAt': i.updatedAt.toUtc().toIso8601String(),
   };
 
   Map<String, dynamic> _planToMap(Plan p) => {

@@ -9,7 +9,8 @@ import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/core/services/notification_service.dart';
 import 'package:the_accountant/core/utils/time_formatter.dart';
 import 'package:the_accountant/features/notifications/providers/notification_history_provider.dart';
-import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart' show showSunriseSnack, SnackTone;
+import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart'
+    show showSunriseSnack, SnackTone;
 import 'package:the_accountant/core/constants/background_task_constants.dart';
 import 'package:the_accountant/features/settings/providers/notification_preferences_provider.dart';
 import 'package:the_accountant/features/settings/widgets/settings_tile.dart';

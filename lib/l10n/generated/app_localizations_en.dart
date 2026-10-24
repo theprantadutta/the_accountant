@@ -3398,6 +3398,18 @@ class L10nEn extends L10n {
   String get aiActionUpdatePlanTitle => 'Change a plan';
 
   @override
+  String get aiActionCreateInvestmentTitle => 'Add an investment';
+
+  @override
+  String get aiActionTradeInvestmentTitle => 'Record a trade';
+
+  @override
+  String get aiActionUpdateInvestmentTitle => 'Update a price';
+
+  @override
+  String get aiActionConfirm => 'Confirm';
+
+  @override
   String get aiActionClosePlan => 'End it';
 
   @override
@@ -3422,8 +3434,219 @@ class L10nEn extends L10n {
   String get plansTitle => 'EMI, loans & savings';
 
   @override
+  String get investmentsTitle => 'Investments';
+
+  @override
+  String get investmentsSubtitle =>
+      'Mutual funds, shares and SIPs, valued at their latest price';
+
+  @override
+  String get investmentsEmptyTitle => 'No investments yet';
+
+  @override
+  String get investmentsEmptyBody =>
+      'Track a mutual fund, shares or gold: what you paid, what it is worth now, and the gain.';
+
+  @override
+  String get investmentsSold => 'Sold';
+
+  @override
+  String get investmentsWorth => 'Worth now';
+
+  @override
+  String get investmentNew => 'New investment';
+
+  @override
+  String get investmentNewHint =>
+      'Units of a fund, a company\'s shares, or anything else bought by the unit, like gold by the gram.';
+
+  @override
+  String get investmentKindFund => 'Fund';
+
+  @override
+  String get investmentKindStock => 'Shares';
+
+  @override
+  String get investmentKindOther => 'Other';
+
+  @override
+  String get investmentNameHintFund => 'e.g. UCB Income Plus Fund';
+
+  @override
+  String get investmentNameHintStock => 'e.g. Grameenphone';
+
+  @override
+  String get investmentNameHintOther => 'e.g. Gold, 22 carat';
+
+  @override
+  String get investmentSymbol => 'Symbol or code (optional)';
+
+  @override
+  String get investmentFirstBuy => 'What you bought';
+
+  @override
+  String get investmentFirstBuyHint =>
+      'Leave the amount empty to add it without buying anything yet.';
+
+  @override
+  String get investmentPaid => 'Paid';
+
+  @override
+  String get investmentReceived => 'Received';
+
+  @override
+  String get investmentPaidInto => 'Paid into';
+
+  @override
+  String get investmentFee => 'Fee or commission';
+
+  @override
+  String get investmentUnits => 'Units';
+
+  @override
+  String get investmentUnitsSold => 'Units sold';
+
+  @override
+  String investmentUnitsShort(String units) {
+    return '$units units';
+  }
+
+  @override
+  String investmentPerUnit(String price) {
+    return '$price a unit';
+  }
+
+  @override
+  String get investmentNeedUnits => 'Enter how many units were bought.';
+
+  @override
+  String get investmentSave => 'Add investment';
+
+  @override
+  String get investmentAdded => 'Investment added';
+
+  @override
+  String get investmentGone => 'This investment was deleted.';
+
+  @override
+  String get investmentWorthNow => 'Worth now';
+
+  @override
+  String investmentGainLine(String gain) {
+    return '$gain overall';
+  }
+
+  @override
+  String get investmentPrice => 'Price';
+
+  @override
+  String get investmentPutIn => 'Put in';
+
+  @override
+  String get investmentTakenOut => 'Taken out';
+
+  @override
+  String get investmentBuy => 'Buy';
+
+  @override
+  String get investmentSell => 'Sell';
+
+  @override
+  String investmentBuyTitle(String name) {
+    return 'Buy $name';
+  }
+
+  @override
+  String investmentSellTitle(String name) {
+    return 'Sell $name';
+  }
+
+  @override
+  String investmentDividendTitle(String name) {
+    return 'Dividend from $name';
+  }
+
+  @override
+  String get investmentDividend => 'Dividend';
+
+  @override
+  String get investmentRecordDividend => 'Record a dividend';
+
+  @override
+  String investmentHeldNow(String units) {
+    return '$units units held now.';
+  }
+
+  @override
+  String get investmentRecorded => 'Recorded';
+
+  @override
+  String get investmentUpdatePrice => 'Update the price';
+
+  @override
+  String get investmentUpdatePriceHint =>
+      'Today\'s NAV or share price, for one unit';
+
+  @override
+  String get investmentPriceUpdated => 'Price updated';
+
+  @override
+  String get investmentStartSip => 'Start a SIP';
+
+  @override
+  String get investmentStartSipHint =>
+      'Buy a fixed amount every month, by itself';
+
+  @override
+  String get investmentHistory => 'History';
+
+  @override
+  String investmentBought(String units) {
+    return 'Bought $units units';
+  }
+
+  @override
+  String investmentSold(String units) {
+    return 'Sold $units units';
+  }
+
+  @override
+  String get investmentPriceRose => 'Price went up';
+
+  @override
+  String get investmentPriceFell => 'Price went down';
+
+  @override
+  String get investmentUnitsUnknown => 'units not known yet, tap to add';
+
+  @override
+  String get investmentCorrectUnits => 'Units on this trade';
+
+  @override
+  String get investmentCorrectUnitsHint =>
+      'As your fund or broker statement shows them.';
+
+  @override
+  String get investmentUnitsCorrected => 'Units corrected';
+
+  @override
+  String get investmentDelete => 'Delete this investment';
+
+  @override
+  String investmentDeleteTitle(String name) {
+    return 'Delete $name?';
+  }
+
+  @override
+  String get investmentDeleteBody =>
+      'Its trades stay in your history. Only possible once everything is sold.';
+
+  @override
+  String get investmentDeleted => 'Investment deleted';
+
+  @override
   String get plansSubtitle =>
-      'EMIs, loans, DPS, FDR, insurance and bonds, paid and collected on time';
+      'EMIs, loans, DPS, FDR, insurance, bonds and SIPs, paid and collected on time';
 
   @override
   String get planNew => 'Start a plan';
@@ -3460,6 +3683,9 @@ class L10nEn extends L10n {
   String get planKindBond => 'Bond or certificate';
 
   @override
+  String get planKindSip => 'SIP';
+
+  @override
   String get planKindEmiHint =>
       'Something bought in installments, paid from cash, a bank account or a card';
 
@@ -3482,6 +3708,10 @@ class L10nEn extends L10n {
   @override
   String get planKindBondHint =>
       'A bond or savings certificate: one sum held for years, with profit monthly, every three months or at the end, after tax';
+
+  @override
+  String get planKindSipHint =>
+      'A fixed sum into a fund or shares every month, bought at the latest price';
 
   @override
   String get planWeekly => 'Weekly';
@@ -3688,6 +3918,24 @@ class L10nEn extends L10n {
   String get planSurrenderValueLabel => 'Surrender value';
 
   @override
+  String get planStopSip => 'Stop the SIP';
+
+  @override
+  String planStopSipTitle(String name) {
+    return 'Stop $name?';
+  }
+
+  @override
+  String get planStopSipBody =>
+      'No more buys. What it bought stays in the investment.';
+
+  @override
+  String get planSipStopped => 'SIP stopped';
+
+  @override
+  String get planSave => 'Save';
+
+  @override
   String get planSurrendered => 'Policy surrendered';
 
   @override
@@ -3841,6 +4089,11 @@ class L10nEn extends L10n {
   }
 
   @override
+  String planSummarySip(int count, String amount, String total, String fund) {
+    return '$count × $amount into $fund, $total in all.';
+  }
+
+  @override
   String planNewKind(String kind) {
     return 'New $kind';
   }
@@ -3865,6 +4118,18 @@ class L10nEn extends L10n {
 
   @override
   String get planNameHintBond => 'e.g. 5-year Sanchayapatra';
+
+  @override
+  String get planNameHintSip => 'e.g. Monthly fund SIP';
+
+  @override
+  String get planSipFund => 'Buys';
+
+  @override
+  String get planSipAmount => 'Each SIP';
+
+  @override
+  String get planSipNoFund => 'Add the fund or shares in Investments first.';
 
   @override
   String get planProvider => 'Bank or company';

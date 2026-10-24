@@ -35,6 +35,8 @@ class WalletMaintenanceService {
     required String walletId,
     required int actualBalance,
     DateTime? date,
+    String? title,
+    String? notes,
   }) async {
     final wallet = await _db.findWalletById(walletId);
     if (wallet == null) {
@@ -55,8 +57,10 @@ class WalletMaintenanceService {
       TransactionsCompanion.insert(
         id: id,
         amount: difference.abs(),
-        title: const Value('Balance correction'),
-        notes: Value('Adjusted ${wallet.name} to match its real balance.'),
+        title: Value(title ?? 'Balance correction'),
+        notes: Value(
+          notes ?? 'Adjusted ${wallet.name} to match its real balance.',
+        ),
         date: date ?? now,
         // A shortfall is money that left without being recorded, and a surplus
         // is money that arrived the same way.

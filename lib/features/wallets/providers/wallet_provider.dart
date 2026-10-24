@@ -449,12 +449,12 @@ final effectiveDefaultWalletIdProvider = Provider<String?>((ref) {
 /// visible on the accounts screen, and in filters, so their history is still
 /// reachable.
 final selectableWalletsProvider = Provider<List<Wallet>>((ref) {
-  // A DPS or FDR account moves only by its plan; spending from it by hand
-  // would leave the plan's figures and the bank's disagreeing.
+  // A DPS, FDR or investment account moves only by its plan or its trades;
+  // spending from it by hand would leave their figures disagreeing.
   return ref
       .watch(walletProvider)
       .wallets
-      .where((w) => !w.isArchived && w.walletType != WalletType.deposit)
+      .where((w) => !w.isArchived && !w.walletType.isManaged)
       .toList();
 });
 

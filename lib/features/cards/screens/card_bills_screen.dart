@@ -152,7 +152,9 @@ class _CardBillCard extends ConsumerWidget {
             ),
           ] else if (latest != null) ...[
             Text(
-              latest.isSettled ? l10n.cardLeftToPay : l10n.cardDueBy(day(latest.dueDate)),
+              latest.isSettled
+                  ? l10n.cardLeftToPay
+                  : l10n.cardDueBy(day(latest.dueDate)),
               style: SunriseType.caption.copyWith(color: c.subtle),
             ),
             const SizedBox(height: 2),
@@ -369,15 +371,27 @@ class _StatusPill extends StatelessWidget {
     final days = bill.daysUntilDue(today);
     final (label, fg, bg) = switch (bill.status) {
       CardBillStatus.notSetUp => (l10n.cardStatusNotSetUp, c.muted, c.surface),
-      CardBillStatus.nothingDue => (l10n.cardStatusNothingDue, c.positive, c.tintGreen),
+      CardBillStatus.nothingDue => (
+        l10n.cardStatusNothingDue,
+        c.positive,
+        c.tintGreen,
+      ),
       CardBillStatus.paid => (l10n.cardStatusPaid, c.positive, c.tintGreen),
-      CardBillStatus.due => (l10n.cardStatusDueIn(days), c.accentText, c.tintPeach),
+      CardBillStatus.due => (
+        l10n.cardStatusDueIn(days),
+        c.accentText,
+        c.tintPeach,
+      ),
       CardBillStatus.dueSoon => (
         days == 0 ? l10n.cardStatusDueToday : l10n.cardStatusDueIn(days),
         c.accentText,
         c.tintAmber,
       ),
-      CardBillStatus.overdue => (l10n.cardStatusOverdue, c.negative, c.tintRose),
+      CardBillStatus.overdue => (
+        l10n.cardStatusOverdue,
+        c.negative,
+        c.tintRose,
+      ),
     };
     return SunrisePill(label: label, color: fg, background: bg);
   }

@@ -28,6 +28,8 @@ class SyncEntityOrder {
     'objectives',
     // After wallets and categories; before transactions, which point at it.
     'plans',
+    // After wallets: a holding's value sits in one.
+    'investments',
     'transactions',
     'recurring_configs',
   ];

@@ -1633,6 +1633,10 @@
   "aiActionPayPlanTitle": "Record a plan payment",
   "aiActionClosePlanTitle": "End a plan early",
   "aiActionUpdatePlanTitle": "Change a plan",
+  "aiActionCreateInvestmentTitle": "Add an investment",
+  "aiActionTradeInvestmentTitle": "Record a trade",
+  "aiActionUpdateInvestmentTitle": "Update a price",
+  "aiActionConfirm": "Confirm",
   "aiActionClosePlan": "End it",
   "aiActionFrom": "From",
   "aiActionTo": "To",
@@ -1641,7 +1645,138 @@
   "aiActionRemindDays": "Remind, days before",
   "aiActionPay": "Pay",
   "plansTitle": "EMI, loans & savings",
-  "plansSubtitle": "EMIs, loans, DPS, FDR, insurance and bonds, paid and collected on time",
+  "investmentsTitle": "Investments",
+  "investmentsSubtitle": "Mutual funds, shares and SIPs, valued at their latest price",
+  "investmentsEmptyTitle": "No investments yet",
+  "investmentsEmptyBody": "Track a mutual fund, shares or gold: what you paid, what it is worth now, and the gain.",
+  "investmentsSold": "Sold",
+  "investmentsWorth": "Worth now",
+  "investmentNew": "New investment",
+  "investmentNewHint": "Units of a fund, a company's shares, or anything else bought by the unit, like gold by the gram.",
+  "investmentKindFund": "Fund",
+  "investmentKindStock": "Shares",
+  "investmentKindOther": "Other",
+  "investmentNameHintFund": "e.g. UCB Income Plus Fund",
+  "investmentNameHintStock": "e.g. Grameenphone",
+  "investmentNameHintOther": "e.g. Gold, 22 carat",
+  "investmentSymbol": "Symbol or code (optional)",
+  "investmentFirstBuy": "What you bought",
+  "investmentFirstBuyHint": "Leave the amount empty to add it without buying anything yet.",
+  "investmentPaid": "Paid",
+  "investmentReceived": "Received",
+  "investmentPaidInto": "Paid into",
+  "investmentFee": "Fee or commission",
+  "investmentUnits": "Units",
+  "investmentUnitsSold": "Units sold",
+  "investmentUnitsShort": "{units} units",
+  "@investmentUnitsShort": {
+    "placeholders": {
+      "units": {
+        "type": "String"
+      }
+    }
+  },
+  "investmentPerUnit": "{price} a unit",
+  "@investmentPerUnit": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "investmentNeedUnits": "Enter how many units were bought.",
+  "investmentSave": "Add investment",
+  "investmentAdded": "Investment added",
+  "investmentGone": "This investment was deleted.",
+  "investmentWorthNow": "Worth now",
+  "investmentGainLine": "{gain} overall",
+  "@investmentGainLine": {
+    "placeholders": {
+      "gain": {
+        "type": "String"
+      }
+    }
+  },
+  "investmentPrice": "Price",
+  "investmentPutIn": "Put in",
+  "investmentTakenOut": "Taken out",
+  "investmentBuy": "Buy",
+  "investmentSell": "Sell",
+  "investmentBuyTitle": "Buy {name}",
+  "@investmentBuyTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "investmentSellTitle": "Sell {name}",
+  "@investmentSellTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "investmentDividendTitle": "Dividend from {name}",
+  "@investmentDividendTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "investmentDividend": "Dividend",
+  "investmentRecordDividend": "Record a dividend",
+  "investmentHeldNow": "{units} units held now.",
+  "@investmentHeldNow": {
+    "placeholders": {
+      "units": {
+        "type": "String"
+      }
+    }
+  },
+  "investmentRecorded": "Recorded",
+  "investmentUpdatePrice": "Update the price",
+  "investmentUpdatePriceHint": "Today's NAV or share price, for one unit",
+  "investmentPriceUpdated": "Price updated",
+  "investmentStartSip": "Start a SIP",
+  "investmentStartSipHint": "Buy a fixed amount every month, by itself",
+  "investmentHistory": "History",
+  "investmentBought": "Bought {units} units",
+  "@investmentBought": {
+    "placeholders": {
+      "units": {
+        "type": "String"
+      }
+    }
+  },
+  "investmentSold": "Sold {units} units",
+  "@investmentSold": {
+    "placeholders": {
+      "units": {
+        "type": "String"
+      }
+    }
+  },
+  "investmentPriceRose": "Price went up",
+  "investmentPriceFell": "Price went down",
+  "investmentUnitsUnknown": "units not known yet, tap to add",
+  "investmentCorrectUnits": "Units on this trade",
+  "investmentCorrectUnitsHint": "As your fund or broker statement shows them.",
+  "investmentUnitsCorrected": "Units corrected",
+  "investmentDelete": "Delete this investment",
+  "investmentDeleteTitle": "Delete {name}?",
+  "@investmentDeleteTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "investmentDeleteBody": "Its trades stay in your history. Only possible once everything is sold.",
+  "investmentDeleted": "Investment deleted",
+  "plansSubtitle": "EMIs, loans, DPS, FDR, insurance, bonds and SIPs, paid and collected on time",
   "planNew": "Start a plan",
   "planNewTitle": "What are you starting?",
   "plansEmptyTitle": "No EMIs, loans or savings yet",
@@ -1653,12 +1788,14 @@
   "planKindFdr": "FDR",
   "planKindInsurance": "Insurance",
   "planKindBond": "Bond or certificate",
+  "planKindSip": "SIP",
   "planKindEmiHint": "Something bought in installments, paid from cash, a bank account or a card",
   "planKindLoanHint": "Money borrowed and paid back in installments, with interest",
   "planKindDpsHint": "Save a fixed amount every month for a fixed time, and get it back with profit",
   "planKindFdrHint": "Put a sum away at a bank for a fixed time, with profit monthly, every three months or at the end",
   "planKindInsuranceHint": "A policy with a premium every month, quarter or year, and a payout at the end if it has one",
   "planKindBondHint": "A bond or savings certificate: one sum held for years, with profit monthly, every three months or at the end, after tax",
+  "planKindSipHint": "A fixed sum into a fund or shares every month, bought at the latest price",
   "planWeekly": "Weekly",
   "planMonthly": "Monthly",
   "planQuarterly": "Quarterly",
@@ -1820,6 +1957,18 @@
   "planSurrenderNothing": "Nothing paid back",
   "planSurrenderValue": "Enter the surrender value",
   "planSurrenderValueLabel": "Surrender value",
+  "planStopSip": "Stop the SIP",
+  "planStopSipTitle": "Stop {name}?",
+  "@planStopSipTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "planStopSipBody": "No more buys. What it bought stays in the investment.",
+  "planSipStopped": "SIP stopped",
+  "planSave": "Save",
   "planSurrendered": "Policy surrendered",
   "planPayOffTitle": "Pay off {name}?",
   "@planPayOffTitle": {
@@ -2024,6 +2173,23 @@
       }
     }
   },
+  "planSummarySip": "{count} × {amount} into {fund}, {total} in all.",
+  "@planSummarySip": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "amount": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      },
+      "fund": {
+        "type": "String"
+      }
+    }
+  },
   "planNewKind": "New {kind}",
   "@planNewKind": {
     "placeholders": {
@@ -2039,6 +2205,10 @@
   "planNameHintFdr": "e.g. City Bank FDR",
   "planNameHintInsurance": "e.g. Life policy",
   "planNameHintBond": "e.g. 5-year Sanchayapatra",
+  "planNameHintSip": "e.g. Monthly fund SIP",
+  "planSipFund": "Buys",
+  "planSipAmount": "Each SIP",
+  "planSipNoFund": "Add the fund or shares in Investments first.",
   "planProvider": "Bank or company",
   "planReference": "Policy or account no.",
   "planSumAssured": "Sum assured",

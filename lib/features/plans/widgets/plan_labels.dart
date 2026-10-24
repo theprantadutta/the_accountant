@@ -16,6 +16,7 @@ extension PlanKindLabels on PlanKind {
     PlanKind.fdr => l10n.planKindFdr,
     PlanKind.insurance => l10n.planKindInsurance,
     PlanKind.bond => l10n.planKindBond,
+    PlanKind.sip => l10n.planKindSip,
   };
 
   String describe(L10n l10n) => switch (this) {
@@ -25,6 +26,7 @@ extension PlanKindLabels on PlanKind {
     PlanKind.fdr => l10n.planKindFdrHint,
     PlanKind.insurance => l10n.planKindInsuranceHint,
     PlanKind.bond => l10n.planKindBondHint,
+    PlanKind.sip => l10n.planKindSipHint,
   };
 
   IconData get icon => switch (this) {
@@ -34,6 +36,7 @@ extension PlanKindLabels on PlanKind {
     PlanKind.fdr => Symbols.lock_clock_rounded,
     PlanKind.insurance => Symbols.shield_rounded,
     PlanKind.bond => Symbols.receipt_long_rounded,
+    PlanKind.sip => Symbols.auto_graph_rounded,
   };
 
   Color get color => switch (this) {
@@ -43,6 +46,7 @@ extension PlanKindLabels on PlanKind {
     PlanKind.fdr => const Color(0xFF10B981),
     PlanKind.insurance => const Color(0xFF8B5CF6),
     PlanKind.bond => const Color(0xFF0D9488),
+    PlanKind.sip => const Color(0xFF7C3AED),
   };
 
   /// Whether its money is saved rather than spent.

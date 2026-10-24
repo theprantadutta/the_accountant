@@ -1,4 +1,5 @@
 import 'package:the_accountant/features/cards/screens/card_bills_screen.dart';
+import 'package:the_accountant/features/investments/screens/investments_screen.dart';
 import 'package:the_accountant/features/plans/screens/plans_screen.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
@@ -351,6 +352,29 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           title: l10n.plansTitle,
           subtitle: l10n.plansSubtitle,
           onTap: () => _push(const PlansScreen()),
+        ),
+      ),
+      _Entry(
+        title: l10n.investmentsTitle,
+        keywords: const [
+          'investment',
+          'mutual fund',
+          'fund',
+          'stock',
+          'share',
+          'sip',
+          'portfolio',
+          'gold',
+          'crypto',
+        ],
+        row: SettingsRow(
+          key: const Key('more_investments'),
+          icon: Symbols.trending_up_rounded,
+          iconColor: const Color(0xFF7C3AED),
+          iconBackground: c.tintPeach,
+          title: l10n.investmentsTitle,
+          subtitle: l10n.investmentsSubtitle,
+          onTap: () => _push(const InvestmentsScreen()),
         ),
       ),
       _Entry(

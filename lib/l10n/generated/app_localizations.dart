@@ -6089,6 +6089,30 @@ abstract class L10n {
   /// **'Change a plan'**
   String get aiActionUpdatePlanTitle;
 
+  /// No description provided for @aiActionCreateInvestmentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add an investment'**
+  String get aiActionCreateInvestmentTitle;
+
+  /// No description provided for @aiActionTradeInvestmentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Record a trade'**
+  String get aiActionTradeInvestmentTitle;
+
+  /// No description provided for @aiActionUpdateInvestmentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Update a price'**
+  String get aiActionUpdateInvestmentTitle;
+
+  /// No description provided for @aiActionConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get aiActionConfirm;
+
   /// No description provided for @aiActionClosePlan.
   ///
   /// In en, this message translates to:
@@ -6137,10 +6161,376 @@ abstract class L10n {
   /// **'EMI, loans & savings'**
   String get plansTitle;
 
+  /// No description provided for @investmentsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Investments'**
+  String get investmentsTitle;
+
+  /// No description provided for @investmentsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Mutual funds, shares and SIPs, valued at their latest price'**
+  String get investmentsSubtitle;
+
+  /// No description provided for @investmentsEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No investments yet'**
+  String get investmentsEmptyTitle;
+
+  /// No description provided for @investmentsEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Track a mutual fund, shares or gold: what you paid, what it is worth now, and the gain.'**
+  String get investmentsEmptyBody;
+
+  /// No description provided for @investmentsSold.
+  ///
+  /// In en, this message translates to:
+  /// **'Sold'**
+  String get investmentsSold;
+
+  /// No description provided for @investmentsWorth.
+  ///
+  /// In en, this message translates to:
+  /// **'Worth now'**
+  String get investmentsWorth;
+
+  /// No description provided for @investmentNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New investment'**
+  String get investmentNew;
+
+  /// No description provided for @investmentNewHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Units of a fund, a company\'s shares, or anything else bought by the unit, like gold by the gram.'**
+  String get investmentNewHint;
+
+  /// No description provided for @investmentKindFund.
+  ///
+  /// In en, this message translates to:
+  /// **'Fund'**
+  String get investmentKindFund;
+
+  /// No description provided for @investmentKindStock.
+  ///
+  /// In en, this message translates to:
+  /// **'Shares'**
+  String get investmentKindStock;
+
+  /// No description provided for @investmentKindOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get investmentKindOther;
+
+  /// No description provided for @investmentNameHintFund.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. UCB Income Plus Fund'**
+  String get investmentNameHintFund;
+
+  /// No description provided for @investmentNameHintStock.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Grameenphone'**
+  String get investmentNameHintStock;
+
+  /// No description provided for @investmentNameHintOther.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Gold, 22 carat'**
+  String get investmentNameHintOther;
+
+  /// No description provided for @investmentSymbol.
+  ///
+  /// In en, this message translates to:
+  /// **'Symbol or code (optional)'**
+  String get investmentSymbol;
+
+  /// No description provided for @investmentFirstBuy.
+  ///
+  /// In en, this message translates to:
+  /// **'What you bought'**
+  String get investmentFirstBuy;
+
+  /// No description provided for @investmentFirstBuyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave the amount empty to add it without buying anything yet.'**
+  String get investmentFirstBuyHint;
+
+  /// No description provided for @investmentPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get investmentPaid;
+
+  /// No description provided for @investmentReceived.
+  ///
+  /// In en, this message translates to:
+  /// **'Received'**
+  String get investmentReceived;
+
+  /// No description provided for @investmentPaidInto.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid into'**
+  String get investmentPaidInto;
+
+  /// No description provided for @investmentFee.
+  ///
+  /// In en, this message translates to:
+  /// **'Fee or commission'**
+  String get investmentFee;
+
+  /// No description provided for @investmentUnits.
+  ///
+  /// In en, this message translates to:
+  /// **'Units'**
+  String get investmentUnits;
+
+  /// No description provided for @investmentUnitsSold.
+  ///
+  /// In en, this message translates to:
+  /// **'Units sold'**
+  String get investmentUnitsSold;
+
+  /// No description provided for @investmentUnitsShort.
+  ///
+  /// In en, this message translates to:
+  /// **'{units} units'**
+  String investmentUnitsShort(String units);
+
+  /// No description provided for @investmentPerUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'{price} a unit'**
+  String investmentPerUnit(String price);
+
+  /// No description provided for @investmentNeedUnits.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter how many units were bought.'**
+  String get investmentNeedUnits;
+
+  /// No description provided for @investmentSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Add investment'**
+  String get investmentSave;
+
+  /// No description provided for @investmentAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Investment added'**
+  String get investmentAdded;
+
+  /// No description provided for @investmentGone.
+  ///
+  /// In en, this message translates to:
+  /// **'This investment was deleted.'**
+  String get investmentGone;
+
+  /// No description provided for @investmentWorthNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Worth now'**
+  String get investmentWorthNow;
+
+  /// No description provided for @investmentGainLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{gain} overall'**
+  String investmentGainLine(String gain);
+
+  /// No description provided for @investmentPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Price'**
+  String get investmentPrice;
+
+  /// No description provided for @investmentPutIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Put in'**
+  String get investmentPutIn;
+
+  /// No description provided for @investmentTakenOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Taken out'**
+  String get investmentTakenOut;
+
+  /// No description provided for @investmentBuy.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy'**
+  String get investmentBuy;
+
+  /// No description provided for @investmentSell.
+  ///
+  /// In en, this message translates to:
+  /// **'Sell'**
+  String get investmentSell;
+
+  /// No description provided for @investmentBuyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy {name}'**
+  String investmentBuyTitle(String name);
+
+  /// No description provided for @investmentSellTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sell {name}'**
+  String investmentSellTitle(String name);
+
+  /// No description provided for @investmentDividendTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Dividend from {name}'**
+  String investmentDividendTitle(String name);
+
+  /// No description provided for @investmentDividend.
+  ///
+  /// In en, this message translates to:
+  /// **'Dividend'**
+  String get investmentDividend;
+
+  /// No description provided for @investmentRecordDividend.
+  ///
+  /// In en, this message translates to:
+  /// **'Record a dividend'**
+  String get investmentRecordDividend;
+
+  /// No description provided for @investmentHeldNow.
+  ///
+  /// In en, this message translates to:
+  /// **'{units} units held now.'**
+  String investmentHeldNow(String units);
+
+  /// No description provided for @investmentRecorded.
+  ///
+  /// In en, this message translates to:
+  /// **'Recorded'**
+  String get investmentRecorded;
+
+  /// No description provided for @investmentUpdatePrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Update the price'**
+  String get investmentUpdatePrice;
+
+  /// No description provided for @investmentUpdatePriceHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s NAV or share price, for one unit'**
+  String get investmentUpdatePriceHint;
+
+  /// No description provided for @investmentPriceUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Price updated'**
+  String get investmentPriceUpdated;
+
+  /// No description provided for @investmentStartSip.
+  ///
+  /// In en, this message translates to:
+  /// **'Start a SIP'**
+  String get investmentStartSip;
+
+  /// No description provided for @investmentStartSipHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy a fixed amount every month, by itself'**
+  String get investmentStartSipHint;
+
+  /// No description provided for @investmentHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get investmentHistory;
+
+  /// No description provided for @investmentBought.
+  ///
+  /// In en, this message translates to:
+  /// **'Bought {units} units'**
+  String investmentBought(String units);
+
+  /// No description provided for @investmentSold.
+  ///
+  /// In en, this message translates to:
+  /// **'Sold {units} units'**
+  String investmentSold(String units);
+
+  /// No description provided for @investmentPriceRose.
+  ///
+  /// In en, this message translates to:
+  /// **'Price went up'**
+  String get investmentPriceRose;
+
+  /// No description provided for @investmentPriceFell.
+  ///
+  /// In en, this message translates to:
+  /// **'Price went down'**
+  String get investmentPriceFell;
+
+  /// No description provided for @investmentUnitsUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'units not known yet, tap to add'**
+  String get investmentUnitsUnknown;
+
+  /// No description provided for @investmentCorrectUnits.
+  ///
+  /// In en, this message translates to:
+  /// **'Units on this trade'**
+  String get investmentCorrectUnits;
+
+  /// No description provided for @investmentCorrectUnitsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'As your fund or broker statement shows them.'**
+  String get investmentCorrectUnitsHint;
+
+  /// No description provided for @investmentUnitsCorrected.
+  ///
+  /// In en, this message translates to:
+  /// **'Units corrected'**
+  String get investmentUnitsCorrected;
+
+  /// No description provided for @investmentDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this investment'**
+  String get investmentDelete;
+
+  /// No description provided for @investmentDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete {name}?'**
+  String investmentDeleteTitle(String name);
+
+  /// No description provided for @investmentDeleteBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Its trades stay in your history. Only possible once everything is sold.'**
+  String get investmentDeleteBody;
+
+  /// No description provided for @investmentDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Investment deleted'**
+  String get investmentDeleted;
+
   /// No description provided for @plansSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'EMIs, loans, DPS, FDR, insurance and bonds, paid and collected on time'**
+  /// **'EMIs, loans, DPS, FDR, insurance, bonds and SIPs, paid and collected on time'**
   String get plansSubtitle;
 
   /// No description provided for @planNew.
@@ -6209,6 +6599,12 @@ abstract class L10n {
   /// **'Bond or certificate'**
   String get planKindBond;
 
+  /// No description provided for @planKindSip.
+  ///
+  /// In en, this message translates to:
+  /// **'SIP'**
+  String get planKindSip;
+
   /// No description provided for @planKindEmiHint.
   ///
   /// In en, this message translates to:
@@ -6244,6 +6640,12 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'A bond or savings certificate: one sum held for years, with profit monthly, every three months or at the end, after tax'**
   String get planKindBondHint;
+
+  /// No description provided for @planKindSipHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A fixed sum into a fund or shares every month, bought at the latest price'**
+  String get planKindSipHint;
 
   /// No description provided for @planWeekly.
   ///
@@ -6605,6 +7007,36 @@ abstract class L10n {
   /// **'Surrender value'**
   String get planSurrenderValueLabel;
 
+  /// No description provided for @planStopSip.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop the SIP'**
+  String get planStopSip;
+
+  /// No description provided for @planStopSipTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop {name}?'**
+  String planStopSipTitle(String name);
+
+  /// No description provided for @planStopSipBody.
+  ///
+  /// In en, this message translates to:
+  /// **'No more buys. What it bought stays in the investment.'**
+  String get planStopSipBody;
+
+  /// No description provided for @planSipStopped.
+  ///
+  /// In en, this message translates to:
+  /// **'SIP stopped'**
+  String get planSipStopped;
+
+  /// No description provided for @planSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get planSave;
+
   /// No description provided for @planSurrendered.
   ///
   /// In en, this message translates to:
@@ -6832,6 +7264,12 @@ abstract class L10n {
   /// **'{profit} profit every three months, and {principal} back on {date}.'**
   String planSummaryQuarterly(String profit, String principal, String date);
 
+  /// No description provided for @planSummarySip.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} × {amount} into {fund}, {total} in all.'**
+  String planSummarySip(int count, String amount, String total, String fund);
+
   /// No description provided for @planNewKind.
   ///
   /// In en, this message translates to:
@@ -6879,6 +7317,30 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'e.g. 5-year Sanchayapatra'**
   String get planNameHintBond;
+
+  /// No description provided for @planNameHintSip.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Monthly fund SIP'**
+  String get planNameHintSip;
+
+  /// No description provided for @planSipFund.
+  ///
+  /// In en, this message translates to:
+  /// **'Buys'**
+  String get planSipFund;
+
+  /// No description provided for @planSipAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Each SIP'**
+  String get planSipAmount;
+
+  /// No description provided for @planSipNoFund.
+  ///
+  /// In en, this message translates to:
+  /// **'Add the fund or shares in Investments first.'**
+  String get planSipNoFund;
 
   /// No description provided for @planProvider.
   ///

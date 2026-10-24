@@ -137,8 +137,12 @@ class CardBill {
 
     final effects = [
       for (final t in transactions)
-        if (t.walletId == card.id && TransactionPolicy.walletBalanceEffect(t) != 0)
-          (date: CardCycle.dateOnly(t.date), effect: TransactionPolicy.walletBalanceEffect(t)),
+        if (t.walletId == card.id &&
+            TransactionPolicy.walletBalanceEffect(t) != 0)
+          (
+            date: CardCycle.dateOnly(t.date),
+            effect: TransactionPolicy.walletBalanceEffect(t),
+          ),
     ];
 
     int balanceAtEndOf(DateTime day) =>
@@ -157,7 +161,9 @@ class CardBill {
         .fold(0, (sum, e) => sum + e.effect);
 
     // Newest first: the one that closed last, then the months before it.
-    final closes = <DateTime>[CardCycle.lastStatementBefore(today, statementDay)];
+    final closes = <DateTime>[
+      CardCycle.lastStatementBefore(today, statementDay),
+    ];
     for (var i = 1; i <= historyLength; i++) {
       final prev = closes.last;
       closes.add(CardCycle.onDay(prev.year, prev.month - 1, statementDay));
@@ -204,7 +210,10 @@ class CardBill {
         for (final s in statements.skip(1))
           if (s.owed > 0) s,
       ],
-      nextStatementDate: CardCycle.nextStatement(latest.statementDate, statementDay),
+      nextStatementDate: CardCycle.nextStatement(
+        latest.statementDate,
+        statementDay,
+      ),
       spentThisCycle: spent,
     );
   }

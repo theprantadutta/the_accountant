@@ -29,7 +29,11 @@ enum PlanKind {
   /// A bond or savings certificate (sanchayapatra): one sum held for a fixed
   /// time, with profit monthly, quarterly or at the end, usually taxed at
   /// source. It runs exactly like an FDR.
-  bond;
+  bond,
+
+  /// A systematic investment plan: a fixed sum into a fund or share every
+  /// period, bought at its latest price.
+  sip;
 
   /// FDR and bond: one sum put away, paid back at the end.
   bool get isFixedDeposit => this == fdr || this == bond;

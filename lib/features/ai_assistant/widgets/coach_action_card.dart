@@ -87,17 +87,25 @@ class CoachActionCard extends StatelessWidget {
       CoachActionKind.payPlan => l10n.aiActionPayPlanTitle,
       CoachActionKind.closePlan => l10n.aiActionClosePlanTitle,
       CoachActionKind.updatePlan => l10n.aiActionUpdatePlanTitle,
+      CoachActionKind.createInvestment => l10n.aiActionCreateInvestmentTitle,
+      CoachActionKind.tradeInvestment => l10n.aiActionTradeInvestmentTitle,
+      CoachActionKind.updateInvestment => l10n.aiActionUpdateInvestmentTitle,
     };
     final showsChanges =
         action.kind == CoachActionKind.update ||
         action.kind == CoachActionKind.cardSettings ||
-        action.kind == CoachActionKind.updatePlan;
+        action.kind == CoachActionKind.updatePlan ||
+        action.kind == CoachActionKind.updateInvestment;
     final amount = switch (action.kind) {
-      CoachActionKind.cardSettings || CoachActionKind.updatePlan => '',
+      CoachActionKind.cardSettings ||
+      CoachActionKind.updatePlan ||
+      CoachActionKind.updateInvestment => '',
       // Money moving between the user's own accounts has no sign.
       CoachActionKind.payCard ||
       CoachActionKind.createPlan ||
       CoachActionKind.payPlan ||
+      CoachActionKind.createInvestment ||
+      CoachActionKind.tradeInvestment ||
       CoachActionKind.closePlan => action.amount.formatCurrency(
         action.currency,
       ),
@@ -115,6 +123,13 @@ class CoachActionCard extends StatelessWidget {
       'remind' => l10n.aiActionRemindDays,
       'installments' => l10n.planInstallment,
       'premiums' => l10n.planPremium,
+      'buys' => l10n.planSipFund,
+      'units' => l10n.investmentUnits,
+      'per_unit' => l10n.investmentPrice,
+      'fee' => l10n.investmentFee,
+      'symbol' => l10n.investmentSymbol,
+      'price' => l10n.investmentPrice,
+      'value' => l10n.investmentWorthNow,
       'sum_assured' => l10n.planSumAssured,
       'payout_at_end' => l10n.planInsurancePayout,
       'surrender_value' => l10n.planSurrenderValueLabel,
@@ -219,6 +234,9 @@ class CoachActionCard extends StatelessWidget {
                 CoachActionKind.payCard ||
                 CoachActionKind.payPlan => l10n.aiActionPay,
                 CoachActionKind.createPlan => l10n.planStart,
+                CoachActionKind.createInvestment => l10n.investmentSave,
+                CoachActionKind.tradeInvestment => l10n.aiActionConfirm,
+                CoachActionKind.updateInvestment => l10n.investmentUpdatePrice,
                 CoachActionKind.closePlan => l10n.aiActionClosePlan,
                 _ => l10n.aiActionSave,
               },

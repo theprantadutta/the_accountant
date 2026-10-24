@@ -3358,6 +3358,18 @@ class L10nBn extends L10n {
   String get aiActionUpdatePlanTitle => 'পরিকল্পনা বদলানো';
 
   @override
+  String get aiActionCreateInvestmentTitle => 'বিনিয়োগ যোগ';
+
+  @override
+  String get aiActionTradeInvestmentTitle => 'লেনদেন লিখুন';
+
+  @override
+  String get aiActionUpdateInvestmentTitle => 'দাম হালনাগাদ';
+
+  @override
+  String get aiActionConfirm => 'নিশ্চিত করুন';
+
+  @override
   String get aiActionClosePlan => 'শেষ করুন';
 
   @override
@@ -3382,8 +3394,219 @@ class L10nBn extends L10n {
   String get plansTitle => 'ইএমআই, ঋণ ও সঞ্চয়';
 
   @override
+  String get investmentsTitle => 'বিনিয়োগ';
+
+  @override
+  String get investmentsSubtitle =>
+      'মিউচুয়াল ফান্ড, শেয়ার ও এসআইপি, সর্বশেষ দামে';
+
+  @override
+  String get investmentsEmptyTitle => 'এখনও কোনো বিনিয়োগ নেই';
+
+  @override
+  String get investmentsEmptyBody =>
+      'মিউচুয়াল ফান্ড, শেয়ার বা সোনা হিসাব রাখুন: কত দিয়েছেন, এখন দাম কত, আর লাভ কত।';
+
+  @override
+  String get investmentsSold => 'বিক্রি হয়ে গেছে';
+
+  @override
+  String get investmentsWorth => 'এখনকার মূল্য';
+
+  @override
+  String get investmentNew => 'নতুন বিনিয়োগ';
+
+  @override
+  String get investmentNewHint =>
+      'ফান্ডের ইউনিট, কোনো কোম্পানির শেয়ার, বা ইউনিটে কেনা অন্য কিছু, যেমন গ্রামে সোনা।';
+
+  @override
+  String get investmentKindFund => 'ফান্ড';
+
+  @override
+  String get investmentKindStock => 'শেয়ার';
+
+  @override
+  String get investmentKindOther => 'অন্যান্য';
+
+  @override
+  String get investmentNameHintFund => 'যেমন ইউসিবি ইনকাম প্লাস ফান্ড';
+
+  @override
+  String get investmentNameHintStock => 'যেমন গ্রামীণফোন';
+
+  @override
+  String get investmentNameHintOther => 'যেমন সোনা, ২২ ক্যারেট';
+
+  @override
+  String get investmentSymbol => 'প্রতীক বা কোড (ঐচ্ছিক)';
+
+  @override
+  String get investmentFirstBuy => 'যা কিনেছেন';
+
+  @override
+  String get investmentFirstBuyHint =>
+      'এখনই কিছু না কিনে যোগ করতে টাকার ঘর ফাঁকা রাখুন।';
+
+  @override
+  String get investmentPaid => 'দিয়েছেন';
+
+  @override
+  String get investmentReceived => 'পেয়েছেন';
+
+  @override
+  String get investmentPaidInto => 'যে হিসাবে জমা';
+
+  @override
+  String get investmentFee => 'ফি বা কমিশন';
+
+  @override
+  String get investmentUnits => 'ইউনিট';
+
+  @override
+  String get investmentUnitsSold => 'বিক্রি করা ইউনিট';
+
+  @override
+  String investmentUnitsShort(String units) {
+    return '$units ইউনিট';
+  }
+
+  @override
+  String investmentPerUnit(String price) {
+    return 'প্রতি ইউনিট $price';
+  }
+
+  @override
+  String get investmentNeedUnits => 'কত ইউনিট কেনা হয়েছে লিখুন।';
+
+  @override
+  String get investmentSave => 'বিনিয়োগ যোগ করুন';
+
+  @override
+  String get investmentAdded => 'বিনিয়োগ যোগ হয়েছে';
+
+  @override
+  String get investmentGone => 'এই বিনিয়োগটি মুছে ফেলা হয়েছে।';
+
+  @override
+  String get investmentWorthNow => 'এখনকার মূল্য';
+
+  @override
+  String investmentGainLine(String gain) {
+    return 'মোট $gain';
+  }
+
+  @override
+  String get investmentPrice => 'দাম';
+
+  @override
+  String get investmentPutIn => 'বিনিয়োগ করেছেন';
+
+  @override
+  String get investmentTakenOut => 'তুলেছেন';
+
+  @override
+  String get investmentBuy => 'কিনুন';
+
+  @override
+  String get investmentSell => 'বিক্রি করুন';
+
+  @override
+  String investmentBuyTitle(String name) {
+    return '$name কিনুন';
+  }
+
+  @override
+  String investmentSellTitle(String name) {
+    return '$name বিক্রি করুন';
+  }
+
+  @override
+  String investmentDividendTitle(String name) {
+    return '$name থেকে লভ্যাংশ';
+  }
+
+  @override
+  String get investmentDividend => 'লভ্যাংশ';
+
+  @override
+  String get investmentRecordDividend => 'লভ্যাংশ লিখুন';
+
+  @override
+  String investmentHeldNow(String units) {
+    return 'এখন $units ইউনিট আছে।';
+  }
+
+  @override
+  String get investmentRecorded => 'লেখা হয়েছে';
+
+  @override
+  String get investmentUpdatePrice => 'দাম হালনাগাদ করুন';
+
+  @override
+  String get investmentUpdatePriceHint =>
+      'আজকের এনএভি বা শেয়ারের দাম, এক ইউনিটের';
+
+  @override
+  String get investmentPriceUpdated => 'দাম হালনাগাদ হয়েছে';
+
+  @override
+  String get investmentStartSip => 'এসআইপি শুরু করুন';
+
+  @override
+  String get investmentStartSipHint =>
+      'প্রতি মাসে নির্দিষ্ট টাকায় নিজে থেকেই কিনুন';
+
+  @override
+  String get investmentHistory => 'ইতিহাস';
+
+  @override
+  String investmentBought(String units) {
+    return '$units ইউনিট কেনা';
+  }
+
+  @override
+  String investmentSold(String units) {
+    return '$units ইউনিট বিক্রি';
+  }
+
+  @override
+  String get investmentPriceRose => 'দাম বেড়েছে';
+
+  @override
+  String get investmentPriceFell => 'দাম কমেছে';
+
+  @override
+  String get investmentUnitsUnknown => 'ইউনিট এখনও জানা নেই, যোগ করতে চাপুন';
+
+  @override
+  String get investmentCorrectUnits => 'এই লেনদেনের ইউনিট';
+
+  @override
+  String get investmentCorrectUnitsHint =>
+      'আপনার ফান্ড বা ব্রোকারের স্টেটমেন্ট অনুযায়ী।';
+
+  @override
+  String get investmentUnitsCorrected => 'ইউনিট ঠিক করা হয়েছে';
+
+  @override
+  String get investmentDelete => 'এই বিনিয়োগ মুছুন';
+
+  @override
+  String investmentDeleteTitle(String name) {
+    return '$name মুছবেন?';
+  }
+
+  @override
+  String get investmentDeleteBody =>
+      'এর লেনদেন ইতিহাসে থাকবে। সব বিক্রি হলে তবেই মোছা যাবে।';
+
+  @override
+  String get investmentDeleted => 'বিনিয়োগ মুছে ফেলা হয়েছে';
+
+  @override
   String get plansSubtitle =>
-      'ইএমআই, ঋণ, ডিপিএস, এফডিআর, বীমা ও বন্ড, সময়মতো পরিশোধ ও জমা';
+      'ইএমআই, ঋণ, ডিপিএস, এফডিআর, বীমা, বন্ড ও এসআইপি, সময়মতো পরিশোধ ও জমা';
 
   @override
   String get planNew => 'নতুন পরিকল্পনা';
@@ -3420,6 +3643,9 @@ class L10nBn extends L10n {
   String get planKindBond => 'বন্ড বা সঞ্চয়পত্র';
 
   @override
+  String get planKindSip => 'এসআইপি';
+
+  @override
   String get planKindEmiHint =>
       'কিস্তিতে কেনা কিছু, নগদ, ব্যাংক অ্যাকাউন্ট বা কার্ড থেকে পরিশোধ';
 
@@ -3441,6 +3667,10 @@ class L10nBn extends L10n {
   @override
   String get planKindBondHint =>
       'বন্ড বা সঞ্চয়পত্র: এককালীন টাকা কয়েক বছরের জন্য, কর কেটে মুনাফা প্রতি মাসে, তিন মাসে বা শেষে';
+
+  @override
+  String get planKindSipHint =>
+      'প্রতি মাসে নির্দিষ্ট টাকা কোনো ফান্ড বা শেয়ারে, সর্বশেষ দামে কেনা';
 
   @override
   String get planWeekly => 'সাপ্তাহিক';
@@ -3647,6 +3877,24 @@ class L10nBn extends L10n {
   String get planSurrenderValueLabel => 'সমর্পণ মূল্য';
 
   @override
+  String get planStopSip => 'এসআইপি বন্ধ করুন';
+
+  @override
+  String planStopSipTitle(String name) {
+    return '$name বন্ধ করবেন?';
+  }
+
+  @override
+  String get planStopSipBody =>
+      'আর কেনা হবে না। যা কেনা হয়েছে তা বিনিয়োগেই থাকবে।';
+
+  @override
+  String get planSipStopped => 'এসআইপি বন্ধ হয়েছে';
+
+  @override
+  String get planSave => 'সংরক্ষণ';
+
+  @override
   String get planSurrendered => 'পলিসি সমর্পণ করা হয়েছে';
 
   @override
@@ -3799,6 +4047,11 @@ class L10nBn extends L10n {
   }
 
   @override
+  String planSummarySip(int count, String amount, String total, String fund) {
+    return '$fund-এ $amount করে $count বার, মোট $total।';
+  }
+
+  @override
   String planNewKind(String kind) {
     return 'নতুন $kind';
   }
@@ -3823,6 +4076,18 @@ class L10nBn extends L10n {
 
   @override
   String get planNameHintBond => 'যেমন ৫ বছর মেয়াদি সঞ্চয়পত্র';
+
+  @override
+  String get planNameHintSip => 'যেমন মাসিক ফান্ড এসআইপি';
+
+  @override
+  String get planSipFund => 'যা কেনে';
+
+  @override
+  String get planSipAmount => 'প্রতি এসআইপি';
+
+  @override
+  String get planSipNoFund => 'আগে বিনিয়োগে ফান্ড বা শেয়ারটি যোগ করুন।';
 
   @override
   String get planProvider => 'ব্যাংক বা প্রতিষ্ঠান';

@@ -16,7 +16,15 @@ enum WalletType {
 
   /// Where a DPS or FDR keeps its money. Made by the plan, not by hand, and
   /// not offered when adding a transaction.
-  deposit;
+  deposit,
+
+  /// Where a fund, share or other holding keeps its value: units times the
+  /// latest price. Made with the investment, not by hand, and not offered when
+  /// adding a transaction.
+  investment;
+
+  /// Made and run by a plan or an investment, never picked by hand.
+  bool get isManaged => this == deposit || this == investment;
 
   /// The types someone can choose when making an account by hand.
   static const creatable = [cash, bankAccount, creditCard, subscription];

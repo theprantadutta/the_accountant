@@ -69,6 +69,8 @@ class _Body extends ConsumerWidget {
       if (plan.provider != null) (l10n.planProvider, plan.provider!),
       if (plan.reference != null) (l10n.planReference, plan.reference!),
       (l10n.planAccount, wallet?.name ?? '—'),
+      if (plan.kind == PlanKind.sip && holding != null)
+        (l10n.planSipFund, holding.name),
       if (plan.kind == PlanKind.emi) (l10n.planPrice, money(plan.principal)),
       if (plan.kind == PlanKind.loan)
         (l10n.planBorrowed, money(plan.principal)),
@@ -80,6 +82,7 @@ class _Body extends ConsumerWidget {
           switch (plan.kind) {
             PlanKind.dps => l10n.planDeposit,
             PlanKind.insurance => l10n.planPremium,
+            PlanKind.sip => l10n.planSipAmount,
             _ => l10n.planInstallment,
           },
           '${money(plan.installmentAmount)} · '
@@ -237,7 +240,9 @@ class _Body extends ConsumerWidget {
         if (active)
           SunriseButton.secondary(
             key: const Key('plan_close'),
-            label: insurance
+            label: plan.kind == PlanKind.sip
+                ? l10n.planStopSip
+                : insurance
                 ? l10n.planSurrender
                 : plan.kind.holdsMoney
                 ? l10n.planEncash
@@ -330,6 +335,21 @@ class _Body extends ConsumerWidget {
     String Function(int) money,
   ) async {
     final l10n = L10n.of(context);
+    if (plan.kind == PlanKind.sip) {
+      final ok = await showSunriseConfirm(
+        context: context,
+        title: l10n.planStopSipTitle(plan.name),
+        message: l10n.planStopSipBody,
+        confirmLabel: l10n.planStopSip,
+        icon: Symbols.stop_circle_rounded,
+      );
+      if (!ok || !context.mounted) return;
+      await _run(context, ref, () async {
+        await ref.read(planServiceProvider).closeEarly(plan.id);
+        return l10n.planSipStopped;
+      });
+      return;
+    }
     final insurance = plan.kind == PlanKind.insurance;
     // Money comes back from a deposit broken early or a policy surrendered.
     final saving = plan.kind.holdsMoney || insurance;

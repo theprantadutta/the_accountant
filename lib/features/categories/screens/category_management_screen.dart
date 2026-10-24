@@ -656,7 +656,11 @@ class CategoryManagementScreen extends ConsumerWidget {
     }
   }
 
-  void _openForm(BuildContext context, {_Category? category, String? parentId}) {
+  void _openForm(
+    BuildContext context, {
+    _Category? category,
+    String? parentId,
+  }) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,

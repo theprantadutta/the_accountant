@@ -10,6 +10,7 @@ import 'package:the_accountant/data/models/plan.dart';
 import 'package:the_accountant/data/models/transaction.dart'
     show TransactionSpecialType;
 import 'package:the_accountant/data/models/wallet.dart' show WalletType;
+import 'package:the_accountant/features/investments/services/investment_service.dart';
 import 'package:the_accountant/features/plans/domain/plan_terms.dart';
 import 'package:the_accountant/features/transactions/services/transfer_service.dart';
 
@@ -36,6 +37,7 @@ class PlanDraft {
     this.provider,
     this.reference,
     this.taxRate,
+    this.investmentId,
   });
 
   final PlanKind kind;
@@ -65,6 +67,9 @@ class PlanDraft {
 
   /// Percent of profit taken as tax at source.
   final double? taxRate;
+
+  /// For a SIP: the fund or share each installment buys.
+  final String? investmentId;
 }
 
 /// Where a plan stands: what has been recorded and what comes next.
@@ -124,11 +129,13 @@ class PlanProgress {
 class PlanService {
   PlanService(this._db)
     : _balances = WalletBalanceService(_db),
-      _transfers = TransferService(_db);
+      _transfers = TransferService(_db),
+      _investments = InvestmentService(_db);
 
   final AppDatabase _db;
   final WalletBalanceService _balances;
   final TransferService _transfers;
+  final InvestmentService _investments;
   static const _uuid = Uuid();
 
   // ------------------------------------------------------------ reading
@@ -177,10 +184,25 @@ class PlanService {
     if (wallet == null || wallet.deletedAt != null) {
       throw ArgumentError('That account no longer exists.');
     }
-    if (wallet.walletType == WalletType.deposit) {
+    if (wallet.walletType.isManaged) {
       throw ArgumentError(
         'A plan is paid from an ordinary account, not from a deposit.',
       );
+    }
+
+    // A SIP buys into a holding that already has its own account.
+    String? investmentWallet;
+    if (d.kind == PlanKind.sip) {
+      final investment = d.investmentId == null
+          ? null
+          : await _investments.find(d.investmentId!);
+      if (investment == null || investment.deletedAt != null) {
+        throw ArgumentError('Choose the fund or share the SIP buys.');
+      }
+      if (investment.walletId == d.walletId) {
+        throw ArgumentError('Pay for the SIP from another account.');
+      }
+      investmentWallet = investment.walletId;
     }
 
     final id = _uuid.v4();
@@ -204,7 +226,7 @@ class PlanService {
     };
 
     await _db.transaction(() async {
-      String? holdingId;
+      String? holdingId = investmentWallet;
       if (d.kind.holdsMoney) {
         holdingId = _uuid.v4();
         await _db.addWallet(
@@ -303,6 +325,7 @@ class PlanService {
       case PlanKind.loan:
       case PlanKind.dps:
       case PlanKind.insurance:
+      case PlanKind.sip:
         if (d.installmentAmount <= 0) {
           throw ArgumentError(
             d.kind == PlanKind.insurance
@@ -404,6 +427,9 @@ class PlanService {
             title: '${plan.name}: paid off',
           );
         }
+      case PlanKind.sip:
+        // Stopped: what it bought stays in the holding.
+        break;
       case PlanKind.insurance:
         // Surrendered: whatever the insurer pays back is income.
         if ((amount ?? 0) > 0) {
@@ -489,7 +515,9 @@ class PlanService {
   Future<void> delete(String planId) async {
     final plan = await findPlan(planId);
     if (plan == null || plan.deletedAt != null) return;
-    if (plan.holdingWalletId != null) {
+    // A SIP's holding belongs to its investment, which outlives it.
+    final ownsHolding = plan.holdingWalletId != null && plan.kind.holdsMoney;
+    if (ownsHolding) {
       final holding = await _db.findWalletById(plan.holdingWalletId!);
       if (holding != null &&
           holding.deletedAt == null &&
@@ -509,7 +537,7 @@ class PlanService {
           updatedAt: Value(now),
         ),
       );
-      if (plan.holdingWalletId != null) {
+      if (ownsHolding) {
         await (_db.update(
           _db.wallets,
         )..where((w) => w.id.equals(plan.holdingWalletId!))).write(
@@ -576,6 +604,8 @@ class PlanService {
         } else {
           await _mature(plan, e, date);
         }
+      case PlanKind.sip:
+        await _buyFor(plan, e, date);
       case PlanKind.insurance:
         if (e.type == PlanEventType.installment) {
           await _expense(
@@ -637,6 +667,25 @@ class PlanService {
         title: '${plan.name}: profit at maturity',
       );
     }
+  }
+
+  /// A SIP installment: the sum buys units at the holding's latest price.
+  /// The units are an estimate until the fund's statement gives the real
+  /// figure, which can be corrected on the investment.
+  Future<void> _buyFor(Plan plan, PlanEvent e, DateTime date) async {
+    final investment = await _investments.byWallet(plan.holdingWalletId!);
+    if (investment == null) return;
+    await _investments.buy(
+      investment.id,
+      fromWalletId: plan.walletId,
+      amount: e.amount,
+      units: investment.price > 0 ? e.amount / investment.price : null,
+      date: date,
+      title: '${plan.name}: SIP ${e.number} of ${plan.installmentCount}',
+      key: _key(plan, e.number),
+      planId: plan.id,
+      planInstallment: e.number,
+    );
   }
 
   Future<void> _completeIfFinished(Plan plan) async {

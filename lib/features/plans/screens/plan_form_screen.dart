@@ -5,6 +5,7 @@ import 'package:the_accountant/core/providers/data_reload.dart';
 import 'package:the_accountant/core/services/currency_service.dart';
 import 'package:the_accountant/data/models/plan.dart';
 import 'package:the_accountant/data/models/wallet.dart' show WalletType;
+import 'package:the_accountant/features/investments/providers/investments_provider.dart';
 import 'package:the_accountant/features/plans/domain/plan_terms.dart';
 import 'package:the_accountant/features/plans/providers/plans_provider.dart';
 import 'package:the_accountant/features/plans/services/plan_service.dart';
@@ -30,9 +31,12 @@ const _premiumCycles = [
 /// rate. Each can be overwritten with the bank's own figure, and then stays as
 /// typed.
 class PlanFormScreen extends ConsumerStatefulWidget {
-  const PlanFormScreen({super.key, required this.kind});
+  const PlanFormScreen({super.key, required this.kind, this.investmentId});
 
   final PlanKind kind;
+
+  /// For a SIP started from an investment: the one it buys.
+  final String? investmentId;
 
   @override
   ConsumerState<PlanFormScreen> createState() => _PlanFormScreenState();
@@ -62,9 +66,12 @@ class _PlanFormScreenState extends ConsumerState<PlanFormScreen> {
   int _remind = 3;
   bool _loanReceived = true;
   bool _saving = false;
+  String? _investmentId;
+  String? _investmentName;
 
   PlanKind get _kind => widget.kind;
-  bool get _hasRate => _kind != PlanKind.insurance;
+  bool get _hasRate => _kind != PlanKind.insurance && _kind != PlanKind.sip;
+  bool get _isSip => _kind == PlanKind.sip;
   bool get _hasTax => _kind.holdsMoney;
 
   @override
@@ -91,9 +98,26 @@ class _PlanFormScreenState extends ConsumerState<PlanFormScreen> {
       _tax.text = '10';
     }
     if (_kind == PlanKind.insurance) _frequency = PlanFrequency.yearly;
+    _investmentId = widget.investmentId;
+    if (_investmentId != null) {
+      ref.read(investmentServiceProvider).find(_investmentId!).then((i) {
+        if (mounted && i != null) {
+          setState(() {
+            _investmentName = i.name;
+            _name.text = _name.text.isEmpty ? '${i.name} SIP' : _name.text;
+          });
+        }
+      });
+    }
     final wallets = ref.read(selectableWalletsProvider);
+    // Savings come out of a bank account; a SIP from money already held,
+    // never on a card.
     final preferred = wallets.where(
-      (w) => _kind.holdsMoney ? w.walletType == WalletType.bankAccount : true,
+      (w) => _kind.holdsMoney
+          ? w.walletType == WalletType.bankAccount
+          : _isSip
+          ? w.walletType != WalletType.creditCard
+          : true,
     );
     _walletId =
         (preferred.isNotEmpty ? preferred.first : wallets.firstOrNull)?.id;
@@ -206,6 +230,43 @@ class _PlanFormScreenState extends ConsumerState<PlanFormScreen> {
     if (id != null) setState(() => _walletId = id);
   }
 
+  Future<void> _pickInvestment() async {
+    _dropFocus();
+    final l10n = L10n.of(context);
+    final holdings = await ref.read(investmentServiceProvider).all();
+    if (!mounted) return;
+    if (holdings.isEmpty) {
+      showSunriseSnack(context, l10n.planSipNoFund, tone: SnackTone.error);
+      return;
+    }
+    final picked = await showSunriseSheet<String>(
+      context: context,
+      builder: (sheet) => SunriseBottomSheet(
+        title: l10n.planSipFund,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (final i in holdings)
+              SheetAction(
+                icon: Symbols.trending_up_rounded,
+                label: i.name,
+                subtitle: i.symbol,
+                selected: i.id == _investmentId,
+                onTap: () => Navigator.pop(sheet, i.id),
+              ),
+          ],
+        ),
+      ),
+    );
+    _dropFocus();
+    if (picked == null) return;
+    final i = holdings.firstWhere((x) => x.id == picked);
+    setState(() {
+      _investmentId = i.id;
+      _investmentName = i.name;
+    });
+  }
+
   Future<void> _pickStart() async {
     _dropFocus();
     final picked = await showDatePicker(
@@ -273,6 +334,7 @@ class _PlanFormScreenState extends ConsumerState<PlanFormScreen> {
           provider: _provider.text,
           reference: _reference.text,
           taxRate: _hasTax ? _t : null,
+          investmentId: _isSip ? _investmentId : null,
         ),
       );
       // Whatever already fell due — an EMI started last month, a DPS opened
@@ -318,6 +380,14 @@ class _PlanFormScreenState extends ConsumerState<PlanFormScreen> {
                 money(_installment),
                 money(_installment * _n),
               );
+      case PlanKind.sip:
+        if (_installment <= 0 || _n <= 0) return null;
+        return l10n.planSummarySip(
+          _n,
+          money(_installment),
+          money(_installment * _n),
+          _investmentName ?? '…',
+        );
       case PlanKind.insurance:
         if (_installment <= 0 || _n <= 0) return null;
         return (_maturity ?? 0) > 0
@@ -424,10 +494,11 @@ class _PlanFormScreenState extends ConsumerState<PlanFormScreen> {
                 PlanKind.fdr => l10n.planNameHintFdr,
                 PlanKind.insurance => l10n.planNameHintInsurance,
                 PlanKind.bond => l10n.planNameHintBond,
+                PlanKind.sip => l10n.planNameHintSip,
               },
               textCapitalization: TextCapitalization.sentences,
             ),
-            if (_kind != PlanKind.emi) ...[
+            if (_kind != PlanKind.emi && !_isSip) ...[
               const SizedBox(height: 10),
               Row(
                 children: [
@@ -458,13 +529,23 @@ class _PlanFormScreenState extends ConsumerState<PlanFormScreen> {
                   icon: Symbols.account_balance_wallet_rounded,
                   title: switch (_kind) {
                     PlanKind.loan => l10n.planAccountLoan,
-                    PlanKind.emi || PlanKind.insurance => l10n.planAccountEmi,
+                    PlanKind.emi ||
+                    PlanKind.insurance ||
+                    PlanKind.sip => l10n.planAccountEmi,
                     _ => l10n.planAccountSaving,
                   },
                   value: wallet?.name ?? l10n.cardNotSet,
                   onTap: _pickWallet,
                 ),
-                if (_kind != PlanKind.dps)
+                if (_isSip)
+                  SettingsRow(
+                    key: const Key('plan_investment'),
+                    icon: Symbols.trending_up_rounded,
+                    title: l10n.planSipFund,
+                    value: _investmentName ?? l10n.cardNotSet,
+                    onTap: _pickInvestment,
+                  ),
+                if (_kind != PlanKind.dps && !_isSip)
                   SettingsRow(
                     key: const Key('plan_principal'),
                     icon: isInsurance
@@ -494,6 +575,7 @@ class _PlanFormScreenState extends ConsumerState<PlanFormScreen> {
                     title: switch (_kind) {
                       PlanKind.dps => l10n.planDeposit,
                       PlanKind.insurance => l10n.planPremium,
+                      PlanKind.sip => l10n.planSipAmount,
                       _ => l10n.planInstallment,
                     },
                     subtitle:

@@ -167,6 +167,7 @@ class _CreateFirstWalletScreenState
                         WalletType.creditCard => 'Credit Card',
                         WalletType.subscription => 'Subscription',
                         WalletType.deposit => 'Deposit',
+                        WalletType.investment => 'Investment',
                       };
                       final icon = switch (type) {
                         WalletType.cash => Icons.wallet,
@@ -174,6 +175,7 @@ class _CreateFirstWalletScreenState
                         WalletType.creditCard => Icons.credit_card,
                         WalletType.subscription => Icons.subscriptions,
                         WalletType.deposit => Icons.savings,
+                        WalletType.investment => Icons.trending_up,
                       };
                       return Padding(
                         padding: EdgeInsets.only(right: AppSpacing.sm),

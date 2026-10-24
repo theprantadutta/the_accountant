@@ -41,7 +41,8 @@ class NotificationItem {
   /// It only ever read camelCase, so every row the server sent failed to
   /// parse and the inbox stayed empty even once there was something in it.
   factory NotificationItem.fromJson(Map<String, dynamic> json) {
-    T? pick<T>(String camel, String snake) => (json[camel] ?? json[snake]) as T?;
+    T? pick<T>(String camel, String snake) =>
+        (json[camel] ?? json[snake]) as T?;
     DateTime? date(String camel, String snake) {
       final raw = pick<String>(camel, snake);
       return raw == null ? null : DateTime.tryParse(raw)?.toLocal();

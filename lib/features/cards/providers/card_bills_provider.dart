@@ -22,6 +22,10 @@ final cardBillsProvider = FutureProvider.autoDispose<List<CardBill>>((
   final today = DateTime.now();
   return [
     for (final card in cards)
-      CardBill.of(card, await db.getTransactionsByWallet(card.id), today: today),
+      CardBill.of(
+        card,
+        await db.getTransactionsByWallet(card.id),
+        today: today,
+      ),
   ];
 });
