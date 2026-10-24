@@ -6335,6 +6335,306 @@ abstract class L10n {
   /// **'This investment was deleted.'**
   String get investmentGone;
 
+  /// No description provided for @netWorthSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything you own, less what you owe, and how it has moved'**
+  String get netWorthSubtitle;
+
+  /// No description provided for @netWorthToday.
+  ///
+  /// In en, this message translates to:
+  /// **'You are worth'**
+  String get netWorthToday;
+
+  /// No description provided for @netWorthSinceLastMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} since last month'**
+  String netWorthSinceLastMonth(String amount);
+
+  /// No description provided for @netWorthBreakdown.
+  ///
+  /// In en, this message translates to:
+  /// **'What it is made of'**
+  String get netWorthBreakdown;
+
+  /// No description provided for @netWorthCash.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash & bank'**
+  String get netWorthCash;
+
+  /// No description provided for @netWorthCards.
+  ///
+  /// In en, this message translates to:
+  /// **'Credit cards'**
+  String get netWorthCards;
+
+  /// No description provided for @netWorthDeposits.
+  ///
+  /// In en, this message translates to:
+  /// **'Savings deposits'**
+  String get netWorthDeposits;
+
+  /// No description provided for @netWorthAssets.
+  ///
+  /// In en, this message translates to:
+  /// **'Assets'**
+  String get netWorthAssets;
+
+  /// No description provided for @netWorthLent.
+  ///
+  /// In en, this message translates to:
+  /// **'Lent to others'**
+  String get netWorthLent;
+
+  /// No description provided for @netWorthBorrowed.
+  ///
+  /// In en, this message translates to:
+  /// **'Borrowed'**
+  String get netWorthBorrowed;
+
+  /// No description provided for @netWorthLoansNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Money you lent counts as yours until it is paid back, and money you borrowed counts against you until you repay it.'**
+  String get netWorthLoansNote;
+
+  /// No description provided for @netWorthCardsLeftOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Credit cards are not counted; you can change that in Settings.'**
+  String get netWorthCardsLeftOut;
+
+  /// No description provided for @netWorthHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'At each month end'**
+  String get netWorthHistory;
+
+  /// No description provided for @netWorthSixMonths.
+  ///
+  /// In en, this message translates to:
+  /// **'6 months'**
+  String get netWorthSixMonths;
+
+  /// No description provided for @netWorthOneYear.
+  ///
+  /// In en, this message translates to:
+  /// **'1 year'**
+  String get netWorthOneYear;
+
+  /// No description provided for @netWorthAllTime.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get netWorthAllTime;
+
+  /// No description provided for @netWorthHistoryEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'The line starts once a month has ended with your records in it.'**
+  String get netWorthHistoryEmpty;
+
+  /// No description provided for @assetNew.
+  ///
+  /// In en, this message translates to:
+  /// **'Add asset'**
+  String get assetNew;
+
+  /// No description provided for @assetNewHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Land, a flat or house, a car, gold or anything else you own. Its value counts toward your net worth.'**
+  String get assetNewHint;
+
+  /// No description provided for @assetKind.
+  ///
+  /// In en, this message translates to:
+  /// **'What it is'**
+  String get assetKind;
+
+  /// No description provided for @assetKindLand.
+  ///
+  /// In en, this message translates to:
+  /// **'Land'**
+  String get assetKindLand;
+
+  /// No description provided for @assetKindHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Flat or house'**
+  String get assetKindHome;
+
+  /// No description provided for @assetKindCar.
+  ///
+  /// In en, this message translates to:
+  /// **'Vehicle'**
+  String get assetKindCar;
+
+  /// No description provided for @assetKindGold.
+  ///
+  /// In en, this message translates to:
+  /// **'Gold & jewellery'**
+  String get assetKindGold;
+
+  /// No description provided for @assetKindOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Something else'**
+  String get assetKindOther;
+
+  /// No description provided for @assetNameHintLand.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Plot in Savar'**
+  String get assetNameHintLand;
+
+  /// No description provided for @assetNameHintHome.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Flat in Mirpur'**
+  String get assetNameHintHome;
+
+  /// No description provided for @assetNameHintCar.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Toyota Axio'**
+  String get assetNameHintCar;
+
+  /// No description provided for @assetNameHintGold.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Wedding jewellery'**
+  String get assetNameHintGold;
+
+  /// No description provided for @assetNameHintOther.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Camera'**
+  String get assetNameHintOther;
+
+  /// No description provided for @assetWorthNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Worth now'**
+  String get assetWorthNow;
+
+  /// No description provided for @assetBoughtNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid for it from an account'**
+  String get assetBoughtNow;
+
+  /// No description provided for @assetBoughtNowHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Off: you already own it, and no money moves.'**
+  String get assetBoughtNowHint;
+
+  /// No description provided for @assetSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Add asset'**
+  String get assetSave;
+
+  /// No description provided for @assetAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Asset added'**
+  String get assetAdded;
+
+  /// No description provided for @assetsEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No assets yet'**
+  String get assetsEmptyTitle;
+
+  /// No description provided for @assetsEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Add land, a home, a car or gold to see everything you are worth.'**
+  String get assetsEmptyBody;
+
+  /// No description provided for @assetsSold.
+  ///
+  /// In en, this message translates to:
+  /// **'Sold'**
+  String get assetsSold;
+
+  /// No description provided for @assetCostLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Cost {amount}'**
+  String assetCostLine(String amount);
+
+  /// No description provided for @assetUpdateValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Update value'**
+  String get assetUpdateValue;
+
+  /// No description provided for @assetSell.
+  ///
+  /// In en, this message translates to:
+  /// **'Sell'**
+  String get assetSell;
+
+  /// No description provided for @assetDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get assetDelete;
+
+  /// No description provided for @assetValueUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Value updated'**
+  String get assetValueUpdated;
+
+  /// No description provided for @assetSold.
+  ///
+  /// In en, this message translates to:
+  /// **'Sold, and the money recorded'**
+  String get assetSold;
+
+  /// No description provided for @assetDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove {name}?'**
+  String assetDeleteTitle(String name);
+
+  /// No description provided for @assetDeleteBody.
+  ///
+  /// In en, this message translates to:
+  /// **'It is no longer counted. Its history stays with your records.'**
+  String get assetDeleteBody;
+
+  /// No description provided for @assetDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Asset removed'**
+  String get assetDeleted;
+
+  /// No description provided for @aiActionCreateAssetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add an asset'**
+  String get aiActionCreateAssetTitle;
+
+  /// No description provided for @aiActionUpdateAssetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Update an asset\'s value'**
+  String get aiActionUpdateAssetTitle;
+
+  /// No description provided for @aiActionSellAssetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sell an asset'**
+  String get aiActionSellAssetTitle;
+
   /// No description provided for @investmentWorthNow.
   ///
   /// In en, this message translates to:

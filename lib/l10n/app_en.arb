@@ -1688,6 +1688,77 @@
   "investmentSave": "Add investment",
   "investmentAdded": "Investment added",
   "investmentGone": "This investment was deleted.",
+  "netWorthSubtitle": "Everything you own, less what you owe, and how it has moved",
+  "netWorthToday": "You are worth",
+  "netWorthSinceLastMonth": "{amount} since last month",
+  "@netWorthSinceLastMonth": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "netWorthBreakdown": "What it is made of",
+  "netWorthCash": "Cash & bank",
+  "netWorthCards": "Credit cards",
+  "netWorthDeposits": "Savings deposits",
+  "netWorthAssets": "Assets",
+  "netWorthLent": "Lent to others",
+  "netWorthBorrowed": "Borrowed",
+  "netWorthLoansNote": "Money you lent counts as yours until it is paid back, and money you borrowed counts against you until you repay it.",
+  "netWorthCardsLeftOut": "Credit cards are not counted; you can change that in Settings.",
+  "netWorthHistory": "At each month end",
+  "netWorthSixMonths": "6 months",
+  "netWorthOneYear": "1 year",
+  "netWorthAllTime": "All",
+  "netWorthHistoryEmpty": "The line starts once a month has ended with your records in it.",
+  "assetNew": "Add asset",
+  "assetNewHint": "Land, a flat or house, a car, gold or anything else you own. Its value counts toward your net worth.",
+  "assetKind": "What it is",
+  "assetKindLand": "Land",
+  "assetKindHome": "Flat or house",
+  "assetKindCar": "Vehicle",
+  "assetKindGold": "Gold & jewellery",
+  "assetKindOther": "Something else",
+  "assetNameHintLand": "e.g. Plot in Savar",
+  "assetNameHintHome": "e.g. Flat in Mirpur",
+  "assetNameHintCar": "e.g. Toyota Axio",
+  "assetNameHintGold": "e.g. Wedding jewellery",
+  "assetNameHintOther": "e.g. Camera",
+  "assetWorthNow": "Worth now",
+  "assetBoughtNow": "Paid for it from an account",
+  "assetBoughtNowHint": "Off: you already own it, and no money moves.",
+  "assetSave": "Add asset",
+  "assetAdded": "Asset added",
+  "assetsEmptyTitle": "No assets yet",
+  "assetsEmptyBody": "Add land, a home, a car or gold to see everything you are worth.",
+  "assetsSold": "Sold",
+  "assetCostLine": "Cost {amount}",
+  "@assetCostLine": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "assetUpdateValue": "Update value",
+  "assetSell": "Sell",
+  "assetDelete": "Remove",
+  "assetValueUpdated": "Value updated",
+  "assetSold": "Sold, and the money recorded",
+  "assetDeleteTitle": "Remove {name}?",
+  "@assetDeleteTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "assetDeleteBody": "It is no longer counted. Its history stays with your records.",
+  "assetDeleted": "Asset removed",
+  "aiActionCreateAssetTitle": "Add an asset",
+  "aiActionUpdateAssetTitle": "Update an asset's value",
+  "aiActionSellAssetTitle": "Sell an asset",
   "investmentWorthNow": "Worth now",
   "investmentGainLine": "{gain} overall",
   "@investmentGainLine": {

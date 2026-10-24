@@ -90,22 +90,29 @@ class CoachActionCard extends StatelessWidget {
       CoachActionKind.createInvestment => l10n.aiActionCreateInvestmentTitle,
       CoachActionKind.tradeInvestment => l10n.aiActionTradeInvestmentTitle,
       CoachActionKind.updateInvestment => l10n.aiActionUpdateInvestmentTitle,
+      CoachActionKind.createAsset => l10n.aiActionCreateAssetTitle,
+      CoachActionKind.updateAsset => l10n.aiActionUpdateAssetTitle,
+      CoachActionKind.sellAsset => l10n.aiActionSellAssetTitle,
     };
     final showsChanges =
         action.kind == CoachActionKind.update ||
         action.kind == CoachActionKind.cardSettings ||
         action.kind == CoachActionKind.updatePlan ||
-        action.kind == CoachActionKind.updateInvestment;
+        action.kind == CoachActionKind.updateInvestment ||
+        action.kind == CoachActionKind.updateAsset;
     final amount = switch (action.kind) {
       CoachActionKind.cardSettings ||
       CoachActionKind.updatePlan ||
-      CoachActionKind.updateInvestment => '',
+      CoachActionKind.updateInvestment ||
+      CoachActionKind.updateAsset => '',
       // Money moving between the user's own accounts has no sign.
       CoachActionKind.payCard ||
       CoachActionKind.createPlan ||
       CoachActionKind.payPlan ||
       CoachActionKind.createInvestment ||
       CoachActionKind.tradeInvestment ||
+      CoachActionKind.createAsset ||
+      CoachActionKind.sellAsset ||
       CoachActionKind.closePlan => action.amount.formatCurrency(
         action.currency,
       ),
@@ -147,6 +154,7 @@ class CoachActionCard extends StatelessWidget {
       'which' => l10n.planProgress,
       'due' => l10n.aiActionDate,
       'held' => l10n.planHolding,
+      'paid' => l10n.investmentPaid,
       'profit' => l10n.planEventMaturity,
       'left' => l10n.planLeft,
       'amount' => l10n.aiActionAmount,
@@ -237,6 +245,9 @@ class CoachActionCard extends StatelessWidget {
                 CoachActionKind.createInvestment => l10n.investmentSave,
                 CoachActionKind.tradeInvestment => l10n.aiActionConfirm,
                 CoachActionKind.updateInvestment => l10n.investmentUpdatePrice,
+                CoachActionKind.createAsset => l10n.assetSave,
+                CoachActionKind.updateAsset => l10n.assetUpdateValue,
+                CoachActionKind.sellAsset => l10n.assetSell,
                 CoachActionKind.closePlan => l10n.aiActionClosePlan,
                 _ => l10n.aiActionSave,
               },

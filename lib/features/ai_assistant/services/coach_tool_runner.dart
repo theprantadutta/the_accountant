@@ -15,6 +15,10 @@ import 'package:the_accountant/data/models/investment.dart';
 import 'package:the_accountant/features/cards/domain/card_statement.dart';
 import 'package:the_accountant/features/investments/providers/investments_provider.dart';
 import 'package:the_accountant/features/investments/services/investment_service.dart';
+import 'package:the_accountant/features/dashboard/providers/net_worth_preferences_provider.dart';
+import 'package:the_accountant/features/networth/providers/net_worth_provider.dart';
+import 'package:the_accountant/features/networth/services/asset_service.dart';
+import 'package:the_accountant/features/networth/services/net_worth_service.dart';
 import 'package:the_accountant/features/plans/domain/plan_terms.dart';
 import 'package:the_accountant/features/plans/providers/plans_provider.dart';
 import 'package:the_accountant/features/plans/services/plan_service.dart';
@@ -58,6 +62,15 @@ enum CoachActionKind {
 
   /// A holding's price updated, and its value with it.
   updateInvestment,
+
+  /// Land, a home, a car, gold or something else owned, added.
+  createAsset,
+
+  /// An asset's value updated by hand.
+  updateAsset,
+
+  /// An asset sold, and closed.
+  sellAsset,
 }
 
 /// A change the coach wants to make, as the user is shown it before it happens.
@@ -136,6 +149,9 @@ class CoachToolRunner {
     'create_investment',
     'trade_investment',
     'update_investment_price',
+    'add_asset',
+    'update_asset_value',
+    'sell_asset',
   };
 
   static const _maxResults = 50;
@@ -161,6 +177,8 @@ class CoachToolRunner {
         'card_bills' => await _cardBills(call.args),
         'list_plans' => await _plans(call.args),
         'list_investments' => await _investmentsList(),
+        'net_worth' => await _netWorth(),
+        'list_assets' => await _assetsList(),
         _ => _error('There is no tool called ${call.name}.'),
       };
     } on _ToolError catch (e) {
@@ -187,6 +205,9 @@ class CoachToolRunner {
         'create_investment' => await _planCreateInvestment(call.args),
         'trade_investment' => await _planTradeInvestment(call.args),
         'update_investment_price' => await _planInvestmentPrice(call.args),
+        'add_asset' => await _planAddAsset(call.args),
+        'update_asset_value' => await _planUpdateAsset(call.args),
+        'sell_asset' => await _planSellAsset(call.args),
         _ => CoachPlan.failed(_error('There is no tool called ${call.name}.')),
       };
     } on _ToolError catch (e) {
@@ -1467,6 +1488,225 @@ class CoachToolRunner {
       return jsonEncode({
         'status': 'done',
         'investment': after == null ? null : _holdingJson(after),
+      });
+    });
+  }
+
+  // ---- net worth and assets ----
+
+  AssetService get _assetService => _read(assetServiceProvider);
+
+  /// What the user is worth, from the same summary the home card and the net
+  /// worth screen show, and how it has moved over the last year.
+  Future<String> _netWorth() async {
+    final currency = _read(defaultCurrencyProvider);
+    final includeCards = _read(creditCardsInNetWorthProvider);
+    final service = _read(netWorthServiceProvider);
+    final s = await service.summary(currency, includeCreditCards: includeCards);
+    final history = await service.history(
+      currency,
+      includeCreditCards: includeCards,
+      months: 12,
+    );
+    return jsonEncode({
+      'currency': currency,
+      'total': s.total / 100,
+      'breakdown': {
+        'cash_and_bank': s[NetWorthPart.cash] / 100,
+        if (includeCards) 'cards': s[NetWorthPart.cards] / 100,
+        'deposits': s[NetWorthPart.deposits] / 100,
+        'investments': s[NetWorthPart.investments] / 100,
+        'assets': s[NetWorthPart.assets] / 100,
+        'lent': s[NetWorthPart.lent] / 100,
+        'borrowed': s[NetWorthPart.borrowed] / 100,
+      },
+      'includes_credit_cards': includeCards,
+      'note':
+          'Lent is money others still owe the user; borrowed is what the '
+          'user still owes, already negative. The last history month is '
+          'today.',
+      'history': [
+        for (final p in history)
+          {
+            'month': _date8(p.month).substring(0, 7),
+            'net_worth': p.value / 100,
+          },
+      ],
+    });
+  }
+
+  Map<String, Object?> _assetJson(AssetHolding a) => {
+    'id': a.id,
+    'name': a.name,
+    'kind': a.kind.key,
+    'currency': a.currency,
+    'value': a.value / 100,
+    'paid': a.cost / 100,
+    if (a.received > 0) 'sold_for': a.received / 100,
+    'change': a.change / 100,
+    if (a.changePercent != null)
+      'change_percent': double.parse(a.changePercent!.toStringAsFixed(2)),
+    if (a.isClosed) 'sold': true,
+  };
+
+  Future<String> _assetsList() async => jsonEncode({
+    'assets': [for (final a in await _assetService.all()) _assetJson(a)],
+  });
+
+  /// An asset still owned, by id or name.
+  Future<AssetHolding> _assetNamed(Object? ref) async {
+    if (ref is! String || ref.trim().isEmpty) {
+      throw _ToolError('Which asset? Use list_assets to find its name.');
+    }
+    final owned = (await _assetService.all())
+        .where((a) => !a.isClosed)
+        .toList();
+    final match =
+        owned.where((a) => a.id == ref).firstOrNull ??
+        _byName(owned, ref, (a) => a.name);
+    if (match != null) return match;
+    throw _ToolError(
+      owned.isEmpty
+          ? 'No assets are tracked yet; add_asset adds one.'
+          : 'No asset is called "$ref". They are: '
+                '${owned.map((a) => a.name).join(', ')}.',
+    );
+  }
+
+  /// An account money can really come from or go to: not a card's bill, a
+  /// deposit, a holding or another asset.
+  Wallet _ordinaryWallet(Object? name, {String? currency}) {
+    final options = _selectableWallets
+        .where((w) => !w.walletType.isManaged)
+        .toList();
+    if (name is String && name.trim().isNotEmpty) {
+      final match = _byName(options, name, (w) => w.name);
+      if (match != null) return match;
+      throw _ToolError(
+        'No account is called "$name". The accounts are: '
+        '${options.map((w) => w.name).join(', ')}.',
+      );
+    }
+    return options
+            .where(
+              (w) =>
+                  w.currency == currency &&
+                  w.walletType != WalletType.creditCard,
+            )
+            .firstOrNull ??
+        resolveDefaultWallet(options) ??
+        (throw _ToolError('There is no account to use.'));
+  }
+
+  Future<CoachPlan> _planAddAsset(Map<String, dynamic> args) async {
+    final name = (args['name'] as String?)?.trim() ?? '';
+    if (name.isEmpty) throw _ToolError('name is required.');
+    final owned = (await _assetService.all()).where(
+      (a) => !a.isClosed && a.name.toLowerCase() == name.toLowerCase(),
+    );
+    if (owned.isNotEmpty) {
+      throw _ToolError(
+        '$name is already tracked; use update_asset_value to change it.',
+      );
+    }
+    final kind = AssetKind.parse(args['kind'] as String?);
+    final value = _amount(args['value']) ?? 0;
+    if (value <= 0) throw _ToolError('value, what it is worth, is required.');
+    final from = args['paid_from'] == null
+        ? null
+        : _ordinaryWallet(args['paid_from']);
+    final paid = _amount(args['paid']);
+    if (paid != null && paid <= 0) throw _ToolError('paid must be above 0.');
+    final String currency = from?.currency ?? _read(defaultCurrencyProvider);
+    final preview = CoachActionPreview(
+      kind: CoachActionKind.createAsset,
+      title: name,
+      amount: value,
+      currency: currency,
+      isIncome: false,
+      date: DateTime.now(),
+      lines: [
+        ('kind', kind.key),
+        if (from != null) ...[
+          ('account', from.name),
+          ('paid', (paid ?? value).formatCurrency(currency)),
+        ],
+      ],
+    );
+    return CoachPlan.ready(preview, () async {
+      final id = await _assetService.create(
+        name: name,
+        kind: kind,
+        currency: currency,
+        value: value,
+        useDecimals: from?.useDecimals ?? true,
+        paidFromWalletId: from?.id,
+        paid: paid,
+      );
+      await _refresh();
+      final a = await _assetService.find(id);
+      final account = from == null
+          ? null
+          : await _read(databaseProvider).findWalletById(from.id);
+      return jsonEncode({
+        'status': 'done',
+        'asset': a == null ? null : _assetJson(a),
+        if (account != null) 'account_balance_now': account.balance / 100,
+      });
+    });
+  }
+
+  Future<CoachPlan> _planUpdateAsset(Map<String, dynamic> args) async {
+    final a = await _assetNamed(args['asset'] ?? args['name']);
+    final value = _amount(args['value']);
+    if (value == null || value < 0) {
+      throw _ToolError('value, what it is worth now, is required.');
+    }
+    final c = a.currency;
+    final preview = CoachActionPreview(
+      kind: CoachActionKind.updateAsset,
+      title: a.name,
+      amount: value,
+      currency: c,
+      isIncome: value >= a.value,
+      date: DateTime.now(),
+      changes: {'value': (a.value.formatCurrency(c), value.formatCurrency(c))},
+    );
+    return CoachPlan.ready(preview, () async {
+      await _assetService.revalue(a.id, value);
+      await _refresh();
+      final after = await _assetService.find(a.id);
+      return jsonEncode({
+        'status': 'done',
+        'asset': after == null ? null : _assetJson(after),
+      });
+    });
+  }
+
+  Future<CoachPlan> _planSellAsset(Map<String, dynamic> args) async {
+    final a = await _assetNamed(args['asset'] ?? args['name']);
+    final amount = _amount(args['amount']) ?? 0;
+    if (amount <= 0) throw _ToolError('amount, what it sold for, is required.');
+    final to = _ordinaryWallet(args['account'], currency: a.currency);
+    final c = a.currency;
+    final preview = CoachActionPreview(
+      kind: CoachActionKind.sellAsset,
+      title: a.name,
+      amount: amount,
+      currency: c,
+      isIncome: true,
+      date: DateTime.now(),
+      lines: [('to', to.name), ('value', a.value.formatCurrency(c))],
+    );
+    return CoachPlan.ready(preview, () async {
+      await _assetService.sell(a.id, toWalletId: to.id, amount: amount);
+      await _refresh();
+      final after = await _assetService.find(a.id);
+      final account = await _read(databaseProvider).findWalletById(to.id);
+      return jsonEncode({
+        'status': 'done',
+        'asset': after == null ? null : _assetJson(after),
+        if (account != null) 'account_balance_now': account.balance / 100,
       });
     });
   }

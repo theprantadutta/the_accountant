@@ -30,7 +30,8 @@ import 'package:the_accountant/features/transactions/screens/transaction_list_sc
 import 'package:the_accountant/features/transactions/screens/transaction_type_screen.dart';
 import 'package:the_accountant/features/transactions/widgets/sunrise_transaction_row.dart';
 import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
-import 'package:the_accountant/features/wallets/screens/wallet_management_screen.dart';
+import 'package:the_accountant/features/networth/providers/net_worth_provider.dart';
+import 'package:the_accountant/features/networth/screens/net_worth_screen.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:the_accountant/shared/widgets/shimmer_loading.dart';
 import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
@@ -175,7 +176,7 @@ class _ResponsiveFinancialOverviewState
     HomeSection.accounts => _NetWorthCard(
       key: widget.balanceKey,
       monthDelta: income - expenses,
-      onTap: () => _push(const WalletManagementScreen()),
+      onTap: () => _push(const NetWorthScreen()),
     ),
     HomeSection.quickStats => _quickStats(income, expenses),
     HomeSection.quickLinks => _quickLinks(),
@@ -475,7 +476,11 @@ class _NetWorthCard extends ConsumerWidget {
     final currency = ref.watch(defaultCurrencyProvider);
     final decimals = ref.watch(defaultDecimalProvider);
     final nf = ref.watch(numberFormatSettingProvider);
-    final total = ref.watch(convertedTotalBalanceProvider).asData?.value ?? 0;
+    // What the user is worth, from the same summary as the net worth screen
+    // the card opens, so the two always show one figure. It used to be the
+    // account balances alone, which made lending money read as losing it and
+    // borrowing as gaining it; see NetWorthService for the definition.
+    final total = ref.watch(netWorthProvider).asData?.value.total ?? 0;
     final walletState = ref.watch(walletProvider);
     final visibility = ref.watch(balanceVisibilityProvider);
 

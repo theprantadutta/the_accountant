@@ -4,6 +4,7 @@ import 'package:drift/drift.dart' show Value;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:the_accountant/core/services/wallet_balance_service.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
 import 'package:the_accountant/data/models/wallet.dart' show WalletType;
@@ -625,5 +626,128 @@ void main() {
       });
       expect(missing.error, contains('No investment'));
     });
+  });
+  group('net worth and assets', () {
+    Future<CoachPlan> plan(String name, Map<String, dynamic> args) =>
+        runner.plan(CoachToolCall('n1', name, args));
+    Future<List> assets() async =>
+        (await read('list_assets', {}))['assets'] as List;
+    Future<int> balanceOf(String id) async =>
+        (await db.findWalletById(id))!.balance;
+
+    test('reads net worth with its breakdown and a year of history', () async {
+      final result = await read('net_worth', {});
+      expect(result['total'], 6000.0, reason: 'Bkash 5,000 and Brac 1,000');
+      final parts = result['breakdown'] as Map;
+      expect(parts['cash_and_bank'], 6000.0);
+      expect(parts['assets'], 0.0);
+      expect(parts['lent'], 0.0);
+      expect(parts.containsKey('cards'), isFalse, reason: 'cards not counted');
+      final history = result['history'] as List;
+      expect(history, hasLength(12));
+      expect((history.last as Map)['net_worth'], 6000.0);
+    });
+
+    test('adds, revalues and sells an asset, asking first each time', () async {
+      // Balances made of the rows seeded above, as the app keeps them.
+      for (final w in await db.getAllWallets()) {
+        await WalletBalanceService(db).updateWalletBalance(w.id);
+      }
+      final before = await balanceOf(bkash);
+      final land = await plan('add_asset', {
+        'name': 'Plot in Savar',
+        'kind': 'plot',
+        'value': 25000,
+      });
+      expect(land.error, isNull);
+      expect(land.preview!.kind, CoachActionKind.createAsset);
+      expect(land.preview!.amount, 2500000);
+      expect(await assets(), isEmpty, reason: 'nothing until confirmed');
+      await land.execute!();
+
+      var listed = (await assets()).single as Map;
+      expect(listed['kind'], 'land');
+      expect(listed['value'], 25000.0);
+      expect(await balanceOf(bkash), before, reason: 'no money moved');
+      expect(
+        ((await read('net_worth', {}))['breakdown'] as Map)['assets'],
+        25000.0,
+      );
+
+      final again = await plan('add_asset', {
+        'name': 'plot in savar',
+        'value': 1,
+      });
+      expect(again.error, contains('already tracked'));
+
+      final rise = await plan('update_asset_value', {
+        'asset': 'Plot',
+        'value': 30000,
+      });
+      expect(rise.preview!.kind, CoachActionKind.updateAsset);
+      expect(rise.preview!.changes.keys, ['value']);
+      await rise.execute!();
+      listed = (await assets()).single as Map;
+      expect(listed['value'], 30000.0);
+      expect(listed['change'], 5000.0);
+
+      final car = await plan('add_asset', {
+        'name': 'Axio',
+        'kind': 'car',
+        'value': 2000,
+        'paid_from': 'Bkash',
+      });
+      final lines = Map.fromEntries(
+        car.preview!.lines.map((l) => MapEntry(l.$1, l.$2)),
+      );
+      expect(lines['account'], 'Bkash');
+      final bought = jsonDecode(await car.execute!()) as Map;
+      expect(bought['account_balance_now'], (before - 200000) / 100);
+
+      final sale = await plan('sell_asset', {
+        'asset': 'Axio',
+        'amount': 2500,
+        'account': 'Brac Bank',
+      });
+      expect(sale.preview!.kind, CoachActionKind.sellAsset);
+      expect(sale.preview!.isIncome, isTrue);
+      final sold = jsonDecode(await sale.execute!()) as Map;
+      expect(sold['account_balance_now'], 3500.0, reason: '1,000 and 2,500');
+      expect((sold['asset'] as Map)['sold'], isTrue);
+      expect((sold['asset'] as Map)['change'], 500.0);
+
+      final soldAgain = await plan('sell_asset', {
+        'asset': 'Axio',
+        'amount': 1,
+      });
+      expect(soldAgain.error, contains('No asset'));
+    });
+
+    test(
+      'asset money only comes from and goes to an ordinary account',
+      () async {
+        await (await plan('add_asset', {
+          'name': 'Gold bangles',
+          'kind': 'gold',
+          'value': 800,
+        })).execute!();
+        final fromAsset = await plan('add_asset', {
+          'name': 'Necklace',
+          'kind': 'gold',
+          'value': 100,
+          'paid_from': 'Gold bangles',
+        });
+        expect(fromAsset.error, contains('No account'));
+        final noValue = await plan('add_asset', {'name': 'Something'});
+        expect(noValue.error, contains('value'));
+        final kinds = [for (final a in await assets()) (a as Map)['kind']];
+        expect(kinds, ['gold']);
+        final wallets = await db.getAllWallets();
+        expect(
+          wallets.singleWhere((w) => w.name == 'Gold bangles').walletType,
+          WalletType.asset,
+        );
+      },
+    );
   });
 }

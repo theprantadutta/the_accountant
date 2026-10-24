@@ -16,6 +16,7 @@ import 'package:the_accountant/features/budgets/providers/budget_provider.dart'
 import 'package:the_accountant/features/categories/providers/category_provider.dart'
     as cat;
 import 'package:the_accountant/features/dashboard/providers/net_worth_preferences_provider.dart';
+import 'package:the_accountant/features/networth/services/net_worth_service.dart';
 import 'package:the_accountant/features/objectives/providers/objectives_provider.dart';
 import 'package:the_accountant/features/recurring/services/recurring_service.dart';
 import 'package:the_accountant/features/subscriptions/providers/subscription_dashboard_provider.dart'
@@ -100,10 +101,12 @@ class FinanceContextBuilder {
       ..sort((a, b) => b.value.compareTo(a.value));
 
     final includeCards = _read(creditCardsInNetWorthProvider);
-    final netWorth = await calc.getTotalBalanceConverted(
-      currency,
-      includeCreditCards: includeCards,
-    );
+    // The figure the home card and the net worth screen show, loans included,
+    // so the coach never quotes the user a different number.
+    final netWorth = await NetWorthService(
+      db,
+      _read(currencyServiceProvider),
+    ).summary(currency, includeCreditCards: includeCards);
 
     return {
       'currency': currency,
@@ -124,8 +127,9 @@ class FinanceContextBuilder {
       'upcoming': await _upcoming(calc, currency),
       'wallets': await _wallets(calc, currency, includeCards),
       'net_worth': {
-        'total': major(netWorth),
+        'total': major(netWorth.total),
         'includes_credit_cards': includeCards,
+        'includes_money_lent_and_borrowed': true,
       },
       'loans': await _loans(calc, currency),
       'recurring': await _recurring(calc, currency),
