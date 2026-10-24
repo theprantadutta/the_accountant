@@ -1325,6 +1325,42 @@ class L10nBn extends L10n {
   String get catArchive => 'আর্কাইভ করুন';
 
   @override
+  String get catMergeInto => 'অন্যটির সাথে মেলান…';
+
+  @override
+  String catMergeIntoTitle(String name) {
+    return '$name কোনটির সাথে মেলাবেন';
+  }
+
+  @override
+  String get catMergeBuiltIn => 'অ্যাপের নিজস্ব';
+
+  @override
+  String get catMergeNoTargets =>
+      'মেলানোর মতো একই ধরনের অন্য কোনো ক্যাটাগরি নেই।';
+
+  @override
+  String catMergeConfirmTitle(String from, String to) {
+    return '$from কে $to এর সাথে মেলাবেন?';
+  }
+
+  @override
+  String catMergeConfirmBody(String from, String to) {
+    return '$from এর সব লেনদেন, বাজেট ও সাব-ক্যাটাগরি $to তে চলে যাবে, আর $from সরিয়ে দেওয়া হবে। এটি আপনার অন্য ডিভাইসেও সিঙ্ক হবে।';
+  }
+
+  @override
+  String get catMergeAction => 'মেলান';
+
+  @override
+  String catMerged(String from, String to) {
+    return '$from কে $to এর সাথে মেলানো হয়েছে।';
+  }
+
+  @override
+  String get catMergeFailed => 'এই দুটি ক্যাটাগরি মেলানো যায় না।';
+
+  @override
   String get catUnarchive => 'আর্কাইভ থেকে ফেরান';
 
   @override

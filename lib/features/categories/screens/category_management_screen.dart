@@ -10,6 +10,8 @@ import 'package:the_accountant/features/categories/widgets/add_category_form.dar
 import 'package:the_accountant/features/categories/widgets/category_list_item.dart'
     as category_list_item;
 import 'package:the_accountant/shared/widgets/shimmer_loading.dart';
+import 'package:the_accountant/core/providers/data_reload.dart';
+import 'package:the_accountant/core/utils/icon_registry.dart';
 
 /// What the search bar on this screen holds; empty shows everything.
 final _categoryQueryProvider = StateProvider.autoDispose<String>((ref) => '');
@@ -164,6 +166,9 @@ class CategoryManagementScreen extends ConsumerWidget {
                     : () => ref
                           .read(category_provider.categoryProvider.notifier)
                           .setArchived(category.id, !category.isArchived),
+                onMerge: category.isSystem
+                    ? null
+                    : () => _mergeCategory(context, ref, category),
                 onDelete: category.isDefault
                     ? null
                     : () {
@@ -179,6 +184,89 @@ class CategoryManagementScreen extends ConsumerWidget {
           ),
       ],
     );
+  }
+
+  /// Ask which category to fold [source] into, confirm, and merge.
+  Future<void> _mergeCategory(
+    BuildContext context,
+    WidgetRef ref,
+    category_provider.Category source,
+  ) async {
+    final l10n = L10n.of(context);
+    final all = ref.read(category_provider.categoryProvider).categories;
+    final targets =
+        all
+            .where(
+              (c) =>
+                  c.id != source.id &&
+                  c.type == source.type &&
+                  !c.isSystem &&
+                  !c.isArchived,
+            )
+            .toList()
+          ..sort((a, b) {
+            // Same name first: that is almost always the one meant.
+            final sameA = a.name.toLowerCase() == source.name.toLowerCase();
+            final sameB = b.name.toLowerCase() == source.name.toLowerCase();
+            if (sameA != sameB) return sameA ? -1 : 1;
+            return a.name.toLowerCase().compareTo(b.name.toLowerCase());
+          });
+    if (targets.isEmpty) {
+      showSunriseSnack(context, l10n.catMergeNoTargets);
+      return;
+    }
+
+    final target = await showSunriseSheet<category_provider.Category>(
+      context: context,
+      builder: (sheet) => SunriseBottomSheet(
+        title: l10n.catMergeIntoTitle(source.name),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (final c in targets)
+              SheetAction(
+                icon: IconRegistry.getIcon(c.iconName),
+                label: c.name,
+                subtitle: c.isDefault ? l10n.catMergeBuiltIn : null,
+                onTap: () => Navigator.pop(sheet, c),
+              ),
+          ],
+        ),
+      ),
+    );
+    if (target == null || !context.mounted) return;
+
+    final confirmed = await showSunriseConfirm(
+      context: context,
+      title: l10n.catMergeConfirmTitle(source.name, target.name),
+      message: l10n.catMergeConfirmBody(source.name, target.name),
+      confirmLabel: l10n.catMergeAction,
+      icon: Symbols.merge_rounded,
+    );
+    if (!confirmed || !context.mounted) return;
+
+    try {
+      await ref
+          .read(category_provider.categoryProvider.notifier)
+          .mergeInto(sourceId: source.id, targetId: target.id);
+      // Transactions, budgets and reports all moved underneath their screens.
+      reloadAllData(ref);
+      if (context.mounted) {
+        showSunriseSnack(
+          context,
+          l10n.catMerged(source.name, target.name),
+          tone: SnackTone.success,
+        );
+      }
+    } on ArgumentError catch (e) {
+      if (context.mounted) {
+        showSunriseSnack(
+          context,
+          e.message?.toString() ?? l10n.catMergeFailed,
+          tone: SnackTone.error,
+        );
+      }
+    }
   }
 
   void _showAddCategoryDialog(BuildContext context, WidgetRef ref) {
@@ -246,7 +334,12 @@ class _CategorySearchBar extends ConsumerStatefulWidget {
 }
 
 class _CategorySearchBarState extends ConsumerState<_CategorySearchBar> {
-  final _controller = TextEditingController();
+  // Starts from the query in force: the bar is rebuilt from scratch when the
+  // list reloads underneath it (a merge does), and an empty box over a
+  // filtered list reads as "this category does not exist".
+  late final _controller = TextEditingController(
+    text: ref.read(_categoryQueryProvider),
+  );
 
   @override
   void dispose() {

@@ -2494,6 +2494,76 @@ class AppDatabase extends _$AppDatabase {
   ///
   /// The two built-in system categories are the app's own bookkeeping and are
   /// never offered anyway, so they are left alone.
+  /// Fold [sourceId] into [targetId]: everything filed under the source moves
+  /// to the target, and the source goes.
+  ///
+  /// Two categories that mean the same thing — one brought in from somewhere
+  /// else, one the app made — split a month's spending in half and show up
+  /// twice in every picker. Merging moves the transactions, subcategories,
+  /// budgets, budget caps and remembered titles in one database transaction,
+  /// each marked for sync, then removes the source. The same fold sync uses for
+  /// built-ins, so a merge reaches every device the way an edit would.
+  ///
+  /// Refused for the app's own bookkeeping categories, across income and
+  /// spending (a merged category's history would change direction), and into a
+  /// subcategory when the source has subcategories of its own: categories are
+  /// one level deep.
+  Future<void> mergeCategory({
+    required String sourceId,
+    required String targetId,
+  }) async {
+    if (sourceId == targetId) {
+      throw ArgumentError('A category cannot be merged into itself.');
+    }
+    final source = await findCategoryById(sourceId);
+    final target = await findCategoryById(targetId);
+    if (source == null ||
+        target == null ||
+        source.deletedAt != null ||
+        target.deletedAt != null) {
+      throw ArgumentError('Both categories must exist to merge them.');
+    }
+    if (SystemCategoryKeys.all.contains(source.defaultKey) ||
+        SystemCategoryKeys.all.contains(target.defaultKey)) {
+      throw ArgumentError('The app\'s own categories cannot be merged.');
+    }
+    if (source.isIncome != target.isIncome) {
+      throw ArgumentError('Income and spending categories cannot be merged.');
+    }
+    final sourceHasChildren =
+        await (select(categories)..where(
+              (c) => c.mainCategoryId.equals(sourceId) & c.deletedAt.isNull(),
+            ))
+            .get()
+            .then((rows) => rows.any((c) => c.id != targetId));
+    if (target.mainCategoryId != null &&
+        target.mainCategoryId != sourceId &&
+        sourceHasChildren) {
+      throw ArgumentError(
+        'That category is inside another one, and categories are one level deep.',
+      );
+    }
+
+    await transaction(() async {
+      // Merging a parent into one of its own subcategories: lift the target
+      // out first, or re-parenting would make it its own parent.
+      if (target.mainCategoryId == sourceId) {
+        await (update(categories)..where((c) => c.id.equals(targetId))).write(
+          CategoriesCompanion(
+            mainCategoryId: const Value(null),
+            syncStatus: Value(
+              target.syncStatus == SyncStatus.pendingCreate
+                  ? SyncStatus.pendingCreate
+                  : SyncStatus.pendingUpdate,
+            ),
+            updatedAt: Value(DateTime.now()),
+          ),
+        );
+      }
+      await _absorbCategoryInner(loser: source, survivorId: targetId);
+    });
+  }
+
   Future<void> setCategoryArchived(String id, bool archived) async {
     final category = await findCategoryById(id);
     if (category == null ||

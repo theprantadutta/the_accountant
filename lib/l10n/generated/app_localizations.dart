@@ -2579,6 +2579,60 @@ abstract class L10n {
   /// **'Archive'**
   String get catArchive;
 
+  /// No description provided for @catMergeInto.
+  ///
+  /// In en, this message translates to:
+  /// **'Merge into…'**
+  String get catMergeInto;
+
+  /// No description provided for @catMergeIntoTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Merge {name} into'**
+  String catMergeIntoTitle(String name);
+
+  /// No description provided for @catMergeBuiltIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Built-in'**
+  String get catMergeBuiltIn;
+
+  /// No description provided for @catMergeNoTargets.
+  ///
+  /// In en, this message translates to:
+  /// **'There is no other category of the same kind to merge into.'**
+  String get catMergeNoTargets;
+
+  /// No description provided for @catMergeConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Merge {from} into {to}?'**
+  String catMergeConfirmTitle(String from, String to);
+
+  /// No description provided for @catMergeConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Every transaction, budget and subcategory in {from} moves to {to}, and {from} is removed. This syncs to your other devices.'**
+  String catMergeConfirmBody(String from, String to);
+
+  /// No description provided for @catMergeAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Merge'**
+  String get catMergeAction;
+
+  /// No description provided for @catMerged.
+  ///
+  /// In en, this message translates to:
+  /// **'Merged {from} into {to}.'**
+  String catMerged(String from, String to);
+
+  /// No description provided for @catMergeFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Those two categories cannot be merged.'**
+  String get catMergeFailed;
+
   /// No description provided for @catUnarchive.
   ///
   /// In en, this message translates to:

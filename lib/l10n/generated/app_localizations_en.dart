@@ -1330,6 +1330,42 @@ class L10nEn extends L10n {
   String get catArchive => 'Archive';
 
   @override
+  String get catMergeInto => 'Merge into…';
+
+  @override
+  String catMergeIntoTitle(String name) {
+    return 'Merge $name into';
+  }
+
+  @override
+  String get catMergeBuiltIn => 'Built-in';
+
+  @override
+  String get catMergeNoTargets =>
+      'There is no other category of the same kind to merge into.';
+
+  @override
+  String catMergeConfirmTitle(String from, String to) {
+    return 'Merge $from into $to?';
+  }
+
+  @override
+  String catMergeConfirmBody(String from, String to) {
+    return 'Every transaction, budget and subcategory in $from moves to $to, and $from is removed. This syncs to your other devices.';
+  }
+
+  @override
+  String get catMergeAction => 'Merge';
+
+  @override
+  String catMerged(String from, String to) {
+    return 'Merged $from into $to.';
+  }
+
+  @override
+  String get catMergeFailed => 'Those two categories cannot be merged.';
+
+  @override
   String get catUnarchive => 'Unarchive';
 
   @override

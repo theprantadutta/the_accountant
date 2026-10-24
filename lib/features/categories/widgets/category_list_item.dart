@@ -14,6 +14,9 @@ class CategoryListItem extends StatelessWidget {
   /// Archives the category, or brings it back when [isArchived]. Null for the
   /// app's own bookkeeping categories, which are never offered anyway.
   final VoidCallback? onArchive;
+
+  /// Folds this category into another. Null when it cannot be merged.
+  final VoidCallback? onMerge;
   final bool isArchived;
 
   const CategoryListItem({
@@ -22,6 +25,7 @@ class CategoryListItem extends StatelessWidget {
     this.onDelete,
     this.onEdit,
     this.onArchive,
+    this.onMerge,
     this.isArchived = false,
   });
 
@@ -41,6 +45,8 @@ class CategoryListItem extends StatelessWidget {
     final actions = <(String, IconData, String, Color?)>[
       if (onEdit != null && !isArchived && !category.isDefault)
         ('edit', Symbols.edit_rounded, L10n.of(context).actionEdit, null),
+      if (onMerge != null && !isArchived)
+        ('merge', Symbols.merge_rounded, L10n.of(context).catMergeInto, null),
       if (onArchive != null)
         (
           'archive',
@@ -97,6 +103,7 @@ class CategoryListItem extends StatelessWidget {
               onSelected: (action) => switch (action) {
                 'edit' => onEdit?.call(),
                 'archive' => onArchive?.call(),
+                'merge' => onMerge?.call(),
                 'delete' => onDelete?.call(),
                 _ => null,
               },

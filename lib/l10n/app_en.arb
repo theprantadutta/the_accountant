@@ -495,6 +495,52 @@
   "catUseEmoji": "Use an emoji",
   "catEmojiHint": "Type or pick one emoji",
   "catArchive": "Archive",
+  "catMergeInto": "Merge into…",
+  "catMergeIntoTitle": "Merge {name} into",
+  "@catMergeIntoTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "catMergeBuiltIn": "Built-in",
+  "catMergeNoTargets": "There is no other category of the same kind to merge into.",
+  "catMergeConfirmTitle": "Merge {from} into {to}?",
+  "@catMergeConfirmTitle": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "catMergeConfirmBody": "Every transaction, budget and subcategory in {from} moves to {to}, and {from} is removed. This syncs to your other devices.",
+  "@catMergeConfirmBody": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "catMergeAction": "Merge",
+  "catMerged": "Merged {from} into {to}.",
+  "@catMerged": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "catMergeFailed": "Those two categories cannot be merged.",
   "catUnarchive": "Unarchive",
   "catArchivedSection": "Archived",
   "catArchivedHint": "Kept for their history, but not offered when you add a transaction.",

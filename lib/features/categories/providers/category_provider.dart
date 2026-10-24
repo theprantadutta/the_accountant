@@ -267,6 +267,15 @@ class CategoryNotifier extends StateNotifier<CategoryState> {
     await loadCategories(silent: true);
   }
 
+  /// Fold [sourceId] into [targetId]; see [AppDatabase.mergeCategory].
+  Future<void> mergeInto({
+    required String sourceId,
+    required String targetId,
+  }) async {
+    await _db.mergeCategory(sourceId: sourceId, targetId: targetId);
+    await loadCategories(silent: true);
+  }
+
   Future<void> deleteCategory(String id) async {
     state = state.copyWith(isLoading: true);
 
