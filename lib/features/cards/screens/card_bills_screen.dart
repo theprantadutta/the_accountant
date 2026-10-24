@@ -177,32 +177,25 @@ class _CardBillCard extends ConsumerWidget {
               onTap: () => _changeReminder(context, ref, card),
             ),
             const SizedBox(height: 14),
-            Row(
-              children: [
-                if (!latest.isSettled) ...[
-                  Expanded(
-                    child: SunriseButton(
-                      key: const Key('card_pay'),
-                      label: l10n.cardPay(money(latest.remaining)),
-                      height: 50,
-                      onPressed: () => showAddTransactionScreen(
-                        context,
-                        initialType: TransactionTypeSelection.transfer,
-                        prefillAmount: latest.remaining / 100.0,
-                        prefillTitle: l10n.cardPaymentTitle(card.name),
-                        prefillToWalletId: card.id,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                ],
-                Expanded(
-                  child: SunriseButton.secondary(
-                    label: l10n.cardEdit,
-                    onPressed: () => showEditWalletSheet(context, ref, card),
-                  ),
+            // Stacked: side by side, a five-figure amount did not fit.
+            if (!latest.isSettled) ...[
+              SunriseButton(
+                key: const Key('card_pay'),
+                label: l10n.cardPay(money(latest.remaining)),
+                height: 50,
+                onPressed: () => showAddTransactionScreen(
+                  context,
+                  initialType: TransactionTypeSelection.transfer,
+                  prefillAmount: latest.remaining / 100.0,
+                  prefillTitle: l10n.cardPaymentTitle(card.name),
+                  prefillToWalletId: card.id,
                 ),
-              ],
+              ),
+              const SizedBox(height: 8),
+            ],
+            SunriseButton.secondary(
+              label: l10n.cardEdit,
+              onPressed: () => showEditWalletSheet(context, ref, card),
             ),
             if (bill.history.isNotEmpty) ...[
               const SizedBox(height: 16),
