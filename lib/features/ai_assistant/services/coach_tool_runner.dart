@@ -35,6 +35,9 @@ import 'package:the_accountant/features/transactions/providers/transfer_provider
 import 'package:the_accountant/features/wallets/providers/wallet_provider.dart'
     show walletProvider;
 import 'package:the_accountant/features/wallets/domain/credit_card_position.dart';
+import 'package:the_accountant/features/zakat/domain/zakat_settings.dart';
+import 'package:the_accountant/features/zakat/providers/zakat_provider.dart';
+import 'package:the_accountant/features/zakat/services/zakat_service.dart';
 import 'package:the_accountant/core/domain/default_wallet.dart';
 
 enum CoachActionKind {
@@ -81,6 +84,9 @@ enum CoachActionKind {
   /// A bill split with friends: the user's share spent, the rest lent, or
   /// the share owed to whoever paid.
   splitExpense,
+
+  /// Zakat paid, recorded as an expense under the Zakat category.
+  payZakat,
 }
 
 /// A change the coach wants to make, as the user is shown it before it happens.
@@ -163,6 +169,7 @@ class CoachToolRunner {
     'update_asset_value',
     'sell_asset',
     'split_expense',
+    'pay_zakat',
   };
 
   static const _maxResults = 50;
@@ -191,6 +198,7 @@ class CoachToolRunner {
         'net_worth' => await _netWorth(),
         'list_assets' => await _assetsList(),
         'cash_flow_forecast' => await _cashFlowForecast(call.args),
+        'zakat' => await _zakat(),
         _ => _error('There is no tool called ${call.name}.'),
       };
     } on _ToolError catch (e) {
@@ -221,6 +229,7 @@ class CoachToolRunner {
         'update_asset_value' => await _planUpdateAsset(call.args),
         'sell_asset' => await _planSellAsset(call.args),
         'split_expense' => await _planSplit(call.args),
+        'pay_zakat' => await _planPayZakat(call.args),
         _ => CoachPlan.failed(_error('There is no tool called ${call.name}.')),
       };
     } on _ToolError catch (e) {
@@ -1940,6 +1949,152 @@ class CoachToolRunner {
     if (e.expected) 'expected': true,
     if (e.overdue) 'overdue': true,
   };
+
+  // ---- zakat ----
+
+  ZakatService get _zakatService => _read(zakatServiceProvider);
+
+  /// The same calculation the Zakat screen shows, with the user's own
+  /// settings and in their own currency.
+  Future<ZakatReport> _zakatReport() async => _zakatService.compute(
+    await ZakatSettingsStore.load(),
+    currency: _read(defaultCurrencyProvider),
+  );
+
+  Future<String> _zakat() async {
+    final r = await _zakatReport();
+    final basis = r.basis.name;
+    double m(int v) => v / 100;
+    return jsonEncode({
+      'currency': r.currency,
+      'basis': basis,
+      'nisab_grams': r.basis.grams,
+      'price_per_gram': r.pricePerGram == 0 ? null : m(r.pricePerGram),
+      'nisab': r.nisab == null ? null : m(r.nisab!),
+      'lines': [
+        for (final l in r.lines)
+          {
+            'group': l.group.name,
+            'name': l.group == ZakatGroup.paid
+                ? 'zakat paid this year'
+                : l.name,
+            'amount': m(l.amount),
+            if (l.currency != r.currency)
+              'held_as': '${m(l.original)} ${l.currency}',
+            if (l.deduct) 'deducted': true,
+            'counted': l.included,
+          },
+      ],
+      'wealth': m(r.wealth),
+      'deductions': m(r.deductions),
+      'net': m(r.net),
+      'meets_nisab': r.meetsNisab,
+      if (r.meetsNisab == false) 'short_of_nisab_by': m(r.shortfall),
+      'zakat_due': m(r.due),
+      'paid_this_year': m(r.paid),
+      'left_to_pay': m(r.left),
+      'year_started': _date8(r.yearStart),
+      'next_zakat_date': r.nextDate == null ? null : _date8(r.nextDate!),
+      'assumptions': [
+        'Zakat is 2.5% of net zakatable wealth once it reaches the nisab: '
+            '${r.basis.grams} g of $basis at the price per gram the user '
+            'entered.',
+        'Counted: cash and bank balances, savings deposits, investments at '
+            'their latest value, gold and silver kept as assets, money lent '
+            'and amounts the user added. Land, a home or a car are not '
+            'counted unless the user switched them on as held for trade.',
+        'Deducted as debts due now: money borrowed and credit card dues.',
+        'Zakat already paid this year is added back to the wealth, so paying '
+            'does not lower what was due.',
+        'Lines with counted false were switched off by the user.',
+        if (r.nisab == null)
+          'No price per gram of $basis is set, so the nisab cannot be checked '
+              'yet; the user enters it on the Zakat screen.',
+        if (r.nextDate == null)
+          'No zakat date is set, so payments are counted over the last 354 '
+              'days.',
+      ],
+    });
+  }
+
+  Future<CoachPlan> _planPayZakat(Map<String, dynamic> args) async {
+    final r = await _zakatReport();
+    final c = r.currency;
+    final ordinary = _selectableWallets
+        .where((w) => !w.walletType.isManaged)
+        .toList();
+    final wallet = args['account'] is String
+        ? _wallet(args['account'] as String)
+        : (ordinary
+                  .where(
+                    (w) =>
+                        w.currency == c &&
+                        w.walletType != WalletType.creditCard,
+                  )
+                  .firstOrNull ??
+              _defaultWallet());
+    if (wallet.walletType.isManaged) {
+      throw _ToolError(
+        '${wallet.name} is a deposit, investment or asset; pay zakat from an '
+        'ordinary account.',
+      );
+    }
+    final given = _amount(args['amount']);
+    if (given == null && wallet.currency != c) {
+      throw _ToolError(
+        'amount is required, in ${wallet.currency}, to pay from '
+        '${wallet.name}.',
+      );
+    }
+    final amount = given ?? r.left;
+    if (amount <= 0) {
+      throw _ToolError(
+        r.due == 0
+            ? 'No zakat is due on the figures the app has; give an amount to '
+                  'record a payment anyway.'
+            : 'This year\'s zakat is already paid; give an amount to record '
+                  'more.',
+      );
+    }
+    final day = _date(args['date']);
+    final now = DateTime.now();
+    final when = day == null || _sameDay(day, now)
+        ? now
+        : DateTime(day.year, day.month, day.day, 12);
+    final preview = CoachActionPreview(
+      kind: CoachActionKind.payZakat,
+      title: 'Zakat',
+      amount: amount,
+      currency: wallet.currency,
+      isIncome: false,
+      date: when,
+      lines: [
+        ('account', wallet.name),
+        if (r.due > 0 && wallet.currency == c)
+          (
+            'left_after',
+            (r.left > amount ? r.left - amount : 0).formatCurrency(c),
+          ),
+      ],
+    );
+    return CoachPlan.ready(preview, () async {
+      final id = await _zakatService.pay(
+        walletId: wallet.id,
+        amount: amount,
+        date: when,
+      );
+      await _refresh();
+      final after = await _zakatReport();
+      final account = await _read(databaseProvider).findWalletById(wallet.id);
+      return jsonEncode({
+        'status': 'done',
+        'id': id,
+        'paid_this_year': after.paid / 100,
+        'left_to_pay': after.left / 100,
+        if (account != null) 'account_balance_now': account.balance / 100,
+      });
+    });
+  }
 
   Future<void> _refresh() async {
     await _read(transactionProvider.notifier).loadTransactions(silent: true);

@@ -15,6 +15,7 @@ import 'package:the_accountant/features/ai_assistant/services/ai_api.dart';
 import 'package:the_accountant/features/ai_assistant/services/coach_tool_runner.dart';
 import 'package:the_accountant/features/categories/providers/category_provider.dart';
 import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
+import 'package:the_accountant/features/zakat/domain/zakat_settings.dart';
 
 import '../helpers/test_database.dart';
 
@@ -947,6 +948,96 @@ void main() {
         })).error,
         contains('nothing to record'),
       );
+    });
+  });
+
+  group('zakat', () {
+    Future<CoachPlan> plan(String name, Map<String, dynamic> args) =>
+        runner.plan(CoachToolCall('z1', name, args));
+
+    // 0.05 a gram of silver: a nisab of 30.62 on 6,000.00 in the accounts.
+    Future<void> priced() => ZakatSettingsStore.save(
+      ZakatSettings(silverPricePerGram: 5, zakatDate: DateTime(2026, 3, 1)),
+    );
+
+    test('reads every line, the nisab and what is due', () async {
+      await priced();
+      final z = await read('zakat', {});
+      expect(z['basis'], 'silver');
+      expect(z['nisab'], 30.62);
+      expect(z['wealth'], 6000.0);
+      expect(z['meets_nisab'], isTrue);
+      expect(z['zakat_due'], 150.0);
+      expect(z['left_to_pay'], 150.0);
+      expect(z['year_started'], '2026-03-01');
+      expect(z['next_zakat_date'], isNotNull);
+      final names = [for (final l in z['lines'] as List) (l as Map)['name']];
+      expect(names, containsAll(['Bkash', 'Brac Bank']));
+      expect(z['assumptions'], isNotEmpty);
+    });
+
+    test('says when the nisab cannot be checked yet', () async {
+      final z = await read('zakat', {});
+      expect(z['nisab'], isNull);
+      expect(z['meets_nisab'], isNull);
+      expect(z['zakat_due'], 0.0);
+      expect(
+        (z['assumptions'] as List).join(' '),
+        allOf(contains('No price per gram'), contains('No zakat date')),
+      );
+    });
+
+    test('pays what is left only once confirmed', () async {
+      await priced();
+      // The seeded rows were written straight in, without moving the stored
+      // balances that a payment recalculates; settle them first.
+      await WalletBalanceService(db).recalculateAllWalletBalancesLocal();
+      final before = await read('zakat', {});
+      final due = before['zakat_due'] as double;
+      final balance = (await db.findWalletById(bkash))!.balance / 100;
+      final pay = await plan('pay_zakat', {'amount': 50});
+      expect(pay.error, isNull);
+      expect(pay.preview!.kind, CoachActionKind.payZakat);
+      expect(pay.preview!.amount, 5000);
+      expect(pay.preview!.account, isNull);
+      final lines = Map.fromEntries(
+        pay.preview!.lines.map((l) => MapEntry(l.$1, l.$2)),
+      );
+      expect(lines['account'], 'Bkash');
+      expect(lines['left_after'], isNotNull);
+      expect(
+        (await read('zakat', {}))['paid_this_year'],
+        0.0,
+        reason: 'nothing until confirmed',
+      );
+
+      final done = jsonDecode(await pay.execute!()) as Map;
+      expect(done['status'], 'done');
+      expect(done['paid_this_year'], 50.0);
+      expect(done['left_to_pay'], closeTo(due - 50, 0.001));
+      expect(done['account_balance_now'], closeTo(balance - 50, 0.001));
+      expect(
+        (await read('zakat', {}))['zakat_due'],
+        due,
+        reason: 'paying does not shrink what was due',
+      );
+
+      final rest = await plan('pay_zakat', {'account': 'Brac Bank'});
+      expect(
+        rest.preview!.amount,
+        ((due - 50) * 100).round(),
+        reason: 'defaults to what is left',
+      );
+      await rest.execute!();
+      expect((await read('zakat', {}))['left_to_pay'], 0.0);
+
+      final again = await plan('pay_zakat', {});
+      expect(again.error, contains('already paid'));
+    });
+
+    test('nothing due without an amount is refused', () async {
+      final none = await plan('pay_zakat', {});
+      expect(none.error, contains('No zakat is due'));
     });
   });
 }

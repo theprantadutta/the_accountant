@@ -4749,4 +4749,174 @@ class L10nBn extends L10n {
   String themeTrialUntil(String time) {
     return '$time পর্যন্ত প্রিমিয়াম থিম আনলক';
   }
+
+  @override
+  String get zakatTitle => 'যাকাত';
+
+  @override
+  String get zakatSubtitle =>
+      'আপনার সম্পদে কত যাকাত দিতে হবে হিসাব করুন, আর যা দিলেন তা লিখে রাখুন';
+
+  @override
+  String get zakatDue => 'দেয় যাকাত';
+
+  @override
+  String zakatAboveNisab(String amount) {
+    return 'নিসাবের ওপরে: নিট সম্পদ $amount-এর ২.৫%';
+  }
+
+  @override
+  String zakatBelowNisab(String amount) {
+    return 'নিসাবের চেয়ে $amount কম, তাই যাকাত দিতে হবে না';
+  }
+
+  @override
+  String get zakatNeedPrice => 'নিসাব যাচাই করতে প্রতি গ্রামের দাম লিখুন';
+
+  @override
+  String get zakatPaidSoFar => 'এ বছর দেওয়া হয়েছে';
+
+  @override
+  String get zakatLeftToPay => 'দিতে বাকি';
+
+  @override
+  String zakatNextDate(int days, String date) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'যাকাতের তারিখ $date, আর $days দিন পর',
+      one: 'আগামীকাল যাকাতের তারিখ, $date',
+      zero: 'আজ আপনার যাকাতের তারিখ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get zakatNoDate =>
+      'বছরের হিসাব রাখতে ও মনে করিয়ে দিতে আপনার যাকাতের তারিখ ঠিক করুন';
+
+  @override
+  String get zakatPay => 'যাকাত দিন';
+
+  @override
+  String get zakatNisab => 'নিসাব';
+
+  @override
+  String get zakatBasisGold => 'সোনা';
+
+  @override
+  String get zakatBasisSilver => 'রুপা';
+
+  @override
+  String get zakatBasisHint =>
+      'রুপার নিসাব কম, তাই সম্পদ বেশিরভাগ নগদ হলে এটিই বেশি সতর্ক পছন্দ। এক গ্রামের আজকের স্থানীয় দাম লিখুন।';
+
+  @override
+  String zakatPricePerGram(String metal) {
+    return 'প্রতি গ্রামের দাম ($metal)';
+  }
+
+  @override
+  String zakatNisabWeight(String grams) {
+    return 'ওই দামে $grams গ্রাম';
+  }
+
+  @override
+  String get zakatGroupCash => 'নগদ ও ব্যাংক';
+
+  @override
+  String get zakatGroupDeposits => 'সঞ্চয় আমানত';
+
+  @override
+  String get zakatGroupInvestments => 'বিনিয়োগ';
+
+  @override
+  String get zakatGroupMetals => 'সোনা ও রুপা';
+
+  @override
+  String get zakatGroupLent => 'অন্যকে দেওয়া ধার';
+
+  @override
+  String get zakatGroupOtherAssets => 'অন্যান্য সম্পদ';
+
+  @override
+  String get zakatGroupPaid => 'এ বছর দেওয়া যাকাত';
+
+  @override
+  String get zakatGroupManual => 'আপনার যোগ করা';
+
+  @override
+  String get zakatGroupBorrowed => 'বাদ: আপনার নেওয়া ধার';
+
+  @override
+  String get zakatGroupCards => 'বাদ: ক্রেডিট কার্ডের বকেয়া';
+
+  @override
+  String get zakatOtherAssetsNote =>
+      'নিজের ব্যবহারের জমি, বাড়ি বা গাড়িতে যাকাত নেই। ব্যবসার জন্য রাখলে তবেই চালু করুন।';
+
+  @override
+  String get zakatPaidNote =>
+      'আবার যোগ করা হয়েছে, কারণ বছরের সম্পদ হিসাবের পরে এটি আপনার অ্যাকাউন্ট থেকে গেছে।';
+
+  @override
+  String get zakatNoMetals =>
+      'কোনো সোনা বা রুপা লেখা নেই। সম্পদ হিসেবে যোগ করুন, অথবা নিচে এর মূল্য যোগ করুন।';
+
+  @override
+  String get zakatAddAmount => 'একটি পরিমাণ যোগ করুন';
+
+  @override
+  String get zakatAmountLabel => 'এটি কী?';
+
+  @override
+  String get zakatAmountHint => 'ব্যবসার মাল, ঘরে রাখা নগদ…';
+
+  @override
+  String get zakatAmountDeduct => 'এটি এখন পরিশোধযোগ্য দেনা';
+
+  @override
+  String get zakatWealth => 'যাকাতযোগ্য সম্পদ';
+
+  @override
+  String get zakatDeductions => 'এখন পরিশোধযোগ্য দেনা';
+
+  @override
+  String get zakatNet => 'নিট সম্পদ';
+
+  @override
+  String get zakatRate => 'নিট সম্পদের ২.৫%';
+
+  @override
+  String get zakatYear => 'যাকাতের বছর';
+
+  @override
+  String get zakatDate => 'যাকাতের তারিখ';
+
+  @override
+  String get zakatDateHint =>
+      'যেদিন আপনার যাকাতের বছর পূর্ণ হয়। প্রতি চান্দ্র বছরে, ৩৫৪ দিন পরপর, এটি ফিরে আসে।';
+
+  @override
+  String get zakatRemind => 'মনে করিয়ে দিন';
+
+  @override
+  String get zakatRemindHint => '৩ দিন আগে, এবং সেদিন';
+
+  @override
+  String get zakatDisclaimer =>
+      'এটি যাকাত হিসাবের একটি সহায়িকা, কোনো ধর্মীয় ফতোয়া নয়। কিছু বিষয়ে আলেমদের মতভেদ আছে; নিশ্চিত না হলে স্থানীয় একজন আলেমকে জিজ্ঞেস করুন।';
+
+  @override
+  String get zakatPayNote =>
+      'যাকাত ক্যাটাগরিতে খরচ হিসেবে লেখা হবে, আর এ বছরের হিসাবে ধরা হবে।';
+
+  @override
+  String get zakatPayRecord => 'পরিশোধ লিখুন';
+
+  @override
+  String get zakatPaidSnack => 'যাকাত লেখা হয়েছে';
+
+  @override
+  String get aiToolZakat => 'যাকাতের হিসাব হচ্ছে…';
 }

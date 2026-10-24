@@ -100,6 +100,9 @@ class BuiltInCategoryKeys {
 
   /// Insurance premiums.
   static const String insurance = 'insurance';
+
+  /// Zakat paid, which the zakat calculator counts toward the year's due.
+  static const String zakat = 'zakat';
 }
 
 class SystemCategoryKeys {
@@ -267,6 +270,17 @@ class DefaultCategoryCatalog {
       iconName: 'receipt',
       isIncome: false,
       orderIndex: 17,
+    ),
+    // What the zakat calculator records a payment under, and adds up again to
+    // say how much of the year's zakat is still to pay. Kept apart from Gifts &
+    // Donations because it is an obligation with its own yearly total.
+    DefaultCategorySpec(
+      key: 'zakat',
+      name: 'Zakat',
+      colorCode: '#2E7D32',
+      iconName: 'volunteer_activism',
+      isIncome: false,
+      orderIndex: 18,
     ),
   ];
 

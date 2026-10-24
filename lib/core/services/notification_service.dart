@@ -273,6 +273,7 @@ class NotificationService {
       'open_budget' => const DeepLink(AppDestination.budgets),
       'open_forecast' => const DeepLink(AppDestination.forecast),
       'open_transactions' => const DeepLink(AppDestination.transactions),
+      'open_zakat' => const DeepLink(AppDestination.zakat),
       _ when transactionId != null => DeepLink(
         AppDestination.transactionDetail,
         entityId: transactionId,
@@ -351,6 +352,22 @@ class NotificationService {
     await LocalNotificationLog.record(type: type, title: title, body: body);
     arrivals.value++;
   }
+
+  /// A reminder worked out on this phone, such as the zakat date's, shown on
+  /// the general channel. A tap goes where [data] says.
+  Future<void> showReminder({
+    required int id,
+    required String title,
+    required String body,
+    required Map<String, dynamic> data,
+  }) => _showLocalNotification(
+    title,
+    body,
+    id: id,
+    type: NotificationType.custom,
+    channel: NotificationChannels.general,
+    data: data,
+  );
 
   // Local storage key prefix for budget notification tracking
   static const String _keyLastBudgetNotification = 'last_budget_notification_';

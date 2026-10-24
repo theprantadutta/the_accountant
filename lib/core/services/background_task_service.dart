@@ -9,6 +9,8 @@ import 'package:the_accountant/core/domain/transaction_policy.dart';
 import 'package:the_accountant/core/constants/background_task_constants.dart';
 import 'package:the_accountant/core/services/background_notification_helper.dart';
 import 'package:the_accountant/core/services/local_store_manager.dart';
+import 'package:the_accountant/core/services/notification_service.dart'
+    show NotificationChannels;
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
 import 'package:the_accountant/core/services/wallet_balance_service.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
@@ -17,13 +19,12 @@ import 'package:the_accountant/data/models/transaction.dart'
 import 'package:the_accountant/features/backup/services/drive_backup_service.dart';
 import 'package:the_accountant/features/backup/services/drive_client.dart';
 import 'package:the_accountant/features/backup/services/google_drive_authorization.dart';
-import 'package:the_accountant/core/services/notification_service.dart'
-    show NotificationChannels;
 import 'package:the_accountant/features/forecast/services/shortfall_alerts.dart';
 import 'package:the_accountant/features/notifications/models/notification_item.dart'
     show NotificationType;
 import 'package:the_accountant/features/plans/services/plan_service.dart';
 import 'package:the_accountant/features/recurring/services/recurring_service.dart';
+import 'package:the_accountant/features/zakat/services/zakat_reminder.dart';
 
 /// Core background processing service.
 /// All methods are static and self-contained — they construct their own
@@ -117,6 +118,21 @@ class BackgroundTaskService {
         debugPrint('BackgroundTaskService: shortfall check failed: $e');
       }
 
+      // The zakat date, a few days ahead and on the day. Shown once each,
+      // whether this check or the app being opened gets there first.
+      final zakat = await ZakatReminders.take(prefs: prefs);
+      if (zakat != null) {
+        await notifier.showNotification(
+          id: ZakatReminders.notificationId,
+          title: zakat.title,
+          body: zakat.body,
+          channelId: NotificationChannels.general.id,
+          channelName: NotificationChannels.general.name,
+          channelDesc: NotificationChannels.general.description ?? '',
+          data: ZakatReminder.payload,
+          type: NotificationType.custom,
+        );
+      }
       final awaiting = await db.getPaymentsAwaitingConfirmation();
       // A schedule that asks first writes its payment as pending. That is a
       // question for the user, not a report, so it is told apart from the

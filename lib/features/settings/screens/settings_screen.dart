@@ -3,6 +3,7 @@ import 'package:the_accountant/features/forecast/screens/cash_flow_forecast_scre
 import 'package:the_accountant/features/investments/screens/investments_screen.dart';
 import 'package:the_accountant/features/networth/screens/net_worth_screen.dart';
 import 'package:the_accountant/features/plans/screens/plans_screen.dart';
+import 'package:the_accountant/features/zakat/screens/zakat_screen.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -422,6 +423,19 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           title: l10n.todayNetWorth,
           subtitle: l10n.netWorthSubtitle,
           onTap: () => _push(const NetWorthScreen()),
+        ),
+      ),
+      _Entry(
+        title: l10n.zakatTitle,
+        keywords: const ['zakat', 'nisab', 'charity', 'gold', 'silver'],
+        row: SettingsRow(
+          key: const Key('more_zakat'),
+          icon: Symbols.volunteer_activism_rounded,
+          iconColor: const Color(0xFF2E7D32),
+          iconBackground: c.tintGreen,
+          title: l10n.zakatTitle,
+          subtitle: l10n.zakatSubtitle,
+          onTap: () => _push(const ZakatScreen()),
         ),
       ),
       _Entry(

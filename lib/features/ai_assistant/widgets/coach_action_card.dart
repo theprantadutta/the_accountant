@@ -26,6 +26,7 @@ class CoachToolStatus extends StatelessWidget {
       'list_categories' => (Symbols.category_rounded, l10n.aiToolCategories),
       'card_bills' => (Symbols.credit_card_rounded, l10n.aiToolCards),
       'list_plans' => (Symbols.event_repeat_rounded, l10n.aiToolPlans),
+      'zakat' => (Symbols.volunteer_activism_rounded, l10n.aiToolZakat),
       _ => (Symbols.edit_note_rounded, l10n.aiToolSaving),
     };
 
@@ -94,6 +95,7 @@ class CoachActionCard extends StatelessWidget {
       CoachActionKind.updateAsset => l10n.aiActionUpdateAssetTitle,
       CoachActionKind.sellAsset => l10n.aiActionSellAssetTitle,
       CoachActionKind.splitExpense => l10n.splitTitle,
+      CoachActionKind.payZakat => l10n.zakatPay,
     };
     final showsChanges =
         action.kind == CoachActionKind.update ||
@@ -246,7 +248,8 @@ class CoachActionCard extends StatelessWidget {
               label: switch (action.kind) {
                 CoachActionKind.add => l10n.aiActionAdd,
                 CoachActionKind.payCard ||
-                CoachActionKind.payPlan => l10n.aiActionPay,
+                CoachActionKind.payPlan ||
+                CoachActionKind.payZakat => l10n.aiActionPay,
                 CoachActionKind.createPlan => l10n.planStart,
                 CoachActionKind.createInvestment => l10n.investmentSave,
                 CoachActionKind.tradeInvestment => l10n.aiActionConfirm,

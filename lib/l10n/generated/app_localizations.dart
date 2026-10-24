@@ -8535,6 +8535,294 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'Premium themes unlocked until {time}'**
   String themeTrialUntil(String time);
+
+  /// No description provided for @zakatTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Zakat'**
+  String get zakatTitle;
+
+  /// No description provided for @zakatSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Work out what is due on your wealth, and record what you pay'**
+  String get zakatSubtitle;
+
+  /// No description provided for @zakatDue.
+  ///
+  /// In en, this message translates to:
+  /// **'Zakat due'**
+  String get zakatDue;
+
+  /// No description provided for @zakatAboveNisab.
+  ///
+  /// In en, this message translates to:
+  /// **'Above the nisab: 2.5% of {amount} net wealth'**
+  String zakatAboveNisab(String amount);
+
+  /// No description provided for @zakatBelowNisab.
+  ///
+  /// In en, this message translates to:
+  /// **'Below the nisab by {amount}, so no zakat is due'**
+  String zakatBelowNisab(String amount);
+
+  /// No description provided for @zakatNeedPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the price per gram to check the nisab'**
+  String get zakatNeedPrice;
+
+  /// No description provided for @zakatPaidSoFar.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid this year'**
+  String get zakatPaidSoFar;
+
+  /// No description provided for @zakatLeftToPay.
+  ///
+  /// In en, this message translates to:
+  /// **'Left to pay'**
+  String get zakatLeftToPay;
+
+  /// No description provided for @zakatNextDate.
+  ///
+  /// In en, this message translates to:
+  /// **'{days, plural, =0{Your zakat date is today} =1{Zakat date tomorrow, {date}} other{Zakat date {date}, in {days} days}}'**
+  String zakatNextDate(int days, String date);
+
+  /// No description provided for @zakatNoDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Set your zakat date to track the year and get a reminder'**
+  String get zakatNoDate;
+
+  /// No description provided for @zakatPay.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay zakat'**
+  String get zakatPay;
+
+  /// No description provided for @zakatNisab.
+  ///
+  /// In en, this message translates to:
+  /// **'Nisab'**
+  String get zakatNisab;
+
+  /// No description provided for @zakatBasisGold.
+  ///
+  /// In en, this message translates to:
+  /// **'Gold'**
+  String get zakatBasisGold;
+
+  /// No description provided for @zakatBasisSilver.
+  ///
+  /// In en, this message translates to:
+  /// **'Silver'**
+  String get zakatBasisSilver;
+
+  /// No description provided for @zakatBasisHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Silver gives the lower nisab and is the more cautious choice when your wealth is mostly cash. Enter today\'s local price for one gram.'**
+  String get zakatBasisHint;
+
+  /// No description provided for @zakatPricePerGram.
+  ///
+  /// In en, this message translates to:
+  /// **'Price per gram ({metal})'**
+  String zakatPricePerGram(String metal);
+
+  /// No description provided for @zakatNisabWeight.
+  ///
+  /// In en, this message translates to:
+  /// **'{grams} g at that price'**
+  String zakatNisabWeight(String grams);
+
+  /// No description provided for @zakatGroupCash.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash and bank'**
+  String get zakatGroupCash;
+
+  /// No description provided for @zakatGroupDeposits.
+  ///
+  /// In en, this message translates to:
+  /// **'Savings deposits'**
+  String get zakatGroupDeposits;
+
+  /// No description provided for @zakatGroupInvestments.
+  ///
+  /// In en, this message translates to:
+  /// **'Investments'**
+  String get zakatGroupInvestments;
+
+  /// No description provided for @zakatGroupMetals.
+  ///
+  /// In en, this message translates to:
+  /// **'Gold and silver'**
+  String get zakatGroupMetals;
+
+  /// No description provided for @zakatGroupLent.
+  ///
+  /// In en, this message translates to:
+  /// **'Money lent to others'**
+  String get zakatGroupLent;
+
+  /// No description provided for @zakatGroupOtherAssets.
+  ///
+  /// In en, this message translates to:
+  /// **'Other assets'**
+  String get zakatGroupOtherAssets;
+
+  /// No description provided for @zakatGroupPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Zakat paid this year'**
+  String get zakatGroupPaid;
+
+  /// No description provided for @zakatGroupManual.
+  ///
+  /// In en, this message translates to:
+  /// **'Added by you'**
+  String get zakatGroupManual;
+
+  /// No description provided for @zakatGroupBorrowed.
+  ///
+  /// In en, this message translates to:
+  /// **'Less: money you owe'**
+  String get zakatGroupBorrowed;
+
+  /// No description provided for @zakatGroupCards.
+  ///
+  /// In en, this message translates to:
+  /// **'Less: credit card dues'**
+  String get zakatGroupCards;
+
+  /// No description provided for @zakatOtherAssetsNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Land, a home or a car you use is not zakatable. Switch one on only if you hold it for trade.'**
+  String get zakatOtherAssetsNote;
+
+  /// No description provided for @zakatPaidNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Added back, because it left your accounts after the year\'s wealth was counted.'**
+  String get zakatPaidNote;
+
+  /// No description provided for @zakatNoMetals.
+  ///
+  /// In en, this message translates to:
+  /// **'No gold or silver is recorded. Add it as an asset, or add its value below.'**
+  String get zakatNoMetals;
+
+  /// No description provided for @zakatAddAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Add an amount'**
+  String get zakatAddAmount;
+
+  /// No description provided for @zakatAmountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'What is it?'**
+  String get zakatAmountLabel;
+
+  /// No description provided for @zakatAmountHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Business stock, cash at home…'**
+  String get zakatAmountHint;
+
+  /// No description provided for @zakatAmountDeduct.
+  ///
+  /// In en, this message translates to:
+  /// **'It is a debt due now'**
+  String get zakatAmountDeduct;
+
+  /// No description provided for @zakatWealth.
+  ///
+  /// In en, this message translates to:
+  /// **'Zakatable wealth'**
+  String get zakatWealth;
+
+  /// No description provided for @zakatDeductions.
+  ///
+  /// In en, this message translates to:
+  /// **'Debts due now'**
+  String get zakatDeductions;
+
+  /// No description provided for @zakatNet.
+  ///
+  /// In en, this message translates to:
+  /// **'Net wealth'**
+  String get zakatNet;
+
+  /// No description provided for @zakatRate.
+  ///
+  /// In en, this message translates to:
+  /// **'2.5% of net wealth'**
+  String get zakatRate;
+
+  /// No description provided for @zakatYear.
+  ///
+  /// In en, this message translates to:
+  /// **'Zakat year'**
+  String get zakatYear;
+
+  /// No description provided for @zakatDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Zakat date'**
+  String get zakatDate;
+
+  /// No description provided for @zakatDateHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The day your zakat year completes. It comes round every lunar year, 354 days.'**
+  String get zakatDateHint;
+
+  /// No description provided for @zakatRemind.
+  ///
+  /// In en, this message translates to:
+  /// **'Remind me'**
+  String get zakatRemind;
+
+  /// No description provided for @zakatRemindHint.
+  ///
+  /// In en, this message translates to:
+  /// **'3 days before, and on the day'**
+  String get zakatRemindHint;
+
+  /// No description provided for @zakatDisclaimer.
+  ///
+  /// In en, this message translates to:
+  /// **'This is a guide to help you work zakat out, not a religious ruling. Scholars differ on some details; when unsure, ask a local scholar.'**
+  String get zakatDisclaimer;
+
+  /// No description provided for @zakatPayNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Recorded as an expense under Zakat, and counted toward this year.'**
+  String get zakatPayNote;
+
+  /// No description provided for @zakatPayRecord.
+  ///
+  /// In en, this message translates to:
+  /// **'Record payment'**
+  String get zakatPayRecord;
+
+  /// No description provided for @zakatPaidSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Zakat recorded'**
+  String get zakatPaidSnack;
+
+  /// No description provided for @aiToolZakat.
+  ///
+  /// In en, this message translates to:
+  /// **'Working out zakat…'**
+  String get aiToolZakat;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {
