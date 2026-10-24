@@ -1,5 +1,6 @@
 import 'package:the_accountant/features/cards/screens/card_bills_screen.dart';
 import 'package:the_accountant/features/investments/screens/investments_screen.dart';
+import 'package:the_accountant/features/networth/screens/net_worth_screen.dart';
 import 'package:the_accountant/features/plans/screens/plans_screen.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
@@ -375,6 +376,30 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           title: l10n.investmentsTitle,
           subtitle: l10n.investmentsSubtitle,
           onTap: () => _push(const InvestmentsScreen()),
+        ),
+      ),
+      _Entry(
+        title: l10n.todayNetWorth,
+        keywords: const [
+          'net worth',
+          'wealth',
+          'asset',
+          'land',
+          'property',
+          'flat',
+          'house',
+          'car',
+          'gold',
+          'jewellery',
+        ],
+        row: SettingsRow(
+          key: const Key('more_net_worth'),
+          icon: Symbols.account_balance_rounded,
+          iconColor: const Color(0xFF65A30D),
+          iconBackground: c.tintGreen,
+          title: l10n.todayNetWorth,
+          subtitle: l10n.netWorthSubtitle,
+          onTap: () => _push(const NetWorthScreen()),
         ),
       ),
       _Entry(

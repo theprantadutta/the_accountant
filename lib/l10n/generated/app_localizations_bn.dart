@@ -3489,6 +3489,170 @@ class L10nBn extends L10n {
   String get investmentGone => 'এই বিনিয়োগটি মুছে ফেলা হয়েছে।';
 
   @override
+  String get netWorthSubtitle =>
+      'আপনার সব সম্পদ, দেনা বাদে, আর সময়ের সাথে তার ওঠানামা';
+
+  @override
+  String get netWorthToday => 'আপনার মোট সম্পদ';
+
+  @override
+  String netWorthSinceLastMonth(String amount) {
+    return 'গত মাস থেকে $amount';
+  }
+
+  @override
+  String get netWorthBreakdown => 'যা দিয়ে গঠিত';
+
+  @override
+  String get netWorthCash => 'নগদ ও ব্যাংক';
+
+  @override
+  String get netWorthCards => 'ক্রেডিট কার্ড';
+
+  @override
+  String get netWorthDeposits => 'সঞ্চয় আমানত';
+
+  @override
+  String get netWorthAssets => 'সম্পত্তি';
+
+  @override
+  String get netWorthLent => 'অন্যকে ধার দেওয়া';
+
+  @override
+  String get netWorthBorrowed => 'ধার নেওয়া';
+
+  @override
+  String get netWorthLoansNote =>
+      'ধার দেওয়া টাকা ফেরত না আসা পর্যন্ত আপনারই ধরা হয়, আর ধার নেওয়া টাকা শোধ না করা পর্যন্ত আপনার দেনা হিসেবে বাদ যায়।';
+
+  @override
+  String get netWorthCardsLeftOut =>
+      'ক্রেডিট কার্ড ধরা হয়নি; সেটিংসে এটি বদলাতে পারেন।';
+
+  @override
+  String get netWorthHistory => 'প্রতি মাসের শেষে';
+
+  @override
+  String get netWorthSixMonths => '৬ মাস';
+
+  @override
+  String get netWorthOneYear => '১ বছর';
+
+  @override
+  String get netWorthAllTime => 'সব';
+
+  @override
+  String get netWorthHistoryEmpty =>
+      'আপনার হিসাবসহ একটি মাস শেষ হলে এখানে রেখা দেখা যাবে।';
+
+  @override
+  String get assetNew => 'সম্পত্তি যোগ করুন';
+
+  @override
+  String get assetNewHint =>
+      'জমি, ফ্ল্যাট বা বাড়ি, গাড়ি, সোনা বা আপনার মালিকানার অন্য কিছু। এর মূল্য আপনার নেট সম্পদে ধরা হয়।';
+
+  @override
+  String get assetKind => 'ধরন';
+
+  @override
+  String get assetKindLand => 'জমি';
+
+  @override
+  String get assetKindHome => 'ফ্ল্যাট বা বাড়ি';
+
+  @override
+  String get assetKindCar => 'গাড়ি';
+
+  @override
+  String get assetKindGold => 'সোনা ও গয়না';
+
+  @override
+  String get assetKindOther => 'অন্য কিছু';
+
+  @override
+  String get assetNameHintLand => 'যেমন সাভারের প্লট';
+
+  @override
+  String get assetNameHintHome => 'যেমন মিরপুরের ফ্ল্যাট';
+
+  @override
+  String get assetNameHintCar => 'যেমন টয়োটা এক্সিও';
+
+  @override
+  String get assetNameHintGold => 'যেমন বিয়ের গয়না';
+
+  @override
+  String get assetNameHintOther => 'যেমন ক্যামেরা';
+
+  @override
+  String get assetWorthNow => 'এখনকার মূল্য';
+
+  @override
+  String get assetBoughtNow => 'একটি অ্যাকাউন্ট থেকে কেনা';
+
+  @override
+  String get assetBoughtNowHint =>
+      'বন্ধ থাকলে: এটি আগে থেকেই আপনার, কোনো টাকা সরবে না।';
+
+  @override
+  String get assetSave => 'সম্পত্তি যোগ করুন';
+
+  @override
+  String get assetAdded => 'সম্পত্তি যোগ হয়েছে';
+
+  @override
+  String get assetsEmptyTitle => 'এখনো কোনো সম্পত্তি নেই';
+
+  @override
+  String get assetsEmptyBody =>
+      'আপনার পুরো সম্পদ দেখতে জমি, বাড়ি, গাড়ি বা সোনা যোগ করুন।';
+
+  @override
+  String get assetsSold => 'বিক্রি হয়েছে';
+
+  @override
+  String assetCostLine(String amount) {
+    return 'খরচ $amount';
+  }
+
+  @override
+  String get assetUpdateValue => 'মূল্য হালনাগাদ করুন';
+
+  @override
+  String get assetSell => 'বিক্রি করুন';
+
+  @override
+  String get assetDelete => 'সরিয়ে দিন';
+
+  @override
+  String get assetValueUpdated => 'মূল্য হালনাগাদ হয়েছে';
+
+  @override
+  String get assetSold => 'বিক্রি হয়েছে, টাকা হিসাবে উঠেছে';
+
+  @override
+  String assetDeleteTitle(String name) {
+    return '$name সরিয়ে দেবেন?';
+  }
+
+  @override
+  String get assetDeleteBody =>
+      'এটি আর ধরা হবে না। এর ইতিহাস আপনার হিসাবে থেকে যাবে।';
+
+  @override
+  String get assetDeleted => 'সম্পত্তি সরানো হয়েছে';
+
+  @override
+  String get aiActionCreateAssetTitle => 'সম্পত্তি যোগ';
+
+  @override
+  String get aiActionUpdateAssetTitle => 'সম্পত্তির মূল্য হালনাগাদ';
+
+  @override
+  String get aiActionSellAssetTitle => 'সম্পত্তি বিক্রি';
+
+  @override
   String get investmentWorthNow => 'এখনকার মূল্য';
 
   @override

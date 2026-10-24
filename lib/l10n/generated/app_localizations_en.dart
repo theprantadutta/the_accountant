@@ -3529,6 +3529,170 @@ class L10nEn extends L10n {
   String get investmentGone => 'This investment was deleted.';
 
   @override
+  String get netWorthSubtitle =>
+      'Everything you own, less what you owe, and how it has moved';
+
+  @override
+  String get netWorthToday => 'You are worth';
+
+  @override
+  String netWorthSinceLastMonth(String amount) {
+    return '$amount since last month';
+  }
+
+  @override
+  String get netWorthBreakdown => 'What it is made of';
+
+  @override
+  String get netWorthCash => 'Cash & bank';
+
+  @override
+  String get netWorthCards => 'Credit cards';
+
+  @override
+  String get netWorthDeposits => 'Savings deposits';
+
+  @override
+  String get netWorthAssets => 'Assets';
+
+  @override
+  String get netWorthLent => 'Lent to others';
+
+  @override
+  String get netWorthBorrowed => 'Borrowed';
+
+  @override
+  String get netWorthLoansNote =>
+      'Money you lent counts as yours until it is paid back, and money you borrowed counts against you until you repay it.';
+
+  @override
+  String get netWorthCardsLeftOut =>
+      'Credit cards are not counted; you can change that in Settings.';
+
+  @override
+  String get netWorthHistory => 'At each month end';
+
+  @override
+  String get netWorthSixMonths => '6 months';
+
+  @override
+  String get netWorthOneYear => '1 year';
+
+  @override
+  String get netWorthAllTime => 'All';
+
+  @override
+  String get netWorthHistoryEmpty =>
+      'The line starts once a month has ended with your records in it.';
+
+  @override
+  String get assetNew => 'Add asset';
+
+  @override
+  String get assetNewHint =>
+      'Land, a flat or house, a car, gold or anything else you own. Its value counts toward your net worth.';
+
+  @override
+  String get assetKind => 'What it is';
+
+  @override
+  String get assetKindLand => 'Land';
+
+  @override
+  String get assetKindHome => 'Flat or house';
+
+  @override
+  String get assetKindCar => 'Vehicle';
+
+  @override
+  String get assetKindGold => 'Gold & jewellery';
+
+  @override
+  String get assetKindOther => 'Something else';
+
+  @override
+  String get assetNameHintLand => 'e.g. Plot in Savar';
+
+  @override
+  String get assetNameHintHome => 'e.g. Flat in Mirpur';
+
+  @override
+  String get assetNameHintCar => 'e.g. Toyota Axio';
+
+  @override
+  String get assetNameHintGold => 'e.g. Wedding jewellery';
+
+  @override
+  String get assetNameHintOther => 'e.g. Camera';
+
+  @override
+  String get assetWorthNow => 'Worth now';
+
+  @override
+  String get assetBoughtNow => 'Paid for it from an account';
+
+  @override
+  String get assetBoughtNowHint =>
+      'Off: you already own it, and no money moves.';
+
+  @override
+  String get assetSave => 'Add asset';
+
+  @override
+  String get assetAdded => 'Asset added';
+
+  @override
+  String get assetsEmptyTitle => 'No assets yet';
+
+  @override
+  String get assetsEmptyBody =>
+      'Add land, a home, a car or gold to see everything you are worth.';
+
+  @override
+  String get assetsSold => 'Sold';
+
+  @override
+  String assetCostLine(String amount) {
+    return 'Cost $amount';
+  }
+
+  @override
+  String get assetUpdateValue => 'Update value';
+
+  @override
+  String get assetSell => 'Sell';
+
+  @override
+  String get assetDelete => 'Remove';
+
+  @override
+  String get assetValueUpdated => 'Value updated';
+
+  @override
+  String get assetSold => 'Sold, and the money recorded';
+
+  @override
+  String assetDeleteTitle(String name) {
+    return 'Remove $name?';
+  }
+
+  @override
+  String get assetDeleteBody =>
+      'It is no longer counted. Its history stays with your records.';
+
+  @override
+  String get assetDeleted => 'Asset removed';
+
+  @override
+  String get aiActionCreateAssetTitle => 'Add an asset';
+
+  @override
+  String get aiActionUpdateAssetTitle => 'Update an asset\'s value';
+
+  @override
+  String get aiActionSellAssetTitle => 'Sell an asset';
+
+  @override
   String get investmentWorthNow => 'Worth now';
 
   @override
