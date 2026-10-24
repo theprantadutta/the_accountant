@@ -17,6 +17,11 @@ import 'package:the_accountant/data/models/transaction.dart'
 import 'package:the_accountant/features/backup/services/drive_backup_service.dart';
 import 'package:the_accountant/features/backup/services/drive_client.dart';
 import 'package:the_accountant/features/backup/services/google_drive_authorization.dart';
+import 'package:the_accountant/core/services/notification_service.dart'
+    show NotificationChannels;
+import 'package:the_accountant/features/forecast/services/shortfall_alerts.dart';
+import 'package:the_accountant/features/notifications/models/notification_item.dart'
+    show NotificationType;
 import 'package:the_accountant/features/plans/services/plan_service.dart';
 import 'package:the_accountant/features/recurring/services/recurring_service.dart';
 
@@ -90,6 +95,28 @@ class BackgroundTaskService {
           channelDesc: BackgroundTaskConstants.recurringChannelDesc,
         );
       }
+      // With everything due now recorded, look a week ahead for a day the
+      // scheduled payments would take spendable money below zero.
+      try {
+        await ShortfallAlerts.check(
+          db: db,
+          prefs: prefs,
+          show: ({required id, required title, required body}) =>
+              notifier.showNotification(
+                id: id,
+                title: title,
+                body: body,
+                channelId: NotificationChannels.general.id,
+                channelName: NotificationChannels.general.name,
+                channelDesc: NotificationChannels.general.description ?? '',
+                data: const {'action': 'open_forecast'},
+                type: NotificationType.custom,
+              ),
+        );
+      } catch (e) {
+        debugPrint('BackgroundTaskService: shortfall check failed: $e');
+      }
+
       final awaiting = await db.getPaymentsAwaitingConfirmation();
       // A schedule that asks first writes its payment as pending. That is a
       // question for the user, not a report, so it is told apart from the

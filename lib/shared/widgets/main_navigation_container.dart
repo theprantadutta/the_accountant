@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:the_accountant/features/authentication/presentation/widgets/auth_wrapper.dart';
 import 'package:the_accountant/features/cards/screens/card_bills_screen.dart';
+import 'package:the_accountant/features/forecast/screens/cash_flow_forecast_screen.dart';
 import 'package:the_accountant/features/plans/screens/plan_detail_screen.dart';
 import 'package:the_accountant/features/plans/screens/plans_screen.dart';
 import 'package:the_accountant/features/notifications/screens/notification_inbox_screen.dart';
@@ -139,6 +140,7 @@ class _MainNavigationContainerState
             ? const PlansScreen()
             : PlanDetailScreen(planId: link.entityId!),
       AppDestination.cardBills => CardBillsScreen(focusWalletId: link.entityId),
+      AppDestination.forecast => const CashFlowForecastScreen(),
       _ => null,
     };
     if (screen == null) return;

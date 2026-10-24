@@ -21,6 +21,9 @@ enum AppDestination {
   /// EMIs, loans, DPS and FDR; [DeepLink.entityId] opens one plan.
   plans,
 
+  /// Where spendable money is headed, for a shortfall warning.
+  forecast,
+
   /// Needs [DeepLink.entityId].
   transactionDetail,
 }

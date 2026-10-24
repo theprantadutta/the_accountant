@@ -13,6 +13,8 @@ import 'package:the_accountant/features/categories/providers/category_provider.d
 import 'package:the_accountant/data/models/plan.dart';
 import 'package:the_accountant/data/models/investment.dart';
 import 'package:the_accountant/features/cards/domain/card_statement.dart';
+import 'package:the_accountant/features/forecast/providers/forecast_provider.dart';
+import 'package:the_accountant/features/forecast/services/cash_flow_forecast_service.dart';
 import 'package:the_accountant/features/investments/providers/investments_provider.dart';
 import 'package:the_accountant/features/investments/services/investment_service.dart';
 import 'package:the_accountant/features/plans/domain/plan_terms.dart';
@@ -161,6 +163,7 @@ class CoachToolRunner {
         'card_bills' => await _cardBills(call.args),
         'list_plans' => await _plans(call.args),
         'list_investments' => await _investmentsList(),
+        'cash_flow_forecast' => await _cashFlowForecast(call.args),
         _ => _error('There is no tool called ${call.name}.'),
       };
     } on _ToolError catch (e) {
@@ -1470,6 +1473,73 @@ class CoachToolRunner {
       });
     });
   }
+
+  // ---- forecast ----
+
+  /// Events listed in a forecast answer. A 90-day forecast with daily
+  /// schedules can run to hundreds; the totals cover them all either way.
+  static const _maxForecastEvents = 40;
+
+  Future<String> _cashFlowForecast(Map<String, dynamic> args) async {
+    final days =
+        switch (args['days']) {
+          num n => n.toInt(),
+          String s => int.tryParse(s.trim()),
+          _ => null,
+        } ??
+        CashFlowForecastService.ranges.first;
+    if (!CashFlowForecastService.ranges.contains(days)) {
+      throw _ToolError('days must be 30, 60 or 90.');
+    }
+    final f = await _read(cashFlowForecastServiceProvider).forecast(days: days);
+    final shortfall = f.shortfall;
+    final lowest = f.lowest;
+    return jsonEncode({
+      'currency': f.currency,
+      'from': _date8(f.start),
+      'to': _date8(f.end),
+      'starting_balance': f.startingBalance / 100,
+      'ending_balance': f.endingBalance / 100,
+      'lowest': {'amount': lowest.balance / 100, 'date': _date8(lowest.date)},
+      'shortfall': shortfall == null
+          ? null
+          : {
+              'date': _date8(shortfall.date),
+              'short_by': f.shortfallAmount / 100,
+              'going_out_that_day': [
+                for (final e in f.shortfallEvents) _forecastEventJson(e),
+              ],
+            },
+      'money_in': f.moneyIn / 100,
+      'money_out': f.moneyOut / 100,
+      'counts':
+          'cash and bank accounts; scheduled items only, not everyday '
+          'spending',
+      if (f.unconverted > 0) 'left_out_for_no_exchange_rate': f.unconverted,
+      'events_total': f.events.length,
+      'events': [
+        for (final e in f.events.take(_maxForecastEvents))
+          _forecastEventJson(e),
+      ],
+    });
+  }
+
+  static Map<String, Object?> _forecastEventJson(ForecastEvent e) => {
+    'date': _date8(e.date),
+    'title': e.title,
+    'amount': e.amount / 100,
+    'direction': e.isIncome ? 'in' : 'out',
+    'source': switch (e.source) {
+      ForecastSource.plan => 'plan',
+      ForecastSource.cardBill => 'card_bill',
+      ForecastSource.recurring => 'recurring',
+      ForecastSource.upcoming => 'upcoming',
+      ForecastSource.loan => 'loan',
+    },
+    'kind': e.kind.name,
+    if (e.expected) 'expected': true,
+    if (e.overdue) 'overdue': true,
+  };
 
   Future<void> _refresh() async {
     await _read(transactionProvider.notifier).loadTransactions(silent: true);

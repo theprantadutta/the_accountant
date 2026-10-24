@@ -43,12 +43,13 @@ class LocaleNotifier extends StateNotifier<Locale?> {
     _restore();
   }
 
-  static const String _storageKey = 'selected_locale';
+  /// Also read by work done with the app closed, to speak the same language.
+  static const String storageKey = 'selected_locale';
 
   Future<void> _restore() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final saved = prefs.getString(_storageKey);
+      final saved = prefs.getString(storageKey);
       if (saved == null || saved.isEmpty) return;
       // A language this build no longer ships would leave the app showing
       // nothing but resource keys, so an unknown code falls back to the phone.
@@ -65,9 +66,9 @@ class LocaleNotifier extends StateNotifier<Locale?> {
     try {
       final prefs = await SharedPreferences.getInstance();
       if (locale == null) {
-        await prefs.remove(_storageKey);
+        await prefs.remove(storageKey);
       } else {
-        await prefs.setString(_storageKey, locale.languageCode);
+        await prefs.setString(storageKey, locale.languageCode);
       }
     } catch (_) {
       // Losing the preference is not worth interrupting the user for.

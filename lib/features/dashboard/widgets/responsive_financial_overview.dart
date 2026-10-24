@@ -20,6 +20,8 @@ import 'package:the_accountant/features/dashboard/providers/balance_visibility_p
 import 'package:the_accountant/features/dashboard/providers/financial_data_provider.dart';
 import 'package:the_accountant/features/dashboard/providers/home_layout_provider.dart';
 import 'package:the_accountant/features/dashboard/widgets/pinned_goals_section.dart';
+import 'package:the_accountant/features/forecast/providers/forecast_provider.dart';
+import 'package:the_accountant/features/forecast/widgets/shortfall_home_banner.dart';
 import 'package:the_accountant/features/notifications/providers/notification_history_provider.dart';
 import 'package:the_accountant/features/notifications/screens/notification_inbox_screen.dart';
 import 'package:the_accountant/features/reports/providers/reports_provider.dart';
@@ -109,6 +111,10 @@ class _ResponsiveFinancialOverviewState
         bellKey: widget.notificationKey,
         onBell: () => _push(const NotificationInboxScreen()),
       ),
+      // Only when a shortfall is close, so it is never a block of its own to
+      // arrange: most days there is nothing to say.
+      if (ref.watch(homeShortfallProvider) case final forecast?)
+        ShortfallHomeBanner(forecast: forecast),
       for (final s in sections)
         if (s != HomeSection.greeting) ?_section(s, income, expenses, recent),
     ];

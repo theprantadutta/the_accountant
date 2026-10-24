@@ -3441,6 +3441,147 @@ class L10nEn extends L10n {
       'Mutual funds, shares and SIPs, valued at their latest price';
 
   @override
+  String get forecastTitle => 'Cash flow forecast';
+
+  @override
+  String get forecastSubtitle =>
+      'Where your cash and bank money is headed, and any day it runs short';
+
+  @override
+  String forecastRangeDays(int days) {
+    return '$days days';
+  }
+
+  @override
+  String get forecastNow => 'Cash and bank now';
+
+  @override
+  String get forecastMoneyIn => 'Coming in';
+
+  @override
+  String get forecastMoneyOut => 'Going out';
+
+  @override
+  String get forecastLowest => 'Lowest';
+
+  @override
+  String forecastLowestOn(String date) {
+    return 'on $date';
+  }
+
+  @override
+  String get forecastChartTitle => 'Projected balance';
+
+  @override
+  String forecastShortfallTitle(String date, String amount) {
+    return 'On $date you would be $amount short';
+  }
+
+  @override
+  String get forecastShortfallCause => 'Going out that day:';
+
+  @override
+  String get forecastAlreadyShort =>
+      'Your cash and bank accounts are already below zero.';
+
+  @override
+  String forecastAllCoveredTitle(int days) {
+    return 'No shortfall in the next $days days';
+  }
+
+  @override
+  String get forecastAllCoveredBody =>
+      'What is scheduled is covered by your cash and bank money.';
+
+  @override
+  String get forecastScheduledOnly =>
+      'Counts only what is scheduled: plans, card bills, subscriptions, repeating and upcoming payments, and loans with a due date. Everyday spending is not included.';
+
+  @override
+  String get forecastEventsTitle => 'Coming up';
+
+  @override
+  String forecastDayBalance(String amount) {
+    return 'Balance $amount';
+  }
+
+  @override
+  String get forecastEmptyTitle => 'Nothing scheduled';
+
+  @override
+  String get forecastEmptyBody =>
+      'Plans, card bills, subscriptions and upcoming payments in this period show here.';
+
+  @override
+  String get forecastOverdue => 'Overdue';
+
+  @override
+  String get forecastExpected => 'Expected';
+
+  @override
+  String get forecastKindInstallment => 'Installment';
+
+  @override
+  String get forecastKindPremium => 'Premium';
+
+  @override
+  String get forecastKindDeposit => 'Deposit';
+
+  @override
+  String get forecastKindSipBuy => 'SIP purchase';
+
+  @override
+  String get forecastKindProfit => 'Profit';
+
+  @override
+  String get forecastKindMaturity => 'Maturity';
+
+  @override
+  String get forecastKindCardBill => 'Card bill';
+
+  @override
+  String get forecastKindCardBillNext => 'Next card bill, so far';
+
+  @override
+  String get forecastKindSubscription => 'Subscription';
+
+  @override
+  String get forecastKindRecurringBill => 'Repeating payment';
+
+  @override
+  String get forecastKindRecurringIncome => 'Repeating income';
+
+  @override
+  String get forecastKindUpcoming => 'Upcoming';
+
+  @override
+  String get forecastKindBorrowed => 'Loan to repay';
+
+  @override
+  String get forecastKindLent => 'Lent, due back';
+
+  @override
+  String forecastHomeWarning(String date, String amount) {
+    return 'You may be $amount short on $date';
+  }
+
+  @override
+  String get forecastHomeWarningBody => 'See what is coming up';
+
+  @override
+  String get forecastDismiss => 'Dismiss';
+
+  @override
+  String forecastNotifTitle(String day) {
+    return 'You may run short on $day';
+  }
+
+  @override
+  String forecastNotifBody(String amount) {
+    return 'Scheduled payments would leave you $amount short. Tap to see what is coming up.';
+  }
+
+  @override
   String get investmentsEmptyTitle => 'No investments yet';
 
   @override
