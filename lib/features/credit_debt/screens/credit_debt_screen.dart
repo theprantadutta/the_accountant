@@ -15,6 +15,7 @@ import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/data/models/transaction.dart'
     show TransactionSpecialType;
 import 'package:the_accountant/features/credit_debt/providers/credit_debt_provider.dart';
+import 'package:the_accountant/features/split/screens/split_bill_screen.dart';
 import 'package:the_accountant/shared/widgets/shimmer_loading.dart';
 import 'package:the_accountant/features/settings/providers/settings_provider.dart';
 import 'package:the_accountant/shared/widgets/glass_card.dart';
@@ -64,6 +65,19 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
             onPressed: () => Navigator.pop(context),
           ),
           actions: [
+            // What friends owe from a shared bill lands here, so this is
+            // where people come looking to record one.
+            IconButton(
+              key: const Key('credit_debt_split'),
+              icon: Icon(
+                Symbols.call_split_rounded,
+                color: AppColors.textSecondary,
+              ),
+              tooltip: L10n.of(context).splitTitle,
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const SplitBillScreen()),
+              ),
+            ),
             // Filter toggle
             IconButton(
               icon: Icon(

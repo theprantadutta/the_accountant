@@ -4391,6 +4391,198 @@ abstract class L10n {
   /// **'Lend & borrow'**
   String get walletsLendBorrow;
 
+  /// No description provided for @splitTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Split a bill'**
+  String get splitTitle;
+
+  /// No description provided for @splitSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Share a bill with friends; what they owe goes to Lend & borrow'**
+  String get splitSubtitle;
+
+  /// No description provided for @splitWhatFor.
+  ///
+  /// In en, this message translates to:
+  /// **'What was it for'**
+  String get splitWhatFor;
+
+  /// No description provided for @splitTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get splitTotal;
+
+  /// No description provided for @splitPeople.
+  ///
+  /// In en, this message translates to:
+  /// **'People'**
+  String get splitPeople;
+
+  /// No description provided for @splitYou.
+  ///
+  /// In en, this message translates to:
+  /// **'You'**
+  String get splitYou;
+
+  /// No description provided for @splitIncludeMe.
+  ///
+  /// In en, this message translates to:
+  /// **'I had a share'**
+  String get splitIncludeMe;
+
+  /// No description provided for @splitIncludeMeSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn off when you paid for the others only'**
+  String get splitIncludeMeSub;
+
+  /// No description provided for @splitAddPerson.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a person'**
+  String get splitAddPerson;
+
+  /// No description provided for @splitPersonName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get splitPersonName;
+
+  /// No description provided for @splitKnownPeople.
+  ///
+  /// In en, this message translates to:
+  /// **'From Lend & borrow'**
+  String get splitKnownPeople;
+
+  /// No description provided for @splitRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get splitRemove;
+
+  /// No description provided for @splitPaidBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid by'**
+  String get splitPaidBy;
+
+  /// No description provided for @splitHow.
+  ///
+  /// In en, this message translates to:
+  /// **'How to split'**
+  String get splitHow;
+
+  /// No description provided for @splitEqual.
+  ///
+  /// In en, this message translates to:
+  /// **'Equally'**
+  String get splitEqual;
+
+  /// No description provided for @splitExact.
+  ///
+  /// In en, this message translates to:
+  /// **'Amounts'**
+  String get splitExact;
+
+  /// No description provided for @splitPercent.
+  ///
+  /// In en, this message translates to:
+  /// **'Percent'**
+  String get splitPercent;
+
+  /// No description provided for @splitShares.
+  ///
+  /// In en, this message translates to:
+  /// **'Shares'**
+  String get splitShares;
+
+  /// No description provided for @splitYourShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Your share'**
+  String get splitYourShare;
+
+  /// No description provided for @splitOwesYou.
+  ///
+  /// In en, this message translates to:
+  /// **'Owes you'**
+  String get splitOwesYou;
+
+  /// No description provided for @splitYouOwe.
+  ///
+  /// In en, this message translates to:
+  /// **'You owe {name}'**
+  String splitYouOwe(String name);
+
+  /// No description provided for @splitPaidTheBill.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid the bill'**
+  String get splitPaidTheBill;
+
+  /// No description provided for @splitSettlesWith.
+  ///
+  /// In en, this message translates to:
+  /// **'Settles up with {name}'**
+  String splitSettlesWith(String name);
+
+  /// No description provided for @splitSummaryIPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'{total} from your account; {owed} owed back to you'**
+  String splitSummaryIPaid(String total, String owed);
+
+  /// No description provided for @splitSummaryTheyPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing leaves your account now; you owe {name} {amount}'**
+  String splitSummaryTheyPaid(String name, String amount);
+
+  /// No description provided for @splitPercentLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Percent of the bill'**
+  String get splitPercentLabel;
+
+  /// No description provided for @splitSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Split it'**
+  String get splitSave;
+
+  /// No description provided for @splitSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Split recorded'**
+  String get splitSaved;
+
+  /// No description provided for @splitNeedCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a category first.'**
+  String get splitNeedCategory;
+
+  /// No description provided for @splitThisBill.
+  ///
+  /// In en, this message translates to:
+  /// **'Split this bill'**
+  String get splitThisBill;
+
+  /// No description provided for @splitThisBillSub.
+  ///
+  /// In en, this message translates to:
+  /// **'With friends; what they owe goes to Lend & borrow'**
+  String get splitThisBillSub;
+
+  /// No description provided for @splitPartOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Split bill'**
+  String get splitPartOf;
+
   /// No description provided for @walletsOwedToYou.
   ///
   /// In en, this message translates to:

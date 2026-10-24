@@ -18,6 +18,10 @@ import 'package:the_accountant/features/investments/services/investment_service.
 import 'package:the_accountant/features/plans/domain/plan_terms.dart';
 import 'package:the_accountant/features/plans/providers/plans_provider.dart';
 import 'package:the_accountant/features/plans/services/plan_service.dart';
+import 'package:the_accountant/features/credit_debt/providers/credit_debt_provider.dart'
+    show creditDebtProvider;
+import 'package:the_accountant/features/split/providers/split_provider.dart';
+import 'package:the_accountant/features/split/services/split_service.dart';
 import 'package:the_accountant/features/transactions/providers/transaction_provider.dart'
     show transactionProvider;
 import 'package:the_accountant/features/transactions/providers/transfer_provider.dart'
@@ -58,6 +62,10 @@ enum CoachActionKind {
 
   /// A holding's price updated, and its value with it.
   updateInvestment,
+
+  /// A bill split with friends: the user's share spent, the rest lent, or
+  /// the share owed to whoever paid.
+  splitExpense,
 }
 
 /// A change the coach wants to make, as the user is shown it before it happens.
@@ -136,6 +144,7 @@ class CoachToolRunner {
     'create_investment',
     'trade_investment',
     'update_investment_price',
+    'split_expense',
   };
 
   static const _maxResults = 50;
@@ -187,6 +196,7 @@ class CoachToolRunner {
         'create_investment' => await _planCreateInvestment(call.args),
         'trade_investment' => await _planTradeInvestment(call.args),
         'update_investment_price' => await _planInvestmentPrice(call.args),
+        'split_expense' => await _planSplit(call.args),
         _ => CoachPlan.failed(_error('There is no tool called ${call.name}.')),
       };
     } on _ToolError catch (e) {
@@ -1467,6 +1477,156 @@ class CoachToolRunner {
       return jsonEncode({
         'status': 'done',
         'investment': after == null ? null : _holdingJson(after),
+      });
+    });
+  }
+
+  // ---- split ----
+
+  SplitService get _splitService => _read(splitServiceProvider);
+
+  static bool _isMe(String name) =>
+      const {'me', 'i', 'you', 'myself', 'self'}.contains(name.toLowerCase());
+
+  static List<String> _names(Object? v) => switch (v) {
+    List l => [
+      for (final x in l)
+        if (x is String && x.trim().isNotEmpty) x.trim(),
+    ],
+    String s => [
+      for (final x in s.split(','))
+        if (x.trim().isNotEmpty) x.trim(),
+    ],
+    _ => const [],
+  };
+
+  Future<CoachPlan> _planSplit(Map<String, dynamic> args) async {
+    final total =
+        _amount(args['amount']) ??
+        (throw _ToolError('amount, the whole bill, is required.'));
+    final title = (args['title'] as String?)?.trim() ?? '';
+    // Names the user already has in Lend & borrow keep their spelling, so
+    // the preview shows exactly whose list each share joins.
+    final known = await _splitService.knownPeople();
+    String spelled(String name) =>
+        known.where((k) => k.toLowerCase() == name.toLowerCase()).firstOrNull ??
+        name;
+    final people = [
+      for (final n in _names(args['people']))
+        if (!_isMe(n)) spelled(n),
+    ];
+    final paidByArg = (args['paid_by'] as String?)?.trim();
+    var paidBy = paidByArg == null || paidByArg.isEmpty || _isMe(paidByArg)
+        ? null
+        : spelled(paidByArg);
+    if (paidBy != null) {
+      final listed = people
+          .where((p) => p.toLowerCase() == paidBy!.toLowerCase())
+          .firstOrNull;
+      // Whoever paid was in on the bill, even when the coach did not list
+      // them; and they are called what the list calls them.
+      if (listed == null) {
+        people.add(paidBy);
+      } else {
+        paidBy = listed;
+      }
+    }
+    if (people.isEmpty) {
+      throw _ToolError('people is required: who else was in on the bill.');
+    }
+    final includeMe = args['include_me'] is bool
+        ? args['include_me'] as bool
+        : true;
+
+    final amounts = <String?, int>{};
+    final shares = args['shares'];
+    if (shares is Map && shares.isNotEmpty) {
+      for (final e in shares.entries) {
+        final name = '${e.key}'.trim();
+        final v =
+            _amount(e.value) ??
+            (throw _ToolError('The share for $name is not an amount.'));
+        amounts[_isMe(name) ? null : spelled(name)] = v;
+      }
+    }
+
+    final category = args['category'] is String
+        ? _category(args['category'] as String, kind: 'expense')
+        : _guessCategory(title, false);
+    final wallet = args['account'] is String
+        ? _wallet(args['account'] as String)
+        : _defaultWallet();
+    if (wallet.walletType.isManaged) {
+      throw _ToolError(
+        '${wallet.name} cannot pay a bill; name another account.',
+      );
+    }
+    final day = _date(args['date']);
+    final now = DateTime.now();
+    final when = day == null || _sameDay(day, now)
+        ? now
+        : DateTime(day.year, day.month, day.day, 12);
+
+    final draft = SplitDraft(
+      title: title,
+      total: total,
+      walletId: wallet.id,
+      categoryId: category.id,
+      people: people,
+      includeMe: includeMe,
+      paidBy: paidBy,
+      mode: amounts.isEmpty ? SplitMode.equal : SplitMode.exact,
+      amounts: amounts,
+      date: when,
+    );
+    final List<SplitShare> parts;
+    try {
+      parts = SplitService.shares(draft);
+    } on ArgumentError catch (e) {
+      throw _ToolError('${e.message}');
+    }
+
+    final c = wallet.currency;
+    final preview = CoachActionPreview(
+      kind: CoachActionKind.splitExpense,
+      title: title.isEmpty ? category.name : title,
+      amount: total,
+      currency: c,
+      isIncome: false,
+      category: category.name,
+      account: wallet.name,
+      date: when,
+      lines: [
+        if (paidBy != null) ('paid_by', paidBy),
+        for (final s in parts)
+          (
+            s.isMe ? 'your_share' : 'person:${s.person}',
+            s.amount.formatCurrency(c),
+          ),
+      ],
+    );
+
+    return CoachPlan.ready(preview, () async {
+      final id = await _splitService.record(draft);
+      await _refresh();
+      await _read(creditDebtProvider.notifier).loadData();
+      final account = await _read(databaseProvider).findWalletById(wallet.id);
+      return jsonEncode({
+        'status': 'done',
+        'split_id': id,
+        'shares': [
+          for (final s in parts)
+            {
+              'name': s.person ?? 'me',
+              'amount': s.amount / 100,
+              if (!s.isMe && paidBy == null) 'owes_you': true,
+              if (s.isMe && paidBy != null) 'you_owe': paidBy,
+            },
+        ],
+        'note': paidBy == null
+            ? 'Your share is spending; what the others owe is in Lend & borrow.'
+            : 'Your share is spending, owed to $paidBy in Lend & borrow.',
+        if (account != null) 'account_balance_now': account.balance / 100,
       });
     });
   }

@@ -1033,6 +1033,72 @@
   },
   "walletsUpcomingNone": "Nothing due soon",
   "walletsLendBorrow": "Lend & borrow",
+  "splitTitle": "Split a bill",
+  "splitSubtitle": "Share a bill with friends; what they owe goes to Lend & borrow",
+  "splitWhatFor": "What was it for",
+  "splitTotal": "Total",
+  "splitPeople": "People",
+  "splitYou": "You",
+  "splitIncludeMe": "I had a share",
+  "splitIncludeMeSub": "Turn off when you paid for the others only",
+  "splitAddPerson": "Add a person",
+  "splitPersonName": "Name",
+  "splitKnownPeople": "From Lend & borrow",
+  "splitRemove": "Remove",
+  "splitPaidBy": "Paid by",
+  "splitHow": "How to split",
+  "splitEqual": "Equally",
+  "splitExact": "Amounts",
+  "splitPercent": "Percent",
+  "splitShares": "Shares",
+  "splitYourShare": "Your share",
+  "splitOwesYou": "Owes you",
+  "splitYouOwe": "You owe {name}",
+  "@splitYouOwe": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "splitPaidTheBill": "Paid the bill",
+  "splitSettlesWith": "Settles up with {name}",
+  "@splitSettlesWith": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "splitSummaryIPaid": "{total} from your account; {owed} owed back to you",
+  "@splitSummaryIPaid": {
+    "placeholders": {
+      "total": {
+        "type": "String"
+      },
+      "owed": {
+        "type": "String"
+      }
+    }
+  },
+  "splitSummaryTheyPaid": "Nothing leaves your account now; you owe {name} {amount}",
+  "@splitSummaryTheyPaid": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "splitPercentLabel": "Percent of the bill",
+  "splitSave": "Split it",
+  "splitSaved": "Split recorded",
+  "splitNeedCategory": "Choose a category first.",
+  "splitThisBill": "Split this bill",
+  "splitThisBillSub": "With friends; what they owe goes to Lend & borrow",
+  "splitPartOf": "Split bill",
   "walletsOwedToYou": "You’re owed {amount}",
   "@walletsOwedToYou": {
     "placeholders": {

@@ -16,6 +16,8 @@ import 'package:the_accountant/features/budgets/providers/budget_provider.dart';
 import 'package:the_accountant/features/categories/providers/category_provider.dart';
 import 'package:the_accountant/features/settings/providers/settings_provider.dart';
 import 'package:the_accountant/features/settings/widgets/confirmation_dialog.dart';
+import 'package:the_accountant/features/split/services/split_service.dart';
+import 'package:the_accountant/features/split/widgets/split_parts_card.dart';
 import 'package:the_accountant/features/transactions/providers/transaction_provider.dart';
 import 'package:the_accountant/features/transactions/screens/add_transaction_screen.dart';
 import 'package:the_accountant/features/transactions/widgets/special_type_selector.dart';
@@ -270,6 +272,9 @@ class _TransactionDetailScreenState
           ),
           const SizedBox(height: SunriseSpace.section),
         ],
+
+        if (SplitService.splitIdOf(row) case final splitId?)
+          SplitPartsCard(splitId: splitId, currentId: row.id),
 
         SettingsGroup(
           children: [

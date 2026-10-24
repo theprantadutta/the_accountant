@@ -2392,6 +2392,112 @@ class L10nEn extends L10n {
   String get walletsLendBorrow => 'Lend & borrow';
 
   @override
+  String get splitTitle => 'Split a bill';
+
+  @override
+  String get splitSubtitle =>
+      'Share a bill with friends; what they owe goes to Lend & borrow';
+
+  @override
+  String get splitWhatFor => 'What was it for';
+
+  @override
+  String get splitTotal => 'Total';
+
+  @override
+  String get splitPeople => 'People';
+
+  @override
+  String get splitYou => 'You';
+
+  @override
+  String get splitIncludeMe => 'I had a share';
+
+  @override
+  String get splitIncludeMeSub => 'Turn off when you paid for the others only';
+
+  @override
+  String get splitAddPerson => 'Add a person';
+
+  @override
+  String get splitPersonName => 'Name';
+
+  @override
+  String get splitKnownPeople => 'From Lend & borrow';
+
+  @override
+  String get splitRemove => 'Remove';
+
+  @override
+  String get splitPaidBy => 'Paid by';
+
+  @override
+  String get splitHow => 'How to split';
+
+  @override
+  String get splitEqual => 'Equally';
+
+  @override
+  String get splitExact => 'Amounts';
+
+  @override
+  String get splitPercent => 'Percent';
+
+  @override
+  String get splitShares => 'Shares';
+
+  @override
+  String get splitYourShare => 'Your share';
+
+  @override
+  String get splitOwesYou => 'Owes you';
+
+  @override
+  String splitYouOwe(String name) {
+    return 'You owe $name';
+  }
+
+  @override
+  String get splitPaidTheBill => 'Paid the bill';
+
+  @override
+  String splitSettlesWith(String name) {
+    return 'Settles up with $name';
+  }
+
+  @override
+  String splitSummaryIPaid(String total, String owed) {
+    return '$total from your account; $owed owed back to you';
+  }
+
+  @override
+  String splitSummaryTheyPaid(String name, String amount) {
+    return 'Nothing leaves your account now; you owe $name $amount';
+  }
+
+  @override
+  String get splitPercentLabel => 'Percent of the bill';
+
+  @override
+  String get splitSave => 'Split it';
+
+  @override
+  String get splitSaved => 'Split recorded';
+
+  @override
+  String get splitNeedCategory => 'Choose a category first.';
+
+  @override
+  String get splitThisBill => 'Split this bill';
+
+  @override
+  String get splitThisBillSub =>
+      'With friends; what they owe goes to Lend & borrow';
+
+  @override
+  String get splitPartOf => 'Split bill';
+
+  @override
   String walletsOwedToYou(String amount) {
     return 'You’re owed $amount';
   }

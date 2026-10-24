@@ -20,6 +20,7 @@ import 'package:the_accountant/data/models/transaction.dart'
     show TransactionSpecialType;
 import 'package:the_accountant/features/categories/providers/category_provider.dart';
 import 'package:the_accountant/features/settings/providers/settings_provider.dart';
+import 'package:the_accountant/features/split/screens/split_bill_screen.dart';
 import 'package:the_accountant/features/transactions/providers/transaction_provider.dart'
     hide Transaction;
 import 'package:the_accountant/features/transactions/providers/title_usage_provider.dart';
@@ -1052,6 +1053,12 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
               onTypeChanged: (type) => setState(() => _specialType = type),
               accentColor: c.accent,
             ),
+            if (!_isEditing &&
+                !_isIncome &&
+                _specialType == TransactionSpecialType.none) ...[
+              const SizedBox(height: 12),
+              _buildSplitRow(),
+            ],
             // Optional links (hidden when the user has none)
             _buildPaymentMethodSelector(),
             _buildBudgetSelector(),
@@ -1398,6 +1405,43 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
       buffer.write(decPart);
     }
     return buffer.toString();
+  }
+
+  /// Hands the expense as entered so far to the split screen. A split records
+  /// its own rows (the user's share and what each friend owes), so once it is
+  /// saved there is nothing left for this form to save.
+  Widget _buildSplitRow() {
+    final l10n = L10n.of(context);
+    final c = context.sunrise;
+    return SettingsGroup(
+      children: [
+        SettingsRow(
+          key: const Key('add_split_bill'),
+          icon: Symbols.call_split_rounded,
+          iconColor: c.positive,
+          iconBackground: c.tintGreen,
+          title: l10n.splitThisBill,
+          subtitle: l10n.splitThisBillSub,
+          onTap: _openSplit,
+        ),
+      ],
+    );
+  }
+
+  Future<void> _openSplit() async {
+    final title = _titleController.text.trim();
+    final saved = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(
+        builder: (_) => SplitBillScreen(
+          initialTitle: title.isEmpty ? null : title,
+          initialTotal: (_amount * 100).round(),
+          initialCategoryId: _selectedCategoryId,
+          initialWalletId: _selectedWalletId,
+          initialDate: _selectedDateTime,
+        ),
+      ),
+    );
+    if (saved == true && mounted) Navigator.of(context).pop(true);
   }
 
   Widget _buildSpecialTypeChips() {
