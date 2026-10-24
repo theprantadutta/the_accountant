@@ -951,7 +951,10 @@ class CoachToolRunner {
             '$count ${frequency == PlanFrequency.yearly ? 'years' : 'months'}',
           ),
         if (amount > 0 && kind != PlanKind.fdr)
-          ('principal', amount.formatCurrency(c)),
+          (
+            kind == PlanKind.loan ? 'borrowed' : 'principal',
+            amount.formatCurrency(c),
+          ),
         if (rate != null) ('rate', '$rate%'),
         if (maturity != null &&
             !(kind == PlanKind.fdr && payout == PlanPayout.monthly))
@@ -966,7 +969,29 @@ class CoachToolRunner {
       final id = await _planService.create(draft);
       final recorded = autoCollect ? await _planService.collectDue() : 0;
       await _refresh();
-      return jsonEncode({'status': 'done', 'id': id, 'recorded_now': recorded});
+      final plan = (await _planService.findPlan(id))!;
+      final progress = await _planService.progressOf(plan);
+      final held = plan.holdingWalletId == null
+          ? null
+          : (await _read(
+              databaseProvider,
+            ).findWalletById(plan.holdingWalletId!))?.balance;
+      final account = await _read(
+        databaseProvider,
+      ).findWalletById(plan.walletId);
+      // Said in full: "recorded 0" for an FDR, whose deposit is made when it
+      // opens, read to the model as the deposit not having happened.
+      return jsonEncode({
+        'status': 'done',
+        'id': id,
+        'installments_recorded_now': recorded,
+        if (kind == PlanKind.fdr) 'deposited_now': amount / 100,
+        if (kind == PlanKind.loan && draft.loanReceived)
+          'received_now': amount / 100,
+        if (held != null) 'held_in_deposit': held / 100,
+        'installments_done': progress.installmentsDone,
+        if (account != null) 'account_balance_now': account.balance / 100,
+      });
     });
   }
 

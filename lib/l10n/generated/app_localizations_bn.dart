@@ -3698,6 +3698,11 @@ class L10nBn extends L10n {
   }
 
   @override
+  String planSummaryNoInterest(int count, String installment, String total) {
+    return '$count × $installment = $total, কোনো সুদ ছাড়া।';
+  }
+
+  @override
   String planSummaryDps(String deposited, String maturity, String date) {
     return 'আপনি দেবেন $deposited, $date এ ফেরত পাবেন প্রায় $maturity।';
   }

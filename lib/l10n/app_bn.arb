@@ -1096,6 +1096,7 @@
   "planNeedAccount": "আগে একটি অ্যাকাউন্ট বাছুন।",
   "planCreated": "শুরু হয়েছে। যা বকেয়া ছিল তা লেখা হয়েছে।",
   "planSummaryInstallments": "{count} × {installment} = {total}, এর মধ্যে {interest} সুদ ও চার্জ।",
+  "planSummaryNoInterest": "{count} × {installment} = {total}, কোনো সুদ ছাড়া।",
   "planSummaryDps": "আপনি দেবেন {deposited}, {date} এ ফেরত পাবেন প্রায় {maturity}।",
   "planSummaryFdr": "{principal} বেড়ে {date} এর মধ্যে প্রায় {maturity} হবে।",
   "planSummaryFdrMonthly": "প্রতি মাসে {profit} মুনাফা, আর {date} এ {principal} ফেরত।",

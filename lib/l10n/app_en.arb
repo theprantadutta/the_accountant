@@ -1876,6 +1876,20 @@
       }
     }
   },
+  "planSummaryNoInterest": "{count} × {installment} = {total}, with no interest.",
+  "@planSummaryNoInterest": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "installment": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
   "planSummaryDps": "You put in {deposited} and get back about {maturity} on {date}.",
   "@planSummaryDps": {
     "placeholders": {

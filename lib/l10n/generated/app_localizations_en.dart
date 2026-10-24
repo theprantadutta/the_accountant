@@ -3740,6 +3740,11 @@ class L10nEn extends L10n {
   }
 
   @override
+  String planSummaryNoInterest(int count, String installment, String total) {
+    return '$count × $installment = $total, with no interest.';
+  }
+
+  @override
   String planSummaryDps(String deposited, String maturity, String date) {
     return 'You put in $deposited and get back about $maturity on $date.';
   }

@@ -6682,6 +6682,12 @@ abstract class L10n {
     String interest,
   );
 
+  /// No description provided for @planSummaryNoInterest.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} × {installment} = {total}, with no interest.'**
+  String planSummaryNoInterest(int count, String installment, String total);
+
   /// No description provided for @planSummaryDps.
   ///
   /// In en, this message translates to:

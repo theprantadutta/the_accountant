@@ -136,17 +136,24 @@ class _PlanFormScreenState extends ConsumerState<PlanFormScreen> {
           ?.currency ??
       'USD';
 
+  /// A closing sheet hands focus back to the field that had it, which put the
+  /// keyboard over the form and sent the next keystrokes into the name.
+  void _dropFocus() => FocusManager.instance.primaryFocus?.unfocus();
+
   Future<int?> _amount(int current) async {
+    _dropFocus();
     final v = await showCalculatorBottomSheet(
       context: context,
       initialAmount: current / 100.0,
       isIncome: _kind.isSaving,
       currencySymbol: CurrencyInfo.getSymbol(_currency),
     );
+    _dropFocus();
     return v == null ? null : (v * 100).round();
   }
 
   Future<void> _pickWallet() async {
+    _dropFocus();
     final l10n = L10n.of(context);
     final wallets = ref.read(selectableWalletsProvider);
     final id = await showSunriseSheet<String>(
@@ -168,6 +175,7 @@ class _PlanFormScreenState extends ConsumerState<PlanFormScreen> {
         ),
       ),
     );
+    _dropFocus();
     if (id != null) setState(() => _walletId = id);
   }
 
@@ -187,11 +195,13 @@ class _PlanFormScreenState extends ConsumerState<PlanFormScreen> {
   }
 
   Future<void> _pickCategory() async {
+    _dropFocus();
     final category = await showCategoryPickerSheet(
       context: context,
       ref: ref,
       selectedCategoryId: _categoryId,
     );
+    _dropFocus();
     if (category != null) {
       setState(() {
         _categoryId = category.id;
@@ -263,14 +273,18 @@ class _PlanFormScreenState extends ConsumerState<PlanFormScreen> {
 
     final summary = switch (_kind) {
       PlanKind.emi || PlanKind.loan when _installment > 0 && _n > 0 =>
-        l10n.planSummaryInstallments(
-          _n,
-          money(_installment),
-          money(_installment * _n),
-          _principal > 0 && _installment * _n > _principal
-              ? money(_installment * _n - _principal)
-              : money(0),
-        ),
+        _principal > 0 && _installment * _n > _principal
+            ? l10n.planSummaryInstallments(
+                _n,
+                money(_installment),
+                money(_installment * _n),
+                money(_installment * _n - _principal),
+              )
+            : l10n.planSummaryNoInterest(
+                _n,
+                money(_installment),
+                money(_installment * _n),
+              ),
       PlanKind.dps when _installment > 0 && _n > 0 => l10n.planSummaryDps(
         money(_installment * _n),
         money(_maturity ?? _installment * _n),

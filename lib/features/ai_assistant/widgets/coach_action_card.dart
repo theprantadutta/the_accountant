@@ -117,6 +117,7 @@ class CoachActionCard extends StatelessWidget {
       'total' => l10n.planTotal,
       'term' => l10n.planTerm,
       'principal' => l10n.planPrice,
+      'borrowed' => l10n.planBorrowed,
       'rate' => l10n.planRate,
       'maturity' => l10n.planMaturity,
       'payout' => l10n.planPayout,
