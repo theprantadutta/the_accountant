@@ -168,6 +168,11 @@ class Transactions extends Table {
   /// one is the maturity; a profit payment is its period's number.
   IntColumn get planInstallment => integer().nullable()();
 
+  /// Fund units or shares bought (on the leg into an investment) or sold (on
+  /// the leg out of one). The holding is the sum of these, so two phones
+  /// buying at once cannot overwrite each other's count.
+  RealColumn get units => real().nullable()();
+
   // For recurring instances
   TextColumn get recurringConfigId =>
       text().nullable().references(RecurringConfigs, #id)();

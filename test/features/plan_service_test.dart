@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:the_accountant/core/services/sync/sync_service.dart';
+import 'package:the_accountant/core/domain/default_categories.dart';
 import 'package:the_accountant/core/domain/transaction_policy.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/data/models/plan.dart';
@@ -374,13 +375,206 @@ void main() {
       // The deposit account went too.
       final plan = (await plans.findPlan(id))!;
       expect(
-        server.recordsIn('u', 'wallets').any(
-          (w) => (w['Id'] ?? w['id']) == plan.holdingWalletId,
-        ),
+        server
+            .recordsIn('u', 'wallets')
+            .any((w) => (w['Id'] ?? w['id']) == plan.holdingWalletId),
         isTrue,
       );
     });
+    test('insurance premiums are spending and the payout is income', () async {
+      // Quarterly premiums; the fifth period has come, so four premiums and
+      // the payout are due.
+      final start = DateTime.now().subtract(const Duration(days: 370));
+      final id = await plans.create(
+        PlanDraft(
+          kind: PlanKind.insurance,
+          name: 'Life policy',
+          walletId: bank,
+          startDate: start,
+          principal: 100000000,
+          installmentAmount: 2500000,
+          installmentCount: 4,
+          frequency: PlanFrequency.monthly,
+          interval: 3,
+          maturityAmount: 12000000,
+          provider: ' MetLife ',
+          reference: 'POL-1',
+        ),
+      );
+      final plan = (await plans.findPlan(id))!;
+      expect(plan.holdingWalletId, isNull, reason: 'nothing is set aside');
+      expect(plan.provider, 'MetLife');
+      expect(plan.reference, 'POL-1');
+      final insurance = await db.requireSystemCategoryId(
+        BuiltInCategoryKeys.insurance,
+      );
+      expect(plan.categoryId, insurance);
+
+      await plans.collectDue();
+
+      final rows = await plans.transactionsOf(id);
+      final premiums = rows.where(TransactionPolicy.countsAsExpense).toList();
+      expect(premiums, hasLength(4));
+      expect(premiums.every((t) => t.categoryId == insurance), isTrue);
+      expect(premiums.first.title, contains('premium'));
+      final payout = rows.where(TransactionPolicy.countsAsIncome).single;
+      expect(payout.amount, 12000000);
+      expect(payout.planInstallment, 5);
+      expect(await balanceOf(bank), 50000000 - 4 * 2500000 + 12000000);
+      expect((await plans.findPlan(id))!.status, PlanStatus.completed);
+    });
+
+    test(
+      'a term policy has no payout, and surrendering one pays its value',
+      () async {
+        final id = await plans.create(
+          PlanDraft(
+            kind: PlanKind.insurance,
+            name: 'Health cover',
+            walletId: bank,
+            startDate: DateTime.now().subtract(const Duration(days: 1)),
+            installmentAmount: 1000000,
+            installmentCount: 10,
+            frequency: PlanFrequency.yearly,
+          ),
+        );
+        final plan = (await plans.findPlan(id))!;
+        expect(
+          planEvents(plan).every((e) => e.type == PlanEventType.installment),
+          isTrue,
+        );
+        await plans.collectDue();
+        await plans.closeEarly(id, amount: 300000);
+
+        final income = (await plans.transactionsOf(
+          id,
+        )).where(TransactionPolicy.countsAsIncome).single;
+        expect(income.amount, 300000);
+        expect(await balanceOf(bank), 50000000 - 1000000 + 300000);
+        expect((await plans.findPlan(id))!.status, PlanStatus.closed);
+      },
+    );
+
+    test(
+      'a bond pays quarterly profit after tax, then its principal',
+      () async {
+        // Five lakh at 11.28% for a year, 10% tax at source.
+        final id = await plans.create(
+          PlanDraft(
+            kind: PlanKind.bond,
+            name: 'Sanchayapatra',
+            walletId: bank,
+            startDate: DateTime.now().subtract(const Duration(days: 370)),
+            principal: 50000000,
+            installmentCount: 1,
+            frequency: PlanFrequency.yearly,
+            interestRate: 11.28,
+            payout: PlanPayout.quarterly,
+            taxRate: 10,
+          ),
+        );
+        final plan = (await plans.findPlan(id))!;
+        expect(plan.taxRate, 10);
+        final holding = (await db.findWalletById(plan.holdingWalletId!))!;
+        expect(holding.walletType, WalletType.deposit);
+        expect(await balanceOf(bank), 0);
+
+        await plans.collectDue();
+
+        // 5,00,000 × 11.28% / 4 = 14,100 a quarter, less 10% = 12,690.
+        final profits = (await plans.transactionsOf(
+          id,
+        )).where(TransactionPolicy.countsAsIncome).toList();
+        expect(profits, hasLength(4));
+        expect(profits.every((t) => t.amount == 1269000), isTrue);
+        expect(await balanceOf(plan.holdingWalletId!), 0);
+        expect(await balanceOf(bank), 50000000 + 4 * 1269000);
+        expect((await plans.findPlan(id))!.status, PlanStatus.completed);
+      },
+    );
+
+    test('a DPS profit is taxed at source', () async {
+      final id = await plans.create(
+        PlanDraft(
+          kind: PlanKind.dps,
+          name: 'Taxed DPS',
+          walletId: bank,
+          startDate: DateTime.now().subtract(const Duration(days: 400)),
+          installmentAmount: 500000,
+          installmentCount: 12,
+          maturityAmount: 6200000,
+          taxRate: 10,
+        ),
+      );
+      await plans.collectDue();
+      final profit = (await plans.transactionsOf(
+        id,
+      )).where(TransactionPolicy.countsAsIncome).single;
+      expect(profit.amount, 180000, reason: '200,000 profit less 10%');
+    });
+
+    test('insurance, bonds and units reach the server', () async {
+      final server = FakeSyncServer();
+      await db.claimLocalStore(userId: 'u');
+      final sync = SyncService(
+        database: db,
+        transport: FakeSyncTransport(server: server, userId: 'u'),
+      );
+      final id = await plans.create(
+        PlanDraft(
+          kind: PlanKind.bond,
+          name: 'Bond',
+          walletId: bank,
+          startDate: DateTime.now(),
+          principal: 1000000,
+          installmentCount: 3,
+          frequency: PlanFrequency.yearly,
+          interestRate: 11,
+          payout: PlanPayout.quarterly,
+          taxRate: 5,
+          provider: 'Bangladesh Bank',
+          reference: 'SP-42',
+        ),
+      );
+      final result = await sync.syncAll();
+      expect(result.success, isTrue, reason: result.userMessage);
+      final onServer = server
+          .recordsIn('u', 'plans')
+          .singleWhere((r) => r['Id'] == id || r['id'] == id);
+      expect(onServer['Kind'], 5);
+      expect(onServer['Payout'], 2);
+      expect(onServer['TaxRate'], 5);
+      expect(onServer['Provider'], 'Bangladesh Bank');
+      expect(onServer['Reference'], 'SP-42');
+    });
+
     test('nonsense is refused', () async {
+      await expectLater(
+        plans.create(
+          PlanDraft(
+            kind: PlanKind.insurance,
+            name: 'X',
+            walletId: cash,
+            startDate: DateTime.now(),
+            installmentAmount: 0,
+          ),
+        ),
+        throwsArgumentError,
+        reason: 'a policy needs a premium',
+      );
+      await expectLater(
+        plans.create(
+          PlanDraft(
+            kind: PlanKind.bond,
+            name: 'X',
+            walletId: bank,
+            startDate: DateTime.now(),
+            principal: 100,
+            taxRate: 120,
+          ),
+        ),
+        throwsArgumentError,
+      );
       await expectLater(
         plans.create(
           PlanDraft(

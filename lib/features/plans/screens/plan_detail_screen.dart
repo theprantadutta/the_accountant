@@ -64,17 +64,26 @@ class _Body extends ConsumerWidget {
     final today = DateTime.now();
     final end = PlanDates.endOf(plan);
 
+    final insurance = plan.kind == PlanKind.insurance;
     final facts = <(String, String)>[
+      if (plan.provider != null) (l10n.planProvider, plan.provider!),
+      if (plan.reference != null) (l10n.planReference, plan.reference!),
       (l10n.planAccount, wallet?.name ?? '—'),
       if (plan.kind == PlanKind.emi) (l10n.planPrice, money(plan.principal)),
       if (plan.kind == PlanKind.loan)
         (l10n.planBorrowed, money(plan.principal)),
-      if (plan.kind == PlanKind.fdr)
-        (l10n.planDeposited, money(plan.principal)),
-      if (plan.kind != PlanKind.fdr) ...[
+      if (insurance && plan.principal > 0)
+        (l10n.planSumAssured, money(plan.principal)),
+      if (plan.kind.isFixedDeposit) (l10n.planDeposited, money(plan.principal)),
+      if (!plan.kind.isFixedDeposit) ...[
         (
-          plan.kind == PlanKind.dps ? l10n.planDeposit : l10n.planInstallment,
-          '${money(plan.installmentAmount)} · ${plan.frequency.label(l10n)}',
+          switch (plan.kind) {
+            PlanKind.dps => l10n.planDeposit,
+            PlanKind.insurance => l10n.planPremium,
+            _ => l10n.planInstallment,
+          },
+          '${money(plan.installmentAmount)} · '
+              '${planCycleLabel(l10n, plan.frequency, plan.interval)}',
         ),
         (
           l10n.planProgress,
@@ -99,26 +108,44 @@ class _Body extends ConsumerWidget {
       ],
       if (plan.interestRate != null)
         (l10n.planRate, '${plan.interestRate!.toStringAsFixed(2)}%'),
-      if (plan.kind == PlanKind.fdr)
+      if (plan.taxRate != null)
+        (l10n.planTax, '${plan.taxRate!.toStringAsFixed(1)}%'),
+      if (plan.kind.isFixedDeposit)
         (
           l10n.planPayout,
-          plan.payout == PlanPayout.monthly
-              ? l10n.planPayoutMonthly
-              : l10n.planPayoutAtMaturity,
+          switch (plan.payout) {
+            PlanPayout.monthly => l10n.planPayoutMonthly,
+            PlanPayout.quarterly => l10n.planPayoutQuarterly,
+            PlanPayout.atMaturity => l10n.planPayoutAtMaturity,
+          },
         ),
-      if (plan.kind.isSaving) ...[
+      if (plan.kind.holdsMoney) ...[
         (l10n.planMaturesOn, f.day(end)),
         (
           l10n.planMaturity,
-          money(
-            plan.kind == PlanKind.fdr && plan.payout == PlanPayout.monthly
-                ? plan.principal
-                : (plan.maturityAmount ?? progress.events.last.amount),
-          ),
+          // The maturity event is what comes back after tax.
+          money(progress.events.last.amount),
         ),
         if (holding != null) (l10n.planHolding, money(holding.balance)),
-      ] else
-        (l10n.planEnds, f.day(end)),
+      ] else ...[
+        // A savings policy ends with its payout, a period after the last
+        // premium; this row is the last premium.
+        (
+          insurance ? l10n.planLastPremium : l10n.planEnds,
+          f.day(
+            PlanDates.shift(
+              plan.startDate,
+              plan.frequency,
+              (plan.installmentCount - 1) * plan.interval,
+            ),
+          ),
+        ),
+        if (insurance && (plan.maturityAmount ?? 0) > 0)
+          (
+            l10n.planInsurancePayout,
+            '${money(plan.maturityAmount!)} · ${f.day(end)}',
+          ),
+      ],
     ];
 
     return ListView(
@@ -188,10 +215,17 @@ class _Body extends ConsumerWidget {
                 money(next.amount),
               ),
               PlanEventType.profit => l10n.planRecordProfit(money(next.amount)),
-              PlanEventType.installment =>
-                plan.kind == PlanKind.dps
-                    ? l10n.planDepositNow(next.number, money(next.amount))
-                    : l10n.planPayNow(next.number, money(next.amount)),
+              PlanEventType.installment => switch (plan.kind) {
+                PlanKind.dps => l10n.planDepositNow(
+                  next.number,
+                  money(next.amount),
+                ),
+                PlanKind.insurance => l10n.planPayPremiumNow(
+                  next.number,
+                  money(next.amount),
+                ),
+                _ => l10n.planPayNow(next.number, money(next.amount)),
+              },
             },
             onPressed: () => _run(context, ref, () async {
               await ref.read(planServiceProvider).payNext(plan.id);
@@ -203,7 +237,11 @@ class _Body extends ConsumerWidget {
         if (active)
           SunriseButton.secondary(
             key: const Key('plan_close'),
-            label: plan.kind.isSaving ? l10n.planEncash : l10n.planPayOff,
+            label: insurance
+                ? l10n.planSurrender
+                : plan.kind.holdsMoney
+                ? l10n.planEncash
+                : l10n.planPayOff,
             onPressed: () => _close(context, ref, plan, progress, money),
           ),
         const SizedBox(height: 18),
@@ -292,23 +330,34 @@ class _Body extends ConsumerWidget {
     String Function(int) money,
   ) async {
     final l10n = L10n.of(context);
-    final saving = plan.kind.isSaving;
-    // A DPS or FDR may pay some profit when it is broken; a lender may quote
-    // a settlement figure that is not the sum of what is left.
+    final insurance = plan.kind == PlanKind.insurance;
+    // Money comes back from a deposit broken early or a policy surrendered.
+    final saving = plan.kind.holdsMoney || insurance;
+    // A DPS or FDR may pay some profit when it is broken; a policy may have a
+    // surrender value; a lender may quote a settlement figure that is not the
+    // sum of what is left.
     final other = await showSunriseSheet<bool>(
       context: context,
       builder: (sheet) => SunriseBottomSheet(
-        title: saving
+        title: insurance
+            ? l10n.planSurrenderTitle(plan.name)
+            : saving
             ? l10n.planEncashTitle(plan.name)
             : l10n.planPayOffTitle(plan.name),
-        subtitle: saving ? l10n.planEncashBody : l10n.planPayOffHint,
+        subtitle: insurance
+            ? l10n.planSurrenderBody
+            : saving
+            ? l10n.planEncashBody
+            : l10n.planPayOffHint,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             SheetAction(
               key: const Key('plan_close_plain'),
               icon: saving ? Symbols.savings_rounded : Symbols.task_alt_rounded,
-              label: saving
+              label: insurance
+                  ? l10n.planSurrenderNothing
+                  : saving
                   ? l10n.planEncashNoProfit
                   : l10n.planPayOffLeft(money(progress.remaining)),
               onTap: () => Navigator.pop(sheet, false),
@@ -316,7 +365,11 @@ class _Body extends ConsumerWidget {
             SheetAction(
               key: const Key('plan_close_other'),
               icon: Symbols.edit_rounded,
-              label: saving ? l10n.planEncashWithProfit : l10n.planPayOffOther,
+              label: insurance
+                  ? l10n.planSurrenderValue
+                  : saving
+                  ? l10n.planEncashWithProfit
+                  : l10n.planPayOffOther,
               onTap: () => Navigator.pop(sheet, true),
             ),
           ],
@@ -343,7 +396,11 @@ class _Body extends ConsumerWidget {
     }
     await _run(context, ref, () async {
       await ref.read(planServiceProvider).closeEarly(plan.id, amount: amount);
-      return saving ? l10n.planEncashed : l10n.planPaidOff;
+      return insurance
+          ? l10n.planSurrendered
+          : saving
+          ? l10n.planEncashed
+          : l10n.planPaidOff;
     });
   }
 
@@ -431,12 +488,15 @@ class _EventRow extends StatelessWidget {
     final start = DateTime(today.year, today.month, today.day);
     final late = !done && event.date.isBefore(start);
     final label = switch (event.type) {
-      PlanEventType.maturity => l10n.planEventMaturity,
+      PlanEventType.maturity =>
+        plan.kind == PlanKind.insurance
+            ? l10n.planEventPayout
+            : l10n.planEventMaturity,
       PlanEventType.profit => l10n.planEventProfit(event.number),
-      PlanEventType.installment => l10n.planEventInstallment(
-        event.number,
-        plan.installmentCount,
-      ),
+      PlanEventType.installment =>
+        plan.kind == PlanKind.insurance
+            ? l10n.planEventPremium(event.number, plan.installmentCount)
+            : l10n.planEventInstallment(event.number, plan.installmentCount),
     };
     final (IconData icon, Color color, String state) = done
         ? (Symbols.check_circle_rounded, c.positive, l10n.planEventDone)

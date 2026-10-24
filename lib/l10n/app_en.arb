@@ -1641,7 +1641,7 @@
   "aiActionRemindDays": "Remind, days before",
   "aiActionPay": "Pay",
   "plansTitle": "EMI, loans & savings",
-  "plansSubtitle": "EMIs, loans, DPS and FDR, paid and collected on time",
+  "plansSubtitle": "EMIs, loans, DPS, FDR, insurance and bonds, paid and collected on time",
   "planNew": "Start a plan",
   "planNewTitle": "What are you starting?",
   "plansEmptyTitle": "No EMIs, loans or savings yet",
@@ -1651,12 +1651,18 @@
   "planKindLoan": "Loan",
   "planKindDps": "DPS",
   "planKindFdr": "FDR",
+  "planKindInsurance": "Insurance",
+  "planKindBond": "Bond or certificate",
   "planKindEmiHint": "Something bought in installments, paid from cash, a bank account or a card",
   "planKindLoanHint": "Money borrowed and paid back in installments, with interest",
   "planKindDpsHint": "Save a fixed amount every month for a fixed time, and get it back with profit",
-  "planKindFdrHint": "Put a sum away for a fixed time, with profit monthly or at the end. Savings certificates work the same way",
+  "planKindFdrHint": "Put a sum away at a bank for a fixed time, with profit monthly, every three months or at the end",
+  "planKindInsuranceHint": "A policy with a premium every month, quarter or year, and a payout at the end if it has one",
+  "planKindBondHint": "A bond or savings certificate: one sum held for years, with profit monthly, every three months or at the end, after tax",
   "planWeekly": "Weekly",
   "planMonthly": "Monthly",
+  "planQuarterly": "Quarterly",
+  "planHalfYearly": "Half-yearly",
   "planYearly": "Yearly",
   "planMonths": "Months",
   "planYears": "Years",
@@ -1741,6 +1747,7 @@
   "planRateOptional": "Optional",
   "planPayout": "Profit paid",
   "planPayoutMonthly": "Every month",
+  "planPayoutQuarterly": "Every 3 months",
   "planPayoutAtMaturity": "At the end",
   "planMaturesOn": "Matures on",
   "planMaturity": "Paid back at the end",
@@ -1774,6 +1781,17 @@
       }
     }
   },
+  "planPayPremiumNow": "Pay premium {number} now, {amount}",
+  "@planPayPremiumNow": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "planDepositNow": "Make deposit {number} now, {amount}",
   "@planDepositNow": {
     "placeholders": {
@@ -1789,6 +1807,20 @@
   "planSaved": "Saved.",
   "planPayOff": "Pay off early",
   "planEncash": "Encash early",
+  "planSurrender": "Surrender the policy",
+  "planSurrenderTitle": "Surrender {name}?",
+  "@planSurrenderTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "planSurrenderBody": "Premiums stop. Whatever the insurer pays back is recorded as income.",
+  "planSurrenderNothing": "Nothing paid back",
+  "planSurrenderValue": "Enter the surrender value",
+  "planSurrenderValueLabel": "Surrender value",
+  "planSurrendered": "Policy surrendered",
   "planPayOffTitle": "Pay off {name}?",
   "@planPayOffTitle": {
     "placeholders": {
@@ -1845,6 +1877,18 @@
       }
     }
   },
+  "planEventPremium": "Premium {number} of {total}",
+  "@planEventPremium": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "planEventPayout": "Policy pays out",
   "planEventProfit": "Profit, month {number}",
   "@planEventProfit": {
     "placeholders": {
@@ -1932,6 +1976,54 @@
       }
     }
   },
+  "planSummaryInsurance": "{count} premiums of {premium}, {total} in all.",
+  "@planSummaryInsurance": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "premium": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "planSummaryInsurancePayout": "{count} premiums of {premium}, {total} in all, and {payout} back on {date}.",
+  "@planSummaryInsurancePayout": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "premium": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      },
+      "payout": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "planSummaryQuarterly": "{profit} profit every three months, and {principal} back on {date}.",
+  "@planSummaryQuarterly": {
+    "placeholders": {
+      "profit": {
+        "type": "String"
+      },
+      "principal": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "planNewKind": "New {kind}",
   "@planNewKind": {
     "placeholders": {
@@ -1945,12 +2037,26 @@
   "planNameHintLoan": "e.g. Bike loan",
   "planNameHintDps": "e.g. Brac DPS",
   "planNameHintFdr": "e.g. City Bank FDR",
+  "planNameHintInsurance": "e.g. Life policy",
+  "planNameHintBond": "e.g. 5-year Sanchayapatra",
+  "planProvider": "Bank or company",
+  "planReference": "Policy or account no.",
+  "planSumAssured": "Sum assured",
+  "planPremium": "Premium",
+  "planPremiums": "Premiums",
+  "planTaxLabel": "Tax at source %",
+  "planTax": "Tax at source",
+  "planFirstPremium": "First premium",
+  "planLastPremium": "Last premium",
+  "planInsurancePayout": "Paid back at the end",
+  "planNone": "None",
   "planHowMany": "How many",
   "planTerm": "Term",
   "planOpenedOn": "Opened on",
   "planFirstDue": "First installment",
   "planCategory": "Category",
   "planCategoryDefault": "Loan Payment",
+  "planCategoryInsurance": "Insurance",
   "planLoanReceived": "Money received into this account",
   "planLoanReceivedHint": "Off if it went straight to a seller",
   "planStart": "Start",

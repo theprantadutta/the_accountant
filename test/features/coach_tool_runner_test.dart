@@ -333,67 +333,82 @@ void main() {
     Future<CoachPlan> plan(String name, Map<String, dynamic> args) =>
         runner.plan(CoachToolCall('p1', name, args));
 
-    test('starts an EMI worked out from the price, then pays and closes it', () async {
-      final created = await plan('create_plan', {
-        'kind': 'emi',
-        'name': 'Phone',
-        'account': 'Bkash',
-        'amount': 60000,
-        'installments': 12,
-        'start_date': '2099-01-10',
-      });
-      expect(created.error, isNull);
-      expect(created.preview!.kind, CoachActionKind.createPlan);
-      expect(created.preview!.amount, 500000); // 60,000 / 12, no rate
-      final done = jsonDecode(await created.execute!()) as Map;
-      expect(done['status'], 'done');
+    test(
+      'starts an EMI worked out from the price, then pays and closes it',
+      () async {
+        final created = await plan('create_plan', {
+          'kind': 'emi',
+          'name': 'Phone',
+          'account': 'Bkash',
+          'amount': 60000,
+          'installments': 12,
+          'start_date': '2099-01-10',
+        });
+        expect(created.error, isNull);
+        expect(created.preview!.kind, CoachActionKind.createPlan);
+        expect(created.preview!.amount, 500000); // 60,000 / 12, no rate
+        final done = jsonDecode(await created.execute!()) as Map;
+        expect(done['status'], 'done');
 
-      final listed = (await read('list_plans', {}))['plans'] as List;
-      final phone = listed.single as Map;
-      expect(phone['kind'], 'emi');
-      expect(phone['installments'], 12);
-      expect(phone['installments_done'], 0);
-      expect(phone['remaining'], 60000.0);
+        final listed = (await read('list_plans', {}))['plans'] as List;
+        final phone = listed.single as Map;
+        expect(phone['kind'], 'emi');
+        expect(phone['installments'], 12);
+        expect(phone['installments_done'], 0);
+        expect(phone['remaining'], 60000.0);
 
-      // Not until it is confirmed.
-      final pay = await plan('pay_plan', {'plan': 'Phone'});
-      expect(pay.preview!.amount, 500000);
-      expect(((await read('list_plans', {}))['plans'] as List).single['installments_done'], 0);
-      await pay.execute!();
-      final after = ((await read('list_plans', {}))['plans'] as List).single as Map;
-      expect(after['installments_done'], 1);
-      expect(after['remaining'], 55000.0);
+        // Not until it is confirmed.
+        final pay = await plan('pay_plan', {'plan': 'Phone'});
+        expect(pay.preview!.amount, 500000);
+        expect(
+          ((await read('list_plans', {}))['plans'] as List)
+              .single['installments_done'],
+          0,
+        );
+        await pay.execute!();
+        final after =
+            ((await read('list_plans', {}))['plans'] as List).single as Map;
+        expect(after['installments_done'], 1);
+        expect(after['remaining'], 55000.0);
 
-      final close = await plan('close_plan', {'plan': 'Phone'});
-      expect(close.preview!.amount, 5500000);
-      await close.execute!();
-      final closed = ((await read('list_plans', {}))['plans'] as List).single as Map;
-      expect(closed['status'], 'closed');
-    });
+        final close = await plan('close_plan', {'plan': 'Phone'});
+        expect(close.preview!.amount, 5500000);
+        await close.execute!();
+        final closed =
+            ((await read('list_plans', {}))['plans'] as List).single as Map;
+        expect(closed['status'], 'closed');
+      },
+    );
 
-    test('a DPS gets its maturity from the rate, and a second of the same name is refused', () async {
-      final dps = await plan('create_plan', {
-        'kind': 'dps',
-        'name': 'Brac DPS',
-        'account': 'Brac Bank',
-        'installment_amount': 1000,
-        'installments': 12,
-        'rate': 6,
-        'start_date': '2099-01-10',
-      });
-      expect(dps.error, isNull);
-      await dps.execute!();
-      final row = ((await read('list_plans', {'kind': 'dps'}))['plans'] as List).single as Map;
-      expect(row['maturity_amount'], greaterThan(12000));
+    test(
+      'a DPS gets its maturity from the rate, and a second of the same name is refused',
+      () async {
+        final dps = await plan('create_plan', {
+          'kind': 'dps',
+          'name': 'Brac DPS',
+          'account': 'Brac Bank',
+          'installment_amount': 1000,
+          'installments': 12,
+          'rate': 6,
+          'start_date': '2099-01-10',
+        });
+        expect(dps.error, isNull);
+        await dps.execute!();
+        final row =
+            ((await read('list_plans', {'kind': 'dps'}))['plans'] as List)
+                    .single
+                as Map;
+        expect(row['maturity_amount'], greaterThan(12000));
 
-      final again = await plan('create_plan', {
-        'kind': 'dps',
-        'name': 'brac dps',
-        'installment_amount': 1000,
-        'installments': 12,
-      });
-      expect(again.error, contains('already running'));
-    });
+        final again = await plan('create_plan', {
+          'kind': 'dps',
+          'name': 'brac dps',
+          'installment_amount': 1000,
+          'installments': 12,
+        });
+        expect(again.error, contains('already running'));
+      },
+    );
 
     test('an FDR needs its amount', () async {
       final bad = await plan('create_plan', {
@@ -403,5 +418,92 @@ void main() {
       });
       expect(bad.error, contains('amount'));
     });
+
+    test(
+      'starts a quarterly insurance policy with its insurer and payout',
+      () async {
+        final created = await plan('create_plan', {
+          'kind': 'insurance',
+          'name': 'Life policy',
+          'account': 'Brac Bank',
+          'installment_amount': 2500,
+          'installments': 40,
+          'frequency': 'quarterly',
+          'amount': 1000000,
+          'maturity_amount': 120000,
+          'provider': 'MetLife',
+          'reference': 'POL-1',
+          'start_date': '2099-01-15',
+        });
+        expect(created.error, isNull);
+        final lines = Map.fromEntries(
+          created.preview!.lines.map((l) => MapEntry(l.$1, l.$2)),
+        );
+        expect(lines['premiums'], contains('quarterly'));
+        expect(
+          lines.keys,
+          containsAll(['sum_assured', 'payout_at_end', 'provider']),
+        );
+        await created.execute!();
+
+        final row =
+            ((await read('list_plans', {'kind': 'insurance'}))['plans'] as List)
+                    .single
+                as Map;
+        expect(row['provider'], 'MetLife');
+        expect(row['reference'], 'POL-1');
+        expect(row['frequency'], 'monthly');
+        expect(row['interval'], 3);
+        expect(row['payout_at_end'], 120000.0);
+        expect(row['next']['date'], '2099-01-15');
+
+        // Surrendered for what the insurer pays back.
+        final close = await plan('close_plan', {
+          'plan': 'Life policy',
+          'amount': 5000,
+        });
+        expect(close.preview!.isIncome, isTrue);
+        expect(close.preview!.amount, 500000);
+        await close.execute!();
+        expect(
+          ((await read('list_plans', {}))['plans'] as List).single['status'],
+          'closed',
+        );
+      },
+    );
+
+    test(
+      'a sanchayapatra is a bond paying quarterly profit after tax',
+      () async {
+        final created = await plan('create_plan', {
+          'kind': 'sanchayapatra',
+          'name': '5-year Sanchayapatra',
+          'account': 'Brac Bank',
+          'amount': 500000,
+          'installments': 5,
+          'frequency': 'yearly',
+          'rate': 11.28,
+          'payout': 'quarterly',
+          'tax_rate': 10,
+          'start_date': '2099-01-10',
+        });
+        expect(created.error, isNull);
+        expect(created.preview!.amount, 50000000);
+        final done = jsonDecode(await created.execute!()) as Map;
+        expect(done['deposited_now'], 500000.0);
+
+        final row =
+            ((await read('list_plans', {'kind': 'bond'}))['plans'] as List)
+                    .single
+                as Map;
+        expect(row['kind'], 'bond');
+        expect(row['payout'], 'quarterly');
+        expect(row['tax_rate'], 10.0);
+        // 5,00,000 × 11.28% / 4, less 10%.
+        expect(row['next']['type'], 'profit');
+        expect(row['next']['amount'], 12690.0);
+        expect(row['maturity_amount'], 500000.0);
+      },
+    );
   });
 }

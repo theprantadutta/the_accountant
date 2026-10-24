@@ -14,6 +14,8 @@ extension PlanKindLabels on PlanKind {
     PlanKind.loan => l10n.planKindLoan,
     PlanKind.dps => l10n.planKindDps,
     PlanKind.fdr => l10n.planKindFdr,
+    PlanKind.insurance => l10n.planKindInsurance,
+    PlanKind.bond => l10n.planKindBond,
   };
 
   String describe(L10n l10n) => switch (this) {
@@ -21,6 +23,8 @@ extension PlanKindLabels on PlanKind {
     PlanKind.loan => l10n.planKindLoanHint,
     PlanKind.dps => l10n.planKindDpsHint,
     PlanKind.fdr => l10n.planKindFdrHint,
+    PlanKind.insurance => l10n.planKindInsuranceHint,
+    PlanKind.bond => l10n.planKindBondHint,
   };
 
   IconData get icon => switch (this) {
@@ -28,6 +32,8 @@ extension PlanKindLabels on PlanKind {
     PlanKind.loan => Symbols.account_balance_rounded,
     PlanKind.dps => Symbols.savings_rounded,
     PlanKind.fdr => Symbols.lock_clock_rounded,
+    PlanKind.insurance => Symbols.shield_rounded,
+    PlanKind.bond => Symbols.receipt_long_rounded,
   };
 
   Color get color => switch (this) {
@@ -35,10 +41,12 @@ extension PlanKindLabels on PlanKind {
     PlanKind.loan => const Color(0xFFE11D48),
     PlanKind.dps => const Color(0xFF0EA5E9),
     PlanKind.fdr => const Color(0xFF10B981),
+    PlanKind.insurance => const Color(0xFF8B5CF6),
+    PlanKind.bond => const Color(0xFF0D9488),
   };
 
   /// Whether its money is saved rather than spent.
-  bool get isSaving => this == PlanKind.dps || this == PlanKind.fdr;
+  bool get isSaving => holdsMoney;
 }
 
 extension PlanFrequencyLabels on PlanFrequency {
@@ -48,6 +56,16 @@ extension PlanFrequencyLabels on PlanFrequency {
     PlanFrequency.yearly => l10n.planYearly,
   };
 }
+
+/// How often a plan falls due, counting the interval: every 3 months is
+/// quarterly.
+String planCycleLabel(L10n l10n, PlanFrequency frequency, int interval) =>
+    switch ((frequency, interval)) {
+      (PlanFrequency.monthly, 3) => l10n.planQuarterly,
+      (PlanFrequency.monthly, 6) => l10n.planHalfYearly,
+      (PlanFrequency.monthly, 12) => l10n.planYearly,
+      _ => frequency.label(l10n),
+    };
 
 /// Money and dates the way the rest of the app writes them.
 class PlanFormat {

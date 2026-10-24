@@ -95,11 +95,26 @@ class PlanMath {
     return (principal * math.pow(1 + rate, months / 12)).round();
   }
 
-  /// An FDR's profit each month when it is paid out monthly.
+  /// An FDR's profit each month when it is paid out monthly, before tax.
   static int fdrMonthlyProfit({
     required int principal,
     required double? annualRate,
   }) => (principal * (annualRate ?? 0) / 100 / 12).round();
+
+  /// What is left of [profit] after [taxRate] percent is taken at source.
+  static int afterTax(int profit, double? taxRate) =>
+      (profit * (1 - (taxRate ?? 0).clamp(0, 100) / 100)).round();
+
+  /// A fixed deposit's profit for one payout, after tax: a month's or a
+  /// quarter's, by [payout].
+  static int periodicProfit(Plan plan) => afterTax(
+    (plan.principal *
+            (plan.interestRate ?? 0) /
+            100 /
+            (plan.payout == PlanPayout.quarterly ? 4 : 12))
+        .round(),
+    plan.taxRate,
+  );
 }
 
 /// Where a plan's dates fall.
@@ -149,24 +164,21 @@ class PlanDates {
         _ => 1,
       };
 
-  /// The day a DPS or FDR matures, or an EMI or loan's last installment.
-  static DateTime endOf(Plan plan) => switch (plan.kind) {
-    PlanKind.fdr => shift(
-      plan.startDate,
-      PlanFrequency.monthly,
-      fdrMonths(plan),
-    ),
-    PlanKind.dps => shift(
-      plan.startDate,
-      plan.frequency,
-      plan.installmentCount * plan.interval,
-    ),
-    _ => shift(
+  /// The day a DPS, FDR or bond matures, an insurance policy pays out (or
+  /// takes its last premium), or an EMI or loan's last installment.
+  static DateTime endOf(Plan plan) {
+    if (plan.kind.isFixedDeposit) {
+      return shift(plan.startDate, PlanFrequency.monthly, fdrMonths(plan));
+    }
+    final paysOut =
+        plan.kind == PlanKind.dps ||
+        (plan.kind == PlanKind.insurance && (plan.maturityAmount ?? 0) > 0);
+    return shift(
       plan.startDate,
       plan.frequency,
-      (plan.installmentCount - 1) * plan.interval,
-    ),
-  };
+      (plan.installmentCount - (paysOut ? 0 : 1)) * plan.interval,
+    );
+  }
 }
 
 /// One thing a plan does on a day.
@@ -210,19 +222,32 @@ class PlanEvent {
 
 /// Everything a plan is scheduled to do, in order.
 List<PlanEvent> planEvents(Plan plan) {
+  DateTime due(int n) =>
+      PlanDates.shift(plan.startDate, plan.frequency, (n - 1) * plan.interval);
+  List<PlanEvent> installments() => [
+    for (var n = 1; n <= plan.installmentCount; n++)
+      PlanEvent(
+        number: n,
+        type: PlanEventType.installment,
+        date: due(n),
+        amount: plan.installmentAmount,
+      ),
+  ];
+
   switch (plan.kind) {
     case PlanKind.emi:
+      return installments();
+    case PlanKind.insurance:
+      final payout = plan.maturityAmount ?? 0;
       return [
-        for (var n = 1; n <= plan.installmentCount; n++)
+        ...installments(),
+        if (payout > 0)
           PlanEvent(
-            number: n,
-            type: PlanEventType.installment,
-            date: PlanDates.shift(
-              plan.startDate,
-              plan.frequency,
-              (n - 1) * plan.interval,
-            ),
-            amount: plan.installmentAmount,
+            number: plan.installmentCount + 1,
+            type: PlanEventType.maturity,
+            date: PlanDates.endOf(plan),
+            amount: payout,
+            interestPart: payout,
           ),
       ];
     case PlanKind.loan:
@@ -239,11 +264,7 @@ List<PlanEvent> planEvents(Plan plan) {
           PlanEvent(
             number: n,
             type: PlanEventType.installment,
-            date: PlanDates.shift(
-              plan.startDate,
-              plan.frequency,
-              (n - 1) * plan.interval,
-            ),
+            date: due(n),
             amount: parts[n - 1].principal + parts[n - 1].interest,
             principalPart: parts[n - 1].principal,
             interestPart: parts[n - 1].interest,
@@ -251,55 +272,60 @@ List<PlanEvent> planEvents(Plan plan) {
       ];
     case PlanKind.dps:
       final deposited = plan.installmentAmount * plan.installmentCount;
-      final maturity = plan.maturityAmount ?? deposited;
+      final profit = PlanMath.afterTax(
+        math.max(0, (plan.maturityAmount ?? deposited) - deposited),
+        plan.taxRate,
+      );
       return [
-        for (var n = 1; n <= plan.installmentCount; n++)
-          PlanEvent(
-            number: n,
-            type: PlanEventType.installment,
-            date: PlanDates.shift(
-              plan.startDate,
-              plan.frequency,
-              (n - 1) * plan.interval,
-            ),
-            amount: plan.installmentAmount,
-          ),
+        ...installments(),
         PlanEvent(
           number: plan.installmentCount + 1,
           type: PlanEventType.maturity,
           date: PlanDates.endOf(plan),
-          amount: maturity,
+          amount: deposited + profit,
           principalPart: deposited,
-          interestPart: math.max(0, maturity - deposited),
+          interestPart: profit,
         ),
       ];
     case PlanKind.fdr:
+    case PlanKind.bond:
       final months = PlanDates.fdrMonths(plan);
-      final monthly = plan.payout == PlanPayout.monthly;
-      final profit = PlanMath.fdrMonthlyProfit(
-        principal: plan.principal,
-        annualRate: plan.interestRate,
-      );
-      final maturity = monthly
-          ? plan.principal
-          : (plan.maturityAmount ?? plan.principal);
+      final every = switch (plan.payout) {
+        PlanPayout.monthly => 1,
+        PlanPayout.quarterly => 3,
+        PlanPayout.atMaturity => 0,
+      };
+      final payouts = every == 0 ? 0 : months ~/ every;
+      final profit = PlanMath.periodicProfit(plan);
+      final atEnd = every == 0
+          ? PlanMath.afterTax(
+              math.max(
+                0,
+                (plan.maturityAmount ?? plan.principal) - plan.principal,
+              ),
+              plan.taxRate,
+            )
+          : 0;
       return [
-        if (monthly)
-          for (var n = 1; n <= months; n++)
-            PlanEvent(
-              number: n,
-              type: PlanEventType.profit,
-              date: PlanDates.shift(plan.startDate, PlanFrequency.monthly, n),
-              amount: profit,
-              interestPart: profit,
+        for (var n = 1; n <= payouts; n++)
+          PlanEvent(
+            number: n,
+            type: PlanEventType.profit,
+            date: PlanDates.shift(
+              plan.startDate,
+              PlanFrequency.monthly,
+              n * every,
             ),
+            amount: profit,
+            interestPart: profit,
+          ),
         PlanEvent(
           number: months + 1,
           type: PlanEventType.maturity,
           date: PlanDates.endOf(plan),
-          amount: maturity,
+          amount: plan.principal + atEnd,
           principalPart: plan.principal,
-          interestPart: math.max(0, maturity - plan.principal),
+          interestPart: atEnd,
         ),
       ];
   }

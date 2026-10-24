@@ -33,6 +33,9 @@ class PlanDraft {
     this.categoryId,
     this.notes,
     this.loanReceived = true,
+    this.provider,
+    this.reference,
+    this.taxRate,
   });
 
   final PlanKind kind;
@@ -55,6 +58,13 @@ class PlanDraft {
   /// For a loan: whether the money arrived in [walletId] and should be
   /// recorded as received. Off for a loan that was paid straight to a seller.
   final bool loanReceived;
+
+  /// The bank, insurer or issuer, and the policy or certificate number.
+  final String? provider;
+  final String? reference;
+
+  /// Percent of profit taken as tax at source.
+  final double? taxRate;
 }
 
 /// Where a plan stands: what has been recorded and what comes next.
@@ -177,11 +187,17 @@ class PlanService {
     final now = DateTime.now();
     final categoryId =
         d.categoryId ??
-        (d.kind == PlanKind.emi || d.kind == PlanKind.loan
-            ? await _db.requireSystemCategoryId(BuiltInCategoryKeys.loanPayment)
-            : null);
+        switch (d.kind) {
+          PlanKind.emi || PlanKind.loan => await _db.requireSystemCategoryId(
+            BuiltInCategoryKeys.loanPayment,
+          ),
+          PlanKind.insurance => await _db.requireSystemCategoryId(
+            BuiltInCategoryKeys.insurance,
+          ),
+          _ => null,
+        };
 
-    final installment = d.kind == PlanKind.fdr ? 0 : d.installmentAmount;
+    final installment = d.kind.isFixedDeposit ? 0 : d.installmentAmount;
     final principal = switch (d.kind) {
       PlanKind.dps => d.installmentAmount * d.installmentCount,
       _ => d.principal,
@@ -189,7 +205,7 @@ class PlanService {
 
     await _db.transaction(() async {
       String? holdingId;
-      if (d.kind == PlanKind.dps || d.kind == PlanKind.fdr) {
+      if (d.kind.holdsMoney) {
         holdingId = _uuid.v4();
         await _db.addWallet(
           WalletsCompanion(
@@ -197,7 +213,11 @@ class PlanService {
             name: Value(d.name),
             currency: Value(wallet.currency),
             iconName: const Value('savings'),
-            color: Value(d.kind == PlanKind.dps ? '#0EA5E9' : '#10B981'),
+            color: Value(switch (d.kind) {
+              PlanKind.dps => '#0EA5E9',
+              PlanKind.bond => '#0D9488',
+              _ => '#10B981',
+            }),
             walletType: const Value(WalletType.deposit),
             useDecimals: Value(wallet.useDecimals),
             balance: const Value(0),
@@ -232,6 +252,9 @@ class PlanService {
               autoCollect: Value(d.autoCollect),
               reminderDaysBefore: Value(d.reminderDaysBefore),
               notes: Value(d.notes),
+              provider: Value(_blankToNull(d.provider)),
+              reference: Value(_blankToNull(d.reference)),
+              taxRate: Value(d.taxRate),
               syncStatus: const Value(SyncStatus.pendingCreate),
               createdAt: Value(now),
               updatedAt: Value(now),
@@ -240,7 +263,7 @@ class PlanService {
     });
 
     final plan = (await findPlan(id))!;
-    if (plan.kind == PlanKind.fdr) {
+    if (plan.kind.isFixedDeposit) {
       await _transferFor(
         plan,
         number: 0,
@@ -267,19 +290,33 @@ class PlanService {
         (d.interestRate! < 0 || d.interestRate! > 100)) {
       throw ArgumentError('The rate must be between 0 and 100 percent.');
     }
+    if (d.taxRate != null && (d.taxRate! < 0 || d.taxRate! > 100)) {
+      throw ArgumentError('The tax must be between 0 and 100 percent.');
+    }
+    // The server keeps 100 characters of each.
+    if ((d.provider?.trim().length ?? 0) > 100 ||
+        (d.reference?.trim().length ?? 0) > 100) {
+      throw ArgumentError('Keep the company and number under 100 characters.');
+    }
     switch (d.kind) {
       case PlanKind.emi:
       case PlanKind.loan:
       case PlanKind.dps:
+      case PlanKind.insurance:
         if (d.installmentAmount <= 0) {
-          throw ArgumentError('Enter the amount of each installment.');
+          throw ArgumentError(
+            d.kind == PlanKind.insurance
+                ? 'Enter the premium.'
+                : 'Enter the amount of each installment.',
+          );
         }
       case PlanKind.fdr:
+      case PlanKind.bond:
         if (d.principal <= 0) {
           throw ArgumentError('Enter the amount deposited.');
         }
         if (d.frequency == PlanFrequency.weekly) {
-          throw ArgumentError('An FDR runs for months or years.');
+          throw ArgumentError('It runs for months or years.');
         }
     }
     if ((d.kind == PlanKind.emi || d.kind == PlanKind.loan) &&
@@ -367,8 +404,20 @@ class PlanService {
             title: '${plan.name}: paid off',
           );
         }
+      case PlanKind.insurance:
+        // Surrendered: whatever the insurer pays back is income.
+        if ((amount ?? 0) > 0) {
+          await _income(
+            plan,
+            number: number,
+            amount: amount!,
+            date: date,
+            title: '${plan.name}: surrender value',
+          );
+        }
       case PlanKind.dps:
       case PlanKind.fdr:
+      case PlanKind.bond:
         final holding = await _db.findWalletById(plan.holdingWalletId!);
         final saved = holding?.balance ?? 0;
         if (saved > 0) {
@@ -527,7 +576,26 @@ class PlanService {
         } else {
           await _mature(plan, e, date);
         }
+      case PlanKind.insurance:
+        if (e.type == PlanEventType.installment) {
+          await _expense(
+            plan,
+            number: e.number,
+            amount: e.amount,
+            date: date,
+            title: '${plan.name}: premium ${e.number} of $count',
+          );
+        } else {
+          await _income(
+            plan,
+            number: e.number,
+            amount: e.amount,
+            date: date,
+            title: '${plan.name}: policy paid out',
+          );
+        }
       case PlanKind.fdr:
+      case PlanKind.bond:
         if (e.type == PlanEventType.profit) {
           await _income(
             plan,
@@ -806,6 +874,9 @@ class PlanService {
       }
     });
   }
+
+  static String? _blankToNull(String? s) =>
+      s == null || s.trim().isEmpty ? null : s.trim();
 
   static int _edited(int status) =>
       status == SyncStatus.pendingCreate ? status : SyncStatus.pendingUpdate;

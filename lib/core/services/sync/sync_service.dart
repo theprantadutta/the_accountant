@@ -1581,6 +1581,9 @@ class SyncService {
       planInstallment: data.containsKey('PlanInstallment')
           ? Value((data['PlanInstallment'] as num?)?.toInt())
           : const Value.absent(),
+      units: data.containsKey('Units')
+          ? Value((data['Units'] as num?)?.toDouble())
+          : const Value.absent(),
       recurringConfigId: Value(data['RecurringConfigId']),
       occurrenceKey: Value(data['OccurrenceKey'] as String?),
       budgetId: Value(data['BudgetId']),
@@ -2104,6 +2107,9 @@ class SyncService {
       interestRate: Value((data['InterestRate'] as num?)?.toDouble()),
       maturityAmount: Value((data['MaturityAmount'] as num?)?.toInt()),
       payout: Value(pick(PlanPayout.values, data['Payout'])),
+      provider: Value(data['Provider'] as String?),
+      reference: Value(data['Reference'] as String?),
+      taxRate: Value((data['TaxRate'] as num?)?.toDouble()),
       autoCollect: Value(data['AutoCollect'] as bool? ?? true),
       reminderDaysBefore: Value(
         (data['ReminderDaysBefore'] as num?)?.toInt() ?? 3,
@@ -2432,6 +2438,7 @@ class SyncService {
     'SettlesTransactionId': t.settlesTransactionId,
     'PlanId': t.planId,
     'PlanInstallment': t.planInstallment,
+    'Units': t.units,
     'RecurringConfigId': t.recurringConfigId,
     // Deterministic key for a generated recurrence occurrence. The server has a
     // matching uniqueness constraint, so two offline devices that generated the
@@ -2545,6 +2552,9 @@ class SyncService {
     'InterestRate': p.interestRate,
     'MaturityAmount': p.maturityAmount,
     'Payout': p.payout.index,
+    'Provider': p.provider,
+    'Reference': p.reference,
+    'TaxRate': p.taxRate,
     'AutoCollect': p.autoCollect,
     'ReminderDaysBefore': p.reminderDaysBefore,
     'Status': p.status.index,

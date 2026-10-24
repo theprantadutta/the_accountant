@@ -3423,7 +3423,7 @@ class L10nEn extends L10n {
 
   @override
   String get plansSubtitle =>
-      'EMIs, loans, DPS and FDR, paid and collected on time';
+      'EMIs, loans, DPS, FDR, insurance and bonds, paid and collected on time';
 
   @override
   String get planNew => 'Start a plan';
@@ -3454,6 +3454,12 @@ class L10nEn extends L10n {
   String get planKindFdr => 'FDR';
 
   @override
+  String get planKindInsurance => 'Insurance';
+
+  @override
+  String get planKindBond => 'Bond or certificate';
+
+  @override
   String get planKindEmiHint =>
       'Something bought in installments, paid from cash, a bank account or a card';
 
@@ -3467,13 +3473,27 @@ class L10nEn extends L10n {
 
   @override
   String get planKindFdrHint =>
-      'Put a sum away for a fixed time, with profit monthly or at the end. Savings certificates work the same way';
+      'Put a sum away at a bank for a fixed time, with profit monthly, every three months or at the end';
+
+  @override
+  String get planKindInsuranceHint =>
+      'A policy with a premium every month, quarter or year, and a payout at the end if it has one';
+
+  @override
+  String get planKindBondHint =>
+      'A bond or savings certificate: one sum held for years, with profit monthly, every three months or at the end, after tax';
 
   @override
   String get planWeekly => 'Weekly';
 
   @override
   String get planMonthly => 'Monthly';
+
+  @override
+  String get planQuarterly => 'Quarterly';
+
+  @override
+  String get planHalfYearly => 'Half-yearly';
 
   @override
   String get planYearly => 'Yearly';
@@ -3588,6 +3608,9 @@ class L10nEn extends L10n {
   String get planPayoutMonthly => 'Every month';
 
   @override
+  String get planPayoutQuarterly => 'Every 3 months';
+
+  @override
   String get planPayoutAtMaturity => 'At the end';
 
   @override
@@ -3622,6 +3645,11 @@ class L10nEn extends L10n {
   }
 
   @override
+  String planPayPremiumNow(int number, String amount) {
+    return 'Pay premium $number now, $amount';
+  }
+
+  @override
   String planDepositNow(int number, String amount) {
     return 'Make deposit $number now, $amount';
   }
@@ -3637,6 +3665,30 @@ class L10nEn extends L10n {
 
   @override
   String get planEncash => 'Encash early';
+
+  @override
+  String get planSurrender => 'Surrender the policy';
+
+  @override
+  String planSurrenderTitle(String name) {
+    return 'Surrender $name?';
+  }
+
+  @override
+  String get planSurrenderBody =>
+      'Premiums stop. Whatever the insurer pays back is recorded as income.';
+
+  @override
+  String get planSurrenderNothing => 'Nothing paid back';
+
+  @override
+  String get planSurrenderValue => 'Enter the surrender value';
+
+  @override
+  String get planSurrenderValueLabel => 'Surrender value';
+
+  @override
+  String get planSurrendered => 'Policy surrendered';
 
   @override
   String planPayOffTitle(String name) {
@@ -3707,6 +3759,14 @@ class L10nEn extends L10n {
   }
 
   @override
+  String planEventPremium(int number, int total) {
+    return 'Premium $number of $total';
+  }
+
+  @override
+  String get planEventPayout => 'Policy pays out';
+
+  @override
   String planEventProfit(int number) {
     return 'Profit, month $number';
   }
@@ -3760,6 +3820,27 @@ class L10nEn extends L10n {
   }
 
   @override
+  String planSummaryInsurance(int count, String premium, String total) {
+    return '$count premiums of $premium, $total in all.';
+  }
+
+  @override
+  String planSummaryInsurancePayout(
+    int count,
+    String premium,
+    String total,
+    String payout,
+    String date,
+  ) {
+    return '$count premiums of $premium, $total in all, and $payout back on $date.';
+  }
+
+  @override
+  String planSummaryQuarterly(String profit, String principal, String date) {
+    return '$profit profit every three months, and $principal back on $date.';
+  }
+
+  @override
   String planNewKind(String kind) {
     return 'New $kind';
   }
@@ -3780,6 +3861,45 @@ class L10nEn extends L10n {
   String get planNameHintFdr => 'e.g. City Bank FDR';
 
   @override
+  String get planNameHintInsurance => 'e.g. Life policy';
+
+  @override
+  String get planNameHintBond => 'e.g. 5-year Sanchayapatra';
+
+  @override
+  String get planProvider => 'Bank or company';
+
+  @override
+  String get planReference => 'Policy or account no.';
+
+  @override
+  String get planSumAssured => 'Sum assured';
+
+  @override
+  String get planPremium => 'Premium';
+
+  @override
+  String get planPremiums => 'Premiums';
+
+  @override
+  String get planTaxLabel => 'Tax at source %';
+
+  @override
+  String get planTax => 'Tax at source';
+
+  @override
+  String get planFirstPremium => 'First premium';
+
+  @override
+  String get planLastPremium => 'Last premium';
+
+  @override
+  String get planInsurancePayout => 'Paid back at the end';
+
+  @override
+  String get planNone => 'None';
+
+  @override
   String get planHowMany => 'How many';
 
   @override
@@ -3796,6 +3916,9 @@ class L10nEn extends L10n {
 
   @override
   String get planCategoryDefault => 'Loan Payment';
+
+  @override
+  String get planCategoryInsurance => 'Insurance';
 
   @override
   String get planLoanReceived => 'Money received into this account';

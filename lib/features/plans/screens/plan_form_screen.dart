@@ -15,7 +15,15 @@ import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
 
-/// Start an EMI, loan, DPS or FDR.
+/// How often an insurance premium falls due, as a frequency and interval.
+const _premiumCycles = [
+  (PlanFrequency.monthly, 1),
+  (PlanFrequency.monthly, 3),
+  (PlanFrequency.monthly, 6),
+  (PlanFrequency.yearly, 1),
+];
+
+/// Start an EMI, loan, DPS, FDR, insurance policy or bond.
 ///
 /// The figures that follow from others are worked out as they are typed: an
 /// installment from the price, rate and term; a maturity from the deposit and
@@ -34,12 +42,16 @@ class _PlanFormScreenState extends ConsumerState<PlanFormScreen> {
   final _name = TextEditingController();
   final _count = TextEditingController();
   final _rate = TextEditingController();
+  final _tax = TextEditingController();
+  final _provider = TextEditingController();
+  final _reference = TextEditingController();
 
   String? _walletId;
   String? _categoryId;
   String? _categoryName;
   late DateTime _start;
   PlanFrequency _frequency = PlanFrequency.monthly;
+  int _interval = 1;
   PlanPayout _payout = PlanPayout.atMaturity;
   int _principal = 0;
   int _installment = 0;
@@ -52,6 +64,8 @@ class _PlanFormScreenState extends ConsumerState<PlanFormScreen> {
   bool _saving = false;
 
   PlanKind get _kind => widget.kind;
+  bool get _hasRate => _kind != PlanKind.insurance;
+  bool get _hasTax => _kind.holdsMoney;
 
   @override
   void initState() {
@@ -59,38 +73,51 @@ class _PlanFormScreenState extends ConsumerState<PlanFormScreen> {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day, 10);
     // Installments usually start a period after the purchase or the loan; a
-    // DPS and an FDR start the day they are opened.
+    // DPS, deposit, bond or policy starts the day it is opened.
     _start = _kind == PlanKind.emi || _kind == PlanKind.loan
         ? PlanDates.shift(today, PlanFrequency.monthly, 1)
         : today;
     _count.text = switch (_kind) {
       PlanKind.dps => '60',
-      PlanKind.fdr => '12',
+      PlanKind.bond => '5',
+      PlanKind.insurance => '20',
       _ => '12',
     };
+    if (_kind == PlanKind.bond) {
+      // Savings certificates run for years, pay every three months, and are
+      // taxed at source.
+      _frequency = PlanFrequency.yearly;
+      _payout = PlanPayout.quarterly;
+      _tax.text = '10';
+    }
+    if (_kind == PlanKind.insurance) _frequency = PlanFrequency.yearly;
     final wallets = ref.read(selectableWalletsProvider);
     final preferred = wallets.where(
-      (w) => _kind.isSaving ? w.walletType == WalletType.bankAccount : true,
+      (w) => _kind.holdsMoney ? w.walletType == WalletType.bankAccount : true,
     );
     _walletId =
         (preferred.isNotEmpty ? preferred.first : wallets.firstOrNull)?.id;
     _count.addListener(_recompute);
     _rate.addListener(_recompute);
+    _tax.addListener(_recompute);
   }
 
   @override
   void dispose() {
-    _name.dispose();
-    _count.dispose();
-    _rate.dispose();
+    for (final c in [_name, _count, _rate, _tax, _provider, _reference]) {
+      c.dispose();
+    }
     super.dispose();
   }
 
   int get _n => int.tryParse(_count.text.trim()) ?? 0;
-  double? get _r {
-    final v = double.tryParse(_rate.text.trim());
+  double? _percent(TextEditingController c) {
+    final v = double.tryParse(c.text.trim());
     return v == null || v <= 0 ? null : v;
   }
+
+  double? get _r => _percent(_rate);
+  double? get _t => _percent(_tax);
 
   int get _fdrMonths => _n * (_frequency == PlanFrequency.yearly ? 12 : 1);
 
@@ -116,7 +143,7 @@ class _PlanFormScreenState extends ConsumerState<PlanFormScreen> {
             frequency: _frequency,
           );
         }
-        if (_kind == PlanKind.fdr && _principal > 0 && _n > 0) {
+        if (_kind.isFixedDeposit && _principal > 0 && _n > 0) {
           _maturity = PlanMath.fdrMaturity(
             principal: _principal,
             annualRate: _r,
@@ -145,7 +172,7 @@ class _PlanFormScreenState extends ConsumerState<PlanFormScreen> {
     final v = await showCalculatorBottomSheet(
       context: context,
       initialAmount: current / 100.0,
-      isIncome: _kind.isSaving,
+      isIncome: _kind.holdsMoney,
       currencySymbol: CurrencyInfo.getSymbol(_currency),
     );
     _dropFocus();
@@ -180,13 +207,14 @@ class _PlanFormScreenState extends ConsumerState<PlanFormScreen> {
   }
 
   Future<void> _pickStart() async {
-    FocusManager.instance.primaryFocus?.unfocus();
+    _dropFocus();
     final picked = await showDatePicker(
       context: context,
       initialDate: _start,
       firstDate: DateTime(2000),
       lastDate: DateTime(DateTime.now().year + 30),
     );
+    _dropFocus();
     if (picked != null) {
       setState(
         () => _start = DateTime(picked.year, picked.month, picked.day, 10),
@@ -232,13 +260,19 @@ class _PlanFormScreenState extends ConsumerState<PlanFormScreen> {
           installmentAmount: _installment,
           installmentCount: _n,
           frequency: _frequency,
-          interestRate: _r,
-          maturityAmount: _kind.isSaving ? _maturity : null,
+          interval: _interval,
+          interestRate: _hasRate ? _r : null,
+          maturityAmount: _kind.holdsMoney || _kind == PlanKind.insurance
+              ? _maturity
+              : null,
           payout: _payout,
           autoCollect: _autoCollect,
           reminderDaysBefore: _remind,
           categoryId: _categoryId,
           loanReceived: _loanReceived,
+          provider: _provider.text,
+          reference: _reference.text,
+          taxRate: _hasTax ? _t : null,
         ),
       );
       // Whatever already fell due — an EMI started last month, a DPS opened
@@ -257,6 +291,96 @@ class _PlanFormScreenState extends ConsumerState<PlanFormScreen> {
     }
   }
 
+  String _cycleLabel(L10n l10n, (PlanFrequency, int) cycle) => switch (cycle) {
+    (PlanFrequency.monthly, 1) => l10n.planMonthly,
+    (PlanFrequency.monthly, 3) => l10n.planQuarterly,
+    (PlanFrequency.monthly, 6) => l10n.planHalfYearly,
+    _ => l10n.planYearly,
+  };
+
+  String? _summary(L10n l10n, String Function(int) money, PlanFormat f) {
+    final end = _kind.isFixedDeposit
+        ? PlanDates.shift(_start, PlanFrequency.monthly, _fdrMonths)
+        : PlanDates.shift(_start, _frequency, _n * _interval);
+    switch (_kind) {
+      case PlanKind.emi:
+      case PlanKind.loan:
+        if (_installment <= 0 || _n <= 0) return null;
+        return _principal > 0 && _installment * _n > _principal
+            ? l10n.planSummaryInstallments(
+                _n,
+                money(_installment),
+                money(_installment * _n),
+                money(_installment * _n - _principal),
+              )
+            : l10n.planSummaryNoInterest(
+                _n,
+                money(_installment),
+                money(_installment * _n),
+              );
+      case PlanKind.insurance:
+        if (_installment <= 0 || _n <= 0) return null;
+        return (_maturity ?? 0) > 0
+            ? l10n.planSummaryInsurancePayout(
+                _n,
+                money(_installment),
+                money(_installment * _n),
+                money(_maturity!),
+                f.day(end),
+              )
+            : l10n.planSummaryInsurance(
+                _n,
+                money(_installment),
+                money(_installment * _n),
+              );
+      case PlanKind.dps:
+        if (_installment <= 0 || _n <= 0) return null;
+        final deposited = _installment * _n;
+        final back =
+            deposited +
+            PlanMath.afterTax(
+              ((_maturity ?? deposited) - deposited).clamp(0, 1 << 62),
+              _t,
+            );
+        return l10n.planSummaryDps(money(deposited), money(back), f.day(end));
+      case PlanKind.fdr:
+      case PlanKind.bond:
+        if (_principal <= 0 || _n <= 0) return null;
+        if (_payout == PlanPayout.atMaturity) {
+          final back =
+              _principal +
+              PlanMath.afterTax(
+                ((_maturity ?? _principal) - _principal).clamp(0, 1 << 62),
+                _t,
+              );
+          return l10n.planSummaryFdr(
+            money(_principal),
+            money(back),
+            f.day(end),
+          );
+        }
+        final profit = PlanMath.afterTax(
+          (_principal *
+                  (_r ?? 0) /
+                  100 /
+                  (_payout == PlanPayout.quarterly ? 4 : 12))
+              .round(),
+          _t,
+        );
+        return _payout == PlanPayout.quarterly
+            ? l10n.planSummaryQuarterly(
+                money(profit),
+                money(_principal),
+                f.day(end),
+              )
+            : l10n.planSummaryFdrMonthly(
+                money(profit),
+                money(_principal),
+                f.day(end),
+              );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = L10n.of(context);
@@ -270,49 +394,8 @@ class _PlanFormScreenState extends ConsumerState<PlanFormScreen> {
         .firstOrNull;
     final digits = [FilteringTextInputFormatter.digitsOnly];
     final decimal = [FilteringTextInputFormatter.allow(RegExp(r'[0-9.]'))];
-
-    final summary = switch (_kind) {
-      PlanKind.emi || PlanKind.loan when _installment > 0 && _n > 0 =>
-        _principal > 0 && _installment * _n > _principal
-            ? l10n.planSummaryInstallments(
-                _n,
-                money(_installment),
-                money(_installment * _n),
-                money(_installment * _n - _principal),
-              )
-            : l10n.planSummaryNoInterest(
-                _n,
-                money(_installment),
-                money(_installment * _n),
-              ),
-      PlanKind.dps when _installment > 0 && _n > 0 => l10n.planSummaryDps(
-        money(_installment * _n),
-        money(_maturity ?? _installment * _n),
-        f.day(PlanDates.shift(_start, _frequency, _n)),
-      ),
-      PlanKind.fdr when _principal > 0 && _n > 0 =>
-        _payout == PlanPayout.monthly
-            ? l10n.planSummaryFdrMonthly(
-                money(
-                  PlanMath.fdrMonthlyProfit(
-                    principal: _principal,
-                    annualRate: _r,
-                  ),
-                ),
-                money(_principal),
-                f.day(
-                  PlanDates.shift(_start, PlanFrequency.monthly, _fdrMonths),
-                ),
-              )
-            : l10n.planSummaryFdr(
-                money(_principal),
-                money(_maturity ?? _principal),
-                f.day(
-                  PlanDates.shift(_start, PlanFrequency.monthly, _fdrMonths),
-                ),
-              ),
-      _ => null,
-    };
+    final summary = _summary(l10n, money, f);
+    final isInsurance = _kind == PlanKind.insurance;
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.planNewKind(_kind.label(l10n)))),
@@ -339,9 +422,34 @@ class _PlanFormScreenState extends ConsumerState<PlanFormScreen> {
                 PlanKind.loan => l10n.planNameHintLoan,
                 PlanKind.dps => l10n.planNameHintDps,
                 PlanKind.fdr => l10n.planNameHintFdr,
+                PlanKind.insurance => l10n.planNameHintInsurance,
+                PlanKind.bond => l10n.planNameHintBond,
               },
               textCapitalization: TextCapitalization.sentences,
             ),
+            if (_kind != PlanKind.emi) ...[
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  Expanded(
+                    child: SunriseTextField(
+                      key: const Key('plan_provider'),
+                      controller: _provider,
+                      label: l10n.planProvider,
+                      textCapitalization: TextCapitalization.words,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: SunriseTextField(
+                      key: const Key('plan_reference'),
+                      controller: _reference,
+                      label: l10n.planReference,
+                    ),
+                  ),
+                ],
+              ),
+            ],
             const SizedBox(height: 14),
             SettingsGroup(
               children: [
@@ -350,21 +458,22 @@ class _PlanFormScreenState extends ConsumerState<PlanFormScreen> {
                   icon: Symbols.account_balance_wallet_rounded,
                   title: switch (_kind) {
                     PlanKind.loan => l10n.planAccountLoan,
-                    PlanKind.emi => l10n.planAccountEmi,
+                    PlanKind.emi || PlanKind.insurance => l10n.planAccountEmi,
                     _ => l10n.planAccountSaving,
                   },
                   value: wallet?.name ?? l10n.cardNotSet,
                   onTap: _pickWallet,
                 ),
-                if (_kind == PlanKind.emi ||
-                    _kind == PlanKind.loan ||
-                    _kind == PlanKind.fdr)
+                if (_kind != PlanKind.dps)
                   SettingsRow(
                     key: const Key('plan_principal'),
-                    icon: Symbols.payments_rounded,
+                    icon: isInsurance
+                        ? Symbols.shield_rounded
+                        : Symbols.payments_rounded,
                     title: switch (_kind) {
                       PlanKind.emi => l10n.planPrice,
                       PlanKind.loan => l10n.planBorrowed,
+                      PlanKind.insurance => l10n.planSumAssured,
                       _ => l10n.planDeposited,
                     },
                     value: _principal == 0
@@ -378,16 +487,20 @@ class _PlanFormScreenState extends ConsumerState<PlanFormScreen> {
                       }
                     },
                   ),
-                if (_kind != PlanKind.fdr)
+                if (!_kind.isFixedDeposit)
                   SettingsRow(
                     key: const Key('plan_installment'),
                     icon: Symbols.event_repeat_rounded,
-                    title: _kind == PlanKind.dps
-                        ? l10n.planDeposit
-                        : l10n.planInstallment,
-                    subtitle: _kind == PlanKind.dps || _installmentTyped
-                        ? null
-                        : l10n.planWorkedOut,
+                    title: switch (_kind) {
+                      PlanKind.dps => l10n.planDeposit,
+                      PlanKind.insurance => l10n.planPremium,
+                      _ => l10n.planInstallment,
+                    },
+                    subtitle:
+                        (_kind == PlanKind.emi || _kind == PlanKind.loan) &&
+                            !_installmentTyped
+                        ? l10n.planWorkedOut
+                        : null,
                     value: _installment == 0
                         ? l10n.cardNotSet
                         : money(_installment),
@@ -409,83 +522,129 @@ class _PlanFormScreenState extends ConsumerState<PlanFormScreen> {
                   child: SunriseTextField(
                     key: const Key('plan_count'),
                     controller: _count,
-                    label: _kind == PlanKind.fdr
+                    label: _kind.isFixedDeposit
                         ? l10n.planTerm
+                        : isInsurance
+                        ? l10n.planPremiums
                         : l10n.planHowMany,
                     keyboardType: TextInputType.number,
                     inputFormatters: digits,
                   ),
                 ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: SunriseTextField(
-                    key: const Key('plan_rate'),
-                    controller: _rate,
-                    label: l10n.planRateLabel,
-                    hint: _kind == PlanKind.emi ? l10n.planRateOptional : null,
-                    keyboardType: const TextInputType.numberWithOptions(
-                      decimal: true,
+                if (_hasRate) ...[
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: SunriseTextField(
+                      key: const Key('plan_rate'),
+                      controller: _rate,
+                      label: l10n.planRateLabel,
+                      hint: _kind == PlanKind.emi
+                          ? l10n.planRateOptional
+                          : null,
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
+                      inputFormatters: decimal,
                     ),
-                    inputFormatters: decimal,
                   ),
-                ),
+                ],
+                if (_hasTax) ...[
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: SunriseTextField(
+                      key: const Key('plan_tax'),
+                      controller: _tax,
+                      label: l10n.planTaxLabel,
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
+                      inputFormatters: decimal,
+                    ),
+                  ),
+                ],
               ],
             ),
             const SizedBox(height: 12),
-            SunriseSegmented<PlanFrequency>(
-              options: [
-                if (_kind != PlanKind.fdr)
-                  SegmentOption(PlanFrequency.weekly, l10n.planWeekly),
-                SegmentOption(
-                  PlanFrequency.monthly,
-                  _kind == PlanKind.fdr ? l10n.planMonths : l10n.planMonthly,
-                ),
-                SegmentOption(
-                  PlanFrequency.yearly,
-                  _kind == PlanKind.fdr ? l10n.planYears : l10n.planYearly,
-                ),
-              ],
-              value: _frequency,
-              onChanged: (v) {
-                _frequency = v;
-                _recompute();
-              },
-            ),
+            if (isInsurance)
+              SunriseSegmented<(PlanFrequency, int)>(
+                options: [
+                  for (final cycle in _premiumCycles)
+                    SegmentOption(cycle, _cycleLabel(l10n, cycle)),
+                ],
+                value: (_frequency, _interval),
+                onChanged: (v) {
+                  _frequency = v.$1;
+                  _interval = v.$2;
+                  _recompute();
+                },
+              )
+            else
+              SunriseSegmented<PlanFrequency>(
+                options: [
+                  if (!_kind.isFixedDeposit)
+                    SegmentOption(PlanFrequency.weekly, l10n.planWeekly),
+                  SegmentOption(
+                    PlanFrequency.monthly,
+                    _kind.isFixedDeposit ? l10n.planMonths : l10n.planMonthly,
+                  ),
+                  SegmentOption(
+                    PlanFrequency.yearly,
+                    _kind.isFixedDeposit ? l10n.planYears : l10n.planYearly,
+                  ),
+                ],
+                value: _frequency,
+                onChanged: (v) {
+                  _frequency = v;
+                  _recompute();
+                },
+              ),
+            if (_kind.isFixedDeposit) ...[
+              const SizedBox(height: 12),
+              SunriseSegmented<PlanPayout>(
+                key: const Key('plan_payout'),
+                options: [
+                  SegmentOption(PlanPayout.monthly, l10n.planPayoutMonthly),
+                  SegmentOption(PlanPayout.quarterly, l10n.planPayoutQuarterly),
+                  SegmentOption(
+                    PlanPayout.atMaturity,
+                    l10n.planPayoutAtMaturity,
+                  ),
+                ],
+                value: _payout,
+                onChanged: (v) {
+                  _payout = v;
+                  _recompute();
+                },
+              ),
+            ],
             const SizedBox(height: 14),
             SettingsGroup(
               children: [
                 SettingsRow(
                   key: const Key('plan_start'),
                   icon: Symbols.event_rounded,
-                  title: _kind == PlanKind.fdr
+                  title: _kind.isFixedDeposit
                       ? l10n.planOpenedOn
+                      : isInsurance
+                      ? l10n.planFirstPremium
                       : l10n.planFirstDue,
                   value: f.day(_start),
                   onTap: _pickStart,
                 ),
-                if (_kind == PlanKind.fdr)
-                  SettingsRow(
-                    icon: Symbols.percent_rounded,
-                    title: l10n.planPayout,
-                    value: _payout == PlanPayout.monthly
-                        ? l10n.planPayoutMonthly
-                        : l10n.planPayoutAtMaturity,
-                    onTap: () {
-                      _payout = _payout == PlanPayout.monthly
-                          ? PlanPayout.atMaturity
-                          : PlanPayout.monthly;
-                      _recompute();
-                    },
-                  ),
-                if (_kind.isSaving &&
-                    !(_kind == PlanKind.fdr && _payout == PlanPayout.monthly))
+                if (isInsurance ||
+                    _kind == PlanKind.dps ||
+                    (_kind.isFixedDeposit && _payout == PlanPayout.atMaturity))
                   SettingsRow(
                     key: const Key('plan_maturity'),
                     icon: Symbols.trending_up_rounded,
-                    title: l10n.planMaturity,
-                    subtitle: _maturityTyped ? null : l10n.planEstimated,
-                    value: _maturity == null
-                        ? l10n.cardNotSet
+                    title: isInsurance
+                        ? l10n.planInsurancePayout
+                        : l10n.planMaturity,
+                    subtitle: isInsurance || _maturityTyped
+                        ? null
+                        : l10n.planEstimated,
+                    value: _maturity == null || _maturity == 0
+                        ? (isInsurance ? l10n.planNone : l10n.cardNotSet)
                         : money(_maturity!),
                     onTap: () async {
                       final v = await _amount(_maturity ?? 0);
@@ -497,11 +656,17 @@ class _PlanFormScreenState extends ConsumerState<PlanFormScreen> {
                       }
                     },
                   ),
-                if (_kind == PlanKind.emi || _kind == PlanKind.loan)
+                if (_kind == PlanKind.emi ||
+                    _kind == PlanKind.loan ||
+                    isInsurance)
                   SettingsRow(
                     icon: Symbols.category_rounded,
                     title: l10n.planCategory,
-                    value: _categoryName ?? l10n.planCategoryDefault,
+                    value:
+                        _categoryName ??
+                        (isInsurance
+                            ? l10n.planCategoryInsurance
+                            : l10n.planCategoryDefault),
                     onTap: _pickCategory,
                   ),
                 if (_kind == PlanKind.loan)
@@ -531,15 +696,12 @@ class _PlanFormScreenState extends ConsumerState<PlanFormScreen> {
                   value: _remind == 0
                       ? l10n.cardRemindOff
                       : l10n.cardRemindDaysBefore(_remind),
-                  onTap: () => setState(
-                    () => _remind = const [
-                      0,
-                      1,
-                      3,
-                      5,
-                      7,
-                    ][(const [0, 1, 3, 5, 7].indexOf(_remind) + 1) % 5],
-                  ),
+                  onTap: () => setState(() {
+                    const choices = [0, 1, 3, 5, 7];
+                    _remind =
+                        choices[(choices.indexOf(_remind) + 1) %
+                            choices.length];
+                  }),
                 ),
               ],
             ),

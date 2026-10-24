@@ -6140,7 +6140,7 @@ abstract class L10n {
   /// No description provided for @plansSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'EMIs, loans, DPS and FDR, paid and collected on time'**
+  /// **'EMIs, loans, DPS, FDR, insurance and bonds, paid and collected on time'**
   String get plansSubtitle;
 
   /// No description provided for @planNew.
@@ -6197,6 +6197,18 @@ abstract class L10n {
   /// **'FDR'**
   String get planKindFdr;
 
+  /// No description provided for @planKindInsurance.
+  ///
+  /// In en, this message translates to:
+  /// **'Insurance'**
+  String get planKindInsurance;
+
+  /// No description provided for @planKindBond.
+  ///
+  /// In en, this message translates to:
+  /// **'Bond or certificate'**
+  String get planKindBond;
+
   /// No description provided for @planKindEmiHint.
   ///
   /// In en, this message translates to:
@@ -6218,8 +6230,20 @@ abstract class L10n {
   /// No description provided for @planKindFdrHint.
   ///
   /// In en, this message translates to:
-  /// **'Put a sum away for a fixed time, with profit monthly or at the end. Savings certificates work the same way'**
+  /// **'Put a sum away at a bank for a fixed time, with profit monthly, every three months or at the end'**
   String get planKindFdrHint;
+
+  /// No description provided for @planKindInsuranceHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A policy with a premium every month, quarter or year, and a payout at the end if it has one'**
+  String get planKindInsuranceHint;
+
+  /// No description provided for @planKindBondHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A bond or savings certificate: one sum held for years, with profit monthly, every three months or at the end, after tax'**
+  String get planKindBondHint;
 
   /// No description provided for @planWeekly.
   ///
@@ -6232,6 +6256,18 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'Monthly'**
   String get planMonthly;
+
+  /// No description provided for @planQuarterly.
+  ///
+  /// In en, this message translates to:
+  /// **'Quarterly'**
+  String get planQuarterly;
+
+  /// No description provided for @planHalfYearly.
+  ///
+  /// In en, this message translates to:
+  /// **'Half-yearly'**
+  String get planHalfYearly;
 
   /// No description provided for @planYearly.
   ///
@@ -6437,6 +6473,12 @@ abstract class L10n {
   /// **'Every month'**
   String get planPayoutMonthly;
 
+  /// No description provided for @planPayoutQuarterly.
+  ///
+  /// In en, this message translates to:
+  /// **'Every 3 months'**
+  String get planPayoutQuarterly;
+
   /// No description provided for @planPayoutAtMaturity.
   ///
   /// In en, this message translates to:
@@ -6491,6 +6533,12 @@ abstract class L10n {
   /// **'Pay installment {number} now, {amount}'**
   String planPayNow(int number, String amount);
 
+  /// No description provided for @planPayPremiumNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay premium {number} now, {amount}'**
+  String planPayPremiumNow(int number, String amount);
+
   /// No description provided for @planDepositNow.
   ///
   /// In en, this message translates to:
@@ -6520,6 +6568,48 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'Encash early'**
   String get planEncash;
+
+  /// No description provided for @planSurrender.
+  ///
+  /// In en, this message translates to:
+  /// **'Surrender the policy'**
+  String get planSurrender;
+
+  /// No description provided for @planSurrenderTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Surrender {name}?'**
+  String planSurrenderTitle(String name);
+
+  /// No description provided for @planSurrenderBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Premiums stop. Whatever the insurer pays back is recorded as income.'**
+  String get planSurrenderBody;
+
+  /// No description provided for @planSurrenderNothing.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing paid back'**
+  String get planSurrenderNothing;
+
+  /// No description provided for @planSurrenderValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the surrender value'**
+  String get planSurrenderValue;
+
+  /// No description provided for @planSurrenderValueLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Surrender value'**
+  String get planSurrenderValueLabel;
+
+  /// No description provided for @planSurrendered.
+  ///
+  /// In en, this message translates to:
+  /// **'Policy surrendered'**
+  String get planSurrendered;
 
   /// No description provided for @planPayOffTitle.
   ///
@@ -6629,6 +6719,18 @@ abstract class L10n {
   /// **'Installment {number} of {total}'**
   String planEventInstallment(int number, int total);
 
+  /// No description provided for @planEventPremium.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium {number} of {total}'**
+  String planEventPremium(int number, int total);
+
+  /// No description provided for @planEventPayout.
+  ///
+  /// In en, this message translates to:
+  /// **'Policy pays out'**
+  String get planEventPayout;
+
   /// No description provided for @planEventProfit.
   ///
   /// In en, this message translates to:
@@ -6706,6 +6808,30 @@ abstract class L10n {
   /// **'{profit} profit every month, and {principal} back on {date}.'**
   String planSummaryFdrMonthly(String profit, String principal, String date);
 
+  /// No description provided for @planSummaryInsurance.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} premiums of {premium}, {total} in all.'**
+  String planSummaryInsurance(int count, String premium, String total);
+
+  /// No description provided for @planSummaryInsurancePayout.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} premiums of {premium}, {total} in all, and {payout} back on {date}.'**
+  String planSummaryInsurancePayout(
+    int count,
+    String premium,
+    String total,
+    String payout,
+    String date,
+  );
+
+  /// No description provided for @planSummaryQuarterly.
+  ///
+  /// In en, this message translates to:
+  /// **'{profit} profit every three months, and {principal} back on {date}.'**
+  String planSummaryQuarterly(String profit, String principal, String date);
+
   /// No description provided for @planNewKind.
   ///
   /// In en, this message translates to:
@@ -6742,6 +6868,84 @@ abstract class L10n {
   /// **'e.g. City Bank FDR'**
   String get planNameHintFdr;
 
+  /// No description provided for @planNameHintInsurance.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Life policy'**
+  String get planNameHintInsurance;
+
+  /// No description provided for @planNameHintBond.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. 5-year Sanchayapatra'**
+  String get planNameHintBond;
+
+  /// No description provided for @planProvider.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank or company'**
+  String get planProvider;
+
+  /// No description provided for @planReference.
+  ///
+  /// In en, this message translates to:
+  /// **'Policy or account no.'**
+  String get planReference;
+
+  /// No description provided for @planSumAssured.
+  ///
+  /// In en, this message translates to:
+  /// **'Sum assured'**
+  String get planSumAssured;
+
+  /// No description provided for @planPremium.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium'**
+  String get planPremium;
+
+  /// No description provided for @planPremiums.
+  ///
+  /// In en, this message translates to:
+  /// **'Premiums'**
+  String get planPremiums;
+
+  /// No description provided for @planTaxLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Tax at source %'**
+  String get planTaxLabel;
+
+  /// No description provided for @planTax.
+  ///
+  /// In en, this message translates to:
+  /// **'Tax at source'**
+  String get planTax;
+
+  /// No description provided for @planFirstPremium.
+  ///
+  /// In en, this message translates to:
+  /// **'First premium'**
+  String get planFirstPremium;
+
+  /// No description provided for @planLastPremium.
+  ///
+  /// In en, this message translates to:
+  /// **'Last premium'**
+  String get planLastPremium;
+
+  /// No description provided for @planInsurancePayout.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid back at the end'**
+  String get planInsurancePayout;
+
+  /// No description provided for @planNone.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get planNone;
+
   /// No description provided for @planHowMany.
   ///
   /// In en, this message translates to:
@@ -6777,6 +6981,12 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'Loan Payment'**
   String get planCategoryDefault;
+
+  /// No description provided for @planCategoryInsurance.
+  ///
+  /// In en, this message translates to:
+  /// **'Insurance'**
+  String get planCategoryInsurance;
 
   /// No description provided for @planLoanReceived.
   ///

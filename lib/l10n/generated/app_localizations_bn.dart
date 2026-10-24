@@ -3383,7 +3383,7 @@ class L10nBn extends L10n {
 
   @override
   String get plansSubtitle =>
-      'ইএমআই, ঋণ, ডিপিএস ও এফডিআর, সময়মতো পরিশোধ ও জমা';
+      'ইএমআই, ঋণ, ডিপিএস, এফডিআর, বীমা ও বন্ড, সময়মতো পরিশোধ ও জমা';
 
   @override
   String get planNew => 'নতুন পরিকল্পনা';
@@ -3414,6 +3414,12 @@ class L10nBn extends L10n {
   String get planKindFdr => 'এফডিআর';
 
   @override
+  String get planKindInsurance => 'বীমা';
+
+  @override
+  String get planKindBond => 'বন্ড বা সঞ্চয়পত্র';
+
+  @override
   String get planKindEmiHint =>
       'কিস্তিতে কেনা কিছু, নগদ, ব্যাংক অ্যাকাউন্ট বা কার্ড থেকে পরিশোধ';
 
@@ -3426,13 +3432,27 @@ class L10nBn extends L10n {
 
   @override
   String get planKindFdrHint =>
-      'নির্দিষ্ট সময়ের জন্য একটি টাকা রাখা, মুনাফা মাসে মাসে বা শেষে। সঞ্চয়পত্রও এভাবেই';
+      'নির্দিষ্ট সময়ের জন্য ব্যাংকে একটি টাকা রাখা, মুনাফা মাসে মাসে, তিন মাসে বা শেষে';
+
+  @override
+  String get planKindInsuranceHint =>
+      'প্রতি মাসে, তিন মাসে বা বছরে প্রিমিয়াম দেওয়া একটি পলিসি, আর থাকলে শেষে ফেরত';
+
+  @override
+  String get planKindBondHint =>
+      'বন্ড বা সঞ্চয়পত্র: এককালীন টাকা কয়েক বছরের জন্য, কর কেটে মুনাফা প্রতি মাসে, তিন মাসে বা শেষে';
 
   @override
   String get planWeekly => 'সাপ্তাহিক';
 
   @override
   String get planMonthly => 'মাসিক';
+
+  @override
+  String get planQuarterly => 'ত্রৈমাসিক';
+
+  @override
+  String get planHalfYearly => 'ষাণ্মাসিক';
 
   @override
   String get planYearly => 'বার্ষিক';
@@ -3547,6 +3567,9 @@ class L10nBn extends L10n {
   String get planPayoutMonthly => 'প্রতি মাসে';
 
   @override
+  String get planPayoutQuarterly => 'প্রতি ৩ মাসে';
+
+  @override
   String get planPayoutAtMaturity => 'শেষে';
 
   @override
@@ -3581,6 +3604,11 @@ class L10nBn extends L10n {
   }
 
   @override
+  String planPayPremiumNow(int number, String amount) {
+    return 'প্রিমিয়াম $number এখন দিন, $amount';
+  }
+
+  @override
   String planDepositNow(int number, String amount) {
     return '$number নম্বর জমা এখন দিন, $amount';
   }
@@ -3596,6 +3624,30 @@ class L10nBn extends L10n {
 
   @override
   String get planEncash => 'আগেই ভাঙান';
+
+  @override
+  String get planSurrender => 'পলিসি সমর্পণ করুন';
+
+  @override
+  String planSurrenderTitle(String name) {
+    return '$name সমর্পণ করবেন?';
+  }
+
+  @override
+  String get planSurrenderBody =>
+      'প্রিমিয়াম বন্ধ হবে। বীমা কোম্পানি যা ফেরত দেয় তা আয় হিসেবে লেখা হবে।';
+
+  @override
+  String get planSurrenderNothing => 'কিছু ফেরত পাইনি';
+
+  @override
+  String get planSurrenderValue => 'সমর্পণ মূল্য লিখুন';
+
+  @override
+  String get planSurrenderValueLabel => 'সমর্পণ মূল্য';
+
+  @override
+  String get planSurrendered => 'পলিসি সমর্পণ করা হয়েছে';
 
   @override
   String planPayOffTitle(String name) {
@@ -3665,6 +3717,14 @@ class L10nBn extends L10n {
   }
 
   @override
+  String planEventPremium(int number, int total) {
+    return 'প্রিমিয়াম $number/$total';
+  }
+
+  @override
+  String get planEventPayout => 'পলিসির টাকা ফেরত';
+
+  @override
   String planEventProfit(int number) {
     return 'মুনাফা, $number মাস';
   }
@@ -3718,6 +3778,27 @@ class L10nBn extends L10n {
   }
 
   @override
+  String planSummaryInsurance(int count, String premium, String total) {
+    return '$premium করে $countটি প্রিমিয়াম, মোট $total।';
+  }
+
+  @override
+  String planSummaryInsurancePayout(
+    int count,
+    String premium,
+    String total,
+    String payout,
+    String date,
+  ) {
+    return '$premium করে $countটি প্রিমিয়াম, মোট $total, আর $date এ $payout ফেরত।';
+  }
+
+  @override
+  String planSummaryQuarterly(String profit, String principal, String date) {
+    return 'প্রতি তিন মাসে $profit মুনাফা, আর $date এ $principal ফেরত।';
+  }
+
+  @override
   String planNewKind(String kind) {
     return 'নতুন $kind';
   }
@@ -3738,6 +3819,45 @@ class L10nBn extends L10n {
   String get planNameHintFdr => 'যেমন সিটি ব্যাংক এফডিআর';
 
   @override
+  String get planNameHintInsurance => 'যেমন জীবন বীমা পলিসি';
+
+  @override
+  String get planNameHintBond => 'যেমন ৫ বছর মেয়াদি সঞ্চয়পত্র';
+
+  @override
+  String get planProvider => 'ব্যাংক বা প্রতিষ্ঠান';
+
+  @override
+  String get planReference => 'পলিসি বা হিসাব নম্বর';
+
+  @override
+  String get planSumAssured => 'বীমার অঙ্ক';
+
+  @override
+  String get planPremium => 'প্রিমিয়াম';
+
+  @override
+  String get planPremiums => 'প্রিমিয়াম সংখ্যা';
+
+  @override
+  String get planTaxLabel => 'উৎসে কর %';
+
+  @override
+  String get planTax => 'উৎসে কর';
+
+  @override
+  String get planFirstPremium => 'প্রথম প্রিমিয়াম';
+
+  @override
+  String get planLastPremium => 'শেষ প্রিমিয়াম';
+
+  @override
+  String get planInsurancePayout => 'শেষে ফেরত';
+
+  @override
+  String get planNone => 'নেই';
+
+  @override
   String get planHowMany => 'কতগুলো';
 
   @override
@@ -3754,6 +3874,9 @@ class L10nBn extends L10n {
 
   @override
   String get planCategoryDefault => 'ঋণ পরিশোধ';
+
+  @override
+  String get planCategoryInsurance => 'বীমা';
 
   @override
   String get planLoanReceived => 'টাকা এই অ্যাকাউন্টে এসেছে';

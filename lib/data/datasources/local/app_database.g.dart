@@ -4315,6 +4315,15 @@ class $TransactionsTable extends Transactions
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _unitsMeta = const VerificationMeta('units');
+  @override
+  late final GeneratedColumn<double> units = GeneratedColumn<double>(
+    'units',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _recurringConfigIdMeta = const VerificationMeta(
     'recurringConfigId',
   );
@@ -4563,6 +4572,7 @@ class $TransactionsTable extends Transactions
     settlesTransactionId,
     planId,
     planInstallment,
+    units,
     recurringConfigId,
     occurrenceKey,
     fxRate,
@@ -4721,6 +4731,12 @@ class $TransactionsTable extends Transactions
           data['plan_installment']!,
           _planInstallmentMeta,
         ),
+      );
+    }
+    if (data.containsKey('units')) {
+      context.handle(
+        _unitsMeta,
+        units.isAcceptableOrUnknown(data['units']!, _unitsMeta),
       );
     }
     if (data.containsKey('recurring_config_id')) {
@@ -4932,6 +4948,10 @@ class $TransactionsTable extends Transactions
         DriftSqlType.int,
         data['${effectivePrefix}plan_installment'],
       ),
+      units: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}units'],
+      ),
       recurringConfigId: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}recurring_config_id'],
@@ -5075,6 +5095,11 @@ class Transaction extends DataClass implements Insertable<Transaction> {
   /// (an FDR's deposit, a loan's money received); the installment count plus
   /// one is the maturity; a profit payment is its period's number.
   final int? planInstallment;
+
+  /// Fund units or shares bought (on the leg into an investment) or sold (on
+  /// the leg out of one). The holding is the sum of these, so two phones
+  /// buying at once cannot overwrite each other's count.
+  final double? units;
   final String? recurringConfigId;
 
   /// Deterministic idempotency key for a generated recurrence occurrence:
@@ -5131,6 +5156,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     this.settlesTransactionId,
     this.planId,
     this.planInstallment,
+    this.units,
     this.recurringConfigId,
     this.occurrenceKey,
     this.fxRate,
@@ -5188,6 +5214,9 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     }
     if (!nullToAbsent || planInstallment != null) {
       map['plan_installment'] = Variable<int>(planInstallment);
+    }
+    if (!nullToAbsent || units != null) {
+      map['units'] = Variable<double>(units);
     }
     if (!nullToAbsent || recurringConfigId != null) {
       map['recurring_config_id'] = Variable<String>(recurringConfigId);
@@ -5274,6 +5303,9 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       planInstallment: planInstallment == null && nullToAbsent
           ? const Value.absent()
           : Value(planInstallment),
+      units: units == null && nullToAbsent
+          ? const Value.absent()
+          : Value(units),
       recurringConfigId: recurringConfigId == null && nullToAbsent
           ? const Value.absent()
           : Value(recurringConfigId),
@@ -5349,6 +5381,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       ),
       planId: serializer.fromJson<String?>(json['planId']),
       planInstallment: serializer.fromJson<int?>(json['planInstallment']),
+      units: serializer.fromJson<double?>(json['units']),
       recurringConfigId: serializer.fromJson<String?>(
         json['recurringConfigId'],
       ),
@@ -5397,6 +5430,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       'settlesTransactionId': serializer.toJson<String?>(settlesTransactionId),
       'planId': serializer.toJson<String?>(planId),
       'planInstallment': serializer.toJson<int?>(planInstallment),
+      'units': serializer.toJson<double?>(units),
       'recurringConfigId': serializer.toJson<String?>(recurringConfigId),
       'occurrenceKey': serializer.toJson<String?>(occurrenceKey),
       'fxRate': serializer.toJson<double?>(fxRate),
@@ -5439,6 +5473,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     Value<String?> settlesTransactionId = const Value.absent(),
     Value<String?> planId = const Value.absent(),
     Value<int?> planInstallment = const Value.absent(),
+    Value<double?> units = const Value.absent(),
     Value<String?> recurringConfigId = const Value.absent(),
     Value<String?> occurrenceKey = const Value.absent(),
     Value<double?> fxRate = const Value.absent(),
@@ -5488,6 +5523,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     planInstallment: planInstallment.present
         ? planInstallment.value
         : this.planInstallment,
+    units: units.present ? units.value : this.units,
     recurringConfigId: recurringConfigId.present
         ? recurringConfigId.value
         : this.recurringConfigId,
@@ -5555,6 +5591,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       planInstallment: data.planInstallment.present
           ? data.planInstallment.value
           : this.planInstallment,
+      units: data.units.present ? data.units.value : this.units,
       recurringConfigId: data.recurringConfigId.present
           ? data.recurringConfigId.value
           : this.recurringConfigId,
@@ -5619,6 +5656,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
           ..write('settlesTransactionId: $settlesTransactionId, ')
           ..write('planId: $planId, ')
           ..write('planInstallment: $planInstallment, ')
+          ..write('units: $units, ')
           ..write('recurringConfigId: $recurringConfigId, ')
           ..write('occurrenceKey: $occurrenceKey, ')
           ..write('fxRate: $fxRate, ')
@@ -5661,6 +5699,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     settlesTransactionId,
     planId,
     planInstallment,
+    units,
     recurringConfigId,
     occurrenceKey,
     fxRate,
@@ -5702,6 +5741,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
           other.settlesTransactionId == this.settlesTransactionId &&
           other.planId == this.planId &&
           other.planInstallment == this.planInstallment &&
+          other.units == this.units &&
           other.recurringConfigId == this.recurringConfigId &&
           other.occurrenceKey == this.occurrenceKey &&
           other.fxRate == this.fxRate &&
@@ -5741,6 +5781,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
   final Value<String?> settlesTransactionId;
   final Value<String?> planId;
   final Value<int?> planInstallment;
+  final Value<double?> units;
   final Value<String?> recurringConfigId;
   final Value<String?> occurrenceKey;
   final Value<double?> fxRate;
@@ -5779,6 +5820,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     this.settlesTransactionId = const Value.absent(),
     this.planId = const Value.absent(),
     this.planInstallment = const Value.absent(),
+    this.units = const Value.absent(),
     this.recurringConfigId = const Value.absent(),
     this.occurrenceKey = const Value.absent(),
     this.fxRate = const Value.absent(),
@@ -5818,6 +5860,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     this.settlesTransactionId = const Value.absent(),
     this.planId = const Value.absent(),
     this.planInstallment = const Value.absent(),
+    this.units = const Value.absent(),
     this.recurringConfigId = const Value.absent(),
     this.occurrenceKey = const Value.absent(),
     this.fxRate = const Value.absent(),
@@ -5860,6 +5903,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     Expression<String>? settlesTransactionId,
     Expression<String>? planId,
     Expression<int>? planInstallment,
+    Expression<double>? units,
     Expression<String>? recurringConfigId,
     Expression<String>? occurrenceKey,
     Expression<double>? fxRate,
@@ -5902,6 +5946,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
         'settles_transaction_id': settlesTransactionId,
       if (planId != null) 'plan_id': planId,
       if (planInstallment != null) 'plan_installment': planInstallment,
+      if (units != null) 'units': units,
       if (recurringConfigId != null) 'recurring_config_id': recurringConfigId,
       if (occurrenceKey != null) 'occurrence_key': occurrenceKey,
       if (fxRate != null) 'fx_rate': fxRate,
@@ -5943,6 +5988,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     Value<String?>? settlesTransactionId,
     Value<String?>? planId,
     Value<int?>? planInstallment,
+    Value<double?>? units,
     Value<String?>? recurringConfigId,
     Value<String?>? occurrenceKey,
     Value<double?>? fxRate,
@@ -5982,6 +6028,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
       settlesTransactionId: settlesTransactionId ?? this.settlesTransactionId,
       planId: planId ?? this.planId,
       planInstallment: planInstallment ?? this.planInstallment,
+      units: units ?? this.units,
       recurringConfigId: recurringConfigId ?? this.recurringConfigId,
       occurrenceKey: occurrenceKey ?? this.occurrenceKey,
       fxRate: fxRate ?? this.fxRate,
@@ -6064,6 +6111,9 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     }
     if (planInstallment.present) {
       map['plan_installment'] = Variable<int>(planInstallment.value);
+    }
+    if (units.present) {
+      map['units'] = Variable<double>(units.value);
     }
     if (recurringConfigId.present) {
       map['recurring_config_id'] = Variable<String>(recurringConfigId.value);
@@ -6150,6 +6200,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
           ..write('settlesTransactionId: $settlesTransactionId, ')
           ..write('planId: $planId, ')
           ..write('planInstallment: $planInstallment, ')
+          ..write('units: $units, ')
           ..write('recurringConfigId: $recurringConfigId, ')
           ..write('occurrenceKey: $occurrenceKey, ')
           ..write('fxRate: $fxRate, ')
@@ -10345,6 +10396,39 @@ class $PlansTable extends Plans with TableInfo<$PlansTable, Plan> {
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _providerMeta = const VerificationMeta(
+    'provider',
+  );
+  @override
+  late final GeneratedColumn<String> provider = GeneratedColumn<String>(
+    'provider',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _referenceMeta = const VerificationMeta(
+    'reference',
+  );
+  @override
+  late final GeneratedColumn<String> reference = GeneratedColumn<String>(
+    'reference',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _taxRateMeta = const VerificationMeta(
+    'taxRate',
+  );
+  @override
+  late final GeneratedColumn<double> taxRate = GeneratedColumn<double>(
+    'tax_rate',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _serverIdMeta = const VerificationMeta(
     'serverId',
   );
@@ -10425,6 +10509,9 @@ class $PlansTable extends Plans with TableInfo<$PlansTable, Plan> {
     status,
     closedAt,
     notes,
+    provider,
+    reference,
+    taxRate,
     serverId,
     syncStatus,
     createdAt,
@@ -10565,6 +10652,24 @@ class $PlansTable extends Plans with TableInfo<$PlansTable, Plan> {
         notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
       );
     }
+    if (data.containsKey('provider')) {
+      context.handle(
+        _providerMeta,
+        provider.isAcceptableOrUnknown(data['provider']!, _providerMeta),
+      );
+    }
+    if (data.containsKey('reference')) {
+      context.handle(
+        _referenceMeta,
+        reference.isAcceptableOrUnknown(data['reference']!, _referenceMeta),
+      );
+    }
+    if (data.containsKey('tax_rate')) {
+      context.handle(
+        _taxRateMeta,
+        taxRate.isAcceptableOrUnknown(data['tax_rate']!, _taxRateMeta),
+      );
+    }
     if (data.containsKey('server_id')) {
       context.handle(
         _serverIdMeta,
@@ -10692,6 +10797,18 @@ class $PlansTable extends Plans with TableInfo<$PlansTable, Plan> {
         DriftSqlType.string,
         data['${effectivePrefix}notes'],
       ),
+      provider: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}provider'],
+      ),
+      reference: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}reference'],
+      ),
+      taxRate: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}tax_rate'],
+      ),
       serverId: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}server_id'],
@@ -10779,6 +10896,16 @@ class Plan extends DataClass implements Insertable<Plan> {
   final PlanStatus status;
   final DateTime? closedAt;
   final String? notes;
+
+  /// The bank, insurer or issuer.
+  final String? provider;
+
+  /// Policy, account or certificate number.
+  final String? reference;
+
+  /// Percent of profit taken as tax at source (FDR, DPS, bond); the profit
+  /// recorded is what is left.
+  final double? taxRate;
   final String? serverId;
   final int syncStatus;
   final DateTime createdAt;
@@ -10805,6 +10932,9 @@ class Plan extends DataClass implements Insertable<Plan> {
     required this.status,
     this.closedAt,
     this.notes,
+    this.provider,
+    this.reference,
+    this.taxRate,
     this.serverId,
     required this.syncStatus,
     required this.createdAt,
@@ -10856,6 +10986,15 @@ class Plan extends DataClass implements Insertable<Plan> {
     if (!nullToAbsent || notes != null) {
       map['notes'] = Variable<String>(notes);
     }
+    if (!nullToAbsent || provider != null) {
+      map['provider'] = Variable<String>(provider);
+    }
+    if (!nullToAbsent || reference != null) {
+      map['reference'] = Variable<String>(reference);
+    }
+    if (!nullToAbsent || taxRate != null) {
+      map['tax_rate'] = Variable<double>(taxRate);
+    }
     if (!nullToAbsent || serverId != null) {
       map['server_id'] = Variable<String>(serverId);
     }
@@ -10902,6 +11041,15 @@ class Plan extends DataClass implements Insertable<Plan> {
       notes: notes == null && nullToAbsent
           ? const Value.absent()
           : Value(notes),
+      provider: provider == null && nullToAbsent
+          ? const Value.absent()
+          : Value(provider),
+      reference: reference == null && nullToAbsent
+          ? const Value.absent()
+          : Value(reference),
+      taxRate: taxRate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(taxRate),
       serverId: serverId == null && nullToAbsent
           ? const Value.absent()
           : Value(serverId),
@@ -10948,6 +11096,9 @@ class Plan extends DataClass implements Insertable<Plan> {
       ),
       closedAt: serializer.fromJson<DateTime?>(json['closedAt']),
       notes: serializer.fromJson<String?>(json['notes']),
+      provider: serializer.fromJson<String?>(json['provider']),
+      reference: serializer.fromJson<String?>(json['reference']),
+      taxRate: serializer.fromJson<double?>(json['taxRate']),
       serverId: serializer.fromJson<String?>(json['serverId']),
       syncStatus: serializer.fromJson<int>(json['syncStatus']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
@@ -10985,6 +11136,9 @@ class Plan extends DataClass implements Insertable<Plan> {
       ),
       'closedAt': serializer.toJson<DateTime?>(closedAt),
       'notes': serializer.toJson<String?>(notes),
+      'provider': serializer.toJson<String?>(provider),
+      'reference': serializer.toJson<String?>(reference),
+      'taxRate': serializer.toJson<double?>(taxRate),
       'serverId': serializer.toJson<String?>(serverId),
       'syncStatus': serializer.toJson<int>(syncStatus),
       'createdAt': serializer.toJson<DateTime>(createdAt),
@@ -11014,6 +11168,9 @@ class Plan extends DataClass implements Insertable<Plan> {
     PlanStatus? status,
     Value<DateTime?> closedAt = const Value.absent(),
     Value<String?> notes = const Value.absent(),
+    Value<String?> provider = const Value.absent(),
+    Value<String?> reference = const Value.absent(),
+    Value<double?> taxRate = const Value.absent(),
     Value<String?> serverId = const Value.absent(),
     int? syncStatus,
     DateTime? createdAt,
@@ -11044,6 +11201,9 @@ class Plan extends DataClass implements Insertable<Plan> {
     status: status ?? this.status,
     closedAt: closedAt.present ? closedAt.value : this.closedAt,
     notes: notes.present ? notes.value : this.notes,
+    provider: provider.present ? provider.value : this.provider,
+    reference: reference.present ? reference.value : this.reference,
+    taxRate: taxRate.present ? taxRate.value : this.taxRate,
     serverId: serverId.present ? serverId.value : this.serverId,
     syncStatus: syncStatus ?? this.syncStatus,
     createdAt: createdAt ?? this.createdAt,
@@ -11088,6 +11248,9 @@ class Plan extends DataClass implements Insertable<Plan> {
       status: data.status.present ? data.status.value : this.status,
       closedAt: data.closedAt.present ? data.closedAt.value : this.closedAt,
       notes: data.notes.present ? data.notes.value : this.notes,
+      provider: data.provider.present ? data.provider.value : this.provider,
+      reference: data.reference.present ? data.reference.value : this.reference,
+      taxRate: data.taxRate.present ? data.taxRate.value : this.taxRate,
       serverId: data.serverId.present ? data.serverId.value : this.serverId,
       syncStatus: data.syncStatus.present
           ? data.syncStatus.value
@@ -11121,6 +11284,9 @@ class Plan extends DataClass implements Insertable<Plan> {
           ..write('status: $status, ')
           ..write('closedAt: $closedAt, ')
           ..write('notes: $notes, ')
+          ..write('provider: $provider, ')
+          ..write('reference: $reference, ')
+          ..write('taxRate: $taxRate, ')
           ..write('serverId: $serverId, ')
           ..write('syncStatus: $syncStatus, ')
           ..write('createdAt: $createdAt, ')
@@ -11152,6 +11318,9 @@ class Plan extends DataClass implements Insertable<Plan> {
     status,
     closedAt,
     notes,
+    provider,
+    reference,
+    taxRate,
     serverId,
     syncStatus,
     createdAt,
@@ -11182,6 +11351,9 @@ class Plan extends DataClass implements Insertable<Plan> {
           other.status == this.status &&
           other.closedAt == this.closedAt &&
           other.notes == this.notes &&
+          other.provider == this.provider &&
+          other.reference == this.reference &&
+          other.taxRate == this.taxRate &&
           other.serverId == this.serverId &&
           other.syncStatus == this.syncStatus &&
           other.createdAt == this.createdAt &&
@@ -11210,6 +11382,9 @@ class PlansCompanion extends UpdateCompanion<Plan> {
   final Value<PlanStatus> status;
   final Value<DateTime?> closedAt;
   final Value<String?> notes;
+  final Value<String?> provider;
+  final Value<String?> reference;
+  final Value<double?> taxRate;
   final Value<String?> serverId;
   final Value<int> syncStatus;
   final Value<DateTime> createdAt;
@@ -11237,6 +11412,9 @@ class PlansCompanion extends UpdateCompanion<Plan> {
     this.status = const Value.absent(),
     this.closedAt = const Value.absent(),
     this.notes = const Value.absent(),
+    this.provider = const Value.absent(),
+    this.reference = const Value.absent(),
+    this.taxRate = const Value.absent(),
     this.serverId = const Value.absent(),
     this.syncStatus = const Value.absent(),
     this.createdAt = const Value.absent(),
@@ -11265,6 +11443,9 @@ class PlansCompanion extends UpdateCompanion<Plan> {
     this.status = const Value.absent(),
     this.closedAt = const Value.absent(),
     this.notes = const Value.absent(),
+    this.provider = const Value.absent(),
+    this.reference = const Value.absent(),
+    this.taxRate = const Value.absent(),
     this.serverId = const Value.absent(),
     this.syncStatus = const Value.absent(),
     this.createdAt = const Value.absent(),
@@ -11298,6 +11479,9 @@ class PlansCompanion extends UpdateCompanion<Plan> {
     Expression<int>? status,
     Expression<DateTime>? closedAt,
     Expression<String>? notes,
+    Expression<String>? provider,
+    Expression<String>? reference,
+    Expression<double>? taxRate,
     Expression<String>? serverId,
     Expression<int>? syncStatus,
     Expression<DateTime>? createdAt,
@@ -11327,6 +11511,9 @@ class PlansCompanion extends UpdateCompanion<Plan> {
       if (status != null) 'status': status,
       if (closedAt != null) 'closed_at': closedAt,
       if (notes != null) 'notes': notes,
+      if (provider != null) 'provider': provider,
+      if (reference != null) 'reference': reference,
+      if (taxRate != null) 'tax_rate': taxRate,
       if (serverId != null) 'server_id': serverId,
       if (syncStatus != null) 'sync_status': syncStatus,
       if (createdAt != null) 'created_at': createdAt,
@@ -11357,6 +11544,9 @@ class PlansCompanion extends UpdateCompanion<Plan> {
     Value<PlanStatus>? status,
     Value<DateTime?>? closedAt,
     Value<String?>? notes,
+    Value<String?>? provider,
+    Value<String?>? reference,
+    Value<double?>? taxRate,
     Value<String?>? serverId,
     Value<int>? syncStatus,
     Value<DateTime>? createdAt,
@@ -11385,6 +11575,9 @@ class PlansCompanion extends UpdateCompanion<Plan> {
       status: status ?? this.status,
       closedAt: closedAt ?? this.closedAt,
       notes: notes ?? this.notes,
+      provider: provider ?? this.provider,
+      reference: reference ?? this.reference,
+      taxRate: taxRate ?? this.taxRate,
       serverId: serverId ?? this.serverId,
       syncStatus: syncStatus ?? this.syncStatus,
       createdAt: createdAt ?? this.createdAt,
@@ -11463,6 +11656,15 @@ class PlansCompanion extends UpdateCompanion<Plan> {
     if (notes.present) {
       map['notes'] = Variable<String>(notes.value);
     }
+    if (provider.present) {
+      map['provider'] = Variable<String>(provider.value);
+    }
+    if (reference.present) {
+      map['reference'] = Variable<String>(reference.value);
+    }
+    if (taxRate.present) {
+      map['tax_rate'] = Variable<double>(taxRate.value);
+    }
     if (serverId.present) {
       map['server_id'] = Variable<String>(serverId.value);
     }
@@ -11507,6 +11709,9 @@ class PlansCompanion extends UpdateCompanion<Plan> {
           ..write('status: $status, ')
           ..write('closedAt: $closedAt, ')
           ..write('notes: $notes, ')
+          ..write('provider: $provider, ')
+          ..write('reference: $reference, ')
+          ..write('taxRate: $taxRate, ')
           ..write('serverId: $serverId, ')
           ..write('syncStatus: $syncStatus, ')
           ..write('createdAt: $createdAt, ')
@@ -18764,6 +18969,7 @@ typedef $$TransactionsTableCreateCompanionBuilder =
       Value<String?> settlesTransactionId,
       Value<String?> planId,
       Value<int?> planInstallment,
+      Value<double?> units,
       Value<String?> recurringConfigId,
       Value<String?> occurrenceKey,
       Value<double?> fxRate,
@@ -18804,6 +19010,7 @@ typedef $$TransactionsTableUpdateCompanionBuilder =
       Value<String?> settlesTransactionId,
       Value<String?> planId,
       Value<int?> planInstallment,
+      Value<double?> units,
       Value<String?> recurringConfigId,
       Value<String?> occurrenceKey,
       Value<double?> fxRate,
@@ -19002,6 +19209,11 @@ class $$TransactionsTableFilterComposer
 
   ColumnFilters<int> get planInstallment => $composableBuilder(
     column: $table.planInstallment,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get units => $composableBuilder(
+    column: $table.units,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -19298,6 +19510,11 @@ class $$TransactionsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<double> get units => $composableBuilder(
+    column: $table.units,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get occurrenceKey => $composableBuilder(
     column: $table.occurrenceKey,
     builder: (column) => ColumnOrderings(column),
@@ -19544,6 +19761,9 @@ class $$TransactionsTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<double> get units =>
+      $composableBuilder(column: $table.units, builder: (column) => column);
+
   GeneratedColumn<String> get occurrenceKey => $composableBuilder(
     column: $table.occurrenceKey,
     builder: (column) => column,
@@ -19789,6 +20009,7 @@ class $$TransactionsTableTableManager
                 Value<String?> settlesTransactionId = const Value.absent(),
                 Value<String?> planId = const Value.absent(),
                 Value<int?> planInstallment = const Value.absent(),
+                Value<double?> units = const Value.absent(),
                 Value<String?> recurringConfigId = const Value.absent(),
                 Value<String?> occurrenceKey = const Value.absent(),
                 Value<double?> fxRate = const Value.absent(),
@@ -19828,6 +20049,7 @@ class $$TransactionsTableTableManager
                 settlesTransactionId: settlesTransactionId,
                 planId: planId,
                 planInstallment: planInstallment,
+                units: units,
                 recurringConfigId: recurringConfigId,
                 occurrenceKey: occurrenceKey,
                 fxRate: fxRate,
@@ -19868,6 +20090,7 @@ class $$TransactionsTableTableManager
                 Value<String?> settlesTransactionId = const Value.absent(),
                 Value<String?> planId = const Value.absent(),
                 Value<int?> planInstallment = const Value.absent(),
+                Value<double?> units = const Value.absent(),
                 Value<String?> recurringConfigId = const Value.absent(),
                 Value<String?> occurrenceKey = const Value.absent(),
                 Value<double?> fxRate = const Value.absent(),
@@ -19907,6 +20130,7 @@ class $$TransactionsTableTableManager
                 settlesTransactionId: settlesTransactionId,
                 planId: planId,
                 planInstallment: planInstallment,
+                units: units,
                 recurringConfigId: recurringConfigId,
                 occurrenceKey: occurrenceKey,
                 fxRate: fxRate,
@@ -22143,6 +22367,9 @@ typedef $$PlansTableCreateCompanionBuilder =
       Value<PlanStatus> status,
       Value<DateTime?> closedAt,
       Value<String?> notes,
+      Value<String?> provider,
+      Value<String?> reference,
+      Value<double?> taxRate,
       Value<String?> serverId,
       Value<int> syncStatus,
       Value<DateTime> createdAt,
@@ -22172,6 +22399,9 @@ typedef $$PlansTableUpdateCompanionBuilder =
       Value<PlanStatus> status,
       Value<DateTime?> closedAt,
       Value<String?> notes,
+      Value<String?> provider,
+      Value<String?> reference,
+      Value<double?> taxRate,
       Value<String?> serverId,
       Value<int> syncStatus,
       Value<DateTime> createdAt,
@@ -22318,6 +22548,21 @@ class $$PlansTableFilterComposer extends Composer<_$AppDatabase, $PlansTable> {
 
   ColumnFilters<String> get notes => $composableBuilder(
     column: $table.notes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get provider => $composableBuilder(
+    column: $table.provider,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get reference => $composableBuilder(
+    column: $table.reference,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get taxRate => $composableBuilder(
+    column: $table.taxRate,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -22492,6 +22737,21 @@ class $$PlansTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get provider => $composableBuilder(
+    column: $table.provider,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get reference => $composableBuilder(
+    column: $table.reference,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get taxRate => $composableBuilder(
+    column: $table.taxRate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get serverId => $composableBuilder(
     column: $table.serverId,
     builder: (column) => ColumnOrderings(column),
@@ -22641,6 +22901,15 @@ class $$PlansTableAnnotationComposer
   GeneratedColumn<String> get notes =>
       $composableBuilder(column: $table.notes, builder: (column) => column);
 
+  GeneratedColumn<String> get provider =>
+      $composableBuilder(column: $table.provider, builder: (column) => column);
+
+  GeneratedColumn<String> get reference =>
+      $composableBuilder(column: $table.reference, builder: (column) => column);
+
+  GeneratedColumn<double> get taxRate =>
+      $composableBuilder(column: $table.taxRate, builder: (column) => column);
+
   GeneratedColumn<String> get serverId =>
       $composableBuilder(column: $table.serverId, builder: (column) => column);
 
@@ -22753,6 +23022,9 @@ class $$PlansTableTableManager
                 Value<PlanStatus> status = const Value.absent(),
                 Value<DateTime?> closedAt = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
+                Value<String?> provider = const Value.absent(),
+                Value<String?> reference = const Value.absent(),
+                Value<double?> taxRate = const Value.absent(),
                 Value<String?> serverId = const Value.absent(),
                 Value<int> syncStatus = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
@@ -22780,6 +23052,9 @@ class $$PlansTableTableManager
                 status: status,
                 closedAt: closedAt,
                 notes: notes,
+                provider: provider,
+                reference: reference,
+                taxRate: taxRate,
                 serverId: serverId,
                 syncStatus: syncStatus,
                 createdAt: createdAt,
@@ -22809,6 +23084,9 @@ class $$PlansTableTableManager
                 Value<PlanStatus> status = const Value.absent(),
                 Value<DateTime?> closedAt = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
+                Value<String?> provider = const Value.absent(),
+                Value<String?> reference = const Value.absent(),
+                Value<double?> taxRate = const Value.absent(),
                 Value<String?> serverId = const Value.absent(),
                 Value<int> syncStatus = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
@@ -22836,6 +23114,9 @@ class $$PlansTableTableManager
                 status: status,
                 closedAt: closedAt,
                 notes: notes,
+                provider: provider,
+                reference: reference,
+                taxRate: taxRate,
                 serverId: serverId,
                 syncStatus: syncStatus,
                 createdAt: createdAt,

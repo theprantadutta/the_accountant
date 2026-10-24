@@ -21,13 +21,28 @@ enum PlanKind {
 
   /// Money borrowed, received into an account, and repaid in installments.
   loan,
+
+  /// An insurance policy: a premium every period, spent, and for a savings
+  /// policy a sum paid back at the end.
+  insurance,
+
+  /// A bond or savings certificate (sanchayapatra): one sum held for a fixed
+  /// time, with profit monthly, quarterly or at the end, usually taxed at
+  /// source. It runs exactly like an FDR.
+  bond;
+
+  /// FDR and bond: one sum put away, paid back at the end.
+  bool get isFixedDeposit => this == fdr || this == bond;
+
+  /// DPS, FDR and bond: money set aside in a deposit account of its own.
+  bool get holdsMoney => this == dps || isFixedDeposit;
 }
 
 /// How often a plan's installments fall due.
 enum PlanFrequency { weekly, monthly, yearly }
 
-/// When an FDR pays its profit.
-enum PlanPayout { atMaturity, monthly }
+/// When an FDR or bond pays its profit.
+enum PlanPayout { atMaturity, monthly, quarterly }
 
 /// Whether a plan is still running.
 enum PlanStatus { active, completed, closed }
@@ -99,6 +114,16 @@ class Plans extends Table {
       intEnum<PlanStatus>().withDefault(const Constant(0))();
   DateTimeColumn get closedAt => dateTime().nullable()();
   TextColumn get notes => text().nullable()();
+
+  /// The bank, insurer or issuer.
+  TextColumn get provider => text().nullable()();
+
+  /// Policy, account or certificate number.
+  TextColumn get reference => text().nullable()();
+
+  /// Percent of profit taken as tax at source (FDR, DPS, bond); the profit
+  /// recorded is what is left.
+  RealColumn get taxRate => real().nullable()();
 
   // Sync fields
   TextColumn get serverId => text().nullable()();

@@ -170,7 +170,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 28;
+  int get schemaVersion => 29;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -214,6 +214,7 @@ class AppDatabase extends _$AppDatabase {
       if (from < 26) await _addV26Columns(m);
       if (from < 27) await _addV27Columns(m);
       if (from < 28) await _addV28Schema(m);
+      if (from < 29) await _addV29Columns(m);
 
       if (from < 10) {
         // Fix credit/debt isIncome values and recalculate wallet balances
@@ -1070,6 +1071,19 @@ class AppDatabase extends _$AppDatabase {
   /// The budget currency column, added with the other columns rather than in
   /// its own step: everything below reads rows through the current generated
   /// mapper, which expects every column this build knows about.
+  /// Insurance and bonds: a plan's provider, reference and tax at source; and
+  /// the units an investment transaction moves.
+  Future<void> _addV29Columns(Migrator m) async {
+    if (await _tableExists('plans')) {
+      await _ensureColumn(m, plans, plans.provider);
+      await _ensureColumn(m, plans, plans.reference);
+      await _ensureColumn(m, plans, plans.taxRate);
+    }
+    if (await _tableExists('transactions')) {
+      await _ensureColumn(m, transactions, transactions.units);
+    }
+  }
+
   /// EMIs, loans, DPS and FDR: their table, and the link on a transaction.
   Future<void> _addV28Schema(Migrator m) async {
     if (!await _tableExists('plans')) await m.createTable(plans);

@@ -750,9 +750,26 @@ class CoachToolRunner {
         'emi' => PlanKind.emi,
         'loan' => PlanKind.loan,
         'dps' => PlanKind.dps,
-        'fdr' || 'savings_certificate' || 'sanchayapatra' => PlanKind.fdr,
+        'fdr' => PlanKind.fdr,
+        'insurance' || 'policy' => PlanKind.insurance,
+        'bond' ||
+        'savings_certificate' ||
+        'sanchayapatra' ||
+        'certificate' => PlanKind.bond,
         _ => null,
       };
+
+  /// A premium cycle the model names, as a frequency and an interval.
+  static (PlanFrequency, int) _planCycle(Object? v, Object? interval) {
+    final every = (interval as num?)?.toInt() ?? 1;
+    return switch ((v as String?)?.toLowerCase()) {
+      'quarterly' => (PlanFrequency.monthly, 3),
+      'half_yearly' ||
+      'half-yearly' ||
+      'semiannual' => (PlanFrequency.monthly, 6),
+      final f => (_planFrequency(f), every < 1 ? 1 : every),
+    };
+  }
 
   static PlanFrequency _planFrequency(Object? v) =>
       switch ((v as String?)?.toLowerCase()) {
@@ -792,10 +809,13 @@ class CoachToolRunner {
         'account': wallets[plan.walletId]?.name,
         'currency': wallets[plan.walletId]?.currency,
         'status': plan.status.name,
-        if (plan.kind != PlanKind.fdr) ...{
+        if (plan.provider != null) 'provider': plan.provider,
+        if (plan.reference != null) 'reference': plan.reference,
+        if (!plan.kind.isFixedDeposit) ...{
           'installment_amount': plan.installmentAmount / 100,
           'installments': plan.installmentCount,
           'frequency': plan.frequency.name,
+          if (plan.interval != 1) 'interval': plan.interval,
           'installments_done': p.installmentsDone,
           'paid_so_far': p.paidSoFar / 100,
           'remaining': p.remaining / 100,
@@ -803,10 +823,13 @@ class CoachToolRunner {
         },
         if (plan.principal > 0) 'principal': plan.principal / 100,
         if (plan.interestRate != null) 'rate': plan.interestRate,
-        if (plan.kind == PlanKind.fdr) 'payout': plan.payout.name,
+        if (plan.taxRate != null) 'tax_rate': plan.taxRate,
+        if (plan.kind.isFixedDeposit) 'payout': plan.payout.name,
         'start_date': _date8(plan.startDate),
         'end_date': _date8(PlanDates.endOf(plan)),
-        if (plan.kind == PlanKind.dps || plan.kind == PlanKind.fdr) ...{
+        if (plan.kind == PlanKind.insurance && (plan.maturityAmount ?? 0) > 0)
+          'payout_at_end': plan.maturityAmount! / 100,
+        if (plan.kind.holdsMoney) ...{
           'maturity_amount': p.events.last.amount / 100,
           'held_now': (wallets[plan.holdingWalletId]?.balance ?? 0) / 100,
         },
@@ -827,7 +850,9 @@ class CoachToolRunner {
   Future<CoachPlan> _planCreatePlan(Map<String, dynamic> args) async {
     final kind =
         _planKind(args['kind']) ??
-        (throw _ToolError('kind must be emi, loan, dps or fdr.'));
+        (throw _ToolError(
+          'kind must be emi, loan, dps, fdr, insurance or bond.',
+        ));
     final name = (args['name'] as String?)?.trim() ?? '';
     if (name.isEmpty) throw _ToolError('name is required.');
     final existing = (await _planService.allPlans()).where(
@@ -841,7 +866,7 @@ class CoachToolRunner {
 
     final wallet = args['account'] is String
         ? _wallet(args['account'] as String)
-        : kind == PlanKind.dps || kind == PlanKind.fdr
+        : kind.holdsMoney
         ? (_selectableWallets
                   .where((w) => w.walletType == WalletType.bankAccount)
                   .firstOrNull ??
@@ -852,14 +877,23 @@ class CoachToolRunner {
     }
     final count = (args['installments'] as num?)?.toInt() ?? 0;
     if (count < 1) throw _ToolError('installments is required, at least 1.');
-    final frequency = _planFrequency(args['frequency']);
-    final rate = (args['rate'] as num?)?.toDouble();
+    final (frequency, interval) = kind == PlanKind.insurance
+        ? _planCycle(args['frequency'], args['interval'])
+        : (_planFrequency(args['frequency']), 1);
+    final rate = kind == PlanKind.insurance
+        ? null
+        : (args['rate'] as num?)?.toDouble();
+    final tax = kind.holdsMoney ? (args['tax_rate'] as num?)?.toDouble() : null;
     final amount = _amount(args['amount']) ?? 0;
     var installment = _amount(args['installment_amount']) ?? 0;
     int? maturity = _amount(args['maturity_amount']);
-    final payout = (args['payout'] as String?)?.toLowerCase() == 'monthly'
-        ? PlanPayout.monthly
-        : PlanPayout.atMaturity;
+    final payout = switch ((args['payout'] as String?)?.toLowerCase()) {
+      'monthly' => PlanPayout.monthly,
+      'quarterly' => PlanPayout.quarterly,
+      _ => PlanPayout.atMaturity,
+    };
+    final provider = (args['provider'] as String?)?.trim();
+    final reference = (args['reference'] as String?)?.trim();
     final now = DateTime.now();
     final day = _date(args['start_date']);
     final start = day == null
@@ -892,12 +926,17 @@ class CoachToolRunner {
           count: count,
           frequency: frequency,
         );
+      case PlanKind.insurance:
+        if (installment <= 0) {
+          throw _ToolError('installment_amount, the premium, is required.');
+        }
       case PlanKind.fdr:
+      case PlanKind.bond:
         if (amount <= 0) {
           throw _ToolError('amount, the sum deposited, is required.');
         }
         if (frequency == PlanFrequency.weekly) {
-          throw _ToolError('An FDR runs for months or years.');
+          throw _ToolError('It runs for months or years.');
         }
         maturity ??= PlanMath.fdrMaturity(
           principal: amount,
@@ -921,6 +960,7 @@ class CoachToolRunner {
       installmentAmount: installment,
       installmentCount: count,
       frequency: frequency,
+      interval: interval,
       interestRate: rate,
       maturityAmount: maturity,
       payout: payout,
@@ -928,21 +968,33 @@ class CoachToolRunner {
       reminderDaysBefore: remind,
       categoryId: category?.id,
       loanReceived: args['loan_received'] as bool? ?? true,
+      provider: provider,
+      reference: reference,
+      taxRate: tax,
     );
 
+    final cycle = switch ((frequency, interval)) {
+      (PlanFrequency.monthly, 3) => 'quarterly',
+      (PlanFrequency.monthly, 6) => 'half_yearly',
+      _ => frequency.name,
+    };
+    final fixed = kind.isFixedDeposit;
+    final periodic = fixed && payout != PlanPayout.atMaturity;
     final preview = CoachActionPreview(
       kind: CoachActionKind.createPlan,
       title: '$name (${kind.name.toUpperCase()})',
-      amount: kind == PlanKind.fdr ? amount : installment,
+      amount: fixed ? amount : installment,
       currency: c,
       isIncome: false,
       date: start,
       lines: [
         ('account', wallet.name),
-        if (kind != PlanKind.fdr) ...[
+        if (provider != null && provider.isNotEmpty) ('provider', provider),
+        if (reference != null && reference.isNotEmpty) ('reference', reference),
+        if (!fixed) ...[
           (
-            'installments',
-            '$count × ${installment.formatCurrency(c)} (${frequency.name})',
+            kind == PlanKind.insurance ? 'premiums' : 'installments',
+            '$count × ${installment.formatCurrency(c)} ($cycle)',
           ),
           ('total', (installment * count).formatCurrency(c)),
         ] else
@@ -950,17 +1002,23 @@ class CoachToolRunner {
             'term',
             '$count ${frequency == PlanFrequency.yearly ? 'years' : 'months'}',
           ),
-        if (amount > 0 && kind != PlanKind.fdr)
+        if (amount > 0 && !fixed)
           (
-            kind == PlanKind.loan ? 'borrowed' : 'principal',
+            switch (kind) {
+              PlanKind.loan => 'borrowed',
+              PlanKind.insurance => 'sum_assured',
+              _ => 'principal',
+            },
             amount.formatCurrency(c),
           ),
         if (rate != null) ('rate', '$rate%'),
-        if (maturity != null &&
-            !(kind == PlanKind.fdr && payout == PlanPayout.monthly))
-          ('maturity', maturity.formatCurrency(c)),
-        if (kind == PlanKind.fdr && payout == PlanPayout.monthly)
-          ('payout', 'monthly'),
+        if (tax != null) ('tax', '$tax%'),
+        if (maturity != null && maturity > 0 && !periodic)
+          (
+            kind == PlanKind.insurance ? 'payout_at_end' : 'maturity',
+            maturity.formatCurrency(c),
+          ),
+        if (periodic) ('payout', payout.name),
         ('auto_collect', autoCollect ? 'yes' : 'no'),
       ],
     );
@@ -985,7 +1043,7 @@ class CoachToolRunner {
         'status': 'done',
         'id': id,
         'installments_recorded_now': recorded,
-        if (kind == PlanKind.fdr) 'deposited_now': amount / 100,
+        if (fixed) 'deposited_now': amount / 100,
         if (kind == PlanKind.loan && draft.loanReceived)
           'received_now': amount / 100,
         if (held != null) 'held_in_deposit': held / 100,
@@ -1020,7 +1078,7 @@ class CoachToolRunner {
           switch (next.type) {
             PlanEventType.installment =>
               '${next.number} of ${plan.installmentCount}',
-            PlanEventType.profit => 'profit, month ${next.number}',
+            PlanEventType.profit => 'profit, payment ${next.number}',
             PlanEventType.maturity => 'maturity',
           },
         ),
@@ -1052,20 +1110,27 @@ class CoachToolRunner {
     final wallets = _wallets();
     final c = wallets[plan.walletId]?.currency ?? '';
     final amount = _amount(args['amount']);
-    final saving = plan.kind == PlanKind.dps || plan.kind == PlanKind.fdr;
+    final saving = plan.kind.holdsMoney;
+    final insurance = plan.kind == PlanKind.insurance;
     final held = wallets[plan.holdingWalletId]?.balance ?? 0;
     final preview = CoachActionPreview(
       kind: CoachActionKind.closePlan,
       title: plan.name,
-      amount: saving ? held + (amount ?? 0) : (amount ?? progress.remaining),
+      amount: saving
+          ? held + (amount ?? 0)
+          : insurance
+          ? (amount ?? 0)
+          : (amount ?? progress.remaining),
       currency: c,
-      isIncome: saving,
+      isIncome: saving || insurance,
       date: DateTime.now(),
       lines: [
         ('account', wallets[plan.walletId]?.name ?? ''),
         if (saving) ('held', held.formatCurrency(c)),
         if (saving && amount != null) ('profit', amount.formatCurrency(c)),
-        if (!saving) ('left', progress.remaining.formatCurrency(c)),
+        if (insurance) ('surrender_value', (amount ?? 0).formatCurrency(c)),
+        if (!saving && !insurance)
+          ('left', progress.remaining.formatCurrency(c)),
       ],
     );
     return CoachPlan.ready(preview, () async {

@@ -97,6 +97,9 @@ class BuiltInCategoryKeys {
 
   /// DPS and FDR profit.
   static const String investment = 'investment';
+
+  /// Insurance premiums.
+  static const String insurance = 'insurance';
 }
 
 class SystemCategoryKeys {

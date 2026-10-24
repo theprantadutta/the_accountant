@@ -106,12 +106,7 @@ Future<void> startNewPlan(BuildContext context) async {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          for (final k in [
-            PlanKind.emi,
-            PlanKind.loan,
-            PlanKind.dps,
-            PlanKind.fdr,
-          ])
+          for (final k in PlanKind.values)
             SheetAction(
               key: Key('plan_kind_${k.name}'),
               icon: k.icon,
@@ -156,7 +151,7 @@ class PlanCard extends ConsumerWidget {
         next.date.isBefore(DateTime(now.year, now.month, now.day));
 
     final (double done, String line) = switch (plan.kind) {
-      PlanKind.fdr => (
+      PlanKind.fdr || PlanKind.bond => (
         (now.difference(plan.startDate).inDays /
                 PlanDates.endOf(plan).difference(plan.startDate).inDays)
             .clamp(0.0, 1.0),
@@ -194,7 +189,7 @@ class PlanCard extends ConsumerWidget {
         c.tintRose,
       ),
       PlanStatus.active => (
-        plan.kind == PlanKind.fdr
+        plan.kind.isFixedDeposit
             ? l10n.planStatusRunning
             : l10n.planInstallmentsDone(
                 progress.installmentsDone,
