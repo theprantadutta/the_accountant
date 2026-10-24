@@ -105,6 +105,9 @@ class Transaction {
   /// The loan this row repays, when it is a repayment.
   final String? settlesTransactionId;
 
+  /// The other leg, when this row is one half of a transfer.
+  final String? pairedTransactionId;
+
   Transaction({
     required this.id,
     required this.amount,
@@ -126,6 +129,7 @@ class Transaction {
     this.budgetId,
     this.objectiveId,
     this.settlesTransactionId,
+    this.pairedTransactionId,
   });
 
   /// Whether this row is one leg of a wallet-to-wallet transfer.
@@ -221,6 +225,7 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
       budgetId: t.budgetId,
       objectiveId: t.objectiveId,
       settlesTransactionId: t.settlesTransactionId,
+      pairedTransactionId: t.pairedTransactionId,
     );
   }
 

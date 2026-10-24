@@ -4,31 +4,43 @@ import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
 
 /// Enter an amount on the Sunrise keypad, with + − × ÷ for quick sums.
-/// Resolves to the amount when the user taps Done, or null when dismissed.
+///
+/// Resolves to the amount when the user taps Done, and to what is on the
+/// display when the sheet is closed any other way — a tap outside it, a swipe
+/// down, Back or the ×. Throwing the typed amount away on those was the
+/// surprise: someone who enters 450 and taps the form to pick a category has
+/// not asked to start again. Null only when nothing was typed.
 Future<double?> showCalculatorBottomSheet({
   required BuildContext context,
   required double initialAmount,
   required bool isIncome,
   required String currencySymbol,
   Color? accentColor,
-}) {
-  return showSunriseSheet<double>(
+}) async {
+  double? typed;
+  final done = await showSunriseSheet<double>(
     context: context,
     builder: (context) => _AmountInputSheet(
       initialAmount: initialAmount,
       currencySymbol: currencySymbol,
+      onChanged: (amount) => typed = amount,
     ),
   );
+  return done ?? typed;
 }
 
 class _AmountInputSheet extends StatefulWidget {
   const _AmountInputSheet({
     required this.initialAmount,
     required this.currencySymbol,
+    required this.onChanged,
   });
 
   final double initialAmount;
   final String currencySymbol;
+
+  /// Hears every edit, so the amount survives the sheet being dismissed.
+  final ValueChanged<double> onChanged;
 
   @override
   State<_AmountInputSheet> createState() => _AmountInputSheetState();
@@ -45,7 +57,10 @@ class _AmountInputSheetState extends State<_AmountInputSheet> {
   @override
   void initState() {
     super.initState();
-    _controller.addListener(() => setState(() {}));
+    _controller.addListener(() {
+      setState(() {});
+      widget.onChanged(_amount);
+    });
     // Focused so a hardware keyboard (or a test) can type straight in; the
     // on-screen keyboard stays away because the field asks for none.
     WidgetsBinding.instance.addPostFrameCallback((_) {

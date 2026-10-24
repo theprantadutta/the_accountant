@@ -1306,9 +1306,6 @@ class L10nEn extends L10n {
       'A new amount or account applies from the next payment. Payments already made stay as they were.';
 
   @override
-  String get catDeleteCategory => 'Delete Category';
-
-  @override
   String get catPleaseEnterACategoryName => 'Please enter a category name';
 
   @override
@@ -1363,7 +1360,170 @@ class L10nEn extends L10n {
   }
 
   @override
-  String get catMergeFailed => 'Those two categories cannot be merged.';
+  String get catExpenseSection => 'Expense categories';
+
+  @override
+  String get catIncomeSection => 'Income categories';
+
+  @override
+  String get catSectionEmpty => 'None yet';
+
+  @override
+  String catSubcategoryCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count subcategories',
+      one: '1 subcategory',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String catTransactionCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count transactions',
+      one: '1 transaction',
+      zero: 'No transactions',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String catInParent(String name) {
+    return 'In $name';
+  }
+
+  @override
+  String get catAddSubcategory => 'Add subcategory';
+
+  @override
+  String get catMoveTo => 'Move to…';
+
+  @override
+  String catMoveToTitle(String name) {
+    return 'Move $name to';
+  }
+
+  @override
+  String get catTopLevel => 'Top level';
+
+  @override
+  String get catTopLevelHint => 'Not inside any category';
+
+  @override
+  String catMovedInto(String name, String parent) {
+    return '$name is now in $parent.';
+  }
+
+  @override
+  String catMovedToTop(String name) {
+    return '$name is now a top-level category.';
+  }
+
+  @override
+  String get catMoveNoParents => 'There is no category it can go inside.';
+
+  @override
+  String get catMoveTransactions => 'Move transactions…';
+
+  @override
+  String catMoveTransactionsTitle(String name) {
+    return 'Move $name\'s transactions to';
+  }
+
+  @override
+  String catMoveTransactionsConfirmTitle(int count, String to) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Move $count transactions to $to?',
+      one: 'Move 1 transaction to $to?',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String catMoveTransactionsConfirmBody(String from, String to) {
+    return 'Only the transactions move. $from stays, with its budgets and subcategories. This syncs to your other devices.';
+  }
+
+  @override
+  String get catMoveAction => 'Move';
+
+  @override
+  String catMovedTransactions(int count, String to) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Moved $count transactions to $to.',
+      one: 'Moved 1 transaction to $to.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String catNoTransactionsToMove(String name) {
+    return '$name has no transactions to move.';
+  }
+
+  @override
+  String get catNoMoveTargets =>
+      'There is no other category of the same kind to move them to.';
+
+  @override
+  String catDeleteTitle(String name) {
+    return 'Delete $name?';
+  }
+
+  @override
+  String get catDeleteEmptyBody =>
+      'It has no transactions, so nothing else changes.';
+
+  @override
+  String get catDeleteChildrenNote =>
+      'Its subcategories move to the top level.';
+
+  @override
+  String catDeleteWithTransactions(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count transactions are filed under it. What should happen to them?',
+      one: '1 transaction is filed under it. What should happen to it?',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get catDeleteMoveThem => 'Move to another category';
+
+  @override
+  String catDeleteMoveThemHint(String name) {
+    return 'Then $name is deleted. Budgets that used it move too.';
+  }
+
+  @override
+  String get catDeleteThemToo => 'Delete the transactions too';
+
+  @override
+  String get catDeleteThemTooHint =>
+      'They go to Recently deleted, where you can restore them for 30 days.';
+
+  @override
+  String catDeleted(String name) {
+    return 'Deleted $name.';
+  }
+
+  @override
+  String get catActionFailed => 'That could not be done. Try again.';
+
+  @override
+  String get catStaysTopLevel =>
+      'This category has subcategories of its own, so it stays at the top level.';
 
   @override
   String get catUnarchive => 'Unarchive';
@@ -2595,6 +2755,16 @@ class L10nEn extends L10n {
 
   @override
   String get addDate => 'Date';
+
+  @override
+  String addChangeDate(String date) {
+    return 'Change date, $date';
+  }
+
+  @override
+  String addChangeTime(String time) {
+    return 'Change time, $time';
+  }
 
   @override
   String get addNoteHint => 'Add a note';

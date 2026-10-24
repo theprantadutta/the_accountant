@@ -385,7 +385,18 @@ class AppTheme {
         backgroundColor: c.base,
         dialBackgroundColor: c.surface,
         hourMinuteColor: c.surface,
-        dayPeriodColor: c.tintOrange,
+        // Both states spelled out. With only a fill given, the chosen AM or PM
+        // took white text on the pale tint and read as the one switched off.
+        dayPeriodColor: WidgetStateColor.resolveWith(
+          (s) => s.contains(WidgetState.selected) ? c.accent : c.surface,
+        ),
+        dayPeriodTextColor: WidgetStateColor.resolveWith(
+          (s) => s.contains(WidgetState.selected) ? Colors.white : c.ink,
+        ),
+        dayPeriodBorderSide: BorderSide(color: c.accent),
+        hourMinuteTextColor: WidgetStateColor.resolveWith(
+          (s) => s.contains(WidgetState.selected) ? c.accent : c.ink,
+        ),
         shape: heroShape,
       ),
       expansionTileTheme: ExpansionTileThemeData(

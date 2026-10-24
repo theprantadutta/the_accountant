@@ -1301,9 +1301,6 @@ class L10nBn extends L10n {
       'নতুন পরিমাণ বা অ্যাকাউন্ট পরবর্তী পেমেন্ট থেকে প্রযোজ্য হবে। আগের পেমেন্টগুলো যেমন ছিল তেমনই থাকবে।';
 
   @override
-  String get catDeleteCategory => 'ক্যাটাগরি মুছুন';
-
-  @override
   String get catPleaseEnterACategoryName => 'একটি ক্যাটাগরির নাম লিখুন';
 
   @override
@@ -1358,7 +1355,169 @@ class L10nBn extends L10n {
   }
 
   @override
-  String get catMergeFailed => 'এই দুটি ক্যাটাগরি মেলানো যায় না।';
+  String get catExpenseSection => 'খরচের ক্যাটাগরি';
+
+  @override
+  String get catIncomeSection => 'আয়ের ক্যাটাগরি';
+
+  @override
+  String get catSectionEmpty => 'এখনো কিছু নেই';
+
+  @override
+  String catSubcategoryCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countটি সাব-ক্যাটাগরি',
+      one: '১টি সাব-ক্যাটাগরি',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String catTransactionCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countটি লেনদেন',
+      one: '১টি লেনদেন',
+      zero: 'কোনো লেনদেন নেই',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String catInParent(String name) {
+    return '$name এর ভেতরে';
+  }
+
+  @override
+  String get catAddSubcategory => 'সাব-ক্যাটাগরি যোগ করুন';
+
+  @override
+  String get catMoveTo => 'অন্য জায়গায় সরান…';
+
+  @override
+  String catMoveToTitle(String name) {
+    return '$name কোথায় সরাবেন';
+  }
+
+  @override
+  String get catTopLevel => 'মূল তালিকায়';
+
+  @override
+  String get catTopLevelHint => 'কোনো ক্যাটাগরির ভেতরে নয়';
+
+  @override
+  String catMovedInto(String name, String parent) {
+    return '$name এখন $parent এর ভেতরে।';
+  }
+
+  @override
+  String catMovedToTop(String name) {
+    return '$name এখন মূল তালিকার ক্যাটাগরি।';
+  }
+
+  @override
+  String get catMoveNoParents => 'এটি রাখার মতো কোনো ক্যাটাগরি নেই।';
+
+  @override
+  String get catMoveTransactions => 'লেনদেন সরান…';
+
+  @override
+  String catMoveTransactionsTitle(String name) {
+    return '$name এর লেনদেন কোথায় সরাবেন';
+  }
+
+  @override
+  String catMoveTransactionsConfirmTitle(int count, String to) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countটি লেনদেন $to তে সরাবেন?',
+      one: '১টি লেনদেন $to তে সরাবেন?',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String catMoveTransactionsConfirmBody(String from, String to) {
+    return 'শুধু লেনদেনগুলো সরবে। $from থাকবে, এর বাজেট ও সাব-ক্যাটাগরিসহ। এটি আপনার অন্য ডিভাইসেও সিঙ্ক হবে।';
+  }
+
+  @override
+  String get catMoveAction => 'সরান';
+
+  @override
+  String catMovedTransactions(int count, String to) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countটি লেনদেন $to তে সরানো হয়েছে।',
+      one: '১টি লেনদেন $to তে সরানো হয়েছে।',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String catNoTransactionsToMove(String name) {
+    return '$name এ সরানোর মতো কোনো লেনদেন নেই।';
+  }
+
+  @override
+  String get catNoMoveTargets =>
+      'সরানোর মতো একই ধরনের অন্য কোনো ক্যাটাগরি নেই।';
+
+  @override
+  String catDeleteTitle(String name) {
+    return '$name মুছবেন?';
+  }
+
+  @override
+  String get catDeleteEmptyBody =>
+      'এতে কোনো লেনদেন নেই, তাই আর কিছু বদলাবে না।';
+
+  @override
+  String get catDeleteChildrenNote =>
+      'এর সাব-ক্যাটাগরিগুলো মূল তালিকায় চলে যাবে।';
+
+  @override
+  String catDeleteWithTransactions(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'এতে $countটি লেনদেন আছে। সেগুলোর কী হবে?',
+      one: 'এতে ১টি লেনদেন আছে। সেটির কী হবে?',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get catDeleteMoveThem => 'অন্য ক্যাটাগরিতে সরান';
+
+  @override
+  String catDeleteMoveThemHint(String name) {
+    return 'তারপর $name মুছে যাবে। যে বাজেটে এটি ছিল সেগুলোও সরে যাবে।';
+  }
+
+  @override
+  String get catDeleteThemToo => 'লেনদেনগুলোও মুছে দিন';
+
+  @override
+  String get catDeleteThemTooHint =>
+      'এগুলো সম্প্রতি মুছে ফেলায় যাবে, ৩০ দিন পর্যন্ত ফিরিয়ে আনতে পারবেন।';
+
+  @override
+  String catDeleted(String name) {
+    return '$name মুছে ফেলা হয়েছে।';
+  }
+
+  @override
+  String get catActionFailed => 'এটি করা যায়নি। আবার চেষ্টা করুন।';
+
+  @override
+  String get catStaysTopLevel =>
+      'এই ক্যাটাগরির নিজেরই সাব-ক্যাটাগরি আছে, তাই এটি মূল তালিকায় থাকবে।';
 
   @override
   String get catUnarchive => 'আর্কাইভ থেকে ফেরান';
@@ -2569,6 +2728,16 @@ class L10nBn extends L10n {
 
   @override
   String get addDate => 'তারিখ';
+
+  @override
+  String addChangeDate(String date) {
+    return 'তারিখ বদলান, $date';
+  }
+
+  @override
+  String addChangeTime(String time) {
+    return 'সময় বদলান, $time';
+  }
 
   @override
   String get addNoteHint => 'একটি নোট যোগ করুন';

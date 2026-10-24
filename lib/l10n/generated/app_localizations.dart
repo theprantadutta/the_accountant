@@ -2531,12 +2531,6 @@ abstract class L10n {
   /// **'A new amount or account applies from the next payment. Payments already made stay as they were.'**
   String get subChangesApplyFromNext;
 
-  /// No description provided for @catDeleteCategory.
-  ///
-  /// In en, this message translates to:
-  /// **'Delete Category'**
-  String get catDeleteCategory;
-
   /// No description provided for @catPleaseEnterACategoryName.
   ///
   /// In en, this message translates to:
@@ -2627,11 +2621,203 @@ abstract class L10n {
   /// **'Merged {from} into {to}.'**
   String catMerged(String from, String to);
 
-  /// No description provided for @catMergeFailed.
+  /// No description provided for @catExpenseSection.
   ///
   /// In en, this message translates to:
-  /// **'Those two categories cannot be merged.'**
-  String get catMergeFailed;
+  /// **'Expense categories'**
+  String get catExpenseSection;
+
+  /// No description provided for @catIncomeSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Income categories'**
+  String get catIncomeSection;
+
+  /// No description provided for @catSectionEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'None yet'**
+  String get catSectionEmpty;
+
+  /// No description provided for @catSubcategoryCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 subcategory} other{{count} subcategories}}'**
+  String catSubcategoryCount(int count);
+
+  /// No description provided for @catTransactionCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No transactions} =1{1 transaction} other{{count} transactions}}'**
+  String catTransactionCount(int count);
+
+  /// No description provided for @catInParent.
+  ///
+  /// In en, this message translates to:
+  /// **'In {name}'**
+  String catInParent(String name);
+
+  /// No description provided for @catAddSubcategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Add subcategory'**
+  String get catAddSubcategory;
+
+  /// No description provided for @catMoveTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Move to…'**
+  String get catMoveTo;
+
+  /// No description provided for @catMoveToTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Move {name} to'**
+  String catMoveToTitle(String name);
+
+  /// No description provided for @catTopLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'Top level'**
+  String get catTopLevel;
+
+  /// No description provided for @catTopLevelHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Not inside any category'**
+  String get catTopLevelHint;
+
+  /// No description provided for @catMovedInto.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is now in {parent}.'**
+  String catMovedInto(String name, String parent);
+
+  /// No description provided for @catMovedToTop.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is now a top-level category.'**
+  String catMovedToTop(String name);
+
+  /// No description provided for @catMoveNoParents.
+  ///
+  /// In en, this message translates to:
+  /// **'There is no category it can go inside.'**
+  String get catMoveNoParents;
+
+  /// No description provided for @catMoveTransactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Move transactions…'**
+  String get catMoveTransactions;
+
+  /// No description provided for @catMoveTransactionsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Move {name}\'s transactions to'**
+  String catMoveTransactionsTitle(String name);
+
+  /// No description provided for @catMoveTransactionsConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Move 1 transaction to {to}?} other{Move {count} transactions to {to}?}}'**
+  String catMoveTransactionsConfirmTitle(int count, String to);
+
+  /// No description provided for @catMoveTransactionsConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Only the transactions move. {from} stays, with its budgets and subcategories. This syncs to your other devices.'**
+  String catMoveTransactionsConfirmBody(String from, String to);
+
+  /// No description provided for @catMoveAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Move'**
+  String get catMoveAction;
+
+  /// No description provided for @catMovedTransactions.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Moved 1 transaction to {to}.} other{Moved {count} transactions to {to}.}}'**
+  String catMovedTransactions(int count, String to);
+
+  /// No description provided for @catNoTransactionsToMove.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} has no transactions to move.'**
+  String catNoTransactionsToMove(String name);
+
+  /// No description provided for @catNoMoveTargets.
+  ///
+  /// In en, this message translates to:
+  /// **'There is no other category of the same kind to move them to.'**
+  String get catNoMoveTargets;
+
+  /// No description provided for @catDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete {name}?'**
+  String catDeleteTitle(String name);
+
+  /// No description provided for @catDeleteEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'It has no transactions, so nothing else changes.'**
+  String get catDeleteEmptyBody;
+
+  /// No description provided for @catDeleteChildrenNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Its subcategories move to the top level.'**
+  String get catDeleteChildrenNote;
+
+  /// No description provided for @catDeleteWithTransactions.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 transaction is filed under it. What should happen to it?} other{{count} transactions are filed under it. What should happen to them?}}'**
+  String catDeleteWithTransactions(int count);
+
+  /// No description provided for @catDeleteMoveThem.
+  ///
+  /// In en, this message translates to:
+  /// **'Move to another category'**
+  String get catDeleteMoveThem;
+
+  /// No description provided for @catDeleteMoveThemHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Then {name} is deleted. Budgets that used it move too.'**
+  String catDeleteMoveThemHint(String name);
+
+  /// No description provided for @catDeleteThemToo.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete the transactions too'**
+  String get catDeleteThemToo;
+
+  /// No description provided for @catDeleteThemTooHint.
+  ///
+  /// In en, this message translates to:
+  /// **'They go to Recently deleted, where you can restore them for 30 days.'**
+  String get catDeleteThemTooHint;
+
+  /// No description provided for @catDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted {name}.'**
+  String catDeleted(String name);
+
+  /// No description provided for @catActionFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'That could not be done. Try again.'**
+  String get catActionFailed;
+
+  /// No description provided for @catStaysTopLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'This category has subcategories of its own, so it stays at the top level.'**
+  String get catStaysTopLevel;
 
   /// No description provided for @catUnarchive.
   ///
@@ -4804,6 +4990,18 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'Date'**
   String get addDate;
+
+  /// No description provided for @addChangeDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Change date, {date}'**
+  String addChangeDate(String date);
+
+  /// No description provided for @addChangeTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Change time, {time}'**
+  String addChangeTime(String time);
 
   /// No description provided for @addNoteHint.
   ///

@@ -519,14 +519,16 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
   }
 
   Future<void> _showCategoryPicker({bool openAmountAfter = false}) async {
+    _dropFocus();
     final category = await showCategoryPickerSheet(
       context: context,
       ref: ref,
       selectedCategoryId: _selectedCategoryId,
       accentColor: _accentColor,
     );
+    _dropFocus();
 
-    if (category != null) {
+    if (category != null && mounted) {
       setState(() {
         _selectedCategoryId = category.id;
         _selectedCategory = category;
@@ -552,6 +554,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
       wallet?.currency ?? ref.read(settingsProvider).currency,
     );
 
+    _dropFocus();
     final amount = await showCalculatorBottomSheet(
       context: context,
       initialAmount: _amount,
@@ -560,12 +563,21 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
       accentColor: _accentColor,
     );
 
-    if (amount != null) {
+    _dropFocus();
+    if (amount != null && mounted) {
       setState(() {
         _amount = amount;
       });
     }
   }
+
+  /// Keep the keyboard down around a sheet or picker.
+  ///
+  /// A closing sheet hands focus back to the field that had it, which on this
+  /// form is usually the title, so the keyboard sprang up over the amount that
+  /// had just been entered. Run before opening (so there is nothing to hand
+  /// back) and after closing (in case something took focus meanwhile).
+  void _dropFocus() => FocusManager.instance.primaryFocus?.unfocus();
 
   /// Teach the app where a title belongs, from a transaction just created.
   ///
@@ -1929,6 +1941,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
   }
 
   Future<void> _showReceivedCalculator(String currencySymbol) async {
+    _dropFocus();
     final amount = await showCalculatorBottomSheet(
       context: context,
       initialAmount: _receivedAmount,
@@ -1937,7 +1950,8 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
       accentColor: AppColors.success,
     );
 
-    if (amount != null) {
+    _dropFocus();
+    if (amount != null && mounted) {
       setState(() => _receivedAmount = amount);
     }
   }
@@ -2090,6 +2104,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
   }
 
   Future<void> _showFeeCalculator(String currencySymbol) async {
+    _dropFocus();
     final amount = await showCalculatorBottomSheet(
       context: context,
       initialAmount: _feeAmount,
@@ -2098,7 +2113,8 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
       accentColor: AppColors.warning,
     );
 
-    if (amount != null) {
+    _dropFocus();
+    if (amount != null && mounted) {
       setState(() => _feeAmount = amount);
     }
   }

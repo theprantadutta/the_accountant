@@ -11,10 +11,11 @@ enum PaidFilter { any, paid, unpaid, skipped }
 
 /// Whether to include the two legs of wallet-to-wallet transfers.
 ///
-/// Their own screen exists to answer "where did my money go", and a transfer
-/// answers neither side of that, so they are hidden unless asked for. But they
-/// are real rows the user created, and a list that can never show them makes
-/// them impossible to find or correct.
+/// Shown by default. They used to be hidden on the grounds that a transfer is
+/// neither earned nor spent, which is true of the totals and wrong for the
+/// list: moving money to a card or to savings is something the user did, and a
+/// ledger that leaves it out cannot be checked against a bank statement. The
+/// totals still leave transfers out (see [Transaction.countsInAnalytics]).
 enum TransferFilter { hide, show, only }
 
 /// Everything the transaction list can be narrowed by.
@@ -57,7 +58,7 @@ class TransactionFilters {
     this.direction = DirectionFilter.any,
     this.paid = PaidFilter.any,
     this.specialTypes = const {},
-    this.transfers = TransferFilter.hide,
+    this.transfers = TransferFilter.show,
     this.minAmount,
     this.maxAmount,
     this.from,
@@ -79,7 +80,7 @@ class TransactionFilters {
       direction != DirectionFilter.any ||
       paid != PaidFilter.any ||
       specialTypes.isNotEmpty ||
-      transfers != TransferFilter.hide ||
+      transfers != TransferFilter.show ||
       minAmount != null ||
       maxAmount != null ||
       from != null ||
@@ -94,7 +95,7 @@ class TransactionFilters {
     direction != DirectionFilter.any,
     paid != PaidFilter.any,
     specialTypes.isNotEmpty,
-    transfers != TransferFilter.hide,
+    transfers != TransferFilter.show,
     minAmount != null || maxAmount != null,
     from != null || to != null,
     budgetIds.isNotEmpty,
@@ -345,4 +346,23 @@ class SearchQuery {
     }
     return null;
   }
+}
+
+/// [rows] with each transfer shown once.
+///
+/// A transfer is two rows, money out of one account and into another, and
+/// listing both made every transfer look like it had happened twice. The
+/// outgoing leg stands for the pair; the incoming one is kept only when its
+/// partner is not in [rows] (a list narrowed to the receiving account, say),
+/// so no transfer ever disappears altogether.
+List<Transaction> collapseTransferLegs(List<Transaction> rows) {
+  final ids = {for (final t in rows) t.id};
+  return [
+    for (final t in rows)
+      if (!(t.isTransferLeg &&
+          t.type == 'income' &&
+          t.pairedTransactionId != null &&
+          ids.contains(t.pairedTransactionId)))
+        t,
+  ];
 }

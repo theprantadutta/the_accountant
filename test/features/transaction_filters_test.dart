@@ -27,6 +27,7 @@ void main() {
     TransactionSpecialType specialType = TransactionSpecialType.none,
     String? budgetId,
     String? objectiveId,
+    String? pairedTransactionId,
   }) => Transaction(
     id: id,
     amount: amount,
@@ -44,6 +45,7 @@ void main() {
     specialType: specialType,
     budgetId: budgetId,
     objectiveId: objectiveId,
+    pairedTransactionId: pairedTransactionId,
   );
 
   group('budgets and goals', () {
@@ -68,20 +70,22 @@ void main() {
   group('transfers', () {
     final transfer = txn(transactionType: 'transfer');
 
-    test('are hidden by default', () {
+    test('are shown by default', () {
       expect(
         TransactionFilters.none.matches(transfer),
-        isFalse,
+        isTrue,
         reason:
-            'a transfer is neither income nor spending, so it answers neither '
-            'side of what this list is for',
+            'paying a card or moving money to savings is something the user '
+            'did, and a list without it cannot be checked against a statement',
       );
+      expect(TransactionFilters.none.hasActiveFilters, isFalse);
     });
 
-    test('can be shown when asked for', () {
-      const filters = TransactionFilters(transfers: TransferFilter.show);
-      expect(filters.matches(transfer), isTrue);
+    test('can be hidden when asked for', () {
+      const filters = TransactionFilters(transfers: TransferFilter.hide);
+      expect(filters.matches(transfer), isFalse);
       expect(filters.matches(txn()), isTrue);
+      expect(filters.activeCount, 1);
     });
 
     test('can be the only thing shown', () {
@@ -94,6 +98,30 @@ void main() {
             'a list that can never show transfers makes them impossible to '
             'find or correct',
       );
+    });
+  });
+
+  group('collapseTransferLegs', () {
+    final out = txn(
+      id: 'out',
+      transactionType: 'transfer',
+      pairedTransactionId: 'in',
+    );
+    final into = txn(
+      id: 'in',
+      type: 'income',
+      walletId: 'w2',
+      transactionType: 'transfer',
+      pairedTransactionId: 'out',
+    );
+
+    test('shows a transfer once, by its outgoing leg', () {
+      final rows = collapseTransferLegs([out, into, txn(id: 'lunch')]);
+      expect(rows.map((t) => t.id), ['out', 'lunch']);
+    });
+
+    test('keeps the incoming leg when its partner is not listed', () {
+      expect(collapseTransferLegs([into]).map((t) => t.id), ['in']);
     });
   });
 

@@ -487,7 +487,6 @@
   "subAskBeforeEachPayment": "Ask before recording each payment",
   "subAskBeforeEachPaymentHint": "Each payment waits in Upcoming until you confirm what was charged, or skip it. Best for charges that vary, like a card paid in another currency.",
   "subChangesApplyFromNext": "A new amount or account applies from the next payment. Payments already made stay as they were.",
-  "catDeleteCategory": "Delete Category",
   "catPleaseEnterACategoryName": "Please enter a category name",
   "catEnterCategoryName": "Enter category name",
   "catSearch": "Search categories",
@@ -540,7 +539,156 @@
       }
     }
   },
-  "catMergeFailed": "Those two categories cannot be merged.",
+  "catExpenseSection": "Expense categories",
+  "catIncomeSection": "Income categories",
+  "catSectionEmpty": "None yet",
+  "catSubcategoryCount": "{count, plural, =1{1 subcategory} other{{count} subcategories}}",
+  "@catSubcategoryCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "catTransactionCount": "{count, plural, =0{No transactions} =1{1 transaction} other{{count} transactions}}",
+  "@catTransactionCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "catInParent": "In {name}",
+  "@catInParent": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "catAddSubcategory": "Add subcategory",
+  "catMoveTo": "Move to…",
+  "catMoveToTitle": "Move {name} to",
+  "@catMoveToTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "catTopLevel": "Top level",
+  "catTopLevelHint": "Not inside any category",
+  "catMovedInto": "{name} is now in {parent}.",
+  "@catMovedInto": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "parent": {
+        "type": "String"
+      }
+    }
+  },
+  "catMovedToTop": "{name} is now a top-level category.",
+  "@catMovedToTop": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "catMoveNoParents": "There is no category it can go inside.",
+  "catMoveTransactions": "Move transactions…",
+  "catMoveTransactionsTitle": "Move {name}'s transactions to",
+  "@catMoveTransactionsTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "catMoveTransactionsConfirmTitle": "{count, plural, =1{Move 1 transaction to {to}?} other{Move {count} transactions to {to}?}}",
+  "@catMoveTransactionsConfirmTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "catMoveTransactionsConfirmBody": "Only the transactions move. {from} stays, with its budgets and subcategories. This syncs to your other devices.",
+  "@catMoveTransactionsConfirmBody": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "catMoveAction": "Move",
+  "catMovedTransactions": "{count, plural, =1{Moved 1 transaction to {to}.} other{Moved {count} transactions to {to}.}}",
+  "@catMovedTransactions": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "catNoTransactionsToMove": "{name} has no transactions to move.",
+  "@catNoTransactionsToMove": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "catNoMoveTargets": "There is no other category of the same kind to move them to.",
+  "catDeleteTitle": "Delete {name}?",
+  "@catDeleteTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "catDeleteEmptyBody": "It has no transactions, so nothing else changes.",
+  "catDeleteChildrenNote": "Its subcategories move to the top level.",
+  "catDeleteWithTransactions": "{count, plural, =1{1 transaction is filed under it. What should happen to it?} other{{count} transactions are filed under it. What should happen to them?}}",
+  "@catDeleteWithTransactions": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "catDeleteMoveThem": "Move to another category",
+  "catDeleteMoveThemHint": "Then {name} is deleted. Budgets that used it move too.",
+  "@catDeleteMoveThemHint": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "catDeleteThemToo": "Delete the transactions too",
+  "catDeleteThemTooHint": "They go to Recently deleted, where you can restore them for 30 days.",
+  "catDeleted": "Deleted {name}.",
+  "@catDeleted": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "catActionFailed": "That could not be done. Try again.",
+  "catStaysTopLevel": "This category has subcategories of its own, so it stays at the top level.",
   "catUnarchive": "Unarchive",
   "catArchivedSection": "Archived",
   "catArchivedHint": "Kept for their history, but not offered when you add a transaction.",
@@ -1149,6 +1297,22 @@
   "addMore": "More",
   "addWallet": "Wallet",
   "addDate": "Date",
+  "addChangeDate": "Change date, {date}",
+  "@addChangeDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "addChangeTime": "Change time, {time}",
+  "@addChangeTime": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
   "addNoteHint": "Add a note",
   "addRepeatMonthly": "Repeat monthly",
   "addMoreOptions": "More options",

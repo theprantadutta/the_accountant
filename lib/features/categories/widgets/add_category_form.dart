@@ -376,6 +376,12 @@ class _AddCategoryFormState extends ConsumerState<AddCategoryForm> {
           (c) => !c.isSystem && c.mainCategoryId == null && c.id != editingId,
         )
         .toList();
+    // The parent it was opened with goes first. In the middle of a sideways
+    // list it was off screen, so the form looked as if nothing was chosen.
+    final opened = widget.category?.mainCategoryId ?? widget.initialParentId;
+    parents.sort(
+      (a, b) => (b.id == opened ? 1 : 0).compareTo(a.id == opened ? 1 : 0),
+    );
 
     // Editing a category that already has children: making it part of something
     // else would push its children to a third level.
@@ -384,8 +390,7 @@ class _AddCategoryFormState extends ConsumerState<AddCategoryForm> {
 
     if (hasChildren) {
       return Text(
-        'This category has subcategories of its own, so it stays at the top '
-        'level.',
+        L10n.of(context).catStaysTopLevel,
         style: AppTypography.bodySmall.copyWith(color: AppColors.textMuted),
       );
     }

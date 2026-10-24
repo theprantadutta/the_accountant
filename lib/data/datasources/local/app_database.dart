@@ -2564,6 +2564,124 @@ class AppDatabase extends _$AppDatabase {
     });
   }
 
+  /// How many live transactions are filed under each category, by id.
+  ///
+  /// Categories with none are absent. Read by the category screen so moving
+  /// or deleting can say what it will touch before it touches it.
+  Future<Map<String, int>> liveTransactionCountsByCategory() async {
+    final rows = await customSelect(
+      'SELECT category_id, COUNT(*) AS n FROM transactions '
+      'WHERE deleted_at IS NULL AND category_id IS NOT NULL '
+      'GROUP BY category_id',
+      readsFrom: {transactions},
+    ).get();
+    return {
+      for (final r in rows) r.read<String>('category_id'): r.read<int>('n'),
+    };
+  }
+
+  /// Refile every live transaction in [sourceId] under [targetId], keeping
+  /// both categories. Returns how many moved.
+  ///
+  /// Unlike [mergeCategory] the source stays, with its budgets and its
+  /// subcategories: this is for "these were filed in the wrong place", not
+  /// "these two are the same thing". Deleted rows stay where they were, so
+  /// restoring one from Recently deleted puts it back where it was.
+  ///
+  /// Refused for the app's own bookkeeping categories in either direction, and
+  /// across income and spending, for the same reasons a merge is.
+  Future<int> moveCategoryTransactions({
+    required String sourceId,
+    required String targetId,
+  }) async {
+    if (sourceId == targetId) {
+      throw ArgumentError('Pick a different category to move them to.');
+    }
+    final source = await findCategoryById(sourceId);
+    final target = await findCategoryById(targetId);
+    if (source == null ||
+        target == null ||
+        source.deletedAt != null ||
+        target.deletedAt != null) {
+      throw ArgumentError('Both categories must exist to move between them.');
+    }
+    if (SystemCategoryKeys.all.contains(source.defaultKey) ||
+        SystemCategoryKeys.all.contains(target.defaultKey)) {
+      throw ArgumentError("The app's own categories cannot be moved between.");
+    }
+    if (source.isIncome != target.isIncome) {
+      throw ArgumentError(
+        'Income and spending transactions cannot swap categories.',
+      );
+    }
+    return transaction(() async {
+      final moving = await (select(transactions)..where(
+            (t) => t.categoryId.equals(sourceId) & t.deletedAt.isNull(),
+          ))
+          .get();
+      if (moving.isEmpty) return 0;
+      await customStatement(
+        'UPDATE transactions SET category_id = ?, updated_at = ?, '
+        'sync_status = ${SyncStatus.markEditedSql} '
+        'WHERE category_id = ? AND deleted_at IS NULL',
+        [targetId, DateTime.now().millisecondsSinceEpoch ~/ 1000, sourceId],
+      );
+      return moving.length;
+    });
+  }
+
+  /// Put [id] inside [parentId], or back at the top level when it is null.
+  ///
+  /// Categories are one level deep, so the parent has to be a top-level
+  /// category itself and [id] must not have subcategories of its own. Both have
+  /// to be the same kind: a subcategory of an income category is income.
+  Future<void> setCategoryParent(String id, String? parentId) async {
+    final category = await findCategoryById(id);
+    if (category == null || category.deletedAt != null) {
+      throw ArgumentError('That category no longer exists.');
+    }
+    if (SystemCategoryKeys.all.contains(category.defaultKey)) {
+      throw ArgumentError("The app's own categories cannot be moved.");
+    }
+    if (parentId == category.mainCategoryId) return;
+    if (parentId != null) {
+      if (parentId == id) {
+        throw ArgumentError('A category cannot sit inside itself.');
+      }
+      final parent = await findCategoryById(parentId);
+      if (parent == null || parent.deletedAt != null) {
+        throw ArgumentError('That category no longer exists.');
+      }
+      if (SystemCategoryKeys.all.contains(parent.defaultKey)) {
+        throw ArgumentError("Nothing can be filed inside the app's own categories.");
+      }
+      if (parent.mainCategoryId != null) {
+        throw ArgumentError(
+          'That category is inside another one, and categories are one level deep.',
+        );
+      }
+      if (parent.isIncome != category.isIncome) {
+        throw ArgumentError(
+          'An income category and a spending one cannot be nested.',
+        );
+      }
+      final children = await (select(categories)..where(
+            (c) => c.mainCategoryId.equals(id) & c.deletedAt.isNull(),
+          ))
+          .get();
+      if (children.isNotEmpty) {
+        throw ArgumentError(
+          'This category has subcategories of its own, so it stays at the top level.',
+        );
+      }
+    }
+    await customStatement(
+      'UPDATE categories SET main_category_id = ?, updated_at = ?, '
+      'sync_status = ${SyncStatus.markEditedSql} WHERE id = ?',
+      [parentId, DateTime.now().millisecondsSinceEpoch ~/ 1000, id],
+    );
+  }
+
   Future<void> setCategoryArchived(String id, bool archived) async {
     final category = await findCategoryById(id);
     if (category == null ||
@@ -2595,6 +2713,15 @@ class AppDatabase extends _$AppDatabase {
   /// a deleted category silently counts nothing.
   Future<void> softDeleteCategory(String id) async {
     await transaction(() async {
+      // Its subcategories move up to the top level rather than going with it:
+      // left pointing at a deleted parent they vanished from every list that
+      // draws the tree, still holding transactions nobody could find.
+      await customStatement(
+        'UPDATE categories SET main_category_id = NULL, updated_at = ?, '
+        'sync_status = ${SyncStatus.markEditedSql} '
+        'WHERE main_category_id = ? AND deleted_at IS NULL',
+        [DateTime.now().millisecondsSinceEpoch ~/ 1000, id],
+      );
       await (update(categories)..where((c) => c.id.equals(id))).write(
         CategoriesCompanion(
           deletedAt: Value(DateTime.now()),

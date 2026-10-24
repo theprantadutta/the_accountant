@@ -13,6 +13,7 @@ import 'package:the_accountant/features/transactions/screens/transaction_detail_
 import 'package:the_accountant/features/transactions/widgets/category_picker_sheet.dart';
 import 'package:the_accountant/features/transactions/widgets/month_strip.dart';
 import 'package:the_accountant/features/transactions/widgets/transaction_filter_sheet.dart';
+import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:the_accountant/shared/widgets/shimmer_loading.dart';
 import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
@@ -225,13 +226,36 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
         if (c.mainCategoryId == id) c.id,
     };
 
-    return transactions.where((t) {
-      if (month != null &&
-          (t.date.year != month.year || t.date.month != month.month)) {
-        return false;
-      }
-      return _filters.matches(t, familyOf: familyOf);
-    }).toList();
+    return collapseTransferLegs(
+      transactions.where((t) {
+        if (month != null &&
+            (t.date.year != month.year || t.date.month != month.month)) {
+          return false;
+        }
+        return _filters.matches(t, familyOf: familyOf);
+      }).toList(),
+    );
+  }
+
+  /// "SCB Credit → Cash" for a transfer, read from its two legs.
+  ///
+  /// The list shows a transfer once, so the row has to say where the money
+  /// went as well as where it came from; "Transfer" alone did neither.
+  String _transferRoute(Transaction leg) {
+    final wallets = ref.watch(walletProvider).wallets;
+    String nameOf(String? id) =>
+        wallets.where((w) => w.id == id).firstOrNull?.name ?? '?';
+    final partner = leg.pairedTransactionId == null
+        ? null
+        : ref
+              .read(transactionProvider)
+              .transactions
+              .where((t) => t.id == leg.pairedTransactionId)
+              .firstOrNull;
+    if (partner == null) return L10n.of(context).txTransfer;
+    final outgoing = leg.type == 'expense' ? leg : partner;
+    final incoming = leg.type == 'expense' ? partner : leg;
+    return '${nameOf(outgoing.walletId)} → ${nameOf(incoming.walletId)}';
   }
 
   Map<DateTime, List<Transaction>> _groupTransactionsByDate(
@@ -480,9 +504,11 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
       context: context,
       current: _filters,
       // Across every month, so the button can say what applying will show.
-      countFor: (filters) => transactions
-          .where((t) => filters.matches(t, familyOf: familyOf))
-          .length,
+      countFor: (filters) => collapseTransferLegs(
+        transactions
+            .where((t) => filters.matches(t, familyOf: familyOf))
+            .toList(),
+      ).length,
     );
     if (updated != null) setState(() => _filters = updated);
   }
@@ -550,7 +576,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
       _filters = switch (chip) {
         _TypeChip.all => _filters.copyWith(
           direction: DirectionFilter.any,
-          transfers: TransferFilter.hide,
+          transfers: TransferFilter.show,
         ),
         _TypeChip.spent => _filters.copyWith(
           direction: DirectionFilter.expense,
@@ -702,7 +728,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
       id: transaction.id,
       title: displayTitle,
       category: transaction.isTransferLeg
-          ? L10n.of(context).txTransfer
+          ? _transferRoute(transaction)
           : transaction.category,
       categoryColor: category.colorCode,
       categoryIcon: category.iconName,

@@ -219,7 +219,7 @@ class CategoryNotifier extends StateNotifier<CategoryState> {
     String? type, // @deprecated - use isIncome instead
     bool? isIncome, // New: use this instead of type
     String? iconName,
-    String? mainCategoryId,
+    Object? mainCategoryId = _keepParent,
     bool? isDefault,
   }) async {
     state = state.copyWith(isLoading: true);
@@ -243,10 +243,21 @@ class CategoryNotifier extends StateNotifier<CategoryState> {
         name: Value(name ?? existing.name),
         color: Value(colorCode ?? existing.color),
         iconName: Value(iconName ?? existing.iconName),
-        mainCategoryId: Value(mainCategoryId ?? existing.mainCategoryId),
+        // Null is a real answer here, "at the top level"; it used to be read
+        // as "unchanged", so a subcategory could never be taken out again.
+        mainCategoryId: Value(
+          identical(mainCategoryId, _keepParent)
+              ? existing.mainCategoryId
+              : mainCategoryId as String?,
+        ),
         isDefault: Value(isDefault ?? existing.isDefault),
         isIncome: Value(categoryIsIncome ?? existing.isIncome),
-        syncStatus: const Value(SyncStatus.pendingUpdate),
+        // A category the server has not seen yet is still a create.
+        syncStatus: Value(
+          existing.syncStatus == SyncStatus.pendingCreate
+              ? SyncStatus.pendingCreate
+              : SyncStatus.pendingUpdate,
+        ),
       );
 
       await _db.updateCategory(updatedCategory);
@@ -273,6 +284,20 @@ class CategoryNotifier extends StateNotifier<CategoryState> {
     required String targetId,
   }) async {
     await _db.mergeCategory(sourceId: sourceId, targetId: targetId);
+    await loadCategories(silent: true);
+  }
+
+  /// Refile [sourceId]'s transactions under [targetId], keeping both; see
+  /// [AppDatabase.moveCategoryTransactions]. Returns how many moved.
+  Future<int> moveTransactions({
+    required String sourceId,
+    required String targetId,
+  }) => _db.moveCategoryTransactions(sourceId: sourceId, targetId: targetId);
+
+  /// Put [id] inside [parentId], or at the top level when it is null; see
+  /// [AppDatabase.setCategoryParent].
+  Future<void> setParent(String id, String? parentId) async {
+    await _db.setCategoryParent(id, parentId);
     await loadCategories(silent: true);
   }
 
@@ -314,6 +339,10 @@ class CategoryNotifier extends StateNotifier<CategoryState> {
     }
   }
 }
+
+/// Marks "leave the parent as it is" in [CategoryNotifier.updateCategory],
+/// where null means "no parent".
+const Object _keepParent = Object();
 
 final categoryProvider = StateNotifierProvider<CategoryNotifier, CategoryState>(
   (ref) {
