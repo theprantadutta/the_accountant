@@ -18,6 +18,9 @@ enum AppDestination {
   /// Credit card bills; [DeepLink.entityId] picks out one card when set.
   cardBills,
 
+  /// EMIs, loans, DPS and FDR; [DeepLink.entityId] opens one plan.
+  plans,
+
   /// Needs [DeepLink.entityId].
   transactionDetail,
 }
@@ -92,6 +95,7 @@ class DeepLinkParser {
     'add/transfer': AppDestination.addTransfer,
     'notifications': AppDestination.notifications,
     'cards': AppDestination.cardBills,
+    'plans': AppDestination.plans,
   };
 
   /// Read a link, or null if it names nothing this app knows.

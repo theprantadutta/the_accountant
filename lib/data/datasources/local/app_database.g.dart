@@ -4295,6 +4295,26 @@ class $TransactionsTable extends Transactions
         type: DriftSqlType.string,
         requiredDuringInsert: false,
       );
+  static const VerificationMeta _planIdMeta = const VerificationMeta('planId');
+  @override
+  late final GeneratedColumn<String> planId = GeneratedColumn<String>(
+    'plan_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _planInstallmentMeta = const VerificationMeta(
+    'planInstallment',
+  );
+  @override
+  late final GeneratedColumn<int> planInstallment = GeneratedColumn<int>(
+    'plan_installment',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _recurringConfigIdMeta = const VerificationMeta(
     'recurringConfigId',
   );
@@ -4541,6 +4561,8 @@ class $TransactionsTable extends Transactions
     pairedTransactionId,
     feeForTransactionId,
     settlesTransactionId,
+    planId,
+    planInstallment,
     recurringConfigId,
     occurrenceKey,
     fxRate,
@@ -4683,6 +4705,21 @@ class $TransactionsTable extends Transactions
         settlesTransactionId.isAcceptableOrUnknown(
           data['settles_transaction_id']!,
           _settlesTransactionIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('plan_id')) {
+      context.handle(
+        _planIdMeta,
+        planId.isAcceptableOrUnknown(data['plan_id']!, _planIdMeta),
+      );
+    }
+    if (data.containsKey('plan_installment')) {
+      context.handle(
+        _planInstallmentMeta,
+        planInstallment.isAcceptableOrUnknown(
+          data['plan_installment']!,
+          _planInstallmentMeta,
         ),
       );
     }
@@ -4887,6 +4924,14 @@ class $TransactionsTable extends Transactions
         DriftSqlType.string,
         data['${effectivePrefix}settles_transaction_id'],
       ),
+      planId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}plan_id'],
+      ),
+      planInstallment: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}plan_installment'],
+      ),
       recurringConfigId: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}recurring_config_id'],
@@ -5022,6 +5067,14 @@ class Transaction extends DataClass implements Insertable<Transaction> {
   ///
   /// A soft link, like [feeForTransactionId], so insert order never matters.
   final String? settlesTransactionId;
+
+  /// The EMI, loan, DPS or FDR this row is part of, if any.
+  final String? planId;
+
+  /// Which of the plan's installments this is, from 1. 0 is the opening
+  /// (an FDR's deposit, a loan's money received); the installment count plus
+  /// one is the maturity; a profit payment is its period's number.
+  final int? planInstallment;
   final String? recurringConfigId;
 
   /// Deterministic idempotency key for a generated recurrence occurrence:
@@ -5076,6 +5129,8 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     this.pairedTransactionId,
     this.feeForTransactionId,
     this.settlesTransactionId,
+    this.planId,
+    this.planInstallment,
     this.recurringConfigId,
     this.occurrenceKey,
     this.fxRate,
@@ -5127,6 +5182,12 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     }
     if (!nullToAbsent || settlesTransactionId != null) {
       map['settles_transaction_id'] = Variable<String>(settlesTransactionId);
+    }
+    if (!nullToAbsent || planId != null) {
+      map['plan_id'] = Variable<String>(planId);
+    }
+    if (!nullToAbsent || planInstallment != null) {
+      map['plan_installment'] = Variable<int>(planInstallment);
     }
     if (!nullToAbsent || recurringConfigId != null) {
       map['recurring_config_id'] = Variable<String>(recurringConfigId);
@@ -5207,6 +5268,12 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       settlesTransactionId: settlesTransactionId == null && nullToAbsent
           ? const Value.absent()
           : Value(settlesTransactionId),
+      planId: planId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(planId),
+      planInstallment: planInstallment == null && nullToAbsent
+          ? const Value.absent()
+          : Value(planInstallment),
       recurringConfigId: recurringConfigId == null && nullToAbsent
           ? const Value.absent()
           : Value(recurringConfigId),
@@ -5280,6 +5347,8 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       settlesTransactionId: serializer.fromJson<String?>(
         json['settlesTransactionId'],
       ),
+      planId: serializer.fromJson<String?>(json['planId']),
+      planInstallment: serializer.fromJson<int?>(json['planInstallment']),
       recurringConfigId: serializer.fromJson<String?>(
         json['recurringConfigId'],
       ),
@@ -5326,6 +5395,8 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       'pairedTransactionId': serializer.toJson<String?>(pairedTransactionId),
       'feeForTransactionId': serializer.toJson<String?>(feeForTransactionId),
       'settlesTransactionId': serializer.toJson<String?>(settlesTransactionId),
+      'planId': serializer.toJson<String?>(planId),
+      'planInstallment': serializer.toJson<int?>(planInstallment),
       'recurringConfigId': serializer.toJson<String?>(recurringConfigId),
       'occurrenceKey': serializer.toJson<String?>(occurrenceKey),
       'fxRate': serializer.toJson<double?>(fxRate),
@@ -5366,6 +5437,8 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     Value<String?> pairedTransactionId = const Value.absent(),
     Value<String?> feeForTransactionId = const Value.absent(),
     Value<String?> settlesTransactionId = const Value.absent(),
+    Value<String?> planId = const Value.absent(),
+    Value<int?> planInstallment = const Value.absent(),
     Value<String?> recurringConfigId = const Value.absent(),
     Value<String?> occurrenceKey = const Value.absent(),
     Value<double?> fxRate = const Value.absent(),
@@ -5411,6 +5484,10 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     settlesTransactionId: settlesTransactionId.present
         ? settlesTransactionId.value
         : this.settlesTransactionId,
+    planId: planId.present ? planId.value : this.planId,
+    planInstallment: planInstallment.present
+        ? planInstallment.value
+        : this.planInstallment,
     recurringConfigId: recurringConfigId.present
         ? recurringConfigId.value
         : this.recurringConfigId,
@@ -5474,6 +5551,10 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       settlesTransactionId: data.settlesTransactionId.present
           ? data.settlesTransactionId.value
           : this.settlesTransactionId,
+      planId: data.planId.present ? data.planId.value : this.planId,
+      planInstallment: data.planInstallment.present
+          ? data.planInstallment.value
+          : this.planInstallment,
       recurringConfigId: data.recurringConfigId.present
           ? data.recurringConfigId.value
           : this.recurringConfigId,
@@ -5536,6 +5617,8 @@ class Transaction extends DataClass implements Insertable<Transaction> {
           ..write('pairedTransactionId: $pairedTransactionId, ')
           ..write('feeForTransactionId: $feeForTransactionId, ')
           ..write('settlesTransactionId: $settlesTransactionId, ')
+          ..write('planId: $planId, ')
+          ..write('planInstallment: $planInstallment, ')
           ..write('recurringConfigId: $recurringConfigId, ')
           ..write('occurrenceKey: $occurrenceKey, ')
           ..write('fxRate: $fxRate, ')
@@ -5576,6 +5659,8 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     pairedTransactionId,
     feeForTransactionId,
     settlesTransactionId,
+    planId,
+    planInstallment,
     recurringConfigId,
     occurrenceKey,
     fxRate,
@@ -5615,6 +5700,8 @@ class Transaction extends DataClass implements Insertable<Transaction> {
           other.pairedTransactionId == this.pairedTransactionId &&
           other.feeForTransactionId == this.feeForTransactionId &&
           other.settlesTransactionId == this.settlesTransactionId &&
+          other.planId == this.planId &&
+          other.planInstallment == this.planInstallment &&
           other.recurringConfigId == this.recurringConfigId &&
           other.occurrenceKey == this.occurrenceKey &&
           other.fxRate == this.fxRate &&
@@ -5652,6 +5739,8 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
   final Value<String?> pairedTransactionId;
   final Value<String?> feeForTransactionId;
   final Value<String?> settlesTransactionId;
+  final Value<String?> planId;
+  final Value<int?> planInstallment;
   final Value<String?> recurringConfigId;
   final Value<String?> occurrenceKey;
   final Value<double?> fxRate;
@@ -5688,6 +5777,8 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     this.pairedTransactionId = const Value.absent(),
     this.feeForTransactionId = const Value.absent(),
     this.settlesTransactionId = const Value.absent(),
+    this.planId = const Value.absent(),
+    this.planInstallment = const Value.absent(),
     this.recurringConfigId = const Value.absent(),
     this.occurrenceKey = const Value.absent(),
     this.fxRate = const Value.absent(),
@@ -5725,6 +5816,8 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     this.pairedTransactionId = const Value.absent(),
     this.feeForTransactionId = const Value.absent(),
     this.settlesTransactionId = const Value.absent(),
+    this.planId = const Value.absent(),
+    this.planInstallment = const Value.absent(),
     this.recurringConfigId = const Value.absent(),
     this.occurrenceKey = const Value.absent(),
     this.fxRate = const Value.absent(),
@@ -5765,6 +5858,8 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     Expression<String>? pairedTransactionId,
     Expression<String>? feeForTransactionId,
     Expression<String>? settlesTransactionId,
+    Expression<String>? planId,
+    Expression<int>? planInstallment,
     Expression<String>? recurringConfigId,
     Expression<String>? occurrenceKey,
     Expression<double>? fxRate,
@@ -5805,6 +5900,8 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
         'fee_for_transaction_id': feeForTransactionId,
       if (settlesTransactionId != null)
         'settles_transaction_id': settlesTransactionId,
+      if (planId != null) 'plan_id': planId,
+      if (planInstallment != null) 'plan_installment': planInstallment,
       if (recurringConfigId != null) 'recurring_config_id': recurringConfigId,
       if (occurrenceKey != null) 'occurrence_key': occurrenceKey,
       if (fxRate != null) 'fx_rate': fxRate,
@@ -5844,6 +5941,8 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     Value<String?>? pairedTransactionId,
     Value<String?>? feeForTransactionId,
     Value<String?>? settlesTransactionId,
+    Value<String?>? planId,
+    Value<int?>? planInstallment,
     Value<String?>? recurringConfigId,
     Value<String?>? occurrenceKey,
     Value<double?>? fxRate,
@@ -5881,6 +5980,8 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
       pairedTransactionId: pairedTransactionId ?? this.pairedTransactionId,
       feeForTransactionId: feeForTransactionId ?? this.feeForTransactionId,
       settlesTransactionId: settlesTransactionId ?? this.settlesTransactionId,
+      planId: planId ?? this.planId,
+      planInstallment: planInstallment ?? this.planInstallment,
       recurringConfigId: recurringConfigId ?? this.recurringConfigId,
       occurrenceKey: occurrenceKey ?? this.occurrenceKey,
       fxRate: fxRate ?? this.fxRate,
@@ -5957,6 +6058,12 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
       map['settles_transaction_id'] = Variable<String>(
         settlesTransactionId.value,
       );
+    }
+    if (planId.present) {
+      map['plan_id'] = Variable<String>(planId.value);
+    }
+    if (planInstallment.present) {
+      map['plan_installment'] = Variable<int>(planInstallment.value);
     }
     if (recurringConfigId.present) {
       map['recurring_config_id'] = Variable<String>(recurringConfigId.value);
@@ -6041,6 +6148,8 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
           ..write('pairedTransactionId: $pairedTransactionId, ')
           ..write('feeForTransactionId: $feeForTransactionId, ')
           ..write('settlesTransactionId: $settlesTransactionId, ')
+          ..write('planId: $planId, ')
+          ..write('planInstallment: $planInstallment, ')
           ..write('recurringConfigId: $recurringConfigId, ')
           ..write('occurrenceKey: $occurrenceKey, ')
           ..write('fxRate: $fxRate, ')
@@ -9997,6 +10106,1407 @@ class ObjectivesCompanion extends UpdateCompanion<Objective> {
           ..write('endDate: $endDate, ')
           ..write('isPinned: $isPinned, ')
           ..write('isArchived: $isArchived, ')
+          ..write('serverId: $serverId, ')
+          ..write('syncStatus: $syncStatus, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $PlansTable extends Plans with TableInfo<$PlansTable, Plan> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $PlansTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'UNIQUE NOT NULL',
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<PlanKind, int> kind =
+      GeneratedColumn<int>(
+        'kind',
+        aliasedName,
+        false,
+        type: DriftSqlType.int,
+        requiredDuringInsert: true,
+      ).withConverter<PlanKind>($PlansTable.$converterkind);
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _walletIdMeta = const VerificationMeta(
+    'walletId',
+  );
+  @override
+  late final GeneratedColumn<String> walletId = GeneratedColumn<String>(
+    'wallet_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES wallets (id)',
+    ),
+  );
+  static const VerificationMeta _holdingWalletIdMeta = const VerificationMeta(
+    'holdingWalletId',
+  );
+  @override
+  late final GeneratedColumn<String> holdingWalletId = GeneratedColumn<String>(
+    'holding_wallet_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _categoryIdMeta = const VerificationMeta(
+    'categoryId',
+  );
+  @override
+  late final GeneratedColumn<String> categoryId = GeneratedColumn<String>(
+    'category_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES categories (id)',
+    ),
+  );
+  static const VerificationMeta _principalMeta = const VerificationMeta(
+    'principal',
+  );
+  @override
+  late final GeneratedColumn<int> principal = GeneratedColumn<int>(
+    'principal',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _installmentAmountMeta = const VerificationMeta(
+    'installmentAmount',
+  );
+  @override
+  late final GeneratedColumn<int> installmentAmount = GeneratedColumn<int>(
+    'installment_amount',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _installmentCountMeta = const VerificationMeta(
+    'installmentCount',
+  );
+  @override
+  late final GeneratedColumn<int> installmentCount = GeneratedColumn<int>(
+    'installment_count',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(1),
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<PlanFrequency, int> frequency =
+      GeneratedColumn<int>(
+        'frequency',
+        aliasedName,
+        false,
+        type: DriftSqlType.int,
+        requiredDuringInsert: true,
+      ).withConverter<PlanFrequency>($PlansTable.$converterfrequency);
+  static const VerificationMeta _intervalMeta = const VerificationMeta(
+    'interval',
+  );
+  @override
+  late final GeneratedColumn<int> interval = GeneratedColumn<int>(
+    'interval',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(1),
+  );
+  static const VerificationMeta _startDateMeta = const VerificationMeta(
+    'startDate',
+  );
+  @override
+  late final GeneratedColumn<DateTime> startDate = GeneratedColumn<DateTime>(
+    'start_date',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _interestRateMeta = const VerificationMeta(
+    'interestRate',
+  );
+  @override
+  late final GeneratedColumn<double> interestRate = GeneratedColumn<double>(
+    'interest_rate',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _maturityAmountMeta = const VerificationMeta(
+    'maturityAmount',
+  );
+  @override
+  late final GeneratedColumn<int> maturityAmount = GeneratedColumn<int>(
+    'maturity_amount',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<PlanPayout, int> payout =
+      GeneratedColumn<int>(
+        'payout',
+        aliasedName,
+        false,
+        type: DriftSqlType.int,
+        requiredDuringInsert: false,
+        defaultValue: const Constant(0),
+      ).withConverter<PlanPayout>($PlansTable.$converterpayout);
+  static const VerificationMeta _autoCollectMeta = const VerificationMeta(
+    'autoCollect',
+  );
+  @override
+  late final GeneratedColumn<bool> autoCollect = GeneratedColumn<bool>(
+    'auto_collect',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("auto_collect" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  static const VerificationMeta _reminderDaysBeforeMeta =
+      const VerificationMeta('reminderDaysBefore');
+  @override
+  late final GeneratedColumn<int> reminderDaysBefore = GeneratedColumn<int>(
+    'reminder_days_before',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(3),
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<PlanStatus, int> status =
+      GeneratedColumn<int>(
+        'status',
+        aliasedName,
+        false,
+        type: DriftSqlType.int,
+        requiredDuringInsert: false,
+        defaultValue: const Constant(0),
+      ).withConverter<PlanStatus>($PlansTable.$converterstatus);
+  static const VerificationMeta _closedAtMeta = const VerificationMeta(
+    'closedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> closedAt = GeneratedColumn<DateTime>(
+    'closed_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
+  @override
+  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
+    'notes',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _serverIdMeta = const VerificationMeta(
+    'serverId',
+  );
+  @override
+  late final GeneratedColumn<String> serverId = GeneratedColumn<String>(
+    'server_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _syncStatusMeta = const VerificationMeta(
+    'syncStatus',
+  );
+  @override
+  late final GeneratedColumn<int> syncStatus = GeneratedColumn<int>(
+    'sync_status',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  static const VerificationMeta _deletedAtMeta = const VerificationMeta(
+    'deletedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+    'deleted_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    kind,
+    name,
+    walletId,
+    holdingWalletId,
+    categoryId,
+    principal,
+    installmentAmount,
+    installmentCount,
+    frequency,
+    interval,
+    startDate,
+    interestRate,
+    maturityAmount,
+    payout,
+    autoCollect,
+    reminderDaysBefore,
+    status,
+    closedAt,
+    notes,
+    serverId,
+    syncStatus,
+    createdAt,
+    updatedAt,
+    deletedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'plans';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<Plan> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('wallet_id')) {
+      context.handle(
+        _walletIdMeta,
+        walletId.isAcceptableOrUnknown(data['wallet_id']!, _walletIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_walletIdMeta);
+    }
+    if (data.containsKey('holding_wallet_id')) {
+      context.handle(
+        _holdingWalletIdMeta,
+        holdingWalletId.isAcceptableOrUnknown(
+          data['holding_wallet_id']!,
+          _holdingWalletIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('category_id')) {
+      context.handle(
+        _categoryIdMeta,
+        categoryId.isAcceptableOrUnknown(data['category_id']!, _categoryIdMeta),
+      );
+    }
+    if (data.containsKey('principal')) {
+      context.handle(
+        _principalMeta,
+        principal.isAcceptableOrUnknown(data['principal']!, _principalMeta),
+      );
+    }
+    if (data.containsKey('installment_amount')) {
+      context.handle(
+        _installmentAmountMeta,
+        installmentAmount.isAcceptableOrUnknown(
+          data['installment_amount']!,
+          _installmentAmountMeta,
+        ),
+      );
+    }
+    if (data.containsKey('installment_count')) {
+      context.handle(
+        _installmentCountMeta,
+        installmentCount.isAcceptableOrUnknown(
+          data['installment_count']!,
+          _installmentCountMeta,
+        ),
+      );
+    }
+    if (data.containsKey('interval')) {
+      context.handle(
+        _intervalMeta,
+        interval.isAcceptableOrUnknown(data['interval']!, _intervalMeta),
+      );
+    }
+    if (data.containsKey('start_date')) {
+      context.handle(
+        _startDateMeta,
+        startDate.isAcceptableOrUnknown(data['start_date']!, _startDateMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_startDateMeta);
+    }
+    if (data.containsKey('interest_rate')) {
+      context.handle(
+        _interestRateMeta,
+        interestRate.isAcceptableOrUnknown(
+          data['interest_rate']!,
+          _interestRateMeta,
+        ),
+      );
+    }
+    if (data.containsKey('maturity_amount')) {
+      context.handle(
+        _maturityAmountMeta,
+        maturityAmount.isAcceptableOrUnknown(
+          data['maturity_amount']!,
+          _maturityAmountMeta,
+        ),
+      );
+    }
+    if (data.containsKey('auto_collect')) {
+      context.handle(
+        _autoCollectMeta,
+        autoCollect.isAcceptableOrUnknown(
+          data['auto_collect']!,
+          _autoCollectMeta,
+        ),
+      );
+    }
+    if (data.containsKey('reminder_days_before')) {
+      context.handle(
+        _reminderDaysBeforeMeta,
+        reminderDaysBefore.isAcceptableOrUnknown(
+          data['reminder_days_before']!,
+          _reminderDaysBeforeMeta,
+        ),
+      );
+    }
+    if (data.containsKey('closed_at')) {
+      context.handle(
+        _closedAtMeta,
+        closedAt.isAcceptableOrUnknown(data['closed_at']!, _closedAtMeta),
+      );
+    }
+    if (data.containsKey('notes')) {
+      context.handle(
+        _notesMeta,
+        notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
+      );
+    }
+    if (data.containsKey('server_id')) {
+      context.handle(
+        _serverIdMeta,
+        serverId.isAcceptableOrUnknown(data['server_id']!, _serverIdMeta),
+      );
+    }
+    if (data.containsKey('sync_status')) {
+      context.handle(
+        _syncStatusMeta,
+        syncStatus.isAcceptableOrUnknown(data['sync_status']!, _syncStatusMeta),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(
+        _deletedAtMeta,
+        deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  Plan map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Plan(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      kind: $PlansTable.$converterkind.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}kind'],
+        )!,
+      ),
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      walletId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}wallet_id'],
+      )!,
+      holdingWalletId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}holding_wallet_id'],
+      ),
+      categoryId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}category_id'],
+      ),
+      principal: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}principal'],
+      )!,
+      installmentAmount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}installment_amount'],
+      )!,
+      installmentCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}installment_count'],
+      )!,
+      frequency: $PlansTable.$converterfrequency.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}frequency'],
+        )!,
+      ),
+      interval: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}interval'],
+      )!,
+      startDate: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}start_date'],
+      )!,
+      interestRate: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}interest_rate'],
+      ),
+      maturityAmount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}maturity_amount'],
+      ),
+      payout: $PlansTable.$converterpayout.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}payout'],
+        )!,
+      ),
+      autoCollect: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}auto_collect'],
+      )!,
+      reminderDaysBefore: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}reminder_days_before'],
+      )!,
+      status: $PlansTable.$converterstatus.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}status'],
+        )!,
+      ),
+      closedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}closed_at'],
+      ),
+      notes: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}notes'],
+      ),
+      serverId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}server_id'],
+      ),
+      syncStatus: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sync_status'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      deletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}deleted_at'],
+      ),
+    );
+  }
+
+  @override
+  $PlansTable createAlias(String alias) {
+    return $PlansTable(attachedDatabase, alias);
+  }
+
+  static JsonTypeConverter2<PlanKind, int, int> $converterkind =
+      const EnumIndexConverter<PlanKind>(PlanKind.values);
+  static JsonTypeConverter2<PlanFrequency, int, int> $converterfrequency =
+      const EnumIndexConverter<PlanFrequency>(PlanFrequency.values);
+  static JsonTypeConverter2<PlanPayout, int, int> $converterpayout =
+      const EnumIndexConverter<PlanPayout>(PlanPayout.values);
+  static JsonTypeConverter2<PlanStatus, int, int> $converterstatus =
+      const EnumIndexConverter<PlanStatus>(PlanStatus.values);
+}
+
+class Plan extends DataClass implements Insertable<Plan> {
+  final String id;
+  final PlanKind kind;
+  final String name;
+
+  /// The account installments come out of, or that a loan or a matured
+  /// deposit is paid into.
+  final String walletId;
+
+  /// For DPS and FDR: the deposit account the money sits in.
+  final String? holdingWalletId;
+
+  /// For EMI and loan installments: what they are filed under.
+  final String? categoryId;
+
+  /// Minor units. EMI: the price. Loan: the amount borrowed. FDR: the sum
+  /// deposited. DPS: what the installments add up to.
+  final int principal;
+
+  /// Minor units, each installment. Zero for an FDR.
+  final int installmentAmount;
+
+  /// How many installments (EMI, DPS, loan), or for an FDR how many periods
+  /// it runs for.
+  final int installmentCount;
+  final PlanFrequency frequency;
+
+  /// Every [interval] periods: 2 with [PlanFrequency.weekly] is fortnightly.
+  final int interval;
+
+  /// EMI, DPS, loan: when the first installment is due. FDR: when it opened.
+  final DateTime startDate;
+
+  /// Yearly rate, as a percentage. Informational for an EMI.
+  final double? interestRate;
+
+  /// DPS and FDR: what the bank pays back at the end, in minor units.
+  final int? maturityAmount;
+  final PlanPayout payout;
+
+  /// Record each installment, profit payment and the maturity by itself on
+  /// the day it falls due.
+  final bool autoCollect;
+
+  /// Days before each due date to remind; 0 is off.
+  final int reminderDaysBefore;
+  final PlanStatus status;
+  final DateTime? closedAt;
+  final String? notes;
+  final String? serverId;
+  final int syncStatus;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  final DateTime? deletedAt;
+  const Plan({
+    required this.id,
+    required this.kind,
+    required this.name,
+    required this.walletId,
+    this.holdingWalletId,
+    this.categoryId,
+    required this.principal,
+    required this.installmentAmount,
+    required this.installmentCount,
+    required this.frequency,
+    required this.interval,
+    required this.startDate,
+    this.interestRate,
+    this.maturityAmount,
+    required this.payout,
+    required this.autoCollect,
+    required this.reminderDaysBefore,
+    required this.status,
+    this.closedAt,
+    this.notes,
+    this.serverId,
+    required this.syncStatus,
+    required this.createdAt,
+    required this.updatedAt,
+    this.deletedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    {
+      map['kind'] = Variable<int>($PlansTable.$converterkind.toSql(kind));
+    }
+    map['name'] = Variable<String>(name);
+    map['wallet_id'] = Variable<String>(walletId);
+    if (!nullToAbsent || holdingWalletId != null) {
+      map['holding_wallet_id'] = Variable<String>(holdingWalletId);
+    }
+    if (!nullToAbsent || categoryId != null) {
+      map['category_id'] = Variable<String>(categoryId);
+    }
+    map['principal'] = Variable<int>(principal);
+    map['installment_amount'] = Variable<int>(installmentAmount);
+    map['installment_count'] = Variable<int>(installmentCount);
+    {
+      map['frequency'] = Variable<int>(
+        $PlansTable.$converterfrequency.toSql(frequency),
+      );
+    }
+    map['interval'] = Variable<int>(interval);
+    map['start_date'] = Variable<DateTime>(startDate);
+    if (!nullToAbsent || interestRate != null) {
+      map['interest_rate'] = Variable<double>(interestRate);
+    }
+    if (!nullToAbsent || maturityAmount != null) {
+      map['maturity_amount'] = Variable<int>(maturityAmount);
+    }
+    {
+      map['payout'] = Variable<int>($PlansTable.$converterpayout.toSql(payout));
+    }
+    map['auto_collect'] = Variable<bool>(autoCollect);
+    map['reminder_days_before'] = Variable<int>(reminderDaysBefore);
+    {
+      map['status'] = Variable<int>($PlansTable.$converterstatus.toSql(status));
+    }
+    if (!nullToAbsent || closedAt != null) {
+      map['closed_at'] = Variable<DateTime>(closedAt);
+    }
+    if (!nullToAbsent || notes != null) {
+      map['notes'] = Variable<String>(notes);
+    }
+    if (!nullToAbsent || serverId != null) {
+      map['server_id'] = Variable<String>(serverId);
+    }
+    map['sync_status'] = Variable<int>(syncStatus);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    return map;
+  }
+
+  PlansCompanion toCompanion(bool nullToAbsent) {
+    return PlansCompanion(
+      id: Value(id),
+      kind: Value(kind),
+      name: Value(name),
+      walletId: Value(walletId),
+      holdingWalletId: holdingWalletId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(holdingWalletId),
+      categoryId: categoryId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(categoryId),
+      principal: Value(principal),
+      installmentAmount: Value(installmentAmount),
+      installmentCount: Value(installmentCount),
+      frequency: Value(frequency),
+      interval: Value(interval),
+      startDate: Value(startDate),
+      interestRate: interestRate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(interestRate),
+      maturityAmount: maturityAmount == null && nullToAbsent
+          ? const Value.absent()
+          : Value(maturityAmount),
+      payout: Value(payout),
+      autoCollect: Value(autoCollect),
+      reminderDaysBefore: Value(reminderDaysBefore),
+      status: Value(status),
+      closedAt: closedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(closedAt),
+      notes: notes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(notes),
+      serverId: serverId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(serverId),
+      syncStatus: Value(syncStatus),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+    );
+  }
+
+  factory Plan.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Plan(
+      id: serializer.fromJson<String>(json['id']),
+      kind: $PlansTable.$converterkind.fromJson(
+        serializer.fromJson<int>(json['kind']),
+      ),
+      name: serializer.fromJson<String>(json['name']),
+      walletId: serializer.fromJson<String>(json['walletId']),
+      holdingWalletId: serializer.fromJson<String?>(json['holdingWalletId']),
+      categoryId: serializer.fromJson<String?>(json['categoryId']),
+      principal: serializer.fromJson<int>(json['principal']),
+      installmentAmount: serializer.fromJson<int>(json['installmentAmount']),
+      installmentCount: serializer.fromJson<int>(json['installmentCount']),
+      frequency: $PlansTable.$converterfrequency.fromJson(
+        serializer.fromJson<int>(json['frequency']),
+      ),
+      interval: serializer.fromJson<int>(json['interval']),
+      startDate: serializer.fromJson<DateTime>(json['startDate']),
+      interestRate: serializer.fromJson<double?>(json['interestRate']),
+      maturityAmount: serializer.fromJson<int?>(json['maturityAmount']),
+      payout: $PlansTable.$converterpayout.fromJson(
+        serializer.fromJson<int>(json['payout']),
+      ),
+      autoCollect: serializer.fromJson<bool>(json['autoCollect']),
+      reminderDaysBefore: serializer.fromJson<int>(json['reminderDaysBefore']),
+      status: $PlansTable.$converterstatus.fromJson(
+        serializer.fromJson<int>(json['status']),
+      ),
+      closedAt: serializer.fromJson<DateTime?>(json['closedAt']),
+      notes: serializer.fromJson<String?>(json['notes']),
+      serverId: serializer.fromJson<String?>(json['serverId']),
+      syncStatus: serializer.fromJson<int>(json['syncStatus']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'kind': serializer.toJson<int>($PlansTable.$converterkind.toJson(kind)),
+      'name': serializer.toJson<String>(name),
+      'walletId': serializer.toJson<String>(walletId),
+      'holdingWalletId': serializer.toJson<String?>(holdingWalletId),
+      'categoryId': serializer.toJson<String?>(categoryId),
+      'principal': serializer.toJson<int>(principal),
+      'installmentAmount': serializer.toJson<int>(installmentAmount),
+      'installmentCount': serializer.toJson<int>(installmentCount),
+      'frequency': serializer.toJson<int>(
+        $PlansTable.$converterfrequency.toJson(frequency),
+      ),
+      'interval': serializer.toJson<int>(interval),
+      'startDate': serializer.toJson<DateTime>(startDate),
+      'interestRate': serializer.toJson<double?>(interestRate),
+      'maturityAmount': serializer.toJson<int?>(maturityAmount),
+      'payout': serializer.toJson<int>(
+        $PlansTable.$converterpayout.toJson(payout),
+      ),
+      'autoCollect': serializer.toJson<bool>(autoCollect),
+      'reminderDaysBefore': serializer.toJson<int>(reminderDaysBefore),
+      'status': serializer.toJson<int>(
+        $PlansTable.$converterstatus.toJson(status),
+      ),
+      'closedAt': serializer.toJson<DateTime?>(closedAt),
+      'notes': serializer.toJson<String?>(notes),
+      'serverId': serializer.toJson<String?>(serverId),
+      'syncStatus': serializer.toJson<int>(syncStatus),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+    };
+  }
+
+  Plan copyWith({
+    String? id,
+    PlanKind? kind,
+    String? name,
+    String? walletId,
+    Value<String?> holdingWalletId = const Value.absent(),
+    Value<String?> categoryId = const Value.absent(),
+    int? principal,
+    int? installmentAmount,
+    int? installmentCount,
+    PlanFrequency? frequency,
+    int? interval,
+    DateTime? startDate,
+    Value<double?> interestRate = const Value.absent(),
+    Value<int?> maturityAmount = const Value.absent(),
+    PlanPayout? payout,
+    bool? autoCollect,
+    int? reminderDaysBefore,
+    PlanStatus? status,
+    Value<DateTime?> closedAt = const Value.absent(),
+    Value<String?> notes = const Value.absent(),
+    Value<String?> serverId = const Value.absent(),
+    int? syncStatus,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    Value<DateTime?> deletedAt = const Value.absent(),
+  }) => Plan(
+    id: id ?? this.id,
+    kind: kind ?? this.kind,
+    name: name ?? this.name,
+    walletId: walletId ?? this.walletId,
+    holdingWalletId: holdingWalletId.present
+        ? holdingWalletId.value
+        : this.holdingWalletId,
+    categoryId: categoryId.present ? categoryId.value : this.categoryId,
+    principal: principal ?? this.principal,
+    installmentAmount: installmentAmount ?? this.installmentAmount,
+    installmentCount: installmentCount ?? this.installmentCount,
+    frequency: frequency ?? this.frequency,
+    interval: interval ?? this.interval,
+    startDate: startDate ?? this.startDate,
+    interestRate: interestRate.present ? interestRate.value : this.interestRate,
+    maturityAmount: maturityAmount.present
+        ? maturityAmount.value
+        : this.maturityAmount,
+    payout: payout ?? this.payout,
+    autoCollect: autoCollect ?? this.autoCollect,
+    reminderDaysBefore: reminderDaysBefore ?? this.reminderDaysBefore,
+    status: status ?? this.status,
+    closedAt: closedAt.present ? closedAt.value : this.closedAt,
+    notes: notes.present ? notes.value : this.notes,
+    serverId: serverId.present ? serverId.value : this.serverId,
+    syncStatus: syncStatus ?? this.syncStatus,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+  );
+  Plan copyWithCompanion(PlansCompanion data) {
+    return Plan(
+      id: data.id.present ? data.id.value : this.id,
+      kind: data.kind.present ? data.kind.value : this.kind,
+      name: data.name.present ? data.name.value : this.name,
+      walletId: data.walletId.present ? data.walletId.value : this.walletId,
+      holdingWalletId: data.holdingWalletId.present
+          ? data.holdingWalletId.value
+          : this.holdingWalletId,
+      categoryId: data.categoryId.present
+          ? data.categoryId.value
+          : this.categoryId,
+      principal: data.principal.present ? data.principal.value : this.principal,
+      installmentAmount: data.installmentAmount.present
+          ? data.installmentAmount.value
+          : this.installmentAmount,
+      installmentCount: data.installmentCount.present
+          ? data.installmentCount.value
+          : this.installmentCount,
+      frequency: data.frequency.present ? data.frequency.value : this.frequency,
+      interval: data.interval.present ? data.interval.value : this.interval,
+      startDate: data.startDate.present ? data.startDate.value : this.startDate,
+      interestRate: data.interestRate.present
+          ? data.interestRate.value
+          : this.interestRate,
+      maturityAmount: data.maturityAmount.present
+          ? data.maturityAmount.value
+          : this.maturityAmount,
+      payout: data.payout.present ? data.payout.value : this.payout,
+      autoCollect: data.autoCollect.present
+          ? data.autoCollect.value
+          : this.autoCollect,
+      reminderDaysBefore: data.reminderDaysBefore.present
+          ? data.reminderDaysBefore.value
+          : this.reminderDaysBefore,
+      status: data.status.present ? data.status.value : this.status,
+      closedAt: data.closedAt.present ? data.closedAt.value : this.closedAt,
+      notes: data.notes.present ? data.notes.value : this.notes,
+      serverId: data.serverId.present ? data.serverId.value : this.serverId,
+      syncStatus: data.syncStatus.present
+          ? data.syncStatus.value
+          : this.syncStatus,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('Plan(')
+          ..write('id: $id, ')
+          ..write('kind: $kind, ')
+          ..write('name: $name, ')
+          ..write('walletId: $walletId, ')
+          ..write('holdingWalletId: $holdingWalletId, ')
+          ..write('categoryId: $categoryId, ')
+          ..write('principal: $principal, ')
+          ..write('installmentAmount: $installmentAmount, ')
+          ..write('installmentCount: $installmentCount, ')
+          ..write('frequency: $frequency, ')
+          ..write('interval: $interval, ')
+          ..write('startDate: $startDate, ')
+          ..write('interestRate: $interestRate, ')
+          ..write('maturityAmount: $maturityAmount, ')
+          ..write('payout: $payout, ')
+          ..write('autoCollect: $autoCollect, ')
+          ..write('reminderDaysBefore: $reminderDaysBefore, ')
+          ..write('status: $status, ')
+          ..write('closedAt: $closedAt, ')
+          ..write('notes: $notes, ')
+          ..write('serverId: $serverId, ')
+          ..write('syncStatus: $syncStatus, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hashAll([
+    id,
+    kind,
+    name,
+    walletId,
+    holdingWalletId,
+    categoryId,
+    principal,
+    installmentAmount,
+    installmentCount,
+    frequency,
+    interval,
+    startDate,
+    interestRate,
+    maturityAmount,
+    payout,
+    autoCollect,
+    reminderDaysBefore,
+    status,
+    closedAt,
+    notes,
+    serverId,
+    syncStatus,
+    createdAt,
+    updatedAt,
+    deletedAt,
+  ]);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Plan &&
+          other.id == this.id &&
+          other.kind == this.kind &&
+          other.name == this.name &&
+          other.walletId == this.walletId &&
+          other.holdingWalletId == this.holdingWalletId &&
+          other.categoryId == this.categoryId &&
+          other.principal == this.principal &&
+          other.installmentAmount == this.installmentAmount &&
+          other.installmentCount == this.installmentCount &&
+          other.frequency == this.frequency &&
+          other.interval == this.interval &&
+          other.startDate == this.startDate &&
+          other.interestRate == this.interestRate &&
+          other.maturityAmount == this.maturityAmount &&
+          other.payout == this.payout &&
+          other.autoCollect == this.autoCollect &&
+          other.reminderDaysBefore == this.reminderDaysBefore &&
+          other.status == this.status &&
+          other.closedAt == this.closedAt &&
+          other.notes == this.notes &&
+          other.serverId == this.serverId &&
+          other.syncStatus == this.syncStatus &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt);
+}
+
+class PlansCompanion extends UpdateCompanion<Plan> {
+  final Value<String> id;
+  final Value<PlanKind> kind;
+  final Value<String> name;
+  final Value<String> walletId;
+  final Value<String?> holdingWalletId;
+  final Value<String?> categoryId;
+  final Value<int> principal;
+  final Value<int> installmentAmount;
+  final Value<int> installmentCount;
+  final Value<PlanFrequency> frequency;
+  final Value<int> interval;
+  final Value<DateTime> startDate;
+  final Value<double?> interestRate;
+  final Value<int?> maturityAmount;
+  final Value<PlanPayout> payout;
+  final Value<bool> autoCollect;
+  final Value<int> reminderDaysBefore;
+  final Value<PlanStatus> status;
+  final Value<DateTime?> closedAt;
+  final Value<String?> notes;
+  final Value<String?> serverId;
+  final Value<int> syncStatus;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
+  final Value<int> rowid;
+  const PlansCompanion({
+    this.id = const Value.absent(),
+    this.kind = const Value.absent(),
+    this.name = const Value.absent(),
+    this.walletId = const Value.absent(),
+    this.holdingWalletId = const Value.absent(),
+    this.categoryId = const Value.absent(),
+    this.principal = const Value.absent(),
+    this.installmentAmount = const Value.absent(),
+    this.installmentCount = const Value.absent(),
+    this.frequency = const Value.absent(),
+    this.interval = const Value.absent(),
+    this.startDate = const Value.absent(),
+    this.interestRate = const Value.absent(),
+    this.maturityAmount = const Value.absent(),
+    this.payout = const Value.absent(),
+    this.autoCollect = const Value.absent(),
+    this.reminderDaysBefore = const Value.absent(),
+    this.status = const Value.absent(),
+    this.closedAt = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.serverId = const Value.absent(),
+    this.syncStatus = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  PlansCompanion.insert({
+    required String id,
+    required PlanKind kind,
+    required String name,
+    required String walletId,
+    this.holdingWalletId = const Value.absent(),
+    this.categoryId = const Value.absent(),
+    this.principal = const Value.absent(),
+    this.installmentAmount = const Value.absent(),
+    this.installmentCount = const Value.absent(),
+    required PlanFrequency frequency,
+    this.interval = const Value.absent(),
+    required DateTime startDate,
+    this.interestRate = const Value.absent(),
+    this.maturityAmount = const Value.absent(),
+    this.payout = const Value.absent(),
+    this.autoCollect = const Value.absent(),
+    this.reminderDaysBefore = const Value.absent(),
+    this.status = const Value.absent(),
+    this.closedAt = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.serverId = const Value.absent(),
+    this.syncStatus = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       kind = Value(kind),
+       name = Value(name),
+       walletId = Value(walletId),
+       frequency = Value(frequency),
+       startDate = Value(startDate);
+  static Insertable<Plan> custom({
+    Expression<String>? id,
+    Expression<int>? kind,
+    Expression<String>? name,
+    Expression<String>? walletId,
+    Expression<String>? holdingWalletId,
+    Expression<String>? categoryId,
+    Expression<int>? principal,
+    Expression<int>? installmentAmount,
+    Expression<int>? installmentCount,
+    Expression<int>? frequency,
+    Expression<int>? interval,
+    Expression<DateTime>? startDate,
+    Expression<double>? interestRate,
+    Expression<int>? maturityAmount,
+    Expression<int>? payout,
+    Expression<bool>? autoCollect,
+    Expression<int>? reminderDaysBefore,
+    Expression<int>? status,
+    Expression<DateTime>? closedAt,
+    Expression<String>? notes,
+    Expression<String>? serverId,
+    Expression<int>? syncStatus,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (kind != null) 'kind': kind,
+      if (name != null) 'name': name,
+      if (walletId != null) 'wallet_id': walletId,
+      if (holdingWalletId != null) 'holding_wallet_id': holdingWalletId,
+      if (categoryId != null) 'category_id': categoryId,
+      if (principal != null) 'principal': principal,
+      if (installmentAmount != null) 'installment_amount': installmentAmount,
+      if (installmentCount != null) 'installment_count': installmentCount,
+      if (frequency != null) 'frequency': frequency,
+      if (interval != null) 'interval': interval,
+      if (startDate != null) 'start_date': startDate,
+      if (interestRate != null) 'interest_rate': interestRate,
+      if (maturityAmount != null) 'maturity_amount': maturityAmount,
+      if (payout != null) 'payout': payout,
+      if (autoCollect != null) 'auto_collect': autoCollect,
+      if (reminderDaysBefore != null)
+        'reminder_days_before': reminderDaysBefore,
+      if (status != null) 'status': status,
+      if (closedAt != null) 'closed_at': closedAt,
+      if (notes != null) 'notes': notes,
+      if (serverId != null) 'server_id': serverId,
+      if (syncStatus != null) 'sync_status': syncStatus,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  PlansCompanion copyWith({
+    Value<String>? id,
+    Value<PlanKind>? kind,
+    Value<String>? name,
+    Value<String>? walletId,
+    Value<String?>? holdingWalletId,
+    Value<String?>? categoryId,
+    Value<int>? principal,
+    Value<int>? installmentAmount,
+    Value<int>? installmentCount,
+    Value<PlanFrequency>? frequency,
+    Value<int>? interval,
+    Value<DateTime>? startDate,
+    Value<double?>? interestRate,
+    Value<int?>? maturityAmount,
+    Value<PlanPayout>? payout,
+    Value<bool>? autoCollect,
+    Value<int>? reminderDaysBefore,
+    Value<PlanStatus>? status,
+    Value<DateTime?>? closedAt,
+    Value<String?>? notes,
+    Value<String?>? serverId,
+    Value<int>? syncStatus,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<DateTime?>? deletedAt,
+    Value<int>? rowid,
+  }) {
+    return PlansCompanion(
+      id: id ?? this.id,
+      kind: kind ?? this.kind,
+      name: name ?? this.name,
+      walletId: walletId ?? this.walletId,
+      holdingWalletId: holdingWalletId ?? this.holdingWalletId,
+      categoryId: categoryId ?? this.categoryId,
+      principal: principal ?? this.principal,
+      installmentAmount: installmentAmount ?? this.installmentAmount,
+      installmentCount: installmentCount ?? this.installmentCount,
+      frequency: frequency ?? this.frequency,
+      interval: interval ?? this.interval,
+      startDate: startDate ?? this.startDate,
+      interestRate: interestRate ?? this.interestRate,
+      maturityAmount: maturityAmount ?? this.maturityAmount,
+      payout: payout ?? this.payout,
+      autoCollect: autoCollect ?? this.autoCollect,
+      reminderDaysBefore: reminderDaysBefore ?? this.reminderDaysBefore,
+      status: status ?? this.status,
+      closedAt: closedAt ?? this.closedAt,
+      notes: notes ?? this.notes,
+      serverId: serverId ?? this.serverId,
+      syncStatus: syncStatus ?? this.syncStatus,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (kind.present) {
+      map['kind'] = Variable<int>($PlansTable.$converterkind.toSql(kind.value));
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (walletId.present) {
+      map['wallet_id'] = Variable<String>(walletId.value);
+    }
+    if (holdingWalletId.present) {
+      map['holding_wallet_id'] = Variable<String>(holdingWalletId.value);
+    }
+    if (categoryId.present) {
+      map['category_id'] = Variable<String>(categoryId.value);
+    }
+    if (principal.present) {
+      map['principal'] = Variable<int>(principal.value);
+    }
+    if (installmentAmount.present) {
+      map['installment_amount'] = Variable<int>(installmentAmount.value);
+    }
+    if (installmentCount.present) {
+      map['installment_count'] = Variable<int>(installmentCount.value);
+    }
+    if (frequency.present) {
+      map['frequency'] = Variable<int>(
+        $PlansTable.$converterfrequency.toSql(frequency.value),
+      );
+    }
+    if (interval.present) {
+      map['interval'] = Variable<int>(interval.value);
+    }
+    if (startDate.present) {
+      map['start_date'] = Variable<DateTime>(startDate.value);
+    }
+    if (interestRate.present) {
+      map['interest_rate'] = Variable<double>(interestRate.value);
+    }
+    if (maturityAmount.present) {
+      map['maturity_amount'] = Variable<int>(maturityAmount.value);
+    }
+    if (payout.present) {
+      map['payout'] = Variable<int>(
+        $PlansTable.$converterpayout.toSql(payout.value),
+      );
+    }
+    if (autoCollect.present) {
+      map['auto_collect'] = Variable<bool>(autoCollect.value);
+    }
+    if (reminderDaysBefore.present) {
+      map['reminder_days_before'] = Variable<int>(reminderDaysBefore.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<int>(
+        $PlansTable.$converterstatus.toSql(status.value),
+      );
+    }
+    if (closedAt.present) {
+      map['closed_at'] = Variable<DateTime>(closedAt.value);
+    }
+    if (notes.present) {
+      map['notes'] = Variable<String>(notes.value);
+    }
+    if (serverId.present) {
+      map['server_id'] = Variable<String>(serverId.value);
+    }
+    if (syncStatus.present) {
+      map['sync_status'] = Variable<int>(syncStatus.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PlansCompanion(')
+          ..write('id: $id, ')
+          ..write('kind: $kind, ')
+          ..write('name: $name, ')
+          ..write('walletId: $walletId, ')
+          ..write('holdingWalletId: $holdingWalletId, ')
+          ..write('categoryId: $categoryId, ')
+          ..write('principal: $principal, ')
+          ..write('installmentAmount: $installmentAmount, ')
+          ..write('installmentCount: $installmentCount, ')
+          ..write('frequency: $frequency, ')
+          ..write('interval: $interval, ')
+          ..write('startDate: $startDate, ')
+          ..write('interestRate: $interestRate, ')
+          ..write('maturityAmount: $maturityAmount, ')
+          ..write('payout: $payout, ')
+          ..write('autoCollect: $autoCollect, ')
+          ..write('reminderDaysBefore: $reminderDaysBefore, ')
+          ..write('status: $status, ')
+          ..write('closedAt: $closedAt, ')
+          ..write('notes: $notes, ')
           ..write('serverId: $serverId, ')
           ..write('syncStatus: $syncStatus, ')
           ..write('createdAt: $createdAt, ')
@@ -14462,6 +15972,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $SettingsTable settings = $SettingsTable(this);
   late final $UserProfilesTable userProfiles = $UserProfilesTable(this);
   late final $ObjectivesTable objectives = $ObjectivesTable(this);
+  late final $PlansTable plans = $PlansTable(this);
   late final $ObjectiveTransactionsTable objectiveTransactions =
       $ObjectiveTransactionsTable(this);
   late final $AssociatedTitlesTable associatedTitles = $AssociatedTitlesTable(
@@ -14509,6 +16020,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     settings,
     userProfiles,
     objectives,
+    plans,
     objectiveTransactions,
     associatedTitles,
     syncStates,
@@ -14780,6 +16292,25 @@ final class $$CategoriesTableReferences
     );
   }
 
+  static MultiTypedResultKey<$PlansTable, List<Plan>> _plansRefsTable(
+    _$AppDatabase db,
+  ) => MultiTypedResultKey.fromTable(
+    db.plans,
+    aliasName: 'categories__id__plans__category_id',
+  );
+
+  $$PlansTableProcessedTableManager get plansRefs {
+    final manager = $$PlansTableTableManager(
+      $_db,
+      $_db.plans,
+    ).filter((f) => f.categoryId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_plansRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
   static MultiTypedResultKey<$AssociatedTitlesTable, List<AssociatedTitle>>
   _associatedTitlesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.associatedTitles,
@@ -14906,6 +16437,31 @@ class $$CategoriesTableFilterComposer
           }) => $$TransactionsTableFilterComposer(
             $db: $db,
             $table: $db.transactions,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> plansRefs(
+    Expression<bool> Function($$PlansTableFilterComposer f) f,
+  ) {
+    final $$PlansTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.plans,
+      getReferencedColumn: (t) => t.categoryId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PlansTableFilterComposer(
+            $db: $db,
+            $table: $db.plans,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -15123,6 +16679,31 @@ class $$CategoriesTableAnnotationComposer
     return f(composer);
   }
 
+  Expression<T> plansRefs<T extends Object>(
+    Expression<T> Function($$PlansTableAnnotationComposer a) f,
+  ) {
+    final $$PlansTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.plans,
+      getReferencedColumn: (t) => t.categoryId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PlansTableAnnotationComposer(
+            $db: $db,
+            $table: $db.plans,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
   Expression<T> associatedTitlesRefs<T extends Object>(
     Expression<T> Function($$AssociatedTitlesTableAnnotationComposer a) f,
   ) {
@@ -15164,6 +16745,7 @@ class $$CategoriesTableTableManager
           Category,
           PrefetchHooks Function({
             bool transactionsRefs,
+            bool plansRefs,
             bool associatedTitlesRefs,
           })
         > {
@@ -15263,11 +16845,16 @@ class $$CategoriesTableTableManager
               )
               .toList(),
           prefetchHooksCallback:
-              ({transactionsRefs = false, associatedTitlesRefs = false}) {
+              ({
+                transactionsRefs = false,
+                plansRefs = false,
+                associatedTitlesRefs = false,
+              }) {
                 return PrefetchHooks(
                   db: db,
                   explicitlyWatchedTables: [
                     if (transactionsRefs) db.transactions,
+                    if (plansRefs) db.plans,
                     if (associatedTitlesRefs) db.associatedTitles,
                   ],
                   addJoins: null,
@@ -15288,6 +16875,27 @@ class $$CategoriesTableTableManager
                                 table,
                                 p0,
                               ).transactionsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.categoryId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (plansRefs)
+                        await $_getPrefetchedData<
+                          Category,
+                          $CategoriesTable,
+                          Plan
+                        >(
+                          currentTable: table,
+                          referencedTable: $$CategoriesTableReferences
+                              ._plansRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$CategoriesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).plansRefs,
                           referencedItemsForCurrentItem:
                               (item, referencedItems) => referencedItems.where(
                                 (e) => e.categoryId == item.id,
@@ -15335,7 +16943,11 @@ typedef $$CategoriesTableProcessedTableManager =
       $$CategoriesTableUpdateCompanionBuilder,
       (Category, $$CategoriesTableReferences),
       Category,
-      PrefetchHooks Function({bool transactionsRefs, bool associatedTitlesRefs})
+      PrefetchHooks Function({
+        bool transactionsRefs,
+        bool plansRefs,
+        bool associatedTitlesRefs,
+      })
     >;
 typedef $$WalletsTableCreateCompanionBuilder =
     WalletsCompanion Function({
@@ -15425,6 +17037,25 @@ final class $$WalletsTableReferences
     ).filter((f) => f.walletId.id.sqlEquals($_itemColumn<String>('id')!));
 
     final cache = $_typedResult.readTableOrNull(_objectivesRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$PlansTable, List<Plan>> _plansRefsTable(
+    _$AppDatabase db,
+  ) => MultiTypedResultKey.fromTable(
+    db.plans,
+    aliasName: 'wallets__id__plans__wallet_id',
+  );
+
+  $$PlansTableProcessedTableManager get plansRefs {
+    final manager = $$PlansTableTableManager(
+      $_db,
+      $_db.plans,
+    ).filter((f) => f.walletId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_plansRefsTable($_db));
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
     );
@@ -15592,6 +17223,31 @@ class $$WalletsTableFilterComposer
           }) => $$ObjectivesTableFilterComposer(
             $db: $db,
             $table: $db.objectives,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> plansRefs(
+    Expression<bool> Function($$PlansTableFilterComposer f) f,
+  ) {
+    final $$PlansTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.plans,
+      getReferencedColumn: (t) => t.walletId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PlansTableFilterComposer(
+            $db: $db,
+            $table: $db.plans,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -15869,6 +17525,31 @@ class $$WalletsTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> plansRefs<T extends Object>(
+    Expression<T> Function($$PlansTableAnnotationComposer a) f,
+  ) {
+    final $$PlansTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.plans,
+      getReferencedColumn: (t) => t.walletId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PlansTableAnnotationComposer(
+            $db: $db,
+            $table: $db.plans,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$WalletsTableTableManager
@@ -15884,7 +17565,11 @@ class $$WalletsTableTableManager
           $$WalletsTableUpdateCompanionBuilder,
           (Wallet, $$WalletsTableReferences),
           Wallet,
-          PrefetchHooks Function({bool transactionsRefs, bool objectivesRefs})
+          PrefetchHooks Function({
+            bool transactionsRefs,
+            bool objectivesRefs,
+            bool plansRefs,
+          })
         > {
   $$WalletsTableTableManager(_$AppDatabase db, $WalletsTable table)
     : super(
@@ -16006,12 +17691,17 @@ class $$WalletsTableTableManager
               )
               .toList(),
           prefetchHooksCallback:
-              ({transactionsRefs = false, objectivesRefs = false}) {
+              ({
+                transactionsRefs = false,
+                objectivesRefs = false,
+                plansRefs = false,
+              }) {
                 return PrefetchHooks(
                   db: db,
                   explicitlyWatchedTables: [
                     if (transactionsRefs) db.transactions,
                     if (objectivesRefs) db.objectives,
+                    if (plansRefs) db.plans,
                   ],
                   addJoins: null,
                   getPrefetchedDataCallback: (items) async {
@@ -16058,6 +17748,19 @@ class $$WalletsTableTableManager
                               ),
                           typedResults: items,
                         ),
+                      if (plansRefs)
+                        await $_getPrefetchedData<Wallet, $WalletsTable, Plan>(
+                          currentTable: table,
+                          referencedTable: $$WalletsTableReferences
+                              ._plansRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$WalletsTableReferences(db, table, p0).plansRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.walletId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
                     ];
                   },
                 );
@@ -16078,7 +17781,11 @@ typedef $$WalletsTableProcessedTableManager =
       $$WalletsTableUpdateCompanionBuilder,
       (Wallet, $$WalletsTableReferences),
       Wallet,
-      PrefetchHooks Function({bool transactionsRefs, bool objectivesRefs})
+      PrefetchHooks Function({
+        bool transactionsRefs,
+        bool objectivesRefs,
+        bool plansRefs,
+      })
     >;
 typedef $$PaymentMethodsTableCreateCompanionBuilder =
     PaymentMethodsCompanion Function({
@@ -17055,6 +18762,8 @@ typedef $$TransactionsTableCreateCompanionBuilder =
       Value<String?> pairedTransactionId,
       Value<String?> feeForTransactionId,
       Value<String?> settlesTransactionId,
+      Value<String?> planId,
+      Value<int?> planInstallment,
       Value<String?> recurringConfigId,
       Value<String?> occurrenceKey,
       Value<double?> fxRate,
@@ -17093,6 +18802,8 @@ typedef $$TransactionsTableUpdateCompanionBuilder =
       Value<String?> pairedTransactionId,
       Value<String?> feeForTransactionId,
       Value<String?> settlesTransactionId,
+      Value<String?> planId,
+      Value<int?> planInstallment,
       Value<String?> recurringConfigId,
       Value<String?> occurrenceKey,
       Value<double?> fxRate,
@@ -17281,6 +18992,16 @@ class $$TransactionsTableFilterComposer
 
   ColumnFilters<String> get settlesTransactionId => $composableBuilder(
     column: $table.settlesTransactionId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get planId => $composableBuilder(
+    column: $table.planId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get planInstallment => $composableBuilder(
+    column: $table.planInstallment,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -17567,6 +19288,16 @@ class $$TransactionsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get planId => $composableBuilder(
+    column: $table.planId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get planInstallment => $composableBuilder(
+    column: $table.planInstallment,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get occurrenceKey => $composableBuilder(
     column: $table.occurrenceKey,
     builder: (column) => ColumnOrderings(column),
@@ -17802,6 +19533,14 @@ class $$TransactionsTableAnnotationComposer
 
   GeneratedColumn<String> get settlesTransactionId => $composableBuilder(
     column: $table.settlesTransactionId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get planId =>
+      $composableBuilder(column: $table.planId, builder: (column) => column);
+
+  GeneratedColumn<int> get planInstallment => $composableBuilder(
+    column: $table.planInstallment,
     builder: (column) => column,
   );
 
@@ -18048,6 +19787,8 @@ class $$TransactionsTableTableManager
                 Value<String?> pairedTransactionId = const Value.absent(),
                 Value<String?> feeForTransactionId = const Value.absent(),
                 Value<String?> settlesTransactionId = const Value.absent(),
+                Value<String?> planId = const Value.absent(),
+                Value<int?> planInstallment = const Value.absent(),
                 Value<String?> recurringConfigId = const Value.absent(),
                 Value<String?> occurrenceKey = const Value.absent(),
                 Value<double?> fxRate = const Value.absent(),
@@ -18085,6 +19826,8 @@ class $$TransactionsTableTableManager
                 pairedTransactionId: pairedTransactionId,
                 feeForTransactionId: feeForTransactionId,
                 settlesTransactionId: settlesTransactionId,
+                planId: planId,
+                planInstallment: planInstallment,
                 recurringConfigId: recurringConfigId,
                 occurrenceKey: occurrenceKey,
                 fxRate: fxRate,
@@ -18123,6 +19866,8 @@ class $$TransactionsTableTableManager
                 Value<String?> pairedTransactionId = const Value.absent(),
                 Value<String?> feeForTransactionId = const Value.absent(),
                 Value<String?> settlesTransactionId = const Value.absent(),
+                Value<String?> planId = const Value.absent(),
+                Value<int?> planInstallment = const Value.absent(),
                 Value<String?> recurringConfigId = const Value.absent(),
                 Value<String?> occurrenceKey = const Value.absent(),
                 Value<double?> fxRate = const Value.absent(),
@@ -18160,6 +19905,8 @@ class $$TransactionsTableTableManager
                 pairedTransactionId: pairedTransactionId,
                 feeForTransactionId: feeForTransactionId,
                 settlesTransactionId: settlesTransactionId,
+                planId: planId,
+                planInstallment: planInstallment,
                 recurringConfigId: recurringConfigId,
                 occurrenceKey: occurrenceKey,
                 fxRate: fxRate,
@@ -20373,6 +22120,806 @@ typedef $$ObjectivesTableProcessedTableManager =
       (Objective, $$ObjectivesTableReferences),
       Objective,
       PrefetchHooks Function({bool walletId, bool objectiveTransactionsRefs})
+    >;
+typedef $$PlansTableCreateCompanionBuilder =
+    PlansCompanion Function({
+      required String id,
+      required PlanKind kind,
+      required String name,
+      required String walletId,
+      Value<String?> holdingWalletId,
+      Value<String?> categoryId,
+      Value<int> principal,
+      Value<int> installmentAmount,
+      Value<int> installmentCount,
+      required PlanFrequency frequency,
+      Value<int> interval,
+      required DateTime startDate,
+      Value<double?> interestRate,
+      Value<int?> maturityAmount,
+      Value<PlanPayout> payout,
+      Value<bool> autoCollect,
+      Value<int> reminderDaysBefore,
+      Value<PlanStatus> status,
+      Value<DateTime?> closedAt,
+      Value<String?> notes,
+      Value<String?> serverId,
+      Value<int> syncStatus,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<DateTime?> deletedAt,
+      Value<int> rowid,
+    });
+typedef $$PlansTableUpdateCompanionBuilder =
+    PlansCompanion Function({
+      Value<String> id,
+      Value<PlanKind> kind,
+      Value<String> name,
+      Value<String> walletId,
+      Value<String?> holdingWalletId,
+      Value<String?> categoryId,
+      Value<int> principal,
+      Value<int> installmentAmount,
+      Value<int> installmentCount,
+      Value<PlanFrequency> frequency,
+      Value<int> interval,
+      Value<DateTime> startDate,
+      Value<double?> interestRate,
+      Value<int?> maturityAmount,
+      Value<PlanPayout> payout,
+      Value<bool> autoCollect,
+      Value<int> reminderDaysBefore,
+      Value<PlanStatus> status,
+      Value<DateTime?> closedAt,
+      Value<String?> notes,
+      Value<String?> serverId,
+      Value<int> syncStatus,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<DateTime?> deletedAt,
+      Value<int> rowid,
+    });
+
+final class $$PlansTableReferences
+    extends BaseReferences<_$AppDatabase, $PlansTable, Plan> {
+  $$PlansTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $WalletsTable _walletIdTable(_$AppDatabase db) =>
+      db.wallets.createAlias('plans__wallet_id__wallets__id');
+
+  $$WalletsTableProcessedTableManager get walletId {
+    final $_column = $_itemColumn<String>('wallet_id')!;
+
+    final manager = $$WalletsTableTableManager(
+      $_db,
+      $_db.wallets,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_walletIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $CategoriesTable _categoryIdTable(_$AppDatabase db) =>
+      db.categories.createAlias('plans__category_id__categories__id');
+
+  $$CategoriesTableProcessedTableManager? get categoryId {
+    final $_column = $_itemColumn<String>('category_id');
+    if ($_column == null) return null;
+    final manager = $$CategoriesTableTableManager(
+      $_db,
+      $_db.categories,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_categoryIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$PlansTableFilterComposer extends Composer<_$AppDatabase, $PlansTable> {
+  $$PlansTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<PlanKind, PlanKind, int> get kind =>
+      $composableBuilder(
+        column: $table.kind,
+        builder: (column) => ColumnWithTypeConverterFilters(column),
+      );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get holdingWalletId => $composableBuilder(
+    column: $table.holdingWalletId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get principal => $composableBuilder(
+    column: $table.principal,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get installmentAmount => $composableBuilder(
+    column: $table.installmentAmount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get installmentCount => $composableBuilder(
+    column: $table.installmentCount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<PlanFrequency, PlanFrequency, int>
+  get frequency => $composableBuilder(
+    column: $table.frequency,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<int> get interval => $composableBuilder(
+    column: $table.interval,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get startDate => $composableBuilder(
+    column: $table.startDate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get interestRate => $composableBuilder(
+    column: $table.interestRate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get maturityAmount => $composableBuilder(
+    column: $table.maturityAmount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<PlanPayout, PlanPayout, int> get payout =>
+      $composableBuilder(
+        column: $table.payout,
+        builder: (column) => ColumnWithTypeConverterFilters(column),
+      );
+
+  ColumnFilters<bool> get autoCollect => $composableBuilder(
+    column: $table.autoCollect,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get reminderDaysBefore => $composableBuilder(
+    column: $table.reminderDaysBefore,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<PlanStatus, PlanStatus, int> get status =>
+      $composableBuilder(
+        column: $table.status,
+        builder: (column) => ColumnWithTypeConverterFilters(column),
+      );
+
+  ColumnFilters<DateTime> get closedAt => $composableBuilder(
+    column: $table.closedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get serverId => $composableBuilder(
+    column: $table.serverId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get syncStatus => $composableBuilder(
+    column: $table.syncStatus,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$WalletsTableFilterComposer get walletId {
+    final $$WalletsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.walletId,
+      referencedTable: $db.wallets,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$WalletsTableFilterComposer(
+            $db: $db,
+            $table: $db.wallets,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$CategoriesTableFilterComposer get categoryId {
+    final $$CategoriesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.categoryId,
+      referencedTable: $db.categories,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CategoriesTableFilterComposer(
+            $db: $db,
+            $table: $db.categories,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$PlansTableOrderingComposer
+    extends Composer<_$AppDatabase, $PlansTable> {
+  $$PlansTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get kind => $composableBuilder(
+    column: $table.kind,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get holdingWalletId => $composableBuilder(
+    column: $table.holdingWalletId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get principal => $composableBuilder(
+    column: $table.principal,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get installmentAmount => $composableBuilder(
+    column: $table.installmentAmount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get installmentCount => $composableBuilder(
+    column: $table.installmentCount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get frequency => $composableBuilder(
+    column: $table.frequency,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get interval => $composableBuilder(
+    column: $table.interval,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get startDate => $composableBuilder(
+    column: $table.startDate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get interestRate => $composableBuilder(
+    column: $table.interestRate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get maturityAmount => $composableBuilder(
+    column: $table.maturityAmount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get payout => $composableBuilder(
+    column: $table.payout,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get autoCollect => $composableBuilder(
+    column: $table.autoCollect,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get reminderDaysBefore => $composableBuilder(
+    column: $table.reminderDaysBefore,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get closedAt => $composableBuilder(
+    column: $table.closedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get serverId => $composableBuilder(
+    column: $table.serverId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get syncStatus => $composableBuilder(
+    column: $table.syncStatus,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$WalletsTableOrderingComposer get walletId {
+    final $$WalletsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.walletId,
+      referencedTable: $db.wallets,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$WalletsTableOrderingComposer(
+            $db: $db,
+            $table: $db.wallets,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$CategoriesTableOrderingComposer get categoryId {
+    final $$CategoriesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.categoryId,
+      referencedTable: $db.categories,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CategoriesTableOrderingComposer(
+            $db: $db,
+            $table: $db.categories,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$PlansTableAnnotationComposer
+    extends Composer<_$AppDatabase, $PlansTable> {
+  $$PlansTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<PlanKind, int> get kind =>
+      $composableBuilder(column: $table.kind, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get holdingWalletId => $composableBuilder(
+    column: $table.holdingWalletId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get principal =>
+      $composableBuilder(column: $table.principal, builder: (column) => column);
+
+  GeneratedColumn<int> get installmentAmount => $composableBuilder(
+    column: $table.installmentAmount,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get installmentCount => $composableBuilder(
+    column: $table.installmentCount,
+    builder: (column) => column,
+  );
+
+  GeneratedColumnWithTypeConverter<PlanFrequency, int> get frequency =>
+      $composableBuilder(column: $table.frequency, builder: (column) => column);
+
+  GeneratedColumn<int> get interval =>
+      $composableBuilder(column: $table.interval, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get startDate =>
+      $composableBuilder(column: $table.startDate, builder: (column) => column);
+
+  GeneratedColumn<double> get interestRate => $composableBuilder(
+    column: $table.interestRate,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get maturityAmount => $composableBuilder(
+    column: $table.maturityAmount,
+    builder: (column) => column,
+  );
+
+  GeneratedColumnWithTypeConverter<PlanPayout, int> get payout =>
+      $composableBuilder(column: $table.payout, builder: (column) => column);
+
+  GeneratedColumn<bool> get autoCollect => $composableBuilder(
+    column: $table.autoCollect,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get reminderDaysBefore => $composableBuilder(
+    column: $table.reminderDaysBefore,
+    builder: (column) => column,
+  );
+
+  GeneratedColumnWithTypeConverter<PlanStatus, int> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get closedAt =>
+      $composableBuilder(column: $table.closedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get notes =>
+      $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  GeneratedColumn<String> get serverId =>
+      $composableBuilder(column: $table.serverId, builder: (column) => column);
+
+  GeneratedColumn<int> get syncStatus => $composableBuilder(
+    column: $table.syncStatus,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+
+  $$WalletsTableAnnotationComposer get walletId {
+    final $$WalletsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.walletId,
+      referencedTable: $db.wallets,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$WalletsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.wallets,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$CategoriesTableAnnotationComposer get categoryId {
+    final $$CategoriesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.categoryId,
+      referencedTable: $db.categories,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CategoriesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.categories,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$PlansTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $PlansTable,
+          Plan,
+          $$PlansTableFilterComposer,
+          $$PlansTableOrderingComposer,
+          $$PlansTableAnnotationComposer,
+          $$PlansTableCreateCompanionBuilder,
+          $$PlansTableUpdateCompanionBuilder,
+          (Plan, $$PlansTableReferences),
+          Plan,
+          PrefetchHooks Function({bool walletId, bool categoryId})
+        > {
+  $$PlansTableTableManager(_$AppDatabase db, $PlansTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$PlansTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$PlansTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$PlansTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<PlanKind> kind = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<String> walletId = const Value.absent(),
+                Value<String?> holdingWalletId = const Value.absent(),
+                Value<String?> categoryId = const Value.absent(),
+                Value<int> principal = const Value.absent(),
+                Value<int> installmentAmount = const Value.absent(),
+                Value<int> installmentCount = const Value.absent(),
+                Value<PlanFrequency> frequency = const Value.absent(),
+                Value<int> interval = const Value.absent(),
+                Value<DateTime> startDate = const Value.absent(),
+                Value<double?> interestRate = const Value.absent(),
+                Value<int?> maturityAmount = const Value.absent(),
+                Value<PlanPayout> payout = const Value.absent(),
+                Value<bool> autoCollect = const Value.absent(),
+                Value<int> reminderDaysBefore = const Value.absent(),
+                Value<PlanStatus> status = const Value.absent(),
+                Value<DateTime?> closedAt = const Value.absent(),
+                Value<String?> notes = const Value.absent(),
+                Value<String?> serverId = const Value.absent(),
+                Value<int> syncStatus = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<DateTime?> deletedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => PlansCompanion(
+                id: id,
+                kind: kind,
+                name: name,
+                walletId: walletId,
+                holdingWalletId: holdingWalletId,
+                categoryId: categoryId,
+                principal: principal,
+                installmentAmount: installmentAmount,
+                installmentCount: installmentCount,
+                frequency: frequency,
+                interval: interval,
+                startDate: startDate,
+                interestRate: interestRate,
+                maturityAmount: maturityAmount,
+                payout: payout,
+                autoCollect: autoCollect,
+                reminderDaysBefore: reminderDaysBefore,
+                status: status,
+                closedAt: closedAt,
+                notes: notes,
+                serverId: serverId,
+                syncStatus: syncStatus,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required PlanKind kind,
+                required String name,
+                required String walletId,
+                Value<String?> holdingWalletId = const Value.absent(),
+                Value<String?> categoryId = const Value.absent(),
+                Value<int> principal = const Value.absent(),
+                Value<int> installmentAmount = const Value.absent(),
+                Value<int> installmentCount = const Value.absent(),
+                required PlanFrequency frequency,
+                Value<int> interval = const Value.absent(),
+                required DateTime startDate,
+                Value<double?> interestRate = const Value.absent(),
+                Value<int?> maturityAmount = const Value.absent(),
+                Value<PlanPayout> payout = const Value.absent(),
+                Value<bool> autoCollect = const Value.absent(),
+                Value<int> reminderDaysBefore = const Value.absent(),
+                Value<PlanStatus> status = const Value.absent(),
+                Value<DateTime?> closedAt = const Value.absent(),
+                Value<String?> notes = const Value.absent(),
+                Value<String?> serverId = const Value.absent(),
+                Value<int> syncStatus = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<DateTime?> deletedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => PlansCompanion.insert(
+                id: id,
+                kind: kind,
+                name: name,
+                walletId: walletId,
+                holdingWalletId: holdingWalletId,
+                categoryId: categoryId,
+                principal: principal,
+                installmentAmount: installmentAmount,
+                installmentCount: installmentCount,
+                frequency: frequency,
+                interval: interval,
+                startDate: startDate,
+                interestRate: interestRate,
+                maturityAmount: maturityAmount,
+                payout: payout,
+                autoCollect: autoCollect,
+                reminderDaysBefore: reminderDaysBefore,
+                status: status,
+                closedAt: closedAt,
+                notes: notes,
+                serverId: serverId,
+                syncStatus: syncStatus,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) =>
+                    (e.readTable(table), $$PlansTableReferences(db, table, e)),
+              )
+              .toList(),
+          prefetchHooksCallback: ({walletId = false, categoryId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (walletId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.walletId,
+                                referencedTable: $$PlansTableReferences
+                                    ._walletIdTable(db),
+                                referencedColumn: $$PlansTableReferences
+                                    ._walletIdTable(db)
+                                    .id,
+                              )
+                              as T;
+                    }
+                    if (categoryId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.categoryId,
+                                referencedTable: $$PlansTableReferences
+                                    ._categoryIdTable(db),
+                                referencedColumn: $$PlansTableReferences
+                                    ._categoryIdTable(db)
+                                    .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$PlansTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $PlansTable,
+      Plan,
+      $$PlansTableFilterComposer,
+      $$PlansTableOrderingComposer,
+      $$PlansTableAnnotationComposer,
+      $$PlansTableCreateCompanionBuilder,
+      $$PlansTableUpdateCompanionBuilder,
+      (Plan, $$PlansTableReferences),
+      Plan,
+      PrefetchHooks Function({bool walletId, bool categoryId})
     >;
 typedef $$ObjectiveTransactionsTableCreateCompanionBuilder =
     ObjectiveTransactionsCompanion Function({
@@ -23007,6 +25554,8 @@ class $AppDatabaseManager {
       $$UserProfilesTableTableManager(_db, _db.userProfiles);
   $$ObjectivesTableTableManager get objectives =>
       $$ObjectivesTableTableManager(_db, _db.objectives);
+  $$PlansTableTableManager get plans =>
+      $$PlansTableTableManager(_db, _db.plans);
   $$ObjectiveTransactionsTableTableManager get objectiveTransactions =>
       $$ObjectiveTransactionsTableTableManager(_db, _db.objectiveTransactions);
   $$AssociatedTitlesTableTableManager get associatedTitles =>

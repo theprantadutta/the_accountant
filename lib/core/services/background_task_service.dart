@@ -17,6 +17,7 @@ import 'package:the_accountant/data/models/transaction.dart'
 import 'package:the_accountant/features/backup/services/drive_backup_service.dart';
 import 'package:the_accountant/features/backup/services/drive_client.dart';
 import 'package:the_accountant/features/backup/services/google_drive_authorization.dart';
+import 'package:the_accountant/features/plans/services/plan_service.dart';
 import 'package:the_accountant/features/recurring/services/recurring_service.dart';
 
 /// Core background processing service.
@@ -73,6 +74,22 @@ class BackgroundTaskService {
           (await db.getPaymentsAwaitingConfirmation()).length;
       final processedCount = await recurringService
           .processRecurringTransactions();
+
+      // EMI installments, DPS deposits, profits and maturities due by now,
+      // so a plan keeps step on a day the app is not opened.
+      final planEvents = await PlanService(db).collectDue();
+      if (planEvents > 0) {
+        await notifier.showNotification(
+          id: BackgroundTaskConstants.recurringNotificationIdBase + 2,
+          title: 'EMI and savings updated',
+          body:
+              '$planEvents installment${planEvents == 1 ? '' : 's'} and '
+              'deposit${planEvents == 1 ? '' : 's'} recorded on their day.',
+          channelId: BackgroundTaskConstants.recurringChannelId,
+          channelName: BackgroundTaskConstants.recurringChannelName,
+          channelDesc: BackgroundTaskConstants.recurringChannelDesc,
+        );
+      }
       final awaiting = await db.getPaymentsAwaitingConfirmation();
       // A schedule that asks first writes its payment as pending. That is a
       // question for the user, not a report, so it is told apart from the

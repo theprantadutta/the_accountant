@@ -359,6 +359,7 @@ class FinanceContextBuilder {
     WalletType.bankAccount => 'bank_account',
     WalletType.creditCard => 'credit_card',
     WalletType.subscription => 'subscription',
+    WalletType.deposit => 'deposit',
   };
 
   Future<List<Map<String, dynamic>>> _recentTransactions(

@@ -17,6 +17,7 @@ import 'package:the_accountant/data/models/user_profile.dart';
 import 'package:the_accountant/data/models/payment_method.dart';
 import 'package:the_accountant/data/models/recurring_config.dart';
 import 'package:the_accountant/data/models/objective.dart';
+import 'package:the_accountant/data/models/plan.dart';
 import 'package:the_accountant/data/models/objective_transaction.dart';
 import 'package:the_accountant/data/models/associated_title.dart';
 import 'package:the_accountant/data/models/sync_state.dart';
@@ -153,6 +154,7 @@ class SystemCategories {
     // New tables
     RecurringConfigs,
     Objectives,
+    Plans,
     ObjectiveTransactions,
     AssociatedTitles,
     SyncStates,
@@ -168,7 +170,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 27;
+  int get schemaVersion => 28;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -211,6 +213,7 @@ class AppDatabase extends _$AppDatabase {
       if (from < 25) await _addV25Columns(m);
       if (from < 26) await _addV26Columns(m);
       if (from < 27) await _addV27Columns(m);
+      if (from < 28) await _addV28Schema(m);
 
       if (from < 10) {
         // Fix credit/debt isIncome values and recalculate wallet balances
@@ -1067,6 +1070,14 @@ class AppDatabase extends _$AppDatabase {
   /// The budget currency column, added with the other columns rather than in
   /// its own step: everything below reads rows through the current generated
   /// mapper, which expects every column this build knows about.
+  /// EMIs, loans, DPS and FDR: their table, and the link on a transaction.
+  Future<void> _addV28Schema(Migrator m) async {
+    if (!await _tableExists('plans')) await m.createTable(plans);
+    if (!await _tableExists('transactions')) return;
+    await _ensureColumn(m, transactions, transactions.planId);
+    await _ensureColumn(m, transactions, transactions.planInstallment);
+  }
+
   Future<void> _addV27Columns(Migrator m) async {
     if (!await _tableExists('wallets')) return;
     await _ensureColumn(m, wallets, wallets.paymentDueDay);
@@ -1502,6 +1513,7 @@ class AppDatabase extends _$AppDatabase {
     'recurring_configs',
     'category_budget_limits',
     'associated_titles',
+    'plans',
   ];
 
   /// Install a database-level guard: **a pending create can never become a
@@ -4438,6 +4450,10 @@ class AppDatabase extends _$AppDatabase {
         await (update(objectives)
               ..where((o) => o.syncStatus.isBiggerThanValue(0)))
             .write(const ObjectivesCompanion(syncStatus: Value(0)));
+        break;
+      case 'plans':
+        await (update(plans)..where((p) => p.syncStatus.isBiggerThanValue(0)))
+            .write(const PlansCompanion(syncStatus: Value(0)));
         break;
       case 'associated_titles':
         await (update(associatedTitles)

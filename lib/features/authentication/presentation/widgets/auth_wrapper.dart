@@ -16,6 +16,9 @@ import 'package:the_accountant/features/budgets/providers/budget_notification_pr
 import 'package:the_accountant/core/services/secure_token_storage.dart';
 import 'package:the_accountant/core/services/api_service.dart';
 import 'package:the_accountant/core/services/notification_service.dart';
+import 'package:the_accountant/core/providers/data_reload.dart';
+import 'package:the_accountant/data/datasources/local/database_provider.dart';
+import 'package:the_accountant/features/plans/services/plan_service.dart';
 import 'package:the_accountant/features/notifications/services/local_notification_log.dart';
 import 'package:the_accountant/features/premium/providers/premium_provider.dart';
 import 'package:the_accountant/features/ai_assistant/providers/ai_chat_provider.dart';
@@ -95,6 +98,7 @@ class _AuthWrapperState extends ConsumerState<AuthWrapper>
       // be stopped here for good: one trip to the background and the app never
       // synced on its own again until it was restarted.
       ref.read(syncNotifierProvider.notifier).onAppResumed();
+      if (ref.read(authProvider).isAuthenticated) _collectPlans();
     } else if (state == AppLifecycleState.paused) {
       _pausedAt = DateTime.now();
       // Stop the periodic timer while in the background, and send any edit
@@ -155,6 +159,22 @@ class _AuthWrapperState extends ConsumerState<AuthWrapper>
     }
   }
 
+  /// Record every EMI installment, DPS deposit, profit and maturity that has
+  /// fallen due, on the plans that collect by themselves.
+  ///
+  /// Safe to run as often as it likes: each one carries a key that can only
+  /// be written once, here or on any other phone.
+  Future<void> _collectPlans() async {
+    try {
+      final recorded = await PlanService(
+        ref.read(databaseProvider),
+      ).collectDue();
+      if (recorded > 0 && mounted) reloadAllData(ref);
+    } catch (e) {
+      debugPrint('AuthWrapper: collecting plans failed: $e');
+    }
+  }
+
   /// Run startup notification checks (subscription expiry, budget alerts, auto-sync)
   Future<void> _runStartupChecks() async {
     debugPrint('AuthWrapper: Running startup notification checks');
@@ -165,6 +185,8 @@ class _AuthWrapperState extends ConsumerState<AuthWrapper>
 
     // Trigger budget notification check
     ref.read(budgetNotificationProvider.notifier).checkBudgetsNow();
+
+    await _collectPlans();
 
     // Register this phone for push, and tell the server its time zone, so the
     // daily and bill reminders can reach it at the right local time.

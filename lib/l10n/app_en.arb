@@ -1622,18 +1622,324 @@
   "aiToolAccounts": "Checking your accounts…",
   "aiToolCategories": "Looking at your categories…",
   "aiToolCards": "Checking card bills…",
+  "aiToolPlans": "Checking EMIs and savings…",
   "aiToolSaving": "Saving…",
   "aiActionAddTitle": "Add this transaction?",
   "aiActionUpdateTitle": "Change this transaction?",
   "aiActionDeleteTitle": "Delete this transaction?",
   "aiActionPayCardTitle": "Pay a card bill",
   "aiActionCardSettingsTitle": "Change card dates",
+  "aiActionCreatePlanTitle": "Start a plan",
+  "aiActionPayPlanTitle": "Record a plan payment",
+  "aiActionClosePlanTitle": "End a plan early",
+  "aiActionUpdatePlanTitle": "Change a plan",
+  "aiActionClosePlan": "End it",
   "aiActionFrom": "From",
   "aiActionTo": "To",
   "aiActionBill": "Bill",
   "aiActionLeftAfter": "Left after",
   "aiActionRemindDays": "Remind, days before",
   "aiActionPay": "Pay",
+  "plansTitle": "EMI, loans & savings",
+  "plansSubtitle": "EMIs, loans, DPS and FDR, paid and collected on time",
+  "planNew": "Start a plan",
+  "planNewTitle": "What are you starting?",
+  "plansEmptyTitle": "No EMIs, loans or savings yet",
+  "plansEmptyBody": "Track something bought in installments, a loan, a DPS or an FDR. Installments are recorded on their day and you are reminded before each.",
+  "plansEnded": "Finished",
+  "planKindEmi": "EMI",
+  "planKindLoan": "Loan",
+  "planKindDps": "DPS",
+  "planKindFdr": "FDR",
+  "planKindEmiHint": "Something bought in installments, paid from cash, a bank account or a card",
+  "planKindLoanHint": "Money borrowed and paid back in installments, with interest",
+  "planKindDpsHint": "Save a fixed amount every month for a fixed time, and get it back with profit",
+  "planKindFdrHint": "Put a sum away for a fixed time, with profit monthly or at the end. Savings certificates work the same way",
+  "planWeekly": "Weekly",
+  "planMonthly": "Monthly",
+  "planYearly": "Yearly",
+  "planMonths": "Months",
+  "planYears": "Years",
+  "planFdrLine": "{amount} until {date}",
+  "@planFdrLine": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "planSavedLine": "{saved} of {total} saved",
+  "@planSavedLine": {
+    "placeholders": {
+      "saved": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "planPaidLine": "{paid} of {total} paid",
+  "@planPaidLine": {
+    "placeholders": {
+      "paid": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "planNextLine": "Next: {amount} on {date}",
+  "@planNextLine": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "planStatusCompleted": "Completed",
+  "planStatusClosed": "Closed",
+  "planStatusOverdue": "Overdue",
+  "planStatusRunning": "Running",
+  "planInstallmentsDone": "{done} of {total}",
+  "@planInstallmentsDone": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "planGone": "This plan has been deleted.",
+  "planAccount": "Account",
+  "planAccountEmi": "Paid from",
+  "planAccountLoan": "Received into and paid from",
+  "planAccountSaving": "From account",
+  "planPrice": "Price",
+  "planBorrowed": "Amount borrowed",
+  "planDeposited": "Amount deposited",
+  "planDeposit": "Each deposit",
+  "planInstallment": "Each installment",
+  "planWorkedOut": "Worked out from the price, rate and term",
+  "planProgress": "Done",
+  "planSavedSoFar": "Saved so far",
+  "planPaidSoFar": "Paid so far",
+  "planLeft": "Left",
+  "planTotal": "In all",
+  "planInterestCharges": "Interest and charges",
+  "planRate": "Rate",
+  "planRateLabel": "Rate % a year",
+  "planRateOptional": "Optional",
+  "planPayout": "Profit paid",
+  "planPayoutMonthly": "Every month",
+  "planPayoutAtMaturity": "At the end",
+  "planMaturesOn": "Matures on",
+  "planMaturity": "Paid back at the end",
+  "planEstimated": "Estimated from the rate; tap to enter the bank's figure",
+  "planHolding": "In the deposit now",
+  "planEnds": "Last installment",
+  "planTakeMaturity": "Take the maturity, {amount}",
+  "@planTakeMaturity": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "planRecordProfit": "Record the profit, {amount}",
+  "@planRecordProfit": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "planPayNow": "Pay installment {number} now, {amount}",
+  "@planPayNow": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "planDepositNow": "Make deposit {number} now, {amount}",
+  "@planDepositNow": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "planRecorded": "Recorded.",
+  "planSaved": "Saved.",
+  "planPayOff": "Pay off early",
+  "planEncash": "Encash early",
+  "planPayOffTitle": "Pay off {name}?",
+  "@planPayOffTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "planPayOffHint": "One payment for what is left, and the plan ends.",
+  "planPayOffLeft": "Pay what is left, {amount}",
+  "@planPayOffLeft": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "planPayOffOther": "The lender quoted a different amount",
+  "planEncashTitle": "Encash {name}?",
+  "@planEncashTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "planEncashBody": "What is in the deposit goes back to its account, and the plan ends.",
+  "planEncashNoProfit": "Encash, without profit",
+  "planEncashWithProfit": "Encash, with the profit the bank paid",
+  "planEncashed": "Encashed. The money is back in its account.",
+  "planPaidOff": "Paid off.",
+  "planAutoCollect": "Record by itself",
+  "planAutoCollectHint": "Each installment, profit and maturity is recorded on its day",
+  "planSchedule": "SCHEDULE",
+  "planDelete": "Delete this plan",
+  "planDeleteTitle": "Delete {name}?",
+  "@planDeleteTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "planDeleteBody": "What it recorded stays in your transactions. Nothing more is recorded or reminded.",
+  "planDeleted": "Deleted.",
+  "planEventInstallment": "Installment {number} of {total}",
+  "@planEventInstallment": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "planEventProfit": "Profit, month {number}",
+  "@planEventProfit": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "planEventMaturity": "Maturity",
+  "planEventDone": "Done",
+  "planEventLate": "Overdue",
+  "planEventUpcoming": "Upcoming",
+  "planNeedAccount": "Choose an account first.",
+  "planCreated": "Started. Anything already due has been recorded.",
+  "planSummaryInstallments": "{count} × {installment} = {total}, of which {interest} is interest and charges.",
+  "@planSummaryInstallments": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "installment": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      },
+      "interest": {
+        "type": "String"
+      }
+    }
+  },
+  "planSummaryDps": "You put in {deposited} and get back about {maturity} on {date}.",
+  "@planSummaryDps": {
+    "placeholders": {
+      "deposited": {
+        "type": "String"
+      },
+      "maturity": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "planSummaryFdr": "{principal} grows to about {maturity} by {date}.",
+  "@planSummaryFdr": {
+    "placeholders": {
+      "principal": {
+        "type": "String"
+      },
+      "maturity": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "planSummaryFdrMonthly": "{profit} profit every month, and {principal} back on {date}.",
+  "@planSummaryFdrMonthly": {
+    "placeholders": {
+      "profit": {
+        "type": "String"
+      },
+      "principal": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "planNewKind": "New {kind}",
+  "@planNewKind": {
+    "placeholders": {
+      "kind": {
+        "type": "String"
+      }
+    }
+  },
+  "planName": "Name",
+  "planNameHintEmi": "e.g. Phone from Daraz",
+  "planNameHintLoan": "e.g. Bike loan",
+  "planNameHintDps": "e.g. Brac DPS",
+  "planNameHintFdr": "e.g. City Bank FDR",
+  "planHowMany": "How many",
+  "planTerm": "Term",
+  "planOpenedOn": "Opened on",
+  "planFirstDue": "First installment",
+  "planCategory": "Category",
+  "planCategoryDefault": "Loan Payment",
+  "planLoanReceived": "Money received into this account",
+  "planLoanReceivedHint": "Off if it went straight to a seller",
+  "planStart": "Start",
   "aiActionDeleteNote": "It goes to Recently deleted, where you can restore it for 30 days.",
   "aiActionAdd": "Add it",
   "aiActionSave": "Save change",

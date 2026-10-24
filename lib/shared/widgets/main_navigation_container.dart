@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:the_accountant/features/authentication/presentation/widgets/auth_wrapper.dart';
 import 'package:the_accountant/features/cards/screens/card_bills_screen.dart';
+import 'package:the_accountant/features/plans/screens/plan_detail_screen.dart';
+import 'package:the_accountant/features/plans/screens/plans_screen.dart';
 import 'package:the_accountant/features/notifications/screens/notification_inbox_screen.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -132,9 +134,11 @@ class _MainNavigationContainerState
             ? null
             : TransactionDetailScreen(transactionId: link.entityId!),
       AppDestination.notifications => const NotificationInboxScreen(),
-      AppDestination.cardBills => CardBillsScreen(
-        focusWalletId: link.entityId,
-      ),
+      AppDestination.plans =>
+        link.entityId == null
+            ? const PlansScreen()
+            : PlanDetailScreen(planId: link.entityId!),
+      AppDestination.cardBills => CardBillsScreen(focusWalletId: link.entityId),
       _ => null,
     };
     if (screen == null) return;

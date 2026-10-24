@@ -160,6 +160,14 @@ class Transactions extends Table {
   /// A soft link, like [feeForTransactionId], so insert order never matters.
   TextColumn get settlesTransactionId => text().nullable()();
 
+  /// The EMI, loan, DPS or FDR this row is part of, if any.
+  TextColumn get planId => text().nullable()();
+
+  /// Which of the plan's installments this is, from 1. 0 is the opening
+  /// (an FDR's deposit, a loan's money received); the installment count plus
+  /// one is the maturity; a profit payment is its period's number.
+  IntColumn get planInstallment => integer().nullable()();
+
   // For recurring instances
   TextColumn get recurringConfigId =>
       text().nullable().references(RecurringConfigs, #id)();

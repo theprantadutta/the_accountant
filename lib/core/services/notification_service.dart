@@ -266,6 +266,10 @@ class NotificationService {
         AppDestination.cardBills,
         entityId: data['walletId'] as String?,
       ),
+      'open_plan' => DeepLink(
+        AppDestination.plans,
+        entityId: data['planId'] as String?,
+      ),
       'open_budget' => const DeepLink(AppDestination.budgets),
       'open_transactions' => const DeepLink(AppDestination.transactions),
       _ when transactionId != null => DeepLink(

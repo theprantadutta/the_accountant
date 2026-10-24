@@ -88,6 +88,15 @@ class BuiltInCategoryKeys {
 
   /// Charges a provider takes for moving money — the fee half of a transfer.
   static const String feesCharges = 'fees_charges';
+
+  /// What EMI and loan installments are filed under.
+  static const String loanPayment = 'loan_payment';
+
+  /// A loan's money arriving.
+  static const String loanReceived = 'loan_received';
+
+  /// DPS and FDR profit.
+  static const String investment = 'investment';
 }
 
 class SystemCategoryKeys {

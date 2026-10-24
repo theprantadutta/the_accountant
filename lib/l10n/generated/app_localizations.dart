@@ -6023,6 +6023,12 @@ abstract class L10n {
   /// **'Checking card bills…'**
   String get aiToolCards;
 
+  /// No description provided for @aiToolPlans.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking EMIs and savings…'**
+  String get aiToolPlans;
+
   /// No description provided for @aiToolSaving.
   ///
   /// In en, this message translates to:
@@ -6059,6 +6065,36 @@ abstract class L10n {
   /// **'Change card dates'**
   String get aiActionCardSettingsTitle;
 
+  /// No description provided for @aiActionCreatePlanTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Start a plan'**
+  String get aiActionCreatePlanTitle;
+
+  /// No description provided for @aiActionPayPlanTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Record a plan payment'**
+  String get aiActionPayPlanTitle;
+
+  /// No description provided for @aiActionClosePlanTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'End a plan early'**
+  String get aiActionClosePlanTitle;
+
+  /// No description provided for @aiActionUpdatePlanTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Change a plan'**
+  String get aiActionUpdatePlanTitle;
+
+  /// No description provided for @aiActionClosePlan.
+  ///
+  /// In en, this message translates to:
+  /// **'End it'**
+  String get aiActionClosePlan;
+
   /// No description provided for @aiActionFrom.
   ///
   /// In en, this message translates to:
@@ -6094,6 +6130,665 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'Pay'**
   String get aiActionPay;
+
+  /// No description provided for @plansTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'EMI, loans & savings'**
+  String get plansTitle;
+
+  /// No description provided for @plansSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'EMIs, loans, DPS and FDR, paid and collected on time'**
+  String get plansSubtitle;
+
+  /// No description provided for @planNew.
+  ///
+  /// In en, this message translates to:
+  /// **'Start a plan'**
+  String get planNew;
+
+  /// No description provided for @planNewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What are you starting?'**
+  String get planNewTitle;
+
+  /// No description provided for @plansEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No EMIs, loans or savings yet'**
+  String get plansEmptyTitle;
+
+  /// No description provided for @plansEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Track something bought in installments, a loan, a DPS or an FDR. Installments are recorded on their day and you are reminded before each.'**
+  String get plansEmptyBody;
+
+  /// No description provided for @plansEnded.
+  ///
+  /// In en, this message translates to:
+  /// **'Finished'**
+  String get plansEnded;
+
+  /// No description provided for @planKindEmi.
+  ///
+  /// In en, this message translates to:
+  /// **'EMI'**
+  String get planKindEmi;
+
+  /// No description provided for @planKindLoan.
+  ///
+  /// In en, this message translates to:
+  /// **'Loan'**
+  String get planKindLoan;
+
+  /// No description provided for @planKindDps.
+  ///
+  /// In en, this message translates to:
+  /// **'DPS'**
+  String get planKindDps;
+
+  /// No description provided for @planKindFdr.
+  ///
+  /// In en, this message translates to:
+  /// **'FDR'**
+  String get planKindFdr;
+
+  /// No description provided for @planKindEmiHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Something bought in installments, paid from cash, a bank account or a card'**
+  String get planKindEmiHint;
+
+  /// No description provided for @planKindLoanHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Money borrowed and paid back in installments, with interest'**
+  String get planKindLoanHint;
+
+  /// No description provided for @planKindDpsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Save a fixed amount every month for a fixed time, and get it back with profit'**
+  String get planKindDpsHint;
+
+  /// No description provided for @planKindFdrHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Put a sum away for a fixed time, with profit monthly or at the end. Savings certificates work the same way'**
+  String get planKindFdrHint;
+
+  /// No description provided for @planWeekly.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly'**
+  String get planWeekly;
+
+  /// No description provided for @planMonthly.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly'**
+  String get planMonthly;
+
+  /// No description provided for @planYearly.
+  ///
+  /// In en, this message translates to:
+  /// **'Yearly'**
+  String get planYearly;
+
+  /// No description provided for @planMonths.
+  ///
+  /// In en, this message translates to:
+  /// **'Months'**
+  String get planMonths;
+
+  /// No description provided for @planYears.
+  ///
+  /// In en, this message translates to:
+  /// **'Years'**
+  String get planYears;
+
+  /// No description provided for @planFdrLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} until {date}'**
+  String planFdrLine(String amount, String date);
+
+  /// No description provided for @planSavedLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{saved} of {total} saved'**
+  String planSavedLine(String saved, String total);
+
+  /// No description provided for @planPaidLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{paid} of {total} paid'**
+  String planPaidLine(String paid, String total);
+
+  /// No description provided for @planNextLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Next: {amount} on {date}'**
+  String planNextLine(String amount, String date);
+
+  /// No description provided for @planStatusCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get planStatusCompleted;
+
+  /// No description provided for @planStatusClosed.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed'**
+  String get planStatusClosed;
+
+  /// No description provided for @planStatusOverdue.
+  ///
+  /// In en, this message translates to:
+  /// **'Overdue'**
+  String get planStatusOverdue;
+
+  /// No description provided for @planStatusRunning.
+  ///
+  /// In en, this message translates to:
+  /// **'Running'**
+  String get planStatusRunning;
+
+  /// No description provided for @planInstallmentsDone.
+  ///
+  /// In en, this message translates to:
+  /// **'{done} of {total}'**
+  String planInstallmentsDone(int done, int total);
+
+  /// No description provided for @planGone.
+  ///
+  /// In en, this message translates to:
+  /// **'This plan has been deleted.'**
+  String get planGone;
+
+  /// No description provided for @planAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get planAccount;
+
+  /// No description provided for @planAccountEmi.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid from'**
+  String get planAccountEmi;
+
+  /// No description provided for @planAccountLoan.
+  ///
+  /// In en, this message translates to:
+  /// **'Received into and paid from'**
+  String get planAccountLoan;
+
+  /// No description provided for @planAccountSaving.
+  ///
+  /// In en, this message translates to:
+  /// **'From account'**
+  String get planAccountSaving;
+
+  /// No description provided for @planPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Price'**
+  String get planPrice;
+
+  /// No description provided for @planBorrowed.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount borrowed'**
+  String get planBorrowed;
+
+  /// No description provided for @planDeposited.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount deposited'**
+  String get planDeposited;
+
+  /// No description provided for @planDeposit.
+  ///
+  /// In en, this message translates to:
+  /// **'Each deposit'**
+  String get planDeposit;
+
+  /// No description provided for @planInstallment.
+  ///
+  /// In en, this message translates to:
+  /// **'Each installment'**
+  String get planInstallment;
+
+  /// No description provided for @planWorkedOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Worked out from the price, rate and term'**
+  String get planWorkedOut;
+
+  /// No description provided for @planProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get planProgress;
+
+  /// No description provided for @planSavedSoFar.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved so far'**
+  String get planSavedSoFar;
+
+  /// No description provided for @planPaidSoFar.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid so far'**
+  String get planPaidSoFar;
+
+  /// No description provided for @planLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'Left'**
+  String get planLeft;
+
+  /// No description provided for @planTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'In all'**
+  String get planTotal;
+
+  /// No description provided for @planInterestCharges.
+  ///
+  /// In en, this message translates to:
+  /// **'Interest and charges'**
+  String get planInterestCharges;
+
+  /// No description provided for @planRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Rate'**
+  String get planRate;
+
+  /// No description provided for @planRateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Rate % a year'**
+  String get planRateLabel;
+
+  /// No description provided for @planRateOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional'**
+  String get planRateOptional;
+
+  /// No description provided for @planPayout.
+  ///
+  /// In en, this message translates to:
+  /// **'Profit paid'**
+  String get planPayout;
+
+  /// No description provided for @planPayoutMonthly.
+  ///
+  /// In en, this message translates to:
+  /// **'Every month'**
+  String get planPayoutMonthly;
+
+  /// No description provided for @planPayoutAtMaturity.
+  ///
+  /// In en, this message translates to:
+  /// **'At the end'**
+  String get planPayoutAtMaturity;
+
+  /// No description provided for @planMaturesOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Matures on'**
+  String get planMaturesOn;
+
+  /// No description provided for @planMaturity.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid back at the end'**
+  String get planMaturity;
+
+  /// No description provided for @planEstimated.
+  ///
+  /// In en, this message translates to:
+  /// **'Estimated from the rate; tap to enter the bank\'s figure'**
+  String get planEstimated;
+
+  /// No description provided for @planHolding.
+  ///
+  /// In en, this message translates to:
+  /// **'In the deposit now'**
+  String get planHolding;
+
+  /// No description provided for @planEnds.
+  ///
+  /// In en, this message translates to:
+  /// **'Last installment'**
+  String get planEnds;
+
+  /// No description provided for @planTakeMaturity.
+  ///
+  /// In en, this message translates to:
+  /// **'Take the maturity, {amount}'**
+  String planTakeMaturity(String amount);
+
+  /// No description provided for @planRecordProfit.
+  ///
+  /// In en, this message translates to:
+  /// **'Record the profit, {amount}'**
+  String planRecordProfit(String amount);
+
+  /// No description provided for @planPayNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay installment {number} now, {amount}'**
+  String planPayNow(int number, String amount);
+
+  /// No description provided for @planDepositNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Make deposit {number} now, {amount}'**
+  String planDepositNow(int number, String amount);
+
+  /// No description provided for @planRecorded.
+  ///
+  /// In en, this message translates to:
+  /// **'Recorded.'**
+  String get planRecorded;
+
+  /// No description provided for @planSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved.'**
+  String get planSaved;
+
+  /// No description provided for @planPayOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay off early'**
+  String get planPayOff;
+
+  /// No description provided for @planEncash.
+  ///
+  /// In en, this message translates to:
+  /// **'Encash early'**
+  String get planEncash;
+
+  /// No description provided for @planPayOffTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay off {name}?'**
+  String planPayOffTitle(String name);
+
+  /// No description provided for @planPayOffHint.
+  ///
+  /// In en, this message translates to:
+  /// **'One payment for what is left, and the plan ends.'**
+  String get planPayOffHint;
+
+  /// No description provided for @planPayOffLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay what is left, {amount}'**
+  String planPayOffLeft(String amount);
+
+  /// No description provided for @planPayOffOther.
+  ///
+  /// In en, this message translates to:
+  /// **'The lender quoted a different amount'**
+  String get planPayOffOther;
+
+  /// No description provided for @planEncashTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Encash {name}?'**
+  String planEncashTitle(String name);
+
+  /// No description provided for @planEncashBody.
+  ///
+  /// In en, this message translates to:
+  /// **'What is in the deposit goes back to its account, and the plan ends.'**
+  String get planEncashBody;
+
+  /// No description provided for @planEncashNoProfit.
+  ///
+  /// In en, this message translates to:
+  /// **'Encash, without profit'**
+  String get planEncashNoProfit;
+
+  /// No description provided for @planEncashWithProfit.
+  ///
+  /// In en, this message translates to:
+  /// **'Encash, with the profit the bank paid'**
+  String get planEncashWithProfit;
+
+  /// No description provided for @planEncashed.
+  ///
+  /// In en, this message translates to:
+  /// **'Encashed. The money is back in its account.'**
+  String get planEncashed;
+
+  /// No description provided for @planPaidOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid off.'**
+  String get planPaidOff;
+
+  /// No description provided for @planAutoCollect.
+  ///
+  /// In en, this message translates to:
+  /// **'Record by itself'**
+  String get planAutoCollect;
+
+  /// No description provided for @planAutoCollectHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Each installment, profit and maturity is recorded on its day'**
+  String get planAutoCollectHint;
+
+  /// No description provided for @planSchedule.
+  ///
+  /// In en, this message translates to:
+  /// **'SCHEDULE'**
+  String get planSchedule;
+
+  /// No description provided for @planDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this plan'**
+  String get planDelete;
+
+  /// No description provided for @planDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete {name}?'**
+  String planDeleteTitle(String name);
+
+  /// No description provided for @planDeleteBody.
+  ///
+  /// In en, this message translates to:
+  /// **'What it recorded stays in your transactions. Nothing more is recorded or reminded.'**
+  String get planDeleteBody;
+
+  /// No description provided for @planDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted.'**
+  String get planDeleted;
+
+  /// No description provided for @planEventInstallment.
+  ///
+  /// In en, this message translates to:
+  /// **'Installment {number} of {total}'**
+  String planEventInstallment(int number, int total);
+
+  /// No description provided for @planEventProfit.
+  ///
+  /// In en, this message translates to:
+  /// **'Profit, month {number}'**
+  String planEventProfit(int number);
+
+  /// No description provided for @planEventMaturity.
+  ///
+  /// In en, this message translates to:
+  /// **'Maturity'**
+  String get planEventMaturity;
+
+  /// No description provided for @planEventDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get planEventDone;
+
+  /// No description provided for @planEventLate.
+  ///
+  /// In en, this message translates to:
+  /// **'Overdue'**
+  String get planEventLate;
+
+  /// No description provided for @planEventUpcoming.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming'**
+  String get planEventUpcoming;
+
+  /// No description provided for @planNeedAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose an account first.'**
+  String get planNeedAccount;
+
+  /// No description provided for @planCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Started. Anything already due has been recorded.'**
+  String get planCreated;
+
+  /// No description provided for @planSummaryInstallments.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} × {installment} = {total}, of which {interest} is interest and charges.'**
+  String planSummaryInstallments(
+    int count,
+    String installment,
+    String total,
+    String interest,
+  );
+
+  /// No description provided for @planSummaryDps.
+  ///
+  /// In en, this message translates to:
+  /// **'You put in {deposited} and get back about {maturity} on {date}.'**
+  String planSummaryDps(String deposited, String maturity, String date);
+
+  /// No description provided for @planSummaryFdr.
+  ///
+  /// In en, this message translates to:
+  /// **'{principal} grows to about {maturity} by {date}.'**
+  String planSummaryFdr(String principal, String maturity, String date);
+
+  /// No description provided for @planSummaryFdrMonthly.
+  ///
+  /// In en, this message translates to:
+  /// **'{profit} profit every month, and {principal} back on {date}.'**
+  String planSummaryFdrMonthly(String profit, String principal, String date);
+
+  /// No description provided for @planNewKind.
+  ///
+  /// In en, this message translates to:
+  /// **'New {kind}'**
+  String planNewKind(String kind);
+
+  /// No description provided for @planName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get planName;
+
+  /// No description provided for @planNameHintEmi.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Phone from Daraz'**
+  String get planNameHintEmi;
+
+  /// No description provided for @planNameHintLoan.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Bike loan'**
+  String get planNameHintLoan;
+
+  /// No description provided for @planNameHintDps.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Brac DPS'**
+  String get planNameHintDps;
+
+  /// No description provided for @planNameHintFdr.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. City Bank FDR'**
+  String get planNameHintFdr;
+
+  /// No description provided for @planHowMany.
+  ///
+  /// In en, this message translates to:
+  /// **'How many'**
+  String get planHowMany;
+
+  /// No description provided for @planTerm.
+  ///
+  /// In en, this message translates to:
+  /// **'Term'**
+  String get planTerm;
+
+  /// No description provided for @planOpenedOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Opened on'**
+  String get planOpenedOn;
+
+  /// No description provided for @planFirstDue.
+  ///
+  /// In en, this message translates to:
+  /// **'First installment'**
+  String get planFirstDue;
+
+  /// No description provided for @planCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get planCategory;
+
+  /// No description provided for @planCategoryDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Loan Payment'**
+  String get planCategoryDefault;
+
+  /// No description provided for @planLoanReceived.
+  ///
+  /// In en, this message translates to:
+  /// **'Money received into this account'**
+  String get planLoanReceived;
+
+  /// No description provided for @planLoanReceivedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Off if it went straight to a seller'**
+  String get planLoanReceivedHint;
+
+  /// No description provided for @planStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get planStart;
 
   /// No description provided for @aiActionDeleteNote.
   ///

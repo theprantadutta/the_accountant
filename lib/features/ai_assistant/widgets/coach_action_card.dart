@@ -25,6 +25,7 @@ class CoachToolStatus extends StatelessWidget {
       ),
       'list_categories' => (Symbols.category_rounded, l10n.aiToolCategories),
       'card_bills' => (Symbols.credit_card_rounded, l10n.aiToolCards),
+      'list_plans' => (Symbols.event_repeat_rounded, l10n.aiToolPlans),
       _ => (Symbols.edit_note_rounded, l10n.aiToolSaving),
     };
 
@@ -82,14 +83,24 @@ class CoachActionCard extends StatelessWidget {
       CoachActionKind.delete => l10n.aiActionDeleteTitle,
       CoachActionKind.payCard => l10n.aiActionPayCardTitle,
       CoachActionKind.cardSettings => l10n.aiActionCardSettingsTitle,
+      CoachActionKind.createPlan => l10n.aiActionCreatePlanTitle,
+      CoachActionKind.payPlan => l10n.aiActionPayPlanTitle,
+      CoachActionKind.closePlan => l10n.aiActionClosePlanTitle,
+      CoachActionKind.updatePlan => l10n.aiActionUpdatePlanTitle,
     };
     final showsChanges =
         action.kind == CoachActionKind.update ||
-        action.kind == CoachActionKind.cardSettings;
+        action.kind == CoachActionKind.cardSettings ||
+        action.kind == CoachActionKind.updatePlan;
     final amount = switch (action.kind) {
-      CoachActionKind.cardSettings => '',
+      CoachActionKind.cardSettings || CoachActionKind.updatePlan => '',
       // Money moving between the user's own accounts has no sign.
-      CoachActionKind.payCard => action.amount.formatCurrency(action.currency),
+      CoachActionKind.payCard ||
+      CoachActionKind.createPlan ||
+      CoachActionKind.payPlan ||
+      CoachActionKind.closePlan => action.amount.formatCurrency(
+        action.currency,
+      ),
       _ =>
         '${action.isIncome ? '+' : '−'}${action.amount.formatCurrency(action.currency)}',
     };
@@ -102,6 +113,19 @@ class CoachActionCard extends StatelessWidget {
       'statement_day' => l10n.cardStatementDay,
       'due_day' => l10n.cardDueDay,
       'remind' => l10n.aiActionRemindDays,
+      'installments' => l10n.planInstallment,
+      'total' => l10n.planTotal,
+      'term' => l10n.planTerm,
+      'principal' => l10n.planPrice,
+      'rate' => l10n.planRate,
+      'maturity' => l10n.planMaturity,
+      'payout' => l10n.planPayout,
+      'auto_collect' => l10n.planAutoCollect,
+      'which' => l10n.planProgress,
+      'due' => l10n.aiActionDate,
+      'held' => l10n.planHolding,
+      'profit' => l10n.planEventMaturity,
+      'left' => l10n.planLeft,
       'amount' => l10n.aiActionAmount,
       'kind' => l10n.aiActionKind,
       'title' => l10n.aiActionTitle,
@@ -184,7 +208,10 @@ class CoachActionCard extends StatelessWidget {
             SunriseButton(
               label: switch (action.kind) {
                 CoachActionKind.add => l10n.aiActionAdd,
-                CoachActionKind.payCard => l10n.aiActionPay,
+                CoachActionKind.payCard ||
+                CoachActionKind.payPlan => l10n.aiActionPay,
+                CoachActionKind.createPlan => l10n.planStart,
+                CoachActionKind.closePlan => l10n.aiActionClosePlan,
                 _ => l10n.aiActionSave,
               },
               onPressed: onConfirm,

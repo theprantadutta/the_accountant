@@ -383,12 +383,14 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
       WalletType.bankAccount => 'Bank Account',
       WalletType.creditCard => 'Credit Card',
       WalletType.subscription => 'Subscription',
+      WalletType.deposit => 'Deposit',
     };
     IconData typeIcon(WalletType t) => switch (t) {
       WalletType.cash => Symbols.payments_rounded,
       WalletType.bankAccount => Symbols.account_balance_rounded,
       WalletType.creditCard => Symbols.credit_card_rounded,
       WalletType.subscription => Symbols.autorenew_rounded,
+      WalletType.deposit => Symbols.savings_rounded,
     };
 
     return Form(
@@ -423,7 +425,7 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
             scrollDirection: Axis.horizontal,
             child: Row(
               children: [
-                for (final type in WalletType.values) ...[
+                for (final type in WalletType.creatable) ...[
                   SunriseChip(
                     label: typeLabel(type),
                     icon: typeIcon(type),

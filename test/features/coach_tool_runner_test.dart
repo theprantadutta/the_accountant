@@ -284,7 +284,8 @@ void main() {
       );
 
       // Nothing has happened until it is confirmed.
-      var bill = ((await read('card_bills', {}))['cards'] as List).single as Map;
+      var bill =
+          ((await read('card_bills', {}))['cards'] as List).single as Map;
       expect(bill['left_to_pay'], 15000.0);
 
       final done = jsonDecode(await plan.execute!()) as Map;
@@ -325,6 +326,82 @@ void main() {
         CoachToolCall('c5', 'set_card_schedule', {'statement_day': 40}),
       );
       expect(bad.error, contains('1 to 31'));
+    });
+  });
+
+  group('EMI, loans, DPS and FDR', () {
+    Future<CoachPlan> plan(String name, Map<String, dynamic> args) =>
+        runner.plan(CoachToolCall('p1', name, args));
+
+    test('starts an EMI worked out from the price, then pays and closes it', () async {
+      final created = await plan('create_plan', {
+        'kind': 'emi',
+        'name': 'Phone',
+        'account': 'Bkash',
+        'amount': 60000,
+        'installments': 12,
+        'start_date': '2099-01-10',
+      });
+      expect(created.error, isNull);
+      expect(created.preview!.kind, CoachActionKind.createPlan);
+      expect(created.preview!.amount, 500000); // 60,000 / 12, no rate
+      final done = jsonDecode(await created.execute!()) as Map;
+      expect(done['status'], 'done');
+
+      final listed = (await read('list_plans', {}))['plans'] as List;
+      final phone = listed.single as Map;
+      expect(phone['kind'], 'emi');
+      expect(phone['installments'], 12);
+      expect(phone['installments_done'], 0);
+      expect(phone['remaining'], 60000.0);
+
+      // Not until it is confirmed.
+      final pay = await plan('pay_plan', {'plan': 'Phone'});
+      expect(pay.preview!.amount, 500000);
+      expect(((await read('list_plans', {}))['plans'] as List).single['installments_done'], 0);
+      await pay.execute!();
+      final after = ((await read('list_plans', {}))['plans'] as List).single as Map;
+      expect(after['installments_done'], 1);
+      expect(after['remaining'], 55000.0);
+
+      final close = await plan('close_plan', {'plan': 'Phone'});
+      expect(close.preview!.amount, 5500000);
+      await close.execute!();
+      final closed = ((await read('list_plans', {}))['plans'] as List).single as Map;
+      expect(closed['status'], 'closed');
+    });
+
+    test('a DPS gets its maturity from the rate, and a second of the same name is refused', () async {
+      final dps = await plan('create_plan', {
+        'kind': 'dps',
+        'name': 'Brac DPS',
+        'account': 'Brac Bank',
+        'installment_amount': 1000,
+        'installments': 12,
+        'rate': 6,
+        'start_date': '2099-01-10',
+      });
+      expect(dps.error, isNull);
+      await dps.execute!();
+      final row = ((await read('list_plans', {'kind': 'dps'}))['plans'] as List).single as Map;
+      expect(row['maturity_amount'], greaterThan(12000));
+
+      final again = await plan('create_plan', {
+        'kind': 'dps',
+        'name': 'brac dps',
+        'installment_amount': 1000,
+        'installments': 12,
+      });
+      expect(again.error, contains('already running'));
+    });
+
+    test('an FDR needs its amount', () async {
+      final bad = await plan('create_plan', {
+        'kind': 'fdr',
+        'name': 'FDR',
+        'installments': 12,
+      });
+      expect(bad.error, contains('amount'));
     });
   });
 }

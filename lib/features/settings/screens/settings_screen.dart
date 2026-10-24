@@ -1,4 +1,5 @@
 import 'package:the_accountant/features/cards/screens/card_bills_screen.dart';
+import 'package:the_accountant/features/plans/screens/plans_screen.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -328,6 +329,28 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           title: l10n.settingsUpcomingAndOverdue,
           subtitle: l10n.settingsWhatIsDueAndWhat,
           onTap: () => _push(const UpcomingTransactionsScreen()),
+        ),
+      ),
+      _Entry(
+        title: l10n.plansTitle,
+        keywords: const [
+          'emi',
+          'loan',
+          'dps',
+          'fdr',
+          'installment',
+          'deposit',
+          'savings',
+          'sanchayapatra',
+        ],
+        row: SettingsRow(
+          key: const Key('more_plans'),
+          icon: Symbols.event_repeat_rounded,
+          iconColor: const Color(0xFF0EA5E9),
+          iconBackground: c.tintSky,
+          title: l10n.plansTitle,
+          subtitle: l10n.plansSubtitle,
+          onTap: () => _push(const PlansScreen()),
         ),
       ),
       _Entry(

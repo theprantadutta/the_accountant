@@ -26,6 +26,8 @@ class SyncEntityOrder {
     // After budgets and categories: a limit points at both.
     'category_budget_limits',
     'objectives',
+    // After wallets and categories; before transactions, which point at it.
+    'plans',
     'transactions',
     'recurring_configs',
   ];

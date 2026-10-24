@@ -11,6 +11,7 @@ import 'package:the_accountant/core/services/sync/sync_transport.dart';
 import 'package:the_accountant/core/services/wallet_balance_service.dart';
 import 'package:the_accountant/features/transactions/services/transfer_service.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
+import 'package:the_accountant/data/models/plan.dart';
 import 'package:the_accountant/data/models/wallet.dart' show WalletType;
 import 'package:the_accountant/data/models/transaction.dart'
     show TransactionSpecialType, TransactionType;
@@ -618,6 +619,7 @@ class SyncService {
       'budgets',
       'category_budget_limits',
       'objectives',
+      'plans',
       'transactions',
       'recurring_configs',
     ];
@@ -648,6 +650,7 @@ class SyncService {
       'budgets': await _getPendingBudgetChanges(),
       'category_budget_limits': await _getPendingCategoryLimitChanges(),
       'objectives': await _getPendingObjectiveChanges(),
+      'plans': await _getPendingPlanChanges(),
       'transactions': await _getPendingTransactionChanges(),
       'recurring_configs': await _getPendingRecurringConfigChanges(),
     };
@@ -980,6 +983,9 @@ class SyncService {
         return null;
 
       case 'objectives':
+        return _liveWallet(data['WalletId'] as String?);
+
+      case 'plans':
         return _liveWallet(data['WalletId'] as String?);
 
       case 'budgets':
@@ -1404,6 +1410,21 @@ class SyncService {
     return changes;
   }
 
+  Future<List<SyncChange>> _getPendingPlanChanges() async {
+    final records = await (_database.select(
+      _database.plans,
+    )..where((p) => p.syncStatus.isBiggerThanValue(0))).get();
+    return [
+      for (final r in records)
+        SyncChange(
+          tableName: 'plans',
+          entityId: r.id,
+          operation: _getOperationFromStatus(r.syncStatus),
+          data: _planToMap(r),
+        ),
+    ];
+  }
+
   Future<List<SyncChange>> _getPendingPaymentMethodChanges() async {
     final changes = <SyncChange>[];
     final records = await (_database.select(
@@ -1467,6 +1488,8 @@ class SyncService {
         return _applyAssociatedTitleChange(change, effects);
       case 'objectives':
         return _applyObjectiveChange(change, effects);
+      case 'plans':
+        return _applyPlanChange(change, effects);
       case 'payment_methods':
         return _applyPaymentMethodChange(change, effects);
       case 'recurring_configs':
@@ -1550,6 +1573,13 @@ class SyncService {
       // back into income on this device.
       settlesTransactionId: data.containsKey('SettlesTransactionId')
           ? Value(data['SettlesTransactionId'] as String?)
+          : const Value.absent(),
+      // Absent from a server that predates plans; keep the local link then.
+      planId: data.containsKey('PlanId')
+          ? Value(data['PlanId'] as String?)
+          : const Value.absent(),
+      planInstallment: data.containsKey('PlanInstallment')
+          ? Value((data['PlanInstallment'] as num?)?.toInt())
           : const Value.absent(),
       recurringConfigId: Value(data['RecurringConfigId']),
       occurrenceKey: Value(data['OccurrenceKey'] as String?),
@@ -2021,6 +2051,84 @@ class SyncService {
     return true;
   }
 
+  Future<bool> _applyPlanChange(
+    SyncChange change,
+    _PulledEffects effects,
+  ) async {
+    final existing = await (_database.select(
+      _database.plans,
+    )..where((p) => p.id.equals(change.entityId))).getSingleOrNull();
+
+    if (change.operation == 'delete') {
+      if (existing == null ||
+          _alreadyDeleted(existing.deletedAt, existing.syncStatus)) {
+        return false;
+      }
+      await (_database.update(
+        _database.plans,
+      )..where((p) => p.id.equals(change.entityId))).write(
+        PlansCompanion(
+          deletedAt: Value(DateTime.now()),
+          syncStatus: const Value(SyncStatus.synced),
+        ),
+      );
+      return true;
+    }
+
+    final rawData = change.data;
+    if (rawData == null) return false;
+    final data = _normalizeKeys(rawData);
+    T pick<T extends Enum>(List<T> values, Object? index) {
+      final i = (index as num?)?.toInt() ?? 0;
+      return values[i < 0 || i >= values.length ? 0 : i];
+    }
+
+    DateTime? date(Object? raw) =>
+        raw is String ? DateTime.parse(raw).toLocal() : null;
+
+    final companion = PlansCompanion(
+      id: Value(change.entityId),
+      kind: Value(pick(PlanKind.values, data['Kind'])),
+      name: Value(data['Name'] as String? ?? ''),
+      walletId: Value(data['WalletId'] as String),
+      holdingWalletId: Value(data['HoldingWalletId'] as String?),
+      categoryId: Value(data['CategoryId'] as String?),
+      principal: Value((data['Principal'] as num?)?.toInt() ?? 0),
+      installmentAmount: Value(
+        (data['InstallmentAmount'] as num?)?.toInt() ?? 0,
+      ),
+      installmentCount: Value((data['InstallmentCount'] as num?)?.toInt() ?? 1),
+      frequency: Value(pick(PlanFrequency.values, data['Frequency'])),
+      interval: Value((data['Interval'] as num?)?.toInt() ?? 1),
+      startDate: Value(date(data['StartDate']) ?? DateTime.now()),
+      interestRate: Value((data['InterestRate'] as num?)?.toDouble()),
+      maturityAmount: Value((data['MaturityAmount'] as num?)?.toInt()),
+      payout: Value(pick(PlanPayout.values, data['Payout'])),
+      autoCollect: Value(data['AutoCollect'] as bool? ?? true),
+      reminderDaysBefore: Value(
+        (data['ReminderDaysBefore'] as num?)?.toInt() ?? 3,
+      ),
+      status: Value(pick(PlanStatus.values, data['Status'])),
+      closedAt: Value(date(data['ClosedAt'])),
+      notes: Value(data['Notes'] as String?),
+      syncStatus: const Value(SyncStatus.synced),
+      updatedAt: Value(DateTime.now()),
+    );
+
+    if (existing != null) {
+      if (_wouldNotChange(existing, companion)) {
+        effects.confirm('plans', change.entityId);
+        return false;
+      }
+      await (_database.update(
+        _database.plans,
+      )..where((p) => p.id.equals(change.entityId))).write(companion);
+    } else {
+      await _database.into(_database.plans).insert(companion);
+    }
+    return true;
+  }
+
   Future<bool> _applyPaymentMethodChange(
     SyncChange change,
     _PulledEffects effects,
@@ -2322,6 +2430,8 @@ class SyncService {
     'PairedTransactionId': t.pairedTransactionId,
     'FeeForTransactionId': t.feeForTransactionId,
     'SettlesTransactionId': t.settlesTransactionId,
+    'PlanId': t.planId,
+    'PlanInstallment': t.planInstallment,
     'RecurringConfigId': t.recurringConfigId,
     // Deterministic key for a generated recurrence occurrence. The server has a
     // matching uniqueness constraint, so two offline devices that generated the
@@ -2418,6 +2528,29 @@ class SyncService {
     'IsPinned': o.isPinned,
     'IsArchived': o.isArchived,
     'UpdatedAt': o.updatedAt.toUtc().toIso8601String(),
+  };
+
+  Map<String, dynamic> _planToMap(Plan p) => {
+    'Kind': p.kind.index,
+    'Name': p.name,
+    'WalletId': p.walletId,
+    'HoldingWalletId': p.holdingWalletId,
+    'CategoryId': p.categoryId,
+    'Principal': p.principal,
+    'InstallmentAmount': p.installmentAmount,
+    'InstallmentCount': p.installmentCount,
+    'Frequency': p.frequency.index,
+    'Interval': p.interval,
+    'StartDate': p.startDate.toUtc().toIso8601String(),
+    'InterestRate': p.interestRate,
+    'MaturityAmount': p.maturityAmount,
+    'Payout': p.payout.index,
+    'AutoCollect': p.autoCollect,
+    'ReminderDaysBefore': p.reminderDaysBefore,
+    'Status': p.status.index,
+    'ClosedAt': p.closedAt?.toUtc().toIso8601String(),
+    'Notes': p.notes,
+    'UpdatedAt': p.updatedAt.toUtc().toIso8601String(),
   };
 
   Map<String, dynamic> _paymentMethodToMap(PaymentMethod p) => {

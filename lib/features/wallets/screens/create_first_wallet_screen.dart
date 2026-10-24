@@ -159,19 +159,21 @@ class _CreateFirstWalletScreenState
                   height: 40,
                   child: ListView(
                     scrollDirection: Axis.horizontal,
-                    children: WalletType.values.map((type) {
+                    children: WalletType.creatable.map((type) {
                       final isSelected = _walletType == type;
                       final label = switch (type) {
                         WalletType.cash => 'Cash',
                         WalletType.bankAccount => 'Bank Account',
                         WalletType.creditCard => 'Credit Card',
                         WalletType.subscription => 'Subscription',
+                        WalletType.deposit => 'Deposit',
                       };
                       final icon = switch (type) {
                         WalletType.cash => Icons.wallet,
                         WalletType.bankAccount => Icons.account_balance,
                         WalletType.creditCard => Icons.credit_card,
                         WalletType.subscription => Icons.subscriptions,
+                        WalletType.deposit => Icons.savings,
                       };
                       return Padding(
                         padding: EdgeInsets.only(right: AppSpacing.sm),

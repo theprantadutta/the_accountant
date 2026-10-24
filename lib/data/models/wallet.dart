@@ -13,6 +13,13 @@ enum WalletType {
 
   /// Subscription grouping wallet
   subscription,
+
+  /// Where a DPS or FDR keeps its money. Made by the plan, not by hand, and
+  /// not offered when adding a transaction.
+  deposit;
+
+  /// The types someone can choose when making an account by hand.
+  static const creatable = [cash, bankAccount, creditCard, subscription];
 }
 
 /// Wallets table for managing multiple accounts/wallets

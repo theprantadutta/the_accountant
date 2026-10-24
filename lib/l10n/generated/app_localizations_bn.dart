@@ -3325,6 +3325,9 @@ class L10nBn extends L10n {
   String get aiToolCards => 'কার্ডের বিল দেখা হচ্ছে…';
 
   @override
+  String get aiToolPlans => 'ইএমআই ও সঞ্চয় দেখা হচ্ছে…';
+
+  @override
   String get aiToolSaving => 'সংরক্ষণ করা হচ্ছে…';
 
   @override
@@ -3343,6 +3346,21 @@ class L10nBn extends L10n {
   String get aiActionCardSettingsTitle => 'কার্ডের তারিখ বদলানো';
 
   @override
+  String get aiActionCreatePlanTitle => 'পরিকল্পনা শুরু';
+
+  @override
+  String get aiActionPayPlanTitle => 'পরিকল্পনার কিস্তি লেখা';
+
+  @override
+  String get aiActionClosePlanTitle => 'পরিকল্পনা আগেই শেষ';
+
+  @override
+  String get aiActionUpdatePlanTitle => 'পরিকল্পনা বদলানো';
+
+  @override
+  String get aiActionClosePlan => 'শেষ করুন';
+
+  @override
   String get aiActionFrom => 'থেকে';
 
   @override
@@ -3359,6 +3377,387 @@ class L10nBn extends L10n {
 
   @override
   String get aiActionPay => 'পরিশোধ';
+
+  @override
+  String get plansTitle => 'ইএমআই, ঋণ ও সঞ্চয়';
+
+  @override
+  String get plansSubtitle =>
+      'ইএমআই, ঋণ, ডিপিএস ও এফডিআর, সময়মতো পরিশোধ ও জমা';
+
+  @override
+  String get planNew => 'নতুন পরিকল্পনা';
+
+  @override
+  String get planNewTitle => 'কী শুরু করছেন?';
+
+  @override
+  String get plansEmptyTitle => 'এখনো কোনো ইএমআই, ঋণ বা সঞ্চয় নেই';
+
+  @override
+  String get plansEmptyBody =>
+      'কিস্তিতে কেনা জিনিস, ঋণ, ডিপিএস বা এফডিআর রাখুন। প্রতিটি কিস্তি তার দিনে লেখা হবে, আর আগেই মনে করিয়ে দেওয়া হবে।';
+
+  @override
+  String get plansEnded => 'শেষ হয়েছে';
+
+  @override
+  String get planKindEmi => 'ইএমআই';
+
+  @override
+  String get planKindLoan => 'ঋণ';
+
+  @override
+  String get planKindDps => 'ডিপিএস';
+
+  @override
+  String get planKindFdr => 'এফডিআর';
+
+  @override
+  String get planKindEmiHint =>
+      'কিস্তিতে কেনা কিছু, নগদ, ব্যাংক অ্যাকাউন্ট বা কার্ড থেকে পরিশোধ';
+
+  @override
+  String get planKindLoanHint => 'ধার নেওয়া টাকা, সুদসহ কিস্তিতে ফেরত';
+
+  @override
+  String get planKindDpsHint =>
+      'নির্দিষ্ট সময় ধরে প্রতি মাসে নির্দিষ্ট টাকা জমা, শেষে মুনাফাসহ ফেরত';
+
+  @override
+  String get planKindFdrHint =>
+      'নির্দিষ্ট সময়ের জন্য একটি টাকা রাখা, মুনাফা মাসে মাসে বা শেষে। সঞ্চয়পত্রও এভাবেই';
+
+  @override
+  String get planWeekly => 'সাপ্তাহিক';
+
+  @override
+  String get planMonthly => 'মাসিক';
+
+  @override
+  String get planYearly => 'বার্ষিক';
+
+  @override
+  String get planMonths => 'মাস';
+
+  @override
+  String get planYears => 'বছর';
+
+  @override
+  String planFdrLine(String amount, String date) {
+    return '$date পর্যন্ত $amount';
+  }
+
+  @override
+  String planSavedLine(String saved, String total) {
+    return '$total এর মধ্যে $saved জমা';
+  }
+
+  @override
+  String planPaidLine(String paid, String total) {
+    return '$total এর মধ্যে $paid পরিশোধ';
+  }
+
+  @override
+  String planNextLine(String amount, String date) {
+    return 'পরের: $date এ $amount';
+  }
+
+  @override
+  String get planStatusCompleted => 'সম্পন্ন';
+
+  @override
+  String get planStatusClosed => 'বন্ধ';
+
+  @override
+  String get planStatusOverdue => 'সময় পেরিয়েছে';
+
+  @override
+  String get planStatusRunning => 'চলছে';
+
+  @override
+  String planInstallmentsDone(int done, int total) {
+    return '$total এর $done';
+  }
+
+  @override
+  String get planGone => 'এই পরিকল্পনাটি মুছে ফেলা হয়েছে।';
+
+  @override
+  String get planAccount => 'অ্যাকাউন্ট';
+
+  @override
+  String get planAccountEmi => 'যেখান থেকে পরিশোধ';
+
+  @override
+  String get planAccountLoan => 'যেখানে পেয়েছেন ও যেখান থেকে পরিশোধ';
+
+  @override
+  String get planAccountSaving => 'যে অ্যাকাউন্ট থেকে';
+
+  @override
+  String get planPrice => 'দাম';
+
+  @override
+  String get planBorrowed => 'ধারের পরিমাণ';
+
+  @override
+  String get planDeposited => 'জমার পরিমাণ';
+
+  @override
+  String get planDeposit => 'প্রতি জমা';
+
+  @override
+  String get planInstallment => 'প্রতি কিস্তি';
+
+  @override
+  String get planWorkedOut => 'দাম, হার ও মেয়াদ থেকে হিসাব করা';
+
+  @override
+  String get planProgress => 'হয়েছে';
+
+  @override
+  String get planSavedSoFar => 'এখন পর্যন্ত জমা';
+
+  @override
+  String get planPaidSoFar => 'এখন পর্যন্ত পরিশোধ';
+
+  @override
+  String get planLeft => 'বাকি';
+
+  @override
+  String get planTotal => 'মোট';
+
+  @override
+  String get planInterestCharges => 'সুদ ও চার্জ';
+
+  @override
+  String get planRate => 'হার';
+
+  @override
+  String get planRateLabel => 'বার্ষিক হার %';
+
+  @override
+  String get planRateOptional => 'ঐচ্ছিক';
+
+  @override
+  String get planPayout => 'মুনাফা পাবেন';
+
+  @override
+  String get planPayoutMonthly => 'প্রতি মাসে';
+
+  @override
+  String get planPayoutAtMaturity => 'শেষে';
+
+  @override
+  String get planMaturesOn => 'মেয়াদ শেষ';
+
+  @override
+  String get planMaturity => 'শেষে ফেরত';
+
+  @override
+  String get planEstimated =>
+      'হার থেকে আনুমানিক; ব্যাংকের হিসাব দিতে ট্যাপ করুন';
+
+  @override
+  String get planHolding => 'এখন জমা আছে';
+
+  @override
+  String get planEnds => 'শেষ কিস্তি';
+
+  @override
+  String planTakeMaturity(String amount) {
+    return 'মেয়াদপূর্তির টাকা নিন, $amount';
+  }
+
+  @override
+  String planRecordProfit(String amount) {
+    return 'মুনাফা লিখুন, $amount';
+  }
+
+  @override
+  String planPayNow(int number, String amount) {
+    return '$number নম্বর কিস্তি এখন দিন, $amount';
+  }
+
+  @override
+  String planDepositNow(int number, String amount) {
+    return '$number নম্বর জমা এখন দিন, $amount';
+  }
+
+  @override
+  String get planRecorded => 'লেখা হয়েছে।';
+
+  @override
+  String get planSaved => 'সংরক্ষিত।';
+
+  @override
+  String get planPayOff => 'আগেই পুরো পরিশোধ';
+
+  @override
+  String get planEncash => 'আগেই ভাঙান';
+
+  @override
+  String planPayOffTitle(String name) {
+    return '$name পুরো পরিশোধ করবেন?';
+  }
+
+  @override
+  String get planPayOffHint => 'বাকিটা এক কিস্তিতে, তারপর পরিকল্পনা শেষ।';
+
+  @override
+  String planPayOffLeft(String amount) {
+    return 'বাকিটা দিন, $amount';
+  }
+
+  @override
+  String get planPayOffOther => 'ঋণদাতা অন্য পরিমাণ বলেছেন';
+
+  @override
+  String planEncashTitle(String name) {
+    return '$name ভাঙাবেন?';
+  }
+
+  @override
+  String get planEncashBody =>
+      'জমার টাকা তার অ্যাকাউন্টে ফিরে যাবে, আর পরিকল্পনা শেষ হবে।';
+
+  @override
+  String get planEncashNoProfit => 'মুনাফা ছাড়া ভাঙান';
+
+  @override
+  String get planEncashWithProfit => 'ব্যাংকের দেওয়া মুনাফাসহ ভাঙান';
+
+  @override
+  String get planEncashed => 'ভাঙানো হয়েছে। টাকা অ্যাকাউন্টে ফিরেছে।';
+
+  @override
+  String get planPaidOff => 'পুরো পরিশোধ হয়েছে।';
+
+  @override
+  String get planAutoCollect => 'নিজে থেকে লিখুন';
+
+  @override
+  String get planAutoCollectHint =>
+      'প্রতিটি কিস্তি, মুনাফা ও মেয়াদপূর্তি তার দিনে লেখা হবে';
+
+  @override
+  String get planSchedule => 'সময়সূচি';
+
+  @override
+  String get planDelete => 'এই পরিকল্পনা মুছুন';
+
+  @override
+  String planDeleteTitle(String name) {
+    return '$name মুছবেন?';
+  }
+
+  @override
+  String get planDeleteBody =>
+      'যা লেখা হয়েছে তা লেনদেনে থাকবে। আর কিছু লেখা বা মনে করানো হবে না।';
+
+  @override
+  String get planDeleted => 'মুছে ফেলা হয়েছে।';
+
+  @override
+  String planEventInstallment(int number, int total) {
+    return '$total এর $number নম্বর কিস্তি';
+  }
+
+  @override
+  String planEventProfit(int number) {
+    return 'মুনাফা, $number মাস';
+  }
+
+  @override
+  String get planEventMaturity => 'মেয়াদপূর্তি';
+
+  @override
+  String get planEventDone => 'হয়েছে';
+
+  @override
+  String get planEventLate => 'সময় পেরিয়েছে';
+
+  @override
+  String get planEventUpcoming => 'আসছে';
+
+  @override
+  String get planNeedAccount => 'আগে একটি অ্যাকাউন্ট বাছুন।';
+
+  @override
+  String get planCreated => 'শুরু হয়েছে। যা বকেয়া ছিল তা লেখা হয়েছে।';
+
+  @override
+  String planSummaryInstallments(
+    int count,
+    String installment,
+    String total,
+    String interest,
+  ) {
+    return '$count × $installment = $total, এর মধ্যে $interest সুদ ও চার্জ।';
+  }
+
+  @override
+  String planSummaryDps(String deposited, String maturity, String date) {
+    return 'আপনি দেবেন $deposited, $date এ ফেরত পাবেন প্রায় $maturity।';
+  }
+
+  @override
+  String planSummaryFdr(String principal, String maturity, String date) {
+    return '$principal বেড়ে $date এর মধ্যে প্রায় $maturity হবে।';
+  }
+
+  @override
+  String planSummaryFdrMonthly(String profit, String principal, String date) {
+    return 'প্রতি মাসে $profit মুনাফা, আর $date এ $principal ফেরত।';
+  }
+
+  @override
+  String planNewKind(String kind) {
+    return 'নতুন $kind';
+  }
+
+  @override
+  String get planName => 'নাম';
+
+  @override
+  String get planNameHintEmi => 'যেমন দারাজ থেকে ফোন';
+
+  @override
+  String get planNameHintLoan => 'যেমন বাইক লোন';
+
+  @override
+  String get planNameHintDps => 'যেমন ব্র্যাক ডিপিএস';
+
+  @override
+  String get planNameHintFdr => 'যেমন সিটি ব্যাংক এফডিআর';
+
+  @override
+  String get planHowMany => 'কতগুলো';
+
+  @override
+  String get planTerm => 'মেয়াদ';
+
+  @override
+  String get planOpenedOn => 'খোলার তারিখ';
+
+  @override
+  String get planFirstDue => 'প্রথম কিস্তি';
+
+  @override
+  String get planCategory => 'ক্যাটাগরি';
+
+  @override
+  String get planCategoryDefault => 'ঋণ পরিশোধ';
+
+  @override
+  String get planLoanReceived => 'টাকা এই অ্যাকাউন্টে এসেছে';
+
+  @override
+  String get planLoanReceivedHint => 'সরাসরি বিক্রেতার কাছে গেলে বন্ধ রাখুন';
+
+  @override
+  String get planStart => 'শুরু করুন';
 
   @override
   String get aiActionDeleteNote =>

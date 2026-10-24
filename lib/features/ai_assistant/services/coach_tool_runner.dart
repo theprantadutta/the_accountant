@@ -10,7 +10,11 @@ import 'package:the_accountant/features/ai_assistant/services/ai_api.dart';
 import 'package:the_accountant/features/ai_assistant/services/finance_context_builder.dart';
 import 'package:the_accountant/features/categories/providers/category_provider.dart'
     as cat;
+import 'package:the_accountant/data/models/plan.dart';
 import 'package:the_accountant/features/cards/domain/card_statement.dart';
+import 'package:the_accountant/features/plans/domain/plan_terms.dart';
+import 'package:the_accountant/features/plans/providers/plans_provider.dart';
+import 'package:the_accountant/features/plans/services/plan_service.dart';
 import 'package:the_accountant/features/transactions/providers/transaction_provider.dart'
     show transactionProvider;
 import 'package:the_accountant/features/transactions/providers/transfer_provider.dart'
@@ -30,6 +34,18 @@ enum CoachActionKind {
 
   /// A card's statement day, due day or reminder changed.
   cardSettings,
+
+  /// An EMI, loan, DPS or FDR started.
+  createPlan,
+
+  /// A plan's next installment, profit or maturity recorded.
+  payPlan,
+
+  /// A plan paid off or encashed early.
+  closePlan,
+
+  /// A plan's name, reminder or collection changed.
+  updatePlan,
 }
 
 /// A change the coach wants to make, as the user is shown it before it happens.
@@ -101,6 +117,10 @@ class CoachToolRunner {
     'delete_transaction',
     'pay_card_bill',
     'set_card_schedule',
+    'create_plan',
+    'pay_plan',
+    'close_plan',
+    'update_plan',
   };
 
   static const _maxResults = 50;
@@ -124,6 +144,7 @@ class CoachToolRunner {
         'list_accounts' => await _accounts(),
         'list_categories' => _categories(call.args),
         'card_bills' => await _cardBills(call.args),
+        'list_plans' => await _plans(call.args),
         _ => _error('There is no tool called ${call.name}.'),
       };
     } on _ToolError catch (e) {
@@ -143,6 +164,10 @@ class CoachToolRunner {
         'delete_transaction' => await _planDelete(call.args),
         'pay_card_bill' => await _planPayCard(call.args),
         'set_card_schedule' => _planCardSchedule(call.args),
+        'create_plan' => await _planCreatePlan(call.args),
+        'pay_plan' => await _planPayPlan(call.args),
+        'close_plan' => await _planClosePlan(call.args),
+        'update_plan' => await _planUpdatePlan(call.args),
         _ => CoachPlan.failed(_error('There is no tool called ${call.name}.')),
       };
     } on _ToolError catch (e) {
@@ -310,6 +335,7 @@ class CoachToolRunner {
               WalletType.bankAccount => 'bank_account',
               WalletType.creditCard => 'credit_card',
               WalletType.subscription => 'subscription',
+              WalletType.deposit => 'deposit',
             },
             'currency': w.currency,
             'balance': (w.balance) / 100,
@@ -538,9 +564,7 @@ class CoachToolRunner {
   );
 
   Future<String> _cardBills(Map<String, dynamic> args) async {
-    final cards = args['account'] is String
-        ? [_card(args['account'])]
-        : _cards;
+    final cards = args['account'] is String ? [_card(args['account'])] : _cards;
     String status(CardBillStatus s) => switch (s) {
       CardBillStatus.notSetUp => 'dates_not_set',
       CardBillStatus.nothingDue => 'nothing_due',
@@ -687,13 +711,14 @@ class CoachToolRunner {
     final changes = <String, (String, String)>{
       if (statement != card.billingCycleDay)
         'statement_day': (d(card.billingCycleDay), d(statement)),
-      if (due != card.paymentDueDay)
-        'due_day': (d(card.paymentDueDay), d(due)),
+      if (due != card.paymentDueDay) 'due_day': (d(card.paymentDueDay), d(due)),
       if (remind != card.dueReminderDays)
         'remind': (d(card.dueReminderDays), d(remind)),
     };
     if (changes.isEmpty) {
-      throw _ToolError('Nothing would change; the card is already set that way.');
+      throw _ToolError(
+        'Nothing would change; the card is already set that way.',
+      );
     }
 
     final preview = CoachActionPreview(
@@ -714,6 +739,364 @@ class CoachToolRunner {
       );
       return jsonEncode({'status': 'done'});
     });
+  }
+
+  // ----------------------------------------------------- EMI, loans, DPS, FDR
+
+  PlanService get _planService => _read(planServiceProvider);
+
+  static PlanKind? _planKind(Object? v) =>
+      switch ((v as String?)?.toLowerCase()) {
+        'emi' => PlanKind.emi,
+        'loan' => PlanKind.loan,
+        'dps' => PlanKind.dps,
+        'fdr' || 'savings_certificate' || 'sanchayapatra' => PlanKind.fdr,
+        _ => null,
+      };
+
+  static PlanFrequency _planFrequency(Object? v) =>
+      switch ((v as String?)?.toLowerCase()) {
+        'weekly' => PlanFrequency.weekly,
+        'yearly' || 'years' => PlanFrequency.yearly,
+        _ => PlanFrequency.monthly,
+      };
+
+  /// The plan a call names, by id or by name; never a guess between several.
+  Future<Plan> _planNamed(Object? ref) async {
+    final plans = await _planService.allPlans();
+    if (ref is! String || ref.trim().isEmpty) {
+      throw _ToolError('Which plan? Use list_plans to find its id or name.');
+    }
+    final byId = plans.where((p) => p.id == ref).firstOrNull;
+    if (byId != null) return byId;
+    final match = _byName(plans, ref, (p) => p.name);
+    if (match != null) return match;
+    throw _ToolError(
+      'No plan is called "$ref". The plans are: '
+      '${plans.map((p) => p.name).join(', ')}.',
+    );
+  }
+
+  Future<String> _plans(Map<String, dynamic> args) async {
+    final kind = _planKind(args['kind']);
+    final wallets = _wallets();
+    final rows = <Map<String, Object?>>[];
+    for (final plan in await _planService.allPlans()) {
+      if (kind != null && plan.kind != kind) continue;
+      final p = await _planService.progressOf(plan);
+      final next = p.next;
+      rows.add({
+        'id': plan.id,
+        'kind': plan.kind.name,
+        'name': plan.name,
+        'account': wallets[plan.walletId]?.name,
+        'currency': wallets[plan.walletId]?.currency,
+        'status': plan.status.name,
+        if (plan.kind != PlanKind.fdr) ...{
+          'installment_amount': plan.installmentAmount / 100,
+          'installments': plan.installmentCount,
+          'frequency': plan.frequency.name,
+          'installments_done': p.installmentsDone,
+          'paid_so_far': p.paidSoFar / 100,
+          'remaining': p.remaining / 100,
+          'total_payable': p.totalPayable / 100,
+        },
+        if (plan.principal > 0) 'principal': plan.principal / 100,
+        if (plan.interestRate != null) 'rate': plan.interestRate,
+        if (plan.kind == PlanKind.fdr) 'payout': plan.payout.name,
+        'start_date': _date8(plan.startDate),
+        'end_date': _date8(PlanDates.endOf(plan)),
+        if (plan.kind == PlanKind.dps || plan.kind == PlanKind.fdr) ...{
+          'maturity_amount': p.events.last.amount / 100,
+          'held_now': (wallets[plan.holdingWalletId]?.balance ?? 0) / 100,
+        },
+        if (next != null)
+          'next': {
+            'number': next.number,
+            'type': next.type.name,
+            'date': _date8(next.date),
+            'amount': next.amount / 100,
+          },
+        'auto_collect': plan.autoCollect,
+        'remind_days_before': plan.reminderDaysBefore,
+      });
+    }
+    return jsonEncode({'plans': rows});
+  }
+
+  Future<CoachPlan> _planCreatePlan(Map<String, dynamic> args) async {
+    final kind =
+        _planKind(args['kind']) ??
+        (throw _ToolError('kind must be emi, loan, dps or fdr.'));
+    final name = (args['name'] as String?)?.trim() ?? '';
+    if (name.isEmpty) throw _ToolError('name is required.');
+    final existing = (await _planService.allPlans()).where(
+      (p) =>
+          p.status == PlanStatus.active &&
+          p.name.toLowerCase() == name.toLowerCase(),
+    );
+    if (existing.isNotEmpty) {
+      throw _ToolError('A plan called "$name" is already running; use it.');
+    }
+
+    final wallet = args['account'] is String
+        ? _wallet(args['account'] as String)
+        : kind == PlanKind.dps || kind == PlanKind.fdr
+        ? (_selectableWallets
+                  .where((w) => w.walletType == WalletType.bankAccount)
+                  .firstOrNull ??
+              _defaultWallet())
+        : _defaultWallet();
+    if (wallet.walletType == WalletType.deposit) {
+      throw _ToolError('A plan is paid from an ordinary account.');
+    }
+    final count = (args['installments'] as num?)?.toInt() ?? 0;
+    if (count < 1) throw _ToolError('installments is required, at least 1.');
+    final frequency = _planFrequency(args['frequency']);
+    final rate = (args['rate'] as num?)?.toDouble();
+    final amount = _amount(args['amount']) ?? 0;
+    var installment = _amount(args['installment_amount']) ?? 0;
+    int? maturity = _amount(args['maturity_amount']);
+    final payout = (args['payout'] as String?)?.toLowerCase() == 'monthly'
+        ? PlanPayout.monthly
+        : PlanPayout.atMaturity;
+    final now = DateTime.now();
+    final day = _date(args['start_date']);
+    final start = day == null
+        ? DateTime(now.year, now.month, now.day, 10)
+        : DateTime(day.year, day.month, day.day, 10);
+
+    switch (kind) {
+      case PlanKind.emi:
+      case PlanKind.loan:
+        if (installment <= 0) {
+          if (amount <= 0) {
+            throw _ToolError(
+              'Give installment_amount, or amount to work it out.',
+            );
+          }
+          installment = PlanMath.installmentFor(
+            principal: amount,
+            annualRate: rate,
+            count: count,
+            frequency: frequency,
+          );
+        }
+      case PlanKind.dps:
+        if (installment <= 0) {
+          throw _ToolError('installment_amount is required.');
+        }
+        maturity ??= PlanMath.dpsMaturity(
+          installment: installment,
+          annualRate: rate,
+          count: count,
+          frequency: frequency,
+        );
+      case PlanKind.fdr:
+        if (amount <= 0) {
+          throw _ToolError('amount, the sum deposited, is required.');
+        }
+        if (frequency == PlanFrequency.weekly) {
+          throw _ToolError('An FDR runs for months or years.');
+        }
+        maturity ??= PlanMath.fdrMaturity(
+          principal: amount,
+          annualRate: rate,
+          months: count * (frequency == PlanFrequency.yearly ? 12 : 1),
+        );
+    }
+    final category = args['category'] is String
+        ? _category(args['category'] as String, kind: 'expense')
+        : null;
+    final autoCollect = args['auto_collect'] as bool? ?? true;
+    final remind = (args['remind_days_before'] as num?)?.toInt() ?? 3;
+    final c = wallet.currency;
+
+    final draft = PlanDraft(
+      kind: kind,
+      name: name,
+      walletId: wallet.id,
+      startDate: start,
+      principal: amount,
+      installmentAmount: installment,
+      installmentCount: count,
+      frequency: frequency,
+      interestRate: rate,
+      maturityAmount: maturity,
+      payout: payout,
+      autoCollect: autoCollect,
+      reminderDaysBefore: remind,
+      categoryId: category?.id,
+      loanReceived: args['loan_received'] as bool? ?? true,
+    );
+
+    final preview = CoachActionPreview(
+      kind: CoachActionKind.createPlan,
+      title: '$name (${kind.name.toUpperCase()})',
+      amount: kind == PlanKind.fdr ? amount : installment,
+      currency: c,
+      isIncome: false,
+      date: start,
+      lines: [
+        ('account', wallet.name),
+        if (kind != PlanKind.fdr) ...[
+          (
+            'installments',
+            '$count × ${installment.formatCurrency(c)} (${frequency.name})',
+          ),
+          ('total', (installment * count).formatCurrency(c)),
+        ] else
+          (
+            'term',
+            '$count ${frequency == PlanFrequency.yearly ? 'years' : 'months'}',
+          ),
+        if (amount > 0 && kind != PlanKind.fdr)
+          ('principal', amount.formatCurrency(c)),
+        if (rate != null) ('rate', '$rate%'),
+        if (maturity != null &&
+            !(kind == PlanKind.fdr && payout == PlanPayout.monthly))
+          ('maturity', maturity.formatCurrency(c)),
+        if (kind == PlanKind.fdr && payout == PlanPayout.monthly)
+          ('payout', 'monthly'),
+        ('auto_collect', autoCollect ? 'yes' : 'no'),
+      ],
+    );
+
+    return CoachPlan.ready(preview, () async {
+      final id = await _planService.create(draft);
+      final recorded = autoCollect ? await _planService.collectDue() : 0;
+      await _refresh();
+      return jsonEncode({'status': 'done', 'id': id, 'recorded_now': recorded});
+    });
+  }
+
+  Future<CoachPlan> _planPayPlan(Map<String, dynamic> args) async {
+    final plan = await _planNamed(args['plan'] ?? args['id'] ?? args['name']);
+    if (plan.status != PlanStatus.active) {
+      throw _ToolError('${plan.name} has already ended.');
+    }
+    final progress = await _planService.progressOf(plan);
+    final next =
+        progress.next ??
+        (throw _ToolError('Everything on ${plan.name} is recorded.'));
+    final wallet = _wallets()[plan.walletId];
+    final c = wallet?.currency ?? '';
+    final preview = CoachActionPreview(
+      kind: CoachActionKind.payPlan,
+      title: plan.name,
+      amount: next.amount,
+      currency: c,
+      isIncome: next.type != PlanEventType.installment,
+      date: DateTime.now(),
+      lines: [
+        ('account', wallet?.name ?? ''),
+        (
+          'which',
+          switch (next.type) {
+            PlanEventType.installment =>
+              '${next.number} of ${plan.installmentCount}',
+            PlanEventType.profit => 'profit, month ${next.number}',
+            PlanEventType.maturity => 'maturity',
+          },
+        ),
+        ('due', _date8(next.date)),
+        if (next.type == PlanEventType.installment)
+          ('left_after', (progress.remaining - next.amount).formatCurrency(c)),
+      ],
+    );
+    return CoachPlan.ready(preview, () async {
+      await _planService.payNext(plan.id);
+      await _refresh();
+      final after = await _planService.progressOf(
+        (await _planService.findPlan(plan.id))!,
+      );
+      return jsonEncode({
+        'status': 'done',
+        'installments_done': after.installmentsDone,
+        'remaining': after.remaining / 100,
+      });
+    });
+  }
+
+  Future<CoachPlan> _planClosePlan(Map<String, dynamic> args) async {
+    final plan = await _planNamed(args['plan'] ?? args['id'] ?? args['name']);
+    if (plan.status != PlanStatus.active) {
+      throw _ToolError('${plan.name} has already ended.');
+    }
+    final progress = await _planService.progressOf(plan);
+    final wallets = _wallets();
+    final c = wallets[plan.walletId]?.currency ?? '';
+    final amount = _amount(args['amount']);
+    final saving = plan.kind == PlanKind.dps || plan.kind == PlanKind.fdr;
+    final held = wallets[plan.holdingWalletId]?.balance ?? 0;
+    final preview = CoachActionPreview(
+      kind: CoachActionKind.closePlan,
+      title: plan.name,
+      amount: saving ? held + (amount ?? 0) : (amount ?? progress.remaining),
+      currency: c,
+      isIncome: saving,
+      date: DateTime.now(),
+      lines: [
+        ('account', wallets[plan.walletId]?.name ?? ''),
+        if (saving) ('held', held.formatCurrency(c)),
+        if (saving && amount != null) ('profit', amount.formatCurrency(c)),
+        if (!saving) ('left', progress.remaining.formatCurrency(c)),
+      ],
+    );
+    return CoachPlan.ready(preview, () async {
+      await _planService.closeEarly(plan.id, amount: amount);
+      await _refresh();
+      return jsonEncode({'status': 'done', 'plan': plan.name});
+    });
+  }
+
+  Future<CoachPlan> _planUpdatePlan(Map<String, dynamic> args) async {
+    final plan = await _planNamed(args['plan'] ?? args['id']);
+    final name = (args['name'] as String?)?.trim();
+    final auto = args['auto_collect'] as bool?;
+    final remind = (args['remind_days_before'] as num?)?.toInt();
+    final maturity = _amount(args['maturity_amount']);
+    final c = _wallets()[plan.walletId]?.currency ?? '';
+    final changes = <String, (String, String)>{
+      if (name != null && name.isNotEmpty && name != plan.name)
+        'title': (plan.name, name),
+      if (auto != null && auto != plan.autoCollect)
+        'auto_collect': (plan.autoCollect ? 'yes' : 'no', auto ? 'yes' : 'no'),
+      if (remind != null && remind != plan.reminderDaysBefore)
+        'remind': ('${plan.reminderDaysBefore}', '$remind'),
+      if (maturity != null && maturity != plan.maturityAmount)
+        'maturity': (
+          (plan.maturityAmount ?? 0).formatCurrency(c),
+          maturity.formatCurrency(c),
+        ),
+    };
+    if (changes.isEmpty) throw _ToolError('Nothing would change.');
+    final preview = CoachActionPreview(
+      kind: CoachActionKind.updatePlan,
+      title: plan.name,
+      amount: 0,
+      currency: c,
+      isIncome: false,
+      date: DateTime.now(),
+      changes: changes,
+    );
+    return CoachPlan.ready(preview, () async {
+      await _planService.update(
+        plan.id,
+        name: name,
+        autoCollect: auto,
+        reminderDaysBefore: remind,
+        maturityAmount: maturity,
+      );
+      await _refresh();
+      return jsonEncode({'status': 'done'});
+    });
+  }
+
+  /// The screens read the notifiers; a plan writes underneath them.
+  Future<void> _refresh() async {
+    await _read(transactionProvider.notifier).loadTransactions(silent: true);
+    await _read(walletProvider.notifier).loadWallets();
   }
 
   // ---------------------------------------------------------------- helpers

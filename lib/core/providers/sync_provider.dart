@@ -261,6 +261,7 @@ class SyncNotifier extends Notifier<SyncOperationState> {
       'transactions',
       'categories',
       'objectives',
+      'plans',
     ])) {
       ref.read(financialDataProvider.notifier).loadFinancialData(silent: true);
     }

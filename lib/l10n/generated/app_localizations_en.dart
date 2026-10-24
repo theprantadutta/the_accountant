@@ -3365,6 +3365,9 @@ class L10nEn extends L10n {
   String get aiToolCards => 'Checking card bills…';
 
   @override
+  String get aiToolPlans => 'Checking EMIs and savings…';
+
+  @override
   String get aiToolSaving => 'Saving…';
 
   @override
@@ -3383,6 +3386,21 @@ class L10nEn extends L10n {
   String get aiActionCardSettingsTitle => 'Change card dates';
 
   @override
+  String get aiActionCreatePlanTitle => 'Start a plan';
+
+  @override
+  String get aiActionPayPlanTitle => 'Record a plan payment';
+
+  @override
+  String get aiActionClosePlanTitle => 'End a plan early';
+
+  @override
+  String get aiActionUpdatePlanTitle => 'Change a plan';
+
+  @override
+  String get aiActionClosePlan => 'End it';
+
+  @override
   String get aiActionFrom => 'From';
 
   @override
@@ -3399,6 +3417,389 @@ class L10nEn extends L10n {
 
   @override
   String get aiActionPay => 'Pay';
+
+  @override
+  String get plansTitle => 'EMI, loans & savings';
+
+  @override
+  String get plansSubtitle =>
+      'EMIs, loans, DPS and FDR, paid and collected on time';
+
+  @override
+  String get planNew => 'Start a plan';
+
+  @override
+  String get planNewTitle => 'What are you starting?';
+
+  @override
+  String get plansEmptyTitle => 'No EMIs, loans or savings yet';
+
+  @override
+  String get plansEmptyBody =>
+      'Track something bought in installments, a loan, a DPS or an FDR. Installments are recorded on their day and you are reminded before each.';
+
+  @override
+  String get plansEnded => 'Finished';
+
+  @override
+  String get planKindEmi => 'EMI';
+
+  @override
+  String get planKindLoan => 'Loan';
+
+  @override
+  String get planKindDps => 'DPS';
+
+  @override
+  String get planKindFdr => 'FDR';
+
+  @override
+  String get planKindEmiHint =>
+      'Something bought in installments, paid from cash, a bank account or a card';
+
+  @override
+  String get planKindLoanHint =>
+      'Money borrowed and paid back in installments, with interest';
+
+  @override
+  String get planKindDpsHint =>
+      'Save a fixed amount every month for a fixed time, and get it back with profit';
+
+  @override
+  String get planKindFdrHint =>
+      'Put a sum away for a fixed time, with profit monthly or at the end. Savings certificates work the same way';
+
+  @override
+  String get planWeekly => 'Weekly';
+
+  @override
+  String get planMonthly => 'Monthly';
+
+  @override
+  String get planYearly => 'Yearly';
+
+  @override
+  String get planMonths => 'Months';
+
+  @override
+  String get planYears => 'Years';
+
+  @override
+  String planFdrLine(String amount, String date) {
+    return '$amount until $date';
+  }
+
+  @override
+  String planSavedLine(String saved, String total) {
+    return '$saved of $total saved';
+  }
+
+  @override
+  String planPaidLine(String paid, String total) {
+    return '$paid of $total paid';
+  }
+
+  @override
+  String planNextLine(String amount, String date) {
+    return 'Next: $amount on $date';
+  }
+
+  @override
+  String get planStatusCompleted => 'Completed';
+
+  @override
+  String get planStatusClosed => 'Closed';
+
+  @override
+  String get planStatusOverdue => 'Overdue';
+
+  @override
+  String get planStatusRunning => 'Running';
+
+  @override
+  String planInstallmentsDone(int done, int total) {
+    return '$done of $total';
+  }
+
+  @override
+  String get planGone => 'This plan has been deleted.';
+
+  @override
+  String get planAccount => 'Account';
+
+  @override
+  String get planAccountEmi => 'Paid from';
+
+  @override
+  String get planAccountLoan => 'Received into and paid from';
+
+  @override
+  String get planAccountSaving => 'From account';
+
+  @override
+  String get planPrice => 'Price';
+
+  @override
+  String get planBorrowed => 'Amount borrowed';
+
+  @override
+  String get planDeposited => 'Amount deposited';
+
+  @override
+  String get planDeposit => 'Each deposit';
+
+  @override
+  String get planInstallment => 'Each installment';
+
+  @override
+  String get planWorkedOut => 'Worked out from the price, rate and term';
+
+  @override
+  String get planProgress => 'Done';
+
+  @override
+  String get planSavedSoFar => 'Saved so far';
+
+  @override
+  String get planPaidSoFar => 'Paid so far';
+
+  @override
+  String get planLeft => 'Left';
+
+  @override
+  String get planTotal => 'In all';
+
+  @override
+  String get planInterestCharges => 'Interest and charges';
+
+  @override
+  String get planRate => 'Rate';
+
+  @override
+  String get planRateLabel => 'Rate % a year';
+
+  @override
+  String get planRateOptional => 'Optional';
+
+  @override
+  String get planPayout => 'Profit paid';
+
+  @override
+  String get planPayoutMonthly => 'Every month';
+
+  @override
+  String get planPayoutAtMaturity => 'At the end';
+
+  @override
+  String get planMaturesOn => 'Matures on';
+
+  @override
+  String get planMaturity => 'Paid back at the end';
+
+  @override
+  String get planEstimated =>
+      'Estimated from the rate; tap to enter the bank\'s figure';
+
+  @override
+  String get planHolding => 'In the deposit now';
+
+  @override
+  String get planEnds => 'Last installment';
+
+  @override
+  String planTakeMaturity(String amount) {
+    return 'Take the maturity, $amount';
+  }
+
+  @override
+  String planRecordProfit(String amount) {
+    return 'Record the profit, $amount';
+  }
+
+  @override
+  String planPayNow(int number, String amount) {
+    return 'Pay installment $number now, $amount';
+  }
+
+  @override
+  String planDepositNow(int number, String amount) {
+    return 'Make deposit $number now, $amount';
+  }
+
+  @override
+  String get planRecorded => 'Recorded.';
+
+  @override
+  String get planSaved => 'Saved.';
+
+  @override
+  String get planPayOff => 'Pay off early';
+
+  @override
+  String get planEncash => 'Encash early';
+
+  @override
+  String planPayOffTitle(String name) {
+    return 'Pay off $name?';
+  }
+
+  @override
+  String get planPayOffHint =>
+      'One payment for what is left, and the plan ends.';
+
+  @override
+  String planPayOffLeft(String amount) {
+    return 'Pay what is left, $amount';
+  }
+
+  @override
+  String get planPayOffOther => 'The lender quoted a different amount';
+
+  @override
+  String planEncashTitle(String name) {
+    return 'Encash $name?';
+  }
+
+  @override
+  String get planEncashBody =>
+      'What is in the deposit goes back to its account, and the plan ends.';
+
+  @override
+  String get planEncashNoProfit => 'Encash, without profit';
+
+  @override
+  String get planEncashWithProfit => 'Encash, with the profit the bank paid';
+
+  @override
+  String get planEncashed => 'Encashed. The money is back in its account.';
+
+  @override
+  String get planPaidOff => 'Paid off.';
+
+  @override
+  String get planAutoCollect => 'Record by itself';
+
+  @override
+  String get planAutoCollectHint =>
+      'Each installment, profit and maturity is recorded on its day';
+
+  @override
+  String get planSchedule => 'SCHEDULE';
+
+  @override
+  String get planDelete => 'Delete this plan';
+
+  @override
+  String planDeleteTitle(String name) {
+    return 'Delete $name?';
+  }
+
+  @override
+  String get planDeleteBody =>
+      'What it recorded stays in your transactions. Nothing more is recorded or reminded.';
+
+  @override
+  String get planDeleted => 'Deleted.';
+
+  @override
+  String planEventInstallment(int number, int total) {
+    return 'Installment $number of $total';
+  }
+
+  @override
+  String planEventProfit(int number) {
+    return 'Profit, month $number';
+  }
+
+  @override
+  String get planEventMaturity => 'Maturity';
+
+  @override
+  String get planEventDone => 'Done';
+
+  @override
+  String get planEventLate => 'Overdue';
+
+  @override
+  String get planEventUpcoming => 'Upcoming';
+
+  @override
+  String get planNeedAccount => 'Choose an account first.';
+
+  @override
+  String get planCreated => 'Started. Anything already due has been recorded.';
+
+  @override
+  String planSummaryInstallments(
+    int count,
+    String installment,
+    String total,
+    String interest,
+  ) {
+    return '$count × $installment = $total, of which $interest is interest and charges.';
+  }
+
+  @override
+  String planSummaryDps(String deposited, String maturity, String date) {
+    return 'You put in $deposited and get back about $maturity on $date.';
+  }
+
+  @override
+  String planSummaryFdr(String principal, String maturity, String date) {
+    return '$principal grows to about $maturity by $date.';
+  }
+
+  @override
+  String planSummaryFdrMonthly(String profit, String principal, String date) {
+    return '$profit profit every month, and $principal back on $date.';
+  }
+
+  @override
+  String planNewKind(String kind) {
+    return 'New $kind';
+  }
+
+  @override
+  String get planName => 'Name';
+
+  @override
+  String get planNameHintEmi => 'e.g. Phone from Daraz';
+
+  @override
+  String get planNameHintLoan => 'e.g. Bike loan';
+
+  @override
+  String get planNameHintDps => 'e.g. Brac DPS';
+
+  @override
+  String get planNameHintFdr => 'e.g. City Bank FDR';
+
+  @override
+  String get planHowMany => 'How many';
+
+  @override
+  String get planTerm => 'Term';
+
+  @override
+  String get planOpenedOn => 'Opened on';
+
+  @override
+  String get planFirstDue => 'First installment';
+
+  @override
+  String get planCategory => 'Category';
+
+  @override
+  String get planCategoryDefault => 'Loan Payment';
+
+  @override
+  String get planLoanReceived => 'Money received into this account';
+
+  @override
+  String get planLoanReceivedHint => 'Off if it went straight to a seller';
+
+  @override
+  String get planStart => 'Start';
 
   @override
   String get aiActionDeleteNote =>

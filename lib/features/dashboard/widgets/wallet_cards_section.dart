@@ -436,6 +436,8 @@ class _WalletCardState extends ConsumerState<_WalletCard>
         return 'Subs';
       case WalletType.cash:
         return 'Cash';
+      case WalletType.deposit:
+        return 'Deposit';
     }
   }
 
