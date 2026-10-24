@@ -21,10 +21,15 @@ enum WalletType {
   /// Where a fund, share or other holding keeps its value: units times the
   /// latest price. Made with the investment, not by hand, and not offered when
   /// adding a transaction.
-  investment;
+  investment,
 
-  /// Made and run by a plan or an investment, never picked by hand.
-  bool get isManaged => this == deposit || this == investment;
+  /// Something owned and valued by hand: land, a flat, a car, jewellery.
+  /// Its balance is what it is worth; it is bought, revalued and sold from
+  /// the net worth screen, never spent from.
+  asset;
+
+  /// Made and run by a plan, an investment or an asset, never picked by hand.
+  bool get isManaged => this == deposit || this == investment || this == asset;
 
   /// The types someone can choose when making an account by hand.
   static const creatable = [cash, bankAccount, creditCard, subscription];

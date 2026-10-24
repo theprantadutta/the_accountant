@@ -385,6 +385,7 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
       WalletType.subscription => 'Subscription',
       WalletType.deposit => 'Deposit',
       WalletType.investment => 'Investment',
+      WalletType.asset => 'Asset',
     };
     IconData typeIcon(WalletType t) => switch (t) {
       WalletType.cash => Symbols.payments_rounded,
@@ -393,6 +394,7 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
       WalletType.subscription => Symbols.autorenew_rounded,
       WalletType.deposit => Symbols.savings_rounded,
       WalletType.investment => Symbols.trending_up_rounded,
+      WalletType.asset => Symbols.home_work_rounded,
     };
 
     return Form(

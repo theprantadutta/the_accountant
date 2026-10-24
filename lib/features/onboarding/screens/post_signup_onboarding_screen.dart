@@ -384,6 +384,7 @@ class _PostSignupOnboardingScreenState
                   WalletType.subscription => 'Subscription',
                   WalletType.deposit => 'Deposit',
                   WalletType.investment => 'Investment',
+                  WalletType.asset => 'Asset',
                 };
                 final icon = switch (type) {
                   WalletType.cash => Icons.wallet,
@@ -392,6 +393,7 @@ class _PostSignupOnboardingScreenState
                   WalletType.subscription => Icons.subscriptions,
                   WalletType.deposit => Icons.savings,
                   WalletType.investment => Icons.trending_up,
+                  WalletType.asset => Icons.home_work,
                 };
                 return Padding(
                   padding: EdgeInsets.only(right: AppSpacing.sm),

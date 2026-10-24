@@ -356,6 +356,7 @@ class CoachToolRunner {
               WalletType.subscription => 'subscription',
               WalletType.deposit => 'deposit',
               WalletType.investment => 'investment',
+              WalletType.asset => 'asset',
             },
             'currency': w.currency,
             'balance': (w.balance) / 100,
