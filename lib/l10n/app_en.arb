@@ -1647,6 +1647,108 @@
   "plansTitle": "EMI, loans & savings",
   "investmentsTitle": "Investments",
   "investmentsSubtitle": "Mutual funds, shares and SIPs, valued at their latest price",
+  "forecastTitle": "Cash flow forecast",
+  "forecastSubtitle": "Where your cash and bank money is headed, and any day it runs short",
+  "forecastRangeDays": "{days} days",
+  "@forecastRangeDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "forecastNow": "Cash and bank now",
+  "forecastMoneyIn": "Coming in",
+  "forecastMoneyOut": "Going out",
+  "forecastLowest": "Lowest",
+  "forecastLowestOn": "on {date}",
+  "@forecastLowestOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "forecastChartTitle": "Projected balance",
+  "forecastShortfallTitle": "On {date} you would be {amount} short",
+  "@forecastShortfallTitle": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "forecastShortfallCause": "Going out that day:",
+  "forecastAlreadyShort": "Your cash and bank accounts are already below zero.",
+  "forecastAllCoveredTitle": "No shortfall in the next {days} days",
+  "@forecastAllCoveredTitle": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "forecastAllCoveredBody": "What is scheduled is covered by your cash and bank money.",
+  "forecastScheduledOnly": "Counts only what is scheduled: plans, card bills, subscriptions, repeating and upcoming payments, and loans with a due date. Everyday spending is not included.",
+  "forecastEventsTitle": "Coming up",
+  "forecastDayBalance": "Balance {amount}",
+  "@forecastDayBalance": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "forecastEmptyTitle": "Nothing scheduled",
+  "forecastEmptyBody": "Plans, card bills, subscriptions and upcoming payments in this period show here.",
+  "forecastOverdue": "Overdue",
+  "forecastExpected": "Expected",
+  "forecastKindInstallment": "Installment",
+  "forecastKindPremium": "Premium",
+  "forecastKindDeposit": "Deposit",
+  "forecastKindSipBuy": "SIP purchase",
+  "forecastKindProfit": "Profit",
+  "forecastKindMaturity": "Maturity",
+  "forecastKindCardBill": "Card bill",
+  "forecastKindCardBillNext": "Next card bill, so far",
+  "forecastKindSubscription": "Subscription",
+  "forecastKindRecurringBill": "Repeating payment",
+  "forecastKindRecurringIncome": "Repeating income",
+  "forecastKindUpcoming": "Upcoming",
+  "forecastKindBorrowed": "Loan to repay",
+  "forecastKindLent": "Lent, due back",
+  "forecastHomeWarning": "You may be {amount} short on {date}",
+  "@forecastHomeWarning": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "forecastHomeWarningBody": "See what is coming up",
+  "forecastDismiss": "Dismiss",
+  "forecastNotifTitle": "You may run short on {day}",
+  "@forecastNotifTitle": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "forecastNotifBody": "Scheduled payments would leave you {amount} short. Tap to see what is coming up.",
+  "@forecastNotifBody": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "investmentsEmptyTitle": "No investments yet",
   "investmentsEmptyBody": "Track a mutual fund, shares or gold: what you paid, what it is worth now, and the gain.",
   "investmentsSold": "Sold",

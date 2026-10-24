@@ -6173,6 +6173,246 @@ abstract class L10n {
   /// **'Mutual funds, shares and SIPs, valued at their latest price'**
   String get investmentsSubtitle;
 
+  /// No description provided for @forecastTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash flow forecast'**
+  String get forecastTitle;
+
+  /// No description provided for @forecastSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Where your cash and bank money is headed, and any day it runs short'**
+  String get forecastSubtitle;
+
+  /// No description provided for @forecastRangeDays.
+  ///
+  /// In en, this message translates to:
+  /// **'{days} days'**
+  String forecastRangeDays(int days);
+
+  /// No description provided for @forecastNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash and bank now'**
+  String get forecastNow;
+
+  /// No description provided for @forecastMoneyIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Coming in'**
+  String get forecastMoneyIn;
+
+  /// No description provided for @forecastMoneyOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Going out'**
+  String get forecastMoneyOut;
+
+  /// No description provided for @forecastLowest.
+  ///
+  /// In en, this message translates to:
+  /// **'Lowest'**
+  String get forecastLowest;
+
+  /// No description provided for @forecastLowestOn.
+  ///
+  /// In en, this message translates to:
+  /// **'on {date}'**
+  String forecastLowestOn(String date);
+
+  /// No description provided for @forecastChartTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Projected balance'**
+  String get forecastChartTitle;
+
+  /// No description provided for @forecastShortfallTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'On {date} you would be {amount} short'**
+  String forecastShortfallTitle(String date, String amount);
+
+  /// No description provided for @forecastShortfallCause.
+  ///
+  /// In en, this message translates to:
+  /// **'Going out that day:'**
+  String get forecastShortfallCause;
+
+  /// No description provided for @forecastAlreadyShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Your cash and bank accounts are already below zero.'**
+  String get forecastAlreadyShort;
+
+  /// No description provided for @forecastAllCoveredTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No shortfall in the next {days} days'**
+  String forecastAllCoveredTitle(int days);
+
+  /// No description provided for @forecastAllCoveredBody.
+  ///
+  /// In en, this message translates to:
+  /// **'What is scheduled is covered by your cash and bank money.'**
+  String get forecastAllCoveredBody;
+
+  /// No description provided for @forecastScheduledOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Counts only what is scheduled: plans, card bills, subscriptions, repeating and upcoming payments, and loans with a due date. Everyday spending is not included.'**
+  String get forecastScheduledOnly;
+
+  /// No description provided for @forecastEventsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Coming up'**
+  String get forecastEventsTitle;
+
+  /// No description provided for @forecastDayBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Balance {amount}'**
+  String forecastDayBalance(String amount);
+
+  /// No description provided for @forecastEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing scheduled'**
+  String get forecastEmptyTitle;
+
+  /// No description provided for @forecastEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Plans, card bills, subscriptions and upcoming payments in this period show here.'**
+  String get forecastEmptyBody;
+
+  /// No description provided for @forecastOverdue.
+  ///
+  /// In en, this message translates to:
+  /// **'Overdue'**
+  String get forecastOverdue;
+
+  /// No description provided for @forecastExpected.
+  ///
+  /// In en, this message translates to:
+  /// **'Expected'**
+  String get forecastExpected;
+
+  /// No description provided for @forecastKindInstallment.
+  ///
+  /// In en, this message translates to:
+  /// **'Installment'**
+  String get forecastKindInstallment;
+
+  /// No description provided for @forecastKindPremium.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium'**
+  String get forecastKindPremium;
+
+  /// No description provided for @forecastKindDeposit.
+  ///
+  /// In en, this message translates to:
+  /// **'Deposit'**
+  String get forecastKindDeposit;
+
+  /// No description provided for @forecastKindSipBuy.
+  ///
+  /// In en, this message translates to:
+  /// **'SIP purchase'**
+  String get forecastKindSipBuy;
+
+  /// No description provided for @forecastKindProfit.
+  ///
+  /// In en, this message translates to:
+  /// **'Profit'**
+  String get forecastKindProfit;
+
+  /// No description provided for @forecastKindMaturity.
+  ///
+  /// In en, this message translates to:
+  /// **'Maturity'**
+  String get forecastKindMaturity;
+
+  /// No description provided for @forecastKindCardBill.
+  ///
+  /// In en, this message translates to:
+  /// **'Card bill'**
+  String get forecastKindCardBill;
+
+  /// No description provided for @forecastKindCardBillNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next card bill, so far'**
+  String get forecastKindCardBillNext;
+
+  /// No description provided for @forecastKindSubscription.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription'**
+  String get forecastKindSubscription;
+
+  /// No description provided for @forecastKindRecurringBill.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeating payment'**
+  String get forecastKindRecurringBill;
+
+  /// No description provided for @forecastKindRecurringIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeating income'**
+  String get forecastKindRecurringIncome;
+
+  /// No description provided for @forecastKindUpcoming.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming'**
+  String get forecastKindUpcoming;
+
+  /// No description provided for @forecastKindBorrowed.
+  ///
+  /// In en, this message translates to:
+  /// **'Loan to repay'**
+  String get forecastKindBorrowed;
+
+  /// No description provided for @forecastKindLent.
+  ///
+  /// In en, this message translates to:
+  /// **'Lent, due back'**
+  String get forecastKindLent;
+
+  /// No description provided for @forecastHomeWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'You may be {amount} short on {date}'**
+  String forecastHomeWarning(String date, String amount);
+
+  /// No description provided for @forecastHomeWarningBody.
+  ///
+  /// In en, this message translates to:
+  /// **'See what is coming up'**
+  String get forecastHomeWarningBody;
+
+  /// No description provided for @forecastDismiss.
+  ///
+  /// In en, this message translates to:
+  /// **'Dismiss'**
+  String get forecastDismiss;
+
+  /// No description provided for @forecastNotifTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You may run short on {day}'**
+  String forecastNotifTitle(String day);
+
+  /// No description provided for @forecastNotifBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Scheduled payments would leave you {amount} short. Tap to see what is coming up.'**
+  String forecastNotifBody(String amount);
+
   /// No description provided for @investmentsEmptyTitle.
   ///
   /// In en, this message translates to:

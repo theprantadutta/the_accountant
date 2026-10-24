@@ -3401,6 +3401,147 @@ class L10nBn extends L10n {
       'মিউচুয়াল ফান্ড, শেয়ার ও এসআইপি, সর্বশেষ দামে';
 
   @override
+  String get forecastTitle => 'নগদ প্রবাহের পূর্বাভাস';
+
+  @override
+  String get forecastSubtitle =>
+      'নগদ ও ব্যাংকের টাকা কোন দিকে যাচ্ছে, আর কোন দিন কম পড়বে';
+
+  @override
+  String forecastRangeDays(int days) {
+    return '$days দিন';
+  }
+
+  @override
+  String get forecastNow => 'এখন নগদ ও ব্যাংকে';
+
+  @override
+  String get forecastMoneyIn => 'আসবে';
+
+  @override
+  String get forecastMoneyOut => 'যাবে';
+
+  @override
+  String get forecastLowest => 'সর্বনিম্ন';
+
+  @override
+  String forecastLowestOn(String date) {
+    return '$date তারিখে';
+  }
+
+  @override
+  String get forecastChartTitle => 'সম্ভাব্য ব্যালান্স';
+
+  @override
+  String forecastShortfallTitle(String date, String amount) {
+    return '$date তারিখে আপনার $amount কম পড়বে';
+  }
+
+  @override
+  String get forecastShortfallCause => 'সেদিন যা যাবে:';
+
+  @override
+  String get forecastAlreadyShort =>
+      'আপনার নগদ ও ব্যাংক অ্যাকাউন্ট এখনই শূন্যের নিচে।';
+
+  @override
+  String forecastAllCoveredTitle(int days) {
+    return 'আগামী $days দিনে কোনো ঘাটতি নেই';
+  }
+
+  @override
+  String get forecastAllCoveredBody =>
+      'নির্ধারিত সব পেমেন্ট আপনার নগদ ও ব্যাংকের টাকায় মেটানো যাবে।';
+
+  @override
+  String get forecastScheduledOnly =>
+      'শুধু নির্ধারিত লেনদেন ধরা হয়েছে: প্ল্যান, কার্ডের বিল, সাবস্ক্রিপশন, পুনরাবৃত্ত ও আসন্ন পেমেন্ট, এবং নির্দিষ্ট তারিখের ধার। দৈনন্দিন খরচ ধরা হয়নি।';
+
+  @override
+  String get forecastEventsTitle => 'সামনে যা আছে';
+
+  @override
+  String forecastDayBalance(String amount) {
+    return 'ব্যালান্স $amount';
+  }
+
+  @override
+  String get forecastEmptyTitle => 'কিছু নির্ধারিত নেই';
+
+  @override
+  String get forecastEmptyBody =>
+      'এই সময়ের প্ল্যান, কার্ডের বিল, সাবস্ক্রিপশন ও আসন্ন পেমেন্ট এখানে দেখা যাবে।';
+
+  @override
+  String get forecastOverdue => 'মেয়াদোত্তীর্ণ';
+
+  @override
+  String get forecastExpected => 'প্রত্যাশিত';
+
+  @override
+  String get forecastKindInstallment => 'কিস্তি';
+
+  @override
+  String get forecastKindPremium => 'প্রিমিয়াম';
+
+  @override
+  String get forecastKindDeposit => 'জমা';
+
+  @override
+  String get forecastKindSipBuy => 'এসআইপি কেনা';
+
+  @override
+  String get forecastKindProfit => 'মুনাফা';
+
+  @override
+  String get forecastKindMaturity => 'মেয়াদপূর্তি';
+
+  @override
+  String get forecastKindCardBill => 'কার্ডের বিল';
+
+  @override
+  String get forecastKindCardBillNext => 'পরের কার্ড বিল, এখন পর্যন্ত';
+
+  @override
+  String get forecastKindSubscription => 'সাবস্ক্রিপশন';
+
+  @override
+  String get forecastKindRecurringBill => 'পুনরাবৃত্ত পেমেন্ট';
+
+  @override
+  String get forecastKindRecurringIncome => 'পুনরাবৃত্ত আয়';
+
+  @override
+  String get forecastKindUpcoming => 'আসন্ন';
+
+  @override
+  String get forecastKindBorrowed => 'শোধ করার ধার';
+
+  @override
+  String get forecastKindLent => 'ধার দেওয়া, ফেরত পাওনা';
+
+  @override
+  String forecastHomeWarning(String date, String amount) {
+    return '$date তারিখে আপনার $amount কম পড়তে পারে';
+  }
+
+  @override
+  String get forecastHomeWarningBody => 'সামনে কী আছে দেখুন';
+
+  @override
+  String get forecastDismiss => 'সরিয়ে দিন';
+
+  @override
+  String forecastNotifTitle(String day) {
+    return '$day তারিখে টাকা কম পড়তে পারে';
+  }
+
+  @override
+  String forecastNotifBody(String amount) {
+    return 'নির্ধারিত পেমেন্টের পর আপনার $amount কম পড়বে। সামনে কী আছে দেখতে ট্যাপ করুন।';
+  }
+
+  @override
   String get investmentsEmptyTitle => 'এখনও কোনো বিনিয়োগ নেই';
 
   @override

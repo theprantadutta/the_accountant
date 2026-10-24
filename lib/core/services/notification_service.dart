@@ -271,6 +271,7 @@ class NotificationService {
         entityId: data['planId'] as String?,
       ),
       'open_budget' => const DeepLink(AppDestination.budgets),
+      'open_forecast' => const DeepLink(AppDestination.forecast),
       'open_transactions' => const DeepLink(AppDestination.transactions),
       _ when transactionId != null => DeepLink(
         AppDestination.transactionDetail,
@@ -489,6 +490,21 @@ class NotificationService {
     );
     _logger.i('Large transaction notification shown: $alertTitle');
   }
+
+  /// Warn that the coming week's payments would leave spendable money below
+  /// zero. Tapping it opens the forecast.
+  Future<void> showShortfallNotification({
+    required int id,
+    required String title,
+    required String body,
+  }) => _showLocalNotification(
+    title,
+    body,
+    id: id,
+    type: NotificationType.custom,
+    channel: NotificationChannels.general,
+    data: const {'action': 'open_forecast'},
+  );
 
   Future<String?> getToken() async {
     return await _firebaseMessaging.getToken();

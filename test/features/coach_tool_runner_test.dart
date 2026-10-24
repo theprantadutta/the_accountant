@@ -7,6 +7,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:the_accountant/core/services/wallet_balance_service.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
+import 'package:the_accountant/data/models/transaction.dart'
+    show TransactionSpecialType;
 import 'package:the_accountant/data/models/wallet.dart' show WalletType;
 import 'package:the_accountant/features/ai_assistant/services/ai_api.dart';
 import 'package:the_accountant/features/ai_assistant/services/coach_tool_runner.dart';
@@ -749,5 +751,87 @@ void main() {
         );
       },
     );
+  });
+
+  group('cash flow forecast', () {
+    String day(DateTime d) =>
+        '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+
+    test('answers when money would run short, and why', () async {
+      final today = DateTime.now();
+      final due = DateTime(today.year, today.month, today.day + 3, 12);
+      await seedTransaction(
+        db,
+        walletId: bkash,
+        amount: 700000,
+        title: 'Rent',
+        date: due,
+        isPaid: false,
+        specialType: TransactionSpecialType.upcoming,
+      );
+
+      final result = await read('cash_flow_forecast', {});
+
+      expect(result['starting_balance'], 6000.0);
+      expect(
+        result['to'],
+        day(DateTime(today.year, today.month, today.day + 30)),
+      );
+      expect(result['money_out'], 7000.0);
+      expect(result['ending_balance'], -1000.0);
+      expect(result['lowest'], {'amount': -1000.0, 'date': day(due)});
+      final shortfall = result['shortfall'] as Map;
+      expect(shortfall['date'], day(due));
+      expect(shortfall['short_by'], 1000.0);
+      expect((shortfall['going_out_that_day'] as List).single, {
+        'date': day(due),
+        'title': 'Rent',
+        'amount': 7000.0,
+        'direction': 'out',
+        'source': 'upcoming',
+        'kind': 'upcoming',
+      });
+      expect(result['events_total'], 1);
+    });
+
+    test('says plainly when nothing runs short', () async {
+      final result = await read('cash_flow_forecast', {'days': 90});
+
+      expect(result['shortfall'], isNull);
+      expect(result['events'], isEmpty);
+      expect(result['lowest']['amount'], 6000.0);
+    });
+
+    test('caps the list but not the totals', () async {
+      final today = DateTime.now();
+      for (var i = 1; i <= 45; i++) {
+        await seedTransaction(
+          db,
+          walletId: bkash,
+          amount: 100,
+          title: 'Snack $i',
+          date: DateTime(today.year, today.month, today.day + 1 + i % 20, 12),
+          isPaid: false,
+          specialType: TransactionSpecialType.upcoming,
+        );
+      }
+
+      final result = await read('cash_flow_forecast', {'days': '30'});
+
+      expect(result['events_total'], 45);
+      expect(result['events'], hasLength(40));
+      expect(result['money_out'], 45.0);
+    });
+
+    test('only offers the ranges the screen does', () async {
+      final result = await read('cash_flow_forecast', {'days': 45});
+
+      expect(result['status'], 'error');
+      expect(result['error'], contains('30, 60 or 90'));
+      expect(
+        runner.isWrite(CoachToolCall('f1', 'cash_flow_forecast', {})),
+        isFalse,
+      );
+    });
   });
 }

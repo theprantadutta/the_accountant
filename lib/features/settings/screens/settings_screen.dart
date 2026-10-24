@@ -1,4 +1,5 @@
 import 'package:the_accountant/features/cards/screens/card_bills_screen.dart';
+import 'package:the_accountant/features/forecast/screens/cash_flow_forecast_screen.dart';
 import 'package:the_accountant/features/investments/screens/investments_screen.dart';
 import 'package:the_accountant/features/networth/screens/net_worth_screen.dart';
 import 'package:the_accountant/features/plans/screens/plans_screen.dart';
@@ -331,6 +332,26 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           title: l10n.settingsUpcomingAndOverdue,
           subtitle: l10n.settingsWhatIsDueAndWhat,
           onTap: () => _push(const UpcomingTransactionsScreen()),
+        ),
+      ),
+      _Entry(
+        title: l10n.forecastTitle,
+        keywords: const [
+          'forecast',
+          'cash flow',
+          'shortfall',
+          'afford',
+          'run short',
+          'projection',
+        ],
+        row: SettingsRow(
+          key: const Key('more_forecast'),
+          icon: Symbols.query_stats_rounded,
+          iconColor: const Color(0xFF059669),
+          iconBackground: c.tintGreen,
+          title: l10n.forecastTitle,
+          subtitle: l10n.forecastSubtitle,
+          onTap: () => _push(const CashFlowForecastScreen()),
         ),
       ),
       _Entry(

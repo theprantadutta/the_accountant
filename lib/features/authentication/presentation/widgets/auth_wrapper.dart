@@ -18,6 +18,8 @@ import 'package:the_accountant/core/services/api_service.dart';
 import 'package:the_accountant/core/services/notification_service.dart';
 import 'package:the_accountant/core/providers/data_reload.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:the_accountant/features/forecast/services/shortfall_alerts.dart';
 import 'package:the_accountant/features/plans/services/plan_service.dart';
 import 'package:the_accountant/features/notifications/services/local_notification_log.dart';
 import 'package:the_accountant/features/premium/providers/premium_provider.dart';
@@ -98,7 +100,9 @@ class _AuthWrapperState extends ConsumerState<AuthWrapper>
       // be stopped here for good: one trip to the background and the app never
       // synced on its own again until it was restarted.
       ref.read(syncNotifierProvider.notifier).onAppResumed();
-      if (ref.read(authProvider).isAuthenticated) _collectPlans();
+      if (ref.read(authProvider).isAuthenticated) {
+        _collectPlans().then((_) => _warnOfShortfall());
+      }
     } else if (state == AppLifecycleState.paused) {
       _pausedAt = DateTime.now();
       // Stop the periodic timer while in the background, and send any edit
@@ -175,6 +179,21 @@ class _AuthWrapperState extends ConsumerState<AuthWrapper>
     }
   }
 
+  /// Warn, once per date, when the coming week's scheduled payments would
+  /// take spendable money below zero. After the plans are collected, so what
+  /// was just recorded is in the balance rather than counted as still due.
+  Future<void> _warnOfShortfall() async {
+    try {
+      await ShortfallAlerts.check(
+        db: ref.read(databaseProvider),
+        prefs: await SharedPreferences.getInstance(),
+        show: NotificationService().showShortfallNotification,
+      );
+    } catch (e) {
+      debugPrint('AuthWrapper: shortfall check failed: $e');
+    }
+  }
+
   /// Run startup notification checks (subscription expiry, budget alerts, auto-sync)
   Future<void> _runStartupChecks() async {
     debugPrint('AuthWrapper: Running startup notification checks');
@@ -187,6 +206,7 @@ class _AuthWrapperState extends ConsumerState<AuthWrapper>
     ref.read(budgetNotificationProvider.notifier).checkBudgetsNow();
 
     await _collectPlans();
+    await _warnOfShortfall();
 
     // Register this phone for push, and tell the server its time zone, so the
     // daily and bill reminders can reach it at the right local time.
