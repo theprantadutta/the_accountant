@@ -30,6 +30,7 @@ import 'package:the_accountant/features/settings/screens/notifications_screen.da
 import 'package:the_accountant/features/settings/screens/privacy_security_screen.dart';
 import 'package:the_accountant/features/settings/screens/profile_edit_screen.dart';
 import 'package:the_accountant/features/settings/screens/regional_settings_screen.dart';
+import 'package:the_accountant/features/split/screens/split_bill_screen.dart';
 import 'package:the_accountant/features/settings/screens/sync_settings_screen.dart';
 import 'package:the_accountant/features/settings/screens/theme_selection_screen.dart';
 import 'package:the_accountant/features/settings/widgets/settings_tile.dart'
@@ -441,6 +442,27 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           title: l10n.cardBillsTitle,
           subtitle: l10n.cardBillsSubtitle,
           onTap: () => _push(const CardBillsScreen()),
+        ),
+      ),
+      _Entry(
+        title: l10n.splitTitle,
+        keywords: const [
+          'split',
+          'share',
+          'bill',
+          'friends',
+          'group',
+          'owe',
+          'lend',
+        ],
+        row: SettingsRow(
+          key: const Key('more_split'),
+          icon: Symbols.call_split_rounded,
+          iconColor: c.positive,
+          iconBackground: c.tintGreen,
+          title: l10n.splitTitle,
+          subtitle: l10n.splitSubtitle,
+          onTap: () => _push(const SplitBillScreen()),
         ),
       ),
       _Entry(

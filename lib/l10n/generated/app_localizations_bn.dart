@@ -2370,6 +2370,111 @@ class L10nBn extends L10n {
   String get walletsLendBorrow => 'ধার ও দেনা';
 
   @override
+  String get splitTitle => 'বিল ভাগ';
+
+  @override
+  String get splitSubtitle =>
+      'বন্ধুদের সাথে বিল ভাগ করুন; কার কাছে কত পাওনা, তা ধার ও দেনায় থাকবে';
+
+  @override
+  String get splitWhatFor => 'কিসের বিল';
+
+  @override
+  String get splitTotal => 'মোট বিল';
+
+  @override
+  String get splitPeople => 'যাদের সাথে ভাগ';
+
+  @override
+  String get splitYou => 'আপনি';
+
+  @override
+  String get splitIncludeMe => 'আমারও ভাগ আছে';
+
+  @override
+  String get splitIncludeMeSub => 'শুধু অন্যদের জন্য দিলে বন্ধ করুন';
+
+  @override
+  String get splitAddPerson => 'একজন যোগ করুন';
+
+  @override
+  String get splitPersonName => 'নাম';
+
+  @override
+  String get splitKnownPeople => 'ধার ও দেনা থেকে';
+
+  @override
+  String get splitRemove => 'সরান';
+
+  @override
+  String get splitPaidBy => 'কে বিল দিয়েছেন';
+
+  @override
+  String get splitHow => 'কীভাবে ভাগ হবে';
+
+  @override
+  String get splitEqual => 'সমান';
+
+  @override
+  String get splitExact => 'টাকায়';
+
+  @override
+  String get splitPercent => 'শতাংশে';
+
+  @override
+  String get splitShares => 'ভাগগুলো';
+
+  @override
+  String get splitYourShare => 'আপনার ভাগ';
+
+  @override
+  String get splitOwesYou => 'আপনার পাওনা';
+
+  @override
+  String splitYouOwe(String name) {
+    return '$name-কে দিতে হবে';
+  }
+
+  @override
+  String get splitPaidTheBill => 'বিল দিয়েছেন';
+
+  @override
+  String splitSettlesWith(String name) {
+    return '$name-এর সাথে তাঁদের হিসাব';
+  }
+
+  @override
+  String splitSummaryIPaid(String total, String owed) {
+    return 'আপনার অ্যাকাউন্ট থেকে $total; আপনার পাওনা $owed';
+  }
+
+  @override
+  String splitSummaryTheyPaid(String name, String amount) {
+    return 'এখন আপনার অ্যাকাউন্ট থেকে কিছু যাবে না; $name-কে দিতে হবে $amount';
+  }
+
+  @override
+  String get splitPercentLabel => 'বিলের কত শতাংশ';
+
+  @override
+  String get splitSave => 'ভাগ করুন';
+
+  @override
+  String get splitSaved => 'বিল ভাগ হয়েছে';
+
+  @override
+  String get splitNeedCategory => 'আগে একটি ক্যাটাগরি বাছুন।';
+
+  @override
+  String get splitThisBill => 'এই বিল ভাগ করুন';
+
+  @override
+  String get splitThisBillSub => 'বন্ধুদের সাথে; তাদের দেনা যাবে ধার ও দেনায়';
+
+  @override
+  String get splitPartOf => 'ভাগ করা বিল';
+
+  @override
   String walletsOwedToYou(String amount) {
     return 'আপনি পাবেন $amount';
   }

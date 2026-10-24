@@ -4,6 +4,7 @@ import 'package:drift/drift.dart' show Value;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:the_accountant/core/domain/transaction_policy.dart';
 import 'package:the_accountant/core/services/wallet_balance_service.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
@@ -831,6 +832,120 @@ void main() {
       expect(
         runner.isWrite(CoachToolCall('f1', 'cash_flow_forecast', {})),
         isFalse,
+      );
+    });
+  });
+
+  group('splitting a bill', () {
+    Future<CoachPlan> plan(Map<String, dynamic> args) =>
+        runner.plan(CoachToolCall('s1', 'split_expense', args));
+    Future<int> balance() async {
+      await WalletBalanceService(db).updateWalletBalance(bkash);
+      return (await db.findWalletById(bkash))!.balance;
+    }
+
+    Future<int> spent() async => TransactionPolicy.totalExpense(
+      (await db.getAllTransactions()).where((t) => t.deletedAt == null),
+    );
+
+    test('shows each share, then spends mine and lends the rest', () async {
+      expect(runner.isWrite(CoachToolCall('s1', 'split_expense', {})), isTrue);
+      final before = await balance();
+      final spentBefore = await spent();
+
+      final split = await plan({
+        'title': 'Pizza night',
+        'amount': 900.01,
+        'people': ['Rafi', 'Nila'],
+        'category': 'Food',
+        'account': 'Bkash',
+      });
+      expect(split.error, isNull);
+      expect(split.preview!.kind, CoachActionKind.splitExpense);
+      expect(split.preview!.amount, 90001);
+      expect(split.preview!.category, 'Food');
+      final lines = Map.fromEntries(
+        split.preview!.lines.map((l) => MapEntry(l.$1, l.$2)),
+      );
+      expect(lines.keys, ['your_share', 'person:Rafi', 'person:Nila']);
+      expect(
+        await db.getCreditTransactions(),
+        isEmpty,
+        reason: 'nothing until confirmed',
+      );
+
+      final done = jsonDecode(await split.execute!()) as Map;
+      expect(done['status'], 'done');
+      expect(done['shares'], [
+        {'name': 'me', 'amount': 300.01},
+        {'name': 'Rafi', 'amount': 300.0, 'owes_you': true},
+        {'name': 'Nila', 'amount': 300.0, 'owes_you': true},
+      ]);
+      expect(await balance(), before - 90001);
+      expect(await spent(), spentBefore + 30001);
+      expect(
+        {for (final t in await db.getCreditTransactions()) t.title: t.amount},
+        {'Rafi': 30000, 'Nila': 30000},
+      );
+    });
+
+    test('when a friend paid, my share is owed to them', () async {
+      final before = await balance();
+      final spentBefore = await spent();
+      final split = await plan({
+        'title': 'Cinema',
+        'amount': 1000,
+        'people': ['Rafi'],
+        'paid_by': 'rafi',
+        'shares': {'me': 400, 'Rafi': 600},
+      });
+      expect(split.error, isNull);
+      expect(split.preview!.lines.first, ('paid_by', 'Rafi'));
+      await split.execute!();
+
+      final owed = (await db.getDebtTransactions()).single;
+      expect(owed.title, 'Rafi');
+      expect(owed.amount, 40000);
+      expect(await balance(), before, reason: 'nothing has left the account');
+      expect(await spent(), spentBefore + 40000);
+    });
+
+    test('a friend paying who is not listed joins the bill', () async {
+      final split = await plan({
+        'amount': 300,
+        'people': ['Nila'],
+        'paid_by': 'Rafi',
+      });
+      expect(split.error, isNull);
+      final lines = Map.fromEntries(
+        split.preview!.lines.map((l) => MapEntry(l.$1, l.$2)),
+      );
+      expect(lines.keys, [
+        'paid_by',
+        'your_share',
+        'person:Nila',
+        'person:Rafi',
+      ]);
+    });
+
+    test('says what is wrong instead of guessing', () async {
+      expect((await plan({'amount': 100})).error, contains('people'));
+      expect(
+        (await plan({
+          'amount': 100,
+          'people': ['Rafi'],
+          'shares': {'me': 30, 'Rafi': 30},
+        })).error,
+        contains('add up'),
+      );
+      expect(
+        (await plan({
+          'amount': 100,
+          'people': ['Rafi'],
+          'paid_by': 'Rafi',
+          'include_me': false,
+        })).error,
+        contains('nothing to record'),
       );
     });
   });

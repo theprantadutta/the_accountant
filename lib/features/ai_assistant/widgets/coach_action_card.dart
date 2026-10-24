@@ -93,6 +93,7 @@ class CoachActionCard extends StatelessWidget {
       CoachActionKind.createAsset => l10n.aiActionCreateAssetTitle,
       CoachActionKind.updateAsset => l10n.aiActionUpdateAssetTitle,
       CoachActionKind.sellAsset => l10n.aiActionSellAssetTitle,
+      CoachActionKind.splitExpense => l10n.splitTitle,
     };
     final showsChanges =
         action.kind == CoachActionKind.update ||
@@ -113,6 +114,7 @@ class CoachActionCard extends StatelessWidget {
       CoachActionKind.tradeInvestment ||
       CoachActionKind.createAsset ||
       CoachActionKind.sellAsset ||
+      CoachActionKind.splitExpense ||
       CoachActionKind.closePlan => action.amount.formatCurrency(
         action.currency,
       ),
@@ -164,6 +166,10 @@ class CoachActionCard extends StatelessWidget {
       'account' => l10n.aiActionAccount,
       'date' => l10n.aiActionDate,
       'notes' => l10n.aiActionNotes,
+      'paid_by' => l10n.splitPaidBy,
+      'your_share' => l10n.splitYourShare,
+      // A friend's share is labelled with their own name.
+      _ when key.startsWith('person:') => key.substring('person:'.length),
       _ => key,
     };
 
@@ -249,6 +255,7 @@ class CoachActionCard extends StatelessWidget {
                 CoachActionKind.updateAsset => l10n.assetUpdateValue,
                 CoachActionKind.sellAsset => l10n.assetSell,
                 CoachActionKind.closePlan => l10n.aiActionClosePlan,
+                CoachActionKind.splitExpense => l10n.splitSave,
                 _ => l10n.aiActionSave,
               },
               onPressed: onConfirm,
