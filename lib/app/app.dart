@@ -59,19 +59,14 @@ class _MyAppState extends ConsumerState<MyApp> {
     });
   }
 
-  /// Begin receiving links.
+  /// Route tapped notifications through the deep link service.
   ///
-  /// Only the listening starts here. This widget sits ABOVE the MaterialApp
-  /// that provides the localisations, so `L10n.of(context)` is null at this
-  /// point — reading it here to label the launcher shortcuts crashed the app on
-  /// every launch. The shortcuts are registered from the shell instead, which
-  /// has a context that can see them.
+  /// It holds a tap until the app is signed in and on screen. The launcher
+  /// shortcuts are registered from the shell instead: this widget sits above
+  /// the MaterialApp, so `L10n.of(context)` is null here, and reading it to
+  /// label them crashed the app on every launch.
   Future<void> _startDeepLinks() async {
-    final links = ref.read(deepLinkServiceProvider);
-    // A tapped notification goes wherever it names by the same road a link
-    // does, so it too waits until the app is signed in and on screen.
-    NotificationService().onOpen = links.offer;
-    await links.startListening();
+    NotificationService().onOpen = ref.read(deepLinkServiceProvider).offer;
   }
 
   /// Check Google Play for an available update and install it. Prefers the

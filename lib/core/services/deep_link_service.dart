@@ -1,56 +1,27 @@
-import 'dart:async';
-
-import 'package:app_links/app_links.dart';
 import 'package:flutter/foundation.dart';
 import 'package:quick_actions/quick_actions.dart';
 import 'package:the_accountant/core/domain/app_destination.dart';
 
-/// Receives links and launcher shortcuts, and holds them until the app is
-/// ready to act on one.
+/// Receives launcher shortcuts and tapped notifications, and holds each until
+/// the app is ready to act on it.
 ///
-/// The holding is the point. A link can arrive before authentication has
-/// resolved — a cold start from a shortcut is exactly that — and navigating
-/// then would either push a screen over the sign-in wall or be thrown away by
-/// the wrapper rebuilding underneath it. So an arrival is parked, and the shell
-/// takes it when there is somewhere safe to put it.
+/// The holding is the point. A tap can arrive before authentication has
+/// resolved — a cold start from a notification is exactly that — and
+/// navigating then would either push a screen over the sign-in wall or be
+/// thrown away by the wrapper rebuilding underneath it. So an arrival is
+/// parked, and the shell takes it when there is somewhere safe to put it.
+///
+/// Links are not accepted at all: nothing outside the app can name a screen.
+/// The only ways in are the two the app itself writes, its shortcuts and its
+/// notifications.
 class DeepLinkService {
-  DeepLinkService({AppLinks? links, QuickActions? actions})
-    : _links = links ?? AppLinks(),
-      _actions = actions ?? const QuickActions();
+  DeepLinkService({QuickActions? actions})
+    : _actions = actions ?? const QuickActions();
 
-  final AppLinks _links;
   final QuickActions _actions;
-
-  StreamSubscription<Uri>? _subscription;
 
   /// The most recent arrival that has not been acted on.
   final ValueNotifier<DeepLink?> pending = ValueNotifier(null);
-
-  /// Start listening for links. Safe to call more than once.
-  ///
-  /// Deliberately separate from [registerShortcuts]: listening has to begin as
-  /// early as possible so a cold start from a link is not missed, while the
-  /// shortcuts need localised labels and so cannot be registered until
-  /// something below the MaterialApp can read them.
-  Future<void> startListening() async {
-    if (_subscription != null) return;
-
-    try {
-      // The link the app was launched by, if any. A cold start does not
-      // deliver through the stream.
-      final initial = await _links.getInitialLink();
-      if (initial != null) _offer(DeepLinkParser.parse(initial));
-
-      _subscription = _links.uriLinkStream.listen(
-        (uri) => _offer(DeepLinkParser.parse(uri)),
-        // A malformed link is somebody else's mistake, not a reason to take the
-        // app down.
-        onError: (Object e) => debugPrint('[DeepLink] stream error: $e'),
-      );
-    } catch (e) {
-      debugPrint('[DeepLink] could not start listening: $e');
-    }
-  }
 
   /// Put the launcher shortcuts in place, and route taps on them.
   ///
@@ -69,7 +40,7 @@ class DeepLinkService {
 
   /// Take the parked arrival, if there is one, and clear it.
   ///
-  /// Clearing on read is what stops a link being obeyed twice — once when it
+  /// Clearing on read is what stops one being obeyed twice — once when it
   /// arrives and again on the next rebuild.
   DeepLink? take() {
     final link = pending.value;
@@ -82,13 +53,8 @@ class DeepLinkService {
     pending.value = link;
   }
 
-  /// Park [link], as if it had arrived from outside; a tapped notification is
-  /// handed over this way.
+  /// Park [link]; a tapped notification is handed over this way.
   void offer(DeepLink link) => _offer(link);
 
-  Future<void> dispose() async {
-    await _subscription?.cancel();
-    _subscription = null;
-    pending.dispose();
-  }
+  Future<void> dispose() async => pending.dispose();
 }
