@@ -1384,14 +1384,6 @@
       }
     }
   },
-  "cardPay": "Pay {amount}",
-  "@cardPay": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
   "cardPaymentTitle": "{card} bill payment",
   "@cardPaymentTitle": {
     "placeholders": {
@@ -1424,6 +1416,38 @@
   },
   "cardStatusDueToday": "Due today",
   "cardStatusOverdue": "Overdue",
+  "cardPaidOf": "{paid} of {owed} paid",
+  "@cardPaidOf": {
+    "placeholders": {
+      "paid": {
+        "type": "String"
+      },
+      "owed": {
+        "type": "String"
+      }
+    }
+  },
+  "cardPayBill": "Pay bill",
+  "cardPayTitle": "Pay {card}",
+  "@cardPayTitle": {
+    "placeholders": {
+      "card": {
+        "type": "String"
+      }
+    }
+  },
+  "cardPayHint": "Pay all of it or part of it. Anything you pay counts toward this bill, and the rest stays due.",
+  "cardPayFull": "Pay in full, {amount}",
+  "@cardPayFull": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "cardPayFullHint": "Everything left on this bill",
+  "cardPayOther": "Pay another amount",
+  "cardPayOtherHint": "A part payment, or more than the bill",
   "addNoteHint": "Add a note",
   "addRepeatMonthly": "Repeat monthly",
   "addMoreOptions": "More options",
@@ -1597,10 +1621,19 @@
   "aiToolSummarizing": "Adding up the numbers…",
   "aiToolAccounts": "Checking your accounts…",
   "aiToolCategories": "Looking at your categories…",
+  "aiToolCards": "Checking card bills…",
   "aiToolSaving": "Saving…",
   "aiActionAddTitle": "Add this transaction?",
   "aiActionUpdateTitle": "Change this transaction?",
   "aiActionDeleteTitle": "Delete this transaction?",
+  "aiActionPayCardTitle": "Pay a card bill",
+  "aiActionCardSettingsTitle": "Change card dates",
+  "aiActionFrom": "From",
+  "aiActionTo": "To",
+  "aiActionBill": "Bill",
+  "aiActionLeftAfter": "Left after",
+  "aiActionRemindDays": "Remind, days before",
+  "aiActionPay": "Pay",
   "aiActionDeleteNote": "It goes to Recently deleted, where you can restore it for 30 days.",
   "aiActionAdd": "Add it",
   "aiActionSave": "Save change",

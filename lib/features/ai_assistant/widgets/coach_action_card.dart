@@ -24,6 +24,7 @@ class CoachToolStatus extends StatelessWidget {
         l10n.aiToolAccounts,
       ),
       'list_categories' => (Symbols.category_rounded, l10n.aiToolCategories),
+      'card_bills' => (Symbols.credit_card_rounded, l10n.aiToolCards),
       _ => (Symbols.edit_note_rounded, l10n.aiToolSaving),
     };
 
@@ -79,11 +80,28 @@ class CoachActionCard extends StatelessWidget {
       CoachActionKind.add => l10n.aiActionAddTitle,
       CoachActionKind.update => l10n.aiActionUpdateTitle,
       CoachActionKind.delete => l10n.aiActionDeleteTitle,
+      CoachActionKind.payCard => l10n.aiActionPayCardTitle,
+      CoachActionKind.cardSettings => l10n.aiActionCardSettingsTitle,
     };
-    final amount =
-        '${action.isIncome ? '+' : '−'}${action.amount.formatCurrency(action.currency)}';
+    final showsChanges =
+        action.kind == CoachActionKind.update ||
+        action.kind == CoachActionKind.cardSettings;
+    final amount = switch (action.kind) {
+      CoachActionKind.cardSettings => '',
+      // Money moving between the user's own accounts has no sign.
+      CoachActionKind.payCard => action.amount.formatCurrency(action.currency),
+      _ =>
+        '${action.isIncome ? '+' : '−'}${action.amount.formatCurrency(action.currency)}',
+    };
 
     String field(String key) => switch (key) {
+      'from' => l10n.aiActionFrom,
+      'to' => l10n.aiActionTo,
+      'bill' => l10n.aiActionBill,
+      'left_after' => l10n.aiActionLeftAfter,
+      'statement_day' => l10n.cardStatementDay,
+      'due_day' => l10n.cardDueDay,
+      'remind' => l10n.aiActionRemindDays,
       'amount' => l10n.aiActionAmount,
       'kind' => l10n.aiActionKind,
       'title' => l10n.aiActionTitle,
@@ -95,6 +113,7 @@ class CoachActionCard extends StatelessWidget {
     };
 
     final details = <(String, String)>[
+      for (final (key, value) in action.lines) (field(key), value),
       if (action.category != null) (l10n.aiActionCategory, action.category!),
       if (action.account != null) (l10n.aiActionAccount, action.account!),
       (l10n.aiActionDate, DateFormat.yMMMd(locale).format(action.date)),
@@ -136,7 +155,7 @@ class CoachActionCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 10),
-          if (action.kind == CoachActionKind.update)
+          if (showsChanges)
             for (final e in action.changes.entries)
               _Line(
                 label: field(e.key),
@@ -163,9 +182,11 @@ class CoachActionCard extends StatelessWidget {
             )
           else
             SunriseButton(
-              label: action.kind == CoachActionKind.add
-                  ? l10n.aiActionAdd
-                  : l10n.aiActionSave,
+              label: switch (action.kind) {
+                CoachActionKind.add => l10n.aiActionAdd,
+                CoachActionKind.payCard => l10n.aiActionPay,
+                _ => l10n.aiActionSave,
+              },
               onPressed: onConfirm,
             ),
           const SizedBox(height: 8),

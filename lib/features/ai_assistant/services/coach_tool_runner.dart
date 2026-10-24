@@ -9,12 +9,27 @@ import 'package:the_accountant/features/ai_assistant/services/ai_api.dart';
 import 'package:the_accountant/features/ai_assistant/services/finance_context_builder.dart';
 import 'package:the_accountant/features/categories/providers/category_provider.dart'
     as cat;
+import 'package:the_accountant/features/cards/domain/card_statement.dart';
 import 'package:the_accountant/features/transactions/providers/transaction_provider.dart'
     show transactionProvider;
+import 'package:the_accountant/features/transactions/providers/transfer_provider.dart'
+    show transferProvider;
+import 'package:the_accountant/features/wallets/providers/wallet_provider.dart'
+    show walletProvider;
 import 'package:the_accountant/features/wallets/domain/credit_card_position.dart';
 import 'package:the_accountant/core/domain/default_wallet.dart';
 
-enum CoachActionKind { add, update, delete }
+enum CoachActionKind {
+  add,
+  update,
+  delete,
+
+  /// Money moved from an account onto a credit card, any amount of the bill.
+  payCard,
+
+  /// A card's statement day, due day or reminder changed.
+  cardSettings,
+}
 
 /// A change the coach wants to make, as the user is shown it before it happens.
 class CoachActionPreview {
@@ -31,7 +46,12 @@ class CoachActionPreview {
   /// For an update: each field that changes, from and to, already formatted.
   final Map<String, (String, String)> changes;
 
+  /// For a card payment: the rows shown under the amount, already formatted
+  /// ("From", "Cash"), in place of category and account.
+  final List<(String, String)> lines;
+
   const CoachActionPreview({
+    this.lines = const [],
     required this.kind,
     required this.title,
     required this.amount,
@@ -78,6 +98,8 @@ class CoachToolRunner {
     'add_transaction',
     'update_transaction',
     'delete_transaction',
+    'pay_card_bill',
+    'set_card_schedule',
   };
 
   static const _maxResults = 50;
@@ -100,6 +122,7 @@ class CoachToolRunner {
         'summarize' => await _summarize(call.args),
         'list_accounts' => await _accounts(),
         'list_categories' => _categories(call.args),
+        'card_bills' => await _cardBills(call.args),
         _ => _error('There is no tool called ${call.name}.'),
       };
     } on _ToolError catch (e) {
@@ -117,6 +140,8 @@ class CoachToolRunner {
         'add_transaction' => _planAdd(call.args),
         'update_transaction' => await _planUpdate(call.args),
         'delete_transaction' => await _planDelete(call.args),
+        'pay_card_bill' => await _planPayCard(call.args),
+        'set_card_schedule' => _planCardSchedule(call.args),
         _ => CoachPlan.failed(_error('There is no tool called ${call.name}.')),
       };
     } on _ToolError catch (e) {
@@ -476,6 +501,217 @@ class CoachToolRunner {
         'status': 'done',
         'note': 'Moved to Recently deleted; it can be restored for 30 days.',
       });
+    });
+  }
+
+  // ------------------------------------------------------------ card bills
+
+  List<Wallet> get _cards => _selectableWallets
+      .where((w) => w.walletType == WalletType.creditCard)
+      .toList();
+
+  /// The card a call names, or the only one there is.
+  Wallet _card(Object? name) {
+    final cards = _cards;
+    if (cards.isEmpty) {
+      throw _ToolError('There is no credit card account yet.');
+    }
+    if (name is String && name.trim().isNotEmpty) {
+      final match = _byName(cards, name, (w) => w.name);
+      if (match != null) return match;
+      throw _ToolError(
+        'No credit card is called "$name". The cards are: '
+        '${cards.map((w) => w.name).join(', ')}.',
+      );
+    }
+    if (cards.length == 1) return cards.single;
+    throw _ToolError(
+      'Which card? The cards are: ${cards.map((w) => w.name).join(', ')}.',
+    );
+  }
+
+  Future<CardBill> _billOf(Wallet card) async => CardBill.of(
+    card,
+    await _read(databaseProvider).getTransactionsByWallet(card.id),
+    today: DateTime.now(),
+  );
+
+  Future<String> _cardBills(Map<String, dynamic> args) async {
+    final cards = args['account'] is String
+        ? [_card(args['account'])]
+        : _cards;
+    String status(CardBillStatus s) => switch (s) {
+      CardBillStatus.notSetUp => 'dates_not_set',
+      CardBillStatus.nothingDue => 'nothing_due',
+      CardBillStatus.paid => 'paid',
+      CardBillStatus.due => 'due',
+      CardBillStatus.dueSoon => 'due_soon',
+      CardBillStatus.overdue => 'overdue',
+    };
+    return jsonEncode({
+      'cards': [
+        for (final card in cards)
+          await _billOf(card).then((bill) {
+            final s = bill.latest;
+            return {
+              'name': card.name,
+              'currency': card.currency,
+              'statement_day': card.billingCycleDay,
+              'due_day': card.paymentDueDay,
+              'remind_days_before': card.dueReminderDays,
+              'status': status(bill.status),
+              if (s != null) ...{
+                'statement_date': _date8(s.statementDate),
+                'due_date': _date8(s.dueDate),
+                'days_until_due': bill.daysUntilDue(DateTime.now()),
+                'statement_amount': s.owed / 100,
+                'paid_since_statement': s.paid / 100,
+                'left_to_pay': s.remaining / 100,
+                'spent_since_statement': bill.spentThisCycle / 100,
+                'next_statement_date': _date8(bill.nextStatementDate!),
+                'earlier_statements': [
+                  for (final h in bill.history)
+                    {
+                      'statement_date': _date8(h.statementDate),
+                      'amount': h.owed / 100,
+                      'paid': h.paid / 100,
+                      'left_unpaid': h.remaining / 100,
+                    },
+                ],
+              },
+            };
+          }),
+      ],
+      'note':
+          'A bill is what the card owed at the end of its statement day. Any '
+          'payment onto the card after that counts toward it, so part '
+          'payments are fine: left_to_pay is what remains.',
+    });
+  }
+
+  Future<CoachPlan> _planPayCard(Map<String, dynamic> args) async {
+    final card = _card(args['card'] ?? args['account']);
+    final bill = await _billOf(card);
+    final remaining = bill.latest?.remaining ?? 0;
+
+    final asked = args.containsKey('amount') ? _amount(args['amount']) : null;
+    if (asked != null && asked <= 0) {
+      throw _ToolError('amount must be above 0.');
+    }
+    final amount = asked ?? remaining;
+    if (amount <= 0) {
+      throw _ToolError(
+        'Nothing is left to pay on ${card.name}\'s last bill. Give an amount '
+        'to pay it anyway.',
+      );
+    }
+
+    final from = args['from_account'] is String
+        ? _wallet(args['from_account'] as String)
+        : _selectableWallets
+                  .where(
+                    (w) =>
+                        w.id != card.id &&
+                        w.walletType != WalletType.creditCard,
+                  )
+                  .firstOrNull ??
+              (throw _ToolError('There is no account to pay it from.'));
+    if (from.id == card.id) {
+      throw _ToolError('A card cannot pay itself; name another account.');
+    }
+
+    final day = _date(args['date']);
+    final now = DateTime.now();
+    final when = day == null || _sameDay(day, now)
+        ? now
+        : DateTime(day.year, day.month, day.day, 12);
+    final left = (remaining - amount).clamp(0, remaining);
+
+    final preview = CoachActionPreview(
+      kind: CoachActionKind.payCard,
+      title: card.name,
+      amount: amount,
+      currency: card.currency,
+      isIncome: false,
+      date: when,
+      lines: [
+        ('from', from.name),
+        ('to', card.name),
+        if (bill.latest != null) ...[
+          ('bill', _money(bill.latest!.owed, card.currency)),
+          ('left_after', _money(left, card.currency)),
+        ],
+      ],
+    );
+
+    return CoachPlan.ready(preview, () async {
+      final ok = await _read(transferProvider.notifier).createTransfer(
+        sourceWalletId: from.id,
+        destinationWalletId: card.id,
+        amount: amount,
+        date: when,
+        title: '${card.name} bill payment',
+      );
+      if (!ok) return _error('The app could not record the payment.');
+      return jsonEncode({
+        'status': 'done',
+        'paid': amount / 100,
+        'left_to_pay': left / 100,
+        'currency': card.currency,
+      });
+    });
+  }
+
+  CoachPlan _planCardSchedule(Map<String, dynamic> args) {
+    final card = _card(args['card'] ?? args['account']);
+    int? day(String key) {
+      if (!args.containsKey(key)) return null;
+      final v = (args[key] as num?)?.toInt();
+      if (v == null || v < 1 || v > 31) {
+        throw _ToolError('$key must be a day of the month, 1 to 31.');
+      }
+      return v;
+    }
+
+    final statement = day('statement_day') ?? card.billingCycleDay;
+    final due = day('due_day') ?? card.paymentDueDay;
+    final remind = args.containsKey('remind_days_before')
+        ? (args['remind_days_before'] as num?)?.toInt()
+        : card.dueReminderDays;
+    if (remind == null || remind < 0 || remind > 14) {
+      throw _ToolError('remind_days_before must be 0 (off) to 14.');
+    }
+
+    String d(int? v) => v == null ? '' : '$v';
+    final changes = <String, (String, String)>{
+      if (statement != card.billingCycleDay)
+        'statement_day': (d(card.billingCycleDay), d(statement)),
+      if (due != card.paymentDueDay)
+        'due_day': (d(card.paymentDueDay), d(due)),
+      if (remind != card.dueReminderDays)
+        'remind': (d(card.dueReminderDays), d(remind)),
+    };
+    if (changes.isEmpty) {
+      throw _ToolError('Nothing would change; the card is already set that way.');
+    }
+
+    final preview = CoachActionPreview(
+      kind: CoachActionKind.cardSettings,
+      title: card.name,
+      amount: 0,
+      currency: card.currency,
+      isIncome: false,
+      date: DateTime.now(),
+      changes: changes,
+    );
+    return CoachPlan.ready(preview, () async {
+      await _read(walletProvider.notifier).setCardSchedule(
+        id: card.id,
+        statementDay: statement,
+        dueDay: due,
+        reminderDays: remind,
+      );
+      return jsonEncode({'status': 'done'});
     });
   }
 

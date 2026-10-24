@@ -2879,11 +2879,6 @@ class L10nEn extends L10n {
   }
 
   @override
-  String cardPay(String amount) {
-    return 'Pay $amount';
-  }
-
-  @override
   String cardPaymentTitle(String card) {
     return '$card bill payment';
   }
@@ -2927,6 +2922,37 @@ class L10nEn extends L10n {
 
   @override
   String get cardStatusOverdue => 'Overdue';
+
+  @override
+  String cardPaidOf(String paid, String owed) {
+    return '$paid of $owed paid';
+  }
+
+  @override
+  String get cardPayBill => 'Pay bill';
+
+  @override
+  String cardPayTitle(String card) {
+    return 'Pay $card';
+  }
+
+  @override
+  String get cardPayHint =>
+      'Pay all of it or part of it. Anything you pay counts toward this bill, and the rest stays due.';
+
+  @override
+  String cardPayFull(String amount) {
+    return 'Pay in full, $amount';
+  }
+
+  @override
+  String get cardPayFullHint => 'Everything left on this bill';
+
+  @override
+  String get cardPayOther => 'Pay another amount';
+
+  @override
+  String get cardPayOtherHint => 'A part payment, or more than the bill';
 
   @override
   String get addNoteHint => 'Add a note';
@@ -3336,6 +3362,9 @@ class L10nEn extends L10n {
   String get aiToolCategories => 'Looking at your categories…';
 
   @override
+  String get aiToolCards => 'Checking card bills…';
+
+  @override
   String get aiToolSaving => 'Saving…';
 
   @override
@@ -3346,6 +3375,30 @@ class L10nEn extends L10n {
 
   @override
   String get aiActionDeleteTitle => 'Delete this transaction?';
+
+  @override
+  String get aiActionPayCardTitle => 'Pay a card bill';
+
+  @override
+  String get aiActionCardSettingsTitle => 'Change card dates';
+
+  @override
+  String get aiActionFrom => 'From';
+
+  @override
+  String get aiActionTo => 'To';
+
+  @override
+  String get aiActionBill => 'Bill';
+
+  @override
+  String get aiActionLeftAfter => 'Left after';
+
+  @override
+  String get aiActionRemindDays => 'Remind, days before';
+
+  @override
+  String get aiActionPay => 'Pay';
 
   @override
   String get aiActionDeleteNote =>

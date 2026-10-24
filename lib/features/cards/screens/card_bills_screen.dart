@@ -161,6 +161,27 @@ class _CardBillCard extends ConsumerWidget {
               key: const Key('card_remaining'),
               style: SunriseType.statValue.copyWith(color: c.ink),
             ),
+            // Part payments are normal: the bar shows how much of the bill
+            // is already covered, so paying 5,000 of 15,000 reads as progress
+            // rather than as a bill still wholly due.
+            if (latest.owed > 0) ...[
+              const SizedBox(height: 10),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: LinearProgressIndicator(
+                  key: const Key('card_paid_progress'),
+                  value: (latest.paid / latest.owed).clamp(0.0, 1.0),
+                  minHeight: 8,
+                  backgroundColor: c.barIdle,
+                  color: latest.isSettled ? c.positive : c.accent,
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                l10n.cardPaidOf(money(latest.paid), money(latest.owed)),
+                style: SunriseType.caption.copyWith(color: c.subtle),
+              ),
+            ],
             const SizedBox(height: 12),
             _Line(
               label: l10n.cardStatementClosed(day(latest.statementDate)),
@@ -181,15 +202,9 @@ class _CardBillCard extends ConsumerWidget {
             if (!latest.isSettled) ...[
               SunriseButton(
                 key: const Key('card_pay'),
-                label: l10n.cardPay(money(latest.remaining)),
+                label: l10n.cardPayBill,
                 height: 50,
-                onPressed: () => showAddTransactionScreen(
-                  context,
-                  initialType: TransactionTypeSelection.transfer,
-                  prefillAmount: latest.remaining / 100.0,
-                  prefillTitle: l10n.cardPaymentTitle(card.name),
-                  prefillToWalletId: card.id,
-                ),
+                onPressed: () => _pay(context, card, latest, money),
               ),
               const SizedBox(height: 8),
             ],
@@ -215,6 +230,52 @@ class _CardBillCard extends ConsumerWidget {
           ],
         ],
       ),
+    );
+  }
+
+  /// Pay all of what is left, or any other amount. A part payment counts
+  /// toward the bill like any other; the rest stays due.
+  Future<void> _pay(
+    BuildContext context,
+    Wallet card,
+    CardStatement bill,
+    String Function(int) money,
+  ) async {
+    final l10n = L10n.of(context);
+    final full = await showSunriseSheet<bool>(
+      context: context,
+      builder: (sheet) => SunriseBottomSheet(
+        title: l10n.cardPayTitle(card.name),
+        subtitle: l10n.cardPayHint,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SheetAction(
+              key: const Key('card_pay_full'),
+              icon: Symbols.check_circle_rounded,
+              label: l10n.cardPayFull(money(bill.remaining)),
+              subtitle: l10n.cardPayFullHint,
+              onTap: () => Navigator.pop(sheet, true),
+            ),
+            SheetAction(
+              key: const Key('card_pay_other'),
+              icon: Symbols.edit_rounded,
+              label: l10n.cardPayOther,
+              subtitle: l10n.cardPayOtherHint,
+              onTap: () => Navigator.pop(sheet, false),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (full == null || !context.mounted) return;
+    await showAddTransactionScreen(
+      context,
+      initialType: TransactionTypeSelection.transfer,
+      // Left empty for another amount, so the keypad opens on a blank figure.
+      prefillAmount: full ? bill.remaining / 100.0 : null,
+      prefillTitle: l10n.cardPaymentTitle(card.name),
+      prefillToWalletId: card.id,
     );
   }
 

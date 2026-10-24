@@ -2851,11 +2851,6 @@ class L10nBn extends L10n {
   }
 
   @override
-  String cardPay(String amount) {
-    return '$amount পরিশোধ';
-  }
-
-  @override
   String cardPaymentTitle(String card) {
     return '$card বিল পরিশোধ';
   }
@@ -2899,6 +2894,37 @@ class L10nBn extends L10n {
 
   @override
   String get cardStatusOverdue => 'সময় পেরিয়ে গেছে';
+
+  @override
+  String cardPaidOf(String paid, String owed) {
+    return '$owed এর মধ্যে $paid পরিশোধিত';
+  }
+
+  @override
+  String get cardPayBill => 'বিল পরিশোধ';
+
+  @override
+  String cardPayTitle(String card) {
+    return '$card পরিশোধ';
+  }
+
+  @override
+  String get cardPayHint =>
+      'পুরোটা বা কিছু অংশ পরিশোধ করুন। যা দেবেন তা এই বিলে ধরা হবে, বাকিটা বাকি থাকবে।';
+
+  @override
+  String cardPayFull(String amount) {
+    return 'পুরোটা পরিশোধ, $amount';
+  }
+
+  @override
+  String get cardPayFullHint => 'এই বিলের যা বাকি সব';
+
+  @override
+  String get cardPayOther => 'অন্য পরিমাণ পরিশোধ';
+
+  @override
+  String get cardPayOtherHint => 'আংশিক পরিশোধ, বা বিলের চেয়ে বেশি';
 
   @override
   String get addNoteHint => 'একটি নোট যোগ করুন';
@@ -3296,6 +3322,9 @@ class L10nBn extends L10n {
   String get aiToolCategories => 'আপনার ক্যাটাগরি দেখা হচ্ছে…';
 
   @override
+  String get aiToolCards => 'কার্ডের বিল দেখা হচ্ছে…';
+
+  @override
   String get aiToolSaving => 'সংরক্ষণ করা হচ্ছে…';
 
   @override
@@ -3306,6 +3335,30 @@ class L10nBn extends L10n {
 
   @override
   String get aiActionDeleteTitle => 'এই লেনদেনটি মুছবেন?';
+
+  @override
+  String get aiActionPayCardTitle => 'কার্ডের বিল পরিশোধ';
+
+  @override
+  String get aiActionCardSettingsTitle => 'কার্ডের তারিখ বদলানো';
+
+  @override
+  String get aiActionFrom => 'থেকে';
+
+  @override
+  String get aiActionTo => 'যেখানে';
+
+  @override
+  String get aiActionBill => 'বিল';
+
+  @override
+  String get aiActionLeftAfter => 'এরপর বাকি';
+
+  @override
+  String get aiActionRemindDays => 'কত দিন আগে মনে করাবে';
+
+  @override
+  String get aiActionPay => 'পরিশোধ';
 
   @override
   String get aiActionDeleteNote =>

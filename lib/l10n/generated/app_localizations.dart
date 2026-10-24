@@ -5177,12 +5177,6 @@ abstract class L10n {
   /// **'Spent since, next statement {date}'**
   String cardThisCycle(String date);
 
-  /// No description provided for @cardPay.
-  ///
-  /// In en, this message translates to:
-  /// **'Pay {amount}'**
-  String cardPay(String amount);
-
   /// No description provided for @cardPaymentTitle.
   ///
   /// In en, this message translates to:
@@ -5248,6 +5242,54 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'Overdue'**
   String get cardStatusOverdue;
+
+  /// No description provided for @cardPaidOf.
+  ///
+  /// In en, this message translates to:
+  /// **'{paid} of {owed} paid'**
+  String cardPaidOf(String paid, String owed);
+
+  /// No description provided for @cardPayBill.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay bill'**
+  String get cardPayBill;
+
+  /// No description provided for @cardPayTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay {card}'**
+  String cardPayTitle(String card);
+
+  /// No description provided for @cardPayHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay all of it or part of it. Anything you pay counts toward this bill, and the rest stays due.'**
+  String get cardPayHint;
+
+  /// No description provided for @cardPayFull.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay in full, {amount}'**
+  String cardPayFull(String amount);
+
+  /// No description provided for @cardPayFullHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything left on this bill'**
+  String get cardPayFullHint;
+
+  /// No description provided for @cardPayOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay another amount'**
+  String get cardPayOther;
+
+  /// No description provided for @cardPayOtherHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A part payment, or more than the bill'**
+  String get cardPayOtherHint;
 
   /// No description provided for @addNoteHint.
   ///
@@ -5975,6 +6017,12 @@ abstract class L10n {
   /// **'Looking at your categories…'**
   String get aiToolCategories;
 
+  /// No description provided for @aiToolCards.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking card bills…'**
+  String get aiToolCards;
+
   /// No description provided for @aiToolSaving.
   ///
   /// In en, this message translates to:
@@ -5998,6 +6046,54 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'Delete this transaction?'**
   String get aiActionDeleteTitle;
+
+  /// No description provided for @aiActionPayCardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay a card bill'**
+  String get aiActionPayCardTitle;
+
+  /// No description provided for @aiActionCardSettingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Change card dates'**
+  String get aiActionCardSettingsTitle;
+
+  /// No description provided for @aiActionFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'From'**
+  String get aiActionFrom;
+
+  /// No description provided for @aiActionTo.
+  ///
+  /// In en, this message translates to:
+  /// **'To'**
+  String get aiActionTo;
+
+  /// No description provided for @aiActionBill.
+  ///
+  /// In en, this message translates to:
+  /// **'Bill'**
+  String get aiActionBill;
+
+  /// No description provided for @aiActionLeftAfter.
+  ///
+  /// In en, this message translates to:
+  /// **'Left after'**
+  String get aiActionLeftAfter;
+
+  /// No description provided for @aiActionRemindDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Remind, days before'**
+  String get aiActionRemindDays;
+
+  /// No description provided for @aiActionPay.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay'**
+  String get aiActionPay;
 
   /// No description provided for @aiActionDeleteNote.
   ///

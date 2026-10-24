@@ -1,10 +1,12 @@
 import 'dart:convert';
 
+import 'package:drift/drift.dart' show Value;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
+import 'package:the_accountant/data/models/wallet.dart' show WalletType;
 import 'package:the_accountant/features/ai_assistant/services/ai_api.dart';
 import 'package:the_accountant/features/ai_assistant/services/coach_tool_runner.dart';
 import 'package:the_accountant/features/categories/providers/category_provider.dart';
@@ -231,4 +233,98 @@ void main() {
       expect(madeUp.error, contains('No transaction'));
     },
   );
+
+  group('credit card bills', () {
+    late String card;
+
+    setUp(() async {
+      card = await seedWallet(db, name: 'SCB Credit', openingBalance: 0);
+      await (db.update(db.wallets)..where((w) => w.id.equals(card))).write(
+        const WalletsCompanion(
+          walletType: Value(WalletType.creditCard),
+          billingCycleDay: Value(13),
+          paymentDueDay: Value(28),
+        ),
+      );
+      // Long enough ago to be on the last statement, whatever today is.
+      await seedTransaction(
+        db,
+        walletId: card,
+        categoryId: food,
+        amount: 1500000,
+        title: 'Laptop',
+        date: DateTime.now().subtract(const Duration(days: 40)),
+      );
+      await container.read(walletProvider.notifier).loadWallets();
+    });
+
+    test('says what the bill is and what is left', () async {
+      final result = await read('card_bills', {});
+      final bill = (result['cards'] as List).single as Map;
+      expect(bill['name'], 'SCB Credit');
+      expect(bill['statement_day'], 13);
+      expect(bill['due_day'], 28);
+      expect(bill['statement_amount'], 15000.0);
+      expect(bill['left_to_pay'], 15000.0);
+    });
+
+    test('a part payment counts, and the rest stays due', () async {
+      final plan = await runner.plan(
+        CoachToolCall('c2', 'pay_card_bill', {
+          'amount': 5000,
+          'from_account': 'Bkash',
+        }),
+      );
+      expect(plan.error, isNull);
+      expect(plan.preview!.kind, CoachActionKind.payCard);
+      expect(plan.preview!.amount, 500000);
+      expect(
+        plan.preview!.lines,
+        containsAll([('from', 'Bkash'), ('to', 'SCB Credit')]),
+      );
+
+      // Nothing has happened until it is confirmed.
+      var bill = ((await read('card_bills', {}))['cards'] as List).single as Map;
+      expect(bill['left_to_pay'], 15000.0);
+
+      final done = jsonDecode(await plan.execute!()) as Map;
+      expect(done['status'], 'done');
+      expect(done['left_to_pay'], 10000.0);
+
+      bill = ((await read('card_bills', {}))['cards'] as List).single as Map;
+      expect(bill['paid_since_statement'], 5000.0);
+      expect(bill['left_to_pay'], 10000.0);
+
+      // Without an amount it pays what is left.
+      final rest = await runner.plan(
+        CoachToolCall('c3', 'pay_card_bill', {'from_account': 'Bkash'}),
+      );
+      expect(rest.preview!.amount, 1000000);
+      await rest.execute!();
+      bill = ((await read('card_bills', {}))['cards'] as List).single as Map;
+      expect(bill['left_to_pay'], 0.0);
+      expect(bill['status'], 'paid');
+    });
+
+    test('sets the dates, and refuses days that do not exist', () async {
+      final plan = await runner.plan(
+        CoachToolCall('c4', 'set_card_schedule', {
+          'due_day': 5,
+          'remind_days_before': 5,
+        }),
+      );
+      expect(plan.preview!.kind, CoachActionKind.cardSettings);
+      expect(plan.preview!.changes.keys, containsAll(['due_day', 'remind']));
+      await plan.execute!();
+      final row = (await db.findWalletById(card))!;
+      expect(row.paymentDueDay, 5);
+      expect(row.dueReminderDays, 5);
+      expect(row.billingCycleDay, 13);
+
+      final bad = await runner.plan(
+        CoachToolCall('c5', 'set_card_schedule', {'statement_day': 40}),
+      );
+      expect(bad.error, contains('1 to 31'));
+    });
+  });
 }
