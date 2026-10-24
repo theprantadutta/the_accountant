@@ -1481,18 +1481,6 @@ abstract class L10n {
   /// **'Remind Me Before Due Date'**
   String get settingsRemindMeBeforeDueDate;
 
-  /// No description provided for @settingsTestNotificationSentCheckYour.
-  ///
-  /// In en, this message translates to:
-  /// **'Test notification sent! Check your notifications.'**
-  String get settingsTestNotificationSentCheckYour;
-
-  /// No description provided for @settingsTest.
-  ///
-  /// In en, this message translates to:
-  /// **'Test'**
-  String get settingsTest;
-
   /// No description provided for @settingsDailyReminders.
   ///
   /// In en, this message translates to:
@@ -2074,12 +2062,6 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'Currency'**
   String get walletCurrency;
-
-  /// No description provided for @walletSelectBillingDayOptional.
-  ///
-  /// In en, this message translates to:
-  /// **'Select billing day (optional)'**
-  String get walletSelectBillingDayOptional;
 
   /// No description provided for @walletIcon.
   ///
@@ -3071,42 +3053,6 @@ abstract class L10n {
   /// **'Configure when and how The Accountant should remind you to track your expenses.'**
   String get settingsConfigureWhenAndHowThe;
 
-  /// No description provided for @settingsDebug.
-  ///
-  /// In en, this message translates to:
-  /// **'DEBUG'**
-  String get settingsDebug;
-
-  /// No description provided for @settingsExactAlarmPermission.
-  ///
-  /// In en, this message translates to:
-  /// **'Exact Alarm Permission'**
-  String get settingsExactAlarmPermission;
-
-  /// No description provided for @settingsDeviceTimezone.
-  ///
-  /// In en, this message translates to:
-  /// **'Device Timezone'**
-  String get settingsDeviceTimezone;
-
-  /// No description provided for @settingsScheduledNotifications.
-  ///
-  /// In en, this message translates to:
-  /// **'Scheduled Notifications'**
-  String get settingsScheduledNotifications;
-
-  /// No description provided for @settingsSendTestNotification.
-  ///
-  /// In en, this message translates to:
-  /// **'Send Test Notification'**
-  String get settingsSendTestNotification;
-
-  /// No description provided for @settingsTapToVerifyNotificationsWork.
-  ///
-  /// In en, this message translates to:
-  /// **'Tap to verify notifications work'**
-  String get settingsTapToVerifyNotificationsWork;
-
   /// No description provided for @settingsYourEmailIsUsedTo.
   ///
   /// In en, this message translates to:
@@ -3310,12 +3256,6 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'Balance'**
   String get walletBalance;
-
-  /// No description provided for @walletBillingCycleDay.
-  ///
-  /// In en, this message translates to:
-  /// **'Billing Cycle Day'**
-  String get walletBillingCycleDay;
 
   /// No description provided for @walletUseThisWalletForNew.
   ///
@@ -5002,6 +4942,312 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'Change time, {time}'**
   String addChangeTime(String time);
+
+  /// No description provided for @addSwapAccounts.
+  ///
+  /// In en, this message translates to:
+  /// **'Swap the two accounts'**
+  String get addSwapAccounts;
+
+  /// No description provided for @notifCheckTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Check notifications'**
+  String get notifCheckTitle;
+
+  /// No description provided for @notifAllowed.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications are allowed'**
+  String get notifAllowed;
+
+  /// No description provided for @notifAllowedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders can reach this phone'**
+  String get notifAllowedHint;
+
+  /// No description provided for @notifBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications are off'**
+  String get notifBlocked;
+
+  /// No description provided for @notifBlockedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to allow them, or nothing can reach you'**
+  String get notifBlockedHint;
+
+  /// No description provided for @notifSendTest.
+  ///
+  /// In en, this message translates to:
+  /// **'Send a test notification'**
+  String get notifSendTest;
+
+  /// No description provided for @notifSendTestHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent from our server, the way reminders come'**
+  String get notifSendTestHint;
+
+  /// No description provided for @notifSending.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending…'**
+  String get notifSending;
+
+  /// No description provided for @notifTestSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent. It should appear in a few seconds, and in your inbox.'**
+  String get notifTestSent;
+
+  /// No description provided for @notifTestFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'It could not be sent: {reason}'**
+  String notifTestFailed(String reason);
+
+  /// No description provided for @notifTestOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'no connection to the server'**
+  String get notifTestOffline;
+
+  /// No description provided for @notifDailyPrimerBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The Accountant will send a gentle daily nudge to log your spending, at the time you choose. It needs permission to show notifications.'**
+  String get notifDailyPrimerBody;
+
+  /// No description provided for @notifPrimerShow.
+  ///
+  /// In en, this message translates to:
+  /// **'Show reminder notifications'**
+  String get notifPrimerShow;
+
+  /// No description provided for @notifPrimerTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Arrive at your chosen time'**
+  String get notifPrimerTime;
+
+  /// No description provided for @notifPrimerOff.
+  ///
+  /// In en, this message translates to:
+  /// **'You can turn this off anytime'**
+  String get notifPrimerOff;
+
+  /// No description provided for @notifPrimerAllow.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow'**
+  String get notifPrimerAllow;
+
+  /// No description provided for @cardBillsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Card bills'**
+  String get cardBillsTitle;
+
+  /// No description provided for @cardBillsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Credit card statements, due dates and reminders'**
+  String get cardBillsSubtitle;
+
+  /// No description provided for @cardBillsEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No credit cards yet'**
+  String get cardBillsEmptyTitle;
+
+  /// No description provided for @cardBillsEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Add an account of the Credit card type, set its statement day and due day, and its bills show up here.'**
+  String get cardBillsEmptyBody;
+
+  /// No description provided for @cardBillsAddCard.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a card'**
+  String get cardBillsAddCard;
+
+  /// No description provided for @cardStatementDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Statement day'**
+  String get cardStatementDay;
+
+  /// No description provided for @cardStatementDayHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The day each month the bill is made. Everything up to the end of that day is on it.'**
+  String get cardStatementDayHint;
+
+  /// No description provided for @cardDueDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment due day'**
+  String get cardDueDay;
+
+  /// No description provided for @cardDueDayHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The last day to pay the bill, the first time that day comes round after the statement.'**
+  String get cardDueDayHint;
+
+  /// No description provided for @cardRemindTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remind me'**
+  String get cardRemindTitle;
+
+  /// No description provided for @cardRemindHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Before the due date, if any of the bill is still unpaid. Sent around 9 AM.'**
+  String get cardRemindHint;
+
+  /// No description provided for @cardRemindOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get cardRemindOff;
+
+  /// No description provided for @cardRemindDaysBefore.
+  ///
+  /// In en, this message translates to:
+  /// **'{days, plural, =1{The day before} other{{days} days before}}'**
+  String cardRemindDaysBefore(int days);
+
+  /// No description provided for @cardNotSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not set'**
+  String get cardNotSet;
+
+  /// No description provided for @cardDayOfMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Day {day}'**
+  String cardDayOfMonth(int day);
+
+  /// No description provided for @cardSetUpBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Set the statement day and the due day to see this card\'s bills and get reminded before they are due.'**
+  String get cardSetUpBody;
+
+  /// No description provided for @cardSetUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Set the dates'**
+  String get cardSetUp;
+
+  /// No description provided for @cardDueBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Left to pay by {date}'**
+  String cardDueBy(String date);
+
+  /// No description provided for @cardLeftToPay.
+  ///
+  /// In en, this message translates to:
+  /// **'Left to pay'**
+  String get cardLeftToPay;
+
+  /// No description provided for @cardStatementClosed.
+  ///
+  /// In en, this message translates to:
+  /// **'Statement of {date}'**
+  String cardStatementClosed(String date);
+
+  /// No description provided for @cardPaidSince.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid since'**
+  String get cardPaidSince;
+
+  /// No description provided for @cardThisCycle.
+  ///
+  /// In en, this message translates to:
+  /// **'Spent since, next statement {date}'**
+  String cardThisCycle(String date);
+
+  /// No description provided for @cardPay.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay {amount}'**
+  String cardPay(String amount);
+
+  /// No description provided for @cardPaymentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{card} bill payment'**
+  String cardPaymentTitle(String card);
+
+  /// No description provided for @cardEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit card'**
+  String get cardEdit;
+
+  /// No description provided for @cardEarlierStatements.
+  ///
+  /// In en, this message translates to:
+  /// **'EARLIER STATEMENTS'**
+  String get cardEarlierStatements;
+
+  /// No description provided for @cardPaidShort.
+  ///
+  /// In en, this message translates to:
+  /// **'paid'**
+  String get cardPaidShort;
+
+  /// No description provided for @cardUnpaidShort.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} unpaid'**
+  String cardUnpaidShort(String amount);
+
+  /// No description provided for @cardStatusNotSetUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Dates not set'**
+  String get cardStatusNotSetUp;
+
+  /// No description provided for @cardStatusNothingDue.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing due'**
+  String get cardStatusNothingDue;
+
+  /// No description provided for @cardStatusPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get cardStatusPaid;
+
+  /// No description provided for @cardStatusDueIn.
+  ///
+  /// In en, this message translates to:
+  /// **'{days, plural, =1{Due tomorrow} other{Due in {days} days}}'**
+  String cardStatusDueIn(int days);
+
+  /// No description provided for @cardStatusDueToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Due today'**
+  String get cardStatusDueToday;
+
+  /// No description provided for @cardStatusOverdue.
+  ///
+  /// In en, this message translates to:
+  /// **'Overdue'**
+  String get cardStatusOverdue;
 
   /// No description provided for @addNoteHint.
   ///

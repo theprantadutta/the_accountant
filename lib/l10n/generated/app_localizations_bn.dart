@@ -747,13 +747,6 @@ class L10nBn extends L10n {
       'নির্ধারিত তারিখের আগে মনে করিয়ে দিন';
 
   @override
-  String get settingsTestNotificationSentCheckYour =>
-      'পরীক্ষামূলক বিজ্ঞপ্তি পাঠানো হয়েছে! আপনার বিজ্ঞপ্তি দেখুন।';
-
-  @override
-  String get settingsTest => 'পরীক্ষা';
-
-  @override
   String get settingsDailyReminders => 'দৈনিক অনুস্মারক';
 
   @override
@@ -1066,9 +1059,6 @@ class L10nBn extends L10n {
 
   @override
   String get walletCurrency => 'মুদ্রা';
-
-  @override
-  String get walletSelectBillingDayOptional => 'বিলের দিন বাছুন (ঐচ্ছিক)';
 
   @override
   String get walletIcon => 'আইকন';
@@ -1660,25 +1650,6 @@ class L10nBn extends L10n {
       'খরচ লিখে রাখার কথা The Accountant কখন ও কীভাবে মনে করিয়ে দেবে তা ঠিক করুন।';
 
   @override
-  String get settingsDebug => 'ডিবাগ';
-
-  @override
-  String get settingsExactAlarmPermission => 'সঠিক সময়ে অ্যালার্মের অনুমতি';
-
-  @override
-  String get settingsDeviceTimezone => 'ডিভাইসের সময় অঞ্চল';
-
-  @override
-  String get settingsScheduledNotifications => 'নির্ধারিত বিজ্ঞপ্তি';
-
-  @override
-  String get settingsSendTestNotification => 'পরীক্ষামূলক বিজ্ঞপ্তি পাঠান';
-
-  @override
-  String get settingsTapToVerifyNotificationsWork =>
-      'বিজ্ঞপ্তি কাজ করছে কিনা দেখতে চাপ দিন';
-
-  @override
   String get settingsYourEmailIsUsedTo =>
       'আপনার ইমেল দিয়ে সাইন ইন করা হয়, এখানে সেটি বদলানো যাবে না।';
 
@@ -1788,9 +1759,6 @@ class L10nBn extends L10n {
 
   @override
   String get walletBalance => 'ব্যালেন্স';
-
-  @override
-  String get walletBillingCycleDay => 'বিল চক্রের দিন';
 
   @override
   String get walletUseThisWalletForNew =>
@@ -2738,6 +2706,199 @@ class L10nBn extends L10n {
   String addChangeTime(String time) {
     return 'সময় বদলান, $time';
   }
+
+  @override
+  String get addSwapAccounts => 'দুটি অ্যাকাউন্ট অদলবদল করুন';
+
+  @override
+  String get notifCheckTitle => 'নোটিফিকেশন যাচাই';
+
+  @override
+  String get notifAllowed => 'নোটিফিকেশন চালু আছে';
+
+  @override
+  String get notifAllowedHint => 'রিমাইন্ডার এই ফোনে আসতে পারবে';
+
+  @override
+  String get notifBlocked => 'নোটিফিকেশন বন্ধ আছে';
+
+  @override
+  String get notifBlockedHint => 'চালু করতে ট্যাপ করুন, নইলে কিছুই আসবে না';
+
+  @override
+  String get notifSendTest => 'একটি টেস্ট নোটিফিকেশন পাঠান';
+
+  @override
+  String get notifSendTestHint => 'আমাদের সার্ভার থেকে, রিমাইন্ডার যেভাবে আসে';
+
+  @override
+  String get notifSending => 'পাঠানো হচ্ছে…';
+
+  @override
+  String get notifTestSent =>
+      'পাঠানো হয়েছে। কয়েক সেকেন্ডের মধ্যে এটি আসবে, ইনবক্সেও থাকবে।';
+
+  @override
+  String notifTestFailed(String reason) {
+    return 'পাঠানো যায়নি: $reason';
+  }
+
+  @override
+  String get notifTestOffline => 'সার্ভারের সাথে সংযোগ নেই';
+
+  @override
+  String get notifDailyPrimerBody =>
+      'দ্য অ্যাকাউন্ট্যান্ট আপনার বেছে নেওয়া সময়ে খরচ লিখে রাখার একটি ছোট রিমাইন্ডার পাঠাবে। এর জন্য নোটিফিকেশন দেখানোর অনুমতি লাগবে।';
+
+  @override
+  String get notifPrimerShow => 'রিমাইন্ডার নোটিফিকেশন দেখাবে';
+
+  @override
+  String get notifPrimerTime => 'আপনার বেছে নেওয়া সময়ে আসবে';
+
+  @override
+  String get notifPrimerOff => 'যেকোনো সময় বন্ধ করতে পারবেন';
+
+  @override
+  String get notifPrimerAllow => 'অনুমতি দিন';
+
+  @override
+  String get cardBillsTitle => 'কার্ডের বিল';
+
+  @override
+  String get cardBillsSubtitle =>
+      'ক্রেডিট কার্ডের স্টেটমেন্ট, শেষ তারিখ ও রিমাইন্ডার';
+
+  @override
+  String get cardBillsEmptyTitle => 'এখনো কোনো ক্রেডিট কার্ড নেই';
+
+  @override
+  String get cardBillsEmptyBody =>
+      'ক্রেডিট কার্ড ধরনের একটি অ্যাকাউন্ট যোগ করুন, স্টেটমেন্টের দিন ও পরিশোধের শেষ দিন দিন, তাহলে এর বিল এখানে দেখাবে।';
+
+  @override
+  String get cardBillsAddCard => 'কার্ড যোগ করুন';
+
+  @override
+  String get cardStatementDay => 'স্টেটমেন্টের দিন';
+
+  @override
+  String get cardStatementDayHint =>
+      'প্রতি মাসের যেদিন বিল তৈরি হয়। সেদিনের শেষ পর্যন্ত সব খরচ এতে থাকে।';
+
+  @override
+  String get cardDueDay => 'পরিশোধের শেষ দিন';
+
+  @override
+  String get cardDueDayHint =>
+      'বিল পরিশোধের শেষ দিন, স্টেটমেন্টের পর প্রথম যেদিন এই তারিখ আসে।';
+
+  @override
+  String get cardRemindTitle => 'মনে করিয়ে দিন';
+
+  @override
+  String get cardRemindHint =>
+      'শেষ তারিখের আগে, যদি বিলের কিছু বাকি থাকে। সকাল ৯টার দিকে পাঠানো হয়।';
+
+  @override
+  String get cardRemindOff => 'বন্ধ';
+
+  @override
+  String cardRemindDaysBefore(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days দিন আগে',
+      one: 'আগের দিন',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get cardNotSet => 'দেওয়া হয়নি';
+
+  @override
+  String cardDayOfMonth(int day) {
+    return '$day তারিখ';
+  }
+
+  @override
+  String get cardSetUpBody =>
+      'এই কার্ডের বিল দেখতে ও শেষ তারিখের আগে রিমাইন্ডার পেতে স্টেটমেন্টের দিন ও পরিশোধের শেষ দিন দিন।';
+
+  @override
+  String get cardSetUp => 'তারিখ দিন';
+
+  @override
+  String cardDueBy(String date) {
+    return '$date এর মধ্যে বাকি পরিশোধ';
+  }
+
+  @override
+  String get cardLeftToPay => 'বাকি';
+
+  @override
+  String cardStatementClosed(String date) {
+    return '$date এর স্টেটমেন্ট';
+  }
+
+  @override
+  String get cardPaidSince => 'এরপর পরিশোধ';
+
+  @override
+  String cardThisCycle(String date) {
+    return 'এরপর খরচ, পরের স্টেটমেন্ট $date';
+  }
+
+  @override
+  String cardPay(String amount) {
+    return '$amount পরিশোধ';
+  }
+
+  @override
+  String cardPaymentTitle(String card) {
+    return '$card বিল পরিশোধ';
+  }
+
+  @override
+  String get cardEdit => 'কার্ড সম্পাদনা';
+
+  @override
+  String get cardEarlierStatements => 'আগের স্টেটমেন্ট';
+
+  @override
+  String get cardPaidShort => 'পরিশোধিত';
+
+  @override
+  String cardUnpaidShort(String amount) {
+    return '$amount বাকি';
+  }
+
+  @override
+  String get cardStatusNotSetUp => 'তারিখ দেওয়া হয়নি';
+
+  @override
+  String get cardStatusNothingDue => 'কিছু বাকি নেই';
+
+  @override
+  String get cardStatusPaid => 'পরিশোধিত';
+
+  @override
+  String cardStatusDueIn(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days দিন বাকি',
+      one: 'কাল শেষ দিন',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get cardStatusDueToday => 'আজ শেষ দিন';
+
+  @override
+  String get cardStatusOverdue => 'সময় পেরিয়ে গেছে';
 
   @override
   String get addNoteHint => 'একটি নোট যোগ করুন';

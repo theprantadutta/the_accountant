@@ -4,10 +4,12 @@ import 'package:the_accountant/shared/widgets/sunrise/sunrise_page.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
-import 'package:the_accountant/core/services/daily_reminder_scheduler.dart';
+import 'package:the_accountant/core/services/notification_service.dart';
+import 'package:the_accountant/core/utils/time_formatter.dart';
+import 'package:the_accountant/features/notifications/providers/notification_history_provider.dart';
+import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart' show showSunriseSnack, SnackTone;
 import 'package:the_accountant/core/constants/background_task_constants.dart';
 import 'package:the_accountant/features/settings/providers/notification_preferences_provider.dart';
 import 'package:the_accountant/features/settings/widgets/settings_tile.dart';
@@ -290,29 +292,22 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
         context,
         icon: Icons.notifications_active_outlined,
         title: L10n.of(context).settingsTurnOnDailyReminders,
-        message:
-            'The Accountant will send a gentle daily nudge to log your '
-            'expenses. To deliver it on time we need permission to show '
-            'notifications and schedule alarms.',
-        points: const [
+        message: L10n.of(context).notifDailyPrimerBody,
+        points: [
           PrimingPoint(
             Icons.notifications_outlined,
-            'Show reminder notifications',
+            L10n.of(context).notifPrimerShow,
           ),
-          PrimingPoint(
-            Icons.alarm_outlined,
-            'Deliver them at your chosen time',
-          ),
-          PrimingPoint(Icons.lock_outline, 'You can turn this off anytime'),
+          PrimingPoint(Icons.alarm_outlined, L10n.of(context).notifPrimerTime),
+          PrimingPoint(Icons.lock_outline, L10n.of(context).notifPrimerOff),
         ],
-        allowLabel: 'Allow',
+        allowLabel: L10n.of(context).notifPrimerAllow,
       );
       if (!proceed) return; // Declined — leave the toggle off.
 
-      // The user opted in, so now request the actual OS permissions.
-      final scheduler = DailyReminderScheduler();
-      await scheduler.requestNotificationPermission();
-      await scheduler.requestExactAlarmPermission();
+      // The user opted in, so now ask Android. Only to show notifications:
+      // the reminder comes from the server, so no alarm permission is needed.
+      await NotificationService().requestPermission();
 
       if (!mounted) return;
     }
@@ -325,17 +320,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
     final selectedTime = await showTimePicker(
       context: context,
       initialTime: prefsState.dailyReminderTime,
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.dark(
-              primary: AppColors.primaryAccent,
-              surface: AppColors.primarySurface,
-            ),
-          ),
-          child: child!,
-        );
-      },
+      builder: (context, child) => AppTimeFormatter.withClock(context, child!),
     );
 
     if (selectedTime != null) {
@@ -445,20 +430,22 @@ class _ReminderTimeTile extends StatelessWidget {
   }
 }
 
-/// Debug section to test notifications
-class _NotificationDebugSection extends StatefulWidget {
+/// Whether notifications can reach this phone, and a way to prove it.
+///
+/// This used to report exact-alarm permission and a count of alarms the phone
+/// had scheduled, which said nothing useful once reminders started coming
+/// from the server. Now it says whether notifications are allowed, and sends a
+/// real one through the server, the same road every reminder takes.
+class _NotificationDebugSection extends ConsumerStatefulWidget {
   @override
-  State<_NotificationDebugSection> createState() =>
+  ConsumerState<_NotificationDebugSection> createState() =>
       _NotificationDebugSectionState();
 }
 
-class _NotificationDebugSectionState extends State<_NotificationDebugSection> {
-  bool _hasExactAlarmPermission = false;
-  bool _hasPendingReminder = false;
-  bool _isLoading = true;
-  int _pendingCount = 0;
-  String _deviceTimezone = 'Loading...';
-  String _scheduledTimezone = 'Loading...';
+class _NotificationDebugSectionState
+    extends ConsumerState<_NotificationDebugSection> {
+  bool? _allowed;
+  bool _sending = false;
 
   @override
   void initState() {
@@ -467,173 +454,71 @@ class _NotificationDebugSectionState extends State<_NotificationDebugSection> {
   }
 
   Future<void> _checkStatus() async {
-    setState(() => _isLoading = true);
-    final scheduler = DailyReminderScheduler();
-    final hasPermission = await scheduler.hasExactAlarmPermission();
-    final hasPending = await scheduler.isDailyReminderPending();
-    final pending = await scheduler.getPendingNotifications();
-    final scheduledTz = await scheduler.getScheduledTimezone();
-
-    // Get device timezone
-    String deviceTz = 'Unknown';
-    try {
-      final tzInfo = await FlutterTimezone.getLocalTimezone();
-      deviceTz = tzInfo.identifier;
-    } catch (_) {}
-
-    if (mounted) {
-      setState(() {
-        _hasExactAlarmPermission = hasPermission;
-        _hasPendingReminder = hasPending;
-        _pendingCount = pending.length;
-        _deviceTimezone = deviceTz;
-        _scheduledTimezone = scheduledTz;
-        _isLoading = false;
-      });
-    }
+    final allowed = await NotificationService().hasPermission();
+    if (mounted) setState(() => _allowed = allowed);
   }
 
-  Future<void> _sendTestNotification() async {
+  Future<void> _allow() async {
     HapticFeedback.lightImpact();
-    final scheduler = DailyReminderScheduler();
-    await scheduler.showTestNotification();
+    await NotificationService().requestPermission();
+    await _checkStatus();
+  }
 
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(L10n.of(context).settingsTestNotificationSentCheckYour),
-          backgroundColor: AppColors.success,
-        ),
+  Future<void> _sendTest() async {
+    HapticFeedback.lightImpact();
+    final l10n = L10n.of(context);
+    setState(() => _sending = true);
+    try {
+      final result = await ref
+          .read(notificationHistoryProvider.notifier)
+          .sendTest();
+      if (!mounted) return;
+      showSunriseSnack(
+        context,
+        result.delivered
+            ? l10n.notifTestSent
+            : l10n.notifTestFailed(result.error ?? '?'),
+        tone: result.delivered ? SnackTone.success : SnackTone.error,
       );
+    } catch (e) {
+      if (mounted) {
+        showSunriseSnack(
+          context,
+          l10n.notifTestFailed(l10n.notifTestOffline),
+          tone: SnackTone.error,
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _sending = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(height: AppSpacing.lg),
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: AppSpacing.xs),
-          child: Text(
-            L10n.of(context).settingsDebug,
-            style: TextStyle(
-              color: AppColors.textMuted,
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 1.2,
-            ),
-          ),
+    final l10n = L10n.of(context);
+    final allowed = _allowed;
+    return SettingsSection(
+      title: l10n.notifCheckTitle,
+      tiles: [
+        SettingsNavigationTile(
+          icon: allowed == false
+              ? Icons.notifications_off_outlined
+              : Icons.notifications_active_outlined,
+          iconColor: allowed == false ? AppColors.error : AppColors.success,
+          title: allowed == false ? l10n.notifBlocked : l10n.notifAllowed,
+          subtitle: allowed == false
+              ? l10n.notifBlockedHint
+              : l10n.notifAllowedHint,
+          onTap: allowed == false ? _allow : _checkStatus,
         ),
-        SizedBox(height: AppSpacing.sm),
-        Container(
-          decoration: BoxDecoration(
-            color: AppColors.primarySurface.withValues(alpha: 0.5),
-            borderRadius: AppSpacing.borderRadiusLg,
-          ),
-          // Transparent Material so the tiles' ink is visible over the colour.
-          child: Material(
-            type: MaterialType.transparency,
-            borderRadius: AppSpacing.borderRadiusLg,
-            clipBehavior: Clip.antiAlias,
-            child: Column(
-              children: [
-                // Permission Status
-                ListTile(
-                  leading: Icon(
-                    _hasExactAlarmPermission
-                        ? Icons.check_circle
-                        : Icons.error_outline,
-                    color: _hasExactAlarmPermission
-                        ? AppColors.success
-                        : AppColors.error,
-                  ),
-                  title: Text(
-                    L10n.of(context).settingsExactAlarmPermission,
-                    style: TextStyle(color: AppColors.textPrimary),
-                  ),
-                  subtitle: Text(
-                    _isLoading
-                        ? 'Checking...'
-                        : _hasExactAlarmPermission
-                        ? 'Granted'
-                        : 'Not granted - notifications may not work',
-                    style: TextStyle(
-                      color: _hasExactAlarmPermission
-                          ? AppColors.textSecondary
-                          : AppColors.error,
-                    ),
-                  ),
-                ),
-                const Divider(height: 1, indent: 16, endIndent: 16),
-                // Device Timezone
-                ListTile(
-                  leading: Icon(Icons.public, color: AppColors.info),
-                  title: Text(
-                    L10n.of(context).settingsDeviceTimezone,
-                    style: TextStyle(color: AppColors.textPrimary),
-                  ),
-                  subtitle: Text(
-                    _isLoading ? 'Checking...' : _deviceTimezone,
-                    style: TextStyle(color: AppColors.textSecondary),
-                  ),
-                ),
-                const Divider(height: 1, indent: 16, endIndent: 16),
-                // Pending Notifications
-                ListTile(
-                  leading: Icon(
-                    _hasPendingReminder ? Icons.alarm_on : Icons.alarm_off,
-                    color: _hasPendingReminder
-                        ? AppColors.success
-                        : AppColors.warning,
-                  ),
-                  title: Text(
-                    L10n.of(context).settingsScheduledNotifications,
-                    style: TextStyle(color: AppColors.textPrimary),
-                  ),
-                  subtitle: Text(
-                    _isLoading
-                        ? 'Checking...'
-                        : '$_pendingCount pending (daily: ${_hasPendingReminder ? "Yes" : "No"}, tz: $_scheduledTimezone)',
-                    style: TextStyle(color: AppColors.textSecondary),
-                  ),
-                  trailing: IconButton(
-                    icon: Icon(Icons.refresh, color: AppColors.textSecondary),
-                    onPressed: _checkStatus,
-                  ),
-                ),
-                const Divider(height: 1, indent: 16, endIndent: 16),
-                // Test Notification Button
-                ListTile(
-                  leading: Icon(
-                    Icons.notifications_active,
-                    color: AppColors.info,
-                  ),
-                  title: Text(
-                    L10n.of(context).settingsSendTestNotification,
-                    style: TextStyle(color: AppColors.textPrimary),
-                  ),
-                  subtitle: Text(
-                    L10n.of(context).settingsTapToVerifyNotificationsWork,
-                    style: TextStyle(color: AppColors.textSecondary),
-                  ),
-                  trailing: ElevatedButton(
-                    onPressed: _sendTestNotification,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.info,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
-                    ),
-                    child: Text(L10n.of(context).settingsTest),
-                  ),
-                ),
-              ],
-            ),
-          ),
+        SettingsNavigationTile(
+          key: const Key('send_test_notification'),
+          icon: Icons.send_outlined,
+          title: l10n.notifSendTest,
+          subtitle: _sending ? l10n.notifSending : l10n.notifSendTestHint,
+          onTap: () {
+            if (!_sending) _sendTest();
+          },
         ),
       ],
     );

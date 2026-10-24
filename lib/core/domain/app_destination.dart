@@ -13,6 +13,10 @@ enum AppDestination {
   reports,
   settings,
   scanReceipt,
+  notifications,
+
+  /// Credit card bills; [DeepLink.entityId] picks out one card when set.
+  cardBills,
 
   /// Needs [DeepLink.entityId].
   transactionDetail,
@@ -86,6 +90,8 @@ class DeepLinkParser {
     'add/expense': AppDestination.addExpense,
     'add/income': AppDestination.addIncome,
     'add/transfer': AppDestination.addTransfer,
+    'notifications': AppDestination.notifications,
+    'cards': AppDestination.cardBills,
   };
 
   /// Read a link, or null if it names nothing this app knows.

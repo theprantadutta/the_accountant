@@ -1427,6 +1427,29 @@ class $WalletsTable extends Wallets with TableInfo<$WalletsTable, Wallet> {
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _paymentDueDayMeta = const VerificationMeta(
+    'paymentDueDay',
+  );
+  @override
+  late final GeneratedColumn<int> paymentDueDay = GeneratedColumn<int>(
+    'payment_due_day',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _dueReminderDaysMeta = const VerificationMeta(
+    'dueReminderDays',
+  );
+  @override
+  late final GeneratedColumn<int> dueReminderDays = GeneratedColumn<int>(
+    'due_reminder_days',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(3),
+  );
   static const VerificationMeta _orderIndexMeta = const VerificationMeta(
     'orderIndex',
   );
@@ -1541,6 +1564,8 @@ class $WalletsTable extends Wallets with TableInfo<$WalletsTable, Wallet> {
     walletType,
     creditLimit,
     billingCycleDay,
+    paymentDueDay,
+    dueReminderDays,
     orderIndex,
     isArchived,
     excludeFromTotal,
@@ -1638,6 +1663,24 @@ class $WalletsTable extends Wallets with TableInfo<$WalletsTable, Wallet> {
         billingCycleDay.isAcceptableOrUnknown(
           data['billing_cycle_day']!,
           _billingCycleDayMeta,
+        ),
+      );
+    }
+    if (data.containsKey('payment_due_day')) {
+      context.handle(
+        _paymentDueDayMeta,
+        paymentDueDay.isAcceptableOrUnknown(
+          data['payment_due_day']!,
+          _paymentDueDayMeta,
+        ),
+      );
+    }
+    if (data.containsKey('due_reminder_days')) {
+      context.handle(
+        _dueReminderDaysMeta,
+        dueReminderDays.isAcceptableOrUnknown(
+          data['due_reminder_days']!,
+          _dueReminderDaysMeta,
         ),
       );
     }
@@ -1751,6 +1794,14 @@ class $WalletsTable extends Wallets with TableInfo<$WalletsTable, Wallet> {
         DriftSqlType.int,
         data['${effectivePrefix}billing_cycle_day'],
       ),
+      paymentDueDay: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}payment_due_day'],
+      ),
+      dueReminderDays: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}due_reminder_days'],
+      )!,
       orderIndex: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}order_index'],
@@ -1808,6 +1859,16 @@ class Wallet extends DataClass implements Insertable<Wallet> {
   final WalletType walletType;
   final int? creditLimit;
   final int? billingCycleDay;
+
+  /// The day of the month a card's bill must be paid by, 1-31.
+  ///
+  /// With [billingCycleDay] it fixes every statement: the bill closes on the
+  /// statement day and falls due on the next occurrence of this day. Null when
+  /// the user has not said, and then there is nothing to remind about.
+  final int? paymentDueDay;
+
+  /// How many days before the due date to remind; 0 turns card reminders off.
+  final int dueReminderDays;
   final int orderIndex;
 
   /// Kept for its history, but no longer offered or counted.
@@ -1840,6 +1901,8 @@ class Wallet extends DataClass implements Insertable<Wallet> {
     required this.walletType,
     this.creditLimit,
     this.billingCycleDay,
+    this.paymentDueDay,
+    required this.dueReminderDays,
     required this.orderIndex,
     required this.isArchived,
     required this.excludeFromTotal,
@@ -1872,6 +1935,10 @@ class Wallet extends DataClass implements Insertable<Wallet> {
     if (!nullToAbsent || billingCycleDay != null) {
       map['billing_cycle_day'] = Variable<int>(billingCycleDay);
     }
+    if (!nullToAbsent || paymentDueDay != null) {
+      map['payment_due_day'] = Variable<int>(paymentDueDay);
+    }
+    map['due_reminder_days'] = Variable<int>(dueReminderDays);
     map['order_index'] = Variable<int>(orderIndex);
     map['is_archived'] = Variable<bool>(isArchived);
     map['exclude_from_total'] = Variable<bool>(excludeFromTotal);
@@ -1905,6 +1972,10 @@ class Wallet extends DataClass implements Insertable<Wallet> {
       billingCycleDay: billingCycleDay == null && nullToAbsent
           ? const Value.absent()
           : Value(billingCycleDay),
+      paymentDueDay: paymentDueDay == null && nullToAbsent
+          ? const Value.absent()
+          : Value(paymentDueDay),
+      dueReminderDays: Value(dueReminderDays),
       orderIndex: Value(orderIndex),
       isArchived: Value(isArchived),
       excludeFromTotal: Value(excludeFromTotal),
@@ -1940,6 +2011,8 @@ class Wallet extends DataClass implements Insertable<Wallet> {
       ),
       creditLimit: serializer.fromJson<int?>(json['creditLimit']),
       billingCycleDay: serializer.fromJson<int?>(json['billingCycleDay']),
+      paymentDueDay: serializer.fromJson<int?>(json['paymentDueDay']),
+      dueReminderDays: serializer.fromJson<int>(json['dueReminderDays']),
       orderIndex: serializer.fromJson<int>(json['orderIndex']),
       isArchived: serializer.fromJson<bool>(json['isArchived']),
       excludeFromTotal: serializer.fromJson<bool>(json['excludeFromTotal']),
@@ -1968,6 +2041,8 @@ class Wallet extends DataClass implements Insertable<Wallet> {
       ),
       'creditLimit': serializer.toJson<int?>(creditLimit),
       'billingCycleDay': serializer.toJson<int?>(billingCycleDay),
+      'paymentDueDay': serializer.toJson<int?>(paymentDueDay),
+      'dueReminderDays': serializer.toJson<int>(dueReminderDays),
       'orderIndex': serializer.toJson<int>(orderIndex),
       'isArchived': serializer.toJson<bool>(isArchived),
       'excludeFromTotal': serializer.toJson<bool>(excludeFromTotal),
@@ -1992,6 +2067,8 @@ class Wallet extends DataClass implements Insertable<Wallet> {
     WalletType? walletType,
     Value<int?> creditLimit = const Value.absent(),
     Value<int?> billingCycleDay = const Value.absent(),
+    Value<int?> paymentDueDay = const Value.absent(),
+    int? dueReminderDays,
     int? orderIndex,
     bool? isArchived,
     bool? excludeFromTotal,
@@ -2015,6 +2092,10 @@ class Wallet extends DataClass implements Insertable<Wallet> {
     billingCycleDay: billingCycleDay.present
         ? billingCycleDay.value
         : this.billingCycleDay,
+    paymentDueDay: paymentDueDay.present
+        ? paymentDueDay.value
+        : this.paymentDueDay,
+    dueReminderDays: dueReminderDays ?? this.dueReminderDays,
     orderIndex: orderIndex ?? this.orderIndex,
     isArchived: isArchived ?? this.isArchived,
     excludeFromTotal: excludeFromTotal ?? this.excludeFromTotal,
@@ -2048,6 +2129,12 @@ class Wallet extends DataClass implements Insertable<Wallet> {
       billingCycleDay: data.billingCycleDay.present
           ? data.billingCycleDay.value
           : this.billingCycleDay,
+      paymentDueDay: data.paymentDueDay.present
+          ? data.paymentDueDay.value
+          : this.paymentDueDay,
+      dueReminderDays: data.dueReminderDays.present
+          ? data.dueReminderDays.value
+          : this.dueReminderDays,
       orderIndex: data.orderIndex.present
           ? data.orderIndex.value
           : this.orderIndex,
@@ -2082,6 +2169,8 @@ class Wallet extends DataClass implements Insertable<Wallet> {
           ..write('walletType: $walletType, ')
           ..write('creditLimit: $creditLimit, ')
           ..write('billingCycleDay: $billingCycleDay, ')
+          ..write('paymentDueDay: $paymentDueDay, ')
+          ..write('dueReminderDays: $dueReminderDays, ')
           ..write('orderIndex: $orderIndex, ')
           ..write('isArchived: $isArchived, ')
           ..write('excludeFromTotal: $excludeFromTotal, ')
@@ -2095,7 +2184,7 @@ class Wallet extends DataClass implements Insertable<Wallet> {
   }
 
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     id,
     name,
     iconName,
@@ -2108,6 +2197,8 @@ class Wallet extends DataClass implements Insertable<Wallet> {
     walletType,
     creditLimit,
     billingCycleDay,
+    paymentDueDay,
+    dueReminderDays,
     orderIndex,
     isArchived,
     excludeFromTotal,
@@ -2116,7 +2207,7 @@ class Wallet extends DataClass implements Insertable<Wallet> {
     createdAt,
     updatedAt,
     deletedAt,
-  );
+  ]);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -2133,6 +2224,8 @@ class Wallet extends DataClass implements Insertable<Wallet> {
           other.walletType == this.walletType &&
           other.creditLimit == this.creditLimit &&
           other.billingCycleDay == this.billingCycleDay &&
+          other.paymentDueDay == this.paymentDueDay &&
+          other.dueReminderDays == this.dueReminderDays &&
           other.orderIndex == this.orderIndex &&
           other.isArchived == this.isArchived &&
           other.excludeFromTotal == this.excludeFromTotal &&
@@ -2156,6 +2249,8 @@ class WalletsCompanion extends UpdateCompanion<Wallet> {
   final Value<WalletType> walletType;
   final Value<int?> creditLimit;
   final Value<int?> billingCycleDay;
+  final Value<int?> paymentDueDay;
+  final Value<int> dueReminderDays;
   final Value<int> orderIndex;
   final Value<bool> isArchived;
   final Value<bool> excludeFromTotal;
@@ -2178,6 +2273,8 @@ class WalletsCompanion extends UpdateCompanion<Wallet> {
     this.walletType = const Value.absent(),
     this.creditLimit = const Value.absent(),
     this.billingCycleDay = const Value.absent(),
+    this.paymentDueDay = const Value.absent(),
+    this.dueReminderDays = const Value.absent(),
     this.orderIndex = const Value.absent(),
     this.isArchived = const Value.absent(),
     this.excludeFromTotal = const Value.absent(),
@@ -2201,6 +2298,8 @@ class WalletsCompanion extends UpdateCompanion<Wallet> {
     this.walletType = const Value.absent(),
     this.creditLimit = const Value.absent(),
     this.billingCycleDay = const Value.absent(),
+    this.paymentDueDay = const Value.absent(),
+    this.dueReminderDays = const Value.absent(),
     this.orderIndex = const Value.absent(),
     this.isArchived = const Value.absent(),
     this.excludeFromTotal = const Value.absent(),
@@ -2225,6 +2324,8 @@ class WalletsCompanion extends UpdateCompanion<Wallet> {
     Expression<int>? walletType,
     Expression<int>? creditLimit,
     Expression<int>? billingCycleDay,
+    Expression<int>? paymentDueDay,
+    Expression<int>? dueReminderDays,
     Expression<int>? orderIndex,
     Expression<bool>? isArchived,
     Expression<bool>? excludeFromTotal,
@@ -2248,6 +2349,8 @@ class WalletsCompanion extends UpdateCompanion<Wallet> {
       if (walletType != null) 'wallet_type': walletType,
       if (creditLimit != null) 'credit_limit': creditLimit,
       if (billingCycleDay != null) 'billing_cycle_day': billingCycleDay,
+      if (paymentDueDay != null) 'payment_due_day': paymentDueDay,
+      if (dueReminderDays != null) 'due_reminder_days': dueReminderDays,
       if (orderIndex != null) 'order_index': orderIndex,
       if (isArchived != null) 'is_archived': isArchived,
       if (excludeFromTotal != null) 'exclude_from_total': excludeFromTotal,
@@ -2273,6 +2376,8 @@ class WalletsCompanion extends UpdateCompanion<Wallet> {
     Value<WalletType>? walletType,
     Value<int?>? creditLimit,
     Value<int?>? billingCycleDay,
+    Value<int?>? paymentDueDay,
+    Value<int>? dueReminderDays,
     Value<int>? orderIndex,
     Value<bool>? isArchived,
     Value<bool>? excludeFromTotal,
@@ -2296,6 +2401,8 @@ class WalletsCompanion extends UpdateCompanion<Wallet> {
       walletType: walletType ?? this.walletType,
       creditLimit: creditLimit ?? this.creditLimit,
       billingCycleDay: billingCycleDay ?? this.billingCycleDay,
+      paymentDueDay: paymentDueDay ?? this.paymentDueDay,
+      dueReminderDays: dueReminderDays ?? this.dueReminderDays,
       orderIndex: orderIndex ?? this.orderIndex,
       isArchived: isArchived ?? this.isArchived,
       excludeFromTotal: excludeFromTotal ?? this.excludeFromTotal,
@@ -2349,6 +2456,12 @@ class WalletsCompanion extends UpdateCompanion<Wallet> {
     if (billingCycleDay.present) {
       map['billing_cycle_day'] = Variable<int>(billingCycleDay.value);
     }
+    if (paymentDueDay.present) {
+      map['payment_due_day'] = Variable<int>(paymentDueDay.value);
+    }
+    if (dueReminderDays.present) {
+      map['due_reminder_days'] = Variable<int>(dueReminderDays.value);
+    }
     if (orderIndex.present) {
       map['order_index'] = Variable<int>(orderIndex.value);
     }
@@ -2394,6 +2507,8 @@ class WalletsCompanion extends UpdateCompanion<Wallet> {
           ..write('walletType: $walletType, ')
           ..write('creditLimit: $creditLimit, ')
           ..write('billingCycleDay: $billingCycleDay, ')
+          ..write('paymentDueDay: $paymentDueDay, ')
+          ..write('dueReminderDays: $dueReminderDays, ')
           ..write('orderIndex: $orderIndex, ')
           ..write('isArchived: $isArchived, ')
           ..write('excludeFromTotal: $excludeFromTotal, ')
@@ -15236,6 +15351,8 @@ typedef $$WalletsTableCreateCompanionBuilder =
       Value<WalletType> walletType,
       Value<int?> creditLimit,
       Value<int?> billingCycleDay,
+      Value<int?> paymentDueDay,
+      Value<int> dueReminderDays,
       Value<int> orderIndex,
       Value<bool> isArchived,
       Value<bool> excludeFromTotal,
@@ -15260,6 +15377,8 @@ typedef $$WalletsTableUpdateCompanionBuilder =
       Value<WalletType> walletType,
       Value<int?> creditLimit,
       Value<int?> billingCycleDay,
+      Value<int?> paymentDueDay,
+      Value<int> dueReminderDays,
       Value<int> orderIndex,
       Value<bool> isArchived,
       Value<bool> excludeFromTotal,
@@ -15379,6 +15498,16 @@ class $$WalletsTableFilterComposer
 
   ColumnFilters<int> get billingCycleDay => $composableBuilder(
     column: $table.billingCycleDay,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get paymentDueDay => $composableBuilder(
+    column: $table.paymentDueDay,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get dueReminderDays => $composableBuilder(
+    column: $table.dueReminderDays,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -15542,6 +15671,16 @@ class $$WalletsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get paymentDueDay => $composableBuilder(
+    column: $table.paymentDueDay,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get dueReminderDays => $composableBuilder(
+    column: $table.dueReminderDays,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get orderIndex => $composableBuilder(
     column: $table.orderIndex,
     builder: (column) => ColumnOrderings(column),
@@ -15636,6 +15775,16 @@ class $$WalletsTableAnnotationComposer
 
   GeneratedColumn<int> get billingCycleDay => $composableBuilder(
     column: $table.billingCycleDay,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get paymentDueDay => $composableBuilder(
+    column: $table.paymentDueDay,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get dueReminderDays => $composableBuilder(
+    column: $table.dueReminderDays,
     builder: (column) => column,
   );
 
@@ -15762,6 +15911,8 @@ class $$WalletsTableTableManager
                 Value<WalletType> walletType = const Value.absent(),
                 Value<int?> creditLimit = const Value.absent(),
                 Value<int?> billingCycleDay = const Value.absent(),
+                Value<int?> paymentDueDay = const Value.absent(),
+                Value<int> dueReminderDays = const Value.absent(),
                 Value<int> orderIndex = const Value.absent(),
                 Value<bool> isArchived = const Value.absent(),
                 Value<bool> excludeFromTotal = const Value.absent(),
@@ -15784,6 +15935,8 @@ class $$WalletsTableTableManager
                 walletType: walletType,
                 creditLimit: creditLimit,
                 billingCycleDay: billingCycleDay,
+                paymentDueDay: paymentDueDay,
+                dueReminderDays: dueReminderDays,
                 orderIndex: orderIndex,
                 isArchived: isArchived,
                 excludeFromTotal: excludeFromTotal,
@@ -15808,6 +15961,8 @@ class $$WalletsTableTableManager
                 Value<WalletType> walletType = const Value.absent(),
                 Value<int?> creditLimit = const Value.absent(),
                 Value<int?> billingCycleDay = const Value.absent(),
+                Value<int?> paymentDueDay = const Value.absent(),
+                Value<int> dueReminderDays = const Value.absent(),
                 Value<int> orderIndex = const Value.absent(),
                 Value<bool> isArchived = const Value.absent(),
                 Value<bool> excludeFromTotal = const Value.absent(),
@@ -15830,6 +15985,8 @@ class $$WalletsTableTableManager
                 walletType: walletType,
                 creditLimit: creditLimit,
                 billingCycleDay: billingCycleDay,
+                paymentDueDay: paymentDueDay,
+                dueReminderDays: dueReminderDays,
                 orderIndex: orderIndex,
                 isArchived: isArchived,
                 excludeFromTotal: excludeFromTotal,

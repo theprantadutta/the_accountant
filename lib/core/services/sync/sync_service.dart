@@ -1649,6 +1649,13 @@ class SyncService {
       walletType: Value(_parseWalletType(data['WalletType'])),
       creditLimit: Value((data['CreditLimit'] as num?)?.toInt()),
       billingCycleDay: Value(data['BillingCycleDay'] as int?),
+      // Absent from a server that predates them; keep what is here then.
+      paymentDueDay: data.containsKey('DueReminderDays')
+          ? Value((data['PaymentDueDay'] as num?)?.toInt())
+          : const Value.absent(),
+      dueReminderDays: data['DueReminderDays'] is num
+          ? Value((data['DueReminderDays'] as num).toInt())
+          : const Value.absent(),
       orderIndex: Value((data['OrderIndex'] as num?)?.toInt() ?? 0),
       isArchived: Value(data['IsArchived'] ?? false),
       excludeFromTotal: Value(data['ExcludeFromTotal'] ?? false),
@@ -2339,6 +2346,8 @@ class SyncService {
     'WalletType': w.walletType.index,
     'CreditLimit': w.creditLimit,
     'BillingCycleDay': w.billingCycleDay,
+    'PaymentDueDay': w.paymentDueDay,
+    'DueReminderDays': w.dueReminderDays,
     'OrderIndex': w.orderIndex,
     'IsArchived': w.isArchived,
     'ExcludeFromTotal': w.excludeFromTotal,

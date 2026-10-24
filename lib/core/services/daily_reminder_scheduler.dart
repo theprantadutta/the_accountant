@@ -110,33 +110,9 @@ class DailyReminderScheduler {
     _isInitialized = true;
     debugPrint('DailyReminderScheduler: Initialized');
 
-    // Restore scheduled reminder from local storage
-    await _restoreScheduledReminder();
-  }
-
-  /// Restore previously scheduled reminder on app start
-  Future<void> _restoreScheduledReminder() async {
-    final prefs = await SharedPreferences.getInstance();
-    final enabled = prefs.getBool(_keyEnabled) ?? false;
-
-    if (enabled) {
-      final timeStr = prefs.getString(_keyTime);
-      final timezone = prefs.getString(_keyTimezone) ?? 'UTC';
-
-      if (timeStr != null) {
-        final parts = timeStr.split(':');
-        if (parts.length == 2) {
-          final time = TimeOfDay(
-            hour: int.parse(parts[0]),
-            minute: int.parse(parts[1]),
-          );
-          await scheduleDailyReminder(time: time, timezone: timezone);
-          debugPrint(
-            'DailyReminderScheduler: Restored reminder at $timeStr ($timezone)',
-          );
-        }
-      }
-    }
+    // The daily reminder comes from the server now. One this phone scheduled
+    // for itself under an earlier version would arrive as a second copy.
+    await _notificationsPlugin.cancel(id: _dailyReminderId);
   }
 
   /// Schedule a daily reminder at the specified time

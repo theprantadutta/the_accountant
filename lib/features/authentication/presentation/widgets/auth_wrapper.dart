@@ -15,6 +15,8 @@ import 'package:the_accountant/core/services/subscription_expiry_checker.dart';
 import 'package:the_accountant/features/budgets/providers/budget_notification_provider.dart';
 import 'package:the_accountant/core/services/secure_token_storage.dart';
 import 'package:the_accountant/core/services/api_service.dart';
+import 'package:the_accountant/core/services/notification_service.dart';
+import 'package:the_accountant/features/notifications/services/local_notification_log.dart';
 import 'package:the_accountant/features/premium/providers/premium_provider.dart';
 import 'package:the_accountant/features/ai_assistant/providers/ai_chat_provider.dart';
 import 'package:the_accountant/features/ai_assistant/providers/ai_quota_provider.dart';
@@ -164,6 +166,11 @@ class _AuthWrapperState extends ConsumerState<AuthWrapper>
     // Trigger budget notification check
     ref.read(budgetNotificationProvider.notifier).checkBudgetsNow();
 
+    // Register this phone for push, and tell the server its time zone, so the
+    // daily and bill reminders can reach it at the right local time.
+    NotificationService().setAuthenticated(true);
+    ref.read(notificationPreferencesProvider.notifier).loadPreferences();
+
     // Trigger auto-sync and start periodic sync
     ref.read(syncNotifierProvider.notifier).triggerAutoSync();
     ref.read(syncNotifierProvider.notifier).startPeriodicSync();
@@ -184,6 +191,7 @@ class _AuthWrapperState extends ConsumerState<AuthWrapper>
       ref.invalidate(premiumProvider);
       ref.invalidate(aiChatProvider);
       ref.invalidate(aiQuotaProvider);
+      LocalNotificationLog.clear();
       ref.invalidate(notificationHistoryProvider);
       ref.invalidate(notificationPreferencesProvider);
     });
@@ -199,6 +207,7 @@ class _AuthWrapperState extends ConsumerState<AuthWrapper>
       if (previous?.isAuthenticated == true && !next.isAuthenticated) {
         ref.read(premiumProvider.notifier).lockPremiumFeatures();
         ref.read(syncNotifierProvider.notifier).stopPeriodicSync();
+        NotificationService().setAuthenticated(false);
         debugPrint(
           'AuthWrapper: User logged out - locked premium features, stopped sync',
         );

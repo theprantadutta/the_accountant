@@ -37,6 +37,8 @@ Future<void> showEditWalletSheet(
             ? null
             : wallet.creditLimit! / 100.0,
         initialBillingCycleDay: wallet.billingCycleDay,
+        initialPaymentDueDay: wallet.paymentDueDay,
+        initialDueReminderDays: wallet.dueReminderDays,
         isEditing: true,
         onSubmit:
             ({
@@ -48,6 +50,8 @@ Future<void> showEditWalletSheet(
               required WalletType walletType,
               required double? creditLimit,
               required int? billingCycleDay,
+              required int? paymentDueDay,
+              required int dueReminderDays,
               required int? balance,
             }) async {
               final saved = L10n.of(context).walletAccountUpdatedSuccessfully;
@@ -67,6 +71,8 @@ Future<void> showEditWalletSheet(
                         ? null
                         : (creditLimit * 100).round(),
                     billingCycleDay: billingCycleDay,
+                    paymentDueDay: paymentDueDay,
+                    dueReminderDays: dueReminderDays,
                     balance: balance,
                   );
               if (context.mounted) {

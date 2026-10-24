@@ -15,6 +15,7 @@ import 'package:the_accountant/features/ai_assistant/widgets/quick_add_sheet.dar
 import 'package:the_accountant/shared/widgets/neo_button.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart'
     show Wallet, Transaction, TitleUsage;
+import 'package:the_accountant/data/models/wallet.dart' show WalletType;
 import 'package:the_accountant/data/models/transaction.dart'
     show TransactionSpecialType;
 import 'package:the_accountant/features/categories/providers/category_provider.dart';
@@ -50,6 +51,7 @@ Future<bool?> showAddTransactionScreen(
   String? prefillCategoryName,
   DateTime? prefillDate,
   String? prefillNote,
+  String? prefillToWalletId,
 }) {
   return Navigator.of(context).push<bool>(
     PageRouteBuilder(
@@ -63,6 +65,7 @@ Future<bool?> showAddTransactionScreen(
           prefillCategoryName: prefillCategoryName,
           prefillDate: prefillDate,
           prefillNote: prefillNote,
+          prefillToWalletId: prefillToWalletId,
         );
       },
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
@@ -93,6 +96,9 @@ class AddTransactionScreen extends ConsumerStatefulWidget {
   final String? prefillNote;
   final TransactionSpecialType? initialSpecialType;
 
+  /// The account a transfer pays into, such as a credit card being paid off.
+  final String? prefillToWalletId;
+
   const AddTransactionScreen({
     super.key,
     this.initialType = TransactionTypeSelection.expense,
@@ -103,6 +109,7 @@ class AddTransactionScreen extends ConsumerStatefulWidget {
     this.prefillDate,
     this.prefillNote,
     this.initialSpecialType,
+    this.prefillToWalletId,
   });
 
   @override
@@ -431,6 +438,25 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
         // The default pair has to be a pair a transfer is allowed to use, or
         // the form opens already holding a combination it will refuse to save.
         _toWalletId = _firstWalletOtherThan(wallets, wallets.first)?.id;
+
+        // Paying a card: the money goes to the card, from the first account
+        // that is not a card.
+        final payee = wallets
+            .where((w) => w.id == widget.prefillToWalletId)
+            .firstOrNull;
+        if (payee != null) {
+          _toWalletId = payee.id;
+          final source =
+              wallets
+                  .where(
+                    (w) =>
+                        w.id != payee.id &&
+                        w.walletType != WalletType.creditCard,
+                  )
+                  .firstOrNull ??
+              _firstWalletOtherThan(wallets, payee);
+          _fromWalletId = source?.id;
+        }
       });
     });
   }
@@ -1810,17 +1836,34 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
           ),
           AppSpacing.gapMd,
 
+          // Swaps the two accounts. It was a picture of an arrow inside a
+          // button-shaped circle, so tapping it, which everyone did, did nothing.
           Center(
-            child: Container(
-              padding: const EdgeInsets.all(AppSpacing.sm),
-              decoration: BoxDecoration(
-                color: _chromeAccent.withValues(alpha: 0.15),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.arrow_downward,
-                color: _chromeAccent,
-                size: AppSpacing.iconSm,
+            child: Pressable(
+              key: const Key('transfer_swap'),
+              haptic: true,
+              semanticLabel: L10n.of(context).addSwapAccounts,
+              onTap: _fromWalletId == null || _toWalletId == null
+                  ? null
+                  : () => setState(() {
+                      final from = _fromWalletId;
+                      _fromWalletId = _toWalletId;
+                      _toWalletId = from;
+                      if (!_transferCrossesCurrency(wallets)) {
+                        _receivedAmount = 0;
+                      }
+                    }),
+              child: Container(
+                padding: const EdgeInsets.all(AppSpacing.md),
+                decoration: BoxDecoration(
+                  color: _chromeAccent.withValues(alpha: 0.15),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Symbols.swap_vert_rounded,
+                  color: _chromeAccent,
+                  size: AppSpacing.iconSm,
+                ),
               ),
             ),
           ),

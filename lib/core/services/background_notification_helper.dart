@@ -4,6 +4,8 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 import 'package:the_accountant/core/constants/background_task_constants.dart';
 import 'package:the_accountant/core/services/notification_action_handler.dart';
+import 'package:the_accountant/features/notifications/models/notification_item.dart';
+import 'package:the_accountant/features/notifications/services/local_notification_log.dart';
 
 /// Lightweight notification helper for background isolates.
 /// Does NOT use Firebase, singletons, or any Riverpod state.
@@ -68,6 +70,11 @@ class BackgroundNotificationHelper {
       title: title,
       body: body,
       notificationDetails: details,
+    );
+    await LocalNotificationLog.record(
+      type: NotificationType.recurringReminder,
+      title: title,
+      body: body,
     );
   }
 
@@ -141,6 +148,11 @@ class BackgroundNotificationHelper {
       body: body,
       notificationDetails: details,
       payload: payload,
+    );
+    await LocalNotificationLog.record(
+      type: NotificationType.recurringReminder,
+      title: title,
+      body: body,
     );
   }
 }

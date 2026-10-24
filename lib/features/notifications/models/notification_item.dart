@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 
-/// Represents a notification item from the backend.
+/// One notification in the inbox: sent by the server, or shown by this phone.
 class NotificationItem {
   final String id;
   final String userId;
@@ -14,6 +14,11 @@ class NotificationItem {
   final DateTime? readAt;
   final DateTime createdAt;
 
+  /// Shown by this phone rather than sent by the server, so read state lives
+  /// here too. Budget alerts and the reminders worked out on the phone are
+  /// these.
+  final bool isLocal;
+
   const NotificationItem({
     required this.id,
     required this.userId,
@@ -25,28 +30,51 @@ class NotificationItem {
     this.sentAt,
     this.readAt,
     required this.createdAt,
+    this.isLocal = false,
   });
 
   bool get isRead => status == NotificationStatus.read;
 
+  /// Reads the server's shape, which is snake_case with snake_case enum
+  /// values ("daily_reminder"), and this phone's own, which is camelCase.
+  ///
+  /// It only ever read camelCase, so every row the server sent failed to
+  /// parse and the inbox stayed empty even once there was something in it.
   factory NotificationItem.fromJson(Map<String, dynamic> json) {
+    T? pick<T>(String camel, String snake) => (json[camel] ?? json[snake]) as T?;
+    DateTime? date(String camel, String snake) {
+      final raw = pick<String>(camel, snake);
+      return raw == null ? null : DateTime.tryParse(raw)?.toLocal();
+    }
+
     return NotificationItem(
       id: json['id'] as String,
-      userId: json['userId'] as String,
-      type: NotificationType.fromString(json['type'] as String),
-      title: json['title'] as String,
-      body: json['body'] as String,
-      data: json['data'] as String?,
-      status: NotificationStatus.fromString(json['status'] as String),
-      sentAt: json['sentAt'] != null
-          ? DateTime.parse(json['sentAt'] as String)
-          : null,
-      readAt: json['readAt'] != null
-          ? DateTime.parse(json['readAt'] as String)
-          : null,
-      createdAt: DateTime.parse(json['createdAt'] as String),
+      userId: pick<String>('userId', 'user_id') ?? '',
+      type: NotificationType.fromString(json['type'] as String? ?? ''),
+      title: json['title'] as String? ?? '',
+      body: json['body'] as String? ?? '',
+      data: json['data'] is String ? json['data'] as String : null,
+      status: NotificationStatus.fromString(json['status'] as String? ?? ''),
+      sentAt: date('sentAt', 'sent_at'),
+      readAt: date('readAt', 'read_at'),
+      createdAt: date('createdAt', 'created_at') ?? DateTime.now(),
+      isLocal: json['isLocal'] == true,
     );
   }
+
+  /// For keeping this phone's own notifications.
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'userId': userId,
+    'type': type.name,
+    'title': title,
+    'body': body,
+    if (data != null) 'data': data,
+    'status': status.name,
+    if (readAt != null) 'readAt': readAt!.toIso8601String(),
+    'createdAt': createdAt.toIso8601String(),
+    'isLocal': isLocal,
+  };
 
   NotificationItem copyWith({
     String? id,
@@ -71,9 +99,13 @@ class NotificationItem {
       sentAt: sentAt ?? this.sentAt,
       readAt: readAt ?? this.readAt,
       createdAt: createdAt ?? this.createdAt,
+      isLocal: isLocal,
     );
   }
 }
+
+/// "DailyReminder", "daily_reminder" and "dailyReminder" all as one key.
+String _key(String value) => value.replaceAll('_', '').toLowerCase();
 
 /// Notification types matching the backend enum.
 enum NotificationType {
@@ -85,30 +117,17 @@ enum NotificationType {
   subscriptionExpiringSoon,
   subscriptionExpired,
   promotional,
+  cardStatementReady,
+  cardPaymentDue,
+  test,
   custom;
 
   static NotificationType fromString(String value) {
-    switch (value) {
-      case 'DailyReminder':
-        return NotificationType.dailyReminder;
-      case 'BudgetWarning':
-        return NotificationType.budgetWarning;
-      case 'BudgetExceeded':
-        return NotificationType.budgetExceeded;
-      case 'LargeTransaction':
-        return NotificationType.largeTransaction;
-      case 'RecurringReminder':
-        return NotificationType.recurringReminder;
-      case 'SubscriptionExpiringSoon':
-        return NotificationType.subscriptionExpiringSoon;
-      case 'SubscriptionExpired':
-        return NotificationType.subscriptionExpired;
-      case 'Promotional':
-        return NotificationType.promotional;
-      case 'Custom':
-      default:
-        return NotificationType.custom;
-    }
+    final key = _key(value);
+    return NotificationType.values.firstWhere(
+      (t) => _key(t.name) == key,
+      orElse: () => NotificationType.custom,
+    );
   }
 
   IconData get icon {
@@ -129,6 +148,12 @@ enum NotificationType {
         return Icons.star_border;
       case NotificationType.promotional:
         return Icons.campaign;
+      case NotificationType.cardStatementReady:
+        return Icons.receipt_long;
+      case NotificationType.cardPaymentDue:
+        return Icons.credit_card;
+      case NotificationType.test:
+        return Icons.check_circle_outline;
       case NotificationType.custom:
         return Icons.notifications;
     }
@@ -152,6 +177,12 @@ enum NotificationType {
         return AppColors.error;
       case NotificationType.promotional:
         return AppColors.primaryAccent;
+      case NotificationType.cardStatementReady:
+        return AppColors.info;
+      case NotificationType.cardPaymentDue:
+        return AppColors.warning;
+      case NotificationType.test:
+        return AppColors.success;
       case NotificationType.custom:
         return AppColors.textSecondary;
     }
@@ -167,19 +198,10 @@ enum NotificationStatus {
   failed;
 
   static NotificationStatus fromString(String value) {
-    switch (value) {
-      case 'Pending':
-        return NotificationStatus.pending;
-      case 'Sent':
-        return NotificationStatus.sent;
-      case 'Delivered':
-        return NotificationStatus.delivered;
-      case 'Read':
-        return NotificationStatus.read;
-      case 'Failed':
-        return NotificationStatus.failed;
-      default:
-        return NotificationStatus.pending;
-    }
+    final key = _key(value);
+    return NotificationStatus.values.firstWhere(
+      (s) => s.name == key,
+      orElse: () => NotificationStatus.pending,
+    );
   }
 }

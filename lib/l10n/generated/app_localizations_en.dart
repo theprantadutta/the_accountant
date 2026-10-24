@@ -752,13 +752,6 @@ class L10nEn extends L10n {
   String get settingsRemindMeBeforeDueDate => 'Remind Me Before Due Date';
 
   @override
-  String get settingsTestNotificationSentCheckYour =>
-      'Test notification sent! Check your notifications.';
-
-  @override
-  String get settingsTest => 'Test';
-
-  @override
   String get settingsDailyReminders => 'DAILY REMINDERS';
 
   @override
@@ -1072,9 +1065,6 @@ class L10nEn extends L10n {
 
   @override
   String get walletCurrency => 'Currency';
-
-  @override
-  String get walletSelectBillingDayOptional => 'Select billing day (optional)';
 
   @override
   String get walletIcon => 'Icon';
@@ -1667,25 +1657,6 @@ class L10nEn extends L10n {
       'Configure when and how The Accountant should remind you to track your expenses.';
 
   @override
-  String get settingsDebug => 'DEBUG';
-
-  @override
-  String get settingsExactAlarmPermission => 'Exact Alarm Permission';
-
-  @override
-  String get settingsDeviceTimezone => 'Device Timezone';
-
-  @override
-  String get settingsScheduledNotifications => 'Scheduled Notifications';
-
-  @override
-  String get settingsSendTestNotification => 'Send Test Notification';
-
-  @override
-  String get settingsTapToVerifyNotificationsWork =>
-      'Tap to verify notifications work';
-
-  @override
   String get settingsYourEmailIsUsedTo =>
       'Your email is used to sign in and can’t be changed here.';
 
@@ -1795,9 +1766,6 @@ class L10nEn extends L10n {
 
   @override
   String get walletBalance => 'Balance';
-
-  @override
-  String get walletBillingCycleDay => 'Billing Cycle Day';
 
   @override
   String get walletUseThisWalletForNew =>
@@ -2765,6 +2733,200 @@ class L10nEn extends L10n {
   String addChangeTime(String time) {
     return 'Change time, $time';
   }
+
+  @override
+  String get addSwapAccounts => 'Swap the two accounts';
+
+  @override
+  String get notifCheckTitle => 'Check notifications';
+
+  @override
+  String get notifAllowed => 'Notifications are allowed';
+
+  @override
+  String get notifAllowedHint => 'Reminders can reach this phone';
+
+  @override
+  String get notifBlocked => 'Notifications are off';
+
+  @override
+  String get notifBlockedHint => 'Tap to allow them, or nothing can reach you';
+
+  @override
+  String get notifSendTest => 'Send a test notification';
+
+  @override
+  String get notifSendTestHint =>
+      'Sent from our server, the way reminders come';
+
+  @override
+  String get notifSending => 'Sending…';
+
+  @override
+  String get notifTestSent =>
+      'Sent. It should appear in a few seconds, and in your inbox.';
+
+  @override
+  String notifTestFailed(String reason) {
+    return 'It could not be sent: $reason';
+  }
+
+  @override
+  String get notifTestOffline => 'no connection to the server';
+
+  @override
+  String get notifDailyPrimerBody =>
+      'The Accountant will send a gentle daily nudge to log your spending, at the time you choose. It needs permission to show notifications.';
+
+  @override
+  String get notifPrimerShow => 'Show reminder notifications';
+
+  @override
+  String get notifPrimerTime => 'Arrive at your chosen time';
+
+  @override
+  String get notifPrimerOff => 'You can turn this off anytime';
+
+  @override
+  String get notifPrimerAllow => 'Allow';
+
+  @override
+  String get cardBillsTitle => 'Card bills';
+
+  @override
+  String get cardBillsSubtitle =>
+      'Credit card statements, due dates and reminders';
+
+  @override
+  String get cardBillsEmptyTitle => 'No credit cards yet';
+
+  @override
+  String get cardBillsEmptyBody =>
+      'Add an account of the Credit card type, set its statement day and due day, and its bills show up here.';
+
+  @override
+  String get cardBillsAddCard => 'Add a card';
+
+  @override
+  String get cardStatementDay => 'Statement day';
+
+  @override
+  String get cardStatementDayHint =>
+      'The day each month the bill is made. Everything up to the end of that day is on it.';
+
+  @override
+  String get cardDueDay => 'Payment due day';
+
+  @override
+  String get cardDueDayHint =>
+      'The last day to pay the bill, the first time that day comes round after the statement.';
+
+  @override
+  String get cardRemindTitle => 'Remind me';
+
+  @override
+  String get cardRemindHint =>
+      'Before the due date, if any of the bill is still unpaid. Sent around 9 AM.';
+
+  @override
+  String get cardRemindOff => 'Off';
+
+  @override
+  String cardRemindDaysBefore(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days days before',
+      one: 'The day before',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get cardNotSet => 'Not set';
+
+  @override
+  String cardDayOfMonth(int day) {
+    return 'Day $day';
+  }
+
+  @override
+  String get cardSetUpBody =>
+      'Set the statement day and the due day to see this card\'s bills and get reminded before they are due.';
+
+  @override
+  String get cardSetUp => 'Set the dates';
+
+  @override
+  String cardDueBy(String date) {
+    return 'Left to pay by $date';
+  }
+
+  @override
+  String get cardLeftToPay => 'Left to pay';
+
+  @override
+  String cardStatementClosed(String date) {
+    return 'Statement of $date';
+  }
+
+  @override
+  String get cardPaidSince => 'Paid since';
+
+  @override
+  String cardThisCycle(String date) {
+    return 'Spent since, next statement $date';
+  }
+
+  @override
+  String cardPay(String amount) {
+    return 'Pay $amount';
+  }
+
+  @override
+  String cardPaymentTitle(String card) {
+    return '$card bill payment';
+  }
+
+  @override
+  String get cardEdit => 'Edit card';
+
+  @override
+  String get cardEarlierStatements => 'EARLIER STATEMENTS';
+
+  @override
+  String get cardPaidShort => 'paid';
+
+  @override
+  String cardUnpaidShort(String amount) {
+    return '$amount unpaid';
+  }
+
+  @override
+  String get cardStatusNotSetUp => 'Dates not set';
+
+  @override
+  String get cardStatusNothingDue => 'Nothing due';
+
+  @override
+  String get cardStatusPaid => 'Paid';
+
+  @override
+  String cardStatusDueIn(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'Due in $days days',
+      one: 'Due tomorrow',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get cardStatusDueToday => 'Due today';
+
+  @override
+  String get cardStatusOverdue => 'Overdue';
 
   @override
   String get addNoteHint => 'Add a note';

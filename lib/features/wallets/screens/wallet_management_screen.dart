@@ -86,6 +86,8 @@ class _WalletManagementScreenState
     required WalletType walletType,
     required double? creditLimit,
     required int? billingCycleDay,
+    required int? paymentDueDay,
+    required int dueReminderDays,
     required int? balance,
   }) async {
     final walletNotifier = ref.read(walletProvider.notifier);
@@ -103,6 +105,8 @@ class _WalletManagementScreenState
         walletType: walletType,
         creditLimit: creditLimit == null ? null : (creditLimit * 100).round(),
         billingCycleDay: billingCycleDay,
+        paymentDueDay: paymentDueDay,
+        dueReminderDays: dueReminderDays,
       );
 
       _nameController.clear();

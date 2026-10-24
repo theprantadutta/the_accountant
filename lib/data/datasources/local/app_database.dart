@@ -168,7 +168,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 26;
+  int get schemaVersion => 27;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -210,6 +210,7 @@ class AppDatabase extends _$AppDatabase {
       if (from < 18) await _addV18Columns(m);
       if (from < 25) await _addV25Columns(m);
       if (from < 26) await _addV26Columns(m);
+      if (from < 27) await _addV27Columns(m);
 
       if (from < 10) {
         // Fix credit/debt isIncome values and recalculate wallet balances
@@ -1066,6 +1067,12 @@ class AppDatabase extends _$AppDatabase {
   /// The budget currency column, added with the other columns rather than in
   /// its own step: everything below reads rows through the current generated
   /// mapper, which expects every column this build knows about.
+  Future<void> _addV27Columns(Migrator m) async {
+    if (!await _tableExists('wallets')) return;
+    await _ensureColumn(m, wallets, wallets.paymentDueDay);
+    await _ensureColumn(m, wallets, wallets.dueReminderDays);
+  }
+
   Future<void> _addV26Columns(Migrator m) async {
     if (!await _tableExists('transactions')) return;
     await _ensureColumn(m, transactions, transactions.settlesTransactionId);

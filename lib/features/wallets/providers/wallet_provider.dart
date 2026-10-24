@@ -142,6 +142,8 @@ class WalletNotifier extends StateNotifier<WalletState> {
     WalletType walletType = WalletType.cash,
     int? creditLimit,
     int? billingCycleDay,
+    int? paymentDueDay,
+    int dueReminderDays = 3,
   }) async {
     try {
       // No limit on accounts. Most people have a bank account, a wallet and a
@@ -169,6 +171,8 @@ class WalletNotifier extends StateNotifier<WalletState> {
         walletType: Value(walletType),
         creditLimit: Value(creditLimit),
         billingCycleDay: Value(billingCycleDay),
+        paymentDueDay: Value(paymentDueDay),
+        dueReminderDays: Value(dueReminderDays),
         // Append new accounts to the end of the user's manual order.
         orderIndex: Value(state.wallets.length),
         syncStatus: const Value(1), // pendingCreate
@@ -262,6 +266,29 @@ class WalletNotifier extends StateNotifier<WalletState> {
     }
   }
 
+  /// A credit card's statement day, due day and how early to remind.
+  ///
+  /// Written as given, nulls included, so a day can be cleared again;
+  /// [updateWallet] reads null as "unchanged".
+  Future<void> setCardSchedule({
+    required String id,
+    required int? statementDay,
+    required int? dueDay,
+    required int reminderDays,
+  }) async {
+    await _database.updateWallet(
+      WalletsCompanion(
+        id: Value(id),
+        billingCycleDay: Value(statementDay),
+        paymentDueDay: Value(dueDay),
+        dueReminderDays: Value(reminderDays),
+        syncStatus: const Value(SyncStatus.pendingUpdate),
+        updatedAt: Value(DateTime.now()),
+      ),
+    );
+    await loadWallets();
+  }
+
   /// Save what was changed on the edit form.
   ///
   /// Everything but the balance is written as it is. A new [balance] is
@@ -280,6 +307,8 @@ class WalletNotifier extends StateNotifier<WalletState> {
     required WalletType walletType,
     required int? creditLimit,
     required int? billingCycleDay,
+    int? paymentDueDay,
+    int dueReminderDays = 3,
     int? balance,
   }) async {
     await updateWallet(
@@ -294,6 +323,14 @@ class WalletNotifier extends StateNotifier<WalletState> {
       creditLimit: creditLimit,
       billingCycleDay: billingCycleDay,
     );
+    if (walletType == WalletType.creditCard) {
+      await setCardSchedule(
+        id: wallet.id,
+        statementDay: billingCycleDay,
+        dueDay: paymentDueDay,
+        reminderDays: dueReminderDays,
+      );
+    }
     if (balance != null && balance != wallet.balance) {
       await WalletMaintenanceService(
         _database,

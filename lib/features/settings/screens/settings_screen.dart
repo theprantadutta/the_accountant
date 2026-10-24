@@ -1,3 +1,4 @@
+import 'package:the_accountant/features/cards/screens/card_bills_screen.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -327,6 +328,26 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           title: l10n.settingsUpcomingAndOverdue,
           subtitle: l10n.settingsWhatIsDueAndWhat,
           onTap: () => _push(const UpcomingTransactionsScreen()),
+        ),
+      ),
+      _Entry(
+        title: l10n.cardBillsTitle,
+        keywords: const [
+          'credit card',
+          'card',
+          'bill',
+          'statement',
+          'due',
+          'payment',
+        ],
+        row: SettingsRow(
+          key: const Key('more_card_bills'),
+          icon: Symbols.credit_card_rounded,
+          iconColor: const Color(0xFF7C3AED),
+          iconBackground: c.tintViolet,
+          title: l10n.cardBillsTitle,
+          subtitle: l10n.cardBillsSubtitle,
+          onTap: () => _push(const CardBillsScreen()),
         ),
       ),
       _Entry(

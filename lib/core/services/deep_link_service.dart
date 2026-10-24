@@ -82,6 +82,10 @@ class DeepLinkService {
     pending.value = link;
   }
 
+  /// Park [link], as if it had arrived from outside; a tapped notification is
+  /// handed over this way.
+  void offer(DeepLink link) => _offer(link);
+
   Future<void> dispose() async {
     await _subscription?.cancel();
     _subscription = null;

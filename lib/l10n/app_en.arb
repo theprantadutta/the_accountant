@@ -312,8 +312,6 @@
   "settingsNotifications": "Notifications",
   "settingsLargeTransactionThreshold": "Large Transaction Threshold",
   "settingsRemindMeBeforeDueDate": "Remind Me Before Due Date",
-  "settingsTestNotificationSentCheckYour": "Test notification sent! Check your notifications.",
-  "settingsTest": "Test",
   "settingsDailyReminders": "DAILY REMINDERS",
   "settingsDailyReminders2": "Daily Reminders",
   "settingsGetRemindedToTrackYour": "Get reminded to track your expenses",
@@ -411,7 +409,6 @@
   "walletUseDecimals": "Use Decimals",
   "walletEnterWalletName": "Enter wallet name",
   "walletCurrency": "Currency",
-  "walletSelectBillingDayOptional": "Select billing day (optional)",
   "walletIcon": "Icon",
   "walletColor": "Color",
   "walletWalletName": "Wallet Name",
@@ -741,12 +738,6 @@
   "settingsAppLocked": "App Locked",
   "settingsUnlockToAccessTheAccountant": "Unlock to access The Accountant",
   "settingsConfigureWhenAndHowThe": "Configure when and how The Accountant should remind you to track your expenses.",
-  "settingsDebug": "DEBUG",
-  "settingsExactAlarmPermission": "Exact Alarm Permission",
-  "settingsDeviceTimezone": "Device Timezone",
-  "settingsScheduledNotifications": "Scheduled Notifications",
-  "settingsSendTestNotification": "Send Test Notification",
-  "settingsTapToVerifyNotificationsWork": "Tap to verify notifications work",
   "settingsYourEmailIsUsedTo": "Your email is used to sign in and can’t be changed here.",
   "settingsYourDataIsOnThis": "Your data is on this device only",
   "settingsUpgradeForCloudSync": "Upgrade for cloud sync",
@@ -788,7 +779,6 @@
   "walletAvailable": "Available",
   "walletLimit": "Limit",
   "walletBalance": "Balance",
-  "walletBillingCycleDay": "Billing Cycle Day",
   "walletUseThisWalletForNew": "Use this wallet for new transactions",
   "walletSelectIcon": "Select Icon",
   "walletSelectColor": "Select Color",
@@ -1313,6 +1303,127 @@
       }
     }
   },
+  "addSwapAccounts": "Swap the two accounts",
+  "notifCheckTitle": "Check notifications",
+  "notifAllowed": "Notifications are allowed",
+  "notifAllowedHint": "Reminders can reach this phone",
+  "notifBlocked": "Notifications are off",
+  "notifBlockedHint": "Tap to allow them, or nothing can reach you",
+  "notifSendTest": "Send a test notification",
+  "notifSendTestHint": "Sent from our server, the way reminders come",
+  "notifSending": "Sending…",
+  "notifTestSent": "Sent. It should appear in a few seconds, and in your inbox.",
+  "notifTestFailed": "It could not be sent: {reason}",
+  "@notifTestFailed": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "notifTestOffline": "no connection to the server",
+  "notifDailyPrimerBody": "The Accountant will send a gentle daily nudge to log your spending, at the time you choose. It needs permission to show notifications.",
+  "notifPrimerShow": "Show reminder notifications",
+  "notifPrimerTime": "Arrive at your chosen time",
+  "notifPrimerOff": "You can turn this off anytime",
+  "notifPrimerAllow": "Allow",
+  "cardBillsTitle": "Card bills",
+  "cardBillsSubtitle": "Credit card statements, due dates and reminders",
+  "cardBillsEmptyTitle": "No credit cards yet",
+  "cardBillsEmptyBody": "Add an account of the Credit card type, set its statement day and due day, and its bills show up here.",
+  "cardBillsAddCard": "Add a card",
+  "cardStatementDay": "Statement day",
+  "cardStatementDayHint": "The day each month the bill is made. Everything up to the end of that day is on it.",
+  "cardDueDay": "Payment due day",
+  "cardDueDayHint": "The last day to pay the bill, the first time that day comes round after the statement.",
+  "cardRemindTitle": "Remind me",
+  "cardRemindHint": "Before the due date, if any of the bill is still unpaid. Sent around 9 AM.",
+  "cardRemindOff": "Off",
+  "cardRemindDaysBefore": "{days, plural, =1{The day before} other{{days} days before}}",
+  "@cardRemindDaysBefore": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "cardNotSet": "Not set",
+  "cardDayOfMonth": "Day {day}",
+  "@cardDayOfMonth": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      }
+    }
+  },
+  "cardSetUpBody": "Set the statement day and the due day to see this card's bills and get reminded before they are due.",
+  "cardSetUp": "Set the dates",
+  "cardDueBy": "Left to pay by {date}",
+  "@cardDueBy": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "cardLeftToPay": "Left to pay",
+  "cardStatementClosed": "Statement of {date}",
+  "@cardStatementClosed": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "cardPaidSince": "Paid since",
+  "cardThisCycle": "Spent since, next statement {date}",
+  "@cardThisCycle": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "cardPay": "Pay {amount}",
+  "@cardPay": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "cardPaymentTitle": "{card} bill payment",
+  "@cardPaymentTitle": {
+    "placeholders": {
+      "card": {
+        "type": "String"
+      }
+    }
+  },
+  "cardEdit": "Edit card",
+  "cardEarlierStatements": "EARLIER STATEMENTS",
+  "cardPaidShort": "paid",
+  "cardUnpaidShort": "{amount} unpaid",
+  "@cardUnpaidShort": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "cardStatusNotSetUp": "Dates not set",
+  "cardStatusNothingDue": "Nothing due",
+  "cardStatusPaid": "Paid",
+  "cardStatusDueIn": "{days, plural, =1{Due tomorrow} other{Due in {days} days}}",
+  "@cardStatusDueIn": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "cardStatusDueToday": "Due today",
+  "cardStatusOverdue": "Overdue",
   "addNoteHint": "Add a note",
   "addRepeatMonthly": "Repeat monthly",
   "addMoreOptions": "More options",

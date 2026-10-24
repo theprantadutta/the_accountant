@@ -231,6 +231,8 @@ void main() {
                         required WalletType walletType,
                         required double? creditLimit,
                         required int? billingCycleDay,
+                        required int? paymentDueDay,
+                        required int dueReminderDays,
                         required int? balance,
                       }) {
                         called = true;

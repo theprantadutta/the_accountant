@@ -10,6 +10,7 @@ import 'package:in_app_update/in_app_update.dart';
 import 'package:the_accountant/core/providers/theme_provider.dart';
 import 'package:the_accountant/core/providers/account_store_provider.dart';
 import 'package:the_accountant/core/services/analytics_service.dart';
+import 'package:the_accountant/core/services/notification_service.dart';
 import 'package:the_accountant/core/domain/regional_preferences.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_theme.dart';
@@ -66,7 +67,11 @@ class _MyAppState extends ConsumerState<MyApp> {
   /// every launch. The shortcuts are registered from the shell instead, which
   /// has a context that can see them.
   Future<void> _startDeepLinks() async {
-    await ref.read(deepLinkServiceProvider).startListening();
+    final links = ref.read(deepLinkServiceProvider);
+    // A tapped notification goes wherever it names by the same road a link
+    // does, so it too waits until the app is signed in and on screen.
+    NotificationService().onOpen = links.offer;
+    await links.startListening();
   }
 
   /// Check Google Play for an available update and install it. Prefers the

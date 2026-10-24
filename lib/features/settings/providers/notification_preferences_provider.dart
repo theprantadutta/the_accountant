@@ -380,10 +380,19 @@ class NotificationPreferencesNotifier
       // Apply backend data but keep device timezone
       _applyPreferencesFromJson(data, useDeviceTimezone: true);
 
+      // The server sends the daily reminder at this time in this zone, so it
+      // has to know where the phone is. Every account had been left on UTC,
+      // which would have meant 7 PM in London: 1 AM in Dhaka.
+      if (data['daily_reminder_timezone'] != _deviceTimezone) {
+        await _apiService.put(
+          '/notifications/preferences',
+          data: {'daily_reminder_timezone': _deviceTimezone},
+        );
+      }
+
       // Save merged data to local storage
       await _saveToLocalStorage();
 
-      // Sync local scheduled notification
       await _syncLocalDailyReminder();
 
       _logger.i('Synced preferences with backend');
@@ -395,18 +404,17 @@ class NotificationPreferencesNotifier
     }
   }
 
-  /// Sync the local scheduled notification with current state.
+  /// Take down the reminder this phone used to schedule for itself.
+  ///
+  /// The server sends the daily reminder now. A phone could only schedule one
+  /// with exact-alarm permission, which Android no longer grants by default,
+  /// so on most phones it was never set; where it was, keeping it would mean
+  /// two reminders a day.
   Future<void> _syncLocalDailyReminder() async {
     try {
-      // Always use device timezone for scheduling
-      await _notificationService.updateDailyReminder(
-        enabled: state.dailyReminderEnabled,
-        time: state.dailyReminderTime,
-        timezone: _deviceTimezone, // Force device timezone
-      );
-      _logger.i('Local daily reminder synced (timezone: $_deviceTimezone)');
+      await _notificationService.cancelDailyReminder();
     } catch (e) {
-      _logger.e('Failed to sync local daily reminder: $e');
+      _logger.e('Failed to cancel the local daily reminder: $e');
     }
   }
 

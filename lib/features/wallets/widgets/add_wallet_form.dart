@@ -21,8 +21,13 @@ typedef WalletFormSubmitCallback =
       required WalletType walletType,
       required double? creditLimit,
       required int? billingCycleDay,
+      required int? paymentDueDay,
+      required int dueReminderDays,
       required int? balance,
     });
+
+/// How many days ahead a card's bill can be reminded of; 0 is off.
+const List<int> cardReminderChoices = [0, 1, 3, 5, 7];
 
 /// What a positive balance meant on an account that is becoming a card.
 ///
@@ -49,6 +54,8 @@ class AddWalletForm extends ConsumerStatefulWidget {
   final WalletType initialWalletType;
   final double? initialCreditLimit;
   final int? initialBillingCycleDay;
+  final int? initialPaymentDueDay;
+  final int initialDueReminderDays;
   final WalletFormSubmitCallback onSubmit;
   final VoidCallback onCancel;
   final bool isEditing;
@@ -66,6 +73,8 @@ class AddWalletForm extends ConsumerStatefulWidget {
     this.initialWalletType = WalletType.cash,
     this.initialCreditLimit,
     this.initialBillingCycleDay,
+    this.initialPaymentDueDay,
+    this.initialDueReminderDays = 3,
     required this.onSubmit,
     required this.onCancel,
     this.isEditing = false,
@@ -84,6 +93,8 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
   late WalletType _walletType;
   final TextEditingController _creditLimitController = TextEditingController();
   int? _billingCycleDay;
+  int? _paymentDueDay;
+  late int _dueReminderDays;
 
   /// The balance when the form opened, in cents.
   int? _openingBalance;
@@ -118,6 +129,8 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
       _creditLimitController.text = widget.initialCreditLimit.toString();
     }
     _billingCycleDay = widget.initialBillingCycleDay;
+    _paymentDueDay = widget.initialPaymentDueDay;
+    _dueReminderDays = widget.initialDueReminderDays;
     _openingBalance = widget.balanceController.text.toCentsOrNull();
     if (widget.isEditing &&
         _walletType == WalletType.creditCard &&
@@ -246,26 +259,83 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
     );
   }
 
-  Future<void> _pickBillingDay(BuildContext context) async {
-    final day = await showSunriseSheet<int>(
+  /// A day of the month, 1 to 31, from a grid. A day past the end of a
+  /// short month means its last day.
+  Future<int?> _pickDay(
+    BuildContext context, {
+    required String title,
+    required String subtitle,
+    required int? current,
+  }) {
+    return showSunriseSheet<int>(
       context: context,
       builder: (sheet) => SunriseBottomSheet(
-        title: L10n.of(context).walletBillingCycleDay,
+        title: title,
+        subtitle: subtitle,
         child: Wrap(
           spacing: 8,
           runSpacing: 8,
           children: [
             for (var d = 1; d <= 31; d++)
               SunriseChip(
+                key: Key('day_$d'),
                 label: '$d',
-                selected: d == _billingCycleDay,
+                selected: d == current,
                 onTap: () => Navigator.pop(sheet, d),
               ),
           ],
         ),
       ),
     );
+  }
+
+  Future<void> _pickBillingDay(BuildContext context) async {
+    final l10n = L10n.of(context);
+    final day = await _pickDay(
+      context,
+      title: l10n.cardStatementDay,
+      subtitle: l10n.cardStatementDayHint,
+      current: _billingCycleDay,
+    );
     if (day != null) setState(() => _billingCycleDay = day);
+  }
+
+  Future<void> _pickDueDay(BuildContext context) async {
+    final l10n = L10n.of(context);
+    final day = await _pickDay(
+      context,
+      title: l10n.cardDueDay,
+      subtitle: l10n.cardDueDayHint,
+      current: _paymentDueDay,
+    );
+    if (day != null) setState(() => _paymentDueDay = day);
+  }
+
+  Future<void> _pickReminder(BuildContext context) async {
+    final l10n = L10n.of(context);
+    final days = await showSunriseSheet<int>(
+      context: context,
+      builder: (sheet) => SunriseBottomSheet(
+        title: l10n.cardRemindTitle,
+        subtitle: l10n.cardRemindHint,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (final d in cardReminderChoices)
+              SheetAction(
+                key: Key('remind_$d'),
+                icon: d == 0
+                    ? Symbols.notifications_off_rounded
+                    : Symbols.notifications_active_rounded,
+                label: cardReminderLabel(l10n, d),
+                selected: d == _dueReminderDays,
+                onTap: () => Navigator.pop(sheet, d),
+              ),
+          ],
+        ),
+      ),
+    );
+    if (days != null) setState(() => _dueReminderDays = days);
   }
 
   void _submit() {
@@ -289,6 +359,10 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
       billingCycleDay: _walletType == WalletType.creditCard
           ? _billingCycleDay
           : null,
+      paymentDueDay: _walletType == WalletType.creditCard
+          ? _paymentDueDay
+          : null,
+      dueReminderDays: _dueReminderDays,
       balance: entered == null
           ? null
           : _walletType == WalletType.creditCard
@@ -492,17 +566,39 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
 
           SettingsGroup(
             children: [
-              if (_walletType == WalletType.creditCard)
+              if (_walletType == WalletType.creditCard) ...[
                 SettingsRow(
+                  key: const Key('card_statement_day'),
                   icon: Symbols.event_repeat_rounded,
                   iconColor: c.accent,
                   iconBackground: c.tintOrange,
-                  title: l10n.walletBillingCycleDay,
+                  title: l10n.cardStatementDay,
                   value: _billingCycleDay == null
-                      ? l10n.walletSelectBillingDayOptional
-                      : 'Day $_billingCycleDay',
+                      ? l10n.cardNotSet
+                      : l10n.cardDayOfMonth(_billingCycleDay!),
                   onTap: () => _pickBillingDay(context),
                 ),
+                SettingsRow(
+                  key: const Key('card_due_day'),
+                  icon: Symbols.event_available_rounded,
+                  iconColor: c.accent,
+                  iconBackground: c.tintOrange,
+                  title: l10n.cardDueDay,
+                  value: _paymentDueDay == null
+                      ? l10n.cardNotSet
+                      : l10n.cardDayOfMonth(_paymentDueDay!),
+                  onTap: () => _pickDueDay(context),
+                ),
+                SettingsRow(
+                  key: const Key('card_reminder'),
+                  icon: Symbols.notifications_active_rounded,
+                  iconColor: c.accent,
+                  iconBackground: c.tintOrange,
+                  title: l10n.cardRemindTitle,
+                  value: cardReminderLabel(l10n, _dueReminderDays),
+                  onTap: () => _pickReminder(context),
+                ),
+              ],
               SettingsRow(
                 icon: WalletIcons.getIcon(_selectedIcon),
                 iconColor: color,
@@ -744,3 +840,7 @@ class _ColorGrid extends StatelessWidget {
     );
   }
 }
+
+/// "3 days before", "The day before", "Off".
+String cardReminderLabel(L10n l10n, int days) =>
+    days == 0 ? l10n.cardRemindOff : l10n.cardRemindDaysBefore(days);
