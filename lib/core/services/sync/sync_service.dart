@@ -1747,6 +1747,7 @@ class SyncService {
     // its transactions are re-pointed and it is removed. Without this the unique
     // index on `default_key` rejects the canonical row and the whole pull fails.
     final defaultKey = data['DefaultKey'] as String?;
+    var folded = false;
     if (defaultKey != null && defaultKey.isNotEmpty) {
       final localDuplicate = await _database.findCategoryByDefaultKey(
         defaultKey,
@@ -1760,10 +1761,14 @@ class SyncService {
           loserId: localDuplicate.id,
           survivorId: change.entityId,
         );
+        folded = true;
       }
     }
 
     await _database.into(_database.categories).insert(companion);
+    // The rows were re-pointed before their new category existed, so the kind
+    // triggers read them as uncategorised; now that it does, read them again.
+    if (folded) await _database.reclassifyAdjustmentKinds();
     return true;
   }
 

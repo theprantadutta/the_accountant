@@ -427,6 +427,22 @@ class AppDatabase extends _$AppDatabase {
       ''');
     }
 
+    await reclassifyAdjustmentKinds();
+  }
+
+  /// Bring every `regular`/`adjustment` row's kind back in line with its
+  /// category.
+  ///
+  /// The triggers keep this true as rows change, but a category that arrives
+  /// after the rows filed under it is invisible to them. A pull that folds this
+  /// device's copy of a built-in category into the account's copy re-points the
+  /// rows first and inserts the survivor after, so for that moment every
+  /// correction looked uncategorised and was re-marked as ordinary spending
+  /// and income, until the next launch ran this. Looks before it writes, like
+  /// the trigger install.
+  Future<void> reclassifyAdjustmentKinds() async {
+    final regular = TransactionType.regular.storageValue;
+    final adjustment = TransactionType.adjustment.storageValue;
     final misfiled =
         '''
       transaction_type IN ('$regular', '$adjustment')

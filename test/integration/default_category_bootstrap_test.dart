@@ -1,8 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:the_accountant/core/domain/default_categories.dart';
+import 'package:the_accountant/core/domain/transaction_policy.dart';
 import 'package:the_accountant/core/services/category_initialization_service.dart';
 import 'package:the_accountant/core/services/sync/sync_service.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
+import 'package:the_accountant/features/wallets/services/wallet_maintenance_service.dart';
 
 import '../helpers/fake_sync_server.dart';
 import '../helpers/test_database.dart';
@@ -223,6 +225,49 @@ void main() {
         server.recordsIn(userA, 'transactions').single['CategoryId'],
         canonical.id,
       );
+    },
+  );
+
+  test(
+    'a correction folded into the account copy of its category stays a correction',
+    () async {
+      // Seen on a real phone: its own "balance correction" category was folded
+      // into the account's copy on pull. The rows were re-pointed before the
+      // account's category was saved, so the kind triggers read them as
+      // uncategorised and turned every correction into ordinary spending and
+      // income, until the app was next opened.
+      await CategoryInitializationService(
+        deviceA,
+      ).initializeDefaultCategories();
+      await serviceFor(deviceA, userA).syncAll();
+
+      await CategoryInitializationService(
+        deviceB,
+      ).initializeDefaultCategories();
+      final walletId = await seedWallet(
+        deviceB,
+        name: 'Card',
+        openingBalance: 100000,
+      );
+      final correctionId = await WalletMaintenanceService(
+        deviceB,
+      ).correctBalance(walletId: walletId, actualBalance: -250000);
+      expect(
+        TransactionPolicy.isAdjustment(
+          (await deviceB.findTransactionById(correctionId!))!,
+        ),
+        isTrue,
+      );
+
+      await serviceFor(deviceB, userA).syncAll();
+
+      final canonical = await deviceA.findCategoryByDefaultKey(
+        SystemCategoryKeys.balanceCorrection,
+      );
+      final after = (await deviceB.findTransactionById(correctionId))!;
+      expect(after.categoryId, canonical!.id);
+      expect(TransactionPolicy.isAdjustment(after), isTrue);
+      expect(TransactionPolicy.countsInAnalytics(after), isFalse);
     },
   );
 
