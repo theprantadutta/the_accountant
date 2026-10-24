@@ -37,6 +37,9 @@ class BackgroundNotificationHelper {
   }
 
   /// Show a notification with the given parameters.
+  ///
+  /// [data] is what a tap on it carries, read by NotificationService.linkFor
+  /// to decide where it opens.
   Future<void> showNotification({
     required int id,
     required String title,
@@ -44,6 +47,7 @@ class BackgroundNotificationHelper {
     required String channelId,
     required String channelName,
     required String channelDesc,
+    Map<String, dynamic>? data,
   }) async {
     final androidDetails = AndroidNotificationDetails(
       channelId,
@@ -70,6 +74,7 @@ class BackgroundNotificationHelper {
       title: title,
       body: body,
       notificationDetails: details,
+      payload: data == null ? null : jsonEncode(data),
     );
     await LocalNotificationLog.record(
       type: NotificationType.recurringReminder,

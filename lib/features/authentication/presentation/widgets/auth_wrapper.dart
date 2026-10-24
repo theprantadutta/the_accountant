@@ -19,6 +19,7 @@ import 'package:the_accountant/core/services/notification_service.dart';
 import 'package:the_accountant/core/providers/data_reload.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
 import 'package:the_accountant/features/plans/services/plan_service.dart';
+import 'package:the_accountant/features/zakat/services/zakat_reminder.dart';
 import 'package:the_accountant/features/notifications/services/local_notification_log.dart';
 import 'package:the_accountant/features/premium/providers/premium_provider.dart';
 import 'package:the_accountant/features/ai_assistant/providers/ai_chat_provider.dart';
@@ -98,7 +99,10 @@ class _AuthWrapperState extends ConsumerState<AuthWrapper>
       // be stopped here for good: one trip to the background and the app never
       // synced on its own again until it was restarted.
       ref.read(syncNotifierProvider.notifier).onAppResumed();
-      if (ref.read(authProvider).isAuthenticated) _collectPlans();
+      if (ref.read(authProvider).isAuthenticated) {
+        _collectPlans();
+        _remindZakat();
+      }
     } else if (state == AppLifecycleState.paused) {
       _pausedAt = DateTime.now();
       // Stop the periodic timer while in the background, and send any edit
@@ -175,6 +179,23 @@ class _AuthWrapperState extends ConsumerState<AuthWrapper>
     }
   }
 
+  /// Say so when the zakat date is a few days off or here, if the background
+  /// check has not already. Shown once each way, whichever gets there first.
+  Future<void> _remindZakat() async {
+    try {
+      final reminder = await ZakatReminders.take();
+      if (reminder == null) return;
+      await NotificationService().showReminder(
+        id: ZakatReminders.notificationId,
+        title: reminder.title,
+        body: reminder.body,
+        data: ZakatReminder.payload,
+      );
+    } catch (e) {
+      debugPrint('AuthWrapper: zakat reminder failed: $e');
+    }
+  }
+
   /// Run startup notification checks (subscription expiry, budget alerts, auto-sync)
   Future<void> _runStartupChecks() async {
     debugPrint('AuthWrapper: Running startup notification checks');
@@ -187,6 +208,7 @@ class _AuthWrapperState extends ConsumerState<AuthWrapper>
     ref.read(budgetNotificationProvider.notifier).checkBudgetsNow();
 
     await _collectPlans();
+    await _remindZakat();
 
     // Register this phone for push, and tell the server its time zone, so the
     // daily and bill reminders can reach it at the right local time.

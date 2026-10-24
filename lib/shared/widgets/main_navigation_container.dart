@@ -32,6 +32,7 @@ import 'package:the_accountant/features/transactions/widgets/transaction_type_he
 import 'package:the_accountant/features/walkthrough/walkthrough_service.dart';
 import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
 import 'package:the_accountant/features/wallets/screens/create_first_wallet_screen.dart';
+import 'package:the_accountant/features/zakat/screens/zakat_screen.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:the_accountant/shared/widgets/shimmer_loading.dart';
 import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
@@ -139,6 +140,7 @@ class _MainNavigationContainerState
             ? const PlansScreen()
             : PlanDetailScreen(planId: link.entityId!),
       AppDestination.cardBills => CardBillsScreen(focusWalletId: link.entityId),
+      AppDestination.zakat => const ZakatScreen(),
       _ => null,
     };
     if (screen == null) return;

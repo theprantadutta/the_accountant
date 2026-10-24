@@ -4381,4 +4381,174 @@ class L10nEn extends L10n {
   String themeTrialUntil(String time) {
     return 'Premium themes unlocked until $time';
   }
+
+  @override
+  String get zakatTitle => 'Zakat';
+
+  @override
+  String get zakatSubtitle =>
+      'Work out what is due on your wealth, and record what you pay';
+
+  @override
+  String get zakatDue => 'Zakat due';
+
+  @override
+  String zakatAboveNisab(String amount) {
+    return 'Above the nisab: 2.5% of $amount net wealth';
+  }
+
+  @override
+  String zakatBelowNisab(String amount) {
+    return 'Below the nisab by $amount, so no zakat is due';
+  }
+
+  @override
+  String get zakatNeedPrice => 'Enter the price per gram to check the nisab';
+
+  @override
+  String get zakatPaidSoFar => 'Paid this year';
+
+  @override
+  String get zakatLeftToPay => 'Left to pay';
+
+  @override
+  String zakatNextDate(int days, String date) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'Zakat date $date, in $days days',
+      one: 'Zakat date tomorrow, $date',
+      zero: 'Your zakat date is today',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get zakatNoDate =>
+      'Set your zakat date to track the year and get a reminder';
+
+  @override
+  String get zakatPay => 'Pay zakat';
+
+  @override
+  String get zakatNisab => 'Nisab';
+
+  @override
+  String get zakatBasisGold => 'Gold';
+
+  @override
+  String get zakatBasisSilver => 'Silver';
+
+  @override
+  String get zakatBasisHint =>
+      'Silver gives the lower nisab and is the more cautious choice when your wealth is mostly cash. Enter today\'s local price for one gram.';
+
+  @override
+  String zakatPricePerGram(String metal) {
+    return 'Price per gram ($metal)';
+  }
+
+  @override
+  String zakatNisabWeight(String grams) {
+    return '$grams g at that price';
+  }
+
+  @override
+  String get zakatGroupCash => 'Cash and bank';
+
+  @override
+  String get zakatGroupDeposits => 'Savings deposits';
+
+  @override
+  String get zakatGroupInvestments => 'Investments';
+
+  @override
+  String get zakatGroupMetals => 'Gold and silver';
+
+  @override
+  String get zakatGroupLent => 'Money lent to others';
+
+  @override
+  String get zakatGroupOtherAssets => 'Other assets';
+
+  @override
+  String get zakatGroupPaid => 'Zakat paid this year';
+
+  @override
+  String get zakatGroupManual => 'Added by you';
+
+  @override
+  String get zakatGroupBorrowed => 'Less: money you owe';
+
+  @override
+  String get zakatGroupCards => 'Less: credit card dues';
+
+  @override
+  String get zakatOtherAssetsNote =>
+      'Land, a home or a car you use is not zakatable. Switch one on only if you hold it for trade.';
+
+  @override
+  String get zakatPaidNote =>
+      'Added back, because it left your accounts after the year\'s wealth was counted.';
+
+  @override
+  String get zakatNoMetals =>
+      'No gold or silver is recorded. Add it as an asset, or add its value below.';
+
+  @override
+  String get zakatAddAmount => 'Add an amount';
+
+  @override
+  String get zakatAmountLabel => 'What is it?';
+
+  @override
+  String get zakatAmountHint => 'Business stock, cash at home…';
+
+  @override
+  String get zakatAmountDeduct => 'It is a debt due now';
+
+  @override
+  String get zakatWealth => 'Zakatable wealth';
+
+  @override
+  String get zakatDeductions => 'Debts due now';
+
+  @override
+  String get zakatNet => 'Net wealth';
+
+  @override
+  String get zakatRate => '2.5% of net wealth';
+
+  @override
+  String get zakatYear => 'Zakat year';
+
+  @override
+  String get zakatDate => 'Zakat date';
+
+  @override
+  String get zakatDateHint =>
+      'The day your zakat year completes. It comes round every lunar year, 354 days.';
+
+  @override
+  String get zakatRemind => 'Remind me';
+
+  @override
+  String get zakatRemindHint => '3 days before, and on the day';
+
+  @override
+  String get zakatDisclaimer =>
+      'This is a guide to help you work zakat out, not a religious ruling. Scholars differ on some details; when unsure, ask a local scholar.';
+
+  @override
+  String get zakatPayNote =>
+      'Recorded as an expense under Zakat, and counted toward this year.';
+
+  @override
+  String get zakatPayRecord => 'Record payment';
+
+  @override
+  String get zakatPaidSnack => 'Zakat recorded';
+
+  @override
+  String get aiToolZakat => 'Working out zakat…';
 }

@@ -23,6 +23,9 @@ enum AppDestination {
 
   /// Needs [DeepLink.entityId].
   transactionDetail,
+
+  /// The zakat calculator, where its reminders lead.
+  zakat,
 }
 
 /// A resolved instruction to go somewhere, with whatever it needs to get there.

@@ -2313,5 +2313,91 @@
         "type": "String"
       }
     }
-  }
+  },
+  "zakatTitle": "Zakat",
+  "zakatSubtitle": "Work out what is due on your wealth, and record what you pay",
+  "zakatDue": "Zakat due",
+  "zakatAboveNisab": "Above the nisab: 2.5% of {amount} net wealth",
+  "@zakatAboveNisab": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "zakatBelowNisab": "Below the nisab by {amount}, so no zakat is due",
+  "@zakatBelowNisab": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "zakatNeedPrice": "Enter the price per gram to check the nisab",
+  "zakatPaidSoFar": "Paid this year",
+  "zakatLeftToPay": "Left to pay",
+  "zakatNextDate": "{days, plural, =0{Your zakat date is today} =1{Zakat date tomorrow, {date}} other{Zakat date {date}, in {days} days}}",
+  "@zakatNextDate": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "zakatNoDate": "Set your zakat date to track the year and get a reminder",
+  "zakatPay": "Pay zakat",
+  "zakatNisab": "Nisab",
+  "zakatBasisGold": "Gold",
+  "zakatBasisSilver": "Silver",
+  "zakatBasisHint": "Silver gives the lower nisab and is the more cautious choice when your wealth is mostly cash. Enter today's local price for one gram.",
+  "zakatPricePerGram": "Price per gram ({metal})",
+  "@zakatPricePerGram": {
+    "placeholders": {
+      "metal": {
+        "type": "String"
+      }
+    }
+  },
+  "zakatNisabWeight": "{grams} g at that price",
+  "@zakatNisabWeight": {
+    "placeholders": {
+      "grams": {
+        "type": "String"
+      }
+    }
+  },
+  "zakatGroupCash": "Cash and bank",
+  "zakatGroupDeposits": "Savings deposits",
+  "zakatGroupInvestments": "Investments",
+  "zakatGroupMetals": "Gold and silver",
+  "zakatGroupLent": "Money lent to others",
+  "zakatGroupOtherAssets": "Other assets",
+  "zakatGroupPaid": "Zakat paid this year",
+  "zakatGroupManual": "Added by you",
+  "zakatGroupBorrowed": "Less: money you owe",
+  "zakatGroupCards": "Less: credit card dues",
+  "zakatOtherAssetsNote": "Land, a home or a car you use is not zakatable. Switch one on only if you hold it for trade.",
+  "zakatPaidNote": "Added back, because it left your accounts after the year's wealth was counted.",
+  "zakatNoMetals": "No gold or silver is recorded. Add it as an asset, or add its value below.",
+  "zakatAddAmount": "Add an amount",
+  "zakatAmountLabel": "What is it?",
+  "zakatAmountHint": "Business stock, cash at home…",
+  "zakatAmountDeduct": "It is a debt due now",
+  "zakatWealth": "Zakatable wealth",
+  "zakatDeductions": "Debts due now",
+  "zakatNet": "Net wealth",
+  "zakatRate": "2.5% of net wealth",
+  "zakatYear": "Zakat year",
+  "zakatDate": "Zakat date",
+  "zakatDateHint": "The day your zakat year completes. It comes round every lunar year, 354 days.",
+  "zakatRemind": "Remind me",
+  "zakatRemindHint": "3 days before, and on the day",
+  "zakatDisclaimer": "This is a guide to help you work zakat out, not a religious ruling. Scholars differ on some details; when unsure, ask a local scholar.",
+  "zakatPayNote": "Recorded as an expense under Zakat, and counted toward this year.",
+  "zakatPayRecord": "Record payment",
+  "zakatPaidSnack": "Zakat recorded",
+  "aiToolZakat": "Working out zakat…"
 }

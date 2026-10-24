@@ -78,6 +78,13 @@ void main() {
       );
     });
 
+    test('to the zakat calculator, for the zakat date', () {
+      expect(
+        NotificationService.linkFor({'action': 'open_zakat'}),
+        const DeepLink(AppDestination.zakat),
+      );
+    });
+
     test('to the transaction a due reminder names', () {
       expect(
         NotificationService.linkFor({'transactionId': 't1', 'type': 'upcoming'}),
