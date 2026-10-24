@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:the_accountant/core/domain/transaction_policy.dart';
 import 'package:the_accountant/core/providers/currency_provider.dart';
+import 'package:the_accountant/core/utils/currency_formatter.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
 import 'package:the_accountant/data/models/wallet.dart' show WalletType;
@@ -638,8 +639,8 @@ class CoachToolRunner {
         ('from', from.name),
         ('to', card.name),
         if (bill.latest != null) ...[
-          ('bill', _money(bill.latest!.owed, card.currency)),
-          ('left_after', _money(left, card.currency)),
+          ('bill', bill.latest!.owed.formatCurrency(card.currency)),
+          ('left_after', left.formatCurrency(card.currency)),
         ],
       ],
     );
