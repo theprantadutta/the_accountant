@@ -1,6 +1,8 @@
+import 'package:drift/drift.dart' show Value;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:the_accountant/core/domain/default_categories.dart';
 import 'package:the_accountant/core/domain/transaction_policy.dart';
 import 'package:the_accountant/core/services/sync/sync_service.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
@@ -198,7 +200,11 @@ void main() {
         {for (final t in lent) t.title: t.amount},
         {'Alice': 3333, 'Bob': 3333},
       );
+      final moneyLent = await db.requireSystemCategoryId(
+        BuiltInCategoryKeys.moneyLent,
+      );
       for (final t in lent) {
+        expect(t.categoryId, moneyLent, reason: 'filed as lent, not as food');
         expect(t.isIncome, isFalse);
         expect(t.isPaid, isTrue);
         expect(t.notes, 'Dinner');
@@ -262,6 +268,11 @@ void main() {
         'Dan',
       });
       expect((await splits.knownPeople()).toSet(), {'Alice', 'Dan'});
+
+      // A plan's loan is named after the plan, not a person.
+      await (db.update(db.transactions)..where((t) => t.title.equals('Dan')))
+          .write(const TransactionsCompanion(planId: Value('plan-1')));
+      expect(await splits.knownPeople(), ['Alice']);
     });
 
     test('an account that is not there cannot pay', () async {

@@ -537,6 +537,8 @@ void main() {
       );
       await loan(lent: false, amount: 20000);
       await loan(lent: true, amount: 10000, due: DateTime(2030, 2, 1));
+      // Due today, as a split bill's shares are: nobody has paid yet.
+      await loan(lent: true, amount: 4000, due: DateTime(2030, 3, 1, 18));
 
       expect((await forecast()).events, isEmpty);
     });

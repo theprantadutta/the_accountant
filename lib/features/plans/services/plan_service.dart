@@ -110,9 +110,19 @@ class PlanProgress {
       events.where((e) => !recorded.contains(e.number)).firstOrNull;
 
   /// Events that are due and not recorded.
-  List<PlanEvent> overdue(DateTime now) => events
-      .where((e) => !recorded.contains(e.number) && !e.date.isAfter(now))
-      .toList();
+  ///
+  /// By the day, not the hour: a plan's dates carry a time of day (10 AM,
+  /// so they never slip across midnight between time zones), and comparing
+  /// that exactly left a plan started this morning showing today's
+  /// installment as not yet due until ten o'clock.
+  List<PlanEvent> overdue(DateTime now) {
+    final endOfToday = DateTime(now.year, now.month, now.day + 1);
+    return events
+        .where(
+          (e) => !recorded.contains(e.number) && e.date.isBefore(endOfToday),
+        )
+        .toList();
+  }
 
   bool get isFinished => events.every((e) => recorded.contains(e.number));
 }

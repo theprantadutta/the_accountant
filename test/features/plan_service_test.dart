@@ -155,6 +155,31 @@ void main() {
       expect(rows.every(TransactionPolicy.countsAsExpense), isTrue);
     });
 
+    test(
+      'an installment dated today is due all day, not from its hour',
+      () async {
+        final now = DateTime.now();
+        final id = await plans.create(
+          PlanDraft(
+            kind: PlanKind.emi,
+            name: 'Morning EMI',
+            walletId: cash,
+            // Plans are dated at 10 AM; collected at 9 AM the same day.
+            startDate: DateTime(now.year, now.month, now.day, 10),
+            installmentAmount: 100000,
+            installmentCount: 3,
+          ),
+        );
+        expect(
+          await plans.collectDue(
+            now: DateTime(now.year, now.month, now.day, 9),
+          ),
+          1,
+        );
+        expect((await plans.transactionsOf(id)).single.amount, 100000);
+      },
+    );
+
     test('a deleted installment is not written again', () async {
       final id = await plans.create(
         PlanDraft(

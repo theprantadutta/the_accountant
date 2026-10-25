@@ -288,7 +288,7 @@ class CashFlowForecastService {
     await _cardBills(wallets.values, today, add);
     await _recurring(spendable, today, lastDay, add);
     await _unpaid(spendable, add);
-    await _loans(spendable, add);
+    await _loans(spendable, add, today);
 
     // Stable within a day: the order the sources were read in.
     final indexed = events.indexed.toList()
@@ -486,12 +486,18 @@ class CashFlowForecastService {
 
   /// Loans with a due date and something still owed. Money borrowed is paid
   /// back on its date, or now if that has passed. Money lent is only
-  /// expected: someone else decides when it comes, so one already late is
-  /// not counted on at all.
+  /// expected: someone else decides when it comes, so one due today or
+  /// already late is not counted on at all. A shortfall warning that assumed
+  /// a friend pays back the same day — which is when a split bill's shares
+  /// fall due — would be telling the user they are fine when they are not.
   ///
   /// A loan a plan was made for is repaid by the plan's installments, which
   /// are counted with the plans.
-  Future<void> _loans(bool Function(String?) spendable, _Add add) async {
+  Future<void> _loans(
+    bool Function(String?) spendable,
+    _Add add,
+    DateTime today,
+  ) async {
     final rows = [
       ...await _db.getDebtTransactions(),
       ...await _db.getCreditTransactions(),
@@ -505,6 +511,9 @@ class CashFlowForecastService {
         continue;
       }
       final lent = TransactionPolicy.isCredit(t);
+      if (lent && !DateTime(due.year, due.month, due.day).isAfter(today)) {
+        continue;
+      }
       add(
         date: due,
         amount: TransactionPolicy.outstandingAmount(t),

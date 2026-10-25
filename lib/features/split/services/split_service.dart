@@ -287,6 +287,8 @@ class SplitService {
     ]..sort((a, b) => b.date.compareTo(a.date));
     final out = <String>[];
     for (final t in rows) {
+      // A plan's loan is titled after the plan, not a person.
+      if (t.planId != null) continue;
       final name = t.title.trim();
       if (name.isNotEmpty && !out.any((n) => _same(n, name))) out.add(name);
     }
@@ -371,6 +373,9 @@ class SplitService {
     );
 
     final mine = shares.where((s) => s.isMe).firstOrNull?.amount ?? 0;
+    final lentCategory = await _db.requireSystemCategoryId(
+      BuiltInCategoryKeys.moneyLent,
+    );
     await _db.transaction(() async {
       if (mine > 0) {
         await write(
@@ -388,7 +393,10 @@ class SplitService {
             amount: s.amount,
             isIncome: false,
             title: spelled(s.person!),
-            categoryId: d.categoryId,
+            // Filed as money lent, the way Lend & borrow files it, not under
+            // the meal: it is not the user's spending, and a category list
+            // showing it as food would say otherwise.
+            categoryId: lentCategory,
             specialType: TransactionSpecialType.credit,
             notes: label,
           );
@@ -399,7 +407,7 @@ class SplitService {
           isIncome: true,
           title: spelled(_match(_people(d.people), d.paidBy!)!),
           categoryId: await _db.requireSystemCategoryId(
-            BuiltInCategoryKeys.loanReceived,
+            BuiltInCategoryKeys.moneyBorrowed,
           ),
           specialType: TransactionSpecialType.debt,
           notes: label,

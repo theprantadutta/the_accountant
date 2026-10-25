@@ -95,6 +95,12 @@ class BuiltInCategoryKeys {
   /// A loan's money arriving.
   static const String loanReceived = 'loan_received';
 
+  /// Money lent to someone, through Lend & borrow.
+  static const String moneyLent = 'loan_expense';
+
+  /// Money borrowed from someone, through Lend & borrow.
+  static const String moneyBorrowed = 'loan_income';
+
   /// DPS and FDR profit.
   static const String investment = 'investment';
 
