@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Resources the resource shrinker must keep although no Android code names them.
+  The Dart side asks for these by name at runtime (the notification icon through
+  flutter_local_notifications, the launcher shortcut icons through
+  quick_actions), and a lookup by name is invisible to R8, so without this the
+  shrinker would strip them and notifications or shortcuts would lose their icon.
+-->
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:keep="@drawable/ic_stat_notify,@drawable/ic_shortcut_*" />
