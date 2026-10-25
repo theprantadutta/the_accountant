@@ -2800,9 +2800,6 @@ class L10nBn extends L10n {
   String get addWallet => 'ওয়ালেট';
 
   @override
-  String get addDate => 'তারিখ';
-
-  @override
   String addChangeDate(String date) {
     return 'তারিখ বদলান, $date';
   }

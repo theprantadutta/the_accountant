@@ -2828,9 +2828,6 @@ class L10nEn extends L10n {
   String get addWallet => 'Wallet';
 
   @override
-  String get addDate => 'Date';
-
-  @override
   String addChangeDate(String date) {
     return 'Change date, $date';
   }

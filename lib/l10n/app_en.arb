@@ -1352,7 +1352,6 @@
   "addCategory": "Category",
   "addMore": "More",
   "addWallet": "Wallet",
-  "addDate": "Date",
   "addChangeDate": "Change date, {date}",
   "@addChangeDate": {
     "placeholders": {

@@ -5117,12 +5117,6 @@ abstract class L10n {
   /// **'Wallet'**
   String get addWallet;
 
-  /// No description provided for @addDate.
-  ///
-  /// In en, this message translates to:
-  /// **'Date'**
-  String get addDate;
-
   /// No description provided for @addChangeDate.
   ///
   /// In en, this message translates to:
