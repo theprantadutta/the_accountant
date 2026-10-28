@@ -4911,4 +4911,136 @@ class L10nBn extends L10n {
 
   @override
   String get aiToolZakat => 'যাকাতের হিসাব হচ্ছে…';
+
+  @override
+  String get voiceButton => 'লেনদেন বলুন';
+
+  @override
+  String get voiceTitle => 'বলে দিন';
+
+  @override
+  String get voiceUnlimited => 'সীমাহীন';
+
+  @override
+  String get voiceTapToTalk => 'গোলকটিতে চাপ দিয়ে খরচের কথা বলুন';
+
+  @override
+  String get voiceListening => 'শুনছি…';
+
+  @override
+  String get voiceStop => 'শোনা বন্ধ করুন';
+
+  @override
+  String get voiceTypeInstead => 'লিখুন';
+
+  @override
+  String get voiceSpeakInstead => 'বলুন';
+
+  @override
+  String get voiceSend => 'হয়েছে';
+
+  @override
+  String get voiceTrySaying => 'এভাবে বলে দেখুন';
+
+  @override
+  String get voiceExample1 => 'দুপুরের খাবার ২৫০, রিকশা ৬০';
+
+  @override
+  String get voiceExample2 => 'বেতন পেয়েছি ৪৫,০০০';
+
+  @override
+  String get voiceExample3 => 'গতকালের চা ২০ না, ৩০ ছিল';
+
+  @override
+  String get voiceExample4 => 'আজকের দুপুরের খাবারটা মুছে দাও';
+
+  @override
+  String get voiceTypeHint => 'দুপুরের খাবার ২৫০, বিকাশ থেকে রিকশা ৬০';
+
+  @override
+  String get voiceThinking => 'বুঝে নিচ্ছি…';
+
+  @override
+  String get voiceTryAgain => 'আবার';
+
+  @override
+  String get voiceSaving => 'সংরক্ষণ হচ্ছে…';
+
+  @override
+  String get voiceEdit => 'বদলান';
+
+  @override
+  String get voiceNeedsYou => 'আপনাকে দেখতে হবে';
+
+  @override
+  String get voiceNew => 'নতুন';
+
+  @override
+  String get voiceChange => 'পরিবর্তন';
+
+  @override
+  String get voiceRemove => 'মুছুন';
+
+  @override
+  String get voiceNeedsAmount =>
+      'টাকার পরিমাণ বলা হয়নি। যোগ করতে পরিমাণটি লিখুন।';
+
+  @override
+  String get voiceAdjust => 'ঠিক করুন';
+
+  @override
+  String get voiceFillIn => 'পূরণ করুন';
+
+  @override
+  String get voiceTime => 'সময়';
+
+  @override
+  String get voiceUndo => 'ফিরিয়ে নিন';
+
+  @override
+  String get voiceUndone => 'আগের মতো করা হয়েছে';
+
+  @override
+  String get voiceNoSpeech => 'শুনতে পাইনি। আবার বলুন, অথবা লিখে দিন।';
+
+  @override
+  String get voiceMicOff =>
+      'মাইক্রোফোনের অনুমতি বন্ধ। সেটিংসে চালু করুন, অথবা লিখে দিন।';
+
+  @override
+  String get voiceUnavailable => 'এই ফোনে ভয়েস চলে না। আপনি লিখে দিতে পারেন।';
+
+  @override
+  String get voiceSomethingWrong => 'কিছু একটা ভুল হয়েছে। আবার চেষ্টা করুন।';
+
+  @override
+  String voiceReady(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'সংরক্ষণের জন্য $countটি প্রস্তুত',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String voiceSaveCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countটি সংরক্ষণ করুন',
+      zero: 'কিছু বাছাই করা নেই',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String voiceSaved(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countটি লেনদেন সংরক্ষিত',
+    );
+    return '$_temp0';
+  }
 }

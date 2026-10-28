@@ -99,6 +99,7 @@ dependencies:
   flutter_native_splash: ^2.4.8
   material_symbols_icons: ^4.2960.0
   google_mobile_ads: ^9.1.0
+  speech_to_text: ^7.5.0
 
 dev_dependencies:
   flutter_test:

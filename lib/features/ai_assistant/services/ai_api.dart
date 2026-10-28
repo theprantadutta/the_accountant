@@ -139,6 +139,116 @@ class QuickAddDraft {
   );
 }
 
+/// A transaction sent with a voice entry, so "yesterday's rickshaw was 120"
+/// can name the one it means.
+class VoiceLogRecent {
+  final String id;
+  final String title;
+  final double amount;
+  final bool isIncome;
+  final DateTime date;
+  final String? category;
+  final String? wallet;
+
+  const VoiceLogRecent({
+    required this.id,
+    required this.title,
+    required this.amount,
+    required this.isIncome,
+    required this.date,
+    this.category,
+    this.wallet,
+  });
+
+  Map<String, dynamic> toJson() {
+    String two(int n) => n.toString().padLeft(2, '0');
+    return {
+      'id': id,
+      'title': title,
+      'amount': amount,
+      'is_income': isIncome,
+      'date':
+          '${date.year}-${two(date.month)}-${two(date.day)} '
+          '${two(date.hour)}:${two(date.minute)}',
+      'category': ?category,
+      'wallet': ?wallet,
+    };
+  }
+}
+
+enum VoiceLogOp { add, update, delete }
+
+/// One thing the user asked for: a new transaction, a change, or a removal.
+/// Fields left null are ones they did not mention.
+class VoiceLogAction {
+  final VoiceLogOp op;
+
+  /// The recent transaction an update or delete is about.
+  final String? ref;
+  final String? title;
+  final double? amount;
+  final bool? isIncome;
+  final DateTime? date;
+
+  /// "HH:mm", only when a time was said.
+  final String? time;
+  final String? category;
+  final String? wallet;
+  final String? note;
+
+  const VoiceLogAction({
+    required this.op,
+    this.ref,
+    this.title,
+    this.amount,
+    this.isIncome,
+    this.date,
+    this.time,
+    this.category,
+    this.wallet,
+    this.note,
+  });
+
+  static VoiceLogAction? fromJson(Map<String, dynamic> json) {
+    final op = switch (json['op']) {
+      'add' => VoiceLogOp.add,
+      'update' => VoiceLogOp.update,
+      'delete' => VoiceLogOp.delete,
+      _ => null,
+    };
+    if (op == null) return null;
+    return VoiceLogAction(
+      op: op,
+      ref: json['ref'] as String?,
+      title: json['title'] as String?,
+      amount: (json['amount'] as num?)?.toDouble(),
+      isIncome: json['is_income'] as bool?,
+      date: DateTime.tryParse(json['date'] as String? ?? ''),
+      time: json['time'] as String?,
+      category: json['category'] as String?,
+      wallet: json['wallet'] as String?,
+      note: json['note'] as String?,
+    );
+  }
+}
+
+class VoiceLogReply {
+  final List<VoiceLogAction> actions;
+
+  /// What the AI could not settle on its own, such as which of two lunches.
+  final String? message;
+
+  const VoiceLogReply({required this.actions, this.message});
+
+  factory VoiceLogReply.fromJson(Map<String, dynamic> json) => VoiceLogReply(
+    actions: [
+      for (final a in (json['actions'] as List?) ?? const [])
+        if (a is Map<String, dynamic>) ?VoiceLogAction.fromJson(a),
+    ],
+    message: json['message'] as String?,
+  );
+}
+
 /// The backend's AI endpoints: allowance, rewards, the coach and the one-shot
 /// features.
 ///
@@ -301,6 +411,33 @@ class AiApi {
       ),
     );
     return QuickAddDraft.fromJson(data);
+  }
+
+  /// What the user said, as transactions to add, change or remove. One call.
+  Future<VoiceLogReply> voiceLog({
+    required String text,
+    required List<String> categories,
+    required List<String> wallets,
+    required List<VoiceLogRecent> recent,
+    String? currency,
+    String? language,
+  }) async {
+    final data = await _call(
+      () => _dio.post(
+        '/ai/voice-log',
+        data: {
+          'text': text,
+          'categories': categories,
+          'wallets': wallets,
+          'recent': [for (final r in recent) r.toJson()],
+          'currency': ?currency,
+          'today': _today(),
+          'language': ?language,
+        },
+        options: Options(receiveTimeout: _aiTimeout),
+      ),
+    );
+    return VoiceLogReply.fromJson(data);
   }
 
   static String _today() {

@@ -8811,6 +8811,222 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'Working out zakat…'**
   String get aiToolZakat;
+
+  /// No description provided for @voiceButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Say a transaction'**
+  String get voiceButton;
+
+  /// No description provided for @voiceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Say it'**
+  String get voiceTitle;
+
+  /// No description provided for @voiceUnlimited.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlimited'**
+  String get voiceUnlimited;
+
+  /// No description provided for @voiceTapToTalk.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the orb and say what you spent'**
+  String get voiceTapToTalk;
+
+  /// No description provided for @voiceListening.
+  ///
+  /// In en, this message translates to:
+  /// **'Listening…'**
+  String get voiceListening;
+
+  /// No description provided for @voiceStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop listening'**
+  String get voiceStop;
+
+  /// No description provided for @voiceTypeInstead.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get voiceTypeInstead;
+
+  /// No description provided for @voiceSpeakInstead.
+  ///
+  /// In en, this message translates to:
+  /// **'Speak'**
+  String get voiceSpeakInstead;
+
+  /// No description provided for @voiceSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get voiceSend;
+
+  /// No description provided for @voiceTrySaying.
+  ///
+  /// In en, this message translates to:
+  /// **'Try saying'**
+  String get voiceTrySaying;
+
+  /// No description provided for @voiceExample1.
+  ///
+  /// In en, this message translates to:
+  /// **'Lunch 250, rickshaw 60'**
+  String get voiceExample1;
+
+  /// No description provided for @voiceExample2.
+  ///
+  /// In en, this message translates to:
+  /// **'Got my salary, 45,000'**
+  String get voiceExample2;
+
+  /// No description provided for @voiceExample3.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday\'s tea was 30, not 20'**
+  String get voiceExample3;
+
+  /// No description provided for @voiceExample4.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete today\'s lunch'**
+  String get voiceExample4;
+
+  /// No description provided for @voiceTypeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Lunch 250 and rickshaw 60 from bKash'**
+  String get voiceTypeHint;
+
+  /// No description provided for @voiceThinking.
+  ///
+  /// In en, this message translates to:
+  /// **'Working it out…'**
+  String get voiceThinking;
+
+  /// No description provided for @voiceTryAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Again'**
+  String get voiceTryAgain;
+
+  /// No description provided for @voiceSaving.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving…'**
+  String get voiceSaving;
+
+  /// No description provided for @voiceEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get voiceEdit;
+
+  /// No description provided for @voiceNeedsYou.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs you'**
+  String get voiceNeedsYou;
+
+  /// No description provided for @voiceNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New'**
+  String get voiceNew;
+
+  /// No description provided for @voiceChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Change'**
+  String get voiceChange;
+
+  /// No description provided for @voiceRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get voiceRemove;
+
+  /// No description provided for @voiceNeedsAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'No amount was said. Fill it in to add this one.'**
+  String get voiceNeedsAmount;
+
+  /// No description provided for @voiceAdjust.
+  ///
+  /// In en, this message translates to:
+  /// **'Adjust'**
+  String get voiceAdjust;
+
+  /// No description provided for @voiceFillIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill in'**
+  String get voiceFillIn;
+
+  /// No description provided for @voiceTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get voiceTime;
+
+  /// No description provided for @voiceUndo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get voiceUndo;
+
+  /// No description provided for @voiceUndone.
+  ///
+  /// In en, this message translates to:
+  /// **'Put back as it was'**
+  String get voiceUndone;
+
+  /// No description provided for @voiceNoSpeech.
+  ///
+  /// In en, this message translates to:
+  /// **'I didn\'t catch that. Try again, or type it.'**
+  String get voiceNoSpeech;
+
+  /// No description provided for @voiceMicOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Microphone access is off. Allow it in Settings, or type instead.'**
+  String get voiceMicOff;
+
+  /// No description provided for @voiceUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Voice isn\'t available on this phone. You can type instead.'**
+  String get voiceUnavailable;
+
+  /// No description provided for @voiceSomethingWrong.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong. Try again.'**
+  String get voiceSomethingWrong;
+
+  /// No description provided for @voiceReady.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{NOTHING READY} =1{1 READY TO SAVE} other{{count} READY TO SAVE}}'**
+  String voiceReady(int count);
+
+  /// No description provided for @voiceSaveCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Nothing selected} =1{Save 1} other{Save {count}}}'**
+  String voiceSaveCount(int count);
+
+  /// No description provided for @voiceSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Saved 1 transaction} other{Saved {count} transactions}}'**
+  String voiceSaved(int count);
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

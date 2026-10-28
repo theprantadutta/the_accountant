@@ -34,6 +34,7 @@ import 'package:the_accountant/features/transactions/widgets/sunrise_transaction
 import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
 import 'package:the_accountant/features/networth/providers/net_worth_provider.dart';
 import 'package:the_accountant/features/networth/screens/net_worth_screen.dart';
+import 'package:the_accountant/features/voice_log/widgets/voice_log_sheet.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:the_accountant/shared/widgets/shimmer_loading.dart';
 import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
@@ -420,6 +421,9 @@ class _Header extends ConsumerWidget {
                 style: SunriseType.label.copyWith(color: c.muted, fontSize: 14),
               ),
             ),
+            // Say a transaction instead of typing it.
+            VoiceLogButton(onTap: () => startVoiceLog(context, ref)),
+            const SizedBox(width: 10),
             KeyedSubtree(
               key: bellKey,
               child: SunriseIconButton(

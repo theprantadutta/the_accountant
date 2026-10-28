@@ -455,8 +455,12 @@ class CoachToolRunner {
         ? _wallet(args['account'] as String)
         : _defaultWallet();
     final day = _date(args['date']);
+    final time = _time(args['time']);
     final now = DateTime.now();
-    final when = day == null || _sameDay(day, now)
+    final base = day ?? now;
+    final when = time != null
+        ? DateTime(base.year, base.month, base.day, time.hour, time.minute)
+        : day == null || _sameDay(day, now)
         ? now
         : DateTime(day.year, day.month, day.day, 12);
     final notes = (args['notes'] as String?)?.trim();
@@ -510,14 +514,15 @@ class CoachToolRunner {
         ? _wallet(args['account'] as String)
         : null;
     final day = _date(args['date']);
-    final date = day == null
+    final time = _time(args['time']);
+    final date = day == null && time == null
         ? null
         : DateTime(
-            day.year,
-            day.month,
-            day.day,
-            row.date.hour,
-            row.date.minute,
+            (day ?? row.date).year,
+            (day ?? row.date).month,
+            (day ?? row.date).day,
+            time?.hour ?? row.date.hour,
+            time?.minute ?? row.date.minute,
           );
     final notes = (args['notes'] as String?)?.trim();
 
@@ -534,6 +539,10 @@ class CoachToolRunner {
         'account': (wallet?.name ?? '', newWallet.name),
       if (date != null && !_sameDay(date, row.date))
         'date': (_date8(row.date), _date8(date)),
+      if (date != null &&
+          _sameDay(date, row.date) &&
+          (date.hour != row.date.hour || date.minute != row.date.minute))
+        'time': (_time5(row.date), _time5(date)),
       if (notes != null && notes != (row.notes ?? ''))
         'notes': (row.notes ?? '', notes),
     };
@@ -2261,6 +2270,20 @@ class CoachToolRunner {
     }
     return DateTime(parsed.year, parsed.month, parsed.day);
   }
+
+  /// A time of day as "HH:mm" or "H:mm", or null when none was given.
+  static ({int hour, int minute})? _time(Object? value) {
+    if (value is! String) return null;
+    final m = RegExp(r'^(\d{1,2}):(\d{2})$').firstMatch(value.trim());
+    if (m == null) return null;
+    final hour = int.parse(m.group(1)!);
+    final minute = int.parse(m.group(2)!);
+    if (hour > 23 || minute > 59) return null;
+    return (hour: hour, minute: minute);
+  }
+
+  static String _time5(DateTime d) =>
+      '${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}';
 
   static DateTime _endOf(DateTime day) =>
       DateTime(day.year, day.month, day.day + 1);

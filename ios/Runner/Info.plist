@@ -73,6 +73,10 @@
 		</array>
 		<key>NSFaceIDUsageDescription</key>
 		<string>We use Face ID to secure your financial data</string>
+		<key>NSMicrophoneUsageDescription</key>
+		<string>The Accountant listens when you tap the microphone, so you can say a transaction instead of typing it.</string>
+		<key>NSSpeechRecognitionUsageDescription</key>
+		<string>The Accountant turns what you say into text to add, change or remove transactions for you to review.</string>
 		<key>NSCameraUsageDescription</key>
 		<string>The Accountant uses the camera to scan receipts and capture your profile photo.</string>
 		<key>NSPhotoLibraryUsageDescription</key>

@@ -4954,4 +4954,141 @@ class L10nEn extends L10n {
 
   @override
   String get aiToolZakat => 'Working out zakat…';
+
+  @override
+  String get voiceButton => 'Say a transaction';
+
+  @override
+  String get voiceTitle => 'Say it';
+
+  @override
+  String get voiceUnlimited => 'Unlimited';
+
+  @override
+  String get voiceTapToTalk => 'Tap the orb and say what you spent';
+
+  @override
+  String get voiceListening => 'Listening…';
+
+  @override
+  String get voiceStop => 'Stop listening';
+
+  @override
+  String get voiceTypeInstead => 'Type';
+
+  @override
+  String get voiceSpeakInstead => 'Speak';
+
+  @override
+  String get voiceSend => 'Done';
+
+  @override
+  String get voiceTrySaying => 'Try saying';
+
+  @override
+  String get voiceExample1 => 'Lunch 250, rickshaw 60';
+
+  @override
+  String get voiceExample2 => 'Got my salary, 45,000';
+
+  @override
+  String get voiceExample3 => 'Yesterday\'s tea was 30, not 20';
+
+  @override
+  String get voiceExample4 => 'Delete today\'s lunch';
+
+  @override
+  String get voiceTypeHint => 'Lunch 250 and rickshaw 60 from bKash';
+
+  @override
+  String get voiceThinking => 'Working it out…';
+
+  @override
+  String get voiceTryAgain => 'Again';
+
+  @override
+  String get voiceSaving => 'Saving…';
+
+  @override
+  String get voiceEdit => 'Edit';
+
+  @override
+  String get voiceNeedsYou => 'Needs you';
+
+  @override
+  String get voiceNew => 'New';
+
+  @override
+  String get voiceChange => 'Change';
+
+  @override
+  String get voiceRemove => 'Remove';
+
+  @override
+  String get voiceNeedsAmount =>
+      'No amount was said. Fill it in to add this one.';
+
+  @override
+  String get voiceAdjust => 'Adjust';
+
+  @override
+  String get voiceFillIn => 'Fill in';
+
+  @override
+  String get voiceTime => 'Time';
+
+  @override
+  String get voiceUndo => 'Undo';
+
+  @override
+  String get voiceUndone => 'Put back as it was';
+
+  @override
+  String get voiceNoSpeech => 'I didn\'t catch that. Try again, or type it.';
+
+  @override
+  String get voiceMicOff =>
+      'Microphone access is off. Allow it in Settings, or type instead.';
+
+  @override
+  String get voiceUnavailable =>
+      'Voice isn\'t available on this phone. You can type instead.';
+
+  @override
+  String get voiceSomethingWrong => 'Something went wrong. Try again.';
+
+  @override
+  String voiceReady(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count READY TO SAVE',
+      one: '1 READY TO SAVE',
+      zero: 'NOTHING READY',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String voiceSaveCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Save $count',
+      one: 'Save 1',
+      zero: 'Nothing selected',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String voiceSaved(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Saved $count transactions',
+      one: 'Saved 1 transaction',
+    );
+    return '$_temp0';
+  }
 }
