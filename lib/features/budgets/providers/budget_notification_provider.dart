@@ -49,7 +49,16 @@ class BudgetNotificationNotifier
     super.dispose();
   }
 
-  Future<void> _checkBudgets() async {
+  /// The check in progress, if one is.
+  ///
+  /// Startup asks for a check while the constructor's own is still running;
+  /// two at once both found nothing shown yet and both posted the alert.
+  Future<void>? _running;
+
+  Future<void> _checkBudgets() =>
+      _running ??= _check().whenComplete(() => _running = null);
+
+  Future<void> _check() async {
     final prefs = _ref.read(notificationPreferencesProvider);
     if (!prefs.budgetAlertsEnabled) return;
     final threshold = prefs.budgetWarningThreshold;
@@ -72,6 +81,7 @@ class BudgetNotificationNotifier
           budget.name,
           percentage,
           budgetId: budget.id,
+          periodStart: progress.window.start,
         );
       }
     } catch (e) {

@@ -5058,6 +5058,39 @@ class L10nEn extends L10n {
   String get voiceSomethingWrong => 'Something went wrong. Try again.';
 
   @override
+  String get voiceFabSetting => 'Floating mic on Today';
+
+  @override
+  String get voiceFabSettingSub =>
+      'A mic that floats over Today, for saying a transaction';
+
+  @override
+  String get voiceFabAskTitle => 'Add a mic to your Today screen?';
+
+  @override
+  String get voiceFabAskBody =>
+      'Tap it and say what you spent, like \"lunch 250 and a rickshaw 60\". You check everything before it\'s saved. Drag it anywhere you like.';
+
+  @override
+  String get voiceFabAskYes => 'Yes, add the mic';
+
+  @override
+  String get voiceFabAskNo => 'Not now';
+
+  @override
+  String get voiceFabAskLater => 'You can turn it on or off any time in More.';
+
+  @override
+  String get voiceFabHideTitle => 'Hide the floating mic?';
+
+  @override
+  String get voiceFabHideBody =>
+      'The mic at the top of Today stays. You can bring this one back in More.';
+
+  @override
+  String get voiceFabHide => 'Hide it';
+
+  @override
   String voiceReady(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,

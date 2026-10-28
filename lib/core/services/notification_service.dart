@@ -372,16 +372,24 @@ class NotificationService {
   // Local storage key prefix for budget notification tracking
   static const String _keyLastBudgetNotification = 'last_budget_notification_';
 
-  /// Whether a budget notification should be shown, given a 24-hour cooldown.
+  /// Budget alerts being shown right now, so two checks at once post one.
+  static final Set<String> _budgetAlertsShowing = {};
+
+  /// Whether a budget notification should be shown.
   ///
-  /// The cooldown is per budget AND per state. Crossing the limit is a
-  /// different event from approaching it, so a warning at 80% this morning
-  /// must not silence the message that the budget is now spent — which is the
-  /// one the user actually needs.
-  Future<bool> _shouldShowBudgetNotification(String key) async {
+  /// Per budget AND per state. Crossing the limit is a different event from
+  /// approaching it, so a warning at 80% this morning must not silence the
+  /// message that the budget is now spent — which is the one the user actually
+  /// needs. With a period in the key each is said once per period: a rolling
+  /// 24 hours repeated the same warning every day for the rest of the month.
+  Future<bool> _shouldShowBudgetNotification(
+    String key, {
+    required bool oncePerKey,
+  }) async {
     final prefs = await SharedPreferences.getInstance();
     final lastNotified = prefs.getString('$_keyLastBudgetNotification$key');
     if (lastNotified == null) return true;
+    if (oncePerKey) return false;
 
     final lastDate = DateTime.parse(lastNotified);
     return DateTime.now().difference(lastDate).inHours >= 24;
@@ -400,18 +408,40 @@ class NotificationService {
     String budgetName,
     double percentage, {
     String? budgetId,
+    DateTime? periodStart,
   }) async {
     // Use budgetName as ID if no specific ID provided
     final id = budgetId ?? budgetName;
     final exceeded = percentage >= 100;
-    final cooldownKey = exceeded ? '$id:over' : '$id:warn';
+    final period = periodStart == null
+        ? ''
+        : ':${periodStart.toIso8601String().substring(0, 10)}';
+    final cooldownKey = '$id$period:${exceeded ? 'over' : 'warn'}';
 
-    final shouldShow = await _shouldShowBudgetNotification(cooldownKey);
-    if (!shouldShow) {
-      _logger.d('Budget notification for $budgetName skipped (cooldown)');
-      return;
+    if (!_budgetAlertsShowing.add(cooldownKey)) return;
+    try {
+      final shouldShow = await _shouldShowBudgetNotification(
+        cooldownKey,
+        oncePerKey: periodStart != null,
+      );
+      if (!shouldShow) {
+        _logger.d('Budget notification for $budgetName skipped (cooldown)');
+        return;
+      }
+      // Recorded before it is shown, so a check that starts meanwhile skips.
+      await _recordBudgetNotification(cooldownKey);
+      await _showBudgetAlert(budgetName, percentage, id, exceeded);
+    } finally {
+      _budgetAlertsShowing.remove(cooldownKey);
     }
+  }
 
+  Future<void> _showBudgetAlert(
+    String budgetName,
+    double percentage,
+    String id,
+    bool exceeded,
+  ) async {
     // Past the limit and merely close to it are different situations, and one
     // wording for both makes the serious case read like the routine one.
     final title = exceeded
@@ -432,9 +462,6 @@ class NotificationService {
           : NotificationType.budgetWarning,
       data: const {'action': 'open_budget'},
     );
-
-    // Record that we showed this notification
-    await _recordBudgetNotification(cooldownKey);
     _logger.i('Budget warning notification shown for $budgetName');
   }
 

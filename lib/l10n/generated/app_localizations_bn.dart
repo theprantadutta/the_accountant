@@ -5014,6 +5014,40 @@ class L10nBn extends L10n {
   String get voiceSomethingWrong => 'কিছু একটা ভুল হয়েছে। আবার চেষ্টা করুন।';
 
   @override
+  String get voiceFabSetting => 'আজকের পাতায় ভাসমান মাইক';
+
+  @override
+  String get voiceFabSettingSub =>
+      'আজকের পাতায় ভেসে থাকা একটি মাইক, লেনদেন বলে দেওয়ার জন্য';
+
+  @override
+  String get voiceFabAskTitle => 'আজকের পাতায় একটি মাইক রাখবেন?';
+
+  @override
+  String get voiceFabAskBody =>
+      'চাপ দিয়ে খরচের কথা বলুন, যেমন \"দুপুরের খাবার ২৫০ আর রিকশা ৬০\"। সংরক্ষণের আগে সব আপনি দেখে নেবেন। যেখানে খুশি টেনে সরাতে পারবেন।';
+
+  @override
+  String get voiceFabAskYes => 'হ্যাঁ, মাইক রাখুন';
+
+  @override
+  String get voiceFabAskNo => 'এখন না';
+
+  @override
+  String get voiceFabAskLater =>
+      'আরও অংশ থেকে যেকোনো সময় চালু বা বন্ধ করতে পারবেন।';
+
+  @override
+  String get voiceFabHideTitle => 'ভাসমান মাইক লুকাবেন?';
+
+  @override
+  String get voiceFabHideBody =>
+      'আজকের পাতার উপরের মাইকটি থাকবে। এটি আরও অংশ থেকে আবার ফিরিয়ে আনতে পারবেন।';
+
+  @override
+  String get voiceFabHide => 'লুকান';
+
+  @override
   String voiceReady(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,

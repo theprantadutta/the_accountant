@@ -30,6 +30,8 @@ import 'package:the_accountant/features/transactions/screens/add_transaction_scr
 import 'package:the_accountant/features/transactions/screens/transaction_detail_screen.dart';
 import 'package:the_accountant/features/transactions/screens/transaction_list_screen.dart';
 import 'package:the_accountant/features/transactions/widgets/transaction_type_header.dart';
+import 'package:the_accountant/features/voice_log/providers/voice_fab_provider.dart';
+import 'package:the_accountant/features/voice_log/widgets/voice_fab.dart';
 import 'package:the_accountant/features/walkthrough/walkthrough_service.dart';
 import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
 import 'package:the_accountant/features/wallets/screens/create_first_wallet_screen.dart';
@@ -162,8 +164,8 @@ class _MainNavigationContainerState
       if (!walkthroughState.hasSeenWalkthrough && mounted) _startWalkthrough();
 
       // Ask about notifications with an in-app priming prompt (never the bare
-      // iOS dialog on launch).
-      _maybeShowNotificationPrimer();
+      // iOS dialog on launch), then about the floating mic.
+      _afterWalkthrough();
 
       // A link that arrived before there was anywhere safe to send it — a cold
       // start from a launcher shortcut is exactly that — has been waiting.
@@ -234,6 +236,33 @@ class _MainNavigationContainerState
 
     await showNotificationPermissionPrimer(context);
     await prefs.setBool(primerShownKey, true);
+  }
+
+  /// The one-time questions, in turn, once the tour is out of the way.
+  Future<void> _afterWalkthrough() async {
+    await _maybeShowNotificationPrimer();
+    await _maybeAskAboutVoiceFab();
+  }
+
+  /// Asks, once, whether to float a mic over Today. Not during the tour, and
+  /// not over another tab or a pushed screen.
+  bool _askingAboutVoiceFab = false;
+
+  Future<void> _maybeAskAboutVoiceFab() async {
+    if (_askingAboutVoiceFab) return;
+    if (!ref.read(walkthroughProvider).hasSeenWalkthrough) return;
+    final fab = ref.read(voiceFabProvider);
+    if (!fab.loaded || fab.asked) return;
+    if (!mounted || _currentIndex != 0) return;
+    if (!(ModalRoute.of(context)?.isCurrent ?? false)) return;
+    _askingAboutVoiceFab = true;
+    try {
+      await Future.delayed(const Duration(milliseconds: 600));
+      if (!mounted) return;
+      await askAboutVoiceFab(context, ref);
+    } finally {
+      _askingAboutVoiceFab = false;
+    }
   }
 
   // The startup flow is driven by `AuthWrapper`, which decides whether this
@@ -325,6 +354,15 @@ class _MainNavigationContainerState
           if (mounted) _startWalkthrough();
         });
       }
+      // A first run: ask the one-time questions once the tour is done, not
+      // on the next launch.
+      if (!(previous?.hasSeenWalkthrough ?? true) && next.hasSeenWalkthrough) {
+        _afterWalkthrough();
+      }
+    });
+    // The saved answer is read after the first frame; ask once it is known.
+    ref.listen<VoiceFabState>(voiceFabProvider, (previous, next) {
+      if (!(previous?.loaded ?? false) && next.loaded) _maybeAskAboutVoiceFab();
     });
     // Background syncs run silently. The one thing worth interrupting for is a
     // sync that failed, and [SyncNotifier] raises that once per run of
@@ -373,9 +411,20 @@ class _MainNavigationContainerState
       );
     }
 
+    final showFab = ref.watch(voiceFabProvider.select((f) => f.enabled));
     return _chrome(
       l10n,
-      _tabBody(IndexedStack(index: _currentIndex, children: _screens)),
+      Stack(
+        children: [
+          Positioned.fill(
+            child: _tabBody(
+              IndexedStack(index: _currentIndex, children: _screens),
+            ),
+          ),
+          if (showFab)
+            Positioned.fill(child: VoiceFab(visible: _currentIndex == 0)),
+        ],
+      ),
     );
   }
 

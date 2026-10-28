@@ -41,6 +41,7 @@ import 'package:the_accountant/features/transactions/screens/recently_deleted_sc
 import 'package:the_accountant/features/transactions/screens/title_rules_screen.dart';
 import 'package:the_accountant/features/transactions/screens/upcoming_transactions_screen.dart';
 import 'package:the_accountant/features/wallets/screens/wallet_management_screen.dart';
+import 'package:the_accountant/features/voice_log/providers/voice_fab_provider.dart';
 import 'package:the_accountant/features/dashboard/providers/net_worth_preferences_provider.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
@@ -262,6 +263,28 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           title: l10n.layoutTitle,
           subtitle: l10n.layoutSubtitle,
           onTap: () => _push(const HomeLayoutScreen()),
+        ),
+      ),
+      _Entry(
+        title: l10n.voiceFabSetting,
+        keywords: const [
+          'voice',
+          'mic',
+          'microphone',
+          'speak',
+          'say',
+          'floating',
+          'button',
+        ],
+        row: SettingsRow.toggle(
+          key: const Key('voice_fab_toggle'),
+          icon: Symbols.mic_rounded,
+          iconColor: c.accent,
+          iconBackground: c.tintOrange,
+          title: l10n.voiceFabSetting,
+          subtitle: l10n.voiceFabSettingSub,
+          value: ref.watch(voiceFabProvider.select((f) => f.enabled)),
+          onChanged: (on) => ref.read(voiceFabProvider.notifier).setEnabled(on),
         ),
       ),
     ];

@@ -9010,6 +9010,66 @@ abstract class L10n {
   /// **'Something went wrong. Try again.'**
   String get voiceSomethingWrong;
 
+  /// No description provided for @voiceFabSetting.
+  ///
+  /// In en, this message translates to:
+  /// **'Floating mic on Today'**
+  String get voiceFabSetting;
+
+  /// No description provided for @voiceFabSettingSub.
+  ///
+  /// In en, this message translates to:
+  /// **'A mic that floats over Today, for saying a transaction'**
+  String get voiceFabSettingSub;
+
+  /// No description provided for @voiceFabAskTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a mic to your Today screen?'**
+  String get voiceFabAskTitle;
+
+  /// No description provided for @voiceFabAskBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap it and say what you spent, like \"lunch 250 and a rickshaw 60\". You check everything before it\'s saved. Drag it anywhere you like.'**
+  String get voiceFabAskBody;
+
+  /// No description provided for @voiceFabAskYes.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes, add the mic'**
+  String get voiceFabAskYes;
+
+  /// No description provided for @voiceFabAskNo.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get voiceFabAskNo;
+
+  /// No description provided for @voiceFabAskLater.
+  ///
+  /// In en, this message translates to:
+  /// **'You can turn it on or off any time in More.'**
+  String get voiceFabAskLater;
+
+  /// No description provided for @voiceFabHideTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide the floating mic?'**
+  String get voiceFabHideTitle;
+
+  /// No description provided for @voiceFabHideBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The mic at the top of Today stays. You can bring this one back in More.'**
+  String get voiceFabHideBody;
+
+  /// No description provided for @voiceFabHide.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide it'**
+  String get voiceFabHide;
+
   /// No description provided for @voiceReady.
   ///
   /// In en, this message translates to:
