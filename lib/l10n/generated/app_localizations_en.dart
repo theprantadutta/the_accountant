@@ -276,14 +276,6 @@ class L10nEn extends L10n {
   String get filterNone => 'None';
 
   @override
-  String filterShowAll(int count) {
-    return 'Show all ($count)';
-  }
-
-  @override
-  String get filterShowLess => 'Show less';
-
-  @override
   String get filterThisMonth => 'This month';
 
   @override
@@ -308,7 +300,10 @@ class L10nEn extends L10n {
   }
 
   @override
-  String get filterClearAll => 'Clear all';
+  String get filterClear => 'Clear';
+
+  @override
+  String get filterNoMatches => 'No matches';
 
   @override
   String get filterAny => 'Any';

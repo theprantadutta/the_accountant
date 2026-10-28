@@ -276,14 +276,6 @@ class L10nBn extends L10n {
   String get filterNone => 'কোনোটি নয়';
 
   @override
-  String filterShowAll(int count) {
-    return 'সব দেখুন ($count)';
-  }
-
-  @override
-  String get filterShowLess => 'কম দেখুন';
-
-  @override
   String get filterThisMonth => 'এই মাস';
 
   @override
@@ -308,7 +300,10 @@ class L10nBn extends L10n {
   }
 
   @override
-  String get filterClearAll => 'সব মুছুন';
+  String get filterClear => 'মুছুন';
+
+  @override
+  String get filterNoMatches => 'কিছু মেলেনি';
 
   @override
   String get filterAny => 'যেকোনো';

@@ -14,6 +14,7 @@ import 'package:the_accountant/features/categories/providers/category_provider.d
 import 'package:the_accountant/features/dashboard/providers/financial_data_provider.dart';
 import 'package:the_accountant/features/reports/providers/heatmap_provider.dart';
 import 'package:the_accountant/features/reports/providers/reports_provider.dart';
+import 'package:the_accountant/features/reports/providers/stats_period_provider.dart';
 import 'package:the_accountant/features/reports/widgets/spending_heatmap.dart';
 import 'package:the_accountant/features/settings/providers/settings_provider.dart';
 import 'package:the_accountant/features/transactions/providers/transaction_provider.dart';
@@ -36,7 +37,6 @@ class ReportsScreen extends ConsumerStatefulWidget {
 enum _Mode { spending, income, categories }
 
 class _ReportsScreenState extends ConsumerState<ReportsScreen> {
-  int _timeFrame = 0; // 0: Week, 1: Month, 2: Year
   _Mode _mode = _Mode.spending;
 
   /// Bumped on every period change so the bars animate in again.
@@ -51,6 +51,8 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
   Widget build(BuildContext context) {
     final l10n = L10n.of(context);
     final c = context.sunrise;
+    // 0 week, 1 month, 2 year; remembered on this device.
+    final timeFrame = ref.watch(statsPeriodProvider);
     final loading =
         ref.watch(financialDataProvider).isLoading ||
         ref.watch(transactionProvider).isLoading ||
@@ -60,17 +62,15 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
 
     final segmented = SunriseSegmented<int>(
       height: 46,
-      value: _timeFrame,
+      value: timeFrame,
       options: [
         SegmentOption(0, l10n.statsWeek),
         SegmentOption(1, l10n.statsMonth),
         SegmentOption(2, l10n.statsYear),
       ],
       onChanged: (v) {
-        setState(() {
-          _timeFrame = v;
-          _chartGeneration++;
-        });
+        setState(() => _chartGeneration++);
+        ref.read(statsPeriodProvider.notifier).set(v);
         ref.read(reportsProvider.notifier).refreshForTimeframe(v);
       },
     );
@@ -80,7 +80,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
         color: c.accent,
         backgroundColor: c.surface,
         onRefresh: () =>
-            ref.read(reportsProvider.notifier).refreshForTimeframe(_timeFrame),
+            ref.read(reportsProvider.notifier).refreshForTimeframe(timeFrame),
         child: ListView(
           physics: const AlwaysScrollableScrollPhysics(
             parent: BouncingScrollPhysics(),

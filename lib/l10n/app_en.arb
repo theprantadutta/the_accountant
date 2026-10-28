@@ -109,15 +109,6 @@
   "filterBudget": "Budget",
   "filterGoal": "Goal",
   "filterNone": "None",
-  "filterShowAll": "Show all ({count})",
-  "@filterShowAll": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "filterShowLess": "Show less",
   "filterThisMonth": "This month",
   "filterLastMonth": "Last month",
   "filterLast3Months": "Last 3 months",
@@ -130,7 +121,8 @@
       }
     }
   },
-  "filterClearAll": "Clear all",
+  "filterClear": "Clear",
+  "filterNoMatches": "No matches",
   "filterAny": "Any",
   "filterSpent": "Spent",
   "filterEarned": "Earned",

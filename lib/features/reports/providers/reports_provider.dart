@@ -9,6 +9,7 @@ import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
 import 'package:the_accountant/features/budgets/domain/budget_engine.dart';
 import 'package:the_accountant/features/budgets/providers/budget_provider.dart';
+import 'package:the_accountant/features/reports/providers/stats_period_provider.dart';
 import 'package:the_accountant/features/categories/providers/category_provider.dart'
     as cat_provider;
 
@@ -166,7 +167,10 @@ class ReportsNotifier extends StateNotifier<ReportsState> {
 
   /// Load all reports data based on timeframe
   /// timeframe: 0 = Week, 1 = Month, 2 = Year
-  Future<void> loadReportsData({int timeframe = 0}) async {
+  Future<void> loadReportsData({int? timeframe}) async {
+    // A reload after a transaction changes keeps the period Stats is showing
+    // rather than dropping back to the week.
+    final int period = timeframe ?? _ref.read(statsPeriodProvider);
     state = state.copyWith(isLoading: true, error: null);
 
     try {
@@ -175,7 +179,7 @@ class ReportsNotifier extends StateNotifier<ReportsState> {
       DateTime endDate = now;
 
       // Calculate date range based on timeframe
-      switch (timeframe) {
+      switch (period) {
         case 0: // Week
           startDate = now.subtract(const Duration(days: 6));
           break;
@@ -216,7 +220,7 @@ class ReportsNotifier extends StateNotifier<ReportsState> {
         transactions,
         startDate,
         endDate,
-        timeframe,
+        period,
       );
 
       // Calculate budget comparison
@@ -492,5 +496,11 @@ final reportsProvider = StateNotifierProvider<ReportsNotifier, ReportsState>((
   ref,
 ) {
   final db = ref.watch(databaseProvider);
-  return ReportsNotifier(db, ref);
+  final notifier = ReportsNotifier(db, ref);
+  // Stats' period, picked or loaded from the device, is what reports cover.
+  ref.listen<int>(
+    statsPeriodProvider,
+    (_, period) => notifier.loadReportsData(timeframe: period),
+  );
+  return notifier;
 });

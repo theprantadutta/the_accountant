@@ -607,18 +607,6 @@ abstract class L10n {
   /// **'None'**
   String get filterNone;
 
-  /// No description provided for @filterShowAll.
-  ///
-  /// In en, this message translates to:
-  /// **'Show all ({count})'**
-  String filterShowAll(int count);
-
-  /// No description provided for @filterShowLess.
-  ///
-  /// In en, this message translates to:
-  /// **'Show less'**
-  String get filterShowLess;
-
   /// No description provided for @filterThisMonth.
   ///
   /// In en, this message translates to:
@@ -649,11 +637,17 @@ abstract class L10n {
   /// **'{count, plural, =0{No transactions match} =1{Show 1 transaction} other{Show {count} transactions}}'**
   String filterShowCount(int count);
 
-  /// No description provided for @filterClearAll.
+  /// No description provided for @filterClear.
   ///
   /// In en, this message translates to:
-  /// **'Clear all'**
-  String get filterClearAll;
+  /// **'Clear'**
+  String get filterClear;
+
+  /// No description provided for @filterNoMatches.
+  ///
+  /// In en, this message translates to:
+  /// **'No matches'**
+  String get filterNoMatches;
 
   /// No description provided for @filterAny.
   ///

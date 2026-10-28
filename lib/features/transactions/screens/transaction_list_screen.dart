@@ -513,20 +513,33 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
     if (updated != null) setState(() => _filters = updated);
   }
 
+  /// A page's scroll view. Each one takes the outer scroll's controller, so
+  /// scrolling any month moves the search and chips out of the way.
+  Widget _pageScroll(DateTime? month, List<Widget> slivers) => CustomScrollView(
+    key: PageStorageKey<String>(
+      month == null ? 'search' : '${month.year}-${month.month}',
+    ),
+    physics: const AlwaysScrollableScrollPhysics(),
+    slivers: slivers,
+  );
+
+  Widget _emptyPage(DateTime? month, Widget child) => _pageScroll(month, [
+    SliverPadding(
+      padding: const EdgeInsets.only(top: 40),
+      sliver: SliverToBoxAdapter(child: child),
+    ),
+  ]);
+
   Widget _buildEmptyState(DateTime? month) {
     final l10n = L10n.of(context);
     if (month == null) {
-      return ListView(
-        padding: const EdgeInsets.only(top: 40),
-        children: [
-          EmptyState(
-            icon: Symbols.search_off_rounded,
-            title: l10n.activitySearchNothingTitle(
-              _searchController.text.trim(),
-            ),
-            message: l10n.activitySearchNothingBody,
-          ),
-        ],
+      return _emptyPage(
+        month,
+        EmptyState(
+          icon: Symbols.search_off_rounded,
+          title: l10n.activitySearchNothingTitle(_searchController.text.trim()),
+          message: l10n.activitySearchNothingBody,
+        ),
       );
     }
     final now = DateTime.now();
@@ -555,9 +568,9 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
             l10n.activityEmptyPastBody(monthLabel),
           );
 
-    return ListView(
-      padding: const EdgeInsets.only(top: 40),
-      children: [EmptyState(icon: icon, title: title, message: body)],
+    return _emptyPage(
+      month,
+      EmptyState(icon: icon, title: title, message: body),
     );
   }
 
@@ -638,10 +651,14 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
     final c = context.sunrise;
 
     if (isLoading) {
-      return const SingleChildScrollView(
-        padding: EdgeInsets.symmetric(horizontal: SunriseSpace.screenX),
-        child: ShimmerTransactionList(itemCount: 8),
-      );
+      return _pageScroll(month, const [
+        SliverPadding(
+          padding: EdgeInsets.symmetric(horizontal: SunriseSpace.screenX),
+          sliver: SliverToBoxAdapter(
+            child: ShimmerTransactionList(itemCount: 8),
+          ),
+        ),
+      ]);
     }
 
     final filteredTransactions = _filterTransactionsForMonth(
@@ -656,52 +673,56 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
     final (monthIn, monthOut) = _totals(filteredTransactions);
     final locale = Localizations.localeOf(context).toString();
 
-    return ListView.builder(
-      padding: const EdgeInsets.fromLTRB(
-        SunriseSpace.screenX,
-        4,
-        SunriseSpace.screenX,
-        SunriseSpace.tabBarClearance,
-      ),
-      itemCount: sortedDates.length + 1,
-      itemBuilder: (context, index) {
-        if (index == 0) {
-          return Padding(
-            padding: const EdgeInsets.only(bottom: SunriseSpace.section),
-            child: _MonthSummary(
-              label: month == null
-                  ? l10n.activitySearchFound(filteredTransactions.length)
-                  : DateUtils.isSameMonth(month, DateTime.now())
-                  ? l10n.activitySoFar(DateFormat('MMMM', locale).format(month))
-                  : DateFormat('MMMM yyyy', locale).format(month),
-              net: l10n.activityNet(_money(monthIn - monthOut, sign: true)),
-              inLabel: l10n.activityIn,
-              inValue: _money(monthIn),
-              outLabel: l10n.activityOut,
-              outValue: _money(monthOut),
-            ),
-          );
-        }
-        final date = sortedDates[index - 1];
-        final dayTransactions = groupedTransactions[date]!;
-        final (dayIn, dayOut) = _totals(dayTransactions);
-        final dayNet = dayIn - dayOut;
-
-        return Padding(
-          padding: const EdgeInsets.only(bottom: SunriseSpace.section),
-          child: DayGroupCard(
-            label: _formatDateHeader(date, withMonth: month == null),
-            total: dayIn == 0 && dayOut == 0
-                ? null
-                : _money(dayNet, sign: true),
-            totalColor: c.subtle,
-            children: [
-              for (final transaction in dayTransactions) _row(transaction),
-            ],
+    return _pageScroll(month, [
+      // The month's totals stay at the top while its days scroll under them.
+      PinnedHeaderSliver(
+        child: _PinnedSummary(
+          child: _MonthSummary(
+            label: month == null
+                ? l10n.activitySearchFound(filteredTransactions.length)
+                : DateUtils.isSameMonth(month, DateTime.now())
+                ? l10n.activitySoFar(DateFormat('MMMM', locale).format(month))
+                : DateFormat('MMMM yyyy', locale).format(month),
+            net: l10n.activityNet(_money(monthIn - monthOut, sign: true)),
+            inLabel: l10n.activityIn,
+            inValue: _money(monthIn),
+            outLabel: l10n.activityOut,
+            outValue: _money(monthOut),
           ),
-        );
-      },
-    );
+        ),
+      ),
+      SliverPadding(
+        padding: const EdgeInsets.fromLTRB(
+          SunriseSpace.screenX,
+          SunriseSpace.section - 10,
+          SunriseSpace.screenX,
+          SunriseSpace.tabBarClearance,
+        ),
+        sliver: SliverList.builder(
+          itemCount: sortedDates.length,
+          itemBuilder: (context, index) {
+            final date = sortedDates[index];
+            final dayTransactions = groupedTransactions[date]!;
+            final (dayIn, dayOut) = _totals(dayTransactions);
+            final dayNet = dayIn - dayOut;
+
+            return Padding(
+              padding: const EdgeInsets.only(bottom: SunriseSpace.section),
+              child: DayGroupCard(
+                label: _formatDateHeader(date, withMonth: month == null),
+                total: dayIn == 0 && dayOut == 0
+                    ? null
+                    : _money(dayNet, sign: true),
+                totalColor: c.subtle,
+                children: [
+                  for (final transaction in dayTransactions) _row(transaction),
+                ],
+              ),
+            );
+          },
+        ),
+      ),
+    ]);
   }
 
   Widget _row(Transaction transaction) {
@@ -834,86 +855,41 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                       ],
                     ),
                   ),
-                  // While rows are picked out, the actions replace search
-                  // rather than sitting beside it: narrowing the list
-                  // mid-selection would quietly change what "all of these"
-                  // means.
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: SunriseSpace.screenX,
-                    ),
-                    child: _selecting
-                        ? _buildSelectionBar()
-                        : SunriseSearchField(
-                            hint: l10n.activitySearch,
-                            controller: _searchController,
-                            onClear: () {
-                              _searchController.clear();
-                              setState(() {
-                                _searchQuery = '';
-                                _filters = _filters.copyWith(query: '');
-                              });
-                            },
-                          ),
-                  ),
-                  const SizedBox(height: 12),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: SunriseSpace.screenX,
-                    ),
-                    child: Row(
-                      children: [
-                        for (final (value, label) in [
-                          (_TypeChip.all, l10n.activityAll),
-                          (_TypeChip.spent, l10n.activitySpent),
-                          (_TypeChip.earned, l10n.activityEarned),
-                          (_TypeChip.transfers, l10n.activityTransfers),
-                        ]) ...[
-                          SunriseChip(
-                            label: label,
-                            selected: chip == value,
-                            onTap: () => _setTypeChip(value),
-                          ),
-                          const SizedBox(width: 8),
-                        ],
-                      ],
-                    ),
-                  ),
-                  // Kept in the tree while searching, so clearing the search
-                  // lands back on the month that was open.
-                  Offstage(
-                    offstage: _searching,
-                    child: MonthStrip(
-                      months: _availableMonths,
-                      selectedIndex: _currentPageIndex,
-                      onSelected: _onMonthChipTapped,
-                      controller: _monthScrollController,
-                    ),
-                  ),
+                  // Search, the type chips and the months slide away as the
+                  // list scrolls down and come back as soon as it scrolls up,
+                  // so the rows get the screen while the month's totals stay
+                  // pinned above them.
                   Expanded(
-                    child: Stack(
-                      children: [
-                        Offstage(
-                          offstage: _searching,
-                          child: PageView.builder(
-                            controller: _pageController,
-                            onPageChanged: _onPageChanged,
-                            itemCount: _availableMonths.length,
-                            itemBuilder: (context, index) => _buildMonthPage(
-                              _availableMonths[index],
+                    child: NestedScrollView(
+                      floatHeaderSlivers: true,
+                      headerSliverBuilder: (context, _) => [
+                        SliverFloatingHeader(
+                          child: _buildListHeader(l10n, chip),
+                        ),
+                      ],
+                      body: Stack(
+                        children: [
+                          Offstage(
+                            offstage: _searching,
+                            child: PageView.builder(
+                              controller: _pageController,
+                              onPageChanged: _onPageChanged,
+                              itemCount: _availableMonths.length,
+                              itemBuilder: (context, index) => _buildMonthPage(
+                                _availableMonths[index],
+                                transactionState.transactions,
+                                transactionState.isLoading,
+                              ),
+                            ),
+                          ),
+                          if (_searching)
+                            _buildMonthPage(
+                              null,
                               transactionState.transactions,
                               transactionState.isLoading,
                             ),
-                          ),
-                        ),
-                        if (_searching)
-                          _buildMonthPage(
-                            null,
-                            transactionState.transactions,
-                            transactionState.isLoading,
-                          ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ],
@@ -922,6 +898,69 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  /// Search (or the selection actions), the type chips and the month strip.
+  Widget _buildListHeader(L10n l10n, _TypeChip chip) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // While rows are picked out, the actions replace search rather than
+        // sitting beside it: narrowing the list mid-selection would quietly
+        // change what "all of these" means.
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: SunriseSpace.screenX),
+          child: _selecting
+              ? _buildSelectionBar()
+              : SunriseSearchField(
+                  hint: l10n.activitySearch,
+                  controller: _searchController,
+                  onClear: () {
+                    _searchController.clear();
+                    setState(() {
+                      _searchQuery = '';
+                      _filters = _filters.copyWith(query: '');
+                    });
+                  },
+                ),
+        ),
+        const SizedBox(height: 12),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: SunriseSpace.screenX),
+          child: Row(
+            children: [
+              for (final (value, label) in [
+                (_TypeChip.all, l10n.activityAll),
+                (_TypeChip.spent, l10n.activitySpent),
+                (_TypeChip.earned, l10n.activityEarned),
+                (_TypeChip.transfers, l10n.activityTransfers),
+              ]) ...[
+                SunriseChip(
+                  label: label,
+                  selected: chip == value,
+                  onTap: () => _setTypeChip(value),
+                ),
+                const SizedBox(width: 8),
+              ],
+            ],
+          ),
+        ),
+        // Kept in the tree while searching, so clearing the search lands back
+        // on the month that was open.
+        Offstage(
+          offstage: _searching,
+          child: MonthStrip(
+            months: _availableMonths,
+            selectedIndex: _currentPageIndex,
+            onSelected: _onMonthChipTapped,
+            controller: _monthScrollController,
+          ),
+        ),
+        const SizedBox(height: 4),
+      ],
     );
   }
 
@@ -1017,6 +1056,71 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
 }
 
 enum _TypeChip { all, spent, earned, transfers }
+
+/// The pinned band the month summary sits in.
+///
+/// Clear while the list is at rest, so the screen looks as it always did;
+/// frosted once rows scroll under it, so they don't show through the summary.
+class _PinnedSummary extends StatefulWidget {
+  const _PinnedSummary({required this.child});
+
+  final Widget child;
+
+  @override
+  State<_PinnedSummary> createState() => _PinnedSummaryState();
+}
+
+class _PinnedSummaryState extends State<_PinnedSummary> {
+  ScrollPosition? _position;
+  bool _covering = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final position = Scrollable.maybeOf(context)?.position;
+    if (position == _position) return;
+    _position?.removeListener(_onScroll);
+    _position = position?..addListener(_onScroll);
+    _onScroll();
+  }
+
+  void _onScroll() {
+    final covering = (_position?.hasPixels ?? false) && _position!.pixels > 1;
+    if (covering != _covering && mounted) {
+      setState(() => _covering = covering);
+    }
+  }
+
+  @override
+  void dispose() {
+    _position?.removeListener(_onScroll);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.sunrise;
+    final content = Padding(
+      padding: const EdgeInsets.fromLTRB(
+        SunriseSpace.screenX,
+        4,
+        SunriseSpace.screenX,
+        10,
+      ),
+      child: widget.child,
+    );
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 180),
+      child: _covering
+          ? SunriseGlass(
+              key: const ValueKey(true),
+              color: c.base.withValues(alpha: .6),
+              child: content,
+            )
+          : KeyedSubtree(key: const ValueKey(false), child: content),
+    );
+  }
+}
 
 /// "October so far: +৳1,850 net", with money in and out.
 class _MonthSummary extends StatelessWidget {
