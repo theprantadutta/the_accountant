@@ -1643,11 +1643,13 @@ class _VoiceLogButtonState extends State<VoiceLogButton>
 
 /// Opens the voice sheet and, once something is saved, says so with Undo.
 Future<void> startVoiceLog(BuildContext context, WidgetRef ref) async {
-  final result = await showVoiceLogSheet(context);
-  if (result == null || result.saved == 0 || !context.mounted) return;
+  // Taken before the sheet opens: saving reloads the Today screen, and the
+  // button this came from may be rebuilt by the time the sheet closes.
   final l10n = L10n.of(context);
   final messenger = ScaffoldMessenger.of(context);
   final service = ref.read(voiceLogServiceProvider);
+  final result = await showVoiceLogSheet(context);
+  if (result == null || result.saved == 0) return;
   messenger.hideCurrentSnackBar();
   messenger.showSnackBar(
     SnackBar(

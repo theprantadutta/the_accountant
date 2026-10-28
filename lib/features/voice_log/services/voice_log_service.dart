@@ -11,6 +11,7 @@ import 'package:the_accountant/features/ai_assistant/services/ai_api.dart';
 import 'package:the_accountant/features/ai_assistant/services/coach_tool_runner.dart';
 import 'package:the_accountant/features/ai_assistant/services/finance_context_builder.dart';
 import 'package:the_accountant/features/categories/providers/category_provider.dart';
+import 'package:the_accountant/features/dashboard/providers/financial_data_provider.dart';
 import 'package:the_accountant/features/transactions/providers/transaction_provider.dart'
     show transactionProvider;
 import 'package:the_accountant/features/transactions/providers/transfer_provider.dart'
@@ -239,6 +240,8 @@ class VoiceLogService {
     }
     await transactions.loadTransactions(silent: true);
     await _read(walletProvider.notifier).loadWallets();
+    // A restore goes around the notifier, so the Today totals are told too.
+    await _read(financialDataProvider.notifier).refreshData();
   }
 }
 
