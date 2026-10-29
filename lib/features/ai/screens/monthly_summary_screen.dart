@@ -55,9 +55,10 @@ class _MonthlySummaryScreenState extends ConsumerState<MonthlySummaryScreen> {
   Future<void> _load() async {
     final snapshot = await FinanceContextBuilder(ref.read).build();
     if (!mounted) return;
+    // The review is written only when asked for. Writing it on every visit,
+    // as it did for Premium, spent an AI call each time the screen was opened
+    // just to look at the totals.
     setState(() => _snapshot = snapshot);
-    // Premium never has to ask.
-    if (ref.read(aiQuotaProvider).unlimited) await _write();
   }
 
   Future<void> _write() async {
