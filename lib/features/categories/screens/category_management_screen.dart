@@ -30,8 +30,13 @@ final _transactionCountsProvider = FutureProvider.autoDispose<Map<String, int>>(
   },
 );
 
-/// Every category, as the tree it is: each top-level category followed by
-/// its subcategories, with what each holds and a menu of what can be done.
+/// Which categories have their subcategories showing. Closed to start with,
+/// so the screen opens on the top-level categories alone.
+final _expandedProvider = StateProvider.autoDispose<Set<String>>((ref) => {});
+
+/// Every category, as the tree it is: the top-level categories, each opening
+/// onto its subcategories, and theirs, with what each holds and a menu of
+/// what can be done.
 ///
 /// Subcategories could be made but not managed: the list was flat, so one
 /// looked like any other category, there was no way to take one out of its
@@ -124,13 +129,7 @@ class CategoryManagementScreen extends ConsumerWidget {
               style: TextStyle(color: context.sunrise.subtle),
             ),
           ),
-        for (final top in tops) ...[
-          _row(context, ref, top, all, byId, counts),
-          for (final child in all.where(
-            (c) => c.mainCategoryId == top.id && !c.isArchived,
-          ))
-            _row(context, ref, child, all, byId, counts, isChild: true),
-        ],
+        for (final top in tops) _branch(context, ref, top, all, byId, counts),
       ];
     }
 
@@ -154,6 +153,76 @@ class CategoryManagementScreen extends ConsumerWidget {
         ),
       ],
     ];
+  }
+
+  /// [category] and, while it is open, its subcategories beneath it, each of
+  /// which can open in turn.
+  Widget _branch(
+    BuildContext context,
+    WidgetRef ref,
+    _Category category,
+    List<_Category> all,
+    Map<String, _Category> byId,
+    Map<String, int> counts, {
+    int depth = 0,
+    Set<String> path = const {},
+  }) {
+    final kids = all
+        .where(
+          (c) =>
+              c.mainCategoryId == category.id &&
+              !c.isArchived &&
+              // A category can never be its own ancestor; a bad link in the
+              // data must not loop the screen forever.
+              !path.contains(c.id),
+        )
+        .toList();
+    final open = ref.watch(_expandedProvider).contains(category.id);
+    void toggle() {
+      final now = {...ref.read(_expandedProvider)};
+      if (!now.remove(category.id)) now.add(category.id);
+      ref.read(_expandedProvider.notifier).state = now;
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _row(
+          context,
+          ref,
+          category,
+          all,
+          byId,
+          counts,
+          depth: depth,
+          expanded: open,
+          onToggle: kids.isEmpty ? null : toggle,
+        ),
+        AnimatedSize(
+          duration: const Duration(milliseconds: 240),
+          curve: Curves.easeOutCubic,
+          alignment: Alignment.topCenter,
+          child: open && kids.isNotEmpty
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    for (final k in kids)
+                      _branch(
+                        context,
+                        ref,
+                        k,
+                        all,
+                        byId,
+                        counts,
+                        depth: depth + 1,
+                        path: {...path, category.id},
+                      ),
+                  ],
+                )
+              : const SizedBox(width: double.infinity),
+        ),
+      ],
+    );
   }
 
   /// A flat list of matches: by name, or by parent, so searching "Food" also
@@ -197,9 +266,12 @@ class CategoryManagementScreen extends ConsumerWidget {
     List<_Category> all,
     Map<String, _Category> byId,
     Map<String, int> counts, {
-    bool isChild = false,
+    int depth = 0,
+    bool expanded = false,
+    VoidCallback? onToggle,
   }) {
     final l10n = L10n.of(context);
+    final isChild = depth > 0;
     final children = all.where((c) => c.mainCategoryId == category.id).length;
     final count = counts[category.id] ?? 0;
     final parent = byId[category.mainCategoryId];
@@ -290,8 +362,11 @@ class CategoryManagementScreen extends ConsumerWidget {
         iconName: category.iconName,
       ),
       subtitle: subtitle,
-      isChild: isChild,
+      depth: depth,
       isArchived: category.isArchived,
+      childCount: onToggle == null ? 0 : children,
+      expanded: expanded,
+      onToggle: onToggle,
       onTap: editable ? () => _openForm(context, category: category) : null,
       actions: actions,
     );

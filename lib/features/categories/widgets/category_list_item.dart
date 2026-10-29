@@ -24,30 +24,42 @@ class CategoryAction {
 /// One category as a Sunrise row: its own icon on its colour, the name, what
 /// it holds, a lock on a built-in, and a menu of what can be done with it.
 ///
-/// A subcategory ([isChild]) is drawn indented under its parent, smaller, so
-/// the list reads as the tree it is. It used to be one flat list, where a
-/// subcategory looked like any other category and nothing said where it sat.
+/// A subcategory is drawn indented under its parent, one step per level,
+/// and smaller, so the list reads as the tree it is. One with subcategories
+/// of its own says how many and carries a chevron that turns as it opens.
 class CategoryListItem extends StatelessWidget {
   final Category category;
 
   /// "3 subcategories · 12 transactions", or where a search result sits.
   final String? subtitle;
-  final bool isChild;
+
+  /// How far down the tree it sits: 0 for a top-level category.
+  final int depth;
   final bool isArchived;
 
   /// What tapping the row does; usually edit. Null makes it inert.
   final VoidCallback? onTap;
   final List<CategoryAction> actions;
 
+  /// How many subcategories it has; with [onToggle], it can be opened.
+  final int childCount;
+  final bool expanded;
+  final VoidCallback? onToggle;
+
   const CategoryListItem({
     super.key,
     required this.category,
     this.subtitle,
-    this.isChild = false,
+    this.depth = 0,
     this.isArchived = false,
     this.onTap,
     this.actions = const [],
+    this.childCount = 0,
+    this.expanded = false,
+    this.onToggle,
   });
+
+  bool get isChild => depth > 0;
 
   @override
   Widget build(BuildContext context) {
@@ -61,13 +73,13 @@ class CategoryListItem extends StatelessWidget {
 
     final row = SunriseCard(
       margin: EdgeInsets.fromLTRB(
-        isChild ? SunriseSpace.screenX + 28 : SunriseSpace.screenX,
+        SunriseSpace.screenX + 24.0 * depth,
         isChild ? 3 : 5,
         SunriseSpace.screenX,
         isChild ? 3 : 5,
       ),
       padding: EdgeInsets.fromLTRB(12, isChild ? 6 : 10, 4, isChild ? 6 : 10),
-      onTap: isArchived ? null : onTap,
+      onTap: isArchived ? null : (onToggle ?? onTap),
       child: Row(
         children: [
           IconTile(
@@ -105,6 +117,14 @@ class CategoryListItem extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 4),
               child: Icon(Symbols.lock_rounded, size: 16, color: c.faint),
             ),
+          if (childCount > 0 && onToggle != null)
+            _ExpandChevron(
+              key: Key('category_expand_${category.id}'),
+              count: childCount,
+              expanded: expanded,
+              color: color,
+              onTap: onToggle!,
+            ),
           if (actions.isEmpty)
             const SizedBox(width: 8)
           else
@@ -141,6 +161,65 @@ class CategoryListItem extends StatelessWidget {
       ),
     );
     return isArchived ? Opacity(opacity: .55, child: row) : row;
+  }
+}
+
+/// How many subcategories a category has, and a chevron that turns down
+/// when they are shown.
+class _ExpandChevron extends StatelessWidget {
+  const _ExpandChevron({
+    super.key,
+    required this.count,
+    required this.expanded,
+    required this.color,
+    required this.onTap,
+  });
+
+  final int count;
+  final bool expanded;
+  final Color color;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.sunrise;
+    return Semantics(
+      button: true,
+      expanded: expanded,
+      child: Pressable(
+        onTap: onTap,
+        child: Container(
+          height: 32,
+          padding: const EdgeInsets.only(left: 10, right: 4),
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: expanded ? .2 : .12),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                '$count',
+                style: SunriseType.label.copyWith(
+                  color: c.ink,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              AnimatedRotation(
+                turns: expanded ? .5 : 0,
+                duration: const Duration(milliseconds: 220),
+                curve: Curves.easeOutCubic,
+                child: Icon(
+                  Symbols.expand_more_rounded,
+                  size: 20,
+                  color: c.ink,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
 
