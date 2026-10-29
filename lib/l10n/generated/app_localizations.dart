@@ -6659,6 +6659,36 @@ abstract class L10n {
   /// **'Expected'**
   String get forecastExpected;
 
+  /// No description provided for @forecastEventWhen.
+  ///
+  /// In en, this message translates to:
+  /// **'When'**
+  String get forecastEventWhen;
+
+  /// No description provided for @forecastEventKind.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get forecastEventKind;
+
+  /// No description provided for @forecastEventAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get forecastEventAccount;
+
+  /// No description provided for @forecastEventOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get forecastEventOpen;
+
+  /// No description provided for @forecastEventOverdueNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Its date has passed and it is still open, so it is counted as due today.'**
+  String get forecastEventOverdueNote;
+
   /// No description provided for @forecastKindInstallment.
   ///
   /// In en, this message translates to:

@@ -9,6 +9,7 @@ import 'package:the_accountant/features/forecast/services/cash_flow_forecast_ser
 import 'package:the_accountant/features/forecast/widgets/forecast_labels.dart';
 import 'package:the_accountant/features/plans/screens/plan_detail_screen.dart';
 import 'package:the_accountant/features/transactions/screens/transaction_detail_screen.dart';
+import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
 import 'package:the_accountant/features/wallets/screens/wallet_detail_screen.dart';
 import 'package:the_accountant/features/plans/widgets/plan_labels.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
@@ -246,27 +247,31 @@ class _ShortfallCard extends ConsumerWidget {
             ),
             const SizedBox(height: 6),
             for (final e in causes)
-              Padding(
-                padding: const EdgeInsets.only(top: 4),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        '${e.title} · ${e.kind.label(l10n)}',
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: SunriseType.label.copyWith(color: c.body),
+              Pressable(
+                onTap: () => showForecastEvent(context, e, forecast.currency),
+                semanticLabel: e.title,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          '${e.title} · ${e.kind.label(l10n)}',
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: SunriseType.label.copyWith(color: c.body),
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      f.money(e.amount, forecast.currency),
-                      style: SunriseType.label.copyWith(
-                        color: c.negative,
-                        fontFeatures: const [FontFeature.tabularFigures()],
+                      const SizedBox(width: 8),
+                      Text(
+                        f.money(e.amount, forecast.currency),
+                        style: SunriseType.label.copyWith(
+                          color: c.negative,
+                          fontFeatures: const [FontFeature.tabularFigures()],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
           ],
@@ -520,13 +525,9 @@ class _EventRow extends ConsumerWidget {
       if (event.expected) l10n.forecastExpected,
     ];
 
-    final open = _detailFor(event);
     return Pressable(
-      onTap: open == null
-          ? null
-          : () => Navigator.of(
-              context,
-            ).push(MaterialPageRoute(builder: (_) => open)),
+      // Titles are cut to one line here; the sheet shows all of it.
+      onTap: () => showForecastEvent(context, event, currency),
       semanticLabel: event.title,
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 10),
@@ -571,6 +572,121 @@ class _EventRow extends ConsumerWidget {
 
 /// The screen a forecast row opens: the plan, the card, or the transaction
 /// it comes from. Each row names one of them, and tapping did nothing.
+/// Everything about one forecast item, titles in full: a row has room for
+/// one line, and long names were cut off there. Opens the plan, card or
+/// transaction it comes from, when there is one.
+Future<void> showForecastEvent(
+  BuildContext context,
+  ForecastEvent event,
+  String currency,
+) => showSunriseSheet<void>(
+  context: context,
+  builder: (sheet) => _EventSheet(event: event, currency: currency),
+);
+
+class _EventSheet extends ConsumerWidget {
+  const _EventSheet({required this.event, required this.currency});
+
+  final ForecastEvent event;
+  final String currency;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = L10n.of(context);
+    final c = context.sunrise;
+    final f = PlanFormat(ref, context);
+    final color = event.isIncome ? c.positive : c.negative;
+    final account = ref
+        .watch(walletProvider)
+        .wallets
+        .where((w) => w.id == event.walletId)
+        .firstOrNull;
+    final open = _detailFor(event);
+
+    Widget fact(String label, String value) => Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 110,
+            child: Text(
+              label,
+              style: SunriseType.label.copyWith(color: c.muted),
+            ),
+          ),
+          Expanded(
+            child: Text(value, style: SunriseType.label.copyWith(color: c.ink)),
+          ),
+        ],
+      ),
+    );
+
+    return SunriseBottomSheet(
+      actions: open == null
+          ? null
+          : [
+              SunriseButton(
+                key: const Key('forecast_event_open'),
+                label: l10n.forecastEventOpen,
+                icon: Symbols.open_in_new_rounded,
+                height: 52,
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  Navigator.of(
+                    context,
+                  ).push(MaterialPageRoute(builder: (_) => open));
+                },
+              ),
+            ],
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              IconTile(icon: event.kind.icon, color: color, size: 44),
+              const Spacer(),
+              if (event.overdue)
+                SunrisePill(
+                  label: l10n.forecastOverdue,
+                  color: c.negative,
+                  background: c.tintRose,
+                ),
+              if (event.expected) ...[
+                const SizedBox(width: 6),
+                SunrisePill(
+                  label: l10n.forecastExpected,
+                  color: c.muted,
+                  background: c.surface,
+                ),
+              ],
+            ],
+          ),
+          const SizedBox(height: 14),
+          Text(
+            event.title,
+            style: SunriseType.section.copyWith(color: c.ink, fontSize: 20),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            '${event.isIncome ? '+' : '-'}${f.money(event.amount, currency)}',
+            style: SunriseType.amount.copyWith(color: color, fontSize: 24),
+          ),
+          const SizedBox(height: 10),
+          fact(l10n.forecastEventWhen, f.day(event.date)),
+          fact(l10n.forecastEventKind, event.kind.label(l10n)),
+          if (account != null) fact(l10n.forecastEventAccount, account.name),
+          if (event.overdue)
+            Text(
+              l10n.forecastEventOverdueNote,
+              style: SunriseType.caption.copyWith(color: c.subtle),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
 Widget? _detailFor(ForecastEvent e) => switch (e.source) {
   ForecastSource.plan when e.refId != null => PlanDetailScreen(
     planId: e.refId!,

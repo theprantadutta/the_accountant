@@ -3695,6 +3695,22 @@ class L10nBn extends L10n {
   String get forecastExpected => 'প্রত্যাশিত';
 
   @override
+  String get forecastEventWhen => 'কবে';
+
+  @override
+  String get forecastEventKind => 'ধরন';
+
+  @override
+  String get forecastEventAccount => 'অ্যাকাউন্ট';
+
+  @override
+  String get forecastEventOpen => 'খুলুন';
+
+  @override
+  String get forecastEventOverdueNote =>
+      'তারিখ পার হয়ে গেছে কিন্তু এখনো বাকি, তাই আজকের পাওনা হিসেবে ধরা হয়েছে।';
+
+  @override
   String get forecastKindInstallment => 'কিস্তি';
 
   @override

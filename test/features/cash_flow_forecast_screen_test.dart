@@ -91,7 +91,34 @@ void main() {
     expect(asked, [30, 90]);
   });
 
-  testWidgets('the home warning can be put away for that date', (tester) async {
+  testWidgets('tapping a row shows it in full', (tester) async {
+    tester.view.physicalSize = const Size(1080, 2400);
+    tester.view.devicePixelRatio = 3;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          cashFlowForecastProvider.overrideWith(
+            (ref, days) async => forecastOf(days),
+          ),
+        ],
+        child: localizedApp(home: const CashFlowForecastScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.scrollUntilVisible(find.text('Salary'), 300);
+    await tester.ensureVisible(find.text('Salary'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Salary'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('When'), findsOneWidget);
+    expect(find.text('Salary'), findsNWidgets(2));
+    expect(find.text(r'+$2,000.00'), findsNWidgets(2));
+  });
+
+    testWidgets('the home warning can be put away for that date', (tester) async {
     late WidgetRef widgetRef;
     await tester.pumpWidget(
       ProviderScope(

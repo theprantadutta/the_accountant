@@ -3738,6 +3738,22 @@ class L10nEn extends L10n {
   String get forecastExpected => 'Expected';
 
   @override
+  String get forecastEventWhen => 'When';
+
+  @override
+  String get forecastEventKind => 'Type';
+
+  @override
+  String get forecastEventAccount => 'Account';
+
+  @override
+  String get forecastEventOpen => 'Open';
+
+  @override
+  String get forecastEventOverdueNote =>
+      'Its date has passed and it is still open, so it is counted as due today.';
+
+  @override
   String get forecastKindInstallment => 'Installment';
 
   @override
