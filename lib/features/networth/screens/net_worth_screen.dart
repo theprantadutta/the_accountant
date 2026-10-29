@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:the_accountant/core/providers/data_reload.dart';
+import 'package:the_accountant/core/providers/privacy_provider.dart';
 import 'package:the_accountant/features/investments/screens/investment_trade_screen.dart';
 import 'package:the_accountant/features/networth/providers/net_worth_provider.dart';
 import 'package:the_accountant/features/networth/screens/asset_form_screen.dart';
@@ -13,6 +14,7 @@ import 'package:the_accountant/features/networth/services/net_worth_service.dart
 import 'package:the_accountant/features/networth/widgets/net_worth_labels.dart';
 import 'package:the_accountant/features/plans/widgets/plan_labels.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
+import 'package:the_accountant/shared/widgets/sensitive.dart';
 import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
 
 /// Signed money, with a true minus sign.
@@ -100,26 +102,33 @@ class _TotalCard extends ConsumerWidget {
             style: SunriseType.label.copyWith(color: c.muted, fontSize: 15),
           ),
           const SizedBox(height: 10),
-          FittedBox(
-            fit: BoxFit.scaleDown,
-            alignment: AlignmentDirectional.centerStart,
-            child: Text(
-              _signed(f, summary.total, summary.currency),
-              key: const Key('net_worth_total'),
-              maxLines: 1,
-              style: SunriseType.balance.copyWith(color: c.ink),
+          Sensitive(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: AlignmentDirectional.centerStart,
+              child: Text(
+                _signed(f, summary.total, summary.currency),
+                key: const Key('net_worth_total'),
+                maxLines: 1,
+                style: SunriseType.balance.copyWith(color: c.ink),
+              ),
             ),
           ),
           if (change != null) ...[
             const SizedBox(height: 10),
-            SunrisePill(
-              label: l10n.netWorthSinceLastMonth(
-                _signed(f, change, summary.currency, plus: true),
+            Sensitive(
+              child: SunrisePill(
+                label: l10n.netWorthSinceLastMonth(
+                  _signed(f, change, summary.currency, plus: true),
+                ),
+                color: change >= 0 ? c.accentText : c.negative,
+                background: change >= 0 ? c.tintPeach : c.tintRose,
+                fontSize: 13,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
               ),
-              color: change >= 0 ? c.accentText : c.negative,
-              background: change >= 0 ? c.tintPeach : c.tintRose,
-              fontSize: 13,
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             ),
           ],
         ],
@@ -165,13 +174,15 @@ class _BreakdownCard extends ConsumerWidget {
                       ),
                     ),
                   ),
-                  Text(
-                    _signed(f, summary[p], summary.currency),
-                    key: Key('net_worth_part_${p.name}'),
-                    style: SunriseType.label.copyWith(
-                      color: summary[p] < 0 ? c.negative : c.ink,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
+                  Sensitive(
+                    child: Text(
+                      _signed(f, summary[p], summary.currency),
+                      key: Key('net_worth_part_${p.name}'),
+                      style: SunriseType.label.copyWith(
+                        color: summary[p] < 0 ? c.negative : c.ink,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ],
@@ -262,6 +273,7 @@ class _HistoryCardState extends ConsumerState<_HistoryCard> {
     String locale,
   ) {
     final c = context.sunrise;
+    final hidden = ref.watch(amountsHiddenProvider);
     final spots = [
       for (var i = 0; i < points.length; i++)
         FlSpot(i.toDouble(), points[i].value / 100),
@@ -326,7 +338,8 @@ class _HistoryCardState extends ConsumerState<_HistoryCard> {
               for (final t in touched)
                 LineTooltipItem(
                   '${DateFormat.yMMM(locale).format(points[t.spotIndex].month)}\n'
-                  '${_signed(f, points[t.spotIndex].value, widget.currency)}',
+                  // A tooltip cannot blur, so it says the amount is hidden.
+                  '${hidden ? L10n.of(context).amountHidden : _signed(f, points[t.spotIndex].value, widget.currency)}',
                   SunriseType.caption.copyWith(
                     color: c.ink,
                     fontWeight: FontWeight.w600,
@@ -463,20 +476,24 @@ class _AssetCard extends ConsumerWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text(
-                f.money(a.value, a.currency),
-                style: SunriseType.label.copyWith(
-                  color: c.ink,
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
+              Sensitive(
+                child: Text(
+                  f.money(a.value, a.currency),
+                  style: SunriseType.label.copyWith(
+                    color: c.ink,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
               if (change != 0)
-                Text(
-                  changeText,
-                  style: SunriseType.caption.copyWith(
-                    color: change > 0 ? c.positive : c.negative,
-                    fontWeight: FontWeight.w600,
+                Sensitive(
+                  child: Text(
+                    changeText,
+                    style: SunriseType.caption.copyWith(
+                      color: change > 0 ? c.positive : c.negative,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
             ],

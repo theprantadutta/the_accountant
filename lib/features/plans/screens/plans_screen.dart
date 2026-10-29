@@ -9,6 +9,7 @@ import 'package:the_accountant/features/plans/services/plan_service.dart';
 import 'package:the_accountant/features/plans/widgets/plan_labels.dart';
 import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
+import 'package:the_accountant/shared/widgets/sensitive.dart';
 import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
 
 /// Every EMI, loan, DPS and FDR, with how far along each is.
@@ -150,29 +151,30 @@ class PlanCard extends ConsumerWidget {
         next.type == PlanEventType.installment &&
         next.date.isBefore(DateTime(now.year, now.month, now.day));
 
-    final (double done, String line) = switch (plan.kind) {
+    final principal = f.money(plan.principal, currency);
+    final paid = f.money(progress.paidSoFar, currency);
+    final payable = f.money(progress.totalPayable, currency);
+    final (
+      double done,
+      String line,
+      List<String> figures,
+    ) = switch (plan.kind) {
       PlanKind.fdr || PlanKind.bond => (
         (now.difference(plan.startDate).inDays /
                 PlanDates.endOf(plan).difference(plan.startDate).inDays)
             .clamp(0.0, 1.0),
-        l10n.planFdrLine(
-          f.money(plan.principal, currency),
-          f.day(PlanDates.endOf(plan)),
-        ),
+        l10n.planFdrLine(principal, f.day(PlanDates.endOf(plan))),
+        [principal],
       ),
       PlanKind.dps => (
         progress.installmentsDone / plan.installmentCount,
-        l10n.planSavedLine(
-          f.money(progress.paidSoFar, currency),
-          f.money(progress.totalPayable, currency),
-        ),
+        l10n.planSavedLine(paid, payable),
+        [paid, payable],
       ),
       _ => (
         progress.installmentsDone / plan.installmentCount,
-        l10n.planPaidLine(
-          f.money(progress.paidSoFar, currency),
-          f.money(progress.totalPayable, currency),
-        ),
+        l10n.planPaidLine(paid, payable),
+        [paid, payable],
       ),
     };
 
@@ -248,7 +250,11 @@ class PlanCard extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 8),
-          Text(line, style: SunriseType.caption.copyWith(color: c.muted)),
+          SensitiveText(
+            line,
+            amounts: figures,
+            style: SunriseType.caption.copyWith(color: c.muted),
+          ),
           if (plan.status == PlanStatus.active &&
               next != null &&
               next.type == PlanEventType.installment)

@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:the_accountant/data/models/investment.dart';
 import 'package:the_accountant/features/plans/widgets/plan_labels.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
+import 'package:the_accountant/shared/widgets/sensitive.dart';
 import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
 
 /// Names, icons and colours for the kinds of holding, in one place.
@@ -61,9 +62,12 @@ class GainLine extends ConsumerWidget {
     final percent = putIn == 0
         ? ''
         : ' ($sign${(gain.abs() / putIn * 100).toStringAsFixed(1)}%)';
-    final text = '$sign${f.money(gain.abs(), currency)}$percent';
-    return Text(
+    final amount = '$sign${f.money(gain.abs(), currency)}';
+    final text = '$amount$percent';
+    // The percentage says how it is going without saying how much is in it.
+    return SensitiveText(
       compact ? text : l10n.investmentGainLine(text),
+      amounts: [amount],
       style: SunriseType.caption.copyWith(
         color: color,
         fontWeight: FontWeight.w600,

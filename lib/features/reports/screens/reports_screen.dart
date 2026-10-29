@@ -4,6 +4,7 @@ import 'package:the_accountant/core/utils/color_utils.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/providers/currency_provider.dart';
+import 'package:the_accountant/core/providers/privacy_provider.dart';
 import 'package:the_accountant/core/utils/currency_formatter.dart';
 import 'package:the_accountant/core/utils/icon_registry.dart';
 import 'package:the_accountant/features/ai/screens/monthly_summary_screen.dart';
@@ -22,6 +23,7 @@ import 'package:the_accountant/features/reports/widgets/spending_heatmap.dart';
 import 'package:the_accountant/features/settings/providers/settings_provider.dart';
 import 'package:the_accountant/features/transactions/providers/transaction_provider.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
+import 'package:the_accountant/shared/widgets/sensitive.dart';
 import 'package:the_accountant/shared/widgets/shimmer_loading.dart';
 import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
 
@@ -274,17 +276,19 @@ class _Headline extends StatelessWidget {
           style: SunriseType.label.copyWith(color: c.muted, fontSize: 14),
         ),
         const SizedBox(height: 2),
-        FittedBox(
-          fit: BoxFit.scaleDown,
-          alignment: end
-              ? AlignmentDirectional.centerEnd
-              : AlignmentDirectional.centerStart,
-          child: Text(
-            value,
-            maxLines: 1,
-            style: SunriseType.heroTitle.copyWith(
-              color: emphasised ? color : color.withValues(alpha: .55),
-              fontFeatures: const [FontFeature.tabularFigures()],
+        Sensitive(
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: end
+                ? AlignmentDirectional.centerEnd
+                : AlignmentDirectional.centerStart,
+            child: Text(
+              value,
+              maxLines: 1,
+              style: SunriseType.heroTitle.copyWith(
+                color: emphasised ? color : color.withValues(alpha: .55),
+                fontFeatures: const [FontFeature.tabularFigures()],
+              ),
             ),
           ),
         ),
@@ -612,14 +616,16 @@ class _CategoryGrid extends ConsumerWidget {
                                   color: c.ink,
                                 ),
                               ),
-                              FittedBox(
-                                fit: BoxFit.scaleDown,
-                                alignment: AlignmentDirectional.centerStart,
-                                child: Text(
-                                  _money(ref, d.amount),
-                                  style: SunriseType.statValue.copyWith(
-                                    color: c.ink,
-                                    fontSize: 19,
+                              Sensitive(
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  alignment: AlignmentDirectional.centerStart,
+                                  child: Text(
+                                    _money(ref, d.amount),
+                                    style: SunriseType.statValue.copyWith(
+                                      color: c.ink,
+                                      fontSize: 19,
+                                    ),
                                   ),
                                 ),
                               ),
@@ -664,12 +670,17 @@ class _SummaryRow extends ConsumerWidget {
               style: SunriseType.caption.copyWith(color: c.muted),
             ),
             const SizedBox(height: 4),
-            FittedBox(
-              fit: BoxFit.scaleDown,
-              alignment: AlignmentDirectional.centerStart,
-              child: Text(
-                value,
-                style: SunriseType.amount.copyWith(color: color, fontSize: 16),
+            Sensitive(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: AlignmentDirectional.centerStart,
+                child: Text(
+                  value,
+                  style: SunriseType.amount.copyWith(
+                    color: color,
+                    fontSize: 16,
+                  ),
+                ),
               ),
             ),
           ],
@@ -713,6 +724,7 @@ class _HeatmapCard extends ConsumerWidget {
     final currency = ref.watch(defaultCurrencyProvider);
     final numberFormat = ref.watch(numberFormatSettingProvider);
     final dateFormat = ref.watch(dateFormatSettingProvider);
+    final hidden = ref.watch(amountsHiddenProvider);
     String money(int cents) {
       final text = cents.abs().formatCurrency(
         currency,
@@ -731,10 +743,12 @@ class _HeatmapCard extends ConsumerWidget {
               message: l10n.heatmapNetForRange,
               child: Semantics(
                 label: l10n.heatmapNetForRange,
-                child: Text(
-                  money(value.totalNetCents),
-                  style: SunriseType.amount.copyWith(
-                    color: value.totalNetCents < 0 ? c.negative : c.positive,
+                child: Sensitive(
+                  child: Text(
+                    money(value.totalNetCents),
+                    style: SunriseType.amount.copyWith(
+                      color: value.totalNetCents < 0 ? c.negative : c.positive,
+                    ),
                   ),
                 ),
               ),
@@ -756,7 +770,8 @@ class _HeatmapCard extends ConsumerWidget {
               children: [
                 SpendingHeatmap(
                   calendar: value,
-                  money: money,
+                  // A day's net is a total too, and a tooltip cannot blur.
+                  money: hidden ? (_) => l10n.amountHidden : money,
                   dateFormat: dateFormat,
                 ),
                 if (value.excluded > 0) ...[
@@ -823,6 +838,7 @@ class _BudgetComparison extends ConsumerWidget {
     SunriseColors c,
   ) {
     final pct = b.percentage.clamp(0.0, 1.0);
+    final over = _money(ref, b.spent - b.budgetLimit);
     // Opens the budget, as its row on Today does.
     return Pressable(
       key: ValueKey('stats_budget_${b.budgetId}'),
@@ -851,15 +867,17 @@ class _BudgetComparison extends ConsumerWidget {
                 constraints: BoxConstraints(
                   maxWidth: MediaQuery.sizeOf(context).width * .5,
                 ),
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  alignment: AlignmentDirectional.centerEnd,
-                  child: Text(
-                    '${_money(ref, b.spent)} / ${_money(ref, b.budgetLimit)}',
-                    maxLines: 1,
-                    style: SunriseType.label.copyWith(
-                      color: b.isOverBudget ? c.negative : c.subtle,
-                      fontFeatures: const [FontFeature.tabularFigures()],
+                child: Sensitive(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: AlignmentDirectional.centerEnd,
+                    child: Text(
+                      '${_money(ref, b.spent)} / ${_money(ref, b.budgetLimit)}',
+                      maxLines: 1,
+                      style: SunriseType.label.copyWith(
+                        color: b.isOverBudget ? c.negative : c.subtle,
+                        fontFeatures: const [FontFeature.tabularFigures()],
+                      ),
                     ),
                   ),
                 ),
@@ -887,12 +905,14 @@ class _BudgetComparison extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 6),
-          Text(
+          SensitiveText(
             b.isOverBudget
-                ? l10n.statsOverBy(_money(ref, b.spent - b.budgetLimit))
+                ? l10n.statsOverBy(over)
                 : l10n.statsRemaining(
                     ((1 - b.percentage) * 100).clamp(0, 100).toStringAsFixed(0),
                   ),
+            // The percentage left is not a figure to hide.
+            amounts: [if (b.isOverBudget) over],
             style: SunriseType.caption.copyWith(
               color: b.isOverBudget ? c.negative : c.subtle,
             ),

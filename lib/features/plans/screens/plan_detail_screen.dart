@@ -12,6 +12,7 @@ import 'package:the_accountant/features/plans/widgets/plan_labels.dart';
 import 'package:the_accountant/features/transactions/widgets/calculator_bottom_sheet.dart';
 import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
+import 'package:the_accountant/shared/widgets/sensitive.dart';
 import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
 
 /// One plan: its terms, its whole schedule, and what can be done with it.
@@ -65,18 +66,29 @@ class _Body extends ConsumerWidget {
     final end = PlanDates.endOf(plan);
 
     final insurance = plan.kind == PlanKind.insurance;
-    final facts = <(String, String)>[
-      if (plan.provider != null) (l10n.planProvider, plan.provider!),
-      if (plan.reference != null) (l10n.planReference, plan.reference!),
-      (l10n.planAccount, wallet?.name ?? '—'),
+    // Each fact with the balances and totals in it, which hide while amounts
+    // are hidden. One installment is a single payment, so it stays shown, as
+    // a transaction's amount does.
+    (String, String, List<String>) total(String label, int cents) {
+      final value = money(cents);
+      return (label, value, [value]);
+    }
+
+    final payout = (plan.maturityAmount ?? 0) > 0
+        ? money(plan.maturityAmount!)
+        : '';
+    final facts = <(String, String, List<String>)>[
+      if (plan.provider != null) (l10n.planProvider, plan.provider!, const []),
+      if (plan.reference != null)
+        (l10n.planReference, plan.reference!, const []),
+      (l10n.planAccount, wallet?.name ?? '—', const []),
       if (plan.kind == PlanKind.sip && holding != null)
-        (l10n.planSipFund, holding.name),
-      if (plan.kind == PlanKind.emi) (l10n.planPrice, money(plan.principal)),
-      if (plan.kind == PlanKind.loan)
-        (l10n.planBorrowed, money(plan.principal)),
+        (l10n.planSipFund, holding.name, const []),
+      if (plan.kind == PlanKind.emi) total(l10n.planPrice, plan.principal),
+      if (plan.kind == PlanKind.loan) total(l10n.planBorrowed, plan.principal),
       if (insurance && plan.principal > 0)
-        (l10n.planSumAssured, money(plan.principal)),
-      if (plan.kind.isFixedDeposit) (l10n.planDeposited, money(plan.principal)),
+        total(l10n.planSumAssured, plan.principal),
+      if (plan.kind.isFixedDeposit) total(l10n.planDeposited, plan.principal),
       if (!plan.kind.isFixedDeposit) ...[
         (
           switch (plan.kind) {
@@ -87,6 +99,7 @@ class _Body extends ConsumerWidget {
           },
           '${money(plan.installmentAmount)} · '
               '${planCycleLabel(l10n, plan.frequency, plan.interval)}',
+          const [],
         ),
         (
           l10n.planProgress,
@@ -94,25 +107,26 @@ class _Body extends ConsumerWidget {
             progress.installmentsDone,
             plan.installmentCount,
           ),
+          const [],
         ),
-        (
+        total(
           plan.kind == PlanKind.dps ? l10n.planSavedSoFar : l10n.planPaidSoFar,
-          money(progress.paidSoFar),
+          progress.paidSoFar,
         ),
-        (l10n.planLeft, money(progress.remaining)),
-        (l10n.planTotal, money(progress.totalPayable)),
+        total(l10n.planLeft, progress.remaining),
+        total(l10n.planTotal, progress.totalPayable),
         if ((plan.kind == PlanKind.emi || plan.kind == PlanKind.loan) &&
             progress.totalPayable > plan.principal &&
             plan.principal > 0)
-          (
+          total(
             l10n.planInterestCharges,
-            money(progress.totalPayable - plan.principal),
+            progress.totalPayable - plan.principal,
           ),
       ],
       if (plan.interestRate != null)
-        (l10n.planRate, '${plan.interestRate!.toStringAsFixed(2)}%'),
+        (l10n.planRate, '${plan.interestRate!.toStringAsFixed(2)}%', const []),
       if (plan.taxRate != null)
-        (l10n.planTax, '${plan.taxRate!.toStringAsFixed(1)}%'),
+        (l10n.planTax, '${plan.taxRate!.toStringAsFixed(1)}%', const []),
       if (plan.kind.isFixedDeposit)
         (
           l10n.planPayout,
@@ -121,15 +135,13 @@ class _Body extends ConsumerWidget {
             PlanPayout.quarterly => l10n.planPayoutQuarterly,
             PlanPayout.atMaturity => l10n.planPayoutAtMaturity,
           },
+          const [],
         ),
       if (plan.kind.holdsMoney) ...[
-        (l10n.planMaturesOn, f.day(end)),
-        (
-          l10n.planMaturity,
-          // The maturity event is what comes back after tax.
-          money(progress.events.last.amount),
-        ),
-        if (holding != null) (l10n.planHolding, money(holding.balance)),
+        (l10n.planMaturesOn, f.day(end), const []),
+        // The maturity event is what comes back after tax.
+        total(l10n.planMaturity, progress.events.last.amount),
+        if (holding != null) total(l10n.planHolding, holding.balance),
       ] else ...[
         // A savings policy ends with its payout, a period after the last
         // premium; this row is the last premium.
@@ -142,12 +154,10 @@ class _Body extends ConsumerWidget {
               (plan.installmentCount - 1) * plan.interval,
             ),
           ),
+          const [],
         ),
         if (insurance && (plan.maturityAmount ?? 0) > 0)
-          (
-            l10n.planInsurancePayout,
-            '${money(plan.maturityAmount!)} · ${f.day(end)}',
-          ),
+          (l10n.planInsurancePayout, '$payout · ${f.day(end)}', [payout]),
       ],
     ];
 
@@ -181,7 +191,7 @@ class _Body extends ConsumerWidget {
                 ],
               ),
               const SizedBox(height: 12),
-              for (final (label, value) in facts)
+              for (final (label, value, figures) in facts)
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 4),
                   child: Row(
@@ -195,8 +205,9 @@ class _Body extends ConsumerWidget {
                           ),
                         ),
                       ),
-                      Text(
+                      SensitiveText(
                         value,
+                        amounts: figures,
                         style: SunriseType.label.copyWith(
                           color: c.ink,
                           fontSize: 14,

@@ -15,6 +15,7 @@ import 'package:the_accountant/features/objectives/screens/objective_detail_scre
 import 'package:the_accountant/features/objectives/services/objectives_service.dart';
 import 'package:the_accountant/features/settings/providers/settings_provider.dart';
 import 'package:the_accountant/shared/widgets/glass_card.dart';
+import 'package:the_accountant/shared/widgets/sensitive.dart';
 import 'package:the_accountant/shared/widgets/shimmer_loading.dart';
 
 /// Every goal, with how far along it is.
@@ -208,6 +209,9 @@ class ObjectiveCard extends ConsumerWidget {
     );
 
     final fraction = (objective.progressPercent / 100).clamp(0.0, 1.0);
+    final saved = money(objective.currentAmount);
+    final target = money(objective.targetAmount);
+    final toGo = money(objective.remainingAmount);
 
     return GlassCard(
       onTap: onTap,
@@ -242,9 +246,9 @@ class ObjectiveCard extends ConsumerWidget {
                       overflow: TextOverflow.ellipsis,
                       style: AppTypography.titleSmall,
                     ),
-                    Text(
-                      '${money(objective.currentAmount)} of '
-                      '${money(objective.targetAmount)}',
+                    SensitiveText(
+                      '$saved of $target',
+                      amounts: [saved, target],
                       style: AppTypography.bodySmall.copyWith(
                         color: AppColors.textSecondary,
                       ),
@@ -270,10 +274,9 @@ class ObjectiveCard extends ConsumerWidget {
           Row(
             children: [
               Expanded(
-                child: Text(
-                  objective.isComplete
-                      ? 'Reached'
-                      : '${money(objective.remainingAmount)} to go',
+                child: SensitiveText(
+                  objective.isComplete ? 'Reached' : '$toGo to go',
+                  amounts: [if (!objective.isComplete) toGo],
                   style: AppTypography.bodySmall.copyWith(
                     color: objective.isComplete
                         ? AppColors.success

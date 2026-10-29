@@ -16,6 +16,7 @@ import 'package:the_accountant/features/transactions/widgets/month_strip.dart';
 import 'package:the_accountant/features/transactions/widgets/transaction_filter_sheet.dart';
 import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
+import 'package:the_accountant/shared/widgets/sensitive.dart';
 import 'package:the_accountant/shared/widgets/shimmer_loading.dart';
 import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
 import 'package:the_accountant/shared/widgets/transaction_card.dart';
@@ -681,6 +682,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
     final sortedDates = groupedTransactions.keys.toList()
       ..sort((a, b) => b.compareTo(a)); // Newest first
     final (monthIn, monthOut) = _totals(filteredTransactions);
+    final monthNet = _money(monthIn - monthOut, sign: true);
     final locale = Localizations.localeOf(context).toString();
 
     return _pageScroll(month, [
@@ -693,7 +695,8 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                 : DateUtils.isSameMonth(month, DateTime.now())
                 ? l10n.activitySoFar(DateFormat('MMMM', locale).format(month))
                 : DateFormat('MMMM yyyy', locale).format(month),
-            net: l10n.activityNet(_money(monthIn - monthOut, sign: true)),
+            net: l10n.activityNet(monthNet),
+            netValue: monthNet,
             inLabel: l10n.activityIn,
             inValue: _money(monthIn),
             outLabel: l10n.activityOut,
@@ -724,6 +727,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                     ? null
                     : _money(dayNet, sign: true),
                 totalColor: c.subtle,
+                wrapTotal: (total) => Sensitive(child: total),
                 children: [
                   for (final transaction in dayTransactions) _row(transaction),
                 ],
@@ -1259,6 +1263,7 @@ class _MonthSummary extends StatelessWidget {
   const _MonthSummary({
     required this.label,
     required this.net,
+    required this.netValue,
     required this.inLabel,
     required this.inValue,
     required this.outLabel,
@@ -1267,6 +1272,9 @@ class _MonthSummary extends StatelessWidget {
 
   final String label;
   final String net;
+
+  /// The figure in [net].
+  final String netValue;
   final String inLabel;
   final String inValue;
   final String outLabel;
@@ -1291,13 +1299,15 @@ class _MonthSummary extends StatelessWidget {
             style: SunriseType.label.copyWith(color: c.muted),
           ),
           const SizedBox(height: 2),
-          FittedBox(
-            fit: BoxFit.scaleDown,
-            alignment: AlignmentDirectional.centerEnd,
-            child: Text(
-              v,
-              maxLines: 1,
-              style: SunriseType.amount.copyWith(color: color, fontSize: 14),
+          Sensitive(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: AlignmentDirectional.centerEnd,
+              child: Text(
+                v,
+                maxLines: 1,
+                style: SunriseType.amount.copyWith(color: color, fontSize: 14),
+              ),
             ),
           ),
         ],
@@ -1325,8 +1335,9 @@ class _MonthSummary extends StatelessWidget {
                 FittedBox(
                   fit: BoxFit.scaleDown,
                   alignment: AlignmentDirectional.centerStart,
-                  child: Text(
+                  child: SensitiveText(
                     net,
+                    amounts: [netValue],
                     style: SunriseType.statValue.copyWith(
                       color: c.ink,
                       fontSize: 24,

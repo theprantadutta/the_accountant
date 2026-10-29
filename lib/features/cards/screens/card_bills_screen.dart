@@ -16,6 +16,7 @@ import 'package:the_accountant/features/wallets/widgets/add_wallet_form.dart'
     show cardReminderChoices, cardReminderLabel;
 import 'package:the_accountant/features/wallets/widgets/edit_wallet_sheet.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
+import 'package:the_accountant/shared/widgets/sensitive.dart';
 import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
 
 /// Credit card bills: what each card's last statement came to, when it is
@@ -158,10 +159,12 @@ class _CardBillCard extends ConsumerWidget {
               style: SunriseType.caption.copyWith(color: c.subtle),
             ),
             const SizedBox(height: 2),
-            Text(
-              money(latest.remaining),
-              key: const Key('card_remaining'),
-              style: SunriseType.statValue.copyWith(color: c.ink),
+            Sensitive(
+              child: Text(
+                money(latest.remaining),
+                key: const Key('card_remaining'),
+                style: SunriseType.statValue.copyWith(color: c.ink),
+              ),
             ),
             // Part payments are normal: the bar shows how much of the bill
             // is already covered, so paying 5,000 of 15,000 reads as progress
@@ -179,18 +182,19 @@ class _CardBillCard extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 6),
-              Text(
+              SensitiveText(
                 l10n.cardPaidOf(money(latest.paid), money(latest.owed)),
+                amounts: [money(latest.paid), money(latest.owed)],
                 style: SunriseType.caption.copyWith(color: c.subtle),
               ),
             ],
             const SizedBox(height: 12),
-            _Line(
+            _Line.total(
               label: l10n.cardStatementClosed(day(latest.statementDate)),
               value: money(latest.owed),
             ),
-            _Line(label: l10n.cardPaidSince, value: money(latest.paid)),
-            _Line(
+            _Line.total(label: l10n.cardPaidSince, value: money(latest.paid)),
+            _Line.total(
               label: l10n.cardThisCycle(day(bill.nextStatementDate!)),
               value: money(bill.spentThisCycle),
             ),
@@ -227,6 +231,10 @@ class _CardBillCard extends ConsumerWidget {
                   value: s.isSettled
                       ? '${money(s.owed)} · ${l10n.cardPaidShort}'
                       : '${money(s.owed)} · ${l10n.cardUnpaidShort(money(s.remaining))}',
+                  amounts: [
+                    money(s.owed),
+                    if (!s.isSettled) money(s.remaining),
+                  ],
                 ),
             ],
           ],
@@ -322,10 +330,23 @@ class _CardBillCard extends ConsumerWidget {
 }
 
 class _Line extends StatelessWidget {
-  const _Line({required this.label, required this.value, this.onTap});
+  const _Line({
+    required this.label,
+    required this.value,
+    this.amounts = const [],
+    this.onTap,
+  });
+
+  /// A line whose whole value is a figure to hide while amounts are hidden.
+  _Line.total({required this.label, required this.value})
+    : amounts = [value],
+      onTap = null;
 
   final String label;
   final String value;
+
+  /// The figures in [value], which hide while amounts are hidden.
+  final List<String> amounts;
   final VoidCallback? onTap;
 
   @override
@@ -341,8 +362,9 @@ class _Line extends StatelessWidget {
               style: SunriseType.body.copyWith(color: c.muted, fontSize: 14),
             ),
           ),
-          Text(
+          SensitiveText(
             value,
+            amounts: amounts,
             style: SunriseType.label.copyWith(
               color: onTap == null ? c.ink : c.accent,
               fontSize: 14,

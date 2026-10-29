@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/providers/currency_provider.dart';
+import 'package:the_accountant/core/providers/privacy_provider.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/utils/currency_formatter.dart';
 import 'package:the_accountant/features/budgets/domain/budget_engine.dart';
 import 'package:the_accountant/features/settings/providers/settings_provider.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
+import 'package:the_accountant/shared/widgets/sensitive.dart';
 
 /// One budget's card: name, spend against limit, a bar, and how it is pacing.
 ///
@@ -43,6 +45,9 @@ class BudgetProgressCard extends ConsumerWidget {
     final fraction = progress.fraction.clamp(0.0, 1.0);
     final remaining = progress.remaining;
     final isOver = progress.isOver;
+    final left = money(remaining.abs());
+    // Read out only what is on screen.
+    final hidden = ref.watch(amountsHiddenProvider);
 
     // The bar fill. The warning token is a dark amber meant for text, which
     // reads as brown on a bar, so "getting there" uses the brand's amber.
@@ -56,8 +61,8 @@ class BudgetProgressCard extends ConsumerWidget {
       button: onTap != null,
       label: l10n.budgetCardSemantics(
         progress.budget.name,
-        money(progress.spent),
-        money(progress.limit),
+        hidden ? l10n.amountHidden : money(progress.spent),
+        hidden ? l10n.amountHidden : money(progress.limit),
       ),
       child: InkWell(
         onTap: onTap,
@@ -96,15 +101,17 @@ class BudgetProgressCard extends ConsumerWidget {
                       constraints: BoxConstraints(
                         maxWidth: MediaQuery.sizeOf(context).width * .5,
                       ),
-                      child: FittedBox(
-                        fit: BoxFit.scaleDown,
-                        alignment: AlignmentDirectional.centerEnd,
-                        child: Text(
-                          '${money(progress.spent)} / ${money(progress.limit)}',
-                          maxLines: 1,
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.textPrimary,
+                      child: Sensitive(
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: AlignmentDirectional.centerEnd,
+                          child: Text(
+                            '${money(progress.spent)} / ${money(progress.limit)}',
+                            maxLines: 1,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.textPrimary,
+                            ),
                           ),
                         ),
                       ),
@@ -129,10 +136,11 @@ class BudgetProgressCard extends ConsumerWidget {
                     ),
                     const SizedBox(width: 6),
                     Expanded(
-                      child: Text(
+                      child: SensitiveText(
                         isOver
-                            ? l10n.budgetAmountOver(money(remaining.abs()))
-                            : l10n.budgetAmountLeft(money(remaining)),
+                            ? l10n.budgetAmountOver(left)
+                            : l10n.budgetAmountLeft(left),
+                        amounts: [left],
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(

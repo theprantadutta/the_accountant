@@ -13,6 +13,7 @@ import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/features/credit_debt/providers/credit_debt_provider.dart';
 import 'package:the_accountant/features/split/screens/split_bill_screen.dart';
 import 'package:the_accountant/features/transactions/screens/transaction_detail_screen.dart';
+import 'package:the_accountant/shared/widgets/sensitive.dart';
 import 'package:the_accountant/shared/widgets/shimmer_loading.dart';
 import 'package:the_accountant/features/settings/providers/settings_provider.dart';
 
@@ -477,12 +478,14 @@ class _Summary extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: 6),
-          FittedBox(
-            fit: BoxFit.scaleDown,
-            alignment: AlignmentDirectional.centerStart,
-            child: Text(
-              _money(ref, net.abs(), currency),
-              style: SunriseType.section.copyWith(color: c.ink, fontSize: 30),
+          Sensitive(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: AlignmentDirectional.centerStart,
+              child: Text(
+                _money(ref, net.abs(), currency),
+                style: SunriseType.section.copyWith(color: c.ink, fontSize: 30),
+              ),
             ),
           ),
           const SizedBox(height: 6),
@@ -560,15 +563,17 @@ class _Side extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 4),
-          FittedBox(
-            fit: BoxFit.scaleDown,
-            alignment: AlignmentDirectional.centerStart,
-            child: Text(
-              amount,
-              style: SunriseType.label.copyWith(
-                color: c.ink,
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
+          Sensitive(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: AlignmentDirectional.centerStart,
+              child: Text(
+                amount,
+                style: SunriseType.label.copyWith(
+                  color: c.ink,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
           ),
@@ -606,6 +611,8 @@ class _LoanCard extends ConsumerWidget {
         : (lent ? l10n.creditMoneyLent : l10n.creditMoneyBorrowed);
     final notes = loan.notes?.trim() ?? '';
     final due = loan.originalDueDate;
+    final paid = _money(ref, loan.paidAmount, currency);
+    final principal = _money(ref, loan.amount, currency);
 
     final card = SunriseCard(
       key: Key('loan_${loan.id}'),
@@ -663,25 +670,28 @@ class _LoanCard extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    FittedBox(
-                      fit: BoxFit.scaleDown,
-                      alignment: AlignmentDirectional.centerEnd,
-                      child: Text(
-                        // What is still open, not the principal: after a
-                        // partial repayment that is the number that matters.
-                        _money(
-                          ref,
-                          settled
-                              ? loan.amount
-                              : TransactionPolicy.outstandingAmount(loan),
-                          currency,
-                        ),
-                        style: SunriseType.amount.copyWith(
-                          color: settled ? c.subtle : c.ink,
-                          fontSize: 17,
-                          decoration: settled
-                              ? TextDecoration.lineThrough
-                              : null,
+                    Sensitive(
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: AlignmentDirectional.centerEnd,
+                        child: Text(
+                          // What is still open, not the principal: after a
+                          // partial repayment that is the number that
+                          // matters.
+                          _money(
+                            ref,
+                            settled
+                                ? loan.amount
+                                : TransactionPolicy.outstandingAmount(loan),
+                            currency,
+                          ),
+                          style: SunriseType.amount.copyWith(
+                            color: settled ? c.subtle : c.ink,
+                            fontSize: 17,
+                            decoration: settled
+                                ? TextDecoration.lineThrough
+                                : null,
+                          ),
                         ),
                       ),
                     ),
@@ -726,11 +736,9 @@ class _LoanCard extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 6),
-            Text(
-              l10n.creditPaidOf(
-                _money(ref, loan.paidAmount, currency),
-                _money(ref, loan.amount, currency),
-              ),
+            SensitiveText(
+              l10n.creditPaidOf(paid, principal),
+              amounts: [paid, principal],
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: SunriseType.caption.copyWith(color: c.muted),

@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:the_accountant/core/providers/privacy_provider.dart';
 import 'package:the_accountant/features/forecast/providers/forecast_provider.dart';
 import 'package:the_accountant/features/forecast/services/cash_flow_forecast_service.dart';
 import 'package:the_accountant/features/forecast/widgets/forecast_labels.dart';
@@ -11,6 +12,7 @@ import 'package:the_accountant/features/transactions/screens/transaction_detail_
 import 'package:the_accountant/features/wallets/screens/wallet_detail_screen.dart';
 import 'package:the_accountant/features/plans/widgets/plan_labels.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
+import 'package:the_accountant/shared/widgets/sensitive.dart';
 import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
 
 /// Where cash and bank money is headed over the next 30, 60 or 90 days, from
@@ -124,13 +126,15 @@ class _SummaryCard extends ConsumerWidget {
             children: [
               Text(label, style: SunriseType.caption.copyWith(color: c.muted)),
               const SizedBox(height: 4),
-              Text(
-                value,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: SunriseType.rowTitle.copyWith(
-                  color: color,
-                  fontFeatures: const [FontFeature.tabularFigures()],
+              Sensitive(
+                child: Text(
+                  value,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: SunriseType.rowTitle.copyWith(
+                    color: color,
+                    fontFeatures: const [FontFeature.tabularFigures()],
+                  ),
                 ),
               ),
               if (caption != null)
@@ -153,9 +157,11 @@ class _SummaryCard extends ConsumerWidget {
             style: SunriseType.body.copyWith(color: c.muted, fontSize: 14),
           ),
           const SizedBox(height: 6),
-          Text(
-            f.money(forecast.startingBalance, money),
-            style: SunriseType.section.copyWith(color: c.ink, fontSize: 28),
+          Sensitive(
+            child: Text(
+              f.money(forecast.startingBalance, money),
+              style: SunriseType.section.copyWith(color: c.ink, fontSize: 28),
+            ),
           ),
           const SizedBox(height: 14),
           Row(
@@ -200,6 +206,7 @@ class _ShortfallCard extends ConsumerWidget {
     final f = PlanFormat(ref, context);
     final day = forecast.shortfall!;
     final causes = forecast.shortfallEvents;
+    final short = f.money(forecast.shortfallAmount, forecast.currency);
 
     return SunriseCard(
       key: const Key('forecast_shortfall'),
@@ -218,11 +225,9 @@ class _ShortfallCard extends ConsumerWidget {
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: Text(
-                  l10n.forecastShortfallTitle(
-                    f.day(day.date),
-                    f.money(forecast.shortfallAmount, forecast.currency),
-                  ),
+                child: SensitiveText(
+                  l10n.forecastShortfallTitle(f.day(day.date), short),
+                  amounts: [short],
                   style: SunriseType.rowTitle.copyWith(color: c.ink),
                 ),
               ),
@@ -329,6 +334,7 @@ class _BalanceChart extends ConsumerWidget {
     final l10n = L10n.of(context);
     final c = context.sunrise;
     final f = PlanFormat(ref, context);
+    final hidden = ref.watch(amountsHiddenProvider);
     final spots = [
       for (var i = 0; i < forecast.daily.length; i++)
         FlSpot(i.toDouble(), forecast.daily[i].balance / 100),
@@ -383,7 +389,9 @@ class _BalanceChart extends ConsumerWidget {
                       for (final t in touched)
                         LineTooltipItem(
                           '${f.day(forecast.daily[t.x.toInt()].date)}\n'
-                          '${f.money(forecast.daily[t.x.toInt()].balance, forecast.currency)}',
+                          // A tooltip cannot blur, so it says the amount is
+                          // hidden.
+                          '${hidden ? l10n.amountHidden : f.money(forecast.daily[t.x.toInt()].balance, forecast.currency)}',
                           SunriseType.caption.copyWith(color: c.ink),
                         ),
                     ],
@@ -452,6 +460,7 @@ class _DayGroup extends ConsumerWidget {
           orElse: () => forecast.daily.last,
         )
         .balance;
+    final balanceText = f.money(balance, forecast.currency);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -466,8 +475,9 @@ class _DayGroup extends ConsumerWidget {
                   style: SunriseType.label.copyWith(color: c.muted),
                 ),
               ),
-              Text(
-                l10n.forecastDayBalance(f.money(balance, forecast.currency)),
+              SensitiveText(
+                l10n.forecastDayBalance(balanceText),
+                amounts: [balanceText],
                 style: SunriseType.caption.copyWith(
                   color: balance < 0 ? c.negative : c.subtle,
                   fontFeatures: const [FontFeature.tabularFigures()],

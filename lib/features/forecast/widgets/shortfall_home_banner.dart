@@ -6,6 +6,7 @@ import 'package:the_accountant/features/forecast/screens/cash_flow_forecast_scre
 import 'package:the_accountant/features/forecast/services/cash_flow_forecast_service.dart';
 import 'package:the_accountant/features/plans/widgets/plan_labels.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
+import 'package:the_accountant/shared/widgets/sensitive.dart';
 import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
 
 /// A quiet line on the home screen when money would run short within two
@@ -23,6 +24,7 @@ class ShortfallHomeBanner extends ConsumerWidget {
     final c = context.sunrise;
     final f = PlanFormat(ref, context);
     final day = forecast.shortfall!;
+    final short = f.money(forecast.shortfallAmount, forecast.currency);
 
     return SunriseCard(
       key: const Key('home_shortfall'),
@@ -41,11 +43,9 @@ class ShortfallHomeBanner extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  l10n.forecastHomeWarning(
-                    f.day(day.date),
-                    f.money(forecast.shortfallAmount, forecast.currency),
-                  ),
+                SensitiveText(
+                  l10n.forecastHomeWarning(f.day(day.date), short),
+                  amounts: [short],
                   style: SunriseType.rowTitle.copyWith(
                     color: c.ink,
                     fontSize: 14,

@@ -17,6 +17,7 @@ import 'package:the_accountant/shared/widgets/shimmer_loading.dart';
 import 'package:the_accountant/features/categories/providers/category_provider.dart'
     as cat_provider;
 import 'package:the_accountant/shared/widgets/glass_card.dart';
+import 'package:the_accountant/shared/widgets/sensitive.dart';
 
 class UpcomingTransactionsScreen extends ConsumerStatefulWidget {
   const UpcomingTransactionsScreen({super.key});
@@ -191,12 +192,14 @@ class _UpcomingTransactionsScreenState
                     ),
                   ),
                   AppSpacing.gapXs,
-                  Text(
-                    currencyFormat.format(total),
-                    style: AppTypography.headlineMedium.copyWith(
-                      color: isOverdue
-                          ? AppColors.error
-                          : AppColors.textPrimary,
+                  Sensitive(
+                    child: Text(
+                      currencyFormat.format(total),
+                      style: AppTypography.headlineMedium.copyWith(
+                        color: isOverdue
+                            ? AppColors.error
+                            : AppColors.textPrimary,
+                      ),
                     ),
                   ),
                 ],

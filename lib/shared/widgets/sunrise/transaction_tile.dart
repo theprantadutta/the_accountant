@@ -171,6 +171,7 @@ class DayGroupCard extends StatelessWidget {
     required this.children,
     this.total,
     this.totalColor,
+    this.wrapTotal,
   });
 
   final String label;
@@ -179,6 +180,9 @@ class DayGroupCard extends StatelessWidget {
   final String? total;
   final Color? totalColor;
   final List<Widget> children;
+
+  /// Wraps the total, such as to hide it while amounts are hidden.
+  final Widget Function(Widget total)? wrapTotal;
 
   @override
   Widget build(BuildContext context) {
@@ -202,12 +206,14 @@ class DayGroupCard extends StatelessWidget {
                 ),
               ),
               if (total != null)
-                Text(
-                  total!,
-                  style: SunriseType.label.copyWith(
-                    color: totalColor ?? c.subtle,
-                    fontSize: 14,
-                    fontFeatures: const [FontFeature.tabularFigures()],
+                (wrapTotal ?? _same)(
+                  Text(
+                    total!,
+                    style: SunriseType.label.copyWith(
+                      color: totalColor ?? c.subtle,
+                      fontSize: 14,
+                      fontFeatures: const [FontFeature.tabularFigures()],
+                    ),
                   ),
                 ),
             ],
@@ -218,3 +224,5 @@ class DayGroupCard extends StatelessWidget {
     );
   }
 }
+
+Widget _same(Widget w) => w;

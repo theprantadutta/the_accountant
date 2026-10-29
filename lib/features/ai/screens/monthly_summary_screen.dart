@@ -10,6 +10,7 @@ import 'package:the_accountant/features/ai_assistant/services/ai_api.dart';
 import 'package:the_accountant/features/ai_assistant/services/finance_context_builder.dart';
 import 'package:the_accountant/features/premium/utils/paywall_utils.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
+import 'package:the_accountant/shared/widgets/sensitive.dart';
 import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
 
 /// Kept under its old name for the screen that opens it. The numbers are free
@@ -144,12 +145,14 @@ class _Totals extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 4),
-          FittedBox(
-            fit: BoxFit.scaleDown,
-            alignment: Alignment.centerLeft,
-            child: Text(
-              _money(spent, currency),
-              style: SunriseType.amountHero.copyWith(color: c.onFill),
+          Sensitive(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: Text(
+                _money(spent, currency),
+                style: SunriseType.amountHero.copyWith(color: c.onFill),
+              ),
             ),
           ),
           const SizedBox(height: 10),
@@ -157,11 +160,13 @@ class _Totals extends StatelessWidget {
             spacing: 8,
             runSpacing: 8,
             children: [
-              SunrisePill(
-                icon: Symbols.south_west_rounded,
-                label: l10n.summaryEarned(_money(income, currency)),
-                color: c.onFill,
-                background: c.onFill.withValues(alpha: .22),
+              Sensitive(
+                child: SunrisePill(
+                  icon: Symbols.south_west_rounded,
+                  label: l10n.summaryEarned(_money(income, currency)),
+                  color: c.onFill,
+                  background: c.onFill.withValues(alpha: .22),
+                ),
               ),
               if (change != null)
                 SunrisePill(
@@ -361,9 +366,11 @@ class _CategoryRow extends StatelessWidget {
                 style: SunriseType.rowTitle.copyWith(color: c.ink),
               ),
             ),
-            Text(
-              _money(amount, currency),
-              style: SunriseType.amount.copyWith(color: c.ink),
+            Sensitive(
+              child: Text(
+                _money(amount, currency),
+                style: SunriseType.amount.copyWith(color: c.ink),
+              ),
             ),
           ],
         ),
@@ -379,10 +386,12 @@ class _CategoryRow extends StatelessWidget {
         ),
         if (diff != null) ...[
           const SizedBox(height: 4),
-          Text(
-            '${diff <= 0 ? '−' : '+'}${_money(diff.abs(), currency)} · ${_money(lastMonth, currency)}',
-            style: SunriseType.caption.copyWith(
-              color: diff <= 0 ? c.positive : c.negative,
+          Sensitive(
+            child: Text(
+              '${diff <= 0 ? '−' : '+'}${_money(diff.abs(), currency)} · ${_money(lastMonth, currency)}',
+              style: SunriseType.caption.copyWith(
+                color: diff <= 0 ? c.positive : c.negative,
+              ),
             ),
           ),
         ],

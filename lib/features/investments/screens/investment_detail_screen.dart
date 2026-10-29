@@ -10,6 +10,7 @@ import 'package:the_accountant/features/investments/widgets/investment_labels.da
 import 'package:the_accountant/features/plans/screens/plan_form_screen.dart';
 import 'package:the_accountant/features/plans/widgets/plan_labels.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
+import 'package:the_accountant/shared/widgets/sensitive.dart';
 import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
 
 /// One holding: what it is worth, what it has gained, and every trade.
@@ -53,17 +54,20 @@ class _Body extends ConsumerWidget {
     String money(int v) => f.money(v, holding.currency);
     final trades = ref.watch(investmentTradesProvider(i.id)).value ?? const [];
 
-    final facts = <(String, String)>[
-      (l10n.investmentUnits, formatUnits(holding.units)),
+    // Whether each fact is a total, which hides while amounts are hidden. The
+    // price is the market's, not what the user holds.
+    final facts = <(String, String, bool)>[
+      (l10n.investmentUnits, formatUnits(holding.units), false),
       (
         l10n.investmentPrice,
         i.price == 0
             ? l10n.cardNotSet
             : '${money(i.price)}${i.priceDate == null ? '' : ' · ${f.day(i.priceDate!)}'}',
+        false,
       ),
-      (l10n.investmentPutIn, money(holding.putIn)),
+      (l10n.investmentPutIn, money(holding.putIn), true),
       if (holding.takenOut > 0)
-        (l10n.investmentTakenOut, money(holding.takenOut)),
+        (l10n.investmentTakenOut, money(holding.takenOut), true),
     ];
 
     Future<void> trade(TradeMode mode) => Navigator.of(context).push(
@@ -105,10 +109,15 @@ class _Body extends ConsumerWidget {
                 l10n.investmentWorthNow,
                 style: SunriseType.caption.copyWith(color: c.subtle),
               ),
-              Text(
-                money(holding.value),
-                key: const Key('investment_value'),
-                style: SunriseType.section.copyWith(color: c.ink, fontSize: 30),
+              Sensitive(
+                child: Text(
+                  money(holding.value),
+                  key: const Key('investment_value'),
+                  style: SunriseType.section.copyWith(
+                    color: c.ink,
+                    fontSize: 30,
+                  ),
+                ),
               ),
               GainLine(
                 gain: holding.gain,
@@ -116,7 +125,7 @@ class _Body extends ConsumerWidget {
                 currency: holding.currency,
               ),
               const SizedBox(height: 12),
-              for (final (label, value) in facts)
+              for (final (label, value, total) in facts)
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 4),
                   child: Row(
@@ -130,12 +139,14 @@ class _Body extends ConsumerWidget {
                           ),
                         ),
                       ),
-                      Text(
-                        value,
-                        style: SunriseType.label.copyWith(
-                          color: c.ink,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
+                      (total ? _sensitive : _same)(
+                        Text(
+                          value,
+                          style: SunriseType.label.copyWith(
+                            color: c.ink,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
                     ],
@@ -423,3 +434,8 @@ class _TradeRow extends StatelessWidget {
     );
   }
 }
+
+/// Hides a balance or total while amounts are hidden.
+Widget _sensitive(Widget value) => Sensitive(child: value);
+
+Widget _same(Widget value) => value;

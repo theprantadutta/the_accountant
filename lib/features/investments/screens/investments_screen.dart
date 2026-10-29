@@ -7,6 +7,7 @@ import 'package:the_accountant/features/investments/services/investment_service.
 import 'package:the_accountant/features/investments/widgets/investment_labels.dart';
 import 'package:the_accountant/features/plans/widgets/plan_labels.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
+import 'package:the_accountant/shared/widgets/sensitive.dart';
 import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
 
 /// Every fund, share and other holding, with what each is worth.
@@ -129,9 +130,11 @@ class _PortfolioCard extends ConsumerWidget {
           for (final MapEntry(key: currency, value: (value, gain, putIn))
               in byCurrency.entries) ...[
             const SizedBox(height: 6),
-            Text(
-              f.money(value, currency),
-              style: SunriseType.section.copyWith(color: c.ink, fontSize: 28),
+            Sensitive(
+              child: Text(
+                f.money(value, currency),
+                style: SunriseType.section.copyWith(color: c.ink, fontSize: 28),
+              ),
             ),
             GainLine(gain: gain, putIn: putIn, currency: currency),
           ],
@@ -192,12 +195,14 @@ class InvestmentCard extends ConsumerWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text(
-                f.money(holding.value, holding.currency),
-                style: SunriseType.label.copyWith(
-                  color: c.ink,
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
+              Sensitive(
+                child: Text(
+                  f.money(holding.value, holding.currency),
+                  style: SunriseType.label.copyWith(
+                    color: c.ink,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
               GainLine(

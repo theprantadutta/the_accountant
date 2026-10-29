@@ -66,6 +66,99 @@ class Sensitive extends ConsumerWidget {
   }
 }
 
+/// A line of words with balances or totals in it, where only the figures
+/// hide: "Paid ৳4,000 of ৳12,000" keeps "Paid" and "of", which say what the
+/// figures are.
+///
+/// While amounts are shown it is the plain line, so a screen reader reads it
+/// as one sentence rather than in pieces around each figure.
+class SensitiveText extends ConsumerWidget {
+  const SensitiveText(
+    this.text, {
+    super.key,
+    required this.amounts,
+    this.style,
+    this.maxLines,
+    this.overflow,
+    this.textAlign,
+  });
+
+  final String text;
+
+  /// The figures in [text], each exactly as it appears there.
+  final List<String> amounts;
+  final TextStyle? style;
+  final int? maxLines;
+  final TextOverflow? overflow;
+  final TextAlign? textAlign;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    if (amounts.isEmpty || !ref.watch(amountsHiddenProvider)) {
+      return Text(
+        text,
+        style: style,
+        maxLines: maxLines,
+        overflow: overflow,
+        textAlign: textAlign,
+      );
+    }
+    final ranges = <(int, int)>[];
+    for (final amount in amounts) {
+      var at = amount.isEmpty ? -1 : text.indexOf(amount);
+      while (at >= 0 &&
+          ranges.any((r) => at < r.$2 && at + amount.length > r.$1)) {
+        at = text.indexOf(amount, at + 1);
+      }
+      // A translation that writes the figure differently: hide the whole
+      // line rather than risk showing it.
+      if (at < 0) {
+        return Sensitive(
+          child: Text(
+            text,
+            style: style,
+            maxLines: maxLines,
+            overflow: overflow,
+            textAlign: textAlign,
+          ),
+        );
+      }
+      ranges.add((at, at + amount.length));
+    }
+    ranges.sort((a, b) => a.$1.compareTo(b.$1));
+
+    final spans = <InlineSpan>[];
+    var from = 0;
+    for (final (start, end) in ranges) {
+      if (start > from) spans.add(TextSpan(text: text.substring(from, start)));
+      spans.add(
+        WidgetSpan(
+          alignment: PlaceholderAlignment.baseline,
+          baseline: TextBaseline.alphabetic,
+          child: Sensitive(
+            child: Text(
+              text.substring(start, end),
+              style: style,
+              maxLines: 1,
+              // The span already scales its widget with the text around it.
+              textScaler: TextScaler.noScaling,
+            ),
+          ),
+        ),
+      );
+      from = end;
+    }
+    if (from < text.length) spans.add(TextSpan(text: text.substring(from)));
+    return Text.rich(
+      TextSpan(children: spans),
+      style: style,
+      maxLines: maxLines,
+      overflow: overflow,
+      textAlign: textAlign,
+    );
+  }
+}
+
 /// The eye that shows or hides every balance and total.
 class PrivacyEyeButton extends ConsumerWidget {
   const PrivacyEyeButton({super.key, required this.builder});

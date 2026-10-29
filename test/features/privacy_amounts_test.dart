@@ -90,6 +90,36 @@ void main() {
     expect(opened, 1, reason: 'once shown, the card works as usual');
   });
 
+  testWidgets('in a sentence, only the figures hide', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    await tester.pumpWidget(
+      ProviderScope(
+        child: localizedApp(
+          home: const Scaffold(
+            body: SensitiveText(
+              'Paid ৳4,000 of ৳12,000',
+              amounts: ['৳4,000', '৳12,000'],
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pump(const Duration(milliseconds: 300));
+
+    bool blurredText(String text) => find
+        .ancestor(of: find.text(text), matching: find.byType(ImageFiltered))
+        .evaluate()
+        .isNotEmpty;
+    expect(blurredText('৳4,000'), isTrue);
+    expect(blurredText('৳12,000'), isTrue);
+    expect(find.byType(ImageFiltered), findsNWidgets(2));
+
+    await tester.tap(find.text('৳4,000'));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.byType(ImageFiltered), findsNothing);
+    expect(find.text('Paid ৳4,000 of ৳12,000'), findsOneWidget);
+  });
+
   testWidgets('with tap-to-show off, the tap goes to the card', (tester) async {
     var opened = 0;
     final c = await pump(

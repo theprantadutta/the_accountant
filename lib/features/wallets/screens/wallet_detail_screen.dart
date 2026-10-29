@@ -18,6 +18,7 @@ import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
 import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
 import 'package:the_accountant/features/transactions/widgets/sunrise_transaction_row.dart';
 import 'package:the_accountant/shared/widgets/icon_picker.dart';
+import 'package:the_accountant/shared/widgets/sensitive.dart';
 import 'package:the_accountant/features/wallets/domain/credit_card_position.dart';
 
 /// One account: what is in it, what has moved through it, and what to do next.
@@ -147,15 +148,17 @@ class _WalletDetailScreenState extends ConsumerState<WalletDetailScreen> {
                 ),
               ),
               const SizedBox(height: 4),
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  wallet.balance < 0
-                      ? '−${money(-wallet.balance)}'
-                      : money(wallet.balance),
-                  style: SunriseType.amountHero.copyWith(
-                    color: context.sunrise.onFill,
+              Sensitive(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    wallet.balance < 0
+                        ? '−${money(-wallet.balance)}'
+                        : money(wallet.balance),
+                    style: SunriseType.amountHero.copyWith(
+                      color: context.sunrise.onFill,
+                    ),
                   ),
                 ),
               ),
@@ -195,6 +198,7 @@ class _WalletDetailScreenState extends ConsumerState<WalletDetailScreen> {
                 iconColor: c.positive,
                 label: L10n.of(context).walletInThisMonth,
                 value: money(inCents),
+                wrapValue: _sensitive,
               ),
             ),
             const SizedBox(width: 12),
@@ -204,6 +208,7 @@ class _WalletDetailScreenState extends ConsumerState<WalletDetailScreen> {
                 iconColor: c.negative,
                 label: L10n.of(context).walletOutThisMonth,
                 value: money(outCents),
+                wrapValue: _sensitive,
               ),
             ),
           ],
@@ -433,6 +438,10 @@ class _CreditSummary extends StatelessWidget {
       balance: balanceCents,
       limit: limitCents,
     );
+    final first = money(
+      position.inCredit > 0 ? position.inCredit : position.owed,
+    );
+    final available = money(position.available);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -447,12 +456,11 @@ class _CreditSummary extends StatelessWidget {
           ),
         ),
         AppSpacing.gapSm,
-        Text(
+        SensitiveText(
           position.inCredit > 0
-              ? '${money(position.inCredit)} in credit · '
-                    '${money(position.available)} available'
-              : '${money(position.owed)} owed · '
-                    '${money(position.available)} still available',
+              ? '$first in credit · $available available'
+              : '$first owed · $available still available',
+          amounts: [first, available],
           style: SunriseType.body.copyWith(
             color: context.sunrise.onFill.withValues(alpha: .9),
           ),
@@ -538,3 +546,6 @@ class _CorrectBalanceDialogState extends ConsumerState<_CorrectBalanceDialog> {
     );
   }
 }
+
+/// Hides a balance or total while amounts are hidden.
+Widget _sensitive(Widget value) => Sensitive(child: value);

@@ -18,6 +18,7 @@ import 'package:the_accountant/features/budgets/screens/add_budget_screen.dart';
 import 'package:the_accountant/features/categories/providers/category_provider.dart';
 import 'package:the_accountant/features/settings/providers/settings_provider.dart';
 import 'package:the_accountant/shared/widgets/glass_card.dart';
+import 'package:the_accountant/shared/widgets/sensitive.dart';
 
 /// One budget in detail: this period, where the money went, and how it compares
 /// with the periods before it.
@@ -208,6 +209,10 @@ class _Headline extends ConsumerWidget {
     final now = DateTime.now();
     final isCurrent = progress.window.contains(now);
     final perDay = isCurrent ? progress.dailyAllowanceFrom(now) : null;
+    final limit = money(progress.limit);
+    final carried = money(progress.carriedIn);
+    final left = money(progress.remaining.abs());
+    final daily = perDay == null ? null : money(perDay);
 
     return GlassCard(
       padding: AppSpacing.paddingLg,
@@ -217,10 +222,16 @@ class _Headline extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(money(progress.spent), style: AppTypography.displaySmall),
-          Text(
-            'of ${money(progress.limit)}'
-            '${progress.carriedIn > 0 ? ' including ${money(progress.carriedIn)} carried over' : ''}',
+          Sensitive(
+            child: Text(
+              money(progress.spent),
+              style: AppTypography.displaySmall,
+            ),
+          ),
+          SensitiveText(
+            'of $limit'
+            '${progress.carriedIn > 0 ? ' including $carried carried over' : ''}',
+            amounts: [limit, if (progress.carriedIn > 0) carried],
             style: AppTypography.bodySmall.copyWith(
               color: AppColors.textSecondary,
             ),
@@ -236,12 +247,23 @@ class _Headline extends ConsumerWidget {
             ),
           ),
           AppSpacing.gapMd,
-          Text(switch ((progress.isOver, perDay)) {
-            (true, _) => '${money(progress.remaining.abs())} over the limit.',
-            (false, final int p) when isCurrent =>
-              '${money(progress.remaining)} left, about ${money(p)} a day.',
-            _ => '${money(progress.remaining)} left.',
-          }, style: AppTypography.bodyMedium),
+          switch ((progress.isOver, daily)) {
+            (true, _) => SensitiveText(
+              '$left over the limit.',
+              amounts: [left],
+              style: AppTypography.bodyMedium,
+            ),
+            (false, final String d) when isCurrent => SensitiveText(
+              '$left left, about $d a day.',
+              amounts: [left, d],
+              style: AppTypography.bodyMedium,
+            ),
+            _ => SensitiveText(
+              '$left left.',
+              amounts: [left],
+              style: AppTypography.bodyMedium,
+            ),
+          },
           // A budget quietly dropping what it could not convert reads as a
           // budget being kept to, which is the most misleading thing it could
           // do.
@@ -351,13 +373,15 @@ class _CategoryBreakdown extends ConsumerWidget {
                               style: AppTypography.bodyMedium,
                             ),
                           ),
-                          Text(
-                            entry.value.formatCurrency(
-                              currency,
-                              useDecimals: useDecimals,
-                              numberFormat: numberFormat,
+                          Sensitive(
+                            child: Text(
+                              entry.value.formatCurrency(
+                                currency,
+                                useDecimals: useDecimals,
+                                numberFormat: numberFormat,
+                              ),
+                              style: AppTypography.bodyMedium,
                             ),
-                            style: AppTypography.bodyMedium,
                           ),
                         ],
                       ),
@@ -414,6 +438,11 @@ class _PastPeriods extends ConsumerWidget {
         final average =
             history.map((p) => p.spent).reduce((a, b) => a + b) ~/
             history.length;
+        final averageText = average.formatCurrency(
+          currency,
+          useDecimals: useDecimals,
+          numberFormat: numberFormat,
+        );
 
         return GlassCard(
           padding: AppSpacing.paddingLg,
@@ -425,8 +454,9 @@ class _PastPeriods extends ConsumerWidget {
                 style: AppTypography.titleSmall,
               ),
               AppSpacing.gapSm,
-              Text(
-                'Averaging ${average.formatCurrency(currency, useDecimals: useDecimals, numberFormat: numberFormat)} a period.',
+              SensitiveText(
+                'Averaging $averageText a period.',
+                amounts: [averageText],
                 style: AppTypography.bodySmall.copyWith(
                   color: AppColors.textSecondary,
                 ),
@@ -446,16 +476,18 @@ class _PastPeriods extends ConsumerWidget {
                           style: AppTypography.bodySmall,
                         ),
                       ),
-                      Text(
-                        p.spent.formatCurrency(
-                          currency,
-                          useDecimals: useDecimals,
-                          numberFormat: numberFormat,
-                        ),
-                        style: AppTypography.bodySmall.copyWith(
-                          color: p.isOver
-                              ? AppColors.error
-                              : AppColors.textPrimary,
+                      Sensitive(
+                        child: Text(
+                          p.spent.formatCurrency(
+                            currency,
+                            useDecimals: useDecimals,
+                            numberFormat: numberFormat,
+                          ),
+                          style: AppTypography.bodySmall.copyWith(
+                            color: p.isOver
+                                ? AppColors.error
+                                : AppColors.textPrimary,
+                          ),
                         ),
                       ),
                     ],
@@ -518,6 +550,8 @@ class _Forecast extends ConsumerWidget {
           useDecimals: useDecimals,
           numberFormat: numberFormat,
         );
+        final overBy = money(forecast.overBy);
+        final scheduled = money(forecast.scheduled);
 
         return Padding(
           padding: const EdgeInsets.only(bottom: 16),
@@ -533,19 +567,21 @@ class _Forecast extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Heading for ${money(forecast.overBy)} over',
+                      SensitiveText(
+                        'Heading for $overBy over',
+                        amounts: [overBy],
                         style: AppTypography.titleSmall.copyWith(
                           color: AppColors.warning,
                         ),
                       ),
                       const SizedBox(height: 4),
-                      Text(
+                      SensitiveText(
                         forecast.scheduled > 0
                             ? 'At this rate, and counting '
-                                  '${money(forecast.scheduled)} already '
+                                  '$scheduled already '
                                   'scheduled before the period ends.'
                             : 'At this rate, by the end of the period.',
+                        amounts: [if (forecast.scheduled > 0) scheduled],
                         style: AppTypography.bodySmall.copyWith(
                           color: AppColors.textSecondary,
                         ),
@@ -653,12 +689,14 @@ class _CategoryCaps extends ConsumerWidget {
                                   style: AppTypography.bodyMedium,
                                 ),
                               ),
-                              Text(
-                                '${money(limit.spent)} / ${money(limit.limit)}',
-                                style: AppTypography.bodySmall.copyWith(
-                                  color: limit.isOver
-                                      ? AppColors.error
-                                      : AppColors.textSecondary,
+                              Sensitive(
+                                child: Text(
+                                  '${money(limit.spent)} / ${money(limit.limit)}',
+                                  style: AppTypography.bodySmall.copyWith(
+                                    color: limit.isOver
+                                        ? AppColors.error
+                                        : AppColors.textSecondary,
+                                  ),
                                 ),
                               ),
                             ],

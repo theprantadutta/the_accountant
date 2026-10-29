@@ -18,6 +18,7 @@ import 'package:the_accountant/features/settings/providers/settings_provider.dar
 import 'package:the_accountant/features/settings/widgets/confirmation_dialog.dart';
 import 'package:the_accountant/features/transactions/screens/add_transaction_screen.dart';
 import 'package:the_accountant/shared/widgets/glass_card.dart';
+import 'package:the_accountant/shared/widgets/sensitive.dart';
 
 /// One goal: how far along, what is left, and everything counted toward it.
 class ObjectiveDetailScreen extends ConsumerWidget {
@@ -59,6 +60,9 @@ class ObjectiveDetailScreen extends ConsumerWidget {
     final tint = ColorUtils.hexToColor(objective.objective.color);
     final fraction = (objective.progressPercent / 100).clamp(0.0, 1.0);
     final dailyTarget = objective.dailyTargetCents;
+    final target = money(objective.targetAmount);
+    final toGo = money(objective.remainingAmount);
+    final daily = dailyTarget == null ? '' : money(dailyTarget);
 
     return Scaffold(
       appBar: AppBar(
@@ -120,12 +124,15 @@ class ObjectiveDetailScreen extends ConsumerWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              money(objective.currentAmount),
-                              style: AppTypography.displaySmall,
+                            Sensitive(
+                              child: Text(
+                                money(objective.currentAmount),
+                                style: AppTypography.displaySmall,
+                              ),
                             ),
-                            Text(
-                              'of ${money(objective.targetAmount)}',
+                            SensitiveText(
+                              'of $target',
+                              amounts: [target],
                               style: AppTypography.bodySmall.copyWith(
                                 color: AppColors.textSecondary,
                               ),
@@ -146,16 +153,18 @@ class ObjectiveDetailScreen extends ConsumerWidget {
                     ),
                   ),
                   AppSpacing.gapMd,
-                  Text(
+                  SensitiveText(
                     objective.isComplete
                         ? 'Reached. Nicely done.'
-                        : '${money(objective.remainingAmount)} still to go.',
+                        : '$toGo still to go.',
+                    amounts: [if (!objective.isComplete) toGo],
                     style: AppTypography.bodyMedium,
                   ),
                   if (!objective.isComplete && dailyTarget != null) ...[
                     AppSpacing.gapSm,
-                    Text(
-                      '${money(dailyTarget)} a day to arrive on time.',
+                    SensitiveText(
+                      '$daily a day to arrive on time.',
+                      amounts: [daily],
                       style: AppTypography.bodySmall.copyWith(
                         color: AppColors.textSecondary,
                       ),
@@ -349,8 +358,10 @@ class _PlanCardState extends ConsumerState<_PlanCard> {
                 ),
               )
             else ...[
-              Text(
+              // Hidden too: times the payments, it is what is left to save.
+              SensitiveText(
                 '${plan.payments} payments of ${money(plan.amountCents)}',
+                amounts: [money(plan.amountCents)],
                 style: AppTypography.titleMedium,
               ),
               AppSpacing.gapSm,

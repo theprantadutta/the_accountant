@@ -18,6 +18,7 @@ import 'package:the_accountant/shared/widgets/shimmer_loading.dart';
 import 'package:the_accountant/features/subscriptions/widgets/edit_subscription_bottom_sheet.dart';
 import 'package:the_accountant/features/transactions/screens/add_transaction_screen.dart';
 import 'package:the_accountant/shared/widgets/glass_card.dart';
+import 'package:the_accountant/shared/widgets/sensitive.dart';
 
 class SubscriptionDashboardScreen extends ConsumerWidget {
   const SubscriptionDashboardScreen({super.key});
@@ -141,6 +142,7 @@ class SubscriptionDashboardScreen extends ConsumerWidget {
       CurrencyInfo.getSymbol(state.currency),
       ref.watch(numberFormatSettingProvider),
     );
+    final yearly = monthlyFormat.format(state.totalYearlyCost / 100.0);
 
     return GlassCard(
       padding: AppSpacing.paddingLg,
@@ -162,16 +164,19 @@ class SubscriptionDashboardScreen extends ConsumerWidget {
             ],
           ),
           AppSpacing.gapSm,
-          Text(
-            monthlyFormat.format(state.totalMonthlyCost / 100.0),
-            style: AppTypography.displaySmall.copyWith(
-              color: AppColors.textPrimary,
-              fontWeight: FontWeight.bold,
+          Sensitive(
+            child: Text(
+              monthlyFormat.format(state.totalMonthlyCost / 100.0),
+              style: AppTypography.displaySmall.copyWith(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
           AppSpacing.gapXs,
-          Text(
-            '${monthlyFormat.format(state.totalYearlyCost / 100.0)} / year',
+          SensitiveText(
+            '$yearly / year',
+            amounts: [yearly],
             style: AppTypography.bodySmall.copyWith(color: AppColors.textMuted),
           ),
           AppSpacing.gapLg,

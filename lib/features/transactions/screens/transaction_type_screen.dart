@@ -16,6 +16,7 @@ import 'package:the_accountant/features/settings/providers/settings_provider.dar
 import 'package:the_accountant/features/transactions/providers/transaction_provider.dart';
 import 'package:the_accountant/features/transactions/screens/add_transaction_screen.dart';
 import 'package:the_accountant/shared/widgets/glass_card.dart';
+import 'package:the_accountant/shared/widgets/sensitive.dart';
 import 'package:the_accountant/shared/widgets/transaction_card.dart';
 import 'package:the_accountant/shared/widgets/shimmer_loading.dart';
 
@@ -542,11 +543,13 @@ class _TransactionTypeScreenState extends ConsumerState<TransactionTypeScreen> {
               ],
             ),
             const SizedBox(height: 12),
-            Text(
-              '$currencySymbol${formatter.format(useDecimals ? total : total.round())}',
-              style: AppTypography.displaySmall.copyWith(
-                color: _accentColor,
-                fontWeight: FontWeight.w700,
+            Sensitive(
+              child: Text(
+                '$currencySymbol${formatter.format(useDecimals ? total : total.round())}',
+                style: AppTypography.displaySmall.copyWith(
+                  color: _accentColor,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
             const SizedBox(height: 12),
@@ -565,6 +568,7 @@ class _TransactionTypeScreenState extends ConsumerState<TransactionTypeScreen> {
                 _buildStatItem(
                   '$currencySymbol${formatter.format(useDecimals ? average : average.round())}',
                   'avg per transaction',
+                  sensitive: true,
                 ),
               ],
             ),
@@ -574,17 +578,18 @@ class _TransactionTypeScreenState extends ConsumerState<TransactionTypeScreen> {
     );
   }
 
-  Widget _buildStatItem(String value, String label) {
+  Widget _buildStatItem(String value, String label, {bool sensitive = false}) {
+    final text = Text(
+      value,
+      style: AppTypography.titleSmall.copyWith(
+        color: AppColors.textPrimary,
+        fontWeight: FontWeight.w600,
+      ),
+    );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          value,
-          style: AppTypography.titleSmall.copyWith(
-            color: AppColors.textPrimary,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
+        sensitive ? Sensitive(child: text) : text,
         Text(
           label,
           style: AppTypography.labelSmall.copyWith(color: AppColors.textMuted),

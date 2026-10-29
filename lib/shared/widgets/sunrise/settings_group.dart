@@ -90,6 +90,7 @@ class SettingsRow extends StatelessWidget {
     this.trailingWidget,
     this.enabled = true,
     this.badge,
+    this.wrapSubtitle,
   });
 
   /// A row with a [SunriseToggle] at the end.
@@ -136,6 +137,10 @@ class SettingsRow extends StatelessWidget {
   /// A small marker after the title ("PRO").
   final Widget? badge;
 
+  /// Wraps the subtitle, such as to hide a total in it while amounts are
+  /// hidden.
+  final Widget Function(Widget subtitle)? wrapSubtitle;
+
   @override
   Widget build(BuildContext context) {
     final c = context.sunrise;
@@ -175,11 +180,13 @@ class SettingsRow extends StatelessWidget {
                 ),
                 if (subtitle != null) ...[
                   const SizedBox(height: 1),
-                  Text(
-                    subtitle!,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: SunriseType.caption.copyWith(color: c.subtle),
+                  (wrapSubtitle ?? _same)(
+                    Text(
+                      subtitle!,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: SunriseType.caption.copyWith(color: c.subtle),
+                    ),
                   ),
                 ],
               ],
@@ -231,3 +238,5 @@ class SettingsRow extends StatelessWidget {
     );
   }
 }
+
+Widget _same(Widget w) => w;

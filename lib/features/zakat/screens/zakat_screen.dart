@@ -10,6 +10,7 @@ import 'package:the_accountant/features/zakat/screens/zakat_pay_screen.dart';
 import 'package:the_accountant/features/zakat/services/zakat_service.dart';
 import 'package:the_accountant/features/zakat/widgets/zakat_labels.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
+import 'package:the_accountant/shared/widgets/sensitive.dart';
 import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
 
 /// What zakat is due on the user's wealth, what has been paid toward it, and
@@ -288,10 +289,15 @@ class _DueCard extends ConsumerWidget {
     final r = report;
     String money(int v) => f.money(v, r.currency);
 
+    final statusFigure = switch (r.meetsNisab) {
+      null => null,
+      true => money(r.net),
+      false => money(r.shortfall),
+    };
     final status = switch (r.meetsNisab) {
       null => l10n.zakatNeedPrice,
-      true => l10n.zakatAboveNisab(money(r.net)),
-      false => l10n.zakatBelowNisab(money(r.shortfall)),
+      true => l10n.zakatAboveNisab(statusFigure!),
+      false => l10n.zakatBelowNisab(statusFigure!),
     };
     final days = r.daysUntilDue(DateTime.now());
 
@@ -306,13 +312,16 @@ class _DueCard extends ConsumerWidget {
             style: SunriseType.body.copyWith(color: c.muted, fontSize: 14),
           ),
           const SizedBox(height: 6),
-          Text(
-            money(r.due),
-            style: SunriseType.section.copyWith(color: c.ink, fontSize: 28),
+          Sensitive(
+            child: Text(
+              money(r.due),
+              style: SunriseType.section.copyWith(color: c.ink, fontSize: 28),
+            ),
           ),
           const SizedBox(height: 4),
-          Text(
+          SensitiveText(
             status,
+            amounts: [?statusFigure],
             style: SunriseType.caption.copyWith(
               color: r.meetsNisab == true ? c.positive : c.subtle,
             ),
@@ -379,12 +388,14 @@ class _Figure extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(label, style: SunriseType.caption.copyWith(color: c.subtle)),
-        Text(
-          value,
-          style: SunriseType.label.copyWith(
-            color: emphasise ? c.accent : c.ink,
-            fontSize: 15,
-            fontWeight: FontWeight.w700,
+        Sensitive(
+          child: Text(
+            value,
+            style: SunriseType.label.copyWith(
+              color: emphasise ? c.accent : c.ink,
+              fontSize: 15,
+              fontWeight: FontWeight.w700,
+            ),
           ),
         ),
       ],
@@ -559,10 +570,12 @@ class _LineRow extends ConsumerWidget {
                     color: line.included ? c.ink : c.subtle,
                   ),
                 ),
-                Text(
-                  '${line.deduct ? '−' : ''}${f.money(line.amount, currency)}'
-                  '${converted ? ' · ${f.money(line.original, line.currency)}' : ''}',
-                  style: SunriseType.caption.copyWith(color: c.subtle),
+                Sensitive(
+                  child: Text(
+                    '${line.deduct ? '−' : ''}${f.money(line.amount, currency)}'
+                    '${converted ? ' · ${f.money(line.original, line.currency)}' : ''}',
+                    style: SunriseType.caption.copyWith(color: c.subtle),
+                  ),
                 ),
               ],
             ),
@@ -705,7 +718,14 @@ class _TotalsCard extends ConsumerWidget {
     final f = PlanFormat(ref, context);
     final r = report;
 
-    Widget row(String label, String value, {bool strong = false}) => Padding(
+    // The nisab is the market's threshold rather than the user's money, so it
+    // stays shown.
+    Widget row(
+      String label,
+      String value, {
+      bool strong = false,
+      bool hide = true,
+    }) => Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         children: [
@@ -718,11 +738,13 @@ class _TotalsCard extends ConsumerWidget {
               ),
             ),
           ),
-          Text(
-            value,
-            style: SunriseType.label.copyWith(
-              color: c.ink,
-              fontWeight: strong ? FontWeight.w700 : FontWeight.w500,
+          (hide ? _sensitive : _same)(
+            Text(
+              value,
+              style: SunriseType.label.copyWith(
+                color: c.ink,
+                fontWeight: strong ? FontWeight.w700 : FontWeight.w500,
+              ),
             ),
           ),
         ],
@@ -739,7 +761,7 @@ class _TotalsCard extends ConsumerWidget {
           const Divider(height: 16),
           row(l10n.zakatNet, f.money(r.net, r.currency), strong: true),
           if (r.nisab != null)
-            row(l10n.zakatNisab, f.money(r.nisab!, r.currency)),
+            row(l10n.zakatNisab, f.money(r.nisab!, r.currency), hide: false),
           row(l10n.zakatRate, f.money(r.rateOfNet, r.currency)),
         ],
       ),
@@ -794,3 +816,8 @@ class _YearSection extends ConsumerWidget {
     );
   }
 }
+
+/// Hides a balance or total while amounts are hidden.
+Widget _sensitive(Widget value) => Sensitive(child: value);
+
+Widget _same(Widget value) => value;

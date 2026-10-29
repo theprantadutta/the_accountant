@@ -50,7 +50,12 @@ void main() {
     );
   }
 
-  setUp(() => SharedPreferences.setMockInitialValues({}));
+  // Amounts shown: hidden, the shortfall is blurred out of the sentence the
+  // tests read.
+  setUp(
+    () =>
+        SharedPreferences.setMockInitialValues({'privacy_hide_amounts': false}),
+  );
 
   testWidgets('the screen warns of the shortfall and lists what causes it', (
     tester,

@@ -27,6 +27,7 @@ import 'package:the_accountant/features/wallets/widgets/edit_wallet_sheet.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:the_accountant/shared/widgets/color_picker.dart';
 import 'package:the_accountant/shared/widgets/icon_picker.dart';
+import 'package:the_accountant/shared/widgets/sensitive.dart';
 import 'package:the_accountant/shared/widgets/shimmer_loading.dart';
 import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
 
@@ -390,6 +391,8 @@ class _FeaturedWalletCard extends ConsumerWidget {
     final isCard = wallet.walletType == WalletType.creditCard;
     final limit = wallet.creditLimit ?? 0;
     final outstanding = isCard ? cents.abs() : 0;
+    final available = _walletAmount(ref, wallet, limit - outstanding);
+    final limitText = _walletAmount(ref, wallet, limit);
 
     return Pressable(
       onTap: onTap,
@@ -429,20 +432,23 @@ class _FeaturedWalletCard extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 2),
-            FittedBox(
-              fit: BoxFit.scaleDown,
-              alignment: AlignmentDirectional.centerStart,
-              child: Text(
-                _walletAmount(ref, wallet, isCard ? outstanding : cents),
-                maxLines: 1,
-                style: SunriseType.balance.copyWith(fontSize: 34),
+            Sensitive(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: AlignmentDirectional.centerStart,
+                child: Text(
+                  _walletAmount(ref, wallet, isCard ? outstanding : cents),
+                  maxLines: 1,
+                  style: SunriseType.balance.copyWith(fontSize: 34),
+                ),
               ),
             ),
             if (isCard && limit > 0) ...[
               const SizedBox(height: 4),
-              Text(
-                '${l10n.walletAvailable} ${_walletAmount(ref, wallet, limit - outstanding)} · '
-                '${l10n.walletLimit} ${_walletAmount(ref, wallet, limit)}',
+              SensitiveText(
+                '${l10n.walletAvailable} $available · '
+                '${l10n.walletLimit} $limitText',
+                amounts: [available, limitText],
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: SunriseType.caption.copyWith(
@@ -572,14 +578,16 @@ class _WalletRow extends ConsumerWidget {
               constraints: BoxConstraints(
                 maxWidth: MediaQuery.sizeOf(context).width * .42,
               ),
-              child: FittedBox(
-                fit: BoxFit.scaleDown,
-                alignment: AlignmentDirectional.centerEnd,
-                child: Text(
-                  _walletAmount(ref, wallet, isCard ? -cents.abs() : cents),
-                  style: SunriseType.amount.copyWith(
-                    color: cents < 0 && !isCard ? c.negative : c.ink,
-                    fontSize: 16,
+              child: Sensitive(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: AlignmentDirectional.centerEnd,
+                  child: Text(
+                    _walletAmount(ref, wallet, isCard ? -cents.abs() : cents),
+                    style: SunriseType.amount.copyWith(
+                      color: cents < 0 && !isCard ? c.negative : c.ink,
+                      fontSize: 16,
+                    ),
                   ),
                 ),
               ),
@@ -725,6 +733,7 @@ class _PlanningGroup extends ConsumerWidget {
           subtitle: due.isEmpty
               ? l10n.walletsUpcomingNone
               : l10n.walletsUpcomingSub(due.length, money(dueTotal)),
+          wrapSubtitle: due.isEmpty ? null : _sensitive,
           onTap: () => onOpen(const UpcomingTransactionsScreen()),
         ),
         SettingsRow(
@@ -737,6 +746,7 @@ class _PlanningGroup extends ConsumerWidget {
               : net > 0
               ? l10n.walletsOwedToYou(money(net))
               : l10n.walletsYouOwe(money(net)),
+          wrapSubtitle: net == 0 ? null : _sensitive,
           onTap: () => onOpen(const CreditDebtScreen()),
         ),
         SettingsRow(
@@ -763,6 +773,7 @@ class _PlanningGroup extends ConsumerWidget {
           subtitle: subs <= 0
               ? null
               : '${money(subs.round())} · ${l10n.todayMonthly}',
+          wrapSubtitle: _sensitive,
           onTap: () => onOpen(const SubscriptionDashboardScreen()),
         ),
         SettingsRow(
@@ -779,3 +790,6 @@ class _PlanningGroup extends ConsumerWidget {
     );
   }
 }
+
+/// Hides a balance or total while amounts are hidden.
+Widget _sensitive(Widget value) => Sensitive(child: value);
