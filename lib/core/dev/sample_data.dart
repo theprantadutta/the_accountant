@@ -62,17 +62,22 @@ class SampleDataResult {
 }
 
 /// Seed the sample data, then reload every screen's data.
-Future<SampleDataResult> addSampleData(WidgetRef ref) async {
-  final result = await SampleDataSeeder(ref.read).run();
+///
+/// Takes the app's container, not the calling screen's `WidgetRef`: adding the
+/// first account rebuilds the More screen, which disposed that ref and stopped
+/// a run after one account, silently, as the screen was no longer there to show
+/// the error.
+Future<SampleDataResult> addSampleData(ProviderContainer container) async {
+  final result = await SampleDataSeeder(container.read).run();
   if (!result.alreadyAdded) {
-    reloadAllData(ref);
-    ref.invalidate(plansProvider);
-    ref.invalidate(investmentsProvider);
-    ref.invalidate(objectivesProvider);
-    ref.invalidate(goalsProvider);
-    ref.invalidate(allRecurringConfigsProvider);
-    ref.invalidate(activeRecurringConfigsProvider);
-    ref.invalidate(recurringProvider);
+    reloadAllDataWith(container.invalidate);
+    container.invalidate(plansProvider);
+    container.invalidate(investmentsProvider);
+    container.invalidate(objectivesProvider);
+    container.invalidate(goalsProvider);
+    container.invalidate(allRecurringConfigsProvider);
+    container.invalidate(activeRecurringConfigsProvider);
+    container.invalidate(recurringProvider);
   }
   return result;
 }
@@ -86,9 +91,11 @@ class SampleDataSeeder {
   /// prevents duplicates; this only records that seeding happened here.
   static const prefsFlag = 'sample_data_added_v1';
 
-  /// The account every sample is paid from. Its presence means the sample
-  /// data is already in this store.
+  /// The account every sample is paid from. It is made first, so on its own
+  /// it only means a run started: one that failed part way leaves it behind.
   static const markerAccount = 'DBBL Savings';
+
+  /// Made near the end of a run, so its presence means the data is in.
   static const markerPlan = 'Walton fridge EMI';
 
   static const _note = 'Sample data';
@@ -116,9 +123,9 @@ class SampleDataSeeder {
   /// Taka to minor units.
   static int tk(num taka) => (taka * 100).round();
 
+  /// Only a finished run counts. Checking for [markerAccount] here meant a
+  /// run that failed after making it could never be retried.
   Future<bool> alreadySeeded() async {
-    final wallets = await _db.getAllWallets();
-    if (wallets.any((w) => w.name == markerAccount)) return true;
     final plans = await _read(planServiceProvider).allPlans();
     return plans.any((p) => p.name == markerPlan);
   }
@@ -395,6 +402,12 @@ class SampleDataSeeder {
       required int priceNow,
       required DateTime bought,
     }) async {
+      // Names are unique, so one already tracked under this name (by hand, or
+      // by a run that stopped part way) is used as it is.
+      final tracked = (await investments.all())
+          .where((i) => i.name.toLowerCase() == name.toLowerCase())
+          .firstOrNull;
+      if (tracked != null) return tracked.id;
       final id = await investments.create(
         InvestmentDraft(
           name: name,
@@ -726,6 +739,11 @@ class SampleDataSeeder {
     int? statementDay,
     int? dueDay,
   }) async {
+    // A failed earlier run may have made it already; carry on with that one.
+    final existing = (await _db.getAllWallets())
+        .where((w) => w.name == name && w.currency == _currency)
+        .firstOrNull;
+    if (existing != null) return existing.id;
     final before = {for (final w in await _db.getAllWallets()) w.id};
     await _read(walletProvider.notifier).addWallet(
       name: name,

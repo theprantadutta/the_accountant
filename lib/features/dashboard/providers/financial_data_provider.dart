@@ -129,6 +129,8 @@ class FinancialDataNotifier extends Notifier<FinancialData> {
         _calculationService.getBudgetProgressDetails(),
         _calculationService.getRecentTransactions(),
       ]);
+      // Callers fire this and move on, so the provider can be gone by now.
+      if (!ref.mounted) return;
 
       // Money values arrive as integer minor units (cents) from the calculation
       // service; this provider exposes them as major-unit dollars (double).
@@ -147,6 +149,7 @@ class FinancialDataNotifier extends Notifier<FinancialData> {
         isLoading: false,
       );
     } catch (e) {
+      if (!ref.mounted) return;
       state = state.copyWith(
         isLoading: false,
         error: 'Failed to load financial data: ${e.toString()}',

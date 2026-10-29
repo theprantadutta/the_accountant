@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show ProviderOrFamily;
 import 'package:the_accountant/features/budgets/providers/budget_provider.dart';
 import 'package:the_accountant/features/categories/providers/category_provider.dart';
 import 'package:the_accountant/features/credit_debt/providers/credit_debt_provider.dart';
@@ -22,19 +23,24 @@ import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
 /// Invalidating rather than reloading is deliberate: a notifier rebuilt from
 /// scratch cannot carry a half-updated field across, and every one of these
 /// loads its data on construction.
-void reloadAllData(WidgetRef ref) {
-  ref.invalidate(walletProvider);
-  ref.invalidate(categoryProvider);
-  ref.invalidate(transactionProvider);
-  ref.invalidate(budgetProvider);
-  ref.invalidate(allObjectivesProvider);
-  ref.invalidate(activeObjectivesProvider);
-  ref.invalidate(pinnedObjectivesProvider);
-  ref.invalidate(paymentMethodProvider);
-  ref.invalidate(upcomingProvider);
-  ref.invalidate(creditDebtProvider);
-  ref.invalidate(subscriptionDashboardProvider);
-  ref.invalidate(reportsProvider);
+void reloadAllData(WidgetRef ref) => reloadAllDataWith(ref.invalidate);
+
+/// [reloadAllData] for code holding a `ProviderContainer` rather than a
+/// widget's ref, so the reload does not depend on that widget still being on
+/// screen.
+void reloadAllDataWith(void Function(ProviderOrFamily provider) invalidate) {
+  invalidate(walletProvider);
+  invalidate(categoryProvider);
+  invalidate(transactionProvider);
+  invalidate(budgetProvider);
+  invalidate(allObjectivesProvider);
+  invalidate(activeObjectivesProvider);
+  invalidate(pinnedObjectivesProvider);
+  invalidate(paymentMethodProvider);
+  invalidate(upcomingProvider);
+  invalidate(creditDebtProvider);
+  invalidate(subscriptionDashboardProvider);
+  invalidate(reportsProvider);
   // Last, because it reads through the others.
-  ref.invalidate(financialDataProvider);
+  invalidate(financialDataProvider);
 }

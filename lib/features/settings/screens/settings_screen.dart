@@ -821,8 +821,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       icon: Symbols.auto_awesome_rounded,
     );
     if (!confirmed || !mounted) return;
+    final container = ProviderScope.containerOf(context, listen: false);
     try {
-      final result = await addSampleData(ref);
+      final result = await addSampleData(container);
       if (!mounted) return;
       showSunriseSnack(
         context,

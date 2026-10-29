@@ -1,3 +1,4 @@
+import 'package:drift/drift.dart' show Value;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -6,6 +7,7 @@ import 'package:the_accountant/core/domain/transaction_policy.dart';
 import 'package:the_accountant/core/services/wallet_balance_service.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
+import 'package:the_accountant/data/models/investment.dart';
 import 'package:the_accountant/data/models/plan.dart';
 import 'package:the_accountant/data/models/transaction.dart'
     show TransactionSpecialType;
@@ -150,5 +152,40 @@ void main() {
       (await db.getAllObjectives()).length,
       (await db.getAllBudgets()).length,
     ), counts);
+  });
+
+  test('a run that stopped part way can be run again', () async {
+    // What a run that stopped part way leaves: the marker account alone.
+    final now = DateTime.now();
+    await db.addWallet(
+      WalletsCompanion(
+        id: const Value('half-done'),
+        name: const Value(SampleDataSeeder.markerAccount),
+        currency: const Value('BDT'),
+        balance: const Value(0),
+        createdAt: Value(now),
+        updatedAt: Value(now),
+      ),
+    );
+
+    // And a holding already tracked under a name the sample data uses.
+    await InvestmentService(db).create(
+      const InvestmentDraft(
+        name: 'UCB Income Plus Fund',
+        kind: InvestmentKind.fund,
+        currency: 'BDT',
+      ),
+    );
+
+    final result = await seed();
+    expect(result.alreadyAdded, isFalse);
+    final plans = await db.select(db.plans).get();
+    expect(plans.any((p) => p.name == SampleDataSeeder.markerPlan), isTrue);
+    // The account it left is reused, not made twice.
+    final wallets = await db.getAllWallets();
+    expect(
+      wallets.where((w) => w.name == SampleDataSeeder.markerAccount).length,
+      1,
+    );
   });
 }
