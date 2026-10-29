@@ -30,7 +30,7 @@
 </hi-IN>
 <de-DE>
 • Privatmodus: Salden mit einem Tipp ausblenden
-• 8 neue Sprachen: Hindi, Deutsch, Französisch, Portugiesisch, Malaiisch, Persisch, Swahili, Amharisch
+• 8 neue Sprachen, darunter Deutsch
 • Kredite & Schulden neu gestaltet; ohne Fälligkeitsdatum nicht mehr überfällig
 • Tippe in Statistiken auf eine Kategorie, um alle Buchungen zu sehen
 • Kategorien nach Hauptkategorie mit aufklappbaren Unterkategorien
@@ -40,7 +40,7 @@
 </de-DE>
 <fr-FR>
 • Mode privé : masquez vos soldes d'un geste
-• 8 nouvelles langues : hindi, allemand, français, portugais, malais, persan, swahili, amharique
+• 8 nouvelles langues, dont le français
 • Prêts et dettes repensés ; sans échéance, un prêt n'apparaît plus en retard
 • Touchez une catégorie dans Stats pour voir toutes ses transactions
 • Catégories par parent, avec sous-catégories dépliables
@@ -50,7 +50,7 @@
 </fr-FR>
 <pt-PT>
 • Modo privado: oculte os seus saldos com um toque
-• 8 novos idiomas: hindi, alemão, francês, português, malaio, persa, suaíli, amárico
+• 8 novos idiomas, incluindo o português
 • Créditos e dívidas redesenhados; sem data de vencimento, deixam de aparecer em atraso
 • Toque numa categoria nas Estatísticas para ver todas as transações
 • Categorias por categoria principal, com subcategorias expansíveis
@@ -60,7 +60,7 @@
 </pt-PT>
 <ms>
 • Mod privasi: sembunyikan baki anda dengan satu ketikan
-• 8 bahasa baharu: Hindi, Jerman, Perancis, Portugis, Melayu, Parsi, Swahili, Amharik
+• 8 bahasa baharu, termasuk Bahasa Melayu
 • Kredit & Hutang direka semula; pinjaman tanpa tarikh akhir tidak lagi tertunggak
 • Ketik kategori dalam Statistik untuk melihat semua transaksinya
 • Kategori mengikut induk dengan subkategori yang boleh dikembangkan
@@ -80,7 +80,7 @@
 </fa-IR>
 <sw>
 • Hali ya faragha: ficha salio lako kwa mguso mmoja
-• Lugha 8 mpya: Kihindi, Kijerumani, Kifaransa, Kireno, Kimalei, Kiajemi, Kiswahili, Kiamhari
+• Lugha 8 mpya, ikiwemo Kiswahili
 • Mikopo na Madeni imeundwa upya; mkopo bila tarehe ya mwisho hauonekani tena kuchelewa
 • Gusa kategoria kwenye Takwimu kuona miamala yake yote
 • Kategoria kuu kwanza, na kategoria ndogo zinazofunguka
