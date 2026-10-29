@@ -7,6 +7,9 @@ This is the end-to-end checklist to get **The Accountant** onto the App Store
 2. 🔧 **Manual steps** you must do in Xcode, Apple Developer, Firebase, and
    App Store Connect (these cannot be done from code)
 
+> **Store text & privacy labels:** see `STORE_LISTING_AND_PRIVACY.md`. The
+> next iOS version still needs the new description pasted in.
+
 **Canonical iOS Bundle ID:** `com.pranta.theaccountant` (all lowercase — this
 matches the Xcode project, `GoogleService-Info.plist`, and `firebase_options.dart`).
 Use this exact string everywhere: App Store Connect, Apple Developer App ID, and

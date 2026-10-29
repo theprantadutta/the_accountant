@@ -127,6 +127,12 @@ lib/
 - Monthly summaries and spending comparisons
 - One-time purchase model through Google Play
 
+## Store Listings & Privacy Labels
+Before editing the Google Play listing, Play Data safety, App Store Connect
+or App Privacy, read `docs/STORE_LISTING_AND_PRIVACY.md`. The store text for
+every language lives in `docs/store_listing/*.json`. The next iOS version
+still needs the new description pasted in.
+
 ## Development Guidelines
 
 ### Code Generation
