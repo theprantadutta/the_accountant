@@ -5196,6 +5196,42 @@ class L10nBn extends L10n {
   String get privacyTapSub => 'নইলে শুধু আজকের পাতার চোখ আইকন দিয়ে দেখা যাবে';
 
   @override
+  String get privacyStartTitle => 'অ্যাপ খুললে';
+
+  @override
+  String get privacyStartHidden => 'লুকানো';
+
+  @override
+  String get privacyStartHiddenSub =>
+      'সবসময় ব্যালেন্স ও মোট হিসাব লুকিয়ে খুলবে';
+
+  @override
+  String get privacyStartShown => 'দেখানো';
+
+  @override
+  String get privacyStartShownSub =>
+      'সবসময় ব্যালেন্স ও মোট হিসাব দেখিয়ে খুলবে';
+
+  @override
+  String get privacyStartRemember => 'যেমন রেখেছিলাম';
+
+  @override
+  String get privacyStartRememberSub => 'চোখ আইকন শেষবার যেমন ছিল তেমন খুলবে';
+
+  @override
+  String get privacyIntroTitle => 'নতুন: ব্যালেন্স লুকান';
+
+  @override
+  String get privacyIntroBody =>
+      'ব্যালেন্স ও মোট হিসাব এখন লুকানো থাকে, যাতে আশেপাশের কেউ পড়তে না পারে। আজকের পাতার চোখ আইকনে চাপ দিয়ে দেখান বা লুকান; আপনি যেমন রাখবেন অ্যাপ তা মনে রাখবে। অ্যাপ কীভাবে খুলবে তা সেটিংসে বেছে নিতে পারবেন।';
+
+  @override
+  String get privacyIntroOk => 'বুঝেছি';
+
+  @override
+  String get privacyIntroSettings => 'সেটিংসে বেছে নিন';
+
+  @override
   String get voiceFabSettingSub =>
       'আজকের পাতায় ভেসে থাকা একটি মাইক, লেনদেন বলে দেওয়ার জন্য';
 

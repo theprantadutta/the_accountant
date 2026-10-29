@@ -5242,6 +5242,42 @@ class L10nEn extends L10n {
   String get privacyTapSub => 'Otherwise only the eye on Today shows them';
 
   @override
+  String get privacyStartTitle => 'When the app opens';
+
+  @override
+  String get privacyStartHidden => 'Hidden';
+
+  @override
+  String get privacyStartHiddenSub =>
+      'Always open with balances and totals hidden';
+
+  @override
+  String get privacyStartShown => 'Shown';
+
+  @override
+  String get privacyStartShownSub =>
+      'Always open with balances and totals showing';
+
+  @override
+  String get privacyStartRemember => 'As I left it';
+
+  @override
+  String get privacyStartRememberSub => 'Open the way the eye was last left';
+
+  @override
+  String get privacyIntroTitle => 'New: hide your balances';
+
+  @override
+  String get privacyIntroBody =>
+      'Balances and totals are now hidden, so people nearby can\'t read them. Tap the eye on Today to show or hide them; the app remembers how you leave it. You can choose how the app opens in Settings.';
+
+  @override
+  String get privacyIntroOk => 'Got it';
+
+  @override
+  String get privacyIntroSettings => 'Choose in Settings';
+
+  @override
   String get voiceFabSettingSub =>
       'A mic that floats over Today, for saying a transaction';
 

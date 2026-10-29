@@ -2,24 +2,47 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+/// How balances and totals look each time the app opens.
+enum PrivacyStart {
+  /// Hidden on every open, whatever the eye was left at.
+  hidden,
+
+  /// Shown on every open.
+  shown,
+
+  /// As the user last left them.
+  remember,
+}
+
 /// Whether balances and totals are hidden, for when someone can see the
 /// screen: at work, on a bus, across a table.
 ///
-/// Hidden unless the user says otherwise, and it stays as they last left it,
-/// whether they flipped the eye on Today or the switch in settings. Only
-/// balances and totals hide; a single transaction's amount stays, so the
-/// lists can still be used with amounts hidden.
+/// The user decides how the app opens: always hidden, always shown, or as
+/// they left it (the default, starting hidden). The eye on Today changes it
+/// for now either way. Only balances and totals hide; a single transaction's
+/// amount stays, so the lists can still be used with amounts hidden.
 class PrivacyState {
-  const PrivacyState({this.hideAmounts = true, this.tapToReveal = true});
+  const PrivacyState({
+    this.hideAmounts = true,
+    this.tapToReveal = true,
+    this.start = PrivacyStart.remember,
+  });
 
   final bool hideAmounts;
 
   /// Whether tapping a hidden amount shows them all, rather than only the eye.
   final bool tapToReveal;
 
-  PrivacyState copyWith({bool? hideAmounts, bool? tapToReveal}) => PrivacyState(
+  final PrivacyStart start;
+
+  PrivacyState copyWith({
+    bool? hideAmounts,
+    bool? tapToReveal,
+    PrivacyStart? start,
+  }) => PrivacyState(
     hideAmounts: hideAmounts ?? this.hideAmounts,
     tapToReveal: tapToReveal ?? this.tapToReveal,
+    start: start ?? this.start,
   );
 }
 
@@ -32,16 +55,28 @@ class PrivacyNotifier extends StateNotifier<PrivacyState> {
 
   static const String hideKey = 'privacy_hide_amounts';
   static const String tapKey = 'privacy_tap_to_reveal';
+  static const String startKey = 'privacy_start';
 
   Future<void> _load() async {
     final prefs = await SharedPreferences.getInstance();
     if (!mounted) return;
+    final start = PrivacyStart.values.firstWhere(
+      (s) => s.name == prefs.getString(startKey),
+      orElse: () => PrivacyStart.remember,
+    );
     state = PrivacyState(
-      hideAmounts: prefs.getBool(hideKey) ?? true,
+      hideAmounts: switch (start) {
+        PrivacyStart.hidden => true,
+        PrivacyStart.shown => false,
+        PrivacyStart.remember => prefs.getBool(hideKey) ?? true,
+      },
       tapToReveal: prefs.getBool(tapKey) ?? true,
+      start: start,
     );
   }
 
+  /// Hide or show them now. Kept for next time only when the app opens as
+  /// it was left.
   Future<void> setHidden(bool hidden) async {
     state = state.copyWith(hideAmounts: hidden);
     final prefs = await SharedPreferences.getInstance();
@@ -54,6 +89,22 @@ class PrivacyNotifier extends StateNotifier<PrivacyState> {
     state = state.copyWith(tapToReveal: on);
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(tapKey, on);
+  }
+
+  /// How the app opens from now on. Choosing hidden or shown applies now as
+  /// well, so the choice is seen to take effect.
+  Future<void> setStart(PrivacyStart start) async {
+    state = state.copyWith(
+      start: start,
+      hideAmounts: switch (start) {
+        PrivacyStart.hidden => true,
+        PrivacyStart.shown => false,
+        PrivacyStart.remember => state.hideAmounts,
+      },
+    );
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(startKey, start.name);
+    await prefs.setBool(hideKey, state.hideAmounts);
   }
 }
 

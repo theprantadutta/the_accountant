@@ -9316,6 +9316,72 @@ abstract class L10n {
   /// **'Otherwise only the eye on Today shows them'**
   String get privacyTapSub;
 
+  /// No description provided for @privacyStartTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'When the app opens'**
+  String get privacyStartTitle;
+
+  /// No description provided for @privacyStartHidden.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden'**
+  String get privacyStartHidden;
+
+  /// No description provided for @privacyStartHiddenSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Always open with balances and totals hidden'**
+  String get privacyStartHiddenSub;
+
+  /// No description provided for @privacyStartShown.
+  ///
+  /// In en, this message translates to:
+  /// **'Shown'**
+  String get privacyStartShown;
+
+  /// No description provided for @privacyStartShownSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Always open with balances and totals showing'**
+  String get privacyStartShownSub;
+
+  /// No description provided for @privacyStartRemember.
+  ///
+  /// In en, this message translates to:
+  /// **'As I left it'**
+  String get privacyStartRemember;
+
+  /// No description provided for @privacyStartRememberSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the way the eye was last left'**
+  String get privacyStartRememberSub;
+
+  /// No description provided for @privacyIntroTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New: hide your balances'**
+  String get privacyIntroTitle;
+
+  /// No description provided for @privacyIntroBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Balances and totals are now hidden, so people nearby can\'t read them. Tap the eye on Today to show or hide them; the app remembers how you leave it. You can choose how the app opens in Settings.'**
+  String get privacyIntroBody;
+
+  /// No description provided for @privacyIntroOk.
+  ///
+  /// In en, this message translates to:
+  /// **'Got it'**
+  String get privacyIntroOk;
+
+  /// No description provided for @privacyIntroSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose in Settings'**
+  String get privacyIntroSettings;
+
   /// No description provided for @voiceFabSettingSub.
   ///
   /// In en, this message translates to:

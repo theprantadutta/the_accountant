@@ -15,6 +15,7 @@ import 'package:the_accountant/features/categories/providers/category_provider.d
 import 'package:the_accountant/features/dashboard/providers/financial_data_provider.dart';
 import 'package:the_accountant/features/settings/providers/settings_provider.dart';
 import 'package:the_accountant/features/settings/widgets/confirmation_dialog.dart';
+import 'package:the_accountant/features/settings/widgets/privacy_sheets.dart';
 import 'package:the_accountant/features/settings/widgets/destructive_confirmation_dialog.dart';
 import 'package:the_accountant/features/settings/widgets/change_password_dialog.dart';
 import 'package:the_accountant/features/transactions/providers/transaction_provider.dart';
@@ -82,6 +83,15 @@ class _PrivacySecurityScreenState extends ConsumerState<PrivacySecurityScreen> {
               subtitle: l10n.privacyHideSub,
               value: privacy.hideAmounts,
               onChanged: (v) => ref.read(privacyProvider.notifier).setHidden(v),
+            ),
+            SettingsRow(
+              key: const Key('privacy_start'),
+              icon: Symbols.lock_clock_rounded,
+              iconColor: c.accent,
+              iconBackground: c.tintOrange,
+              title: l10n.privacyStartTitle,
+              value: privacyStartLabel(privacy.start, l10n),
+              onTap: () => choosePrivacyStart(context, ref),
             ),
             SettingsRow.toggle(
               key: const Key('privacy_tap_to_reveal'),

@@ -25,6 +25,7 @@ import 'package:the_accountant/features/notifications/providers/notification_his
 import 'package:the_accountant/features/notifications/widgets/notification_permission_primer.dart';
 import 'package:the_accountant/features/reports/screens/reports_screen.dart';
 import 'package:the_accountant/features/settings/screens/settings_screen.dart';
+import 'package:the_accountant/features/settings/widgets/privacy_sheets.dart';
 import 'package:the_accountant/features/startup/screens/startup_recovery_screen.dart';
 import 'package:the_accountant/features/transactions/screens/add_transaction_screen.dart';
 import 'package:the_accountant/features/transactions/screens/transaction_detail_screen.dart';
@@ -242,6 +243,26 @@ class _MainNavigationContainerState
   Future<void> _afterWalkthrough() async {
     await _maybeShowNotificationPrimer();
     await _maybeAskAboutVoiceFab();
+    await _maybeShowPrivacyIntro();
+  }
+
+  /// Whether a one-time question was put this session, so a second one waits
+  /// for the next open rather than stacking on top of it.
+  bool _askedThisSession = false;
+
+  /// Says once that balances can now be hidden. Not over another question,
+  /// another tab or a pushed screen.
+  Future<void> _maybeShowPrivacyIntro() async {
+    if (_askedThisSession) return;
+    if (!ref.read(walkthroughProvider).hasSeenWalkthrough) return;
+    final fab = ref.read(voiceFabProvider);
+    if (!fab.loaded || !fab.asked) return;
+    if (!mounted || _currentIndex != 0) return;
+    if (!(ModalRoute.of(context)?.isCurrent ?? false)) return;
+    _askedThisSession = true;
+    await Future.delayed(const Duration(milliseconds: 600));
+    if (!mounted) return;
+    await PrivacyIntro.maybeShow(context, ref);
   }
 
   /// Asks, once, whether to float a mic over Today. Not during the tour, and
@@ -259,6 +280,7 @@ class _MainNavigationContainerState
     try {
       await Future.delayed(const Duration(milliseconds: 600));
       if (!mounted) return;
+      _askedThisSession = true;
       await askAboutVoiceFab(context, ref);
     } finally {
       _askingAboutVoiceFab = false;

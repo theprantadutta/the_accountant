@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:the_accountant/core/providers/privacy_provider.dart';
+import 'package:the_accountant/features/settings/widgets/privacy_sheets.dart';
 import 'package:the_accountant/shared/widgets/sensitive.dart';
 
 import '../helpers/localized_app.dart';
@@ -133,5 +134,87 @@ void main() {
 
     expect(c.read(amountsHiddenProvider), isTrue);
     expect(opened, 1);
+  });
+
+  group('when the app opens', () {
+    Future<PrivacyState> opened(Map<String, Object> saved) async {
+      SharedPreferences.setMockInitialValues(saved);
+      final c = ProviderContainer();
+      addTearDown(c.dispose);
+      c.read(privacyProvider);
+      await Future<void>.delayed(Duration.zero);
+      return c.read(privacyProvider);
+    }
+
+    test('as left by default: hidden first, then as left', () async {
+      expect((await opened({})).hideAmounts, isTrue);
+      expect(
+        (await opened({PrivacyNotifier.hideKey: false})).hideAmounts,
+        isFalse,
+      );
+    });
+
+    test('"hidden" and "shown" ignore how the eye was left', () async {
+      expect(
+        (await opened({
+          PrivacyNotifier.startKey: 'hidden',
+          PrivacyNotifier.hideKey: false,
+        })).hideAmounts,
+        isTrue,
+      );
+      expect(
+        (await opened({
+          PrivacyNotifier.startKey: 'shown',
+          PrivacyNotifier.hideKey: true,
+        })).hideAmounts,
+        isFalse,
+      );
+    });
+
+    test('choosing one applies it now and is kept', () async {
+      SharedPreferences.setMockInitialValues({});
+      final c = ProviderContainer();
+      addTearDown(c.dispose);
+      c.read(privacyProvider);
+      await Future<void>.delayed(Duration.zero);
+
+      await c.read(privacyProvider.notifier).setStart(PrivacyStart.shown);
+
+      expect(c.read(privacyProvider).hideAmounts, isFalse);
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getString(PrivacyNotifier.startKey), 'shown');
+    });
+  });
+
+  testWidgets('the new-feature note shows once', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final shown = <bool>[];
+    await tester.pumpWidget(
+      ProviderScope(
+        child: localizedApp(
+          home: Consumer(
+            builder: (context, ref, _) => Scaffold(
+              body: TextButton(
+                onPressed: () async =>
+                    shown.add(await PrivacyIntro.maybeShow(context, ref)),
+                child: const Text('open'),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('open'));
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.text('New: hide your balances'), findsOneWidget);
+    await tester.tap(find.byKey(const Key('privacy_intro_ok')));
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+
+    await tester.tap(find.text('open'));
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+    expect(shown, [true, false]);
   });
 }
