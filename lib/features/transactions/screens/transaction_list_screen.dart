@@ -878,6 +878,16 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                           // sliding over it: the default drew the search and
                           // chips on top of the month's totals.
                           snapMode: FloatingHeaderSnapMode.scroll,
+                          // Finishing the swipe, it carries on at the
+                          // finger's speed and settles. The default eased in
+                          // first, so coming back it seemed to stall a beat
+                          // after the finger lifted.
+                          animationStyle: const AnimationStyle(
+                            duration: Duration(milliseconds: 320),
+                            curve: Curves.easeOutCubic,
+                            reverseDuration: Duration(milliseconds: 260),
+                            reverseCurve: Curves.easeOutCubic,
+                          ),
                           child: _buildListHeader(l10n, chip),
                         ),
                       ],
