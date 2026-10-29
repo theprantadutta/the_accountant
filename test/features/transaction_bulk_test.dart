@@ -204,7 +204,8 @@ void main() {
         expect(
           targets.wallets,
           isEmpty,
-          reason: 'there is no single account all of these can move to, and '
+          reason:
+              'there is no single account all of these can move to, and '
               'picking one of the two currencies would restate the others',
         );
       });
@@ -231,7 +232,8 @@ void main() {
         expect(
           targets.spansCurrencies,
           isFalse,
-          reason: 'a transfer leg is never moved, so its currency has no say '
+          reason:
+              'a transfer leg is never moved, so its currency has no say '
               'in where the rest can go',
         );
         expect(targets.currency, 'USD');

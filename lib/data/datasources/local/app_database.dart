@@ -2657,10 +2657,11 @@ class AppDatabase extends _$AppDatabase {
       );
     }
     return transaction(() async {
-      final moving = await (select(transactions)..where(
-            (t) => t.categoryId.equals(sourceId) & t.deletedAt.isNull(),
-          ))
-          .get();
+      final moving =
+          await (select(transactions)..where(
+                (t) => t.categoryId.equals(sourceId) & t.deletedAt.isNull(),
+              ))
+              .get();
       if (moving.isEmpty) return 0;
       await customStatement(
         'UPDATE transactions SET category_id = ?, updated_at = ?, '
@@ -2695,7 +2696,9 @@ class AppDatabase extends _$AppDatabase {
         throw ArgumentError('That category no longer exists.');
       }
       if (SystemCategoryKeys.all.contains(parent.defaultKey)) {
-        throw ArgumentError("Nothing can be filed inside the app's own categories.");
+        throw ArgumentError(
+          "Nothing can be filed inside the app's own categories.",
+        );
       }
       if (parent.mainCategoryId != null) {
         throw ArgumentError(
@@ -2707,10 +2710,11 @@ class AppDatabase extends _$AppDatabase {
           'An income category and a spending one cannot be nested.',
         );
       }
-      final children = await (select(categories)..where(
-            (c) => c.mainCategoryId.equals(id) & c.deletedAt.isNull(),
-          ))
-          .get();
+      final children =
+          await (select(categories)..where(
+                (c) => c.mainCategoryId.equals(id) & c.deletedAt.isNull(),
+              ))
+              .get();
       if (children.isNotEmpty) {
         throw ArgumentError(
           'This category has subcategories of its own, so it stays at the top level.',

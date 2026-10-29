@@ -58,7 +58,10 @@ void main() {
         throwsArgumentError,
       );
       // A parent into anything.
-      await expectLater(db.setCategoryParent(food, travel), throwsArgumentError);
+      await expectLater(
+        db.setCategoryParent(food, travel),
+        throwsArgumentError,
+      );
       // Into itself.
       await expectLater(db.setCategoryParent(food, food), throwsArgumentError);
     });
@@ -187,11 +190,7 @@ void main() {
       name: 'Rickshaw',
       mainCategoryId: food,
     );
-    final txn = await seedTransaction(
-      db,
-      walletId: wallet,
-      categoryId: food,
-    );
+    final txn = await seedTransaction(db, walletId: wallet, categoryId: food);
     expect((await sync.syncAll()).success, isTrue);
 
     await db.setCategoryParent(rickshaw, transport);

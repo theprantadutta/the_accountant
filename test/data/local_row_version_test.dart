@@ -43,14 +43,16 @@ void main() {
     final id = await seedTransaction(db, walletId: wallet, amount: 1000);
     final before = (await db.rowRevision('transactions', id))!;
 
-    await db.customStatement('UPDATE transactions SET amount = 5 WHERE id = ?', [
-      id,
-    ]);
+    await db.customStatement(
+      'UPDATE transactions SET amount = 5 WHERE id = ?',
+      [id],
+    );
 
     expect(
       await db.rowRevision('transactions', id),
       greaterThan(before),
-      reason: 'the point of a trigger is that it does not depend on the writer '
+      reason:
+          'the point of a trigger is that it does not depend on the writer '
           'remembering',
     );
   });
@@ -67,7 +69,8 @@ void main() {
       expect(
         triggers.length,
         2,
-        reason: '$table needs one for inserts and one for updates, or a row '
+        reason:
+            '$table needs one for inserts and one for updates, or a row '
             'in it can be edited mid-push without anything noticing',
       );
     }
@@ -84,10 +87,7 @@ void main() {
         revision: revision,
       );
 
-      expect(
-        (await db.findTransactionById(id))!.syncStatus,
-        SyncStatus.synced,
-      );
+      expect((await db.findTransactionById(id))!.syncStatus, SyncStatus.synced);
     });
 
     test('does nothing once the row has moved on', () async {
@@ -109,7 +109,8 @@ void main() {
       expect(
         (await db.findTransactionById(id))!.syncStatus,
         isNot(SyncStatus.synced),
-        reason: 'marking it synced would say the server has the 9900 it has '
+        reason:
+            'marking it synced would say the server has the 9900 it has '
             'never been shown, and the next pull would erase it',
       );
     });

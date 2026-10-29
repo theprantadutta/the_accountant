@@ -79,12 +79,8 @@ void main() {
       today: today,
     );
 
-    Future<void> charge(int cents, DateTime date) => seedTransaction(
-      db,
-      walletId: cardId,
-      amount: cents,
-      date: date,
-    );
+    Future<void> charge(int cents, DateTime date) =>
+        seedTransaction(db, walletId: cardId, amount: cents, date: date);
     Future<void> pay(int cents, DateTime date) => seedTransaction(
       db,
       walletId: cardId,

@@ -25,13 +25,21 @@ typedef ShowShortfall =
 /// the app and every background run, and the same warning each time would
 /// soon be ignored. A different date is a different situation and is told
 /// about again.
+///
+/// Except when the money is short already. The forecast puts anything overdue
+/// on today, so the shortfall's date was today on every day it lasted, and
+/// each morning brought a "new" date and the same warning again. That is told
+/// once, as being short now, until the accounts recover.
 class ShortfallAlerts {
   ShortfallAlerts(this._prefs);
 
   final SharedPreferences _prefs;
 
-  /// The shortfall dates already told about, as yyyy-MM-dd.
+  /// The shortfall dates already told about, as yyyy-MM-dd, and [_nowKey]
+  /// while the money is short today.
   static const storageKey = 'forecast_shortfall_notified';
+
+  static const _nowKey = 'now';
 
   /// How close a shortfall has to be to be worth a notification.
   static const noticeDays = 7;
@@ -40,14 +48,29 @@ class ShortfallAlerts {
   /// there is none within [noticeDays] or it has been told about already.
   /// A shortfall returned here is recorded as told.
   Future<ForecastDay?> claim(CashFlowForecast forecast) async {
+    // The background task may have just told it; each side caches its own.
+    await _prefs.reload();
     final told = _prefs.getStringList(storageKey) ?? const [];
-    // Dates that have passed can never come up again.
+    final shortfall = forecast.shortfall;
+    final shortNow = shortfall != null && isToday(forecast, shortfall);
+    // Dates that have passed can never come up again, and being short now is
+    // forgotten once it is over, so it is told about if it comes back.
     final kept = [
       for (final d in told)
-        if (!(DateTime.tryParse(d)?.isBefore(forecast.start) ?? true)) d,
+        if (d == _nowKey
+            ? shortNow
+            : !(DateTime.tryParse(d)?.isBefore(forecast.start) ?? true))
+          d,
     ];
-    final shortfall = forecast.shortfall;
-    final key = shortfall == null ? null : _key(shortfall.date);
+    final key = shortfall == null
+        ? null
+        : shortNow
+        ? _nowKey
+        : _key(shortfall.date);
+    // Warned of while it was coming: its day arriving is not news, and the
+    // days after it, still short, are not either.
+    final warnedAhead = shortNow && kept.contains(_key(forecast.start));
+    if (warnedAhead && !kept.contains(_nowKey)) kept.add(_nowKey);
     final fresh =
         key != null &&
         forecast.shortfallWithin(noticeDays) &&
@@ -81,10 +104,15 @@ class ShortfallAlerts {
       numberFormat: settings?.numberFormat ?? 'comma_dot',
     );
     final day = DateFormat('d MMM', l10n.localeName).format(shortfall.date);
+    final shortNow = isToday(forecast, shortfall);
     await show(
       id: notificationIdFor(shortfall.date),
-      title: l10n.forecastNotifTitle(day),
-      body: l10n.forecastNotifBody(amount),
+      title: shortNow
+          ? l10n.forecastNotifNowTitle
+          : l10n.forecastNotifTitle(day),
+      body: shortNow
+          ? l10n.forecastNotifNowBody(amount)
+          : l10n.forecastNotifBody(amount),
     );
     return true;
   }
@@ -106,6 +134,10 @@ class ShortfallAlerts {
           );
     return lookupL10n(locale);
   }
+
+  /// Whether [day] is the forecast's first day: the money is short already.
+  static bool isToday(CashFlowForecast forecast, ForecastDay day) =>
+      _key(day.date) == _key(forecast.start);
 
   static String _key(DateTime d) =>
       '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';

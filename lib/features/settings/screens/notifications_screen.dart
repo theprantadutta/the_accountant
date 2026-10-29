@@ -238,6 +238,18 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                     title: L10n.of(context).settingsOtherNotifications,
                     tiles: [
                       SettingsSwitchTile(
+                        icon: Icons.credit_card_outlined,
+                        title: L10n.of(context).settingsBillReminders,
+                        subtitle: L10n.of(context).settingsBillRemindersSub,
+                        value: prefsState.billRemindersEnabled,
+                        onChanged: (value) async {
+                          HapticFeedback.lightImpact();
+                          await ref
+                              .read(notificationPreferencesProvider.notifier)
+                              .setBillRemindersEnabled(value);
+                        },
+                      ),
+                      SettingsSwitchTile(
                         icon: Icons.star_outline,
                         title: L10n.of(
                           context,

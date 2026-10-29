@@ -51,7 +51,8 @@ void main() {
       expect(
         table.rate(from: 'EUR', to: 'USD'),
         closeTo(1.25, 1e-9),
-        reason: 'a euro is worth more than a dollar at 0.8, and refusing to '
+        reason:
+            'a euro is worth more than a dollar at 0.8, and refusing to '
             'invert the one row the downloader wrote excluded every foreign '
             'expense from a dollar budget',
       );
@@ -83,7 +84,8 @@ void main() {
       expect(
         table.rate(from: 'JPY', to: 'EUR'),
         isNull,
-        reason: 'treating one yen as one euro is not a rough answer, it is a '
+        reason:
+            'treating one yen as one euro is not a rough answer, it is a '
             'wrong one that looks exactly as settled as a correct figure',
       );
     });
@@ -108,7 +110,8 @@ void main() {
       expect(
         table.rate(from: 'BDT', to: 'EUR'),
         closeTo(0.01, 1e-9),
-        reason: 'an override is the most deliberate statement there is about '
+        reason:
+            'an override is the most deliberate statement there is about '
             'what a currency is worth to this user',
       );
     });
@@ -127,29 +130,36 @@ void main() {
   });
 
   group('the converter reads the same table', () {
-    test('an ordinary refresh is enough to convert a foreign account', () async {
-      await seedWallet(db, name: 'Checking', currency: 'USD');
-      final euros = await seedWallet(db, name: 'Holiday', currency: 'EUR');
-      await downloadRates({'EUR': 0.8});
+    test(
+      'an ordinary refresh is enough to convert a foreign account',
+      () async {
+        await seedWallet(db, name: 'Checking', currency: 'USD');
+        final euros = await seedWallet(db, name: 'Holiday', currency: 'EUR');
+        await downloadRates({'EUR': 0.8});
 
-      final converter = await AmountConverter.forDatabase(db, target: 'USD');
+        final converter = await AmountConverter.forDatabase(db, target: 'USD');
 
-      expect(
-        converter.convert(8000, euros),
-        10000,
-        reason: 'this is the whole of what a rate refresh is for; without it '
-            'foreign spending was silently dropped from every total',
-      );
-    });
+        expect(
+          converter.convert(8000, euros),
+          10000,
+          reason:
+              'this is the whole of what a rate refresh is for; without it '
+              'foreign spending was silently dropped from every total',
+        );
+      },
+    );
 
-    test('an account whose currency was never downloaded is excluded', () async {
-      await seedWallet(db, name: 'Checking', currency: 'USD');
-      final yen = await seedWallet(db, name: 'Tokyo', currency: 'JPY');
-      await downloadRates({'EUR': 0.8});
+    test(
+      'an account whose currency was never downloaded is excluded',
+      () async {
+        await seedWallet(db, name: 'Checking', currency: 'USD');
+        final yen = await seedWallet(db, name: 'Tokyo', currency: 'JPY');
+        await downloadRates({'EUR': 0.8});
 
-      final converter = await AmountConverter.forDatabase(db, target: 'USD');
+        final converter = await AmountConverter.forDatabase(db, target: 'USD');
 
-      expect(converter.convert(8000, yen), isNull);
-    });
+        expect(converter.convert(8000, yen), isNull);
+      },
+    );
   });
 }

@@ -73,25 +73,30 @@ void main() {
     expect(
       server.isTombstoned(userId, 'transactions', id),
       isTrue,
-      reason: 'the create landed, so the row exists up there and only this '
+      reason:
+          'the create landed, so the row exists up there and only this '
           'device knows it should not',
     );
     expect((await db.findTransactionById(id))!.deletedAt, isNotNull);
   });
 
-  test('the row is not marked synced while it still has something to say', () async {
-    final id = await seedTransaction(db, walletId: wallet, amount: 2500);
+  test(
+    'the row is not marked synced while it still has something to say',
+    () async {
+      final id = await seedTransaction(db, walletId: wallet, amount: 2500);
 
-    transport.duringPush = () => db.softDeleteTransaction(id);
-    await sync.syncAll();
+      transport.duringPush = () => db.softDeleteTransaction(id);
+      await sync.syncAll();
 
-    expect(
-      (await db.findTransactionById(id))!.syncStatus,
-      SyncStatus.pendingDelete,
-      reason: 'the push that just finished carried the create, not the '
-          'deletion that arrived while it was in flight',
-    );
-  });
+      expect(
+        (await db.findTransactionById(id))!.syncStatus,
+        SyncStatus.pendingDelete,
+        reason:
+            'the push that just finished carried the create, not the '
+            'deletion that arrived while it was in flight',
+      );
+    },
+  );
 
   test('the pull does not undo it on the way back', () async {
     final id = await seedTransaction(db, walletId: wallet, amount: 2500);
@@ -102,7 +107,8 @@ void main() {
     expect(
       (await db.findTransactionById(id))!.deletedAt,
       isNotNull,
-      reason: 'the same sync pulls the row back down, live, because the create '
+      reason:
+          'the same sync pulls the row back down, live, because the create '
           'had just been accepted — and writing that over the tombstone threw '
           'away a decision the server had not been told about yet',
     );
@@ -135,7 +141,8 @@ void main() {
     expect(
       server.recordData(userId, 'transactions', id)?['Amount'],
       9900,
-      reason: 'the later figure is the one the user meant, and it has to be '
+      reason:
+          'the later figure is the one the user meant, and it has to be '
           'the one that reaches the server',
     );
   });

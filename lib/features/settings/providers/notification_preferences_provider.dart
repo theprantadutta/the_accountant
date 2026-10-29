@@ -31,6 +31,7 @@ class _PrefsKeys {
   static const String reminderOffset = '${prefix}reminder_offset_minutes';
   static const String subscriptionExpiryAlertsEnabled =
       '${prefix}subscription_expiry_alerts_enabled';
+  static const String billRemindersEnabled = '${prefix}bill_reminders_enabled';
   static const String promotionalNotificationsEnabled =
       '${prefix}promotional_notifications_enabled';
   static const String allPrefsJson = '${prefix}all_prefs_json';
@@ -52,6 +53,10 @@ class NotificationPreferencesState {
   final int recurringReminderDaysBefore;
   final int reminderOffsetMinutes;
   final bool subscriptionExpiryAlertsEnabled;
+
+  /// Card bills and EMI or savings installments, which the server reminds
+  /// about. On unless turned off.
+  final bool billRemindersEnabled;
   final bool promotionalNotificationsEnabled;
 
   const NotificationPreferencesState({
@@ -70,6 +75,7 @@ class NotificationPreferencesState {
     this.recurringReminderDaysBefore = 1,
     this.reminderOffsetMinutes = BackgroundTaskConstants.defaultOffset,
     this.subscriptionExpiryAlertsEnabled = true,
+    this.billRemindersEnabled = true,
     this.promotionalNotificationsEnabled = true,
   });
 
@@ -88,6 +94,7 @@ class NotificationPreferencesState {
     int? recurringReminderDaysBefore,
     int? reminderOffsetMinutes,
     bool? subscriptionExpiryAlertsEnabled,
+    bool? billRemindersEnabled,
     bool? promotionalNotificationsEnabled,
   }) {
     return NotificationPreferencesState(
@@ -115,6 +122,7 @@ class NotificationPreferencesState {
       subscriptionExpiryAlertsEnabled:
           subscriptionExpiryAlertsEnabled ??
           this.subscriptionExpiryAlertsEnabled,
+      billRemindersEnabled: billRemindersEnabled ?? this.billRemindersEnabled,
       promotionalNotificationsEnabled:
           promotionalNotificationsEnabled ??
           this.promotionalNotificationsEnabled,
@@ -136,6 +144,7 @@ class NotificationPreferencesState {
     'recurring_reminder_days_before': recurringReminderDaysBefore,
     'reminder_offset_minutes': reminderOffsetMinutes,
     'subscription_expiry_alerts_enabled': subscriptionExpiryAlertsEnabled,
+    'bill_reminders_enabled': billRemindersEnabled,
     'promotional_notifications_enabled': promotionalNotificationsEnabled,
   };
 }
@@ -168,6 +177,12 @@ class NotificationPreferencesNotifier
   /// Get device timezone
   String get deviceTimezone => _deviceTimezone;
 
+  /// The saved choices, read once. Checks that run at startup await this, so
+  /// they do not act on the defaults before the user's own settings are in.
+  Future<void>? _localLoad;
+
+  Future<void> ensureLoaded() => _localLoad ??= _loadFromLocalStorage();
+
   /// Load preferences - first from local storage, then sync with backend
   Future<void> loadPreferences() async {
     state = state.copyWith(isLoading: true, errorMessage: null);
@@ -176,7 +191,7 @@ class NotificationPreferencesNotifier
     await _initializeTimezone();
 
     // 1. Load from local storage first (instant)
-    await _loadFromLocalStorage();
+    await (_localLoad = _loadFromLocalStorage());
 
     state = state.copyWith(isLoading: false);
 
@@ -234,6 +249,8 @@ class NotificationPreferencesNotifier
               BackgroundTaskConstants.defaultOffset,
           subscriptionExpiryAlertsEnabled:
               prefs.getBool(_PrefsKeys.subscriptionExpiryAlertsEnabled) ?? true,
+          billRemindersEnabled:
+              prefs.getBool(_PrefsKeys.billRemindersEnabled) ?? true,
           promotionalNotificationsEnabled:
               prefs.getBool(_PrefsKeys.promotionalNotificationsEnabled) ?? true,
         );
@@ -315,6 +332,10 @@ class NotificationPreferencesNotifier
         state.subscriptionExpiryAlertsEnabled,
       );
       await prefs.setBool(
+        _PrefsKeys.billRemindersEnabled,
+        state.billRemindersEnabled,
+      );
+      await prefs.setBool(
         _PrefsKeys.promotionalNotificationsEnabled,
         state.promotionalNotificationsEnabled,
       );
@@ -364,6 +385,7 @@ class NotificationPreferencesNotifier
           BackgroundTaskConstants.defaultOffset,
       subscriptionExpiryAlertsEnabled:
           data['subscription_expiry_alerts_enabled'] ?? true,
+      billRemindersEnabled: data['bill_reminders_enabled'] ?? true,
       promotionalNotificationsEnabled:
           data['promotional_notifications_enabled'] ?? true,
     );
@@ -517,6 +539,12 @@ class NotificationPreferencesNotifier
   Future<void> setSubscriptionExpiryAlertsEnabled(bool enabled) async {
     state = state.copyWith(subscriptionExpiryAlertsEnabled: enabled);
     await _updatePreference({'subscription_expiry_alerts_enabled': enabled});
+  }
+
+  /// Toggle the server's card bill and installment reminders.
+  Future<void> setBillRemindersEnabled(bool enabled) async {
+    state = state.copyWith(billRemindersEnabled: enabled);
+    await _updatePreference({'bill_reminders_enabled': enabled});
   }
 
   /// Toggle promotional notifications.

@@ -101,22 +101,25 @@ void main() {
     expect(premium.isPremium, isTrue);
   });
 
-  test('once verification lands, it becomes an ordinary confirmed grant', () async {
-    final container = containerFor(const IAPState(isLoading: true));
-    await settle(container, unverified);
+  test(
+    'once verification lands, it becomes an ordinary confirmed grant',
+    () async {
+      final container = containerFor(const IAPState(isLoading: true));
+      await settle(container, unverified);
 
-    final premium = await settle(
-      container,
-      const IAPState(
-        isPremium: true,
-        currentTier: 'accountant_premium_yearly',
-        backendConfirmed: true,
-      ),
-    );
+      final premium = await settle(
+        container,
+        const IAPState(
+          isPremium: true,
+          currentTier: 'accountant_premium_yearly',
+          backendConfirmed: true,
+        ),
+      );
 
-    expect(premium.isPremium, isTrue);
-    expect(premium.tier, SubscriptionTier.premiumYearly);
-  });
+      expect(premium.isPremium, isTrue);
+      expect(premium.tier, SubscriptionTier.premiumYearly);
+    },
+  );
 
   test('a receipt the backend rejects does downgrade', () async {
     // The flag clears when the backend looks at the receipt and says no, and

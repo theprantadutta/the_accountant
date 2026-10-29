@@ -140,7 +140,8 @@ void main() {
     expect(
       timeout,
       greaterThan(0),
-      reason: 'the default is no wait at all, which is what turned an ordinary '
+      reason:
+          'the default is no wait at all, which is what turned an ordinary '
           'lock conflict into a failed launch',
     );
   });

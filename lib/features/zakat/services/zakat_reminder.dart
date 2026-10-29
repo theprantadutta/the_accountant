@@ -73,6 +73,8 @@ class ZakatReminders {
     DateTime? now,
   }) async {
     final p = prefs ?? await SharedPreferences.getInstance();
+    // The other side may have just shown it; each keeps its own cached copy.
+    await p.reload();
     final settings = await ZakatSettingsStore.load(p);
     final reminder = dueOn(settings, now ?? DateTime.now());
     if (reminder == null || p.getString(_sentKey) == reminder.key) return null;

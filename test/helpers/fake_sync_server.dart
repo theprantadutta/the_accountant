@@ -325,7 +325,8 @@ class FakeSyncServer {
         // acknowledges, and nothing else. Extending the transaction rule to all
         // of them let tests certify a replay-with-changes that the server would
         // quietly ignore.
-        if (change.operation == 'update' || change.tableName == 'transactions') {
+        if (change.operation == 'update' ||
+            change.tableName == 'transactions') {
           held.data = data;
         }
 

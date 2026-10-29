@@ -90,7 +90,8 @@ void main() {
       expect(
         find.byKey(const ValueKey('drive-connected')),
         findsOneWidget,
-        reason: 'the only sign it had worked was the connect button being '
+        reason:
+            'the only sign it had worked was the connect button being '
             'replaced by a disconnect one',
       );
     });
@@ -101,7 +102,8 @@ void main() {
       expect(
         find.textContaining(DriveBackupClient.folderName),
         findsWidgets,
-        reason: 'somebody who wants to check their backups needs to know '
+        reason:
+            'somebody who wants to check their backups needs to know '
             'where in their Drive to look',
       );
     });
@@ -119,7 +121,10 @@ void main() {
       await pump(tester, authorized: true);
       await scrollToDriveList(tester);
 
-      expect(find.byKey(const ValueKey('refresh-drive-backups')), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey('refresh-drive-backups')),
+        findsOneWidget,
+      );
     });
 
     testWidgets('is not offered when there is nothing to refresh', (
@@ -156,7 +161,8 @@ void main() {
       expect(
         find.byType(PopupMenuButton<String>),
         findsOneWidget,
-        reason: 'Drive does not always list a file the instant it is written, '
+        reason:
+            'Drive does not always list a file the instant it is written, '
             'and a backup can arrive from another device entirely — waiting '
             'for a restart is not an answer to either',
       );

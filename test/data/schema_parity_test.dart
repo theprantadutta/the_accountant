@@ -206,7 +206,8 @@ void main() {
       expect(
         all.map((l) => l.id),
         ['newer'],
-        reason: 'the server was never told about the loser, so there is '
+        reason:
+            'the server was never told about the loser, so there is '
             'nothing to tell it — and a tombstone still carrying a pending '
             'create is a request to create it',
       );
@@ -233,14 +234,16 @@ void main() {
 
       await db.installPartialIndexesForTest();
 
-      final loser = (await db.select(db.categoryBudgetLimits).get())
-          .firstWhere((l) => l.id == 'older');
+      final loser = (await db.select(db.categoryBudgetLimits).get()).firstWhere(
+        (l) => l.id == 'older',
+      );
       expect(loser.deletedAt, isNotNull);
       expect(loser.syncStatus, SyncStatus.pendingDelete);
       expect(
         loser.updatedAt.millisecondsSinceEpoch ~/ 1000,
         100,
-        reason: 'housekeeping does not get to outrank a real edit; the '
+        reason:
+            'housekeeping does not get to outrank a real edit; the '
             'timestamp is what decides which of two devices\' caps wins',
       );
     });

@@ -75,7 +75,8 @@ void main() {
     expect(
       localA,
       isNot(localB),
-      reason: 'two offline devices cannot agree on a UUID, which is the whole '
+      reason:
+          'two offline devices cannot agree on a UUID, which is the whole '
           'problem',
     );
 
@@ -86,7 +87,8 @@ void main() {
     expect(
       await capsOn(deviceB),
       hasLength(1),
-      reason: 'the losing row is dropped rather than kept alongside the '
+      reason:
+          'the losing row is dropped rather than kept alongside the '
           'winner, which the unique index would refuse anyway',
     );
     expect((await capsOn(deviceB)).single.id, localA);
@@ -113,7 +115,8 @@ void main() {
     expect(
       (await capsOn(deviceA)).single.amount,
       25000,
-      reason: 'converging on whoever happened to push first would discard a '
+      reason:
+          'converging on whoever happened to push first would discard a '
           'later decision the user actually made',
     );
   });
@@ -137,7 +140,8 @@ void main() {
     expect(
       cap.syncStatus,
       SyncStatus.synced,
-      reason: 'a row left pending is retried on every sync, and a create the '
+      reason:
+          'a row left pending is retried on every sync, and a create the '
           'server can never accept stops the cursor advancing at all',
     );
   });
@@ -161,7 +165,8 @@ void main() {
     expect(
       result.pushedCount,
       0,
-      reason: 'the same rejected create being pushed for ever is what wedged '
+      reason:
+          'the same rejected create being pushed for ever is what wedged '
           'the account',
     );
   });
@@ -189,7 +194,8 @@ void main() {
     expect(
       await capsOn(deviceA),
       hasLength(2),
-      reason: 'different categories are different caps; only the same pair '
+      reason:
+          'different categories are different caps; only the same pair '
           'collides',
     );
   });

@@ -173,7 +173,8 @@ void main() {
       expect(
         result.imported,
         2,
-        reason: 'nothing was on file, so neither row can be a duplicate of '
+        reason:
+            'nothing was on file, so neither row can be a duplicate of '
             'anything — two real purchases were being collapsed into one',
       );
       expect(result.skippedAsDuplicates, 0);
@@ -195,7 +196,8 @@ void main() {
       expect(
         second.skippedAsDuplicates,
         2,
-        reason: 'two on file and two in the file is an overlap, not a pair of '
+        reason:
+            'two on file and two in the file is an overlap, not a pair of '
             'new purchases — which is what the check exists for',
       );
       expect(await db.getAllTransactions(), hasLength(2));

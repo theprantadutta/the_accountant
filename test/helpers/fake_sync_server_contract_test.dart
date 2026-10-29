@@ -26,17 +26,20 @@ void main() {
   const walletId = 'wallet-1';
   const transactionId = 'txn-1';
 
-  SyncChange wallet(String name, DateTime updatedAt, {String operation = 'create'}) =>
-      SyncChange(
-        tableName: 'wallets',
-        entityId: walletId,
-        operation: operation,
-        data: {
-          'Name': name,
-          'Currency': 'USD',
-          'UpdatedAt': updatedAt.toIso8601String(),
-        },
-      );
+  SyncChange wallet(
+    String name,
+    DateTime updatedAt, {
+    String operation = 'create',
+  }) => SyncChange(
+    tableName: 'wallets',
+    entityId: walletId,
+    operation: operation,
+    data: {
+      'Name': name,
+      'Currency': 'USD',
+      'UpdatedAt': updatedAt.toIso8601String(),
+    },
+  );
 
   SyncChange transaction(
     int amount,
@@ -67,20 +70,31 @@ void main() {
     final result = server.push(userId, [transaction(2500, DateTime.utc(2027))]);
 
     expect(result.conflicts, isEmpty);
-    expect(server.recordData(userId, 'transactions', transactionId)!['Amount'], 2500);
+    expect(
+      server.recordData(userId, 'transactions', transactionId)!['Amount'],
+      2500,
+    );
   });
 
-  test('stale create for an existing transaction is acknowledged not conflicted', () {
-    server.push(userId, [transaction(1000, DateTime.utc(2027))]);
+  test(
+    'stale create for an existing transaction is acknowledged not conflicted',
+    () {
+      server.push(userId, [transaction(1000, DateTime.utc(2027))]);
 
-    final result = server.push(userId, [transaction(2500, DateTime.utc(2020))]);
+      final result = server.push(userId, [
+        transaction(2500, DateTime.utc(2020)),
+      ]);
 
-    // A create is idempotent by contract: answering a retry with a conflict
-    // would leave that row pending on the device for ever.
-    expect(result.conflicts, isEmpty);
-    expect(result.appliedCount, 1);
-    expect(server.recordData(userId, 'transactions', transactionId)!['Amount'], 1000);
-  });
+      // A create is idempotent by contract: answering a retry with a conflict
+      // would leave that row pending on the device for ever.
+      expect(result.conflicts, isEmpty);
+      expect(result.appliedCount, 1);
+      expect(
+        server.recordData(userId, 'transactions', transactionId)!['Amount'],
+        1000,
+      );
+    },
+  );
 
   test('create for an existing wallet is inert', () {
     final result = server.push(userId, [
@@ -102,7 +116,10 @@ void main() {
     ]);
 
     expect(result.conflicts, hasLength(1));
-    expect(server.recordData(userId, 'transactions', transactionId)!['Amount'], 1000);
+    expect(
+      server.recordData(userId, 'transactions', transactionId)!['Amount'],
+      1000,
+    );
   });
 
   test('delete for a row the server does not hold is acknowledged', () {

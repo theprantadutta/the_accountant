@@ -59,6 +59,9 @@ class BudgetNotificationNotifier
       _running ??= _check().whenComplete(() => _running = null);
 
   Future<void> _check() async {
+    // At startup this ran before the saved settings were read, so alerts the
+    // user had turned off, or a higher threshold, did not count.
+    await _ref.read(notificationPreferencesProvider.notifier).ensureLoaded();
     final prefs = _ref.read(notificationPreferencesProvider);
     if (!prefs.budgetAlertsEnabled) return;
     final threshold = prefs.budgetWarningThreshold;

@@ -59,7 +59,8 @@ void main() {
     expect(
       live.single.categoryId,
       survivor,
-      reason: 'a cap pointing at a category that no longer exists is rejected '
+      reason:
+          'a cap pointing at a category that no longer exists is rejected '
           'by the server on every push and stays pending for ever',
     );
     expect(live.single.amount, 40000);
@@ -133,7 +134,8 @@ void main() {
       expect(
         (await caps()).single.amount,
         40000,
-        reason: 'a merge is not the place to quietly tighten a cap the user '
+        reason:
+            'a merge is not the place to quietly tighten a cap the user '
             'set — a cap that shrinks on its own reads as the budget being '
             'broken rather than as the merge having done it',
       );
@@ -182,55 +184,61 @@ void main() {
       expect(
         all,
         hasLength(1),
-        reason: 'the server never held this row, so a tombstone would push a '
+        reason:
+            'the server never held this row, so a tombstone would push a '
             'delete for an id it has never seen',
       );
     });
 
-    test('a loser the server holds is tombstoned so the delete travels',
-        () async {
-      final (survivor, loser) = await duplicatePair();
-      await db.setCategoryLimit(
-        budgetId: budgetId,
-        categoryId: survivor,
-        amount: 40000,
-      );
-      await db.setCategoryLimit(
-        budgetId: budgetId,
-        categoryId: loser,
-        amount: 25000,
-      );
-      await db.customStatement(
-        'UPDATE category_budget_limits SET sync_status = ?',
-        [SyncStatus.synced],
-      );
+    test(
+      'a loser the server holds is tombstoned so the delete travels',
+      () async {
+        final (survivor, loser) = await duplicatePair();
+        await db.setCategoryLimit(
+          budgetId: budgetId,
+          categoryId: survivor,
+          amount: 40000,
+        );
+        await db.setCategoryLimit(
+          budgetId: budgetId,
+          categoryId: loser,
+          amount: 25000,
+        );
+        await db.customStatement(
+          'UPDATE category_budget_limits SET sync_status = ?',
+          [SyncStatus.synced],
+        );
 
-      await db.absorbDuplicateDefaultCategory(
-        loserId: loser,
-        survivorId: survivor,
-      );
+        await db.absorbDuplicateDefaultCategory(
+          loserId: loser,
+          survivorId: survivor,
+        );
 
-      final all = await db.select(db.categoryBudgetLimits).get();
-      final retired = all.firstWhere((l) => l.deletedAt != null);
-      expect(
-        retired.syncStatus,
-        SyncStatus.pendingDelete,
-        reason: 'otherwise the cloud copy outlives the merge and comes back on '
-            'the next full pull',
-      );
-    });
+        final all = await db.select(db.categoryBudgetLimits).get();
+        final retired = all.firstWhere((l) => l.deletedAt != null);
+        expect(
+          retired.syncStatus,
+          SyncStatus.pendingDelete,
+          reason:
+              'otherwise the cloud copy outlives the merge and comes back on '
+              'the next full pull',
+        );
+      },
+    );
   });
 
   test('repointed associated titles are marked for pushing', () async {
     final (survivor, loser) = await duplicatePair();
-    await db.into(db.associatedTitles).insert(
-      AssociatedTitlesCompanion.insert(
-        id: 'title-1',
-        title: 'Tesco',
-        categoryId: loser,
-        syncStatus: const Value(SyncStatus.synced),
-      ),
-    );
+    await db
+        .into(db.associatedTitles)
+        .insert(
+          AssociatedTitlesCompanion.insert(
+            id: 'title-1',
+            title: 'Tesco',
+            categoryId: loser,
+            syncStatus: const Value(SyncStatus.synced),
+          ),
+        );
 
     await db.absorbDuplicateDefaultCategory(
       loserId: loser,
@@ -244,7 +252,8 @@ void main() {
     expect(
       row.syncStatus,
       SyncStatus.pendingUpdate,
-      reason: 'this table syncs now, and only rewriting the id locally left '
+      reason:
+          'this table syncs now, and only rewriting the id locally left '
           'the server filing the title under a category that no longer exists',
     );
   });

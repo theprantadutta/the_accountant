@@ -45,9 +45,9 @@ void main() {
     return id;
   }
 
-  Future<PaymentMethod?> cardOn(AppDatabase db, String id) =>
-      (db.select(db.paymentMethods)..where((p) => p.id.equals(id)))
-          .getSingleOrNull();
+  Future<PaymentMethod?> cardOn(AppDatabase db, String id) => (db.select(
+    db.paymentMethods,
+  )..where((p) => p.id.equals(id))).getSingleOrNull();
 
   setUp(() async {
     server = FakeSyncServer();
@@ -123,7 +123,8 @@ void main() {
     expect(
       (await cardOn(deviceB, id))!.lastFourDigits,
       isNull,
-      reason: 'a user removing the digits from a card means it; coalescing '
+      reason:
+          'a user removing the digits from a card means it; coalescing '
           'onto the stored value would make that edit impossible to make',
     );
   });

@@ -9,6 +9,10 @@ import 'package:the_accountant/core/domain/transaction_policy.dart';
 import 'package:the_accountant/core/constants/background_task_constants.dart';
 import 'package:the_accountant/core/services/background_notification_helper.dart';
 import 'package:the_accountant/core/services/local_store_manager.dart';
+import 'package:the_accountant/core/services/notified_once.dart';
+import 'package:the_accountant/core/utils/currency_formatter.dart';
+import 'package:the_accountant/core/utils/date_formatter.dart';
+import 'package:the_accountant/features/notifications/services/local_notification_log.dart';
 import 'package:the_accountant/core/services/notification_service.dart'
     show NotificationChannels;
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
@@ -85,15 +89,14 @@ class BackgroundTaskService {
       // so a plan keeps step on a day the app is not opened.
       final planEvents = await PlanService(db).collectDue();
       if (planEvents > 0) {
-        await notifier.showNotification(
-          id: BackgroundTaskConstants.recurringNotificationIdBase + 2,
+        // Bookkeeping the app did by itself: noted in the inbox, not pinged.
+        // A notification for every entry it wrote was noise.
+        await LocalNotificationLog.record(
+          type: NotificationType.custom,
           title: 'EMI and savings updated',
-          body:
-              '$planEvents installment${planEvents == 1 ? '' : 's'} and '
-              'deposit${planEvents == 1 ? '' : 's'} recorded on their day.',
-          channelId: BackgroundTaskConstants.recurringChannelId,
-          channelName: BackgroundTaskConstants.recurringChannelName,
-          channelDesc: BackgroundTaskConstants.recurringChannelDesc,
+          body: planEvents == 1
+              ? '1 plan entry recorded on its day.'
+              : '$planEvents plan entries recorded on their day.',
         );
       }
       // With everything due now recorded, look a week ahead for a day the
@@ -141,14 +144,13 @@ class BackgroundTaskService {
       final recorded = processedCount - newlyAwaiting;
 
       if (recorded > 0) {
-        await notifier.showNotification(
-          id: BackgroundTaskConstants.recurringNotificationIdBase,
-          title: 'Recurring Transactions Processed',
-          body:
-              '$recorded recurring transaction${recorded == 1 ? '' : 's'} created.',
-          channelId: BackgroundTaskConstants.recurringChannelId,
-          channelName: BackgroundTaskConstants.recurringChannelName,
-          channelDesc: BackgroundTaskConstants.recurringChannelDesc,
+        // Like the plan entries above: in the inbox, without a ping.
+        await LocalNotificationLog.record(
+          type: NotificationType.custom,
+          title: 'Recurring transactions recorded',
+          body: recorded == 1
+              ? '1 recurring transaction recorded.'
+              : '$recorded recurring transactions recorded.',
         );
       }
 
@@ -180,6 +182,23 @@ class BackgroundTaskService {
         return true;
       }
 
+      // Amounts in the account's own currency and number style, and dates in
+      // the user's format, like everywhere else in the app.
+      final settings = await db.getSettings();
+      final currencyOf = {
+        for (final w in await db.getAllWallets()) w.id: w.currency,
+      };
+      String money(int cents, String walletId) => cents.formatCurrency(
+        currencyOf[walletId] ?? settings?.currency ?? 'USD',
+        numberFormat: settings?.numberFormat ?? 'comma_dot',
+      );
+      String date(DateTime d) =>
+          AppDateFormatter.formatDate(d, settings?.dateFormat ?? 'd MMM yyyy');
+
+      // Each reminder below is posted once: this runs every hour, and with no
+      // memory of what it had said, something due tomorrow was announced
+      // about twenty times and an overdue loan every hour.
+
       // 6. Check upcoming transactions due within offset window
       final now = DateTime.now();
       final windowEnd = now.add(Duration(minutes: offsetMinutes));
@@ -191,6 +210,8 @@ class BackgroundTaskService {
 
       for (var i = 0; i < dueUpcoming.length; i++) {
         final t = dueUpcoming[i];
+        final due = _dueKey(t.id, t.originalDueDate ?? t.date);
+        if (!await NotifiedOnce.claim(due, prefs: prefs)) continue;
         final title = t.title.isNotEmpty ? t.title : 'Upcoming Transaction';
         await notifier.showNotificationWithActions(
           id:
@@ -198,7 +219,8 @@ class BackgroundTaskService {
               (t.id.hashCode % 500),
           title: 'Upcoming: $title',
           body:
-              '${t.isIncome ? "Income" : "Expense"} of ${(t.amount / 100).toStringAsFixed(2)} is due soon.',
+              '${t.isIncome ? "Income" : "Expense"} of '
+              '${money(t.amount, t.walletId)} is due soon.',
           channelId: BackgroundTaskConstants.upcomingChannelId,
           channelName: BackgroundTaskConstants.upcomingChannelName,
           channelDesc: BackgroundTaskConstants.upcomingChannelDesc,
@@ -222,6 +244,14 @@ class BackgroundTaskService {
       ].where((t) => TransactionPolicy.isOverdue(t, now: now)).take(3).toList();
 
       for (final t in overdueLoans) {
+        // Still owed is worth repeating, but once a day, not every hour.
+        if (!await NotifiedOnce.claim(
+          'overdue:${t.id}',
+          every: const Duration(days: 1),
+          prefs: prefs,
+        )) {
+          continue;
+        }
         final isCredit = t.specialType == TransactionSpecialType.credit;
         final loanType = isCredit ? 'credit' : 'debt';
         final title = t.title.isNotEmpty
@@ -233,7 +263,7 @@ class BackgroundTaskService {
               (t.id.hashCode % 500),
           title: 'Overdue ${isCredit ? "Credit" : "Debt"}: $title',
           body:
-              '${(TransactionPolicy.outstandingAmount(t) / 100).toStringAsFixed(2)} '
+              '${money(TransactionPolicy.outstandingAmount(t), t.walletId)} '
               'is still outstanding. Tap to review.',
           channelId: BackgroundTaskConstants.loanChannelId,
           channelName: BackgroundTaskConstants.loanChannelName,
@@ -260,6 +290,12 @@ class BackgroundTaskService {
       for (final config in dueConfigs) {
         final baseTx = await db.findTransactionById(config.baseTransactionId);
         if (baseTx == null) continue;
+        if (!await NotifiedOnce.claim(
+          'recurring:${config.id}:${NotifiedOnce.day(config.nextOccurrence)}',
+          prefs: prefs,
+        )) {
+          continue;
+        }
         final title = baseTx.title.isNotEmpty
             ? baseTx.title
             : 'Recurring Transaction';
@@ -270,10 +306,8 @@ class BackgroundTaskService {
               (config.id.hashCode % 400),
           title: 'Upcoming Recurring: $title',
           body:
-              // Amounts are stored in integer minor units. Formatting the raw
-              // value showed 12345 cents as "12345.00" instead of "123.45".
-              '${(baseTx.amount / 100).toStringAsFixed(2)} due on '
-              '${_formatDate(config.nextOccurrence)}.',
+              '${money(baseTx.amount, baseTx.walletId)} due on '
+              '${date(config.nextOccurrence)}.',
           channelId: BackgroundTaskConstants.recurringChannelId,
           channelName: BackgroundTaskConstants.recurringChannelName,
           channelDesc: BackgroundTaskConstants.recurringChannelDesc,
@@ -400,12 +434,26 @@ class BackgroundTaskService {
           ? DateTime.tryParse(dueDateStr) ?? DateTime.now()
           : DateTime.now();
 
+      // The hourly check reminds about the same item; whichever gets there
+      // first says it.
+      if (!await NotifiedOnce.claim(_dueKey(transactionId, dueDate))) {
+        return true;
+      }
+      final settings = await db.getSettings();
+      final wallet = (await db.getAllWallets())
+          .where((w) => w.id == tx.walletId)
+          .firstOrNull;
+      final shown = tx.amount.formatCurrency(
+        wallet?.currency ?? settings?.currency ?? 'USD',
+        numberFormat: settings?.numberFormat ?? 'comma_dot',
+      );
+
       await notifier.showNotificationWithActions(
         id:
             BackgroundTaskConstants.dueDateNotificationIdBase +
             (transactionId.hashCode % 500),
         title: notifTitle,
-        body: '${amount.toStringAsFixed(2)} is due soon. Tap to review.',
+        body: '$shown is due soon. Tap to review.',
         channelId: channelId,
         channelName: channelName,
         channelDesc: channelDesc,
@@ -514,7 +562,8 @@ class BackgroundTaskService {
     return '';
   }
 
-  static String _formatDate(DateTime date) {
-    return '${date.month}/${date.day}/${date.year}';
-  }
+  /// One reminder per item and due date, shared by the hourly check and the
+  /// one-off reminder job.
+  static String _dueKey(String transactionId, DateTime dueDate) =>
+      'due:$transactionId:${NotifiedOnce.day(dueDate)}';
 }

@@ -62,7 +62,8 @@ void main() {
       expect(
         await db.categoryForTitle('Tesco Petrol Station'),
         fuel,
-        reason: 'both rules match, and the longer one is the more deliberate '
+        reason:
+            'both rules match, and the longer one is the more deliberate '
             'statement of what the user meant',
       );
     });
@@ -98,7 +99,8 @@ void main() {
       expect(
         rules,
         hasLength(1),
-        reason: 'upserting on the title matched nothing once the title was '
+        reason:
+            'upserting on the title matched nothing once the title was '
             'what had changed, so the old rule stayed behind contradicting '
             'the new one and the edit looked like it had not saved',
       );

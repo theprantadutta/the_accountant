@@ -6587,6 +6587,30 @@ abstract class L10n {
   /// **'You may run short on {day}'**
   String forecastNotifTitle(String day);
 
+  /// No description provided for @settingsBillReminders.
+  ///
+  /// In en, this message translates to:
+  /// **'Bill and installment reminders'**
+  String get settingsBillReminders;
+
+  /// No description provided for @settingsBillRemindersSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Card bills due, and EMI or savings installments coming up'**
+  String get settingsBillRemindersSub;
+
+  /// No description provided for @forecastNotifNowTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You are short on money today'**
+  String get forecastNotifNowTitle;
+
+  /// No description provided for @forecastNotifNowBody.
+  ///
+  /// In en, this message translates to:
+  /// **'What is due now is {amount} more than your accounts hold. Tap to see what is coming up.'**
+  String forecastNotifNowBody(String amount);
+
   /// No description provided for @forecastNotifBody.
   ///
   /// In en, this message translates to:

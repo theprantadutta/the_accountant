@@ -42,7 +42,8 @@ void main() {
       expect(
         february.end,
         DateTime(2026, 2, 28),
-        reason: 'clamping is a fact about February, and belongs to this one '
+        reason:
+            'clamping is a fact about February, and belongs to this one '
             'window rather than to every window after it',
       );
     });
@@ -70,7 +71,8 @@ void main() {
       expect(
         march.start,
         DateTime(2026, 2, 28),
-        reason: 'retreating from the clamped 28 February gave 28 January, '
+        reason:
+            'retreating from the clamped 28 February gave 28 January, '
             'which is before the budget started, so the navigator refused to '
             'move at all',
       );

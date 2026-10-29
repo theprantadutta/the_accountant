@@ -82,8 +82,7 @@ class Plans extends Table {
   IntColumn get principal => integer().withDefault(const Constant(0))();
 
   /// Minor units, each installment. Zero for an FDR.
-  IntColumn get installmentAmount =>
-      integer().withDefault(const Constant(0))();
+  IntColumn get installmentAmount => integer().withDefault(const Constant(0))();
 
   /// How many installments (EMI, DPS, loan), or for an FDR how many periods
   /// it runs for.

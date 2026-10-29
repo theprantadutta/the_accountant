@@ -3634,6 +3634,21 @@ class L10nBn extends L10n {
   }
 
   @override
+  String get settingsBillReminders => 'বিল ও কিস্তির রিমাইন্ডার';
+
+  @override
+  String get settingsBillRemindersSub =>
+      'কার্ডের বিল, আর সামনের EMI বা সঞ্চয়ের কিস্তি';
+
+  @override
+  String get forecastNotifNowTitle => 'আজ আপনার টাকা কম পড়ছে';
+
+  @override
+  String forecastNotifNowBody(String amount) {
+    return 'এখন যা পরিশোধ বাকি তা আপনার অ্যাকাউন্টের চেয়ে $amount বেশি। সামনে কী আছে দেখতে ট্যাপ করুন।';
+  }
+
+  @override
   String forecastNotifBody(String amount) {
     return 'নির্ধারিত পেমেন্টের পর আপনার $amount কম পড়বে। সামনে কী আছে দেখতে ট্যাপ করুন।';
   }

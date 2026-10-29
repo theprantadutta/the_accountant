@@ -51,7 +51,8 @@ void main() {
       expect(
         await BudgetEngine(db).currencyFor(await viewOf(id)),
         'USD',
-        reason: 'the figure was typed under a dollar sign and has not been '
+        reason:
+            'the figure was typed under a dollar sign and has not been '
             'touched since; nothing about opening another account changes what '
             'it says',
       );
@@ -71,56 +72,62 @@ void main() {
       expect(await BudgetEngine(db).currencyFor(await viewOf(id)), 'USD');
     });
 
-    test('a budget with no stated currency falls back, as it always did', () async {
-      final euros = await seedWallet(db, name: 'Holiday', currency: 'EUR');
-      await db.setDefaultWallet(euros);
-      final id = await seedBudget(db, amount: 10000);
-      await db.customStatement('UPDATE budgets SET currency = NULL');
+    test(
+      'a budget with no stated currency falls back, as it always did',
+      () async {
+        final euros = await seedWallet(db, name: 'Holiday', currency: 'EUR');
+        await db.setDefaultWallet(euros);
+        final id = await seedBudget(db, amount: 10000);
+        await db.customStatement('UPDATE budgets SET currency = NULL');
 
-      expect(
-        await BudgetEngine(db).currencyFor(await viewOf(id)),
-        'EUR',
-        reason: 'a row from before the field, or from a server that predates '
-            'it, has to read as something',
-      );
-    });
+        expect(
+          await BudgetEngine(db).currencyFor(await viewOf(id)),
+          'EUR',
+          reason:
+              'a row from before the field, or from a server that predates '
+              'it, has to read as something',
+        );
+      },
+    );
 
-    test('spending is converted into the budget currency, not the display one',
-        () async {
-      final dollars = await seedWallet(db, name: 'Checking', currency: 'USD');
-      await db.setDefaultWallet(dollars);
-      final food = await seedCategory(db, name: 'Food');
-      final id = await seedBudget(
-        db,
-        amount: 100000,
-        currency: 'USD',
-        categoryIds: [food],
-        startDate: DateTime(2026),
-      );
-      await seedTransaction(
-        db,
-        walletId: dollars,
-        categoryId: food,
-        amount: 25000,
-        date: DateTime(2026, 1, 10),
-      );
+    test(
+      'spending is converted into the budget currency, not the display one',
+      () async {
+        final dollars = await seedWallet(db, name: 'Checking', currency: 'USD');
+        await db.setDefaultWallet(dollars);
+        final food = await seedCategory(db, name: 'Food');
+        final id = await seedBudget(
+          db,
+          amount: 100000,
+          currency: 'USD',
+          categoryIds: [food],
+          startDate: DateTime(2026),
+        );
+        await seedTransaction(
+          db,
+          walletId: dollars,
+          categoryId: food,
+          amount: 25000,
+          date: DateTime(2026, 1, 10),
+        );
 
-      // The default moves to euros; the budget's own currency should not.
-      final euros = await seedWallet(db, name: 'Holiday', currency: 'EUR');
-      await db.setDefaultWallet(euros);
-      await db.setCustomRate('USD', 'EUR', 0.8);
+        // The default moves to euros; the budget's own currency should not.
+        final euros = await seedWallet(db, name: 'Holiday', currency: 'EUR');
+        await db.setDefaultWallet(euros);
+        await db.setCustomRate('USD', 'EUR', 0.8);
 
-      final progress = await BudgetEngine(
-        db,
-      ).progressFor(await viewOf(id), moment: DateTime(2026, 1, 15));
+        final progress = await BudgetEngine(
+          db,
+        ).progressFor(await viewOf(id), moment: DateTime(2026, 1, 15));
 
-      expect(progress.currency, 'USD');
-      expect(
-        progress.spent,
-        25000,
-        reason: 'dollars against a dollar budget need no conversion at all',
-      );
-    });
+        expect(progress.currency, 'USD');
+        expect(
+          progress.spent,
+          25000,
+          reason: 'dollars against a dollar budget need no conversion at all',
+        );
+      },
+    );
   });
 
   test('a new budget records what the form labelled the field with', () async {
@@ -150,40 +157,52 @@ void main() {
   });
 
   group('the upgrade', () {
-    test('stamps existing budgets with what they were already read as', () async {
-      final dir = await Directory.systemTemp.createTemp('accountant-v24-');
-      final file = File('${dir.path}/legacy.sqlite');
+    test(
+      'stamps existing budgets with what they were already read as',
+      () async {
+        final dir = await Directory.systemTemp.createTemp('accountant-v24-');
+        final file = File('${dir.path}/legacy.sqlite');
 
-      final legacy = AppDatabase(NativeDatabase(file));
-      final dollars = await seedWallet(legacy, name: 'Checking', currency: 'USD');
-      await legacy.setDefaultWallet(dollars);
-      final id = await seedBudget(legacy, amount: 10000);
-      // Exactly the schema-24 shape: the column exists in this build, so it is
-      // emptied and the version wound back.
-      await legacy.customStatement('UPDATE budgets SET currency = NULL');
-      await legacy.customStatement('PRAGMA user_version = 24');
-      await legacy.close();
+        final legacy = AppDatabase(NativeDatabase(file));
+        final dollars = await seedWallet(
+          legacy,
+          name: 'Checking',
+          currency: 'USD',
+        );
+        await legacy.setDefaultWallet(dollars);
+        final id = await seedBudget(legacy, amount: 10000);
+        // Exactly the schema-24 shape: the column exists in this build, so it is
+        // emptied and the version wound back.
+        await legacy.customStatement('UPDATE budgets SET currency = NULL');
+        await legacy.customStatement('PRAGMA user_version = 24');
+        await legacy.close();
 
-      final upgraded = AppDatabase(NativeDatabase(file));
-      addTearDown(() async {
-        await upgraded.close();
-        if (await file.exists()) await file.delete();
-        await dir.delete();
-      });
+        final upgraded = AppDatabase(NativeDatabase(file));
+        addTearDown(() async {
+          await upgraded.close();
+          if (await file.exists()) await file.delete();
+          await dir.delete();
+        });
 
-      expect(
-        (await upgraded.findBudgetById(id))!.currency,
-        'USD',
-        reason: 'writing down what it was already being read as changes '
-            'nothing today and stops it drifting tomorrow',
-      );
+        expect(
+          (await upgraded.findBudgetById(id))!.currency,
+          'USD',
+          reason:
+              'writing down what it was already being read as changes '
+              'nothing today and stops it drifting tomorrow',
+        );
 
-      // And it holds when the default moves afterwards.
-      final euros = await seedWallet(upgraded, name: 'Holiday', currency: 'EUR');
-      await upgraded.setDefaultWallet(euros);
-      final view = BudgetView.fromRow((await upgraded.findBudgetById(id))!);
-      expect(await BudgetEngine(upgraded).currencyFor(view), 'USD');
-    });
+        // And it holds when the default moves afterwards.
+        final euros = await seedWallet(
+          upgraded,
+          name: 'Holiday',
+          currency: 'EUR',
+        );
+        await upgraded.setDefaultWallet(euros);
+        final view = BudgetView.fromRow((await upgraded.findBudgetById(id))!);
+        expect(await BudgetEngine(upgraded).currencyFor(view), 'USD');
+      },
+    );
 
     test('leaves it unstated when there are no accounts to read', () async {
       final dir = await Directory.systemTemp.createTemp('accountant-v24-bare-');
@@ -238,7 +257,8 @@ void main() {
     expect(
       await BudgetEngine(other).currencyFor(BudgetView.fromRow(pulled)),
       'USD',
-      reason: 'without it the other device reads the figure in whatever its '
+      reason:
+          'without it the other device reads the figure in whatever its '
           'own default account happens to be',
     );
   });

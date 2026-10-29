@@ -61,7 +61,8 @@ void main() {
       expect(
         resolveDisplayCurrency(await db.getAllWallets()),
         'EUR',
-        reason: 'the user has put that account away; reading their money in a '
+        reason:
+            'the user has put that account away; reading their money in a '
             'currency they have retired is not what a default is for',
       );
     });
@@ -100,7 +101,8 @@ void main() {
       expect(
         resolveDisplayCurrency(await db.select(db.wallets).get()),
         'EUR',
-        reason: 'a deleted account keeps its row and its flag so the deletion '
+        reason:
+            'a deleted account keeps its row and its flag so the deletion '
             'can be pushed; that is not the same as it still being the default',
       );
     });
@@ -133,7 +135,11 @@ void main() {
 
     test('it leaves an established choice alone', () async {
       final established = await seedWallet(db, name: 'Cash', currency: 'USD');
-      final stalePreference = await seedWallet(db, name: 'Bank', currency: 'EUR');
+      final stalePreference = await seedWallet(
+        db,
+        name: 'Bank',
+        currency: 'EUR',
+      );
       await db.customStatement(
         'UPDATE wallets SET is_default = 1 WHERE id = ?',
         [established],
@@ -145,7 +151,8 @@ void main() {
       expect(
         wallets.where((w) => w.isDefault).map((w) => w.id),
         [established],
-        reason: 'this is a migration, not an opinion. Reasserting the '
+        reason:
+            'this is a migration, not an opinion. Reasserting the '
             'preference on every read made it outrank the database — undoing '
             'a choice made in account management, and undoing another '
             "device's choice arriving through a pull",
@@ -178,7 +185,8 @@ void main() {
       expect(
         row.syncStatus,
         isNot(SyncStatus.synced),
-        reason: 'which account is the default is a choice, not a detail of '
+        reason:
+            'which account is the default is a choice, not a detail of '
             'this device',
       );
     });
@@ -227,7 +235,8 @@ void main() {
       expect(
         (await db.findWalletById(fallback))!.isDefault,
         isTrue,
-        reason: 'a still-live earlier choice is a better answer than whichever '
+        reason:
+            'a still-live earlier choice is a better answer than whichever '
             'account happens to be first',
       );
       expect((await db.findWalletById(archived))!.isDefault, isFalse);
@@ -250,7 +259,8 @@ void main() {
       expect(
         await db.displayCurrency(),
         'EUR',
-        reason: 'without it the resolver falls through to whichever account '
+        reason:
+            'without it the resolver falls through to whichever account '
             'happens to be first, which is not the saved choice',
       );
     });
@@ -259,7 +269,11 @@ void main() {
       final raced = _RacingDatabase();
       addTearDown(raced.close);
       await seedWallet(raced, name: 'Remaining', currency: 'USD');
-      final preference = await seedWallet(raced, name: 'Doomed', currency: 'EUR');
+      final preference = await seedWallet(
+        raced,
+        name: 'Doomed',
+        currency: 'EUR',
+      );
 
       raced.afterWalletSnapshot = () => raced.softDeleteWallet(preference);
       await raced.reconcileDefaultWallet(preference);
@@ -268,7 +282,8 @@ void main() {
       expect(
         row.isDefault,
         isFalse,
-        reason: 'eligibility has to be settled by the statement that writes, '
+        reason:
+            'eligibility has to be settled by the statement that writes, '
             'not by the read that preceded it',
       );
       expect(row.deletedAt, isNotNull);
@@ -319,7 +334,8 @@ void main() {
       expect(
         resolveDisplayCurrency(await db.getAllWallets()),
         'EUR',
-        reason: 'the choice has to reach what counts the money, not only what '
+        reason:
+            'the choice has to reach what counts the money, not only what '
             'displays it',
       );
     });
@@ -364,39 +380,44 @@ void main() {
     expect(
       await BudgetEngine(db).currencyFor(view),
       container.read(defaultCurrencyProvider),
-      reason: 'sharing a function does not make two answers agree when the two '
+      reason:
+          'sharing a function does not make two answers agree when the two '
           'callers cannot be given the same inputs',
     );
   });
 
-  test('the form and the engine agree after the default is merged away', () async {
-    final dollars = await seedWallet(db, name: 'Old', currency: 'USD');
-    final euros = await seedWallet(db, name: 'New', currency: 'EUR');
-    await db.setCustomRate('USD', 'EUR', 0.8);
+  test(
+    'the form and the engine agree after the default is merged away',
+    () async {
+      final dollars = await seedWallet(db, name: 'Old', currency: 'USD');
+      final euros = await seedWallet(db, name: 'New', currency: 'EUR');
+      await db.setCustomRate('USD', 'EUR', 0.8);
 
-    final container = ProviderContainer(
-      overrides: [
-        databaseProvider.overrideWithValue(db),
-        defaultWalletIdProvider.overrideWithValue(dollars),
-      ],
-    );
-    addTearDown(container.dispose);
-    await container.read(walletProvider.notifier).loadWallets();
+      final container = ProviderContainer(
+        overrides: [
+          databaseProvider.overrideWithValue(db),
+          defaultWalletIdProvider.overrideWithValue(dollars),
+        ],
+      );
+      addTearDown(container.dispose);
+      await container.read(walletProvider.notifier).loadWallets();
 
-    await WalletMaintenanceService(
-      db,
-    ).mergeInto(sourceId: dollars, destinationId: euros);
-    await container.read(walletProvider.notifier).loadWallets();
+      await WalletMaintenanceService(
+        db,
+      ).mergeInto(sourceId: dollars, destinationId: euros);
+      await container.read(walletProvider.notifier).loadWallets();
 
-    final budgetId = await seedBudget(db, amount: 10000);
-    final view = BudgetView.fromRow((await db.findBudgetById(budgetId))!);
+      final budgetId = await seedBudget(db, amount: 10000);
+      final view = BudgetView.fromRow((await db.findBudgetById(budgetId))!);
 
-    expect(
-      await BudgetEngine(db).currencyFor(view),
-      container.read(defaultCurrencyProvider),
-      reason: 'the form labels the amount with one and the engine reads it as '
-          'the other, so a hundred dollars became a hundred euros with nothing '
-          'on screen changing',
-    );
-  });
+      expect(
+        await BudgetEngine(db).currencyFor(view),
+        container.read(defaultCurrencyProvider),
+        reason:
+            'the form labels the amount with one and the engine reads it as '
+            'the other, so a hundred dollars became a hundred euros with nothing '
+            'on screen changing',
+      );
+    },
+  );
 }

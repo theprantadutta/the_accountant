@@ -62,7 +62,8 @@ class Wallets extends Table {
 
   // Credit card specific fields (integer minor units / cents)
   IntColumn get creditLimit => integer().nullable()();
-  IntColumn get billingCycleDay => integer().nullable()(); // 1-31, statement day
+  IntColumn get billingCycleDay =>
+      integer().nullable()(); // 1-31, statement day
 
   /// The day of the month a card's bill must be paid by, 1-31.
   ///
@@ -72,8 +73,7 @@ class Wallets extends Table {
   IntColumn get paymentDueDay => integer().nullable()();
 
   /// How many days before the due date to remind; 0 turns card reminders off.
-  IntColumn get dueReminderDays =>
-      integer().withDefault(const Constant(3))();
+  IntColumn get dueReminderDays => integer().withDefault(const Constant(3))();
 
   // Display ordering
   IntColumn get orderIndex => integer().withDefault(const Constant(0))();

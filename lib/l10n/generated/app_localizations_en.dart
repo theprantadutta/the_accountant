@@ -3675,6 +3675,21 @@ class L10nEn extends L10n {
   }
 
   @override
+  String get settingsBillReminders => 'Bill and installment reminders';
+
+  @override
+  String get settingsBillRemindersSub =>
+      'Card bills due, and EMI or savings installments coming up';
+
+  @override
+  String get forecastNotifNowTitle => 'You are short on money today';
+
+  @override
+  String forecastNotifNowBody(String amount) {
+    return 'What is due now is $amount more than your accounts hold. Tap to see what is coming up.';
+  }
+
+  @override
   String forecastNotifBody(String amount) {
     return 'Scheduled payments would leave you $amount short. Tap to see what is coming up.';
   }

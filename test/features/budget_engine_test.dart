@@ -84,10 +84,9 @@ void main() {
         date: DateTime(2026, 1, 10),
       );
 
-      final progress = await BudgetEngine(db).progressFor(
-        await budget(),
-        moment: DateTime(2026, 1, 15),
-      );
+      final progress = await BudgetEngine(
+        db,
+      ).progressFor(await budget(), moment: DateTime(2026, 1, 15));
 
       expect(progress.currency, 'USD');
       expect(
@@ -115,16 +114,16 @@ void main() {
         date: DateTime(2026, 1, 10),
       );
 
-      final progress = await BudgetEngine(db).progressFor(
-        await budget(),
-        moment: DateTime(2026, 1, 15),
-      );
+      final progress = await BudgetEngine(
+        db,
+      ).progressFor(await budget(), moment: DateTime(2026, 1, 15));
 
       expect(progress.spent, 25000);
       expect(
         progress.excluded,
         1,
-        reason: 'a budget that quietly drops half its spending reads as one '
+        reason:
+            'a budget that quietly drops half its spending reads as one '
             'being kept to',
       );
     });
@@ -156,22 +155,25 @@ void main() {
       expect(
         progress.spent,
         1000,
-        reason: 'a hundred thousand taka is a thousand dollars, and the limit '
+        reason:
+            'a hundred thousand taka is a thousand dollars, and the limit '
             'it is measured against is in dollars',
       );
     });
 
-    test('a budget spanning currencies falls back to the display one',
-        () async {
-      final taka = await seedWallet(db, name: 'bKash', currency: 'BDT');
+    test(
+      'a budget spanning currencies falls back to the display one',
+      () async {
+        final taka = await seedWallet(db, name: 'bKash', currency: 'BDT');
 
-      final progress = await BudgetEngine(db).progressFor(
-        await budget(walletIds: [walletId, taka]),
-        moment: DateTime(2026, 1, 15),
-      );
+        final progress = await BudgetEngine(db).progressFor(
+          await budget(walletIds: [walletId, taka]),
+          moment: DateTime(2026, 1, 15),
+        );
 
-      expect(progress.currency, 'USD');
-    });
+        expect(progress.currency, 'USD');
+      },
+    );
 
     /// The contract, stated once: a budget's amount is in the display currency.
     ///
@@ -185,7 +187,12 @@ void main() {
       // puts beside the amount field.
       final formCurrency = await db.displayCurrency();
 
-      for (final scope in [<String>[], [walletId], [taka], [walletId, taka]]) {
+      for (final scope in [
+        <String>[],
+        [walletId],
+        [taka],
+        [walletId, taka],
+      ]) {
         final progress = await BudgetEngine(db).progressFor(
           await budget(walletIds: scope),
           moment: DateTime(2026, 1, 15),
@@ -194,7 +201,8 @@ void main() {
         expect(
           progress.currency,
           formCurrency,
-          reason: 'whichever accounts the budget covers, the stored amount is '
+          reason:
+              'whichever accounts the budget covers, the stored amount is '
               'the one the user typed under that symbol — so changing the '
               'scope must not change what the number means',
         );
@@ -533,7 +541,8 @@ void main() {
       expect(
         progress.carriedIn,
         40000,
-        reason: 'forty closed days at 1000 each, all unspent — cutting the '
+        reason:
+            'forty closed days at 1000 each, all unspent — cutting the '
             'lookback at twenty-four would report 24000 and silently lose the '
             'rest',
       );
@@ -563,7 +572,8 @@ void main() {
       expect(
         progress.carriedIn,
         39000,
-        reason: 'the day was spent, so it left nothing over — a lookback that '
+        reason:
+            'the day was spent, so it left nothing over — a lookback that '
             'could not see it would credit the user for a day they used',
       );
     });
@@ -832,8 +842,7 @@ void main() {
       expect(
         forecast!.scheduled,
         120000,
-        reason:
-            'a dated bill that has not happened yet is knowable',
+        reason: 'a dated bill that has not happened yet is knowable',
       );
       expect(forecast.willExceed, isTrue);
     });

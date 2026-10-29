@@ -1791,6 +1791,11 @@
   "forecastHomeWarningBody": "See what is coming up",
   "forecastDismiss": "Dismiss",
   "forecastNotifTitle": "You may run short on {day}",
+  "settingsBillReminders": "Bill and installment reminders",
+  "settingsBillRemindersSub": "Card bills due, and EMI or savings installments coming up",
+  "forecastNotifNowTitle": "You are short on money today",
+  "forecastNotifNowBody": "What is due now is {amount} more than your accounts hold. Tap to see what is coming up.",
+  "@forecastNotifNowBody": {"placeholders": {"amount": {"type": "String"}}},
   "@forecastNotifTitle": {
     "placeholders": {
       "day": {

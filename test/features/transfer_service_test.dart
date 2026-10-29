@@ -247,36 +247,39 @@ void main() {
       );
     });
 
-    test('brings back both legs of a transfer, not just the one tapped', () async {
-      final (expenseId, incomeId) = await transfers.createTransfer(
-        sourceWalletId: sourceId,
-        destinationWalletId: destId,
-        amount: 7500,
-        date: DateTime(2026, 3, 1),
-      );
-      await transfers.deleteTransfer(expenseId);
+    test(
+      'brings back both legs of a transfer, not just the one tapped',
+      () async {
+        final (expenseId, incomeId) = await transfers.createTransfer(
+          sourceWalletId: sourceId,
+          destinationWalletId: destId,
+          amount: 7500,
+          date: DateTime(2026, 3, 1),
+        );
+        await transfers.deleteTransfer(expenseId);
 
-      // The user restores the incoming side; the outgoing side has to follow.
-      await transfers.restoreTransaction(incomeId);
+        // The user restores the incoming side; the outgoing side has to follow.
+        await transfers.restoreTransaction(incomeId);
 
-      expect((await db.findTransactionById(expenseId))!.deletedAt, isNull);
-      expect((await db.findTransactionById(incomeId))!.deletedAt, isNull);
+        expect((await db.findTransactionById(expenseId))!.deletedAt, isNull);
+        expect((await db.findTransactionById(incomeId))!.deletedAt, isNull);
 
-      final expense = await db.findTransactionById(expenseId);
-      final income = await db.findTransactionById(incomeId);
-      expect(
-        TransferIntegrity.validatePair(expense!, income),
-        isEmpty,
-        reason:
-            'one leg alone is money that left a wallet and arrived nowhere; '
-            'the server rejects it, so it could not sync either',
-      );
+        final expense = await db.findTransactionById(expenseId);
+        final income = await db.findTransactionById(incomeId);
+        expect(
+          TransferIntegrity.validatePair(expense!, income),
+          isEmpty,
+          reason:
+              'one leg alone is money that left a wallet and arrived nowhere; '
+              'the server rejects it, so it could not sync either',
+        );
 
-      expect(await balances.calculateWalletBalance(sourceId), 50000 - 7500);
-      expect(await balances.calculateWalletBalance(destId), 10000 + 7500);
-      expect((await db.findWalletById(sourceId))!.balance, 50000 - 7500);
-      expect((await db.findWalletById(destId))!.balance, 10000 + 7500);
-    });
+        expect(await balances.calculateWalletBalance(sourceId), 50000 - 7500);
+        expect(await balances.calculateWalletBalance(destId), 10000 + 7500);
+        expect((await db.findWalletById(sourceId))!.balance, 50000 - 7500);
+        expect((await db.findWalletById(destId))!.balance, 10000 + 7500);
+      },
+    );
 
     test('brings the fee back with the transfer that incurred it', () async {
       final (expenseId, _) = await transfers.createTransfer(
@@ -300,7 +303,10 @@ void main() {
             'the charge and the transfer were one action; leaving the fee '
             'deleted loses money the user really paid',
       );
-      expect(await balances.calculateWalletBalance(sourceId), 50000 - 7500 - 250);
+      expect(
+        await balances.calculateWalletBalance(sourceId),
+        50000 - 7500 - 250,
+      );
     });
 
     test('restoring an ordinary transaction is a group of one', () async {

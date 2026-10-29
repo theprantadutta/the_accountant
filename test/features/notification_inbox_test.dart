@@ -87,7 +87,10 @@ void main() {
 
     test('to the transaction a due reminder names', () {
       expect(
-        NotificationService.linkFor({'transactionId': 't1', 'type': 'upcoming'}),
+        NotificationService.linkFor({
+          'transactionId': 't1',
+          'type': 'upcoming',
+        }),
         const DeepLink(AppDestination.transactionDetail, entityId: 't1'),
       );
     });

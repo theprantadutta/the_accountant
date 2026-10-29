@@ -161,18 +161,21 @@ void main() {
       );
     });
 
-    test('an unpaid purchase is pending, which grants and finishes nothing', () {
-      expect(
-        classifyVerifyResponse(
-          threw: false,
-          body: {
-            'success': false,
-            'error': 'PURCHASE_PENDING: Payment has not completed',
-          },
-        ),
-        VerifyOutcome.pending,
-      );
-    });
+    test(
+      'an unpaid purchase is pending, which grants and finishes nothing',
+      () {
+        expect(
+          classifyVerifyResponse(
+            threw: false,
+            body: {
+              'success': false,
+              'error': 'PURCHASE_PENDING: Payment has not completed',
+            },
+          ),
+          VerifyOutcome.pending,
+        );
+      },
+    );
 
     test('a real refusal is still a refusal', () {
       // Nothing prefixed, so the backend is answering about the receipt.

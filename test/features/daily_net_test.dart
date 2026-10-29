@@ -96,14 +96,16 @@ void main() {
             .firstWhere((d) => d.day == DateTime(2026, 3, 2))
             .expenseCents,
         10000,
-        reason: 'adding an unconvertible amount as though it were dollars is '
+        reason:
+            'adding an unconvertible amount as though it were dollars is '
             'wrong by a factor of a hundred and looks exactly as settled as a '
             'correct figure',
       );
       expect(
         calendar.excluded,
         1,
-        reason: 'a calendar quietly missing a month of spending looks like a '
+        reason:
+            'a calendar quietly missing a month of spending looks like a '
             'quiet month',
       );
     });

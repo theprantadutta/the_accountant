@@ -5,6 +5,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:the_accountant/core/services/notified_once.dart';
 import 'package:the_accountant/core/domain/app_destination.dart';
 import 'package:the_accountant/core/services/fcm_registration_service.dart';
 import 'package:the_accountant/core/services/daily_reminder_scheduler.dart';
@@ -465,41 +466,31 @@ class NotificationService {
     _logger.i('Budget warning notification shown for $budgetName');
   }
 
-  // Local storage key for subscription expiry notification tracking
-  static const String _keyLastSubscriptionWarning =
-      'last_subscription_expiry_warning';
-
-  /// Check if subscription expiry notification should be shown (24-hour cooldown)
-  Future<bool> _shouldShowSubscriptionNotification() async {
-    final prefs = await SharedPreferences.getInstance();
-    final lastNotified = prefs.getString(_keyLastSubscriptionWarning);
-    if (lastNotified == null) return true;
-
-    final lastDate = DateTime.parse(lastNotified);
-    return DateTime.now().difference(lastDate).inHours >= 24;
-  }
-
-  /// Record that a subscription notification was shown
-  Future<void> _recordSubscriptionNotification() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(
-      _keyLastSubscriptionWarning,
-      DateTime.now().toIso8601String(),
-    );
-  }
-
-  Future<void> showSubscriptionAlertNotification(
-    String subscriptionName,
-  ) async {
-    // Check if we should show this notification (24-hour cooldown)
-    final shouldShow = await _shouldShowSubscriptionNotification();
-    if (!shouldShow) {
-      _logger.d('Subscription notification skipped (cooldown)');
+  /// Premium is about to run out: told a week before, three days before and
+  /// on the last day, once each.
+  ///
+  /// It used to be once every 24 hours for the whole last week, and its text
+  /// read "Your Premium subscription expires in 5 days subscription is due
+  /// soon".
+  Future<void> showSubscriptionAlertNotification(int daysRemaining) async {
+    final stage = daysRemaining <= 1
+        ? 1
+        : daysRemaining <= 3
+        ? 3
+        : 7;
+    final ends = DateTime.now().add(Duration(days: daysRemaining));
+    if (!await NotifiedOnce.claim(
+      'premium-ends:${NotifiedOnce.day(ends)}:$stage',
+    )) {
+      _logger.d('Subscription notification skipped (already told)');
       return;
     }
 
-    final title = 'Subscription Alert';
-    final body = 'Your $subscriptionName subscription is due soon.';
+    const title = 'Premium is ending soon';
+    final body = daysRemaining <= 1
+        ? 'Your Premium ends tomorrow. Renew to keep your Premium features.'
+        : 'Your Premium ends in $daysRemaining days. Renew to keep your '
+              'Premium features.';
 
     await _showLocalNotification(
       title,
@@ -509,9 +500,7 @@ class NotificationService {
       channel: NotificationChannels.general,
     );
 
-    // Record that we showed this notification
-    await _recordSubscriptionNotification();
-    _logger.i('Subscription expiry notification shown for $subscriptionName');
+    _logger.i('Subscription expiry notification shown ($daysRemaining days)');
   }
 
   Future<void> showLargeTransactionNotification(

@@ -115,13 +115,15 @@ void main() {
       expect(
         row.amount,
         9000,
-        reason: 'last-write-wins decided against this device, and a decision '
+        reason:
+            'last-write-wins decided against this device, and a decision '
             'the device refuses to accept is not a decision',
       );
       expect(
         row.syncStatus,
         SyncStatus.synced,
-        reason: 'a row left pending re-pushes the same losing version on every '
+        reason:
+            'a row left pending re-pushes the same losing version on every '
             'sync, for ever',
       );
     });
@@ -140,7 +142,8 @@ void main() {
       expect(
         (await db.findTransactionById(id))!.deletedAt,
         isNull,
-        reason: 'the tombstone coming back is the server answering the delete '
+        reason:
+            'the tombstone coming back is the server answering the delete '
             'this device sent, not an opinion about the restore that followed',
       );
       expect(server.isTombstoned(userId, 'transactions', id), isFalse);
@@ -171,10 +174,14 @@ void main() {
       expect(
         (await db.findWalletById(wallet))!.name,
         'Second edit',
-        reason: 'the protection was written for transactions only, so every '
+        reason:
+            'the protection was written for transactions only, so every '
             'other kind of row was still overwritten by its own returning copy',
       );
-      expect(server.recordData(userId, 'wallets', wallet)!['Name'], 'Second edit');
+      expect(
+        server.recordData(userId, 'wallets', wallet)!['Name'],
+        'Second edit',
+      );
     });
 
     test('an edit landing just before the acknowledgement is kept', () async {
@@ -190,13 +197,11 @@ void main() {
       expect(
         (await db.findTransactionById(id))!.amount,
         9900,
-        reason: 'comparing content and then writing unconditionally still left '
+        reason:
+            'comparing content and then writing unconditionally still left '
             'a gap; the compare and the write are one statement now',
       );
-      expect(
-        server.recordData(userId, 'transactions', id)!['Amount'],
-        9900,
-      );
+      expect(server.recordData(userId, 'transactions', id)!['Amount'], 9900);
     });
   });
 
@@ -230,7 +235,8 @@ void main() {
     expect(
       (await db.findTransactionById(id))!.amount,
       9900,
-      reason: 'the second edit was never offered to the server, so nothing has '
+      reason:
+          'the second edit was never offered to the server, so nothing has '
           'judged it yet',
     );
 
@@ -241,7 +247,8 @@ void main() {
     expect(
       row.amount,
       9000,
-      reason: 'once the held-back edit has been pushed and lost, the server '
+      reason:
+          'once the held-back edit has been pushed and lost, the server '
           'copy is the answer — and it is only reachable because the cursor '
           'did not move past it while the edit was being protected',
     );

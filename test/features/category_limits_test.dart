@@ -50,7 +50,8 @@ void main() {
     expect(
       custom.length,
       greaterThanOrEqualTo(25),
-      reason: 'the eleventh thing somebody spends money on is not worth '
+      reason:
+          'the eleventh thing somebody spends money on is not worth '
           'charging them to name',
     );
   });
@@ -68,15 +69,19 @@ void main() {
 
     await categories.updateCategory(id: created.id, name: 'Coffee shops');
     expect(
-      container.read(categoryProvider).categories.any(
-        (c) => c.name == 'Coffee shops',
-      ),
+      container
+          .read(categoryProvider)
+          .categories
+          .any((c) => c.name == 'Coffee shops'),
       isTrue,
     );
 
     await categories.deleteCategory(created.id);
     expect(
-      container.read(categoryProvider).categories.any((c) => c.id == created.id),
+      container
+          .read(categoryProvider)
+          .categories
+          .any((c) => c.id == created.id),
       isFalse,
     );
   });
@@ -94,7 +99,8 @@ void main() {
       expect(
         PremiumLimitException.getLimitForEntity(entity),
         PremiumLimitException.noLimit,
-        reason: 'a $entity describes money the user already has, not a feature of the app',
+        reason:
+            'a $entity describes money the user already has, not a feature of the app',
       );
     }
   });

@@ -114,7 +114,8 @@ void main() {
     expect(
       (await db.findTransactionById(id))!.syncStatus,
       SyncStatus.pendingCreate,
-      reason: 'the server has never heard of this row; it has to be told it '
+      reason:
+          'the server has never heard of this row; it has to be told it '
           'exists before it can be told anything else',
     );
   });
@@ -156,13 +157,11 @@ void main() {
       [SyncStatus.synced, id],
     );
 
-    Future<void> backdateDeletion(String id, Duration ago) => db.customStatement(
-      'UPDATE transactions SET deleted_at = ? WHERE id = ?',
-      [
-        DateTime.now().subtract(ago).millisecondsSinceEpoch ~/ 1000,
-        id,
-      ],
-    );
+    Future<void> backdateDeletion(String id, Duration ago) =>
+        db.customStatement(
+          'UPDATE transactions SET deleted_at = ? WHERE id = ?',
+          [DateTime.now().subtract(ago).millisecondsSinceEpoch ~/ 1000, id],
+        );
 
     test('leaves a tombstone still inside the window', () async {
       final id = await seedTransaction(

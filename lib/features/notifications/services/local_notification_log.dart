@@ -44,24 +44,39 @@ class LocalNotificationLog {
     );
   }
 
+  /// The same notice again within this long replaces the earlier row.
+  static const Duration _repeatWindow = Duration(hours: 24);
+
   /// Note a notification that was just shown.
+  ///
+  /// The tray shows a repeat in place of the first; the inbox used to add a
+  /// row for each, so one alert said twice read as two. An identical one in
+  /// the last day now takes the earlier one's place, at the top and unread.
   static Future<void> record({
     required NotificationType type,
     required String title,
     required String body,
+    DateTime? now,
   }) async {
     try {
-      final now = DateTime.now();
-      final items = await read();
+      final at = now ?? DateTime.now();
+      final items = [
+        for (final i in await read())
+          if (!(i.type == type &&
+              i.title == title &&
+              i.body == body &&
+              at.difference(i.createdAt) < _repeatWindow))
+            i,
+      ];
       await _write([
         NotificationItem(
-          id: 'local-${now.microsecondsSinceEpoch}',
+          id: 'local-${at.microsecondsSinceEpoch}',
           userId: '',
           type: type,
           title: title,
           body: body,
           status: NotificationStatus.sent,
-          createdAt: now,
+          createdAt: at,
           isLocal: true,
         ),
         ...items,

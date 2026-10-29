@@ -602,6 +602,39 @@ void main() {
       },
     );
 
+    test('short already: told once while it lasts, not each day', () async {
+      // Overdue, so the forecast puts it on today, every day it stays unpaid.
+      await unpaid(bank, 80000, DateTime(2030, 2, 20), title: 'Rent');
+
+      expect(await check(), isTrue);
+      expect(await check(DateTime(2030, 3, 2, 9)), isFalse);
+      expect(await check(DateTime(2030, 3, 3, 9)), isFalse);
+
+      expect(shown.single.title, 'You are short on money today');
+      expect(shown.single.body, contains('300.00'));
+    });
+
+    test('short again after recovering is told again', () async {
+      final rent = await unpaid(bank, 80000, DateTime(2030, 2, 20));
+      await check();
+      await (db.delete(db.transactions)..where((t) => t.id.equals(rent))).go();
+      expect(await check(DateTime(2030, 3, 2, 9)), isFalse);
+
+      await unpaid(bank, 90000, DateTime(2030, 3, 1));
+
+      expect(await check(DateTime(2030, 3, 3, 9)), isTrue);
+      expect(shown, hasLength(2));
+    });
+
+    test('a shortfall warned of ahead is not told again on its day', () async {
+      await unpaid(bank, 80000, DateTime(2030, 3, 4));
+      await check();
+
+      expect(await check(DateTime(2030, 3, 4, 9)), isFalse);
+      expect(await check(DateTime(2030, 3, 6, 9)), isFalse);
+      expect(shown, hasLength(1));
+    });
+
     test('not raised for a shortfall more than a week away', () async {
       await unpaid(bank, 80000, DateTime(2030, 3, 12));
 

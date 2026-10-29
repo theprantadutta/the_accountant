@@ -41,7 +41,8 @@ void main() {
     expect(
       fixture.existsSync(),
       isTrue,
-      reason: 'the backend runs the same file from contracts/push-contract.json',
+      reason:
+          'the backend runs the same file from contracts/push-contract.json',
     );
   });
 
@@ -70,9 +71,14 @@ void main() {
 
       // Set-up goes through the same push path, so the fixture needs no
       // separate seeding language and both runners establish state identically.
-      for (final given in (testCase['given'] as List).cast<Map<String, dynamic>>()) {
+      for (final given
+          in (testCase['given'] as List).cast<Map<String, dynamic>>()) {
         final setup = server.push(userId, [toChange(given)]);
-        expect(setup.conflicts, isEmpty, reason: '[$name] setup push conflicted');
+        expect(
+          setup.conflicts,
+          isEmpty,
+          reason: '[$name] setup push conflicted',
+        );
       }
 
       final push = testCase['push'] as Map<String, dynamic>;

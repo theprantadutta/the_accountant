@@ -22,12 +22,13 @@ void main() {
   test('no dispose() reaches for ref', () {
     final offenders = <String>[];
 
-    for (final file in Directory('lib')
-        .listSync(recursive: true)
-        .whereType<File>()
-        .where((f) => f.path.endsWith('.dart'))
-        // Generated code is not hand-written and not ours to police.
-        .where((f) => !f.path.endsWith('.g.dart'))) {
+    for (final file
+        in Directory('lib')
+            .listSync(recursive: true)
+            .whereType<File>()
+            .where((f) => f.path.endsWith('.dart'))
+            // Generated code is not hand-written and not ours to police.
+            .where((f) => !f.path.endsWith('.g.dart'))) {
       final lines = file.readAsLinesSync();
 
       var inDispose = false;
@@ -47,7 +48,8 @@ void main() {
         // `ref` alone on a line counts: the crash that prompted this was a
         // chained call written across four lines, which a search for `ref.`
         // would have walked straight past.
-        final usesRef = RegExp(r'(^|[^\w.])ref\s*$').hasMatch(line) ||
+        final usesRef =
+            RegExp(r'(^|[^\w.])ref\s*$').hasMatch(line) ||
             RegExp(r'(^|[^\w.])ref\s*\.').hasMatch(line);
         if (usesRef) {
           offenders.add('${file.path}:${i + 1}: ${line.trim()}');

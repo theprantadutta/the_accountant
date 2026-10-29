@@ -103,7 +103,8 @@ void main() {
       expect(
         typeChip('Transfer'),
         findsOneWidget,
-        reason: 'the service and the server both accept this pair; hiding it '
+        reason:
+            'the service and the server both accept this pair; hiding it '
             'made a supported feature unreachable',
       );
     });
@@ -129,7 +130,8 @@ void main() {
       expect(
         find.text('bKash (BDT)'),
         findsWidgets,
-        reason: 'a taka account is a perfectly good destination for dollars '
+        reason:
+            'a taka account is a perfectly good destination for dollars '
             'now, at a rate the transfer records',
       );
     });

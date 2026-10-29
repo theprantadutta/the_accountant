@@ -131,7 +131,8 @@ void main() {
       expect(
         into.amount,
         8000,
-        reason: 'a new amount has no recorded counterpart, so the rate has to '
+        reason:
+            'a new amount has no recorded counterpart, so the rate has to '
             'come from somewhere — today\'s is the only figure there is',
       );
     });
