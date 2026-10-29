@@ -4844,6 +4844,12 @@ class L10nBn extends L10n {
   String get summaryWrite => 'আমার সারাংশ লিখুন';
 
   @override
+  String get summaryOutdated => 'এই সারাংশ লেখার পর আপনার লেনদেন বদলেছে।';
+
+  @override
+  String get summaryUpdate => 'সারাংশ হালনাগাদ করুন';
+
+  @override
   String get summaryWriting => 'আপনার সারাংশ লেখা হচ্ছে…';
 
   @override

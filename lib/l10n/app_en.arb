@@ -2602,6 +2602,8 @@
   "summaryAiTitle": "Your month, in a nutshell",
   "summaryAiBody": "The AI reads your month against last month and picks out what stood out, with one thing to try.",
   "summaryWrite": "Write my summary",
+  "summaryOutdated": "Your transactions have changed since this summary was written.",
+  "summaryUpdate": "Update my summary",
   "summaryWriting": "Writing your summary…",
   "summaryByCategory": "By category",
   "summaryNoSpending": "No spending recorded this month yet.",

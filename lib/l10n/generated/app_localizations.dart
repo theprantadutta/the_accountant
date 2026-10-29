@@ -8680,6 +8680,18 @@ abstract class L10n {
   /// **'Write my summary'**
   String get summaryWrite;
 
+  /// No description provided for @summaryOutdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Your transactions have changed since this summary was written.'**
+  String get summaryOutdated;
+
+  /// No description provided for @summaryUpdate.
+  ///
+  /// In en, this message translates to:
+  /// **'Update my summary'**
+  String get summaryUpdate;
+
   /// No description provided for @summaryWriting.
   ///
   /// In en, this message translates to:

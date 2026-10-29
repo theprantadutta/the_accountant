@@ -4888,6 +4888,13 @@ class L10nEn extends L10n {
   String get summaryWrite => 'Write my summary';
 
   @override
+  String get summaryOutdated =>
+      'Your transactions have changed since this summary was written.';
+
+  @override
+  String get summaryUpdate => 'Update my summary';
+
+  @override
   String get summaryWriting => 'Writing your summary…';
 
   @override

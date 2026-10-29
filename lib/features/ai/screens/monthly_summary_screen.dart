@@ -7,6 +7,8 @@ import 'package:the_accountant/features/ads/reward_flow.dart';
 import 'package:the_accountant/features/ads/rewarded_ads.dart';
 import 'package:the_accountant/features/ai_assistant/providers/ai_quota_provider.dart';
 import 'package:the_accountant/features/ai_assistant/services/ai_api.dart';
+import 'package:the_accountant/data/datasources/local/database_provider.dart';
+import 'package:the_accountant/features/ai/services/monthly_review_cache.dart';
 import 'package:the_accountant/features/ai_assistant/services/finance_context_builder.dart';
 import 'package:the_accountant/features/premium/utils/paywall_utils.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
@@ -43,6 +45,13 @@ class MonthlySummaryScreen extends ConsumerStatefulWidget {
 class _MonthlySummaryScreenState extends ConsumerState<MonthlySummaryScreen> {
   Map<String, dynamic>? _snapshot;
   String? _review;
+
+  /// The saved review was written before the transactions last changed.
+  bool _outdated = false;
+
+  /// What the transactions look like now, to tell whether a saved review is
+  /// still current and to save a new one against.
+  String? _fingerprint;
   bool _writing = false;
   String? _error;
 
@@ -57,8 +66,22 @@ class _MonthlySummaryScreenState extends ConsumerState<MonthlySummaryScreen> {
     if (!mounted) return;
     // The review is written only when asked for. Writing it on every visit,
     // as it did for Premium, spent an AI call each time the screen was opened
-    // just to look at the totals.
-    setState(() => _snapshot = snapshot);
+    // just to look at the totals. One already written is shown again, and
+    // offered for updating only once the transactions have changed.
+    final fp = await MonthlyReviewCache.fingerprint(
+      ref.read(databaseProvider),
+      month: widget.month,
+      language: snapshot['language'] as String? ?? '',
+      currency: snapshot['currency'] as String? ?? '',
+    );
+    final saved = await MonthlyReviewCache.read(widget.month, fp);
+    if (!mounted) return;
+    setState(() {
+      _snapshot = snapshot;
+      _fingerprint = fp;
+      _review = saved?.text;
+      _outdated = saved != null && !saved.upToDate;
+    });
   }
 
   Future<void> _write() async {
@@ -76,7 +99,15 @@ class _MonthlySummaryScreenState extends ConsumerState<MonthlySummaryScreen> {
     });
     try {
       final text = await ref.read(aiApiProvider).monthlySummary(snapshot);
-      if (mounted) setState(() => _review = text);
+      if (_fingerprint != null) {
+        await MonthlyReviewCache.save(widget.month, _fingerprint!, text);
+      }
+      if (mounted) {
+        setState(() {
+          _review = text;
+          _outdated = false;
+        });
+      }
     } on AiException catch (e) {
       if (mounted) setState(() => _error = e.message);
     } finally {
@@ -102,6 +133,7 @@ class _MonthlySummaryScreenState extends ConsumerState<MonthlySummaryScreen> {
               const SizedBox(height: SunriseSpace.section),
               _ReviewCard(
                 review: _review,
+                outdated: _outdated,
                 writing: _writing,
                 error: _error,
                 onWrite: _write,
@@ -191,12 +223,14 @@ class _Totals extends StatelessWidget {
 class _ReviewCard extends ConsumerWidget {
   const _ReviewCard({
     required this.review,
+    required this.outdated,
     required this.writing,
     required this.error,
     required this.onWrite,
   });
 
   final String? review;
+  final bool outdated;
   final bool writing;
   final String? error;
   final VoidCallback onWrite;
@@ -242,16 +276,37 @@ class _ReviewCard extends ConsumerWidget {
                 ),
               ],
             )
-          else if (review != null)
-            MarkdownBody(
-              data: review!,
-              styleSheet: MarkdownStyleSheet(
-                p: base,
-                strong: base.copyWith(fontWeight: FontWeight.w600),
-                listBullet: base,
+          else if (review != null) ...[
+            Opacity(
+              opacity: outdated ? .6 : 1,
+              child: MarkdownBody(
+                data: review!,
+                styleSheet: MarkdownStyleSheet(
+                  p: base,
+                  strong: base.copyWith(fontWeight: FontWeight.w600),
+                  listBullet: base,
+                ),
               ),
-            )
-          else ...[
+            ),
+            // Nothing to write again until the transactions change.
+            if (outdated) ...[
+              const SizedBox(height: 12),
+              Text(
+                l10n.summaryOutdated,
+                style: SunriseType.caption.copyWith(color: c.muted),
+              ),
+              const SizedBox(height: 8),
+              SunriseButton.secondary(
+                key: const Key('summary_update'),
+                label: quota.hasCallsLeft ? l10n.summaryUpdate : l10n.adWatch,
+                icon: quota.hasCallsLeft
+                    ? Symbols.refresh_rounded
+                    : Symbols.play_circle_rounded,
+                height: 44,
+                onPressed: onWrite,
+              ),
+            ],
+          ] else ...[
             Text(
               error ?? l10n.summaryAiBody,
               style: SunriseType.body.copyWith(
