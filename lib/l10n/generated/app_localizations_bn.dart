@@ -2771,6 +2771,25 @@ class L10nBn extends L10n {
   }
 
   @override
+  String get statsPeriodLast7Days => 'গত ৭ দিন';
+
+  @override
+  String get statsPeriodThisMonth => 'এই মাস';
+
+  @override
+  String get statsPeriodThisYear => 'এই বছর';
+
+  @override
+  String statsCategoryCount(String period, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countটি লেনদেন',
+    );
+    return '$period · $_temp0';
+  }
+
+  @override
   String activitySearchNothingTitle(String query) {
     return '“$query” এর সাথে কিছু মেলেনি';
   }

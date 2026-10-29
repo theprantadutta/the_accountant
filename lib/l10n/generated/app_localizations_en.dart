@@ -2794,6 +2794,26 @@ class L10nEn extends L10n {
   }
 
   @override
+  String get statsPeriodLast7Days => 'Last 7 days';
+
+  @override
+  String get statsPeriodThisMonth => 'This month';
+
+  @override
+  String get statsPeriodThisYear => 'This year';
+
+  @override
+  String statsCategoryCount(String period, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count transactions',
+      one: '1 transaction',
+    );
+    return '$period · $_temp0';
+  }
+
+  @override
   String activitySearchNothingTitle(String query) {
     return 'Nothing matches “$query”';
   }

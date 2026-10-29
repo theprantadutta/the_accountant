@@ -5069,6 +5069,30 @@ abstract class L10n {
   /// **'{count, plural, =1{1 match across all months} other{{count} matches across all months}}'**
   String activitySearchFound(int count);
 
+  /// No description provided for @statsPeriodLast7Days.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 7 days'**
+  String get statsPeriodLast7Days;
+
+  /// No description provided for @statsPeriodThisMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'This month'**
+  String get statsPeriodThisMonth;
+
+  /// No description provided for @statsPeriodThisYear.
+  ///
+  /// In en, this message translates to:
+  /// **'This year'**
+  String get statsPeriodThisYear;
+
+  /// No description provided for @statsCategoryCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{period} · {count, plural, =1{1 transaction} other{{count} transactions}}'**
+  String statsCategoryCount(String period, int count);
+
   /// No description provided for @activitySearchNothingTitle.
   ///
   /// In en, this message translates to:

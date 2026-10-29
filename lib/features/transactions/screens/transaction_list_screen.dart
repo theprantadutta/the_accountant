@@ -26,6 +26,9 @@ class TransactionListScreen extends ConsumerStatefulWidget {
     super.key,
     this.standalone = false,
     this.initialFilters,
+    this.title,
+    this.allMonths = false,
+    this.allMonthsLabel,
   });
 
   /// Whether this screen is pushed as its own route rather than shown inside
@@ -40,6 +43,16 @@ class TransactionListScreen extends ConsumerStatefulWidget {
   /// What the list starts narrowed by, such as one category opened from
   /// Stats. The user can change or clear it like any other filter.
   final TransactionFilters? initialFilters;
+
+  /// The heading, in place of "Transactions", such as a category's name.
+  final String? title;
+
+  /// One list across every month instead of a page per month, for "every
+  /// transaction in this category this year" opened from Stats.
+  final bool allMonths;
+
+  /// What the totals card says above that list, given how many rows it has.
+  final String Function(int count)? allMonthsLabel;
 
   @override
   ConsumerState<TransactionListScreen> createState() =>
@@ -221,7 +234,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
   /// A search looks through every month. Someone looking for one payment
   /// rarely knows which month it fell in, and finding it should not mean
   /// paging back through the year.
-  bool get _searching => _searchQuery.trim().isNotEmpty;
+  bool get _searching => _searchQuery.trim().isNotEmpty || widget.allMonths;
 
   /// The rows shown for [month], or for every month when it is null.
   List<Transaction> _filterTransactionsForMonth(
@@ -691,7 +704,9 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
         child: _PinnedSummary(
           child: _MonthSummary(
             label: month == null
-                ? l10n.activitySearchFound(filteredTransactions.length)
+                ? (_searchQuery.trim().isEmpty && widget.allMonthsLabel != null
+                      ? widget.allMonthsLabel!(filteredTransactions.length)
+                      : l10n.activitySearchFound(filteredTransactions.length))
                 : DateUtils.isSameMonth(month, DateTime.now())
                 ? l10n.activitySoFar(DateFormat('MMMM', locale).format(month))
                 : DateFormat('MMMM yyyy', locale).format(month),
@@ -857,7 +872,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                         ],
                         Expanded(
                           child: Text(
-                            l10n.navTransactions,
+                            widget.title ?? l10n.navTransactions,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: SunriseType.largeTitle.copyWith(

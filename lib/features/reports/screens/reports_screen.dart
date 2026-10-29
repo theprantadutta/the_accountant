@@ -503,6 +503,44 @@ class _InsightsCard extends StatelessWidget {
   }
 }
 
+/// Every transaction in a category over the period Stats is showing, in one
+/// list: the tile says what was spent there, and this is where it went.
+void openCategoryTransactions(
+  BuildContext context,
+  WidgetRef ref, {
+  required String categoryId,
+  required String name,
+}) {
+  final l10n = L10n.of(context);
+  final now = DateTime.now();
+  // The same windows the report is worked out over.
+  final (DateTime from, String period) = switch (ref.read(
+    statsPeriodProvider,
+  )) {
+    1 => (DateTime(now.year, now.month), l10n.statsPeriodThisMonth),
+    2 => (DateTime(now.year), l10n.statsPeriodThisYear),
+    _ => (
+      DateTime(now.year, now.month, now.day - 6),
+      l10n.statsPeriodLast7Days,
+    ),
+  };
+  Navigator.of(context).push(
+    MaterialPageRoute(
+      builder: (_) => TransactionListScreen(
+        standalone: true,
+        allMonths: true,
+        title: name,
+        allMonthsLabel: (n) => l10n.statsCategoryCount(period, n),
+        initialFilters: TransactionFilters(
+          categoryIds: {categoryId},
+          from: from,
+          to: DateTime(now.year, now.month, now.day, 23, 59, 59),
+        ),
+      ),
+    ),
+  );
+}
+
 /// Categories as a two-column grid of cards.
 class _CategoryGrid extends ConsumerWidget {
   const _CategoryGrid();
@@ -573,15 +611,11 @@ class _CategoryGrid extends ConsumerWidget {
                       child: Pressable(
                         key: ValueKey('stats_category_${d.categoryId}'),
                         semanticLabel: nameFor(d),
-                        onTap: () => Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => TransactionListScreen(
-                              standalone: true,
-                              initialFilters: TransactionFilters(
-                                categoryIds: {d.categoryId},
-                              ),
-                            ),
-                          ),
+                        onTap: () => openCategoryTransactions(
+                          context,
+                          ref,
+                          categoryId: d.categoryId,
+                          name: nameFor(d),
                         ),
                         child: SunriseCard(
                           padding: const EdgeInsets.all(16),
