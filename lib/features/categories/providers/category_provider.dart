@@ -305,10 +305,19 @@ class CategoryNotifier extends StateNotifier<CategoryState> {
     state = state.copyWith(isLoading: true);
 
     try {
-      // Check if this is a default category
+      // The app's own are never deleted, and nothing that still holds
+      // transactions is: they would be left pointing at a category that is
+      // gone. They are moved, or deleted, first; the screen offers both.
       final category = state.categories.firstWhere((c) => c.id == id);
-      if (category.isDefault) {
-        throw Exception('Cannot delete default categories');
+      if (category.isSystem) {
+        throw Exception('Cannot delete the app\'s own categories');
+      }
+      final held = (await _db.liveTransactionCountsByCategory())[id] ?? 0;
+      if (held > 0) {
+        throw Exception(
+          'Cannot delete a category with transactions; move or delete them '
+          'first',
+        );
       }
 
       await _db.softDeleteCategory(id);
@@ -318,7 +327,7 @@ class CategoryNotifier extends StateNotifier<CategoryState> {
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: e.toString().contains('default')
+        errorMessage: e.toString().contains('Cannot delete')
             ? e.toString()
             : 'Failed to delete category',
       );

@@ -296,7 +296,13 @@ class CategoryManagementScreen extends ConsumerWidget {
       l10n.catTransactionCount(count),
     ].join(' · ');
 
-    final editable = !category.isDefault && !category.isArchived;
+    // A built-in can be changed, or removed, while nothing is filed under it;
+    // once it holds transactions it stays as it is, so their history does not
+    // quietly change name. The app's own (Transfer, Balance Correction) never.
+    final editable =
+        !category.isArchived &&
+        !category.isSystem &&
+        (!category.isDefault || count == 0);
     final actions = <category_list_item.CategoryAction>[
       if (category.isSystem) ...[
         // Transfer and Balance Correction are the app's own bookkeeping.
@@ -376,6 +382,7 @@ class CategoryManagementScreen extends ConsumerWidget {
         iconName: category.iconName,
       ),
       subtitle: subtitle,
+      locked: !editable && !category.isArchived,
       depth: depth,
       isArchived: category.isArchived,
       childCount: onToggle == null ? 0 : children,

@@ -2842,10 +2842,25 @@ class AppDatabase extends _$AppDatabase {
   ) async {
     final now = DateTime.now();
     final existingKeys = await liveDefaultKeys();
+    // A built-in the user deleted stays deleted: seeding again on an offline
+    // start brought it back. The app's own are always put back; they are
+    // needed for transfers and corrections.
+    final deletedKeys = {
+      for (final c
+          in await (select(categories)..where(
+                (c) => c.deletedAt.isNotNull() & c.defaultKey.isNotNull(),
+              ))
+              .get())
+        c.defaultKey!,
+    };
     final inserted = <String>[];
 
     for (final spec in specs) {
       if (existingKeys.contains(spec.key)) continue;
+      if (deletedKeys.contains(spec.key) &&
+          !SystemCategoryKeys.all.contains(spec.key)) {
+        continue;
+      }
       await into(categories).insert(
         CategoriesCompanion(
           id: Value(const Uuid().v4()),

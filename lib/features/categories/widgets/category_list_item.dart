@@ -35,6 +35,10 @@ class CategoryListItem extends StatelessWidget {
 
   /// How far down the tree it sits: 0 for a top-level category.
   final int depth;
+
+  /// Cannot be edited or deleted: the app's own, or a built-in that holds
+  /// transactions. Shown with a lock.
+  final bool locked;
   final bool isArchived;
 
   /// What tapping the row does; usually edit. Null makes it inert.
@@ -51,6 +55,7 @@ class CategoryListItem extends StatelessWidget {
     required this.category,
     this.subtitle,
     this.depth = 0,
+    this.locked = false,
     this.isArchived = false,
     this.onTap,
     this.actions = const [],
@@ -112,7 +117,7 @@ class CategoryListItem extends StatelessWidget {
               ],
             ),
           ),
-          if (category.isDefault && !isArchived)
+          if (locked)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 4),
               child: Icon(Symbols.lock_rounded, size: 16, color: c.faint),
