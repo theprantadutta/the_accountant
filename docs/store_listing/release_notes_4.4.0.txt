@@ -1,0 +1,100 @@
+<en-US>
+• Privacy mode: hide your balances with one tap
+• 8 new languages: Hindi, German, French, Portuguese, Malay, Persian, Swahili, Amharic
+• Redesigned Credit & Debt; loans no longer show as overdue without a due date
+• Tap a category in Stats to see all its transactions
+• Categories open by parent with expandable sub-categories
+• Optional floating mic for voice entry
+• Spending insights run only when you ask
+• Far fewer repeated notifications, plus many fixes
+</en-US>
+<bn-BD>
+• প্রাইভেসি মোড: এক ট্যাপে ব্যালেন্স লুকিয়ে রাখুন
+• ৮টি নতুন ভাষা: হিন্দি, জার্মান, ফরাসি, পর্তুগিজ, মালয়, ফারসি, সোয়াহিলি, আমহারিক
+• নতুন ডিজাইনের ধার ও দেনা; নির্ধারিত তারিখ না থাকলে ধার আর বকেয়া দেখায় না
+• Stats-এ ক্যাটাগরিতে ট্যাপ করে তার সব লেনদেন দেখুন
+• মূল ক্যাটাগরি আগে, সাব-ক্যাটাগরি খুলে দেখা যায়
+• ভয়েস এন্ট্রির জন্য ঐচ্ছিক ভাসমান মাইক
+• খরচের ইনসাইট শুধু চাইলে তৈরি হয়
+• বারবার নোটিফিকেশন অনেক কমেছে, সাথে অনেক সংশোধন
+</bn-BD>
+<hi-IN>
+• प्राइवेसी मोड: एक टैप में अपना बैलेंस छिपाएं
+• 8 नई भाषाएं: हिंदी, जर्मन, फ़्रेंच, पुर्तगाली, मलय, फ़ारसी, स्वाहिली, अम्हारिक
+• उधार और कर्ज़ का नया डिज़ाइन; बिना नियत तारीख वाला उधार अब बकाया नहीं दिखता
+• Stats में किसी कैटेगरी पर टैप करके उसके सारे लेन-देन देखें
+• मुख्य कैटेगरी पहले, सब-कैटेगरी खोलकर देखें
+• वॉइस एंट्री के लिए वैकल्पिक फ़्लोटिंग माइक
+• खर्च की इनसाइट्स सिर्फ़ आपके कहने पर
+• बार-बार आने वाली सूचनाएं बहुत कम, और कई सुधार
+</hi-IN>
+<de-DE>
+• Privatmodus: Salden mit einem Tipp ausblenden
+• 8 neue Sprachen: Hindi, Deutsch, Französisch, Portugiesisch, Malaiisch, Persisch, Swahili, Amharisch
+• Kredite & Schulden neu gestaltet; ohne Fälligkeitsdatum nicht mehr überfällig
+• Tippe in Statistiken auf eine Kategorie, um alle Buchungen zu sehen
+• Kategorien nach Hauptkategorie mit aufklappbaren Unterkategorien
+• Optionales schwebendes Mikrofon für die Spracheingabe
+• Ausgaben-Einblicke nur noch auf Wunsch
+• Deutlich weniger doppelte Benachrichtigungen und viele Fehlerbehebungen
+</de-DE>
+<fr-FR>
+• Mode privé : masquez vos soldes d'un geste
+• 8 nouvelles langues : hindi, allemand, français, portugais, malais, persan, swahili, amharique
+• Prêts et dettes repensés ; sans échéance, un prêt n'apparaît plus en retard
+• Touchez une catégorie dans Stats pour voir toutes ses transactions
+• Catégories par parent, avec sous-catégories dépliables
+• Micro flottant facultatif pour la saisie vocale
+• L'analyse des dépenses ne se lance que sur demande
+• Beaucoup moins de notifications répétées, et de nombreuses corrections
+</fr-FR>
+<pt-PT>
+• Modo privado: oculte os seus saldos com um toque
+• 8 novos idiomas: hindi, alemão, francês, português, malaio, persa, suaíli, amárico
+• Créditos e dívidas redesenhados; sem data de vencimento, deixam de aparecer em atraso
+• Toque numa categoria nas Estatísticas para ver todas as transações
+• Categorias por categoria principal, com subcategorias expansíveis
+• Microfone flutuante opcional para entrada por voz
+• A análise de despesas só corre quando pedir
+• Muito menos notificações repetidas e várias correções
+</pt-PT>
+<ms>
+• Mod privasi: sembunyikan baki anda dengan satu ketikan
+• 8 bahasa baharu: Hindi, Jerman, Perancis, Portugis, Melayu, Parsi, Swahili, Amharik
+• Kredit & Hutang direka semula; pinjaman tanpa tarikh akhir tidak lagi tertunggak
+• Ketik kategori dalam Statistik untuk melihat semua transaksinya
+• Kategori mengikut induk dengan subkategori yang boleh dikembangkan
+• Mikrofon terapung pilihan untuk input suara
+• Pandangan perbelanjaan hanya dijana apabila diminta
+• Pemberitahuan berulang jauh berkurang, serta banyak pembaikan
+</ms>
+<fa-IR>
+• حالت حریم خصوصی: موجودی‌ها را با یک لمس پنهان کنید
+• ۸ زبان جدید: هندی، آلمانی، فرانسوی، پرتغالی، مالایی، فارسی، سواحیلی، امهری
+• طراحی تازه طلب و بدهی؛ قرض بدون سررسید دیگر معوق نشان داده نمی‌شود
+• در آمار روی هر دسته بزنید تا همه تراکنش‌هایش را ببینید
+• دسته‌های اصلی اول، با زیردسته‌های بازشونده
+• میکروفون شناور اختیاری برای ورود صوتی
+• تحلیل هزینه‌ها فقط وقتی بخواهید اجرا می‌شود
+• اعلان‌های تکراری بسیار کمتر و رفع اشکالات فراوان
+</fa-IR>
+<sw>
+• Hali ya faragha: ficha salio lako kwa mguso mmoja
+• Lugha 8 mpya: Kihindi, Kijerumani, Kifaransa, Kireno, Kimalei, Kiajemi, Kiswahili, Kiamhari
+• Mikopo na Madeni imeundwa upya; mkopo bila tarehe ya mwisho hauonekani tena kuchelewa
+• Gusa kategoria kwenye Takwimu kuona miamala yake yote
+• Kategoria kuu kwanza, na kategoria ndogo zinazofunguka
+• Maikrofoni ya hiari inayoelea kwa kuingiza kwa sauti
+• Maarifa ya matumizi huendeshwa tu unapoomba
+• Arifa zinazojirudia zimepungua sana, pamoja na marekebisho mengi
+</sw>
+<am>
+• የግላዊነት ሁነታ፦ ቀሪ ሂሳብዎን በአንድ ንክኪ ይደብቁ
+• 8 አዳዲስ ቋንቋዎች፦ ሂንዲ፣ ጀርመንኛ፣ ፈረንሳይኛ፣ ፖርቱጋልኛ፣ ማላይ፣ ፋርስኛ፣ ስዋሂሊ፣ አማርኛ
+• እንደገና የተነደፈ ብድርና ዕዳ፤ የመክፈያ ቀን የሌለው ብድር ከእንግዲህ ያለፈበት አይመስልም
+• በስታቲስቲክስ ውስጥ ምድብ ይንኩ፣ ሁሉንም ግብይቶቹን ይመልከቱ
+• ዋና ምድቦች መጀመሪያ፣ ንዑስ ምድቦች ሊዘረጉ ይችላሉ
+• ለድምፅ ግቤት አማራጭ ተንሳፋፊ ማይክሮፎን
+• የወጪ ግንዛቤዎች የሚሠሩት ሲጠይቁ ብቻ ነው
+• ተደጋጋሚ ማሳወቂያዎች በእጅጉ ቀንሰዋል፣ ብዙ ማስተካከያዎችም ተደርገዋል
+</am>
