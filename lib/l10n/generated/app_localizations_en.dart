@@ -1385,6 +1385,9 @@ class L10nEn extends L10n {
   String get catAddSubcategory => 'Add subcategory';
 
   @override
+  String get catNoSubcategoriesYet => 'No subcategories yet. Add one';
+
+  @override
   String get catMoveTo => 'Move to…';
 
   @override

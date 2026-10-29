@@ -81,4 +81,14 @@ void main() {
     expect(find.text('Eating out'), findsNothing);
     expect(find.text('Coffee'), findsNothing);
   });
+
+  testWidgets('one with none yet opens onto a way to add one', (tester) async {
+    final bills = await seedCategory(db, name: 'Bills');
+    await pump(tester);
+
+    await open(tester, bills);
+
+    expect(find.byKey(Key('category_add_sub_$bills')), findsOneWidget);
+    expect(find.text('No subcategories yet. Add one'), findsOneWidget);
+  });
 }

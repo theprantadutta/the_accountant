@@ -556,6 +556,7 @@
     }
   },
   "catAddSubcategory": "Add subcategory",
+  "catNoSubcategoriesYet": "No subcategories yet. Add one",
   "catMoveTo": "Move to…",
   "catMoveToTitle": "Move {name} to",
   "@catMoveToTitle": {

@@ -2639,6 +2639,12 @@ abstract class L10n {
   /// **'Add subcategory'**
   String get catAddSubcategory;
 
+  /// No description provided for @catNoSubcategoriesYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No subcategories yet. Add one'**
+  String get catNoSubcategoriesYet;
+
   /// No description provided for @catMoveTo.
   ///
   /// In en, this message translates to:

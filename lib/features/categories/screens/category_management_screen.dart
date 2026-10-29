@@ -13,6 +13,7 @@ import 'package:the_accountant/features/categories/widgets/category_list_item.da
 import 'package:the_accountant/features/transactions/providers/transaction_provider.dart';
 import 'package:the_accountant/shared/widgets/shimmer_loading.dart';
 import 'package:the_accountant/core/providers/data_reload.dart';
+import 'package:the_accountant/core/utils/color_utils.dart';
 import 'package:the_accountant/core/utils/icon_registry.dart';
 
 typedef _Category = category_provider.Category;
@@ -177,6 +178,11 @@ class CategoryManagementScreen extends ConsumerWidget {
               !path.contains(c.id),
         )
         .toList();
+    // A top-level category can hold subcategories even before it has any, so
+    // it always opens: onto what it holds, and a way to add one. A tap that
+    // did nothing on a category with none read as the screen being broken.
+    final canHold = depth == 0 && !category.isSystem && !category.isArchived;
+    final expandable = kids.isNotEmpty || canHold;
     final open = ref.watch(_expandedProvider).contains(category.id);
     void toggle() {
       final now = {...ref.read(_expandedProvider)};
@@ -196,15 +202,16 @@ class CategoryManagementScreen extends ConsumerWidget {
           counts,
           depth: depth,
           expanded: open,
-          onToggle: kids.isEmpty ? null : toggle,
+          onToggle: expandable ? toggle : null,
         ),
         AnimatedSize(
           duration: const Duration(milliseconds: 240),
           curve: Curves.easeOutCubic,
           alignment: Alignment.topCenter,
-          child: open && kids.isNotEmpty
-              ? Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
+          child: open && expandable
+              ? _Opened(
+                  depth: depth,
+                  color: ColorUtils.hexToColor(category.colorCode),
                   children: [
                     for (final k in kids)
                       _branch(
@@ -216,6 +223,13 @@ class CategoryManagementScreen extends ConsumerWidget {
                         counts,
                         depth: depth + 1,
                         path: {...path, category.id},
+                      ),
+                    if (canHold)
+                      _AddSubRow(
+                        key: Key('category_add_sub_${category.id}'),
+                        depth: depth + 1,
+                        empty: kids.isEmpty,
+                        onTap: () => _openForm(context, parentId: category.id),
                       ),
                   ],
                 )
@@ -782,6 +796,94 @@ class _CategorySearchBarState extends ConsumerState<_CategorySearchBar> {
           _controller.clear();
           ref.read(_categoryQueryProvider.notifier).state = '';
         },
+      ),
+    );
+  }
+}
+
+/// What a category holds, opened beneath it, with a line down from it so the
+/// subcategories read as coming out of their parent.
+class _Opened extends StatelessWidget {
+  const _Opened({
+    required this.depth,
+    required this.color,
+    required this.children,
+  });
+
+  final int depth;
+  final Color color;
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) => Stack(
+    children: [
+      PositionedDirectional(
+        start: SunriseSpace.screenX + 24.0 * depth + 19,
+        top: 0,
+        bottom: 14,
+        child: Container(
+          width: 2,
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: .35),
+            borderRadius: BorderRadius.circular(1),
+          ),
+        ),
+      ),
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: children,
+      ),
+    ],
+  );
+}
+
+/// The last line of an opened category: add a subcategory to it, saying so
+/// plainly when it has none yet.
+class _AddSubRow extends StatelessWidget {
+  const _AddSubRow({
+    super.key,
+    required this.depth,
+    required this.empty,
+    required this.onTap,
+  });
+
+  final int depth;
+  final bool empty;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
+    final c = context.sunrise;
+    return Padding(
+      padding: EdgeInsetsDirectional.fromSTEB(
+        SunriseSpace.screenX + 24.0 * depth,
+        3,
+        SunriseSpace.screenX,
+        8,
+      ),
+      child: Pressable(
+        onTap: onTap,
+        semanticLabel: l10n.catAddSubcategory,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: c.divider),
+          ),
+          child: Row(
+            children: [
+              Icon(Symbols.add_rounded, size: 20, color: c.accentText),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  empty ? l10n.catNoSubcategoriesYet : l10n.catAddSubcategory,
+                  style: SunriseType.label.copyWith(color: c.accentText),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

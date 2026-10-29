@@ -117,7 +117,7 @@ class CategoryListItem extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 4),
               child: Icon(Symbols.lock_rounded, size: 16, color: c.faint),
             ),
-          if (childCount > 0 && onToggle != null)
+          if (onToggle != null)
             _ExpandChevron(
               key: Key('category_expand_${category.id}'),
               count: childCount,
@@ -198,13 +198,14 @@ class _ExpandChevron extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                '$count',
-                style: SunriseType.label.copyWith(
-                  color: c.ink,
-                  fontWeight: FontWeight.w600,
+              if (count > 0)
+                Text(
+                  '$count',
+                  style: SunriseType.label.copyWith(
+                    color: c.ink,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
-              ),
               AnimatedRotation(
                 turns: expanded ? .5 : 0,
                 duration: const Duration(milliseconds: 220),

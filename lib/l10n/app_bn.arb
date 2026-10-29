@@ -423,6 +423,7 @@
   "catTransactionCount": "{count, plural, =0{কোনো লেনদেন নেই} =1{১টি লেনদেন} other{{count}টি লেনদেন}}",
   "catInParent": "{name} এর ভেতরে",
   "catAddSubcategory": "সাব-ক্যাটাগরি যোগ করুন",
+  "catNoSubcategoriesYet": "এখনো কোনো সাব-ক্যাটাগরি নেই। একটি যোগ করুন",
   "catMoveTo": "অন্য জায়গায় সরান…",
   "catMoveToTitle": "{name} কোথায় সরাবেন",
   "catTopLevel": "মূল তালিকায়",

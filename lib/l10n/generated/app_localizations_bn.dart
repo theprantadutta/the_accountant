@@ -1380,6 +1380,10 @@ class L10nBn extends L10n {
   String get catAddSubcategory => 'সাব-ক্যাটাগরি যোগ করুন';
 
   @override
+  String get catNoSubcategoriesYet =>
+      'এখনো কোনো সাব-ক্যাটাগরি নেই। একটি যোগ করুন';
+
+  @override
   String get catMoveTo => 'অন্য জায়গায় সরান…';
 
   @override
