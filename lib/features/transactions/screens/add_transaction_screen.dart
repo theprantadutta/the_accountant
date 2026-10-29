@@ -702,7 +702,10 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                   : _notesController.text,
               specialType: _specialType,
               isPaid: isPaid,
-              originalDueDate: _specialType.requiresDueDate
+              // Only an upcoming payment is due on its date. A loan's date is
+              // when the money moved; using it as the due date made every
+              // loan overdue from the day it was made.
+              originalDueDate: _specialType == TransactionSpecialType.upcoming
                   ? _selectedDateTime
                   : null,
               budgetId: _selectedBudgetId,
@@ -743,7 +746,10 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                   : _notesController.text,
               specialType: _specialType,
               isPaid: isPaid,
-              originalDueDate: _specialType.requiresDueDate
+              // Only an upcoming payment is due on its date. A loan's date is
+              // when the money moved; using it as the due date made every
+              // loan overdue from the day it was made.
+              originalDueDate: _specialType == TransactionSpecialType.upcoming
                   ? _selectedDateTime
                   : null,
               budgetId: _selectedBudgetId,

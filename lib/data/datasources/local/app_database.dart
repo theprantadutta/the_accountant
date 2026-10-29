@@ -172,7 +172,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 30;
+  int get schemaVersion => 31;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -342,6 +342,10 @@ class AppDatabase extends _$AppDatabase {
 
       if (from < 26) {
         await linkLegacySettlements();
+      }
+
+      if (from < 31) {
+        await clearLoanDueDatesOnTheirDay();
       }
     },
     beforeOpen: (details) async {
@@ -2943,6 +2947,52 @@ class AppDatabase extends _$AppDatabase {
   /// Run by the schema-26 upgrade and after a restore, since a backup from an
   /// older build carries the same unlinked rows. Linking is a real correction
   /// of the record, so it is marked for sync. Looks before it writes.
+  /// Take away the due date a loan was given only because it was made.
+  ///
+  /// The add screen set a loan's due date to the day the money moved, so every
+  /// loan was overdue from the start: the forecast counted all of it as due
+  /// today, every day, and "overdue" reminders went out for money a friend
+  /// had not asked back. A loan with its due date on the day it was made never
+  /// had a real one, so the date goes; one with a different date was set on
+  /// purpose and stays, as do a plan's loans, which follow the plan.
+  ///
+  /// Run by the schema-31 upgrade and after a restore, since a backup from an
+  /// older build carries the same dates. Marked for sync, so the server's copy
+  /// loses them too. Returns how many loans it changed.
+  Future<int> clearLoanDueDatesOnTheirDay() async {
+    if (!await _tableExists('transactions')) return 0;
+    final loanTypes =
+        '(${TransactionSpecialType.credit.index}, '
+        '${TransactionSpecialType.debt.index})';
+    final rows = await customSelect(
+      'SELECT id, date, original_due_date FROM transactions '
+      'WHERE special_type IN $loanTypes AND plan_id IS NULL '
+      'AND original_due_date IS NOT NULL',
+    ).get();
+    final ids = [
+      for (final r in rows)
+        if (_sameDay(
+          DateTime.fromMillisecondsSinceEpoch(r.read<int>('date') * 1000),
+          DateTime.fromMillisecondsSinceEpoch(
+            r.read<int>('original_due_date') * 1000,
+          ),
+        ))
+          r.read<String>('id'),
+    ];
+    final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+    for (final id in ids) {
+      await customStatement(
+        'UPDATE transactions SET original_due_date = NULL, updated_at = ?, '
+        'sync_status = ${SyncStatus.markEditedSql} WHERE id = ?',
+        [now, id],
+      );
+    }
+    return ids.length;
+  }
+
+  static bool _sameDay(DateTime a, DateTime b) =>
+      a.year == b.year && a.month == b.month && a.day == b.day;
+
   Future<int> linkLegacySettlements() async {
     final orphans =
         await (select(transactions)..where(

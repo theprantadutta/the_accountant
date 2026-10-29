@@ -451,9 +451,11 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
       // Schedule a due-date reminder for applicable special types.
       // Subscription and repetitive types are excluded — their recurring config
       // handles future notifications via the periodic background task.
+      // A loan is reminded about only when it has a date to be repaid by.
       if (specialType == TransactionSpecialType.upcoming ||
-          specialType == TransactionSpecialType.credit ||
-          specialType == TransactionSpecialType.debt) {
+          (originalDueDate != null &&
+              (specialType == TransactionSpecialType.credit ||
+                  specialType == TransactionSpecialType.debt))) {
         final reminderType = switch (specialType) {
           TransactionSpecialType.credit => 'credit',
           TransactionSpecialType.debt => 'debt',
@@ -628,8 +630,9 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
       try {
         await ReminderSchedulerService().cancelReminder(id);
         if (newSpecialType == TransactionSpecialType.upcoming ||
-            newSpecialType == TransactionSpecialType.credit ||
-            newSpecialType == TransactionSpecialType.debt) {
+            (newOriginalDueDate != null &&
+                (newSpecialType == TransactionSpecialType.credit ||
+                    newSpecialType == TransactionSpecialType.debt))) {
           final reminderType = switch (newSpecialType) {
             TransactionSpecialType.credit => 'credit',
             TransactionSpecialType.debt => 'debt',

@@ -360,11 +360,9 @@ class SplitService {
         transactionType: Value(TransactionPolicy.regularType),
         specialType: Value(specialType),
         isPaid: const Value(true),
-        // A loan is due from the day it is made, as the add screen records
-        // one.
-        originalDueDate: Value(
-          specialType == TransactionSpecialType.none ? null : when,
-        ),
+        // No date to be paid back by, like a loan made on the add screen:
+        // a share is owed, not overdue from the day of the bill.
+        originalDueDate: const Value(null),
         occurrenceKey: Value('$_keyPrefix$id:${n++}'),
         syncStatus: const Value(SyncStatus.pendingCreate),
         createdAt: Value(now),

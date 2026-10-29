@@ -155,6 +155,7 @@ class BackupService {
       // A backup from before repayments were linked to their loans carries
       // them unlinked, and they would count as income and spending again.
       await _db.linkLegacySettlements();
+      await _db.clearLoanDueDatesOnTheirDay();
 
       // Balances are a cache over the rows that were just replaced.
       await WalletBalanceService(_db).recalculateAllWalletBalancesLocal();

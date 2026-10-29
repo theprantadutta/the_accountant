@@ -161,9 +161,6 @@ class CreditDebtNotifier extends StateNotifier<CreditDebtState> {
         )..where((t) => t.id.equals(transactionId))).write(
           TransactionsCompanion(
             paidAmount: Value(transaction.amount),
-            originalDueDate: Value(
-              transaction.originalDueDate ?? transaction.date,
-            ),
             syncStatus: const Value(SyncStatus.pendingUpdate),
             updatedAt: Value(DateTime.now()),
           ),
