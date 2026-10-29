@@ -96,6 +96,7 @@ void main() {
             id: 'open',
             amount: 5000,
             date: past,
+            originalDueDate: past,
             specialType: TransactionSpecialType.credit,
           ),
           buildTransaction(
@@ -103,6 +104,7 @@ void main() {
             amount: 5000,
             paidAmount: 5000,
             date: past,
+            originalDueDate: past,
             specialType: TransactionSpecialType.credit,
           ),
         ],

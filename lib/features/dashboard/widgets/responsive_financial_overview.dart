@@ -12,6 +12,7 @@ import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/features/ai_assistant/screens/ai_assistant_screen.dart'
     show AIAssistantScreenGated;
 import 'package:the_accountant/features/authentication/providers/auth_provider.dart';
+import 'package:the_accountant/features/budgets/screens/budget_detail_screen.dart';
 import 'package:the_accountant/features/budgets/screens/budget_list_screen.dart';
 import 'package:the_accountant/features/credit_debt/providers/credit_debt_provider.dart';
 import 'package:the_accountant/features/credit_debt/screens/credit_debt_screen.dart';
@@ -861,6 +862,8 @@ class _BudgetsCard extends ConsumerWidget {
                     for (var i = 0; i < items.length; i++) ...[
                       if (i > 0) const SizedBox(height: 16),
                       _BudgetBar(
+                        key: ValueKey('today_budget_${items[i].budgetId}'),
+                        budgetId: items[i].budgetId,
                         name: items[i].budgetName,
                         spent: items[i].spent,
                         limit: items[i].limit,
@@ -881,6 +884,8 @@ class _BudgetsCard extends ConsumerWidget {
 
 class _BudgetBar extends StatelessWidget {
   const _BudgetBar({
+    super.key,
+    required this.budgetId,
     required this.name,
     required this.spent,
     required this.limit,
@@ -889,6 +894,7 @@ class _BudgetBar extends StatelessWidget {
     required this.overLabel,
   });
 
+  final String budgetId;
   final String name;
   final int spent;
   final int limit;
@@ -901,69 +907,91 @@ class _BudgetBar extends StatelessWidget {
     final c = context.sunrise;
     final pct = limit <= 0 ? 0.0 : spent / limit;
     final over = pct > 1;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Expanded(
-              child: Text(
-                name,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: SunriseType.rowTitle.copyWith(color: c.ink),
-              ),
-            ),
-            Text(
-              caption(spent, limit),
-              style: SunriseType.label.copyWith(
-                color: c.subtle,
-                fontFeatures: const [FontFeature.tabularFigures()],
-              ),
-            ),
-          ],
+    // The row opens its budget. It looked like it would, and only Manage,
+    // then the budget again, got there.
+    return Pressable(
+      onTap: () => Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => BudgetDetailScreen(budgetId: budgetId),
         ),
-        const SizedBox(height: 8),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(4),
-          child: Stack(
+      ),
+      semanticLabel: name,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             children: [
-              Container(height: 8, color: c.toggleOff),
-              FractionallySizedBox(
-                widthFactor: pct.clamp(0.0, 1.0),
-                child: Container(
-                  height: 8,
-                  decoration: BoxDecoration(
-                    color: over ? c.negative : null,
-                    gradient: over ? null : c.gradientShort,
-                    borderRadius: BorderRadius.circular(4),
+              Expanded(
+                child: Text(
+                  name,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: SunriseType.rowTitle.copyWith(color: c.ink),
+                ),
+              ),
+              // Shrinks rather than overflows when large sums meet a narrow
+              // phone or large text.
+              ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxWidth: MediaQuery.sizeOf(context).width * .5,
+                ),
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: AlignmentDirectional.centerEnd,
+                  child: Text(
+                    caption(spent, limit),
+                    maxLines: 1,
+                    style: SunriseType.label.copyWith(
+                      color: c.subtle,
+                      fontFeatures: const [FontFeature.tabularFigures()],
+                    ),
                   ),
                 ),
               ),
             ],
           ),
-        ),
-        const SizedBox(height: 6),
-        Row(
-          children: [
-            Expanded(
-              child: Text(
-                over ? overLabel : withinLabel,
-                style: SunriseType.caption.copyWith(
-                  color: over ? c.negative : c.subtle,
+          const SizedBox(height: 8),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: Stack(
+              children: [
+                Container(height: 8, color: c.toggleOff),
+                FractionallySizedBox(
+                  widthFactor: pct.clamp(0.0, 1.0),
+                  child: Container(
+                    height: 8,
+                    decoration: BoxDecoration(
+                      color: over ? c.negative : null,
+                      gradient: over ? null : c.gradientShort,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 6),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  over ? overLabel : withinLabel,
+                  style: SunriseType.caption.copyWith(
+                    color: over ? c.negative : c.subtle,
+                  ),
                 ),
               ),
-            ),
-            Text(
-              '${(pct * 100).clamp(0, 999).toStringAsFixed(0)}%',
-              style: SunriseType.caption.copyWith(
-                color: c.ink,
-                fontWeight: FontWeight.w600,
+              Text(
+                '${(pct * 100).clamp(0, 999).toStringAsFixed(0)}%',
+                style: SunriseType.caption.copyWith(
+                  color: c.ink,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
-            ),
-          ],
-        ),
-      ],
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

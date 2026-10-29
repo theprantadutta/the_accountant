@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -20,7 +21,11 @@ import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
 import 'package:the_accountant/shared/widgets/transaction_card.dart';
 
 class TransactionListScreen extends ConsumerStatefulWidget {
-  const TransactionListScreen({super.key, this.standalone = false});
+  const TransactionListScreen({
+    super.key,
+    this.standalone = false,
+    this.initialFilters,
+  });
 
   /// Whether this screen is pushed as its own route rather than shown inside
   /// the tab shell.
@@ -30,6 +35,10 @@ class TransactionListScreen extends ConsumerStatefulWidget {
   /// "Transactions" is the sort of thing you stop noticing after a week and
   /// never stop noticing in a screenshot.
   final bool standalone;
+
+  /// What the list starts narrowed by, such as one category opened from
+  /// Stats. The user can change or clear it like any other filter.
+  final TransactionFilters? initialFilters;
 
   @override
   ConsumerState<TransactionListScreen> createState() =>
@@ -45,7 +54,8 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
 
   /// Everything the list is narrowed by. Replaces a direction and one category,
   /// which was about a tenth of what someone hunting a payment needs.
-  TransactionFilters _filters = TransactionFilters.none;
+  late TransactionFilters _filters =
+      widget.initialFilters ?? TransactionFilters.none;
 
   /// Rows the user has picked out. Empty means not in selection mode at all,
   /// so there is no separate flag to keep in step with it.
@@ -864,6 +874,10 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                       floatHeaderSlivers: true,
                       headerSliverBuilder: (context, _) => [
                         SliverFloatingHeader(
+                          // Coming back, it pushes the list down rather than
+                          // sliding over it: the default drew the search and
+                          // chips on top of the month's totals.
+                          snapMode: FloatingHeaderSnapMode.scroll,
                           child: _buildListHeader(l10n, chip),
                         ),
                       ],
@@ -1109,16 +1123,124 @@ class _PinnedSummaryState extends State<_PinnedSummary> {
       ),
       child: widget.child,
     );
-    return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 180),
-      child: _covering
-          ? SunriseGlass(
-              key: const ValueKey(true),
-              color: c.base.withValues(alpha: .6),
-              child: content,
-            )
-          : KeyedSubtree(key: const ValueKey(false), child: content),
+    // Rows scrolling under the totals are hidden by the page itself: the
+    // same wash, lined up with the screen, so nothing shows as a band. A flat
+    // fill in the page colour sat on top of a gradient and read as a stripe,
+    // worst in the light theme.
+    return _PageWash(
+      base: c.base,
+      wash: c.washTall,
+      screen: MediaQuery.sizeOf(context),
+      show: _covering,
+      child: content,
     );
+  }
+}
+
+/// Paints the page's own background behind [child], aligned to the screen
+/// rather than to itself, so it is indistinguishable from what is around it.
+/// Fades out over a few pixels below, so rows slide under rather than being
+/// cut off at a line.
+class _PageWash extends SingleChildRenderObjectWidget {
+  const _PageWash({
+    required this.base,
+    required this.wash,
+    required this.screen,
+    required this.show,
+    super.child,
+  });
+
+  final Color base;
+  final Gradient wash;
+  final Size screen;
+  final bool show;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) =>
+      _RenderPageWash(base, wash, screen, show);
+
+  @override
+  void updateRenderObject(BuildContext context, _RenderPageWash r) => r
+    ..base = base
+    ..wash = wash
+    ..screen = screen
+    ..show = show;
+}
+
+class _RenderPageWash extends RenderProxyBox {
+  _RenderPageWash(this._base, this._wash, this._screen, this._show);
+
+  /// How far below the box the page fades back in.
+  static const double _fade = 14;
+
+  Color _base;
+  set base(Color v) {
+    if (v == _base) return;
+    _base = v;
+    markNeedsPaint();
+  }
+
+  Gradient _wash;
+  set wash(Gradient v) {
+    if (v == _wash) return;
+    _wash = v;
+    markNeedsPaint();
+  }
+
+  Size _screen;
+  set screen(Size v) {
+    if (v == _screen) return;
+    _screen = v;
+    markNeedsPaint();
+  }
+
+  bool _show;
+  set show(bool v) {
+    if (v == _show) return;
+    _show = v;
+    markNeedsPaint();
+  }
+
+  @override
+  void paint(PaintingContext context, Offset offset) {
+    if (_show) {
+      final canvas = context.canvas;
+      // The page, positioned as it is on screen.
+      final top = localToGlobal(Offset.zero);
+      final page = Rect.fromLTWH(
+        offset.dx - top.dx,
+        offset.dy - top.dy,
+        _screen.width,
+        _screen.height,
+      );
+      final area = Rect.fromLTWH(
+        offset.dx,
+        offset.dy,
+        size.width,
+        size.height + _fade,
+      );
+      canvas.saveLayer(area, Paint());
+      canvas.drawRect(area, Paint()..color = _base);
+      canvas.drawRect(area, Paint()..shader = _wash.createShader(page));
+      // Solid over the box, then fading to nothing just below it.
+      canvas.drawRect(
+        area,
+        Paint()
+          ..blendMode = BlendMode.dstIn
+          ..shader = LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: const [
+              Color(0xFF000000),
+              Color(0xFF000000),
+              Color(0x00000000),
+            ],
+            stops: [0, size.height / area.height, 1],
+          ).createShader(area),
+      );
+      canvas.restore();
+    }
+    super.paint(context, offset);
   }
 }
 
@@ -1143,13 +1265,33 @@ class _MonthSummary extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.sunrise;
-    Widget figure(String l, String v, Color color) => Column(
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: [
-        Text(l, style: SunriseType.label.copyWith(color: c.muted)),
-        const SizedBox(height: 2),
-        Text(v, style: SunriseType.amount.copyWith(color: color, fontSize: 14)),
-      ],
+    // Each side figure is capped so the net keeps room on a narrow phone;
+    // past that, the figures shrink rather than overflow.
+    Widget figure(String l, String v, Color color) => ConstrainedBox(
+      constraints: BoxConstraints(
+        maxWidth: MediaQuery.sizeOf(context).width * .26,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Text(
+            l,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: SunriseType.label.copyWith(color: c.muted),
+          ),
+          const SizedBox(height: 2),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: AlignmentDirectional.centerEnd,
+            child: Text(
+              v,
+              maxLines: 1,
+              style: SunriseType.amount.copyWith(color: color, fontSize: 14),
+            ),
+          ),
+        ],
+      ),
     );
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),

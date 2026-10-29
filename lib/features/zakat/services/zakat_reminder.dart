@@ -51,7 +51,8 @@ class ZakatReminders {
   /// that did not run its check on the third day still says something.
   static ZakatReminder? dueOn(ZakatSettings settings, DateTime today) {
     final anchor = settings.zakatDate;
-    if (anchor == null || !settings.remind) return null;
+    // Somebody who does not pay zakat is never reminded of it.
+    if (anchor == null || !settings.remind || settings.optedOut) return null;
     final (last, next) = ZakatCalendar.around(anchor, today);
     if (_sameDay(last, today)) return ZakatReminder(date: last, daysLeft: 0);
     final days = DateTime.utc(

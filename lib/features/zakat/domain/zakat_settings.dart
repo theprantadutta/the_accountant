@@ -68,6 +68,7 @@ class ZakatSettings {
     this.manual = const [],
     this.zakatDate,
     this.remind = true,
+    this.paysZakat,
   });
 
   final NisabBasis basis;
@@ -89,6 +90,14 @@ class ZakatSettings {
   /// Whether to remind a few days before the zakat date and on it.
   final bool remind;
 
+  /// Whether the user pays zakat: null until they say. Not everybody does,
+  /// and somebody who does not should not be reminded of it or shown what
+  /// is "due"; the calculator stays there to look at if they want.
+  final bool? paysZakat;
+
+  /// Told that they do not pay it.
+  bool get optedOut => paysZakat == false;
+
   int get pricePerGram =>
       basis == NisabBasis.gold ? goldPricePerGram : silverPricePerGram;
 
@@ -105,6 +114,7 @@ class ZakatSettings {
     DateTime? zakatDate,
     bool clearZakatDate = false,
     bool? remind,
+    bool? paysZakat,
   }) => ZakatSettings(
     basis: basis ?? this.basis,
     goldPricePerGram: goldPricePerGram ?? this.goldPricePerGram,
@@ -113,6 +123,7 @@ class ZakatSettings {
     manual: manual ?? this.manual,
     zakatDate: clearZakatDate ? null : (zakatDate ?? this.zakatDate),
     remind: remind ?? this.remind,
+    paysZakat: paysZakat ?? this.paysZakat,
   );
 
   /// The price per gram for the current basis set to [price].
@@ -144,6 +155,7 @@ class ZakatSettings {
     'manual': [for (final m in manual) m.toJson()],
     if (zakatDate != null) 'zakatDate': ZakatCalendar.dayKey(zakatDate!),
     'remind': remind,
+    'pays': ?paysZakat,
   };
 
   /// Read back what [toJson] wrote. Anything unreadable falls back to its
@@ -170,6 +182,7 @@ class ZakatSettings {
           : const [],
       zakatDate: date is String ? DateTime.tryParse(date) : null,
       remind: json['remind'] != false,
+      paysZakat: json['pays'] is bool ? json['pays'] as bool : null,
     );
   }
 

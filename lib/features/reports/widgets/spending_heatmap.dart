@@ -160,19 +160,27 @@ class SpendingHeatmap extends StatelessWidget {
     );
   }
 
-  Widget _legend(BuildContext context, L10n l10n) => Row(
+  /// A Wrap, so on a narrow phone with large text the second label drops to
+  /// its own line instead of running off the card.
+  Widget _legend(BuildContext context, L10n l10n) => Wrap(
+    crossAxisAlignment: WrapCrossAlignment.center,
+    spacing: AppSpacing.xs,
+    runSpacing: AppSpacing.xs,
     children: [
       Text(
         l10n.heatmapSpentMore,
         style: TextStyle(color: AppColors.textMuted, fontSize: 11),
       ),
-      SizedBox(width: AppSpacing.xs),
-      for (final weight in const [1.0, 0.6, 0.3])
-        _swatch(AppColors.error.withValues(alpha: weight)),
-      _swatch(AppColors.glassWhite),
-      for (final weight in const [0.3, 0.6, 1.0])
-        _swatch(AppColors.success.withValues(alpha: weight)),
-      SizedBox(width: AppSpacing.xs),
+      Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          for (final weight in const [1.0, 0.6, 0.3])
+            _swatch(AppColors.error.withValues(alpha: weight)),
+          _swatch(AppColors.glassWhite),
+          for (final weight in const [0.3, 0.6, 1.0])
+            _swatch(AppColors.success.withValues(alpha: weight)),
+        ],
+      ),
       Text(
         l10n.heatmapEarnedMore,
         style: TextStyle(color: AppColors.textMuted, fontSize: 11),

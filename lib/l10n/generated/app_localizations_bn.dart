@@ -1876,6 +1876,37 @@ class L10nBn extends L10n {
       'এই সময়কালে কিছু লেখা হয়নি।';
 
   @override
+  String budgetCardSemantics(String name, String spent, String limit) {
+    return '$name, $limit-এর মধ্যে $spent খরচ হয়েছে';
+  }
+
+  @override
+  String budgetAmountLeft(String amount) {
+    return '$amount বাকি';
+  }
+
+  @override
+  String budgetAmountOver(String amount) {
+    return '$amount বেশি';
+  }
+
+  @override
+  String get budgetPeriodEnded => 'সময়কাল শেষ';
+
+  @override
+  String get budgetPaceOver => 'সীমা পার';
+
+  @override
+  String budgetDaysLeft(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days দিন বাকি',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get authPasswordResetSuccessfullyPleaseSign =>
       'পাসওয়ার্ড বদলানো হয়েছে। এবার সাইন ইন করুন।';
 
@@ -2036,6 +2067,75 @@ class L10nBn extends L10n {
 
   @override
   String get creditOverdue => 'মেয়াদ পেরিয়েছে';
+
+  @override
+  String creditTabCredit(int count) {
+    return 'ধার দেওয়া ($count)';
+  }
+
+  @override
+  String creditTabDebt(int count) {
+    return 'ধার নেওয়া ($count)';
+  }
+
+  @override
+  String get creditNetOutstanding => 'মোট বাকি';
+
+  @override
+  String get creditAllSettled => 'সব শোধ হয়েছে';
+
+  @override
+  String get creditOthersOweYou => 'অন্যরা আপনাকে দেবে';
+
+  @override
+  String get creditYouOweOthers => 'আপনি অন্যদের দেবেন';
+
+  @override
+  String creditOverdueCount(int count) {
+    return '$countটি মেয়াদ পেরিয়েছে';
+  }
+
+  @override
+  String get creditEmptyAll => 'কোনো ধার দেওয়া বা নেওয়া নেই';
+
+  @override
+  String get creditEmptyLent => 'কোনো ধার দেওয়া নেই';
+
+  @override
+  String get creditEmptyBorrowed => 'কোনো ধার নেওয়া নেই';
+
+  @override
+  String get creditEmptyAllSettled => 'সব শোধ হয়ে গেছে।';
+
+  @override
+  String get creditEmptyHint =>
+      'কে কাকে কত দেবে মনে রাখতে ধার দেওয়া বা নেওয়া টাকা যোগ করুন।';
+
+  @override
+  String get creditShowAll => 'সব দেখান';
+
+  @override
+  String get creditShowUnpaid => 'শুধু বাকিগুলো দেখান';
+
+  @override
+  String get creditMoneyLent => 'ধার দেওয়া টাকা';
+
+  @override
+  String get creditMoneyBorrowed => 'ধার নেওয়া টাকা';
+
+  @override
+  String get creditTheyOweYou => 'আপনি পাবেন';
+
+  @override
+  String get creditYouOwe => 'আপনি দেবেন';
+
+  @override
+  String get creditCollected => 'পাওয়া গেছে';
+
+  @override
+  String creditPaidOf(String paid, String total) {
+    return '$total এর মধ্যে $paid শোধ';
+  }
 
   @override
   String get creditRecord => 'লিখে রাখুন';
@@ -4763,6 +4863,42 @@ class L10nBn extends L10n {
   @override
   String get zakatSubtitle =>
       'আপনার সম্পদে কত যাকাত দিতে হবে হিসাব করুন, আর যা দিলেন তা লিখে রাখুন';
+
+  @override
+  String get zakatSubtitleOff => 'আপনি যাকাত দেন না। তবুও দেখতে ট্যাপ করুন';
+
+  @override
+  String get zakatAskTitle => 'আপনি কি যাকাত দেন?';
+
+  @override
+  String get zakatAskBody =>
+      'সবাই দেন না। না দিলে অ্যাপ যাকাত নিয়ে কিছু দেখাবে না: কোনো বকেয়া নেই, কোনো রিমাইন্ডারও নেই।';
+
+  @override
+  String get zakatIPay => 'আমি যাকাত দিই';
+
+  @override
+  String get zakatIDontPay => 'আমি যাকাত দিই না';
+
+  @override
+  String get zakatOffTitle => 'আপনি যাকাত দেন না';
+
+  @override
+  String get zakatOffBody =>
+      'তাই যাকাত বকেয়া হিসেবে কিছু দেখানো হবে না, কোনো যাকাত রিমাইন্ডারও আসবে না। চাইলে যেকোনো সময় হিসাবটা দেখতে পারবেন; দেখলে আপনার উত্তর বদলাবে না।';
+
+  @override
+  String get zakatOffPeek => 'হিসাবটা কত হতো দেখুন';
+
+  @override
+  String get zakatPeekBanner => 'শুধু দেখছেন। আপনি বলেছেন যাকাত দেন না।';
+
+  @override
+  String get zakatOptOutTitle => 'যাকাত হিসাব বন্ধ করবেন?';
+
+  @override
+  String get zakatOptOutBody =>
+      'কোনো বকেয়া দেখানো হবে না, যাকাত রিমাইন্ডারও আসবে না। আপনার হিসাব থেকে যাবে, যেকোনো সময় এখানে দেখতে পারবেন।';
 
   @override
   String get zakatDue => 'দেয় যাকাত';

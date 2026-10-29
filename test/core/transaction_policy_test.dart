@@ -108,8 +108,20 @@ void main() {
         amount: 5000,
         specialType: TransactionSpecialType.debt,
         date: DateTime(2026, 5, 1),
+        originalDueDate: DateTime(2026, 5, 1),
       );
       expect(TransactionPolicy.isOverdue(overdue, now: now), isTrue);
+
+      final undated = buildTransaction(
+        amount: 5000,
+        specialType: TransactionSpecialType.debt,
+        date: DateTime(2026, 5, 1),
+      );
+      expect(
+        TransactionPolicy.isOverdue(undated, now: now),
+        isFalse,
+        reason: 'no due date, so never late',
+      );
 
       final settled = buildTransaction(
         amount: 5000,

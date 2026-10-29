@@ -10,6 +10,9 @@ import 'package:the_accountant/features/ai/screens/monthly_summary_screen.dart';
 import 'package:the_accountant/features/ai_assistant/screens/ai_assistant_screen.dart'
     show AIAssistantScreenGated;
 import 'package:the_accountant/features/budgets/providers/budget_provider.dart';
+import 'package:the_accountant/features/budgets/screens/budget_detail_screen.dart';
+import 'package:the_accountant/features/transactions/domain/transaction_filters.dart';
+import 'package:the_accountant/features/transactions/screens/transaction_list_screen.dart';
 import 'package:the_accountant/features/categories/providers/category_provider.dart';
 import 'package:the_accountant/features/dashboard/providers/financial_data_provider.dart';
 import 'package:the_accountant/features/reports/providers/heatmap_provider.dart';
@@ -561,51 +564,67 @@ class _CategoryGrid extends ConsumerWidget {
                   for (final d in data)
                     SizedBox(
                       width: w,
-                      child: SunriseCard(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                IconTile(
-                                  icon: iconFor(d.categoryId),
-                                  emoji: emojiFor(d.categoryId),
-                                  color: colorFor(d),
-                                  size: 38,
+                      // Opens that category's transactions; the tile said
+                      // what was spent there but led nowhere.
+                      child: Pressable(
+                        key: ValueKey('stats_category_${d.categoryId}'),
+                        semanticLabel: nameFor(d),
+                        onTap: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => TransactionListScreen(
+                              standalone: true,
+                              initialFilters: TransactionFilters(
+                                categoryIds: {d.categoryId},
+                              ),
+                            ),
+                          ),
+                        ),
+                        child: SunriseCard(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  IconTile(
+                                    icon: iconFor(d.categoryId),
+                                    emoji: emojiFor(d.categoryId),
+                                    color: colorFor(d),
+                                    size: 38,
+                                  ),
+                                  const Spacer(),
+                                  Text(
+                                    '${d.percentage.toStringAsFixed(0)}%',
+                                    style: SunriseType.label.copyWith(
+                                      color: c.subtle,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 14),
+                              Text(
+                                nameFor(d),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: SunriseType.rowTitle.copyWith(
+                                  color: c.ink,
                                 ),
-                                const Spacer(),
-                                Text(
-                                  '${d.percentage.toStringAsFixed(0)}%',
-                                  style: SunriseType.label.copyWith(
-                                    color: c.subtle,
-                                    fontWeight: FontWeight.w600,
+                              ),
+                              FittedBox(
+                                fit: BoxFit.scaleDown,
+                                alignment: AlignmentDirectional.centerStart,
+                                child: Text(
+                                  _money(ref, d.amount),
+                                  style: SunriseType.statValue.copyWith(
+                                    color: c.ink,
+                                    fontSize: 19,
                                   ),
                                 ),
-                              ],
-                            ),
-                            const SizedBox(height: 14),
-                            Text(
-                              nameFor(d),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: SunriseType.rowTitle.copyWith(
-                                color: c.ink,
                               ),
-                            ),
-                            FittedBox(
-                              fit: BoxFit.scaleDown,
-                              alignment: AlignmentDirectional.centerStart,
-                              child: Text(
-                                _money(ref, d.amount),
-                                style: SunriseType.statValue.copyWith(
-                                  color: c.ink,
-                                  fontSize: 19,
-                                ),
-                              ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -804,60 +823,82 @@ class _BudgetComparison extends ConsumerWidget {
     SunriseColors c,
   ) {
     final pct = b.percentage.clamp(0.0, 1.0);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Expanded(
-              child: Text(
-                b.budgetName,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: SunriseType.rowTitle.copyWith(color: c.ink),
-              ),
-            ),
-            Text(
-              '${_money(ref, b.spent)} / ${_money(ref, b.budgetLimit)}',
-              style: SunriseType.label.copyWith(
-                color: b.isOverBudget ? c.negative : c.subtle,
-                fontFeatures: const [FontFeature.tabularFigures()],
-              ),
-            ),
-          ],
+    // Opens the budget, as its row on Today does.
+    return Pressable(
+      key: ValueKey('stats_budget_${b.budgetId}'),
+      onTap: () => Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => BudgetDetailScreen(budgetId: b.budgetId),
         ),
-        const SizedBox(height: 8),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(4),
-          child: Stack(
+      ),
+      semanticLabel: b.budgetName,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             children: [
-              Container(height: 8, color: c.toggleOff),
-              FractionallySizedBox(
-                widthFactor: pct,
-                child: Container(
-                  height: 8,
-                  decoration: BoxDecoration(
-                    color: b.isOverBudget ? c.negative : null,
-                    gradient: b.isOverBudget ? null : c.gradientShort,
-                    borderRadius: BorderRadius.circular(4),
+              Expanded(
+                child: Text(
+                  b.budgetName,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: SunriseType.rowTitle.copyWith(color: c.ink),
+                ),
+              ),
+              // Shrinks rather than overflows when large sums meet a narrow
+              // phone or large text.
+              ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxWidth: MediaQuery.sizeOf(context).width * .5,
+                ),
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: AlignmentDirectional.centerEnd,
+                  child: Text(
+                    '${_money(ref, b.spent)} / ${_money(ref, b.budgetLimit)}',
+                    maxLines: 1,
+                    style: SunriseType.label.copyWith(
+                      color: b.isOverBudget ? c.negative : c.subtle,
+                      fontFeatures: const [FontFeature.tabularFigures()],
+                    ),
                   ),
                 ),
               ),
             ],
           ),
-        ),
-        const SizedBox(height: 6),
-        Text(
-          b.isOverBudget
-              ? l10n.statsOverBy(_money(ref, b.spent - b.budgetLimit))
-              : l10n.statsRemaining(
-                  ((1 - b.percentage) * 100).clamp(0, 100).toStringAsFixed(0),
+          const SizedBox(height: 8),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: Stack(
+              children: [
+                Container(height: 8, color: c.toggleOff),
+                FractionallySizedBox(
+                  widthFactor: pct,
+                  child: Container(
+                    height: 8,
+                    decoration: BoxDecoration(
+                      color: b.isOverBudget ? c.negative : null,
+                      gradient: b.isOverBudget ? null : c.gradientShort,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
                 ),
-          style: SunriseType.caption.copyWith(
-            color: b.isOverBudget ? c.negative : c.subtle,
+              ],
+            ),
           ),
-        ),
-      ],
+          const SizedBox(height: 6),
+          Text(
+            b.isOverBudget
+                ? l10n.statsOverBy(_money(ref, b.spent - b.budgetLimit))
+                : l10n.statsRemaining(
+                    ((1 - b.percentage) * 100).clamp(0, 100).toStringAsFixed(0),
+                  ),
+            style: SunriseType.caption.copyWith(
+              color: b.isOverBudget ? c.negative : c.subtle,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

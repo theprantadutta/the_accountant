@@ -6,20 +6,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/providers/currency_provider.dart';
 import 'package:the_accountant/core/services/currency_service.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
-import 'package:the_accountant/core/themes/app_spacing.dart';
-import 'package:the_accountant/core/themes/app_typography.dart';
 import 'package:the_accountant/core/utils/date_formatter.dart';
 import 'package:the_accountant/core/utils/number_formatter.dart';
 import 'package:the_accountant/core/domain/transaction_policy.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
-import 'package:the_accountant/data/models/transaction.dart'
-    show TransactionSpecialType;
 import 'package:the_accountant/features/credit_debt/providers/credit_debt_provider.dart';
 import 'package:the_accountant/features/split/screens/split_bill_screen.dart';
+import 'package:the_accountant/features/transactions/screens/transaction_detail_screen.dart';
 import 'package:the_accountant/shared/widgets/shimmer_loading.dart';
 import 'package:the_accountant/features/settings/providers/settings_provider.dart';
-import 'package:the_accountant/shared/widgets/glass_card.dart';
 
+/// What is lent and borrowed: who owes whom, and what is still open.
 class CreditDebtScreen extends ConsumerStatefulWidget {
   const CreditDebtScreen({super.key});
 
@@ -27,646 +24,155 @@ class CreditDebtScreen extends ConsumerStatefulWidget {
   ConsumerState<CreditDebtScreen> createState() => _CreditDebtScreenState();
 }
 
-class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
-    with SingleTickerProviderStateMixin {
-  late TabController _tabController;
+/// Which loans the list shows.
+enum _Show { all, lent, borrowed }
+
+class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen> {
+  _Show _show = _Show.all;
   bool _showOnlyUnpaid = false;
 
   @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 3, vsync: this);
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     final state = ref.watch(creditDebtProvider);
 
-    return Container(
-      decoration: const BoxDecoration(),
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          title: Text(
-            L10n.of(context).dashCreditDebt,
-            style: AppTypography.headlineSmall,
-          ),
-          leading: IconButton(
-            tooltip: MaterialLocalizations.of(context).backButtonTooltip,
-            icon: const BackButtonIcon(),
-            onPressed: () => Navigator.pop(context),
-          ),
-          actions: [
-            // What friends owe from a shared bill lands here, so this is
-            // where people come looking to record one.
-            IconButton(
-              key: const Key('credit_debt_split'),
-              icon: Icon(
-                Symbols.call_split_rounded,
-                color: AppColors.textSecondary,
-              ),
-              tooltip: L10n.of(context).splitTitle,
-              onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const SplitBillScreen()),
-              ),
-            ),
-            // Filter toggle
-            IconButton(
-              icon: Icon(
-                _showOnlyUnpaid ? Icons.filter_alt : Icons.filter_alt_outlined,
-                color: _showOnlyUnpaid
-                    ? AppColors.primaryAccent
-                    : AppColors.textSecondary,
-              ),
-              onPressed: () {
-                setState(() {
-                  _showOnlyUnpaid = !_showOnlyUnpaid;
-                });
-              },
-              tooltip: _showOnlyUnpaid ? 'Show all' : 'Show unpaid only',
-            ),
-          ],
-          bottom: TabBar(
-            controller: _tabController,
-            indicatorColor: AppColors.primaryAccent,
-            labelColor: AppColors.textPrimary,
-            unselectedLabelColor: AppColors.textSecondary,
-            tabs: [
-              Tab(
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.list_alt, size: 18),
-                    const SizedBox(width: 8),
-                    Text(L10n.of(context).txAll),
-                  ],
-                ),
-              ),
-              Tab(
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.arrow_upward,
-                      size: 18,
-                      color: AppColors.success,
-                    ),
-                    const SizedBox(width: 8),
-                    Text('Credit (${state.creditTransactions.length})'),
-                  ],
-                ),
-              ),
-              Tab(
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.arrow_downward,
-                      size: 18,
-                      color: AppColors.error,
-                    ),
-                    const SizedBox(width: 8),
-                    Text('Debt (${state.debtTransactions.length})'),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-        body: CappedBody(
-          child: state.isLoading
-              ? const SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.all(16),
-                        child: ShimmerCard(height: 120),
-                      ),
-                      ShimmerTransactionList(),
-                    ],
-                  ),
-                )
-              : Column(
-                  children: [
-                    // Summary card
-                    _buildSummaryCard(state),
-                    // Transaction list
-                    Expanded(
-                      child: TabBarView(
-                        controller: _tabController,
-                        children: [
-                          _buildTransactionList(
-                            _showOnlyUnpaid
-                                ? state.unpaidTransactions
-                                : state.allTransactions,
-                          ),
-                          _buildTransactionList(
-                            _showOnlyUnpaid
-                                ? state.creditTransactions
-                                      .where(TransactionPolicy.isOutstanding)
-                                      .toList()
-                                : state.creditTransactions,
-                            isCredit: true,
-                          ),
-                          _buildTransactionList(
-                            _showOnlyUnpaid
-                                ? state.debtTransactions
-                                      .where(TransactionPolicy.isOutstanding)
-                                      .toList()
-                                : state.debtTransactions,
-                            isCredit: false,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSummaryCard(CreditDebtState state) {
-    final displayCurrency = ref.watch(defaultCurrencyProvider);
-    final currencySymbol = CurrencyInfo.getSymbol(displayCurrency);
-    final currencyFormat = AppNumberFormatter.currency(
-      currencySymbol,
-      ref.watch(numberFormatSettingProvider),
-    );
-    final netBalance = state.netBalance;
-    final isPositive = netBalance >= 0;
-    final overdueCount = state.overdueCount;
-
-    return Padding(
-      padding: AppSpacing.paddingScreen.copyWith(bottom: 0),
-      child: GlassCard(
-        padding: AppSpacing.paddingLg,
-        child: Column(
-          children: [
-            // Net balance
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  isPositive ? Icons.trending_up : Icons.trending_down,
-                  color: isPositive ? AppColors.success : AppColors.error,
-                  size: 28,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  // Explicitly "outstanding": this figure is derived from
-                  // unpaid credit minus unpaid debt, so it goes to zero once
-                  // everything is settled instead of quoting lifetime totals.
-                  'Net Outstanding',
-                  style: AppTypography.titleMedium.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-              ],
-            ),
-            AppSpacing.gapSm,
-            Text(
-              currencyFormat.format(netBalance.abs() / 100.0),
-              style: AppTypography.displaySmall.copyWith(
-                color: isPositive ? AppColors.success : AppColors.error,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            Text(
-              netBalance == 0
-                  ? 'All settled'
-                  : (isPositive ? 'Others owe you' : 'You owe others'),
-              style: AppTypography.bodySmall.copyWith(
-                color: AppColors.textMuted,
-              ),
-            ),
-            // Overdue count badge
-            if (overdueCount > 0) ...[
-              AppSpacing.gapSm,
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: AppColors.error.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.warning_amber_rounded,
-                      size: 14,
-                      color: AppColors.error,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      '$overdueCount overdue',
-                      style: AppTypography.labelSmall.copyWith(
-                        color: AppColors.error,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-            AppSpacing.gapLg,
-            // Credit and Debt breakdown
-            Row(
-              children: [
-                Expanded(
-                  child: _buildStatColumn(
-                    'Credit (Lent, all time)',
-                    currencyFormat.format(state.totalCredit / 100.0),
-                    currencyFormat.format(state.unpaidCredit / 100.0),
-                    AppColors.success,
-                    Icons.arrow_upward,
-                  ),
-                ),
-                Container(width: 1, height: 60, color: AppColors.glassBorder),
-                Expanded(
-                  child: _buildStatColumn(
-                    'Debt (Borrowed, all time)',
-                    currencyFormat.format(state.totalDebt / 100.0),
-                    currencyFormat.format(state.unpaidDebt / 100.0),
-                    AppColors.error,
-                    Icons.arrow_downward,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildStatColumn(
-    String label,
-    String total,
-    String unpaid,
-    Color color,
-    IconData icon,
-  ) {
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, color: color, size: 16),
-            const SizedBox(width: 4),
-            Flexible(
-              child: Text(
-                label,
-                maxLines: 2,
-                textAlign: TextAlign.center,
-                overflow: TextOverflow.ellipsis,
-                style: AppTypography.labelSmall.copyWith(
-                  color: AppColors.textSecondary,
-                ),
-              ),
-            ),
-          ],
-        ),
-        AppSpacing.gapXs,
-        Text(
-          total,
-          style: AppTypography.titleMedium.copyWith(
-            color: color,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        Text(
-          'Outstanding: $unpaid',
-          style: AppTypography.labelSmall.copyWith(color: AppColors.textMuted),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildTransactionList(
-    List<Transaction> transactions, {
-    bool? isCredit,
-  }) {
-    if (transactions.isEmpty) {
-      return _buildEmptyState(isCredit);
-    }
-
-    // Sort: overdue unpaid first, then unpaid, then paid
-    final sorted = List<Transaction>.from(transactions);
-    final notifier = ref.read(creditDebtProvider.notifier);
-    sorted.sort((a, b) {
-      final aOverdue = notifier.isOverdue(a);
-      final bOverdue = notifier.isOverdue(b);
-      if (aOverdue != bOverdue) return aOverdue ? -1 : 1;
-      final aSettled = TransactionPolicy.isSettled(a);
-      final bSettled = TransactionPolicy.isSettled(b);
-      if (aSettled != bSettled) return aSettled ? 1 : -1;
-      return b.date.compareTo(a.date);
-    });
-
-    return RefreshIndicator(
-      onRefresh: () => ref.read(creditDebtProvider.notifier).refresh(),
-      child: ListView.builder(
-        padding: AppSpacing.paddingScreen,
-        itemCount: sorted.length,
-        itemBuilder: (context, index) {
-          final transaction = sorted[index];
-          final transactionIsCredit =
-              isCredit ??
-              (transaction.specialType == TransactionSpecialType.credit);
-          return _buildTransactionCard(transaction, transactionIsCredit);
-        },
-      ),
-    );
-  }
-
-  Widget _buildEmptyState(bool? isCredit) {
-    final (String message, IconData icon) = switch (isCredit) {
-      null => ('No credit or debt transactions', Symbols.handshake_rounded),
-      true => ('No credit transactions', Symbols.north_east_rounded),
-      false => ('No debt transactions', Symbols.south_west_rounded),
+    final shown = switch (_show) {
+      _Show.all => state.allTransactions,
+      _Show.lent => state.creditTransactions,
+      _Show.borrowed => state.debtTransactions,
     };
-    return Center(
+    final open = shown.where(TransactionPolicy.isOutstanding).toList()
+      ..sort(_byUrgency);
+    final settled = _showOnlyUnpaid
+        ? const <Transaction>[]
+        : (shown.where(TransactionPolicy.isSettled).toList()
+            ..sort((a, b) => b.date.compareTo(a.date)));
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(l10n.dashCreditDebt),
+        actions: [
+          // What friends owe from a shared bill lands here, so this is
+          // where people come looking to record one.
+          IconButton(
+            key: const Key('credit_debt_split'),
+            icon: const Icon(Symbols.call_split_rounded),
+            tooltip: l10n.splitTitle,
+            onPressed: () => Navigator.of(
+              context,
+            ).push(MaterialPageRoute(builder: (_) => const SplitBillScreen())),
+          ),
+          IconButton(
+            icon: Icon(
+              _showOnlyUnpaid ? Icons.filter_alt : Icons.filter_alt_outlined,
+              color: _showOnlyUnpaid ? context.sunrise.accent : null,
+            ),
+            onPressed: () => setState(() => _showOnlyUnpaid = !_showOnlyUnpaid),
+            tooltip: _showOnlyUnpaid
+                ? l10n.creditShowAll
+                : l10n.creditShowUnpaid,
+          ),
+        ],
+      ),
+      body: CappedBody(
+        child: state.isLoading
+            ? const SingleChildScrollView(
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.all(16),
+                      child: ShimmerCard(height: 120),
+                    ),
+                    ShimmerTransactionList(),
+                  ],
+                ),
+              )
+            : RefreshIndicator(
+                onRefresh: () =>
+                    ref.read(creditDebtProvider.notifier).refresh(),
+                child: ListView(
+                  padding: const EdgeInsets.fromLTRB(
+                    SunriseSpace.screenX,
+                    8,
+                    SunriseSpace.screenX,
+                    40,
+                  ),
+                  children: [
+                    _Summary(state: state),
+                    const SizedBox(height: 16),
+                    SunriseSegmented<_Show>(
+                      key: const Key('credit_debt_show'),
+                      options: [
+                        SegmentOption(_Show.all, l10n.txAll),
+                        SegmentOption(
+                          _Show.lent,
+                          l10n.creditTabCredit(state.creditTransactions.length),
+                        ),
+                        SegmentOption(
+                          _Show.borrowed,
+                          l10n.creditTabDebt(state.debtTransactions.length),
+                        ),
+                      ],
+                      value: _show,
+                      onChanged: (v) => setState(() => _show = v),
+                    ),
+                    const SizedBox(height: 16),
+                    if (open.isEmpty && settled.isEmpty)
+                      _emptyState(context)
+                    else ...[
+                      for (final t in open) ...[
+                        _LoanCard(
+                          loan: t,
+                          onRecordPayment: () => _showRecordPaymentDialog(
+                            t,
+                            TransactionPolicy.isCredit(t),
+                          ),
+                          onSettle: () =>
+                              _markAsSettled(t, TransactionPolicy.isCredit(t)),
+                        ),
+                        const SizedBox(height: 12),
+                      ],
+                      if (settled.isNotEmpty) ...[
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(4, 8, 4, 8),
+                          child: SectionLabel(l10n.creditSettled),
+                        ),
+                        for (final t in settled) ...[
+                          _LoanCard(loan: t),
+                          const SizedBox(height: 12),
+                        ],
+                      ],
+                    ],
+                  ],
+                ),
+              ),
+      ),
+    );
+  }
+
+  /// Late first, then the most recent.
+  static int _byUrgency(Transaction a, Transaction b) {
+    final aLate = TransactionPolicy.isOverdue(a);
+    final bLate = TransactionPolicy.isOverdue(b);
+    if (aLate != bLate) return aLate ? -1 : 1;
+    return b.date.compareTo(a.date);
+  }
+
+  Widget _emptyState(BuildContext context) {
+    final l10n = L10n.of(context);
+    final (String message, IconData icon) = switch (_show) {
+      _Show.all => (l10n.creditEmptyAll, Symbols.handshake_rounded),
+      _Show.lent => (l10n.creditEmptyLent, Symbols.north_east_rounded),
+      _Show.borrowed => (l10n.creditEmptyBorrowed, Symbols.south_west_rounded),
+    };
+    return Padding(
+      padding: const EdgeInsets.only(top: 24),
       child: EmptyState(
         icon: icon,
         title: message,
         message: _showOnlyUnpaid
-            ? 'All transactions are settled!'
-            : 'Add credit or debt transactions to track who owes you and who you owe',
-      ),
-    );
-  }
-
-  Widget _buildTransactionCard(Transaction transaction, bool isCredit) {
-    final df = ref.watch(dateFormatSettingProvider);
-    final walletCurrency = ref.watch(
-      walletCurrencyProvider(transaction.walletId),
-    );
-    final currencyFormat = AppNumberFormatter.currency(
-      CurrencyInfo.getSymbol(walletCurrency),
-      ref.watch(numberFormatSettingProvider),
-    );
-    // "Settled" means the loan has been repaid in full (paidAmount >= amount),
-    // NOT that the original cash movement happened. `transaction.isPaid` is
-    // true the moment a loan is recorded, so keying the UI off it labelled every
-    // brand-new lend/borrow as settled and hid the repayment controls.
-    final isSettled = TransactionPolicy.isSettled(transaction);
-    final isOverdue = TransactionPolicy.isOverdue(transaction);
-    final paidAmount = transaction.paidAmount;
-    final totalAmount = transaction.amount;
-    final outstanding = TransactionPolicy.outstandingAmount(transaction);
-    final paymentProgress = TransactionPolicy.settlementProgress(transaction);
-    final hasPartialPayment = TransactionPolicy.hasPartialPayment(transaction);
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: GlassCard(
-        padding: AppSpacing.paddingMd,
-        variant: isCredit ? GlassCardVariant.success : GlassCardVariant.error,
-        child: Column(
-          children: [
-            Row(
-              children: [
-                // Type indicator
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: (isCredit ? AppColors.success : AppColors.error)
-                        .withValues(alpha: 0.2),
-                    borderRadius: AppSpacing.borderRadiusMd,
-                  ),
-                  child: Icon(
-                    isCredit ? Icons.arrow_upward : Icons.arrow_downward,
-                    color: isCredit ? AppColors.success : AppColors.error,
-                    size: 22,
-                  ),
-                ),
-                AppSpacing.gapHMd,
-                // Transaction info
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // The name gets the full width and two lines. A
-                      // "Settled" chip used to sit beside it, cutting it off
-                      // and colliding with the amount — which already says
-                      // "Settled" underneath.
-                      Text(
-                        transaction.title.isNotEmpty
-                            ? transaction.title
-                            : (isCredit ? 'Money Lent' : 'Money Borrowed'),
-                        style: AppTypography.titleSmall.copyWith(
-                          decoration: isSettled
-                              ? TextDecoration.lineThrough
-                              : null,
-                          color: isSettled
-                              ? AppColors.textMuted
-                              : AppColors.textPrimary,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      AppSpacing.gapXs,
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.calendar_today,
-                            size: 12,
-                            color: isOverdue
-                                ? AppColors.error
-                                : AppColors.textMuted,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            AppDateFormatter.formatDate(transaction.date, df),
-                            style: AppTypography.labelSmall.copyWith(
-                              color: isOverdue
-                                  ? AppColors.error
-                                  : AppColors.textMuted,
-                            ),
-                          ),
-                          if (isOverdue && !isSettled) ...[
-                            const SizedBox(width: 6),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 6,
-                                vertical: 1,
-                              ),
-                              decoration: BoxDecoration(
-                                color: AppColors.error.withValues(alpha: 0.2),
-                                borderRadius: AppSpacing.borderRadiusSm,
-                              ),
-                              child: Text(
-                                L10n.of(context).creditOverdue,
-                                style: AppTypography.labelSmall.copyWith(
-                                  color: AppColors.error,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                          ],
-                          if (transaction.notes != null &&
-                              transaction.notes!.isNotEmpty) ...[
-                            const SizedBox(width: 8),
-                            Icon(
-                              Icons.notes,
-                              size: 12,
-                              color: AppColors.textMuted,
-                            ),
-                            const SizedBox(width: 4),
-                            Expanded(
-                              child: Text(
-                                transaction.notes!,
-                                style: AppTypography.labelSmall.copyWith(
-                                  color: AppColors.textMuted,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ],
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 10),
-                // Amount
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    // Show what is still OWED, not the original principal —
-                    // after a partial repayment the outstanding figure is the
-                    // number the user actually needs.
-                    Text(
-                      currencyFormat.format(
-                        (isSettled ? totalAmount : outstanding) / 100.0,
-                      ),
-                      style: AppTypography.titleMedium.copyWith(
-                        color: isSettled
-                            ? AppColors.textMuted
-                            : (isCredit ? AppColors.success : AppColors.error),
-                        fontWeight: FontWeight.bold,
-                        decoration: isSettled
-                            ? TextDecoration.lineThrough
-                            : null,
-                      ),
-                    ),
-                    Text(
-                      isSettled
-                          ? L10n.of(context).creditSettled
-                          : (isCredit ? 'They owe you' : 'You owe'),
-                      style: AppTypography.labelSmall.copyWith(
-                        color: AppColors.textMuted,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            // Payment progress bar
-            if (!isSettled || hasPartialPayment) ...[
-              AppSpacing.gapMd,
-              Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(3),
-                          child: LinearProgressIndicator(
-                            value: paymentProgress,
-                            backgroundColor:
-                                (isCredit ? AppColors.success : AppColors.error)
-                                    .withValues(alpha: 0.15),
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              isCredit
-                                  ? AppColors.success
-                                  : AppColors.primaryAccent,
-                            ),
-                            minHeight: 5,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Paid: ${currencyFormat.format(paidAmount / 100.0)} / ${currencyFormat.format(totalAmount / 100.0)}',
-                          style: AppTypography.labelSmall.copyWith(
-                            color: AppColors.textMuted,
-                            fontSize: 9,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ],
-            if (!isSettled) ...[
-              AppSpacing.gapMd,
-              // Action buttons row
-              Row(
-                children: [
-                  // Record Payment button
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: () {
-                        HapticFeedback.lightImpact();
-                        _showRecordPaymentDialog(transaction, isCredit);
-                      },
-                      icon: const Icon(Icons.payments_outlined, size: 16),
-                      label: Text(L10n.of(context).creditRecordPayment),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: isCredit
-                            ? AppColors.success
-                            : AppColors.primaryAccent,
-                        side: BorderSide(
-                          color:
-                              (isCredit
-                                      ? AppColors.success
-                                      : AppColors.primaryAccent)
-                                  .withValues(alpha: 0.4),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  // Mark as Settled button
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        HapticFeedback.mediumImpact();
-                        _markAsSettled(transaction, isCredit);
-                      },
-                      icon: const Icon(Icons.check_circle, size: 16),
-                      label: Text(isCredit ? 'Collected' : 'Settled'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: isCredit
-                            ? AppColors.success
-                            : AppColors.primaryAccent,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ],
-        ),
+            ? l10n.creditEmptyAllSettled
+            : l10n.creditEmptyHint,
       ),
     );
   }
@@ -719,7 +225,9 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
                 Text(
                   transaction.title.isNotEmpty
                       ? transaction.title
-                      : (isCredit ? 'Money Lent' : 'Money Borrowed'),
+                      : (isCredit
+                            ? L10n.of(context).creditMoneyLent
+                            : L10n.of(context).creditMoneyBorrowed),
                   style: TextStyle(
                     color: AppColors.textSecondary,
                     fontSize: 14,
@@ -912,5 +420,417 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen>
         ),
       );
     }
+  }
+}
+
+/// Money in either direction, in an account's own currency and number style.
+String _money(WidgetRef ref, int cents, String currency) =>
+    AppNumberFormatter.currency(
+      CurrencyInfo.getSymbol(currency),
+      ref.watch(numberFormatSettingProvider),
+    ).format(cents / 100.0);
+
+/// Who owes whom, at a glance. Calm colours: the amount in ink, and the two
+/// directions in soft tints, rather than a card in alarm red.
+class _Summary extends ConsumerWidget {
+  const _Summary({required this.state});
+
+  final CreditDebtState state;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = L10n.of(context);
+    final c = context.sunrise;
+    final currency = ref.watch(defaultCurrencyProvider);
+    final net = state.netBalance;
+    final (String side, Color color, Color tint) = switch (net) {
+      0 => (l10n.creditAllSettled, c.muted, c.surface),
+      > 0 => (l10n.creditOthersOweYou, c.positive, c.tintGreen),
+      _ => (l10n.creditYouOweOthers, c.negative, c.tintRose),
+    };
+
+    return SunriseCard(
+      key: const Key('credit_debt_summary'),
+      padding: const EdgeInsets.all(18),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  l10n.creditNetOutstanding,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: SunriseType.body.copyWith(color: c.muted),
+                ),
+              ),
+              if (state.overdueCount > 0)
+                Flexible(
+                  child: SunrisePill(
+                    label: l10n.creditOverdueCount(state.overdueCount),
+                    icon: Symbols.schedule_rounded,
+                    color: c.negative,
+                    background: c.tintRose,
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: AlignmentDirectional.centerStart,
+            child: Text(
+              _money(ref, net.abs(), currency),
+              style: SunriseType.section.copyWith(color: c.ink, fontSize: 30),
+            ),
+          ),
+          const SizedBox(height: 6),
+          SunrisePill(label: side, color: color, background: tint),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: _Side(
+                  icon: Symbols.north_east_rounded,
+                  label: l10n.creditTheyOweYou,
+                  amount: _money(ref, state.unpaidCredit, currency),
+                  color: c.positive,
+                  tint: c.tintGreen,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _Side(
+                  icon: Symbols.south_west_rounded,
+                  label: l10n.creditYouOwe,
+                  amount: _money(ref, state.unpaidDebt, currency),
+                  color: c.negative,
+                  tint: c.tintRose,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// One direction of the summary: what is owed to the user, or by them.
+class _Side extends StatelessWidget {
+  const _Side({
+    required this.icon,
+    required this.label,
+    required this.amount,
+    required this.color,
+    required this.tint,
+  });
+
+  final IconData icon;
+  final String label;
+  final String amount;
+  final Color color;
+  final Color tint;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.sunrise;
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: tint,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, size: 16, color: color),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: SunriseType.caption.copyWith(color: c.muted),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: AlignmentDirectional.centerStart,
+            child: Text(
+              amount,
+              style: SunriseType.label.copyWith(
+                color: c.ink,
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// One loan: who, how much is still open, how much is back, and what to do.
+///
+/// A plain card with the direction in a small coloured tile, so a list of
+/// loans reads as a list rather than a wall of green and red. Tapping it
+/// opens the loan.
+class _LoanCard extends ConsumerWidget {
+  const _LoanCard({required this.loan, this.onRecordPayment, this.onSettle});
+
+  final Transaction loan;
+  final VoidCallback? onRecordPayment;
+  final VoidCallback? onSettle;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = L10n.of(context);
+    final c = context.sunrise;
+    final df = ref.watch(dateFormatSettingProvider);
+    final currency = ref.watch(walletCurrencyProvider(loan.walletId));
+    final lent = TransactionPolicy.isCredit(loan);
+    final settled = TransactionPolicy.isSettled(loan);
+    final overdue = TransactionPolicy.isOverdue(loan);
+    final partly = TransactionPolicy.hasPartialPayment(loan);
+    final color = lent ? c.positive : c.negative;
+    final title = loan.title.isNotEmpty
+        ? loan.title
+        : (lent ? l10n.creditMoneyLent : l10n.creditMoneyBorrowed);
+    final notes = loan.notes?.trim() ?? '';
+    final due = loan.originalDueDate;
+
+    final card = SunriseCard(
+      key: Key('loan_${loan.id}'),
+      padding: const EdgeInsets.all(14),
+      onTap: () => Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => TransactionDetailScreen(transactionId: loan.id),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              IconTile(
+                icon: lent
+                    ? Symbols.north_east_rounded
+                    : Symbols.south_west_rounded,
+                color: color,
+                size: 40,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: SunriseType.rowTitle.copyWith(
+                        color: settled ? c.subtle : c.ink,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      [
+                        AppDateFormatter.formatDate(loan.date, df),
+                        if (notes.isNotEmpty) notes,
+                      ].join(' · '),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: SunriseType.caption.copyWith(color: c.subtle),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 10),
+              // Capped so a six-figure loan does not squeeze the name.
+              ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxWidth: MediaQuery.sizeOf(context).width * .36,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: AlignmentDirectional.centerEnd,
+                      child: Text(
+                        // What is still open, not the principal: after a
+                        // partial repayment that is the number that matters.
+                        _money(
+                          ref,
+                          settled
+                              ? loan.amount
+                              : TransactionPolicy.outstandingAmount(loan),
+                          currency,
+                        ),
+                        style: SunriseType.amount.copyWith(
+                          color: settled ? c.subtle : c.ink,
+                          fontSize: 17,
+                          decoration: settled
+                              ? TextDecoration.lineThrough
+                              : null,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      settled
+                          ? l10n.creditSettled
+                          : (lent ? l10n.creditTheyOweYou : l10n.creditYouOwe),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: SunriseType.caption.copyWith(
+                        color: settled ? c.subtle : color,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          if (overdue && due != null) ...[
+            const SizedBox(height: 10),
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: SunrisePill(
+                label:
+                    '${l10n.creditOverdue} · '
+                    '${AppDateFormatter.formatDate(due, df)}',
+                icon: Symbols.schedule_rounded,
+                color: c.negative,
+                background: c.tintRose,
+              ),
+            ),
+          ],
+          if (partly) ...[
+            const SizedBox(height: 12),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: LinearProgressIndicator(
+                value: TransactionPolicy.settlementProgress(loan),
+                minHeight: 6,
+                backgroundColor: c.barIdle,
+                color: color,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              l10n.creditPaidOf(
+                _money(ref, loan.paidAmount, currency),
+                _money(ref, loan.amount, currency),
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: SunriseType.caption.copyWith(color: c.muted),
+            ),
+          ],
+          if (!settled && onRecordPayment != null && onSettle != null) ...[
+            const SizedBox(height: 12),
+            // One line each at any width: the labels shrink to fit rather
+            // than wrapping, which turned "Record Payment" into two lines.
+            Row(
+              children: [
+                Expanded(
+                  child: _LoanAction(
+                    label: l10n.creditRecordPayment,
+                    icon: Icons.payments_outlined,
+                    color: c.ink,
+                    background: c.surface,
+                    bordered: true,
+                    onTap: () {
+                      HapticFeedback.lightImpact();
+                      onRecordPayment!();
+                    },
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: _LoanAction(
+                    label: lent ? l10n.creditCollected : l10n.creditSettled,
+                    icon: Symbols.check_circle_rounded,
+                    color: color,
+                    background: lent ? c.tintGreen : c.tintRose,
+                    onTap: () {
+                      HapticFeedback.mediumImpact();
+                      onSettle!();
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
+    return settled ? Opacity(opacity: .7, child: card) : card;
+  }
+}
+
+/// A loan card's action: one line at any width and text size, the label
+/// shrinking before it would wrap.
+class _LoanAction extends StatelessWidget {
+  const _LoanAction({
+    required this.label,
+    required this.icon,
+    required this.color,
+    required this.background,
+    required this.onTap,
+    this.bordered = false,
+  });
+
+  final String label;
+  final IconData icon;
+  final Color color;
+  final Color background;
+  final bool bordered;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.sunrise;
+    return Pressable(
+      onTap: onTap,
+      semanticLabel: label,
+      child: Container(
+        height: 44,
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        decoration: BoxDecoration(
+          color: background,
+          borderRadius: BorderRadius.circular(22),
+          border: bordered ? Border.all(color: c.divider) : null,
+        ),
+        alignment: Alignment.center,
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, size: 18, color: color),
+              const SizedBox(width: 6),
+              Text(
+                label,
+                maxLines: 1,
+                style: SunriseType.label.copyWith(
+                  color: color,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

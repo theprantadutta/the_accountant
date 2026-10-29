@@ -1885,6 +1885,38 @@ class L10nEn extends L10n {
       'Nothing recorded in this period.';
 
   @override
+  String budgetCardSemantics(String name, String spent, String limit) {
+    return '$name, $spent of $limit used';
+  }
+
+  @override
+  String budgetAmountLeft(String amount) {
+    return '$amount left';
+  }
+
+  @override
+  String budgetAmountOver(String amount) {
+    return '$amount over';
+  }
+
+  @override
+  String get budgetPeriodEnded => 'Period ended';
+
+  @override
+  String get budgetPaceOver => 'Over';
+
+  @override
+  String budgetDaysLeft(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days days left',
+      one: '1 day left',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get authPasswordResetSuccessfullyPleaseSign =>
       'Password reset successfully. Please sign in.';
 
@@ -2045,6 +2077,75 @@ class L10nEn extends L10n {
 
   @override
   String get creditOverdue => 'Overdue';
+
+  @override
+  String creditTabCredit(int count) {
+    return 'Lent ($count)';
+  }
+
+  @override
+  String creditTabDebt(int count) {
+    return 'Borrowed ($count)';
+  }
+
+  @override
+  String get creditNetOutstanding => 'Net outstanding';
+
+  @override
+  String get creditAllSettled => 'All settled';
+
+  @override
+  String get creditOthersOweYou => 'Others owe you';
+
+  @override
+  String get creditYouOweOthers => 'You owe others';
+
+  @override
+  String creditOverdueCount(int count) {
+    return '$count overdue';
+  }
+
+  @override
+  String get creditEmptyAll => 'No money lent or borrowed';
+
+  @override
+  String get creditEmptyLent => 'No money lent';
+
+  @override
+  String get creditEmptyBorrowed => 'No money borrowed';
+
+  @override
+  String get creditEmptyAllSettled => 'Everything is settled.';
+
+  @override
+  String get creditEmptyHint =>
+      'Add money you lent or borrowed to keep track of who owes whom.';
+
+  @override
+  String get creditShowAll => 'Show all';
+
+  @override
+  String get creditShowUnpaid => 'Show unpaid only';
+
+  @override
+  String get creditMoneyLent => 'Money lent';
+
+  @override
+  String get creditMoneyBorrowed => 'Money borrowed';
+
+  @override
+  String get creditTheyOweYou => 'They owe you';
+
+  @override
+  String get creditYouOwe => 'You owe';
+
+  @override
+  String get creditCollected => 'Collected';
+
+  @override
+  String creditPaidOf(String paid, String total) {
+    return 'Paid $paid of $total';
+  }
 
   @override
   String get creditRecord => 'Record';
@@ -4806,6 +4907,43 @@ class L10nEn extends L10n {
   @override
   String get zakatSubtitle =>
       'Work out what is due on your wealth, and record what you pay';
+
+  @override
+  String get zakatSubtitleOff => 'You don\'t pay zakat. Tap to check it anyway';
+
+  @override
+  String get zakatAskTitle => 'Do you pay zakat?';
+
+  @override
+  String get zakatAskBody =>
+      'Not everyone does. If you don\'t, the app keeps zakat out of your way: nothing due and no reminders.';
+
+  @override
+  String get zakatIPay => 'I pay zakat';
+
+  @override
+  String get zakatIDontPay => 'I don\'t pay zakat';
+
+  @override
+  String get zakatOffTitle => 'You don\'t pay zakat';
+
+  @override
+  String get zakatOffBody =>
+      'So nothing about zakat shows as due, and there are no zakat reminders. You can still see what it would come to, any time; looking doesn\'t change your answer.';
+
+  @override
+  String get zakatOffPeek => 'See what it would come to';
+
+  @override
+  String get zakatPeekBanner =>
+      'Just a look. You\'ve said you don\'t pay zakat.';
+
+  @override
+  String get zakatOptOutTitle => 'Stop tracking zakat?';
+
+  @override
+  String get zakatOptOutBody =>
+      'Nothing will show as due and there will be no zakat reminders. Your figures are kept, and you can check them here any time.';
 
   @override
   String get zakatDue => 'Zakat due';

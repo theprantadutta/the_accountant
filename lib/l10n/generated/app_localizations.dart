@@ -3473,6 +3473,42 @@ abstract class L10n {
   /// **'Nothing recorded in this period.'**
   String get budgetNothingRecordedInThisPeriod;
 
+  /// No description provided for @budgetCardSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}, {spent} of {limit} used'**
+  String budgetCardSemantics(String name, String spent, String limit);
+
+  /// No description provided for @budgetAmountLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} left'**
+  String budgetAmountLeft(String amount);
+
+  /// No description provided for @budgetAmountOver.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} over'**
+  String budgetAmountOver(String amount);
+
+  /// No description provided for @budgetPeriodEnded.
+  ///
+  /// In en, this message translates to:
+  /// **'Period ended'**
+  String get budgetPeriodEnded;
+
+  /// No description provided for @budgetPaceOver.
+  ///
+  /// In en, this message translates to:
+  /// **'Over'**
+  String get budgetPaceOver;
+
+  /// No description provided for @budgetDaysLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{days, plural, =1{1 day left} other{{days} days left}}'**
+  String budgetDaysLeft(int days);
+
   /// No description provided for @authPasswordResetSuccessfullyPleaseSign.
   ///
   /// In en, this message translates to:
@@ -3778,6 +3814,126 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'Overdue'**
   String get creditOverdue;
+
+  /// No description provided for @creditTabCredit.
+  ///
+  /// In en, this message translates to:
+  /// **'Lent ({count})'**
+  String creditTabCredit(int count);
+
+  /// No description provided for @creditTabDebt.
+  ///
+  /// In en, this message translates to:
+  /// **'Borrowed ({count})'**
+  String creditTabDebt(int count);
+
+  /// No description provided for @creditNetOutstanding.
+  ///
+  /// In en, this message translates to:
+  /// **'Net outstanding'**
+  String get creditNetOutstanding;
+
+  /// No description provided for @creditAllSettled.
+  ///
+  /// In en, this message translates to:
+  /// **'All settled'**
+  String get creditAllSettled;
+
+  /// No description provided for @creditOthersOweYou.
+  ///
+  /// In en, this message translates to:
+  /// **'Others owe you'**
+  String get creditOthersOweYou;
+
+  /// No description provided for @creditYouOweOthers.
+  ///
+  /// In en, this message translates to:
+  /// **'You owe others'**
+  String get creditYouOweOthers;
+
+  /// No description provided for @creditOverdueCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} overdue'**
+  String creditOverdueCount(int count);
+
+  /// No description provided for @creditEmptyAll.
+  ///
+  /// In en, this message translates to:
+  /// **'No money lent or borrowed'**
+  String get creditEmptyAll;
+
+  /// No description provided for @creditEmptyLent.
+  ///
+  /// In en, this message translates to:
+  /// **'No money lent'**
+  String get creditEmptyLent;
+
+  /// No description provided for @creditEmptyBorrowed.
+  ///
+  /// In en, this message translates to:
+  /// **'No money borrowed'**
+  String get creditEmptyBorrowed;
+
+  /// No description provided for @creditEmptyAllSettled.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything is settled.'**
+  String get creditEmptyAllSettled;
+
+  /// No description provided for @creditEmptyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add money you lent or borrowed to keep track of who owes whom.'**
+  String get creditEmptyHint;
+
+  /// No description provided for @creditShowAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Show all'**
+  String get creditShowAll;
+
+  /// No description provided for @creditShowUnpaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Show unpaid only'**
+  String get creditShowUnpaid;
+
+  /// No description provided for @creditMoneyLent.
+  ///
+  /// In en, this message translates to:
+  /// **'Money lent'**
+  String get creditMoneyLent;
+
+  /// No description provided for @creditMoneyBorrowed.
+  ///
+  /// In en, this message translates to:
+  /// **'Money borrowed'**
+  String get creditMoneyBorrowed;
+
+  /// No description provided for @creditTheyOweYou.
+  ///
+  /// In en, this message translates to:
+  /// **'They owe you'**
+  String get creditTheyOweYou;
+
+  /// No description provided for @creditYouOwe.
+  ///
+  /// In en, this message translates to:
+  /// **'You owe'**
+  String get creditYouOwe;
+
+  /// No description provided for @creditCollected.
+  ///
+  /// In en, this message translates to:
+  /// **'Collected'**
+  String get creditCollected;
+
+  /// No description provided for @creditPaidOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid {paid} of {total}'**
+  String creditPaidOf(String paid, String total);
 
   /// No description provided for @creditRecord.
   ///
@@ -8559,6 +8715,72 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'Work out what is due on your wealth, and record what you pay'**
   String get zakatSubtitle;
+
+  /// No description provided for @zakatSubtitleOff.
+  ///
+  /// In en, this message translates to:
+  /// **'You don\'t pay zakat. Tap to check it anyway'**
+  String get zakatSubtitleOff;
+
+  /// No description provided for @zakatAskTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Do you pay zakat?'**
+  String get zakatAskTitle;
+
+  /// No description provided for @zakatAskBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Not everyone does. If you don\'t, the app keeps zakat out of your way: nothing due and no reminders.'**
+  String get zakatAskBody;
+
+  /// No description provided for @zakatIPay.
+  ///
+  /// In en, this message translates to:
+  /// **'I pay zakat'**
+  String get zakatIPay;
+
+  /// No description provided for @zakatIDontPay.
+  ///
+  /// In en, this message translates to:
+  /// **'I don\'t pay zakat'**
+  String get zakatIDontPay;
+
+  /// No description provided for @zakatOffTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You don\'t pay zakat'**
+  String get zakatOffTitle;
+
+  /// No description provided for @zakatOffBody.
+  ///
+  /// In en, this message translates to:
+  /// **'So nothing about zakat shows as due, and there are no zakat reminders. You can still see what it would come to, any time; looking doesn\'t change your answer.'**
+  String get zakatOffBody;
+
+  /// No description provided for @zakatOffPeek.
+  ///
+  /// In en, this message translates to:
+  /// **'See what it would come to'**
+  String get zakatOffPeek;
+
+  /// No description provided for @zakatPeekBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'Just a look. You\'ve said you don\'t pay zakat.'**
+  String get zakatPeekBanner;
+
+  /// No description provided for @zakatOptOutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop tracking zakat?'**
+  String get zakatOptOutTitle;
+
+  /// No description provided for @zakatOptOutBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing will show as due and there will be no zakat reminders. Your figures are kept, and you can check them here any time.'**
+  String get zakatOptOutBody;
 
   /// No description provided for @zakatDue.
   ///

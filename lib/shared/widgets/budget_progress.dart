@@ -6,6 +6,7 @@ import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/utils/currency_formatter.dart';
 import 'package:the_accountant/features/budgets/domain/budget_engine.dart';
 import 'package:the_accountant/features/settings/providers/settings_provider.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 
 /// One budget's card: name, spend against limit, a bar, and how it is pacing.
 ///
@@ -31,6 +32,7 @@ class BudgetProgressCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final useDecimals = ref.watch(defaultDecimalProvider);
     final numberFormat = ref.watch(numberFormatSettingProvider);
+    final l10n = L10n.of(context);
 
     String money(int cents) => cents.formatCurrency(
       currency,
@@ -52,9 +54,11 @@ class BudgetProgressCard extends ConsumerWidget {
 
     return Semantics(
       button: onTap != null,
-      label:
-          '${progress.budget.name}, '
-          '${money(progress.spent)} of ${money(progress.limit)} used',
+      label: l10n.budgetCardSemantics(
+        progress.budget.name,
+        money(progress.spent),
+        money(progress.limit),
+      ),
       child: InkWell(
         onTap: onTap,
         onLongPress: onLongPress,
@@ -86,11 +90,23 @@ class BudgetProgressCard extends ConsumerWidget {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    Text(
-                      '${money(progress.spent)} / ${money(progress.limit)}',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimary,
+                    // Large sums on a narrow phone shrink rather than push
+                    // the row past the card.
+                    ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxWidth: MediaQuery.sizeOf(context).width * .5,
+                      ),
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: AlignmentDirectional.centerEnd,
+                        child: Text(
+                          '${money(progress.spent)} / ${money(progress.limit)}',
+                          maxLines: 1,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
                       ),
                     ),
                   ],
@@ -115,8 +131,8 @@ class BudgetProgressCard extends ConsumerWidget {
                     Expanded(
                       child: Text(
                         isOver
-                            ? '${money(remaining.abs())} over'
-                            : '${money(remaining)} left',
+                            ? l10n.budgetAmountOver(money(remaining.abs()))
+                            : l10n.budgetAmountLeft(money(remaining)),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
@@ -127,7 +143,7 @@ class BudgetProgressCard extends ConsumerWidget {
                       ),
                     ),
                     Text(
-                      _paceLabel(progress),
+                      _paceLabel(progress, l10n),
                       style: TextStyle(
                         color: AppColors.textSecondary,
                         fontSize: 12,
@@ -144,13 +160,13 @@ class BudgetProgressCard extends ConsumerWidget {
   }
 
   /// What is still available per day, or how the window is going.
-  static String _paceLabel(BudgetProgress progress) {
+  static String _paceLabel(BudgetProgress progress, L10n l10n) {
     final now = DateTime.now();
-    if (progress.window.end.isBefore(now)) return 'Period ended';
+    if (progress.window.end.isBefore(now)) return l10n.budgetPeriodEnded;
     final perDay = progress.dailyAllowanceFrom(now);
-    if (perDay == null) return progress.isOver ? 'Over' : '';
+    if (perDay == null) return progress.isOver ? l10n.budgetPaceOver : '';
     final days = progress.window.end.difference(now).inDays;
-    return '$days ${days == 1 ? 'day' : 'days'} left';
+    return l10n.budgetDaysLeft(days);
   }
 }
 

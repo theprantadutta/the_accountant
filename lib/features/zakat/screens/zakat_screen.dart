@@ -14,11 +14,23 @@ import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
 
 /// What zakat is due on the user's wealth, what has been paid toward it, and
 /// every figure the answer is made of.
-class ZakatScreen extends ConsumerWidget {
+///
+/// Not everybody pays zakat, so the screen asks. Somebody who says they do
+/// not gets a quiet page instead of an amount "due", and no reminders; the
+/// calculator is one tap away for a look, without changing their answer.
+class ZakatScreen extends ConsumerStatefulWidget {
   const ZakatScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ZakatScreen> createState() => _ZakatScreenState();
+}
+
+class _ZakatScreenState extends ConsumerState<ZakatScreen> {
+  /// Looking at the figures while having said they do not pay zakat.
+  bool _peeking = false;
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = L10n.of(context);
     final report = ref.watch(zakatReportProvider);
 
@@ -28,33 +40,229 @@ class ZakatScreen extends ConsumerWidget {
         child: report.when(
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (e, _) => Center(child: Text('$e')),
-          data: (r) => ListView(
-            padding: const EdgeInsets.fromLTRB(
-              SunriseSpace.screenX,
-              8,
-              SunriseSpace.screenX,
-              40,
-            ),
+          data: (r) {
+            final s = r.settings;
+            if (s.optedOut && !_peeking) {
+              return _NotPaying(onPeek: () => setState(() => _peeking = true));
+            }
+            final peek = s.optedOut;
+            return ListView(
+              padding: const EdgeInsets.fromLTRB(
+                SunriseSpace.screenX,
+                8,
+                SunriseSpace.screenX,
+                40,
+              ),
+              children: [
+                if (s.paysZakat == null) ...[
+                  const _AskCard(),
+                  const SizedBox(height: 20),
+                ],
+                if (peek) ...[
+                  _PeekBanner(onDone: () => setState(() => _peeking = false)),
+                  const SizedBox(height: 16),
+                ],
+                _DueCard(report: r, canPay: !peek),
+                const SizedBox(height: 20),
+                _NisabSection(report: r),
+                const SizedBox(height: 20),
+                _LinesSection(report: r),
+                const SizedBox(height: 20),
+                _TotalsCard(report: r),
+                // Reminders are for people who pay it.
+                if (!peek) ...[
+                  const SizedBox(height: 20),
+                  _YearSection(settings: s),
+                ],
+                const SizedBox(height: 16),
+                Text(
+                  l10n.zakatDisclaimer,
+                  style: SunriseType.caption.copyWith(
+                    color: context.sunrise.subtle,
+                  ),
+                ),
+                if (s.paysZakat == true) ...[
+                  const SizedBox(height: 20),
+                  Center(
+                    child: SunriseButton(
+                      key: const Key('zakat_opt_out'),
+                      label: l10n.zakatIDontPay,
+                      style: SunriseButtonStyle.ghost,
+                      expand: false,
+                      height: 44,
+                      onPressed: () => _optOut(context, ref),
+                    ),
+                  ),
+                ],
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+Future<void> _optOut(BuildContext context, WidgetRef ref) async {
+  final l10n = L10n.of(context);
+  final ok = await showSunriseConfirm(
+    context: context,
+    title: l10n.zakatOptOutTitle,
+    message: l10n.zakatOptOutBody,
+    confirmLabel: l10n.zakatIDontPay,
+    icon: Symbols.volunteer_activism_rounded,
+  );
+  if (ok) await _change(ref, (s) => s.copyWith(paysZakat: false));
+}
+
+/// Asked once, at the top, until answered.
+class _AskCard extends ConsumerWidget {
+  const _AskCard();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = L10n.of(context);
+    final c = context.sunrise;
+    return SunriseCard(
+      key: const Key('zakat_ask'),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            l10n.zakatAskTitle,
+            style: SunriseType.section.copyWith(color: c.ink, fontSize: 18),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            l10n.zakatAskBody,
+            style: SunriseType.body.copyWith(color: c.muted, height: 1.4),
+          ),
+          const SizedBox(height: 14),
+          Row(
             children: [
-              _DueCard(report: r),
-              const SizedBox(height: 20),
-              _NisabSection(report: r),
-              const SizedBox(height: 20),
-              _LinesSection(report: r),
-              const SizedBox(height: 20),
-              _TotalsCard(report: r),
-              const SizedBox(height: 20),
-              _YearSection(settings: r.settings),
-              const SizedBox(height: 16),
-              Text(
-                l10n.zakatDisclaimer,
-                style: SunriseType.caption.copyWith(
-                  color: context.sunrise.subtle,
+              Expanded(
+                child: SunriseButton(
+                  key: const Key('zakat_i_pay'),
+                  label: l10n.zakatIPay,
+                  height: 48,
+                  onPressed: () =>
+                      _change(ref, (s) => s.copyWith(paysZakat: true)),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: SunriseButton.secondary(
+                  key: const Key('zakat_i_dont_pay'),
+                  label: l10n.zakatIDontPay,
+                  height: 48,
+                  onPressed: () =>
+                      _change(ref, (s) => s.copyWith(paysZakat: false)),
                 ),
               ),
             ],
           ),
+        ],
+      ),
+    );
+  }
+}
+
+/// What somebody who does not pay zakat sees: no amount due, and the way to
+/// look anyway.
+class _NotPaying extends ConsumerWidget {
+  const _NotPaying({required this.onPeek});
+
+  final VoidCallback onPeek;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = L10n.of(context);
+    final c = context.sunrise;
+    return ListView(
+      key: const Key('zakat_not_paying'),
+      padding: const EdgeInsets.fromLTRB(
+        SunriseSpace.screenX,
+        40,
+        SunriseSpace.screenX,
+        40,
+      ),
+      children: [
+        Center(
+          child: IconTile(
+            icon: Symbols.volunteer_activism_rounded,
+            color: c.positive,
+            background: c.tintGreen,
+            size: 72,
+            radius: 24,
+            iconSize: 36,
+          ),
         ),
+        const SizedBox(height: 20),
+        Text(
+          l10n.zakatOffTitle,
+          textAlign: TextAlign.center,
+          style: SunriseType.section.copyWith(color: c.ink, fontSize: 22),
+        ),
+        const SizedBox(height: 10),
+        Text(
+          l10n.zakatOffBody,
+          textAlign: TextAlign.center,
+          style: SunriseType.body.copyWith(color: c.muted, height: 1.45),
+        ),
+        const SizedBox(height: 28),
+        SunriseButton(
+          key: const Key('zakat_peek'),
+          label: l10n.zakatOffPeek,
+          icon: Symbols.calculate_rounded,
+          onPressed: onPeek,
+        ),
+        const SizedBox(height: 10),
+        SunriseButton.secondary(
+          key: const Key('zakat_opt_in'),
+          label: l10n.zakatIPay,
+          onPressed: () => _change(ref, (s) => s.copyWith(paysZakat: true)),
+        ),
+      ],
+    );
+  }
+}
+
+/// Over the figures while just looking, so nobody mistakes them for a bill.
+class _PeekBanner extends ConsumerWidget {
+  const _PeekBanner({required this.onDone});
+
+  final VoidCallback onDone;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = L10n.of(context);
+    final c = context.sunrise;
+    return Container(
+      key: const Key('zakat_peek_banner'),
+      padding: const EdgeInsets.fromLTRB(14, 12, 8, 12),
+      decoration: BoxDecoration(
+        color: c.tintGreen,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        children: [
+          Icon(Symbols.visibility_rounded, color: c.positive, size: 20),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              l10n.zakatPeekBanner,
+              style: SunriseType.label.copyWith(color: c.ink, height: 1.35),
+            ),
+          ),
+          TextButton(
+            onPressed: () async {
+              await _change(ref, (s) => s.copyWith(paysZakat: true));
+              onDone();
+            },
+            child: Text(l10n.zakatIPay),
+          ),
+        ],
       ),
     );
   }
@@ -65,9 +273,12 @@ Future<void> _change(WidgetRef ref, ZakatSettings Function(ZakatSettings) f) =>
 
 /// The answer: what is due, what has been paid, and when.
 class _DueCard extends ConsumerWidget {
-  const _DueCard({required this.report});
+  const _DueCard({required this.report, this.canPay = true});
 
   final ZakatReport report;
+
+  /// Off while only looking: a "Pay" button would contradict the answer.
+  final bool canPay;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -133,15 +344,17 @@ class _DueCard extends ConsumerWidget {
                 : l10n.zakatNextDate(days!, f.day(r.nextDate!)),
             style: SunriseType.caption.copyWith(color: c.muted),
           ),
-          const SizedBox(height: 14),
-          SunriseButton(
-            key: const Key('zakat_pay'),
-            label: l10n.zakatPay,
-            icon: Symbols.volunteer_activism_rounded,
-            onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => ZakatPayScreen(report: r)),
+          if (canPay) ...[
+            const SizedBox(height: 14),
+            SunriseButton(
+              key: const Key('zakat_pay'),
+              label: l10n.zakatPay,
+              icon: Symbols.volunteer_activism_rounded,
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => ZakatPayScreen(report: r)),
+              ),
             ),
-          ),
+          ],
         ],
       ),
     );

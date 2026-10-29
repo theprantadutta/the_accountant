@@ -170,40 +170,52 @@ class CompactDateTimePicker extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 8),
-          // The time, as the parts it is set by.
-          Semantics(
-            button: true,
-            label: l10n.addChangeTime(time),
-            excludeSemantics: true,
-            child: Pressable(
-              key: const Key('time_button'),
-              onTap: () => _pickTime(context),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _TimePart(
-                    DateFormat(use24Hour ? 'HH' : 'h').format(selectedDateTime),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                    child: Text(
-                      ':',
-                      style: SunriseType.rowTitle.copyWith(
-                        color: c.ink,
-                        fontSize: 20,
-                        fontWeight: FontWeight.w700,
+          // The time, as the parts it is set by. Capped and shrunk to fit, so
+          // with large text on a narrow phone the day keeps room too.
+          ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: MediaQuery.sizeOf(context).width * .5,
+            ),
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: AlignmentDirectional.centerEnd,
+              child: Semantics(
+                button: true,
+                label: l10n.addChangeTime(time),
+                excludeSemantics: true,
+                child: Pressable(
+                  key: const Key('time_button'),
+                  onTap: () => _pickTime(context),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _TimePart(
+                        DateFormat(
+                          use24Hour ? 'HH' : 'h',
+                        ).format(selectedDateTime),
                       ),
-                    ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        child: Text(
+                          ':',
+                          style: SunriseType.rowTitle.copyWith(
+                            color: c.ink,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                      _TimePart(DateFormat('mm').format(selectedDateTime)),
+                      if (!use24Hour) ...[
+                        const SizedBox(width: 6),
+                        _TimePart(
+                          DateFormat('a').format(selectedDateTime),
+                          small: true,
+                        ),
+                      ],
+                    ],
                   ),
-                  _TimePart(DateFormat('mm').format(selectedDateTime)),
-                  if (!use24Hour) ...[
-                    const SizedBox(width: 6),
-                    _TimePart(
-                      DateFormat('a').format(selectedDateTime),
-                      small: true,
-                    ),
-                  ],
-                ],
+                ),
               ),
             ),
           ),

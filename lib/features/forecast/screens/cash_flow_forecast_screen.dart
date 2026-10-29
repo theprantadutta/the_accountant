@@ -6,6 +6,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/features/forecast/providers/forecast_provider.dart';
 import 'package:the_accountant/features/forecast/services/cash_flow_forecast_service.dart';
 import 'package:the_accountant/features/forecast/widgets/forecast_labels.dart';
+import 'package:the_accountant/features/plans/screens/plan_detail_screen.dart';
+import 'package:the_accountant/features/transactions/screens/transaction_detail_screen.dart';
+import 'package:the_accountant/features/wallets/screens/wallet_detail_screen.dart';
 import 'package:the_accountant/features/plans/widgets/plan_labels.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
@@ -507,42 +510,64 @@ class _EventRow extends ConsumerWidget {
       if (event.expected) l10n.forecastExpected,
     ];
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10),
-      child: Row(
-        children: [
-          IconTile(icon: event.kind.icon, color: color, size: 36),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  event.title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: SunriseType.rowTitle.copyWith(color: c.ink),
-                ),
-                Text(
-                  notes.join(' · '),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: SunriseType.caption.copyWith(color: c.subtle),
-                ),
-              ],
+    final open = _detailFor(event);
+    return Pressable(
+      onTap: open == null
+          ? null
+          : () => Navigator.of(
+              context,
+            ).push(MaterialPageRoute(builder: (_) => open)),
+      semanticLabel: event.title,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        child: Row(
+          children: [
+            IconTile(icon: event.kind.icon, color: color, size: 36),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    event.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: SunriseType.rowTitle.copyWith(color: c.ink),
+                  ),
+                  Text(
+                    notes.join(' · '),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: SunriseType.caption.copyWith(color: c.subtle),
+                  ),
+                ],
+              ),
             ),
-          ),
-          const SizedBox(width: 8),
-          Text(
-            '${event.isIncome ? '+' : '-'}${f.money(event.amount, currency)}',
-            style: SunriseType.amount.copyWith(
-              color: color,
-              fontSize: 15,
-              fontFeatures: const [FontFeature.tabularFigures()],
+            const SizedBox(width: 8),
+            Text(
+              '${event.isIncome ? '+' : '-'}${f.money(event.amount, currency)}',
+              style: SunriseType.amount.copyWith(
+                color: color,
+                fontSize: 15,
+                fontFeatures: const [FontFeature.tabularFigures()],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 }
+
+/// The screen a forecast row opens: the plan, the card, or the transaction
+/// it comes from. Each row names one of them, and tapping did nothing.
+Widget? _detailFor(ForecastEvent e) => switch (e.source) {
+  ForecastSource.plan when e.refId != null => PlanDetailScreen(
+    planId: e.refId!,
+  ),
+  ForecastSource.cardBill when e.walletId != null => WalletDetailScreen(
+    walletId: e.walletId!,
+  ),
+  _ when e.refId != null => TransactionDetailScreen(transactionId: e.refId!),
+  _ => null,
+};

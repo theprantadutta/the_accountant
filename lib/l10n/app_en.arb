@@ -808,6 +808,46 @@
   "reportCreateABudgetToTrack": "Create a budget to track your spending",
   "budgetSpendingFasterThanThePeriod": "Spending faster than the period is passing.",
   "budgetNothingRecordedInThisPeriod": "Nothing recorded in this period.",
+  "budgetCardSemantics": "{name}, {spent} of {limit} used",
+  "@budgetCardSemantics": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "spent": {
+        "type": "String"
+      },
+      "limit": {
+        "type": "String"
+      }
+    }
+  },
+  "budgetAmountLeft": "{amount} left",
+  "@budgetAmountLeft": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "budgetAmountOver": "{amount} over",
+  "@budgetAmountOver": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "budgetPeriodEnded": "Period ended",
+  "budgetPaceOver": "Over",
+  "budgetDaysLeft": "{days, plural, =1{1 day left} other{{days} days left}}",
+  "@budgetDaysLeft": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
   "authPasswordResetSuccessfullyPleaseSign": "Password reset successfully. Please sign in.",
   "authResendCode": "Resend code",
   "authForgotPassword": "Forgot Password?",
@@ -859,6 +899,30 @@
   "onboardTipYouCanAddMore": "Tip: You can add more accounts with different currencies anytime from the Wallets section.",
   "creditSettled": "Settled",
   "creditOverdue": "Overdue",
+  "creditTabCredit": "Lent ({count})",
+  "@creditTabCredit": {"placeholders": {"count": {"type": "int"}}},
+  "creditTabDebt": "Borrowed ({count})",
+  "@creditTabDebt": {"placeholders": {"count": {"type": "int"}}},
+  "creditNetOutstanding": "Net outstanding",
+  "creditAllSettled": "All settled",
+  "creditOthersOweYou": "Others owe you",
+  "creditYouOweOthers": "You owe others",
+  "creditOverdueCount": "{count} overdue",
+  "@creditOverdueCount": {"placeholders": {"count": {"type": "int"}}},
+  "creditEmptyAll": "No money lent or borrowed",
+  "creditEmptyLent": "No money lent",
+  "creditEmptyBorrowed": "No money borrowed",
+  "creditEmptyAllSettled": "Everything is settled.",
+  "creditEmptyHint": "Add money you lent or borrowed to keep track of who owes whom.",
+  "creditShowAll": "Show all",
+  "creditShowUnpaid": "Show unpaid only",
+  "creditMoneyLent": "Money lent",
+  "creditMoneyBorrowed": "Money borrowed",
+  "creditTheyOweYou": "They owe you",
+  "creditYouOwe": "You owe",
+  "creditCollected": "Collected",
+  "creditPaidOf": "Paid {paid} of {total}",
+  "@creditPaidOf": {"placeholders": {"paid": {"type": "String"}, "total": {"type": "String"}}},
   "creditRecord": "Record",
   "subRecurring": "Recurring",
   "subPaused": "Paused",
@@ -2551,6 +2615,17 @@
   },
   "zakatTitle": "Zakat",
   "zakatSubtitle": "Work out what is due on your wealth, and record what you pay",
+  "zakatSubtitleOff": "You don't pay zakat. Tap to check it anyway",
+  "zakatAskTitle": "Do you pay zakat?",
+  "zakatAskBody": "Not everyone does. If you don't, the app keeps zakat out of your way: nothing due and no reminders.",
+  "zakatIPay": "I pay zakat",
+  "zakatIDontPay": "I don't pay zakat",
+  "zakatOffTitle": "You don't pay zakat",
+  "zakatOffBody": "So nothing about zakat shows as due, and there are no zakat reminders. You can still see what it would come to, any time; looking doesn't change your answer.",
+  "zakatOffPeek": "See what it would come to",
+  "zakatPeekBanner": "Just a look. You've said you don't pay zakat.",
+  "zakatOptOutTitle": "Stop tracking zakat?",
+  "zakatOptOutBody": "Nothing will show as due and there will be no zakat reminders. Your figures are kept, and you can check them here any time.",
   "zakatDue": "Zakat due",
   "zakatAboveNisab": "Above the nisab: 2.5% of {amount} net wealth",
   "@zakatAboveNisab": {

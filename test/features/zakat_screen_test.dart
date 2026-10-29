@@ -6,6 +6,7 @@ import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
 import 'package:the_accountant/features/zakat/domain/zakat_settings.dart';
 import 'package:the_accountant/features/zakat/screens/zakat_screen.dart';
+import 'package:the_accountant/features/zakat/services/zakat_reminder.dart';
 import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
 
 import '../helpers/localized_app.dart';
@@ -68,5 +69,58 @@ void main() {
     await pump(tester, locale: const Locale('bn'));
     expect(find.text('যাকাত দিন'), findsOneWidget);
     expect(tester.takeException(), isNull);
+  });
+
+  Future<void> settle(WidgetTester tester) async {
+    for (var i = 0; i < 5; i++) {
+      await tester.runAsync(() => Future<void>.delayed(Duration.zero));
+      await tester.pump(const Duration(milliseconds: 50));
+    }
+  }
+
+  testWidgets('asks first; "I don\'t pay" hides what is due', (tester) async {
+    await pump(tester);
+    expect(find.byKey(const Key('zakat_ask')), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('zakat_i_dont_pay')));
+    await settle(tester);
+
+    expect(find.byKey(const Key('zakat_not_paying')), findsOneWidget);
+    expect(find.byKey(const Key('zakat_due')), findsNothing);
+    final saved = await tester.runAsync(ZakatSettingsStore.load);
+    expect(saved!.optedOut, isTrue);
+  });
+
+  testWidgets('not paying: a look shows the figures, with no Pay', (
+    tester,
+  ) async {
+    await ZakatSettingsStore.save(
+      const ZakatSettings(silverPricePerGram: 15000, paysZakat: false),
+    );
+    await pump(tester);
+
+    await tester.tap(find.byKey(const Key('zakat_peek')));
+    await settle(tester);
+
+    expect(find.byKey(const Key('zakat_peek_banner')), findsOneWidget);
+    expect(find.byKey(const Key('zakat_due')), findsOneWidget);
+    expect(find.byKey(const Key('zakat_pay')), findsNothing);
+    final saved = await tester.runAsync(ZakatSettingsStore.load);
+    expect(saved!.optedOut, isTrue, reason: 'looking is not an answer');
+  });
+
+  test('no reminders for somebody who does not pay zakat', () {
+    final date = DateTime(2026, 11, 1);
+    final pays = ZakatSettings(zakatDate: date, paysZakat: true);
+    final doesNot = ZakatSettings(zakatDate: date, paysZakat: false);
+
+    expect(ZakatReminders.dueOn(pays, date), isNotNull);
+    expect(ZakatReminders.dueOn(doesNot, date), isNull);
+  });
+
+  test('the answer is kept, and an old save has none', () {
+    const said = ZakatSettings(paysZakat: false);
+    expect(ZakatSettings.fromJson(said.toJson()).paysZakat, isFalse);
+    expect(ZakatSettings.fromJson(const {}).paysZakat, isNull);
   });
 }

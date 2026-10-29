@@ -3,6 +3,7 @@ import 'package:the_accountant/features/forecast/screens/cash_flow_forecast_scre
 import 'package:the_accountant/features/investments/screens/investments_screen.dart';
 import 'package:the_accountant/features/networth/screens/net_worth_screen.dart';
 import 'package:the_accountant/features/plans/screens/plans_screen.dart';
+import 'package:the_accountant/features/zakat/providers/zakat_provider.dart';
 import 'package:the_accountant/features/zakat/screens/zakat_screen.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
@@ -457,7 +458,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           iconColor: const Color(0xFF2E7D32),
           iconBackground: c.tintGreen,
           title: l10n.zakatTitle,
-          subtitle: l10n.zakatSubtitle,
+          // Still here for somebody who does not pay it, saying so.
+          subtitle: ref.watch(zakatSettingsProvider).value?.optedOut ?? false
+              ? l10n.zakatSubtitleOff
+              : l10n.zakatSubtitle,
           onTap: () => _push(const ZakatScreen()),
         ),
       ),

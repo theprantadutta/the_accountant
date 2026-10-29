@@ -265,22 +265,46 @@ class SectionTitle extends StatelessWidget {
               ),
             ),
           ),
-          if (actionLabel != null)
-            Pressable(
-              onTap: onAction,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4),
-                child: Text(
-                  actionLabel!,
-                  style: SunriseType.label.copyWith(
-                    color: c.accentText,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14,
-                  ),
-                ),
+          // Capped, so a long translation or a large figure gives way before
+          // it pushes the row off a narrow phone.
+          if (actionLabel != null || trailing != null)
+            ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: MediaQuery.sizeOf(context).width * .5,
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (actionLabel != null)
+                    Flexible(
+                      child: Pressable(
+                        onTap: onAction,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4),
+                          child: Text(
+                            actionLabel!,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: SunriseType.label.copyWith(
+                              color: c.accentText,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  if (trailing != null)
+                    Flexible(
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: AlignmentDirectional.centerEnd,
+                        child: trailing,
+                      ),
+                    ),
+                ],
               ),
             ),
-          ?trailing,
         ],
       ),
     );

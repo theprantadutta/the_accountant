@@ -217,9 +217,14 @@ class TransactionPolicy {
   /// Whether a credit/debt row is past its due date and still owed.
   ///
   /// [now] is injectable so tests are not clock-dependent.
+  ///
+  /// A loan with no due date is never overdue. Falling back to the day it was
+  /// made counted every loan as late from that day on, for money a friend
+  /// had not asked back.
   static bool isOverdue(Transaction t, {DateTime? now}) {
     if (isSettled(t)) return false;
-    final due = t.originalDueDate ?? t.date;
+    final due = t.originalDueDate;
+    if (due == null) return false;
     return due.isBefore(now ?? DateTime.now());
   }
 

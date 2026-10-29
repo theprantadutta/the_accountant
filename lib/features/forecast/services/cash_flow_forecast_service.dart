@@ -68,6 +68,7 @@ class ForecastEvent {
     this.expected = false,
     this.overdue = false,
     this.walletId,
+    this.refId,
   });
 
   /// The day it falls on; an overdue item falls on the first day.
@@ -90,6 +91,11 @@ class ForecastEvent {
 
   /// The account it is paid from or into, or the card a bill is for.
   final String? walletId;
+
+  /// What a tap opens: the plan for a plan's event, the transaction for an
+  /// upcoming payment, a loan or a schedule (its first payment). A card bill
+  /// opens its card, by [walletId].
+  final String? refId;
 
   int get signed => isIncome ? amount : -amount;
 }
@@ -258,6 +264,7 @@ class CashFlowForecastService {
       required String title,
       bool expected = false,
       bool allowOverdue = true,
+      String? refId,
     }) {
       if (amount <= 0) return;
       final day = DateTime(date.year, date.month, date.day);
@@ -280,6 +287,7 @@ class CashFlowForecastService {
           expected: expected,
           overdue: overdue,
           walletId: walletId,
+          refId: refId,
         ),
       );
     }
@@ -353,6 +361,7 @@ class CashFlowForecastService {
             },
           },
           title: plan.name,
+          refId: plan.id,
         );
       }
     }
@@ -447,6 +456,7 @@ class CashFlowForecastService {
             source: ForecastSource.recurring,
             kind: kind,
             title: base.title,
+            refId: base.id,
           );
         }
         date = schedules.calculateNextOccurrence(
@@ -480,6 +490,7 @@ class CashFlowForecastService {
         source: ForecastSource.upcoming,
         kind: ForecastEventKind.upcoming,
         title: t.title,
+        refId: t.id,
       );
     }
   }
@@ -522,6 +533,7 @@ class CashFlowForecastService {
         source: ForecastSource.loan,
         kind: lent ? ForecastEventKind.lent : ForecastEventKind.borrowed,
         title: t.title,
+        refId: t.id,
         expected: lent,
         allowOverdue: !lent,
       );
@@ -540,4 +552,5 @@ typedef _Add =
       required String title,
       bool expected,
       bool allowOverdue,
+      String? refId,
     });
