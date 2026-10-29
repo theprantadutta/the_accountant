@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:the_accountant/core/providers/default_wallet_provider.dart';
+import 'package:the_accountant/core/providers/privacy_provider.dart';
 import 'package:the_accountant/core/providers/sync_provider.dart';
 import 'package:the_accountant/core/services/biometric_service.dart';
 import 'package:the_accountant/core/services/backend_auth_service.dart';
@@ -62,10 +63,39 @@ class _PrivacySecurityScreenState extends ConsumerState<PrivacySecurityScreen> {
     final l10n = L10n.of(context);
     final c = context.sunrise;
     final settingsState = ref.watch(settingsProvider);
+    final privacy = ref.watch(privacyProvider);
 
     return SunrisePushPage(
       title: l10n.settingsPrivacySecurity,
       children: [
+        // For when someone can see the screen.
+        SettingsGroup(
+          label: l10n.privacyAmounts,
+          footer: l10n.privacyAmountsFooter,
+          children: [
+            SettingsRow.toggle(
+              key: const Key('privacy_hide_amounts'),
+              icon: Symbols.visibility_off_rounded,
+              iconColor: c.accent,
+              iconBackground: c.tintOrange,
+              title: l10n.privacyHideTitle,
+              subtitle: l10n.privacyHideSub,
+              value: privacy.hideAmounts,
+              onChanged: (v) => ref.read(privacyProvider.notifier).setHidden(v),
+            ),
+            SettingsRow.toggle(
+              key: const Key('privacy_tap_to_reveal'),
+              icon: Symbols.touch_app_rounded,
+              iconColor: c.accent,
+              iconBackground: c.tintOrange,
+              title: l10n.privacyTapTitle,
+              subtitle: l10n.privacyTapSub,
+              value: privacy.tapToReveal,
+              onChanged: (v) =>
+                  ref.read(privacyProvider.notifier).setTapToReveal(v),
+            ),
+          ],
+        ),
         SettingsGroup(
           label: l10n.settingsSecurity,
           children: [

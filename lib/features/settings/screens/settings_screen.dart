@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart' show SharePlus, ShareParams;
+import 'package:the_accountant/core/providers/privacy_provider.dart';
 import 'package:the_accountant/core/providers/theme_provider.dart';
 import 'package:the_accountant/core/providers/walkthrough_provider.dart';
 import 'package:the_accountant/features/ai_assistant/screens/ai_assistant_screen.dart'
@@ -264,6 +265,28 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           title: l10n.layoutTitle,
           subtitle: l10n.layoutSubtitle,
           onTap: () => _push(const HomeLayoutScreen()),
+        ),
+      ),
+      _Entry(
+        title: l10n.privacyHideTitle,
+        keywords: const [
+          'hide',
+          'privacy',
+          'balance',
+          'amount',
+          'eye',
+          'private',
+          'blur',
+        ],
+        row: SettingsRow.toggle(
+          key: const Key('more_privacy_hide'),
+          icon: Symbols.visibility_off_rounded,
+          iconColor: c.accent,
+          iconBackground: c.tintOrange,
+          title: l10n.privacyHideTitle,
+          subtitle: l10n.privacyHideSub,
+          value: ref.watch(amountsHiddenProvider),
+          onChanged: (v) => ref.read(privacyProvider.notifier).setHidden(v),
         ),
       ),
       _Entry(

@@ -5168,6 +5168,34 @@ class L10nBn extends L10n {
   String get voiceFabSetting => 'আজকের পাতায় ভাসমান মাইক';
 
   @override
+  String get amountHidden => 'লুকানো পরিমাণ';
+
+  @override
+  String get privacyShowAmounts => 'পরিমাণ দেখান';
+
+  @override
+  String get privacyHideAmounts => 'পরিমাণ লুকান';
+
+  @override
+  String get privacyAmounts => 'স্ক্রিনে পরিমাণ';
+
+  @override
+  String get privacyAmountsFooter =>
+      'ব্যালেন্স আর মোট হিসাব ঝাপসা থাকে, যাতে আশেপাশের কেউ পড়তে না পারে। আলাদা লেনদেনগুলো দেখা যায়। আজকের পাতার চোখ আইকন দিয়েও দেখানো বা লুকানো যায়।';
+
+  @override
+  String get privacyHideTitle => 'ব্যালেন্স ও মোট হিসাব লুকান';
+
+  @override
+  String get privacyHideSub => 'আপনি না দেখানো পর্যন্ত ঝাপসা থাকবে';
+
+  @override
+  String get privacyTapTitle => 'লুকানো পরিমাণে চাপ দিলে দেখাবে';
+
+  @override
+  String get privacyTapSub => 'নইলে শুধু আজকের পাতার চোখ আইকন দিয়ে দেখা যাবে';
+
+  @override
   String get voiceFabSettingSub =>
       'আজকের পাতায় ভেসে থাকা একটি মাইক, লেনদেন বলে দেওয়ার জন্য';
 

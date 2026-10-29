@@ -216,6 +216,7 @@ class SunriseStatCard extends StatelessWidget {
     this.onTap,
     this.trailing,
     this.footer,
+    this.wrapValue,
   });
 
   final IconData icon;
@@ -225,6 +226,9 @@ class SunriseStatCard extends StatelessWidget {
   final VoidCallback? onTap;
   final Widget? trailing;
   final Widget? footer;
+
+  /// Wraps the value, such as to hide it while amounts are hidden.
+  final Widget Function(Widget value)? wrapValue;
 
   @override
   Widget build(BuildContext context) {
@@ -255,13 +259,15 @@ class SunriseStatCard extends StatelessWidget {
             style: SunriseType.label.copyWith(color: c.muted, fontSize: 14),
           ),
           const SizedBox(height: 2),
-          FittedBox(
-            fit: BoxFit.scaleDown,
-            alignment: AlignmentDirectional.centerStart,
-            child: Text(
-              value,
-              maxLines: 1,
-              style: SunriseType.statValue.copyWith(color: c.ink),
+          (wrapValue ?? _same)(
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: AlignmentDirectional.centerStart,
+              child: Text(
+                value,
+                maxLines: 1,
+                style: SunriseType.statValue.copyWith(color: c.ink),
+              ),
             ),
           ),
           if (footer != null) ...[const SizedBox(height: 8), footer!],
@@ -270,6 +276,8 @@ class SunriseStatCard extends StatelessWidget {
     );
   }
 }
+
+Widget _same(Widget w) => w;
 
 /// A small pill of text on a tint ("+৳1,850 this month", "Default", "PRO").
 class SunrisePill extends StatelessWidget {

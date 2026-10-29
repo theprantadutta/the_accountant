@@ -5214,6 +5214,34 @@ class L10nEn extends L10n {
   String get voiceFabSetting => 'Floating mic on Today';
 
   @override
+  String get amountHidden => 'Hidden amount';
+
+  @override
+  String get privacyShowAmounts => 'Show amounts';
+
+  @override
+  String get privacyHideAmounts => 'Hide amounts';
+
+  @override
+  String get privacyAmounts => 'Amounts on screen';
+
+  @override
+  String get privacyAmountsFooter =>
+      'Balances and totals are blurred so people nearby can\'t read them. Single transactions stay visible. The eye on Today shows or hides them too.';
+
+  @override
+  String get privacyHideTitle => 'Hide balances and totals';
+
+  @override
+  String get privacyHideSub => 'Blur them until you choose to show them';
+
+  @override
+  String get privacyTapTitle => 'Tap a hidden amount to show it';
+
+  @override
+  String get privacyTapSub => 'Otherwise only the eye on Today shows them';
+
+  @override
   String get voiceFabSettingSub =>
       'A mic that floats over Today, for saying a transaction';
 

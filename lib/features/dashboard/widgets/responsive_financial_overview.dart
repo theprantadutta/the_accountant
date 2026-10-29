@@ -13,11 +13,11 @@ import 'package:the_accountant/features/ai_assistant/screens/ai_assistant_screen
     show AIAssistantScreenGated;
 import 'package:the_accountant/features/authentication/providers/auth_provider.dart';
 import 'package:the_accountant/features/budgets/screens/budget_detail_screen.dart';
+import 'package:the_accountant/shared/widgets/sensitive.dart';
 import 'package:the_accountant/features/budgets/screens/budget_list_screen.dart';
 import 'package:the_accountant/features/credit_debt/providers/credit_debt_provider.dart';
 import 'package:the_accountant/features/credit_debt/screens/credit_debt_screen.dart';
 import 'package:the_accountant/features/dashboard/domain/home_layout.dart';
-import 'package:the_accountant/features/dashboard/providers/balance_visibility_provider.dart';
 import 'package:the_accountant/features/dashboard/providers/financial_data_provider.dart';
 import 'package:the_accountant/features/dashboard/providers/home_layout_provider.dart';
 import 'package:the_accountant/features/dashboard/widgets/pinned_goals_section.dart';
@@ -217,6 +217,7 @@ class _ResponsiveFinancialOverviewState
                 iconColor: c.positive,
                 label: l10n.todayEarned,
                 value: fmt(income),
+                wrapValue: _sensitive,
                 onTap: () => _push(
                   const TransactionTypeScreen(transactionType: 'income'),
                 ),
@@ -229,6 +230,7 @@ class _ResponsiveFinancialOverviewState
                 iconColor: c.negative,
                 label: l10n.todaySpent,
                 value: fmt(expenses),
+                wrapValue: _sensitive,
                 onTap: () => _push(
                   const TransactionTypeScreen(transactionType: 'expense'),
                 ),
@@ -262,6 +264,7 @@ class _ResponsiveFinancialOverviewState
               isIncome: net >= 0,
               numberFormat: nf,
             ),
+            wrapValue: _sensitive,
             footer: Text(
               net >= 0 ? l10n.todayNetCredit : l10n.todayNetDebt,
               style: SunriseType.caption.copyWith(color: c.subtle),
@@ -277,6 +280,7 @@ class _ResponsiveFinancialOverviewState
             label: l10n.dashSubscriptions,
             // Already in cents (the provider normalises minor units).
             value: subs.round().formatCurrency(currency, numberFormat: nf),
+            wrapValue: _sensitive,
             footer: Text(
               l10n.todayMonthly,
               style: SunriseType.caption.copyWith(color: c.subtle),
@@ -422,6 +426,14 @@ class _Header extends ConsumerWidget {
                 style: SunriseType.label.copyWith(color: c.muted, fontSize: 14),
               ),
             ),
+            // Hide or show every balance and total, for when someone can
+            // see the screen.
+            PrivacyEyeButton(
+              key: const Key('today_privacy_eye'),
+              builder: (icon, tooltip, onTap) =>
+                  SunriseIconButton(icon: icon, tooltip: tooltip, onTap: onTap),
+            ),
+            const SizedBox(width: 10),
             // Say a transaction instead of typing it.
             VoiceLogButton(onTap: () => startVoiceLog(context, ref)),
             const SizedBox(width: 10),
@@ -493,7 +505,6 @@ class _NetWorthCard extends ConsumerWidget {
     // borrowing as gaining it; see NetWorthService for the definition.
     final total = ref.watch(netWorthProvider).asData?.value.total ?? 0;
     final walletState = ref.watch(walletProvider);
-    final visibility = ref.watch(balanceVisibilityProvider);
 
     // The accounts beside the total are the ones in it.
     final includeCards = ref.watch(creditCardsInNetWorthProvider);
@@ -543,16 +554,18 @@ class _NetWorthCard extends ConsumerWidget {
               Expanded(
                 child: Align(
                   alignment: AlignmentDirectional.centerEnd,
-                  child: SunrisePill(
-                    label: l10n.todayThisMonthDelta(
-                      deltaText.replaceFirst('-', '−'),
-                    ),
-                    color: deltaCents >= 0 ? c.accentText : c.negative,
-                    background: deltaCents >= 0 ? c.tintPeach : c.tintRose,
-                    fontSize: 13,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
+                  child: Sensitive(
+                    child: SunrisePill(
+                      label: l10n.todayThisMonthDelta(
+                        deltaText.replaceFirst('-', '−'),
+                      ),
+                      color: deltaCents >= 0 ? c.accentText : c.negative,
+                      background: deltaCents >= 0 ? c.tintPeach : c.tintRose,
+                      fontSize: 13,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
                     ),
                   ),
                 ),
@@ -560,13 +573,15 @@ class _NetWorthCard extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: 14),
-          FittedBox(
-            fit: BoxFit.scaleDown,
-            alignment: AlignmentDirectional.centerStart,
-            child: Text(
-              '${total < 0 ? '−' : ''}${total.abs().formatCurrency(currency, useDecimals: decimals && total.abs() < 10000000, numberFormat: nf)}',
-              maxLines: 1,
-              style: SunriseType.balance.copyWith(color: c.ink),
+          Sensitive(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: AlignmentDirectional.centerStart,
+              child: Text(
+                '${total < 0 ? '−' : ''}${total.abs().formatCurrency(currency, useDecimals: decimals && total.abs() < 10000000, numberFormat: nf)}',
+                maxLines: 1,
+                style: SunriseType.balance.copyWith(color: c.ink),
+              ),
             ),
           ),
           if (positive.isNotEmpty) ...[
@@ -607,13 +622,11 @@ class _NetWorthCard extends ConsumerWidget {
                   _Legend(
                     color: ramp[i].last,
                     label: positive[i].name,
-                    value: (visibility[positive[i].id] ?? true)
-                        ? balanceOf(positive[i]).formatCurrency(
-                            positive[i].currency,
-                            useDecimals: false,
-                            numberFormat: nf,
-                          )
-                        : '••••',
+                    value: balanceOf(positive[i]).formatCurrency(
+                      positive[i].currency,
+                      useDecimals: false,
+                      numberFormat: nf,
+                    ),
                   ),
                 if (positive.length > 3)
                   Text(
@@ -674,11 +687,24 @@ class _Legend extends StatelessWidget {
           constraints: BoxConstraints(
             maxWidth: MediaQuery.sizeOf(context).width - 96,
           ),
-          child: Text(
-            '$label $value',
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: SunriseType.label.copyWith(color: c.ink, fontSize: 14),
+          child: Wrap(
+            spacing: 6,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              Text(
+                label,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: SunriseType.label.copyWith(color: c.ink, fontSize: 14),
+              ),
+              Sensitive(
+                child: Text(
+                  value,
+                  maxLines: 1,
+                  style: SunriseType.label.copyWith(color: c.ink, fontSize: 14),
+                ),
+              ),
+            ],
           ),
         ),
       ],
@@ -935,15 +961,17 @@ class _BudgetBar extends StatelessWidget {
                 constraints: BoxConstraints(
                   maxWidth: MediaQuery.sizeOf(context).width * .5,
                 ),
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  alignment: AlignmentDirectional.centerEnd,
-                  child: Text(
-                    caption(spent, limit),
-                    maxLines: 1,
-                    style: SunriseType.label.copyWith(
-                      color: c.subtle,
-                      fontFeatures: const [FontFeature.tabularFigures()],
+                child: Sensitive(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: AlignmentDirectional.centerEnd,
+                    child: Text(
+                      caption(spent, limit),
+                      maxLines: 1,
+                      style: SunriseType.label.copyWith(
+                        color: c.subtle,
+                        fontFeatures: const [FontFeature.tabularFigures()],
+                      ),
                     ),
                   ),
                 ),
@@ -995,3 +1023,6 @@ class _BudgetBar extends StatelessWidget {
     );
   }
 }
+
+/// Hides a balance or total while amounts are hidden.
+Widget _sensitive(Widget value) => Sensitive(child: value);

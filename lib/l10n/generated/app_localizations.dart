@@ -9262,6 +9262,60 @@ abstract class L10n {
   /// **'Floating mic on Today'**
   String get voiceFabSetting;
 
+  /// No description provided for @amountHidden.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden amount'**
+  String get amountHidden;
+
+  /// No description provided for @privacyShowAmounts.
+  ///
+  /// In en, this message translates to:
+  /// **'Show amounts'**
+  String get privacyShowAmounts;
+
+  /// No description provided for @privacyHideAmounts.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide amounts'**
+  String get privacyHideAmounts;
+
+  /// No description provided for @privacyAmounts.
+  ///
+  /// In en, this message translates to:
+  /// **'Amounts on screen'**
+  String get privacyAmounts;
+
+  /// No description provided for @privacyAmountsFooter.
+  ///
+  /// In en, this message translates to:
+  /// **'Balances and totals are blurred so people nearby can\'t read them. Single transactions stay visible. The eye on Today shows or hides them too.'**
+  String get privacyAmountsFooter;
+
+  /// No description provided for @privacyHideTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide balances and totals'**
+  String get privacyHideTitle;
+
+  /// No description provided for @privacyHideSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Blur them until you choose to show them'**
+  String get privacyHideSub;
+
+  /// No description provided for @privacyTapTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a hidden amount to show it'**
+  String get privacyTapTitle;
+
+  /// No description provided for @privacyTapSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Otherwise only the eye on Today shows them'**
+  String get privacyTapSub;
+
   /// No description provided for @voiceFabSettingSub.
   ///
   /// In en, this message translates to:
