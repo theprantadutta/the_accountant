@@ -5,8 +5,16 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart' as intl;
 
+import 'app_localizations_am.dart';
 import 'app_localizations_bn.dart';
+import 'app_localizations_de.dart';
 import 'app_localizations_en.dart';
+import 'app_localizations_fa.dart';
+import 'app_localizations_fr.dart';
+import 'app_localizations_hi.dart';
+import 'app_localizations_ms.dart';
+import 'app_localizations_pt.dart';
+import 'app_localizations_sw.dart';
 
 // ignore_for_file: type=lint
 
@@ -93,8 +101,16 @@ abstract class L10n {
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
+    Locale('am'),
     Locale('bn'),
+    Locale('de'),
     Locale('en'),
+    Locale('fa'),
+    Locale('fr'),
+    Locale('hi'),
+    Locale('ms'),
+    Locale('pt'),
+    Locale('sw'),
   ];
 
   /// No description provided for @actionCancel.
@@ -9536,8 +9552,18 @@ class _L10nDelegate extends LocalizationsDelegate<L10n> {
   }
 
   @override
-  bool isSupported(Locale locale) =>
-      <String>['bn', 'en'].contains(locale.languageCode);
+  bool isSupported(Locale locale) => <String>[
+    'am',
+    'bn',
+    'de',
+    'en',
+    'fa',
+    'fr',
+    'hi',
+    'ms',
+    'pt',
+    'sw',
+  ].contains(locale.languageCode);
 
   @override
   bool shouldReload(_L10nDelegate old) => false;
@@ -9546,10 +9572,26 @@ class _L10nDelegate extends LocalizationsDelegate<L10n> {
 L10n lookupL10n(Locale locale) {
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
+    case 'am':
+      return L10nAm();
     case 'bn':
       return L10nBn();
+    case 'de':
+      return L10nDe();
     case 'en':
       return L10nEn();
+    case 'fa':
+      return L10nFa();
+    case 'fr':
+      return L10nFr();
+    case 'hi':
+      return L10nHi();
+    case 'ms':
+      return L10nMs();
+    case 'pt':
+      return L10nPt();
+    case 'sw':
+      return L10nSw();
   }
 
   throw FlutterError(

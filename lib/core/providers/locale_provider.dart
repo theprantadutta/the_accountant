@@ -12,9 +12,33 @@ class AppLanguages {
 
   /// Null means follow the phone, which is the default and what most people
   /// expect without being asked.
-  static const List<Locale?> supported = [null, Locale('en'), Locale('bn')];
+  static const List<Locale?> supported = [
+    null,
+    Locale('en'),
+    Locale('bn'),
+    Locale('hi'),
+    Locale('de'),
+    Locale('fr'),
+    Locale('pt'),
+    Locale('ms'),
+    Locale('fa'),
+    Locale('sw'),
+    Locale('am'),
+  ];
 
-  static const Map<String, String> names = {'en': 'English', 'bn': 'বাংলা'};
+  /// Each in its own language, so someone looking for theirs can read it.
+  static const Map<String, String> names = {
+    'en': 'English',
+    'bn': 'বাংলা',
+    'hi': 'हिन्दी',
+    'de': 'Deutsch',
+    'fr': 'Français',
+    'pt': 'Português',
+    'ms': 'Bahasa Melayu',
+    'fa': 'فارسی',
+    'sw': 'Kiswahili',
+    'am': 'አማርኛ',
+  };
 
   static String labelFor(Locale? locale) =>
       locale == null ? 'Match my phone' : (names[locale.languageCode] ?? '');

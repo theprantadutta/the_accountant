@@ -1028,18 +1028,29 @@ class _GoPremiumBanner extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 10),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            decoration: BoxDecoration(
-              color: c.onFill,
-              borderRadius: BorderRadius.circular(SunriseRadius.chip),
+          // Capped, and shrinking to fit: longer languages squeezed the
+          // banner's words out on a small phone.
+          ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: MediaQuery.sizeOf(context).width * .3,
             ),
-            child: Text(
-              l10n.moreUnlock,
-              style: SunriseType.label.copyWith(
-                color: c.accent,
-                fontWeight: FontWeight.w600,
-                fontSize: 14,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              decoration: BoxDecoration(
+                color: c.onFill,
+                borderRadius: BorderRadius.circular(SunriseRadius.chip),
+              ),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  l10n.moreUnlock,
+                  maxLines: 1,
+                  style: SunriseType.label.copyWith(
+                    color: c.accent,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                  ),
+                ),
               ),
             ),
           ),

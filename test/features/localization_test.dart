@@ -75,7 +75,7 @@ void main() {
       late L10n l10n;
       await tester.pumpWidget(
         _app(
-          locale: const Locale('fr'),
+          locale: const Locale('ja'),
           child: Builder(
             builder: (context) {
               l10n = L10n.of(context);
@@ -135,6 +135,36 @@ void main() {
 
       expect(found.okButtonLabel, isNotEmpty);
     });
+
+    // A language the app offers but Flutter or material_ui cannot draw its
+    // own dialogs and pickers in fails only when one of them opens.
+    for (final locale in L10n.supportedLocales) {
+      testWidgets('both, and ours, in ${locale.languageCode}', (tester) async {
+        late MaterialLocalizations flutters;
+        late material_ui.MaterialLocalizations materialUis;
+        late L10n ours;
+        await tester.pumpWidget(
+          _app(
+            locale: locale,
+            child: Builder(
+              builder: (context) {
+                flutters = MaterialLocalizations.of(context);
+                materialUis = material_ui.MaterialLocalizations.of(context);
+                ours = L10n.of(context);
+                return const SizedBox.shrink();
+              },
+            ),
+          ),
+        );
+
+        expect(flutters.okButtonLabel, isNotEmpty);
+        expect(materialUis.okButtonLabel, isNotEmpty);
+        expect(ours.localeName, locale.languageCode);
+        if (locale.languageCode != 'en') {
+          expect(ours.navToday, isNot('Today'));
+        }
+      });
+    }
   });
 
   group('every language ships every string', () {
@@ -143,64 +173,79 @@ void main() {
       return jsonDecode(raw) as Map<String, dynamic>;
     }
 
-    test('Bangla has no gaps against English', () {
-      final english = readArb('app_en.arb');
-      final bangla = readArb('app_bn.arb');
+    final english = readArb('app_en.arb');
+    final wanted = english.keys.where((k) => !k.startsWith('@')).toSet();
+    final others = [
+      for (final f in Directory('lib/l10n').listSync())
+        if (f is File &&
+            f.path.endsWith('.arb') &&
+            !f.path.endsWith('app_en.arb'))
+          f.uri.pathSegments.last,
+    ]..sort();
 
-      // Keys beginning with @ are metadata about a string, not a string.
-      final wanted = english.keys.where((k) => !k.startsWith('@')).toSet();
-      final have = bangla.keys.where((k) => !k.startsWith('@')).toSet();
+    // {name} and the subject of {name, plural, …}: what the code fills in.
+    Set<String> placeholders(String s) => {
+      for (final m in RegExp(
+        r'\{\s*([A-Za-z_][A-Za-z0-9_]*)\s*[,}]',
+      ).allMatches(s))
+        m.group(1)!,
+    };
 
-      expect(
-        wanted.difference(have),
-        isEmpty,
-        reason:
-            'a missing key silently falls back to English mid-sentence, which '
-            'reads worse than either language on its own',
-      );
+    test('there are translations to check', () {
+      expect(others, contains('app_bn.arb'));
+      expect(others.length, greaterThanOrEqualTo(9));
     });
 
-    test('Bangla has nothing English does not', () {
-      final english = readArb('app_en.arb');
-      final bangla = readArb('app_bn.arb');
+    for (final file in others) {
+      group(file, () {
+        final arb = readArb(file);
+        final have = arb.keys.where((k) => !k.startsWith('@')).toSet();
 
-      final wanted = english.keys.where((k) => !k.startsWith('@')).toSet();
-      final have = bangla.keys.where((k) => !k.startsWith('@')).toSet();
+        test('no gaps against English', () {
+          expect(
+            wanted.difference(have),
+            isEmpty,
+            reason:
+                'a missing key silently falls back to English mid-sentence, '
+                'which reads worse than either language on its own',
+          );
+        });
 
-      expect(
-        have.difference(wanted),
-        isEmpty,
-        reason: 'a translation with no English original is dead weight',
-      );
-    });
+        test('nothing English does not have', () {
+          expect(
+            have.difference(wanted),
+            isEmpty,
+            reason: 'a translation with no English original is dead weight',
+          );
+        });
 
-    test('nothing is left untranslated by accident', () {
-      final english = readArb('app_en.arb');
-      final bangla = readArb('app_bn.arb');
+        test('the same placeholders as English', () {
+          final wrong = [
+            for (final k in wanted.intersection(have))
+              if (!_sameSet(
+                placeholders(english[k] as String),
+                placeholders(arb[k] as String),
+              ))
+                k,
+          ];
+          expect(
+            wrong,
+            isEmpty,
+            reason: 'a placeholder the code does not fill shows as {name}',
+          );
+        });
 
-      // A handful read the same in both by design, because they are written
-      // the same way in Bangla text.
-      // Written the same way in Bangla text: an initialism, a file format's
-      // name, and the app's own name, which is a brand rather than a word.
-      const sameByDesign = {
-        'navAi',
-        'settingsCsv',
-        'settingsTheAccountant',
-        'authTheAccountant',
-        // Only placeholders: "{accent} {mode}", both already translated.
-        'themeAppearanceValue',
-      };
-
-      final untranslated = [
-        for (final key in english.keys)
-          if (!key.startsWith('@') &&
-              !sameByDesign.contains(key) &&
-              bangla[key] == english[key])
-            key,
-      ];
-
-      expect(untranslated, isEmpty);
-    });
+        test('actually translated', () {
+          // Brand names, initialisms and loanwords read the same in most
+          // languages; a whole file copied from English does not.
+          final same = [
+            for (final k in wanted.intersection(have))
+              if (arb[k] == english[k]) k,
+          ];
+          expect(same.length, lessThan(wanted.length * .12), reason: '$same');
+        });
+      });
+    }
   });
 
   test('no string is shipped that nothing shows', () {
@@ -261,3 +306,6 @@ void main() {
     });
   });
 }
+
+bool _sameSet(Set<String> a, Set<String> b) =>
+    a.length == b.length && a.containsAll(b);

@@ -132,6 +132,9 @@ void main() {
           (1.0, const Locale('en')),
           (1.3, const Locale('en')),
           (1.3, const Locale('bn')),
+          // The longest of the languages, and the one written right to left.
+          (1.0, const Locale('de')),
+          (1.0, const Locale('fa')),
         ]) {
           testWidgets('${size.key}, text x$scale, ${locale.languageCode}: '
               'nothing overflows', (tester) async {
