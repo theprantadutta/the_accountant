@@ -1,3 +1,4 @@
+import 'package:the_accountant/core/dev/sample_data.dart';
 import 'package:the_accountant/features/cards/screens/card_bills_screen.dart';
 import 'package:the_accountant/features/forecast/screens/cash_flow_forecast_screen.dart';
 import 'package:the_accountant/features/investments/screens/investments_screen.dart';
@@ -785,10 +786,59 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 onTap: _testCrash,
               ),
             ),
+            // Debug builds only, so English is fine and nothing is added to
+            // the ARB files.
+            _Entry(
+              title: 'Add sample data',
+              keywords: const ['sample', 'demo', 'seed', 'debug', 'test data'],
+              row: SettingsRow(
+                icon: Symbols.auto_awesome_rounded,
+                iconColor: const Color(0xFF7C3AED),
+                iconBackground: c.tintViolet,
+                title: 'Add sample data',
+                subtitle: 'Debug builds only',
+                trailing: SettingsTrailing.none,
+                onTap: _addSampleData,
+              ),
+            ),
           ],
           false,
         ),
     ];
+  }
+
+  Future<void> _addSampleData() async {
+    if (!kDebugMode) return;
+    final confirmed = await showSunriseConfirm(
+      context: context,
+      title: 'Add sample data?',
+      message:
+          'Adds accounts, plans (EMI, loan, DPS, FDR, Sanchayapatra, '
+          'insurance, SIP), investments, goals, subscriptions, budgets, '
+          'loans, subcategories and upcoming payments in BDT. Running it '
+          'again adds nothing.',
+      confirmLabel: 'Add',
+      icon: Symbols.auto_awesome_rounded,
+    );
+    if (!confirmed || !mounted) return;
+    try {
+      final result = await addSampleData(ref);
+      if (!mounted) return;
+      showSunriseSnack(
+        context,
+        result.summary,
+        tone: result.alreadyAdded ? SnackTone.info : SnackTone.success,
+        duration: const Duration(seconds: 6),
+      );
+    } catch (e) {
+      if (mounted) {
+        showSunriseSnack(
+          context,
+          'Sample data failed: $e',
+          tone: SnackTone.error,
+        );
+      }
+    }
   }
 
   Future<void> _testCrash() async {
