@@ -1,6 +1,6 @@
 # Privacy Policy
 
-**Last updated: October 14, 2026**
+**Last updated: November 1, 2026**
 
 Pranta Dutta ("we", "our", or "us") operates The Accountant mobile application (the "App"). This Privacy Policy explains how we collect, use, and protect your personal information when you use the App.
 
@@ -23,7 +23,7 @@ The App allows you to record and manage:
 - Budgets, goals, subscriptions, and credit/debt records
 - Currency and display preferences
 
-**Important:** Your financial data is stored locally on your device in a database. If you choose to enable cloud sync (a Premium feature), your data is transmitted securely to our servers for backup and cross-device synchronization only.
+**Important:** Your financial data is stored on your device in an encrypted database. If you choose to enable cloud sync (a Premium feature), your amounts, titles, notes and names are encrypted on your device before they are sent, so our servers store them in a form we cannot read (see section 4.2).
 
 ### 1.3 Device & Usage Information
 We may collect:
@@ -41,11 +41,11 @@ If you use the receipt scanning feature:
 
 ### 1.5 AI Feature Data
 The AI features (the money coach, the monthly summary, reading a receipt, and turning a typed note into a transaction) are available to all users. When you use one, the App sends what that feature needs to our servers, which forward it through our AI gateway to a third-party AI model provider (such as OpenAI or Anthropic) solely to generate the answer:
-- **The coach and the monthly summary:** your question and a summary of your figures, worked out on your device: this and last month's totals, spending by category, budgets, savings goals, upcoming bills, account names and balances, and up to 30 recent transactions (date, title, category, amount). Amounts are converted to your main currency.
+- **The coach and the monthly summary:** your question and a summary of your figures, worked out on your device: this and last month's totals, spending by category, budgets, savings goals, upcoming bills, account names and balances, net worth, money lent and borrowed, recurring payments, monthly totals for recent months, and up to 60 recent transactions (date, title, category, amount). Amounts are converted to your main currency.
 - **Receipts:** the text read from the receipt, and your category names.
 - **Typed notes:** the note, your category names and account names.
 
-Coach conversations are stored on our servers so you can return to them, and you can delete any conversation in the App. We do not use this content to train AI models, and we choose providers that do not train on it. Free users have a small number of AI requests per day; the number of requests used is stored with your account. If you do not use these features, none of this data is sent.
+Because the AI has to read your question to answer it, this content reaches our servers and the model provider in readable form for that request — this is the one exception to the encryption described in section 4, and it does not change if you set a passphrase. Coach conversations are stored on our servers, encrypted at rest, so you can return to them, and you can delete any conversation in the App. We do not use this content to train AI models, and we choose providers that do not train on it. Free users have a limited number of AI requests each month; the number of requests used is stored with your account. If you do not use these features, none of this data is sent.
 
 ### 1.6 Advertising
 The App shows ads **only when you ask for one**: a rewarded ad that you choose to watch, after a screen that tells you an ad is about to play, in exchange for something specific (an extra AI request, a 24-hour premium theme trial, or a PDF export). There are no banner ads and no ads that appear on their own, and Premium members never see ads.
@@ -63,7 +63,7 @@ We use your information to:
 - Verify and manage purchases and subscriptions
 - Synchronize your data across devices (when enabled)
 - Send notifications about your budgets, bills, and account (with your permission)
-- Generate AI-powered insights (Premium feature)
+- Generate AI-powered insights, when you ask for them
 - Improve the App's performance and user experience
 - Respond to support requests
 
@@ -73,17 +73,32 @@ Where the GDPR applies, we process your data on the following bases: performance
 
 ## 4. Data Storage & Security
 
-### 4.1 Local Storage
-- Financial data is stored locally on your device
-- Authentication tokens are stored in secure device storage (platform keychain/keystore)
-- We use industry-standard encryption to protect data in transit
+### 4.1 On Your Device
+- Your financial data is stored in a database encrypted with AES-256, using a key that is created on your device and kept in its secure storage (Android Keystore / iOS Keychain)
+- Notification history and other financial details kept in app settings are encrypted the same way
+- The App's data is excluded from Android's automatic cloud backup and device-to-device transfer; use the App's own backup or cloud sync instead
+- Authentication tokens are stored in secure device storage
 
 ### 4.2 Cloud Sync
 - Cloud sync is optional and can be enabled or disabled at any time
-- Synced data is transmitted over HTTPS with TLS encryption
+- Before anything is uploaded, the amounts, titles, notes, names and similar details of each record are encrypted on your device with AES-256-GCM under a key belonging to your account. Our servers store only the encrypted form and cannot read it
+- To make sync work, some details stay readable to our servers: record identifiers, dates and times, record types (for example income or expense), paid/archived flags, links between records (for example which account a transaction belongs to) and currency codes
+- Everything is also transmitted over HTTPS with TLS encryption
 - Server-side data is stored in secured databases with access controls
 
-### 4.3 Data Retention
+### 4.3 Your Account Key and Optional Passphrase
+- By default, your account key is held by our servers so that your data can be restored when you sign in on a new device. This protects your data if our database or a backup of it were ever exposed, but it means that in principle we could decrypt your synced data and backups
+- You can choose to protect your data with a passphrase (Settings → Privacy & security → Passphrase protection). Then our servers keep only copies of your key that are locked with your passphrase and with a recovery code, and we can no longer decrypt your synced data or backups
+- If you set a passphrase and then lose both the passphrase and the recovery code, nobody — including us — can recover your synced data or backups. Data already on your device stays readable there
+
+### 4.4 Backups
+- Backups you save to a file or to Google Drive are encrypted with your account key before they leave your device, and can be restored only by signing in to the same account (and, if you set one, unlocking with your passphrase)
+- Google Drive backups are stored in a folder in your own Google Drive that the App can access; we do not receive them
+
+### 4.5 Reminders
+- Reminders about card bills and plan installments are worked out by the App on your device, so our servers do not need to read your amounts. If you do not open the App for some days, a reminder can arrive late or be missed
+
+### 4.6 Data Retention
 - Local data remains on your device until you delete the App or clear its data
 - Cloud-synced data is retained while your account is active
 - Upon account deletion, associated cloud-stored data is permanently removed within 30 days

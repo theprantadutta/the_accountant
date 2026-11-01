@@ -1,6 +1,6 @@
 # Terms of Use
 
-**Last updated: July 24, 2026**
+**Last updated: November 1, 2026**
 
 Please read these Terms of Use ("Terms") carefully before using The Accountant mobile application (the "App") operated by Pranta Dutta ("we", "our", or "us").
 
@@ -38,12 +38,15 @@ The App may provide AI-generated financial insights and recommendations. These a
 The App includes on-device receipt scanning powered by machine learning. Accuracy of scanned data may vary and you are responsible for verifying extracted information.
 
 ### 2.4 Cloud Sync
-Optional cloud synchronization allows you to back up and sync your data across devices. While we take reasonable measures to ensure data integrity, we are not liable for any data loss during synchronization.
+Optional cloud synchronization allows you to back up and sync your data across devices. Your financial details are encrypted on your device before they are uploaded, as described in the Privacy Policy. While we take reasonable measures to ensure data integrity, we are not liable for any data loss during synchronization.
+
+### 2.5 Passphrase Protection
+You may choose to protect your synced data and backups with a passphrase. If you do, only your passphrase or the recovery code shown to you can unlock them, and we cannot. You are responsible for keeping your passphrase and recovery code safe. If you lose both, your synced data and backups cannot be recovered by anyone, including us, and we are not liable for that loss.
 
 ## 3. Subscriptions and Purchases
 
 ### 3.1 Free and Premium Tiers
-The App offers both free and premium tiers. Premium features may include AI insights, advanced analytics, unlimited records, premium themes, cloud sync, and priority support.
+The App offers both free and premium tiers. Premium features may include additional AI requests, cloud sync across devices, PDF reports and premium themes. The features included in each tier are shown in the App and may change over time.
 
 ### 3.2 Payment
 - Premium subscriptions and one-time purchases are sold and billed through the app marketplace from which you downloaded the App
