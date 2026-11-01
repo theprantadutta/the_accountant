@@ -34,6 +34,30 @@ to keep syncing).
   `GET /api/v1/encryption/key`.
 - Financial details in SharedPreferences sealed. `lib/core/services/sealed_prefs.dart`.
 
+## Phase 2 — status (1 Nov 2026)
+
+Built and pushed; backend deployed to production:
+- A. Passphrase + recovery code — backend + app (Privacy & security →
+  Passphrase protection), 10 languages.
+- B. Encrypted sync — `lib/core/services/sync/sync_sealer.dart`; server
+  `EncryptedData` columns; one-time re-upload of existing rows on first 5.0 sync.
+- C. Card/plan reminders on the phone
+  (`lib/features/notifications/services/bill_reminders.dart`) with a Settings
+  note; server jobs skip sealed rows. AI chat encrypted at rest on the server
+  (`ENCRYPTION_AT_REST_KEY`).
+- Version 5.0.0+38.
+
+Still to do before/at release:
+- After 5.0 is live on the stores, set `Sync__MinimumAppVersion=5.0.0` on the
+  server.
+- Privacy policy + store listing + Data safety / App Privacy wording for E2EE.
+- Optional: remove the legacy REST CRUD controllers on the server.
+
+Lesson: the real server sends snake_case keys (`encrypted_data`); the fake
+sync server in tests echoes PascalCase. A sealer bug that only matched camel
+case passed every test and was caught on a phone against production. Test new
+sync fields against the real naming.
+
 ## Phase 2 — stages
 
 ### A. Opt-in passphrase + recovery code
