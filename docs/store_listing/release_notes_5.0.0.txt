@@ -1,0 +1,70 @@
+<en-US>
+• Your money data is now encrypted: on your phone, in your backups, and before it syncs
+• New: an optional passphrase so only you can open your synced data and backups
+• Card bill and plan reminders now come straight from your phone
+• Syncing across devices needs this version on every device
+• Fixes and improvements
+</en-US>
+<bn-BD>
+• আপনার টাকার তথ্য এখন এনক্রিপ্টেড: ফোনে, ব্যাকআপে এবং সিঙ্ক হওয়ার আগে
+• নতুন: ঐচ্ছিক পাসফ্রেজ, যাতে সিঙ্ক করা ডেটা ও ব্যাকআপ শুধু আপনিই খুলতে পারেন
+• কার্ডের বিল ও প্ল্যানের রিমাইন্ডার এখন সরাসরি আপনার ফোন থেকে আসে
+• সব ডিভাইসে সিঙ্ক করতে প্রতিটিতে এই ভার্সন লাগবে
+• নানা সংশোধন ও উন্নতি
+</bn-BD>
+<hi-IN>
+• आपका वित्तीय डेटा अब एन्क्रिप्टेड है: फ़ोन पर, बैकअप में और सिंक होने से पहले
+• नया: वैकल्पिक पासफ़्रेज़, ताकि सिंक किया गया डेटा और बैकअप सिर्फ़ आप खोल सकें
+• कार्ड बिल और प्लान के रिमाइंडर अब सीधे आपके फ़ोन से आते हैं
+• सभी डिवाइस पर सिंक के लिए हर डिवाइस पर यह वर्ज़न चाहिए
+• सुधार और बेहतरियां
+</hi-IN>
+<de-DE>
+• Deine Finanzdaten sind jetzt verschlüsselt: auf dem Handy, in Backups und vor der Synchronisierung
+• Neu: optionale Passphrase, damit nur du synchronisierte Daten und Backups öffnen kannst
+• Erinnerungen an Kartenrechnungen und Planraten kommen jetzt direkt vom Handy
+• Zum Synchronisieren braucht jedes Gerät diese Version
+• Fehlerbehebungen und Verbesserungen
+</de-DE>
+<fr-FR>
+• Vos données financières sont désormais chiffrées : sur le téléphone, dans les sauvegardes et avant la synchronisation
+• Nouveau : une phrase secrète facultative pour que vous seul puissiez ouvrir vos données et sauvegardes
+• Les rappels de factures de carte et d'échéances arrivent directement de votre téléphone
+• Pour synchroniser, chaque appareil doit avoir cette version
+• Corrections et améliorations
+</fr-FR>
+<pt-PT>
+• Os seus dados financeiros estão agora encriptados: no telemóvel, nas cópias de segurança e antes de sincronizar
+• Novo: frase-passe opcional para que só você abra os dados sincronizados e as cópias de segurança
+• Os lembretes de faturas do cartão e prestações chegam agora do seu telemóvel
+• Para sincronizar, cada dispositivo precisa desta versão
+• Correções e melhorias
+</pt-PT>
+<ms>
+• Data kewangan anda kini disulitkan: dalam telefon, dalam sandaran dan sebelum disegerakkan
+• Baharu: frasa laluan pilihan supaya hanya anda boleh membuka data segerak dan sandaran
+• Peringatan bil kad dan ansuran pelan kini datang terus dari telefon anda
+• Untuk menyegerak, setiap peranti perlukan versi ini
+• Pembaikan dan penambahbaikan
+</ms>
+<fa-IR>
+• داده‌های مالی شما اکنون رمزگذاری می‌شوند: روی گوشی، در پشتیبان‌ها و پیش از همگام‌سازی
+• جدید: عبارت عبور اختیاری تا فقط خودتان بتوانید داده‌های همگام‌شده و پشتیبان‌ها را باز کنید
+• یادآوری صورت‌حساب کارت و اقساط اکنون مستقیم از گوشی شما می‌آید
+• برای همگام‌سازی، همه دستگاه‌ها باید این نسخه را داشته باشند
+• رفع اشکال و بهبودها
+</fa-IR>
+<sw>
+• Data yako ya fedha sasa imesimbwa fiche: kwenye simu, kwenye nakala rudufu na kabla ya kusawazishwa
+• Mpya: kaulisiri ya hiari ili wewe tu uweze kufungua data iliyosawazishwa na nakala rudufu
+• Vikumbusho vya bili za kadi na awamu za mipango sasa hutoka moja kwa moja kwenye simu yako
+• Ili kusawazisha, kila kifaa kinahitaji toleo hili
+• Marekebisho na maboresho
+</sw>
+<am>
+• የገንዘብ ውሂብዎ አሁን ተመስጥሯል፦ በስልክዎ፣ በምትኬዎች እና ከመመሳሰሉ በፊት
+• አዲስ፦ የተመሳሰለ ውሂብና ምትኬዎችን እርስዎ ብቻ እንዲከፍቱ አማራጭ የይለፍ ሐረግ
+• የካርድ ሂሳብና የዕቅድ ክፍያ አስታዋሾች አሁን በቀጥታ ከስልክዎ ይመጣሉ
+• በመሣሪያዎች መካከል ለማመሳሰል እያንዳንዱ መሣሪያ ይህን ስሪት ይፈልጋል
+• ማስተካከያዎችና ማሻሻያዎች
+</am>
