@@ -5324,6 +5324,182 @@ class L10nEn extends L10n {
   String get privacyIntroSettings => 'Choose in Settings';
 
   @override
+  String get ppTitle => 'Passphrase protection';
+
+  @override
+  String get ppRowOn => 'On';
+
+  @override
+  String get ppRowOff => 'Off';
+
+  @override
+  String get ppRowLocked => 'Locked on this phone';
+
+  @override
+  String get ppIntro =>
+      'Your data is already encrypted on this phone and in your backups. A passphrase adds one more lock, so only you can open your synced data and backups — not even we can.';
+
+  @override
+  String get ppWithoutTitle => 'Without a passphrase (how it is now)';
+
+  @override
+  String get ppWithout1 => 'Everything on this phone is encrypted.';
+
+  @override
+  String get ppWithout2 =>
+      'Backups and synced data are encrypted with a key tied to your account.';
+
+  @override
+  String get ppWithout3 =>
+      'Sign in on a new phone and everything comes back, with nothing to remember.';
+
+  @override
+  String get ppWithout4 =>
+      'Our server holds that key, so in principle we could open your synced data.';
+
+  @override
+  String get ppWithTitle => 'With a passphrase';
+
+  @override
+  String get ppWith1 =>
+      'Only your passphrase or your recovery code can open your synced data and backups.';
+
+  @override
+  String get ppWith2 =>
+      'Our server keeps only locked copies of your key. We can\'t read your data, and neither can anyone who breaks into our servers.';
+
+  @override
+  String get ppWith3 =>
+      'On a new phone, or after reinstalling, you type your passphrase once.';
+
+  @override
+  String get ppWith4 =>
+      'This phone keeps working exactly as it does now, even offline.';
+
+  @override
+  String get ppCatchTitle => 'The catch';
+
+  @override
+  String get ppCatchBody =>
+      'If you forget your passphrase and also lose your recovery code, nobody can recover your synced data or backups — not us, not anyone. What is already on this phone stays readable here.';
+
+  @override
+  String get ppAiNote =>
+      'AI features still send a summary of your finances so they can answer you. A passphrase does not change that.';
+
+  @override
+  String get ppSetButton => 'Set a passphrase';
+
+  @override
+  String get ppSetTitle => 'Choose a passphrase';
+
+  @override
+  String get ppSetHint =>
+      'Use at least 10 characters. A few unrelated words are easy to remember and hard to guess.';
+
+  @override
+  String get ppPassphraseLabel => 'Passphrase';
+
+  @override
+  String get ppConfirmLabel => 'Type it again';
+
+  @override
+  String get ppTooShort => 'Use at least 10 characters.';
+
+  @override
+  String get ppMismatch => 'The two passphrases don\'t match.';
+
+  @override
+  String get ppUnderstand =>
+      'I understand that if I lose both my passphrase and my recovery code, my synced data and backups can\'t be recovered.';
+
+  @override
+  String get ppTurnOn => 'Turn on protection';
+
+  @override
+  String get ppWorking => 'Locking your key. This takes a few seconds…';
+
+  @override
+  String get ppRecoveryTitle => 'Your recovery code';
+
+  @override
+  String get ppRecoveryBody =>
+      'This is the only other way into your data if you forget your passphrase. Write it down or keep it in a password manager — somewhere other than this phone.';
+
+  @override
+  String get ppCopy => 'Copy';
+
+  @override
+  String get ppCopied => 'Recovery code copied';
+
+  @override
+  String get ppSavedIt => 'I\'ve saved my recovery code somewhere safe';
+
+  @override
+  String get ppDone => 'Done';
+
+  @override
+  String get ppOnTitle => 'Protection is on';
+
+  @override
+  String get ppOnBody =>
+      'Only your passphrase or your recovery code can open your synced data and backups.';
+
+  @override
+  String get ppChange => 'Change passphrase';
+
+  @override
+  String get ppNewCode => 'Get a new recovery code';
+
+  @override
+  String get ppNewCodeWarn =>
+      'Your current recovery code will stop working. Make sure you save the new one.';
+
+  @override
+  String get ppTurnOff => 'Turn off protection';
+
+  @override
+  String get ppTurnOffBody =>
+      'Our server will hold your key again, as before. Your data stays encrypted, but in principle we could open your synced data.';
+
+  @override
+  String get ppLockedTitle => 'Unlock your data';
+
+  @override
+  String get ppLockedBody =>
+      'Your data is protected with a passphrase. Enter it once on this phone to open your synced data and backups.';
+
+  @override
+  String get ppUnlock => 'Unlock';
+
+  @override
+  String get ppUseRecovery => 'Use my recovery code instead';
+
+  @override
+  String get ppUsePassphrase => 'Use my passphrase instead';
+
+  @override
+  String get ppRecoveryLabel => 'Recovery code';
+
+  @override
+  String get ppWrongPassphrase => 'That passphrase isn\'t right.';
+
+  @override
+  String get ppWrongRecovery => 'That recovery code isn\'t right.';
+
+  @override
+  String get ppUnlocked => 'Unlocked on this phone';
+
+  @override
+  String get ppChanged => 'Passphrase changed';
+
+  @override
+  String get ppTurnedOn => 'Protection is on';
+
+  @override
+  String get ppTurnedOff => 'Protection turned off';
+
+  @override
   String get voiceFabSettingSub =>
       'A mic that floats over Today, for saying a transaction';
 

@@ -22,6 +22,7 @@ import 'package:the_accountant/features/transactions/providers/transaction_provi
 import 'package:the_accountant/features/transactions/providers/payment_method_provider.dart';
 import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
 import 'package:the_accountant/features/legal/legal_document_viewer.dart';
+import 'package:the_accountant/features/encryption/screens/passphrase_screen.dart';
 
 class PrivacySecurityScreen extends ConsumerStatefulWidget {
   const PrivacySecurityScreen({super.key});
@@ -103,6 +104,30 @@ class _PrivacySecurityScreenState extends ConsumerState<PrivacySecurityScreen> {
               value: privacy.tapToReveal,
               onChanged: (v) =>
                   ref.read(privacyProvider.notifier).setTapToReveal(v),
+            ),
+          ],
+        ),
+        SettingsGroup(
+          label: l10n.ppTitle,
+          children: [
+            SettingsRow(
+              key: const Key('privacy_passphrase'),
+              icon: Symbols.key_rounded,
+              iconColor: c.positive,
+              iconBackground: c.tintGreen,
+              title: l10n.ppTitle,
+              value: ref
+                  .watch(keyStatusProvider)
+                  .whenOrNull(
+                    data: (s) => !s.protected
+                        ? l10n.ppRowOff
+                        : s.unlockedHere
+                        ? l10n.ppRowOn
+                        : l10n.ppRowLocked,
+                  ),
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const PassphraseScreen()),
+              ),
             ),
           ],
         ),

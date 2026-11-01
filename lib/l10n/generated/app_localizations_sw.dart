@@ -5348,6 +5348,185 @@ class L10nSw extends L10n {
   String get privacyIntroSettings => 'Chagua kwenye Mipangilio';
 
   @override
+  String get ppTitle => 'Ulinzi wa kaulisiri';
+
+  @override
+  String get ppRowOn => 'Imewashwa';
+
+  @override
+  String get ppRowOff => 'Imezimwa';
+
+  @override
+  String get ppRowLocked => 'Imefungwa kwenye simu hii';
+
+  @override
+  String get ppIntro =>
+      'Data yako tayari imesimbwa kwa njia fiche kwenye simu hii na kwenye nakala zako. Kaulisiri inaongeza kufuli moja zaidi, ili wewe pekee uweze kufungua data yako iliyosawazishwa na nakala zako — hata sisi hatuwezi.';
+
+  @override
+  String get ppWithoutTitle => 'Bila kaulisiri (hali ilivyo sasa)';
+
+  @override
+  String get ppWithout1 =>
+      'Kila kitu kwenye simu hii kimesimbwa kwa njia fiche.';
+
+  @override
+  String get ppWithout2 =>
+      'Nakala na data iliyosawazishwa zimesimbwa kwa njia fiche kwa ufunguo unaohusishwa na akaunti yako.';
+
+  @override
+  String get ppWithout3 =>
+      'Ingia kwenye simu mpya na kila kitu kinarudi, bila kuhitaji kukumbuka chochote.';
+
+  @override
+  String get ppWithout4 =>
+      'Seva yetu inashikilia ufunguo huo, kwa hivyo kinadharia tungeweza kufungua data yako iliyosawazishwa.';
+
+  @override
+  String get ppWithTitle => 'Ukiwa na kaulisiri';
+
+  @override
+  String get ppWith1 =>
+      'Ni kaulisiri yako au msimbo wako wa urejeshaji pekee unaoweza kufungua data yako iliyosawazishwa na nakala zako.';
+
+  @override
+  String get ppWith2 =>
+      'Seva yetu inahifadhi nakala zilizofungwa za ufunguo wako pekee. Hatuwezi kusoma data yako, na hata mtu yeyote atakayevamia seva zetu hawezi.';
+
+  @override
+  String get ppWith3 =>
+      'Kwenye simu mpya, au baada ya kusakinisha upya, unaandika kaulisiri yako mara moja tu.';
+
+  @override
+  String get ppWith4 =>
+      'Simu hii inaendelea kufanya kazi kama inavyofanya sasa, hata bila mtandao.';
+
+  @override
+  String get ppCatchTitle => 'Tahadhari';
+
+  @override
+  String get ppCatchBody =>
+      'Ukisahau kaulisiri yako na pia ukapoteza msimbo wako wa urejeshaji, hakuna anayeweza kurejesha data yako iliyosawazishwa au nakala zako — si sisi, si mtu yeyote. Kilichopo tayari kwenye simu hii kinaendelea kusomeka hapa.';
+
+  @override
+  String get ppAiNote =>
+      'Vipengele vya AI bado vinatuma muhtasari wa fedha zako ili viweze kukujibu. Kaulisiri haibadilishi hilo.';
+
+  @override
+  String get ppSetButton => 'Weka kaulisiri';
+
+  @override
+  String get ppSetTitle => 'Chagua kaulisiri';
+
+  @override
+  String get ppSetHint =>
+      'Tumia angalau herufi 10. Maneno machache yasiyohusiana ni rahisi kukumbuka na magumu kubahatisha.';
+
+  @override
+  String get ppPassphraseLabel => 'Kaulisiri';
+
+  @override
+  String get ppConfirmLabel => 'Iandike tena';
+
+  @override
+  String get ppTooShort => 'Tumia angalau herufi 10.';
+
+  @override
+  String get ppMismatch => 'Kaulisiri hizo mbili hazilingani.';
+
+  @override
+  String get ppUnderstand =>
+      'Ninaelewa kwamba nikipoteza kaulisiri yangu na msimbo wangu wa urejeshaji, data yangu iliyosawazishwa na nakala zangu haziwezi kurejeshwa.';
+
+  @override
+  String get ppTurnOn => 'Washa ulinzi';
+
+  @override
+  String get ppWorking =>
+      'Inafunga ufunguo wako. Hii inachukua sekunde chache…';
+
+  @override
+  String get ppRecoveryTitle => 'Msimbo wako wa urejeshaji';
+
+  @override
+  String get ppRecoveryBody =>
+      'Hii ndiyo njia nyingine pekee ya kufikia data yako ukisahau kaulisiri yako. Iandike au uihifadhi kwenye kidhibiti cha manenosiri — mahali pengine tofauti na simu hii.';
+
+  @override
+  String get ppCopy => 'Nakili';
+
+  @override
+  String get ppCopied => 'Msimbo wa urejeshaji umenakiliwa';
+
+  @override
+  String get ppSavedIt =>
+      'Nimehifadhi msimbo wangu wa urejeshaji mahali salama';
+
+  @override
+  String get ppDone => 'Imekamilika';
+
+  @override
+  String get ppOnTitle => 'Ulinzi umewashwa';
+
+  @override
+  String get ppOnBody =>
+      'Ni kaulisiri yako au msimbo wako wa urejeshaji pekee unaoweza kufungua data yako iliyosawazishwa na nakala zako.';
+
+  @override
+  String get ppChange => 'Badilisha kaulisiri';
+
+  @override
+  String get ppNewCode => 'Pata msimbo mpya wa urejeshaji';
+
+  @override
+  String get ppNewCodeWarn =>
+      'Msimbo wako wa sasa wa urejeshaji utaacha kufanya kazi. Hakikisha umehifadhi msimbo mpya.';
+
+  @override
+  String get ppTurnOff => 'Zima ulinzi';
+
+  @override
+  String get ppTurnOffBody =>
+      'Seva yetu itashikilia ufunguo wako tena, kama awali. Data yako inabaki imesimbwa kwa njia fiche, lakini kinadharia tungeweza kufungua data yako iliyosawazishwa.';
+
+  @override
+  String get ppLockedTitle => 'Fungua data yako';
+
+  @override
+  String get ppLockedBody =>
+      'Data yako inalindwa kwa kaulisiri. Iweke mara moja kwenye simu hii ili kufungua data yako iliyosawazishwa na nakala zako.';
+
+  @override
+  String get ppUnlock => 'Fungua';
+
+  @override
+  String get ppUseRecovery => 'Tumia msimbo wangu wa urejeshaji badala yake';
+
+  @override
+  String get ppUsePassphrase => 'Tumia kaulisiri yangu badala yake';
+
+  @override
+  String get ppRecoveryLabel => 'Msimbo wa urejeshaji';
+
+  @override
+  String get ppWrongPassphrase => 'Kaulisiri hiyo si sahihi.';
+
+  @override
+  String get ppWrongRecovery => 'Msimbo huo wa urejeshaji si sahihi.';
+
+  @override
+  String get ppUnlocked => 'Imefunguliwa kwenye simu hii';
+
+  @override
+  String get ppChanged => 'Kaulisiri imebadilishwa';
+
+  @override
+  String get ppTurnedOn => 'Ulinzi umewashwa';
+
+  @override
+  String get ppTurnedOff => 'Ulinzi umezimwa';
+
+  @override
   String get voiceFabSettingSub =>
       'Maikrofoni inayoelea juu ya Leo, kwa kusema muamala';
 

@@ -5374,6 +5374,184 @@ class L10nFr extends L10n {
   String get privacyIntroSettings => 'Choisir dans les Paramètres';
 
   @override
+  String get ppTitle => 'Protection par phrase secrète';
+
+  @override
+  String get ppRowOn => 'Activée';
+
+  @override
+  String get ppRowOff => 'Désactivée';
+
+  @override
+  String get ppRowLocked => 'Verrouillée sur ce téléphone';
+
+  @override
+  String get ppIntro =>
+      'Vos données sont déjà chiffrées sur ce téléphone et dans vos sauvegardes. Une phrase secrète ajoute un verrou supplémentaire : vous seul pouvez ouvrir vos données synchronisées et vos sauvegardes, pas même nous.';
+
+  @override
+  String get ppWithoutTitle => 'Sans phrase secrète (situation actuelle)';
+
+  @override
+  String get ppWithout1 =>
+      'Tout ce qui se trouve sur ce téléphone est chiffré.';
+
+  @override
+  String get ppWithout2 =>
+      'Les sauvegardes et les données synchronisées sont chiffrées avec une clé liée à votre compte.';
+
+  @override
+  String get ppWithout3 =>
+      'Connectez-vous sur un nouveau téléphone et tout revient, sans rien avoir à retenir.';
+
+  @override
+  String get ppWithout4 =>
+      'Notre serveur détient cette clé : en principe, nous pourrions donc ouvrir vos données synchronisées.';
+
+  @override
+  String get ppWithTitle => 'Avec une phrase secrète';
+
+  @override
+  String get ppWith1 =>
+      'Seuls votre phrase secrète ou votre code de récupération peuvent ouvrir vos données synchronisées et vos sauvegardes.';
+
+  @override
+  String get ppWith2 =>
+      'Notre serveur ne conserve que des copies verrouillées de votre clé. Nous ne pouvons pas lire vos données, pas plus que quiconque s\'introduirait dans nos serveurs.';
+
+  @override
+  String get ppWith3 =>
+      'Sur un nouveau téléphone, ou après une réinstallation, vous saisissez votre phrase secrète une seule fois.';
+
+  @override
+  String get ppWith4 =>
+      'Ce téléphone continue de fonctionner exactement comme maintenant, même hors ligne.';
+
+  @override
+  String get ppCatchTitle => 'La contrepartie';
+
+  @override
+  String get ppCatchBody =>
+      'Si vous oubliez votre phrase secrète et perdez aussi votre code de récupération, personne ne pourra récupérer vos données synchronisées ni vos sauvegardes : ni nous, ni qui que ce soit. Ce qui se trouve déjà sur ce téléphone reste lisible ici.';
+
+  @override
+  String get ppAiNote =>
+      'Les fonctions d\'IA envoient toujours un résumé de vos finances pour pouvoir vous répondre. Une phrase secrète n\'y change rien.';
+
+  @override
+  String get ppSetButton => 'Définir une phrase secrète';
+
+  @override
+  String get ppSetTitle => 'Choisissez une phrase secrète';
+
+  @override
+  String get ppSetHint =>
+      'Utilisez au moins 10 caractères. Quelques mots sans rapport entre eux sont faciles à retenir et difficiles à deviner.';
+
+  @override
+  String get ppPassphraseLabel => 'Phrase secrète';
+
+  @override
+  String get ppConfirmLabel => 'Saisissez-la à nouveau';
+
+  @override
+  String get ppTooShort => 'Utilisez au moins 10 caractères.';
+
+  @override
+  String get ppMismatch => 'Les deux phrases secrètes ne correspondent pas.';
+
+  @override
+  String get ppUnderstand =>
+      'Je comprends que si je perds à la fois ma phrase secrète et mon code de récupération, mes données synchronisées et mes sauvegardes ne pourront pas être récupérées.';
+
+  @override
+  String get ppTurnOn => 'Activer la protection';
+
+  @override
+  String get ppWorking =>
+      'Verrouillage de votre clé. Cela prend quelques secondes…';
+
+  @override
+  String get ppRecoveryTitle => 'Votre code de récupération';
+
+  @override
+  String get ppRecoveryBody =>
+      'C\'est le seul autre moyen d\'accéder à vos données si vous oubliez votre phrase secrète. Notez-le ou conservez-le dans un gestionnaire de mots de passe, ailleurs que sur ce téléphone.';
+
+  @override
+  String get ppCopy => 'Copier';
+
+  @override
+  String get ppCopied => 'Code de récupération copié';
+
+  @override
+  String get ppSavedIt => 'J\'ai conservé mon code de récupération en lieu sûr';
+
+  @override
+  String get ppDone => 'Terminé';
+
+  @override
+  String get ppOnTitle => 'La protection est activée';
+
+  @override
+  String get ppOnBody =>
+      'Seuls votre phrase secrète ou votre code de récupération peuvent ouvrir vos données synchronisées et vos sauvegardes.';
+
+  @override
+  String get ppChange => 'Modifier la phrase secrète';
+
+  @override
+  String get ppNewCode => 'Obtenir un nouveau code de récupération';
+
+  @override
+  String get ppNewCodeWarn =>
+      'Votre code de récupération actuel ne fonctionnera plus. Veillez à bien conserver le nouveau.';
+
+  @override
+  String get ppTurnOff => 'Désactiver la protection';
+
+  @override
+  String get ppTurnOffBody =>
+      'Notre serveur détiendra de nouveau votre clé, comme avant. Vos données restent chiffrées, mais en principe nous pourrions ouvrir vos données synchronisées.';
+
+  @override
+  String get ppLockedTitle => 'Déverrouillez vos données';
+
+  @override
+  String get ppLockedBody =>
+      'Vos données sont protégées par une phrase secrète. Saisissez-la une fois sur ce téléphone pour ouvrir vos données synchronisées et vos sauvegardes.';
+
+  @override
+  String get ppUnlock => 'Déverrouiller';
+
+  @override
+  String get ppUseRecovery => 'Utiliser plutôt mon code de récupération';
+
+  @override
+  String get ppUsePassphrase => 'Utiliser plutôt ma phrase secrète';
+
+  @override
+  String get ppRecoveryLabel => 'Code de récupération';
+
+  @override
+  String get ppWrongPassphrase => 'Cette phrase secrète est incorrecte.';
+
+  @override
+  String get ppWrongRecovery => 'Ce code de récupération est incorrect.';
+
+  @override
+  String get ppUnlocked => 'Déverrouillé sur ce téléphone';
+
+  @override
+  String get ppChanged => 'Phrase secrète modifiée';
+
+  @override
+  String get ppTurnedOn => 'La protection est activée';
+
+  @override
+  String get ppTurnedOff => 'Protection désactivée';
+
+  @override
   String get voiceFabSettingSub =>
       'Un micro flottant sur Aujourd\'hui, pour dicter une opération';
 

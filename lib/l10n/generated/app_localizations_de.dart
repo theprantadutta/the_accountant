@@ -5354,6 +5354,185 @@ class L10nDe extends L10n {
   String get privacyIntroSettings => 'In Einstellungen wählen';
 
   @override
+  String get ppTitle => 'Passphrase-Schutz';
+
+  @override
+  String get ppRowOn => 'An';
+
+  @override
+  String get ppRowOff => 'Aus';
+
+  @override
+  String get ppRowLocked => 'Auf diesem Handy gesperrt';
+
+  @override
+  String get ppIntro =>
+      'Deine Daten sind auf diesem Handy und in deinen Sicherungen bereits verschlüsselt. Eine Passphrase fügt ein weiteres Schloss hinzu, sodass nur du deine synchronisierten Daten und Sicherungen öffnen kannst – nicht einmal wir.';
+
+  @override
+  String get ppWithoutTitle => 'Ohne Passphrase (so wie jetzt)';
+
+  @override
+  String get ppWithout1 => 'Alles auf diesem Handy ist verschlüsselt.';
+
+  @override
+  String get ppWithout2 =>
+      'Sicherungen und synchronisierte Daten werden mit einem Schlüssel verschlüsselt, der an dein Konto gebunden ist.';
+
+  @override
+  String get ppWithout3 =>
+      'Melde dich auf einem neuen Handy an, und alles ist wieder da, ohne dass du dir etwas merken musst.';
+
+  @override
+  String get ppWithout4 =>
+      'Unser Server verwahrt diesen Schlüssel, also könnten wir deine synchronisierten Daten grundsätzlich öffnen.';
+
+  @override
+  String get ppWithTitle => 'Mit Passphrase';
+
+  @override
+  String get ppWith1 =>
+      'Nur deine Passphrase oder dein Wiederherstellungscode kann deine synchronisierten Daten und Sicherungen öffnen.';
+
+  @override
+  String get ppWith2 =>
+      'Unser Server bewahrt nur gesperrte Kopien deines Schlüssels auf. Wir können deine Daten nicht lesen, und auch niemand, der in unsere Server eindringt.';
+
+  @override
+  String get ppWith3 =>
+      'Auf einem neuen Handy oder nach einer Neuinstallation gibst du deine Passphrase einmal ein.';
+
+  @override
+  String get ppWith4 =>
+      'Dieses Handy funktioniert genau wie bisher weiter, auch offline.';
+
+  @override
+  String get ppCatchTitle => 'Der Haken';
+
+  @override
+  String get ppCatchBody =>
+      'Wenn du deine Passphrase vergisst und auch deinen Wiederherstellungscode verlierst, kann niemand deine synchronisierten Daten oder Sicherungen wiederherstellen – weder wir noch sonst jemand. Was bereits auf diesem Handy ist, bleibt hier lesbar.';
+
+  @override
+  String get ppAiNote =>
+      'KI-Funktionen senden weiterhin eine Zusammenfassung deiner Finanzen, damit sie dir antworten können. Eine Passphrase ändert daran nichts.';
+
+  @override
+  String get ppSetButton => 'Passphrase festlegen';
+
+  @override
+  String get ppSetTitle => 'Passphrase wählen';
+
+  @override
+  String get ppSetHint =>
+      'Verwende mindestens 10 Zeichen. Ein paar zusammenhanglose Wörter sind leicht zu merken und schwer zu erraten.';
+
+  @override
+  String get ppPassphraseLabel => 'Passphrase';
+
+  @override
+  String get ppConfirmLabel => 'Noch einmal eingeben';
+
+  @override
+  String get ppTooShort => 'Verwende mindestens 10 Zeichen.';
+
+  @override
+  String get ppMismatch => 'Die beiden Passphrasen stimmen nicht überein.';
+
+  @override
+  String get ppUnderstand =>
+      'Mir ist klar: Wenn ich sowohl meine Passphrase als auch meinen Wiederherstellungscode verliere, können meine synchronisierten Daten und Sicherungen nicht wiederhergestellt werden.';
+
+  @override
+  String get ppTurnOn => 'Schutz aktivieren';
+
+  @override
+  String get ppWorking =>
+      'Dein Schlüssel wird gesperrt. Das dauert ein paar Sekunden…';
+
+  @override
+  String get ppRecoveryTitle => 'Dein Wiederherstellungscode';
+
+  @override
+  String get ppRecoveryBody =>
+      'Das ist der einzige andere Weg zu deinen Daten, falls du deine Passphrase vergisst. Schreib ihn auf oder bewahre ihn in einem Passwort-Manager auf – irgendwo anders als auf diesem Handy.';
+
+  @override
+  String get ppCopy => 'Kopieren';
+
+  @override
+  String get ppCopied => 'Wiederherstellungscode kopiert';
+
+  @override
+  String get ppSavedIt =>
+      'Ich habe meinen Wiederherstellungscode sicher aufbewahrt';
+
+  @override
+  String get ppDone => 'Fertig';
+
+  @override
+  String get ppOnTitle => 'Schutz ist aktiv';
+
+  @override
+  String get ppOnBody =>
+      'Nur deine Passphrase oder dein Wiederherstellungscode kann deine synchronisierten Daten und Sicherungen öffnen.';
+
+  @override
+  String get ppChange => 'Passphrase ändern';
+
+  @override
+  String get ppNewCode => 'Neuen Wiederherstellungscode erhalten';
+
+  @override
+  String get ppNewCodeWarn =>
+      'Dein aktueller Wiederherstellungscode funktioniert dann nicht mehr. Bewahre den neuen unbedingt auf.';
+
+  @override
+  String get ppTurnOff => 'Schutz deaktivieren';
+
+  @override
+  String get ppTurnOffBody =>
+      'Unser Server verwahrt deinen Schlüssel dann wieder wie zuvor. Deine Daten bleiben verschlüsselt, aber grundsätzlich könnten wir deine synchronisierten Daten öffnen.';
+
+  @override
+  String get ppLockedTitle => 'Daten entsperren';
+
+  @override
+  String get ppLockedBody =>
+      'Deine Daten sind mit einer Passphrase geschützt. Gib sie einmal auf diesem Handy ein, um deine synchronisierten Daten und Sicherungen zu öffnen.';
+
+  @override
+  String get ppUnlock => 'Entsperren';
+
+  @override
+  String get ppUseRecovery => 'Stattdessen Wiederherstellungscode verwenden';
+
+  @override
+  String get ppUsePassphrase => 'Stattdessen Passphrase verwenden';
+
+  @override
+  String get ppRecoveryLabel => 'Wiederherstellungscode';
+
+  @override
+  String get ppWrongPassphrase => 'Diese Passphrase ist nicht richtig.';
+
+  @override
+  String get ppWrongRecovery =>
+      'Dieser Wiederherstellungscode ist nicht richtig.';
+
+  @override
+  String get ppUnlocked => 'Auf diesem Handy entsperrt';
+
+  @override
+  String get ppChanged => 'Passphrase geändert';
+
+  @override
+  String get ppTurnedOn => 'Schutz ist aktiv';
+
+  @override
+  String get ppTurnedOff => 'Schutz deaktiviert';
+
+  @override
   String get voiceFabSettingSub =>
       'Ein Mikro, das über Heute schwebt, um Buchungen zu sprechen';
 

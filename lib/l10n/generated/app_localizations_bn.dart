@@ -5277,6 +5277,181 @@ class L10nBn extends L10n {
   String get privacyIntroSettings => 'সেটিংসে বেছে নিন';
 
   @override
+  String get ppTitle => 'পাসফ্রেজ সুরক্ষা';
+
+  @override
+  String get ppRowOn => 'চালু';
+
+  @override
+  String get ppRowOff => 'বন্ধ';
+
+  @override
+  String get ppRowLocked => 'এই ফোনে লক করা';
+
+  @override
+  String get ppIntro =>
+      'আপনার ডেটা এই ফোনে এবং আপনার ব্যাকআপে আগে থেকেই এনক্রিপ্ট করা আছে। পাসফ্রেজ আরও একটি তালা যোগ করে, যাতে আপনার সিঙ্ক করা ডেটা ও ব্যাকআপ শুধু আপনিই খুলতে পারেন — এমনকি আমরাও না।';
+
+  @override
+  String get ppWithoutTitle => 'পাসফ্রেজ ছাড়া (এখন যেমন আছে)';
+
+  @override
+  String get ppWithout1 => 'এই ফোনের সবকিছু এনক্রিপ্ট করা।';
+
+  @override
+  String get ppWithout2 =>
+      'ব্যাকআপ ও সিঙ্ক করা ডেটা আপনার অ্যাকাউন্টের সাথে যুক্ত একটি কী দিয়ে এনক্রিপ্ট করা।';
+
+  @override
+  String get ppWithout3 =>
+      'নতুন ফোনে সাইন ইন করলেই সবকিছু ফিরে আসে, কিছুই মনে রাখতে হয় না।';
+
+  @override
+  String get ppWithout4 =>
+      'সেই কী আমাদের সার্ভারে থাকে, তাই নীতিগতভাবে আমরা আপনার সিঙ্ক করা ডেটা খুলতে পারি।';
+
+  @override
+  String get ppWithTitle => 'পাসফ্রেজ থাকলে';
+
+  @override
+  String get ppWith1 =>
+      'শুধু আপনার পাসফ্রেজ বা রিকভারি কোড দিয়েই আপনার সিঙ্ক করা ডেটা ও ব্যাকআপ খোলা যায়।';
+
+  @override
+  String get ppWith2 =>
+      'আমাদের সার্ভারে আপনার কী-এর শুধু লক করা কপি থাকে। আমরা আপনার ডেটা পড়তে পারি না, আর আমাদের সার্ভারে কেউ অনুপ্রবেশ করলেও সে পারবে না।';
+
+  @override
+  String get ppWith3 =>
+      'নতুন ফোনে, বা আবার ইনস্টল করার পর, একবার আপনার পাসফ্রেজ লিখতে হবে।';
+
+  @override
+  String get ppWith4 => 'এই ফোন এখন যেমন চলছে ঠিক তেমনই চলবে, অফলাইনেও।';
+
+  @override
+  String get ppCatchTitle => 'যা জেনে রাখা জরুরি';
+
+  @override
+  String get ppCatchBody =>
+      'আপনি যদি পাসফ্রেজ ভুলে যান এবং রিকভারি কোডও হারিয়ে ফেলেন, তাহলে আপনার সিঙ্ক করা ডেটা বা ব্যাকআপ কেউই ফিরিয়ে আনতে পারবে না — আমরাও না, অন্য কেউও না। এই ফোনে যা আগে থেকে আছে, তা এখানে পড়া যাবে।';
+
+  @override
+  String get ppAiNote =>
+      'এআই ফিচারগুলো উত্তর দেওয়ার জন্য এখনও আপনার আর্থিক তথ্যের একটি সারাংশ পাঠায়। পাসফ্রেজ এতে কোনো পরিবর্তন আনে না।';
+
+  @override
+  String get ppSetButton => 'পাসফ্রেজ সেট করুন';
+
+  @override
+  String get ppSetTitle => 'একটি পাসফ্রেজ বেছে নিন';
+
+  @override
+  String get ppSetHint =>
+      'অন্তত ১০টি অক্ষর ব্যবহার করুন। পরস্পর সম্পর্কহীন কয়েকটি শব্দ মনে রাখা সহজ, কিন্তু অনুমান করা কঠিন।';
+
+  @override
+  String get ppPassphraseLabel => 'পাসফ্রেজ';
+
+  @override
+  String get ppConfirmLabel => 'আবার লিখুন';
+
+  @override
+  String get ppTooShort => 'অন্তত ১০টি অক্ষর ব্যবহার করুন।';
+
+  @override
+  String get ppMismatch => 'দুটি পাসফ্রেজ মিলছে না।';
+
+  @override
+  String get ppUnderstand =>
+      'আমি বুঝেছি যে পাসফ্রেজ ও রিকভারি কোড দুটোই হারালে আমার সিঙ্ক করা ডেটা ও ব্যাকআপ আর ফিরিয়ে আনা যাবে না।';
+
+  @override
+  String get ppTurnOn => 'সুরক্ষা চালু করুন';
+
+  @override
+  String get ppWorking => 'আপনার কী লক করা হচ্ছে। এতে কয়েক সেকেন্ড লাগে…';
+
+  @override
+  String get ppRecoveryTitle => 'আপনার রিকভারি কোড';
+
+  @override
+  String get ppRecoveryBody =>
+      'পাসফ্রেজ ভুলে গেলে আপনার ডেটায় ঢোকার এটিই একমাত্র বিকল্প উপায়। এটি লিখে রাখুন বা কোনো পাসওয়ার্ড ম্যানেজারে রাখুন — এই ফোন ছাড়া অন্য কোথাও।';
+
+  @override
+  String get ppCopy => 'কপি করুন';
+
+  @override
+  String get ppCopied => 'রিকভারি কোড কপি হয়েছে';
+
+  @override
+  String get ppSavedIt => 'আমি রিকভারি কোডটি নিরাপদ কোনো জায়গায় রেখেছি';
+
+  @override
+  String get ppDone => 'সম্পন্ন';
+
+  @override
+  String get ppOnTitle => 'সুরক্ষা চালু আছে';
+
+  @override
+  String get ppOnBody =>
+      'শুধু আপনার পাসফ্রেজ বা রিকভারি কোড দিয়েই আপনার সিঙ্ক করা ডেটা ও ব্যাকআপ খোলা যায়।';
+
+  @override
+  String get ppChange => 'পাসফ্রেজ বদলান';
+
+  @override
+  String get ppNewCode => 'নতুন রিকভারি কোড নিন';
+
+  @override
+  String get ppNewCodeWarn =>
+      'আপনার বর্তমান রিকভারি কোড আর কাজ করবে না। নতুনটি অবশ্যই সংরক্ষণ করে রাখুন।';
+
+  @override
+  String get ppTurnOff => 'সুরক্ষা বন্ধ করুন';
+
+  @override
+  String get ppTurnOffBody =>
+      'আগের মতো আমাদের সার্ভার আবার আপনার কী রাখবে। আপনার ডেটা এনক্রিপ্ট করাই থাকবে, তবে নীতিগতভাবে আমরা আপনার সিঙ্ক করা ডেটা খুলতে পারব।';
+
+  @override
+  String get ppLockedTitle => 'আপনার ডেটা আনলক করুন';
+
+  @override
+  String get ppLockedBody =>
+      'আপনার ডেটা পাসফ্রেজ দিয়ে সুরক্ষিত। আপনার সিঙ্ক করা ডেটা ও ব্যাকআপ খুলতে এই ফোনে একবার এটি লিখুন।';
+
+  @override
+  String get ppUnlock => 'আনলক করুন';
+
+  @override
+  String get ppUseRecovery => 'এর বদলে আমার রিকভারি কোড ব্যবহার করুন';
+
+  @override
+  String get ppUsePassphrase => 'এর বদলে আমার পাসফ্রেজ ব্যবহার করুন';
+
+  @override
+  String get ppRecoveryLabel => 'রিকভারি কোড';
+
+  @override
+  String get ppWrongPassphrase => 'পাসফ্রেজটি সঠিক নয়।';
+
+  @override
+  String get ppWrongRecovery => 'রিকভারি কোডটি সঠিক নয়।';
+
+  @override
+  String get ppUnlocked => 'এই ফোনে আনলক হয়েছে';
+
+  @override
+  String get ppChanged => 'পাসফ্রেজ বদলানো হয়েছে';
+
+  @override
+  String get ppTurnedOn => 'সুরক্ষা চালু হয়েছে';
+
+  @override
+  String get ppTurnedOff => 'সুরক্ষা বন্ধ হয়েছে';
+
+  @override
   String get voiceFabSettingSub =>
       'আজকের পাতায় ভেসে থাকা একটি মাইক, লেনদেন বলে দেওয়ার জন্য';
 

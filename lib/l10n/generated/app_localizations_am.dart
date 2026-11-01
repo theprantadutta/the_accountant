@@ -5217,6 +5217,179 @@ class L10nAm extends L10n {
   String get privacyIntroSettings => 'በቅንብሮች ውስጥ ይምረጡ';
 
   @override
+  String get ppTitle => 'የይለፍ ሐረግ ጥበቃ';
+
+  @override
+  String get ppRowOn => 'በርቷል';
+
+  @override
+  String get ppRowOff => 'ጠፍቷል';
+
+  @override
+  String get ppRowLocked => 'በዚህ ስልክ ላይ ተቆልፏል';
+
+  @override
+  String get ppIntro =>
+      'ውሂብዎ በዚህ ስልክ ላይ እና በምትኬዎችዎ ውስጥ አስቀድሞ ተመስጥሯል። የይለፍ ሐረግ አንድ ተጨማሪ መቆለፊያ ያክላል፤ በዚህም የተመሳሰለ ውሂብዎን እና ምትኬዎችዎን መክፈት የሚችሉት እርስዎ ብቻ ይሆናሉ — እኛም እንኳ አንችልም።';
+
+  @override
+  String get ppWithoutTitle => 'የይለፍ ሐረግ ሳይኖር (አሁን ያለው ሁኔታ)';
+
+  @override
+  String get ppWithout1 => 'በዚህ ስልክ ላይ ያለው ሁሉ ተመስጥሯል።';
+
+  @override
+  String get ppWithout2 => 'ምትኬዎች እና የተመሳሰለ ውሂብ ከመለያዎ ጋር በተያያዘ ቁልፍ ተመስጥረዋል።';
+
+  @override
+  String get ppWithout3 => 'በአዲስ ስልክ ላይ ይግቡ፤ ምንም ማስታወስ ሳያስፈልግዎ ሁሉም ነገር ይመለሳል።';
+
+  @override
+  String get ppWithout4 =>
+      'ያንን ቁልፍ የሚይዘው አገልጋያችን ነው፤ ስለዚህ በመርህ ደረጃ የተመሳሰለ ውሂብዎን ልንከፍት እንችላለን።';
+
+  @override
+  String get ppWithTitle => 'የይለፍ ሐረግ ሲኖር';
+
+  @override
+  String get ppWith1 =>
+      'የተመሳሰለ ውሂብዎን እና ምትኬዎችዎን መክፈት የሚችሉት የይለፍ ሐረግዎ ወይም የመልሶ ማግኛ ኮድዎ ብቻ ናቸው።';
+
+  @override
+  String get ppWith2 =>
+      'አገልጋያችን የሚያስቀምጠው የቁልፍዎን የተቆለፉ ቅጂዎች ብቻ ነው። እኛ ውሂብዎን ማንበብ አንችልም፤ አገልጋዮቻችንን ሰብሮ የሚገባ ማንኛውም ሰውም አይችልም።';
+
+  @override
+  String get ppWith3 =>
+      'በአዲስ ስልክ ላይ፣ ወይም መተግበሪያውን እንደገና ከጫኑ በኋላ፣ የይለፍ ሐረግዎን አንድ ጊዜ ብቻ ይተይባሉ።';
+
+  @override
+  String get ppWith4 => 'ይህ ስልክ ልክ አሁን እንደሚሠራው መሥራቱን ይቀጥላል፤ ከመስመር ውጭም ቢሆን።';
+
+  @override
+  String get ppCatchTitle => 'ልብ ሊሉት የሚገባ';
+
+  @override
+  String get ppCatchBody =>
+      'የይለፍ ሐረግዎን ከረሱ እና የመልሶ ማግኛ ኮድዎንም ካጡ፣ የተመሳሰለ ውሂብዎን ወይም ምትኬዎችዎን ማንም መመለስ አይችልም — እኛም ሆንን ሌላ ማንም። አስቀድሞ በዚህ ስልክ ላይ ያለው ግን እዚሁ መነበቡን ይቀጥላል።';
+
+  @override
+  String get ppAiNote =>
+      'የAI ባህሪያት ምላሽ ሊሰጡዎት እንዲችሉ አሁንም የገንዘብ ሁኔታዎን ማጠቃለያ ይልካሉ። የይለፍ ሐረግ ይህንን አይለውጥም።';
+
+  @override
+  String get ppSetButton => 'የይለፍ ሐረግ አዘጋጅ';
+
+  @override
+  String get ppSetTitle => 'የይለፍ ሐረግ ይምረጡ';
+
+  @override
+  String get ppSetHint =>
+      'ቢያንስ 10 ቁምፊዎችን ይጠቀሙ። እርስ በርስ የማይዛመዱ ጥቂት ቃላት ለማስታወስ ቀላል፣ ለመገመት ግን ከባድ ናቸው።';
+
+  @override
+  String get ppPassphraseLabel => 'የይለፍ ሐረግ';
+
+  @override
+  String get ppConfirmLabel => 'እንደገና ይተይቡት';
+
+  @override
+  String get ppTooShort => 'ቢያንስ 10 ቁምፊዎችን ይጠቀሙ።';
+
+  @override
+  String get ppMismatch => 'ሁለቱ የይለፍ ሐረጎች አይዛመዱም።';
+
+  @override
+  String get ppUnderstand =>
+      'የይለፍ ሐረጌንም የመልሶ ማግኛ ኮዴንም ካጣሁ፣ የተመሳሰለ ውሂቤ እና ምትኬዎቼ መመለስ እንደማይችሉ ተረድቻለሁ።';
+
+  @override
+  String get ppTurnOn => 'ጥበቃን አብራ';
+
+  @override
+  String get ppWorking => 'ቁልፍዎን በመቆለፍ ላይ። ይህ ጥቂት ሰከንዶች ይወስዳል…';
+
+  @override
+  String get ppRecoveryTitle => 'የመልሶ ማግኛ ኮድዎ';
+
+  @override
+  String get ppRecoveryBody =>
+      'የይለፍ ሐረግዎን ከረሱ ወደ ውሂብዎ የሚያስገባው ብቸኛው ሌላ መንገድ ይህ ነው። ይጻፉት ወይም በይለፍ ቃል አስተዳዳሪ ውስጥ ያስቀምጡት — ከዚህ ስልክ ውጭ በሆነ ቦታ።';
+
+  @override
+  String get ppCopy => 'ቅዳ';
+
+  @override
+  String get ppCopied => 'የመልሶ ማግኛ ኮዱ ተቀድቷል';
+
+  @override
+  String get ppSavedIt => 'የመልሶ ማግኛ ኮዴን ደህንነቱ በተጠበቀ ቦታ አስቀምጫለሁ';
+
+  @override
+  String get ppDone => 'ተጠናቋል';
+
+  @override
+  String get ppOnTitle => 'ጥበቃው በርቷል';
+
+  @override
+  String get ppOnBody =>
+      'የተመሳሰለ ውሂብዎን እና ምትኬዎችዎን መክፈት የሚችሉት የይለፍ ሐረግዎ ወይም የመልሶ ማግኛ ኮድዎ ብቻ ናቸው።';
+
+  @override
+  String get ppChange => 'የይለፍ ሐረግ ቀይር';
+
+  @override
+  String get ppNewCode => 'አዲስ የመልሶ ማግኛ ኮድ አግኝ';
+
+  @override
+  String get ppNewCodeWarn =>
+      'የአሁኑ የመልሶ ማግኛ ኮድዎ መሥራት ያቆማል። አዲሱን ማስቀመጥዎን ያረጋግጡ።';
+
+  @override
+  String get ppTurnOff => 'ጥበቃን አጥፋ';
+
+  @override
+  String get ppTurnOffBody =>
+      'እንደቀድሞው አገልጋያችን ቁልፍዎን እንደገና ይይዛል። ውሂብዎ እንደተመሰጠረ ይቆያል፤ ነገር ግን በመርህ ደረጃ የተመሳሰለ ውሂብዎን ልንከፍት እንችላለን።';
+
+  @override
+  String get ppLockedTitle => 'ውሂብዎን ይክፈቱ';
+
+  @override
+  String get ppLockedBody =>
+      'ውሂብዎ በይለፍ ሐረግ የተጠበቀ ነው። የተመሳሰለ ውሂብዎን እና ምትኬዎችዎን ለመክፈት በዚህ ስልክ ላይ አንድ ጊዜ ያስገቡት።';
+
+  @override
+  String get ppUnlock => 'ክፈት';
+
+  @override
+  String get ppUseRecovery => 'በምትኩ የመልሶ ማግኛ ኮዴን ልጠቀም';
+
+  @override
+  String get ppUsePassphrase => 'በምትኩ የይለፍ ሐረጌን ልጠቀም';
+
+  @override
+  String get ppRecoveryLabel => 'የመልሶ ማግኛ ኮድ';
+
+  @override
+  String get ppWrongPassphrase => 'ያ የይለፍ ሐረግ ትክክል አይደለም።';
+
+  @override
+  String get ppWrongRecovery => 'ያ የመልሶ ማግኛ ኮድ ትክክል አይደለም።';
+
+  @override
+  String get ppUnlocked => 'በዚህ ስልክ ላይ ተከፍቷል';
+
+  @override
+  String get ppChanged => 'የይለፍ ሐረጉ ተቀይሯል';
+
+  @override
+  String get ppTurnedOn => 'ጥበቃው በርቷል';
+
+  @override
+  String get ppTurnedOff => 'ጥበቃው ጠፍቷል';
+
+  @override
   String get voiceFabSettingSub => 'ግብይትን ለመናገር በዛሬ ገጽ ላይ የሚንሳፈፍ ማይክ';
 
   @override

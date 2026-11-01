@@ -9470,6 +9470,324 @@ abstract class L10n {
   /// **'Choose in Settings'**
   String get privacyIntroSettings;
 
+  /// No description provided for @ppTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Passphrase protection'**
+  String get ppTitle;
+
+  /// No description provided for @ppRowOn.
+  ///
+  /// In en, this message translates to:
+  /// **'On'**
+  String get ppRowOn;
+
+  /// No description provided for @ppRowOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get ppRowOff;
+
+  /// No description provided for @ppRowLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Locked on this phone'**
+  String get ppRowLocked;
+
+  /// No description provided for @ppIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Your data is already encrypted on this phone and in your backups. A passphrase adds one more lock, so only you can open your synced data and backups — not even we can.'**
+  String get ppIntro;
+
+  /// No description provided for @ppWithoutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Without a passphrase (how it is now)'**
+  String get ppWithoutTitle;
+
+  /// No description provided for @ppWithout1.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything on this phone is encrypted.'**
+  String get ppWithout1;
+
+  /// No description provided for @ppWithout2.
+  ///
+  /// In en, this message translates to:
+  /// **'Backups and synced data are encrypted with a key tied to your account.'**
+  String get ppWithout2;
+
+  /// No description provided for @ppWithout3.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in on a new phone and everything comes back, with nothing to remember.'**
+  String get ppWithout3;
+
+  /// No description provided for @ppWithout4.
+  ///
+  /// In en, this message translates to:
+  /// **'Our server holds that key, so in principle we could open your synced data.'**
+  String get ppWithout4;
+
+  /// No description provided for @ppWithTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'With a passphrase'**
+  String get ppWithTitle;
+
+  /// No description provided for @ppWith1.
+  ///
+  /// In en, this message translates to:
+  /// **'Only your passphrase or your recovery code can open your synced data and backups.'**
+  String get ppWith1;
+
+  /// No description provided for @ppWith2.
+  ///
+  /// In en, this message translates to:
+  /// **'Our server keeps only locked copies of your key. We can\'t read your data, and neither can anyone who breaks into our servers.'**
+  String get ppWith2;
+
+  /// No description provided for @ppWith3.
+  ///
+  /// In en, this message translates to:
+  /// **'On a new phone, or after reinstalling, you type your passphrase once.'**
+  String get ppWith3;
+
+  /// No description provided for @ppWith4.
+  ///
+  /// In en, this message translates to:
+  /// **'This phone keeps working exactly as it does now, even offline.'**
+  String get ppWith4;
+
+  /// No description provided for @ppCatchTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The catch'**
+  String get ppCatchTitle;
+
+  /// No description provided for @ppCatchBody.
+  ///
+  /// In en, this message translates to:
+  /// **'If you forget your passphrase and also lose your recovery code, nobody can recover your synced data or backups — not us, not anyone. What is already on this phone stays readable here.'**
+  String get ppCatchBody;
+
+  /// No description provided for @ppAiNote.
+  ///
+  /// In en, this message translates to:
+  /// **'AI features still send a summary of your finances so they can answer you. A passphrase does not change that.'**
+  String get ppAiNote;
+
+  /// No description provided for @ppSetButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Set a passphrase'**
+  String get ppSetButton;
+
+  /// No description provided for @ppSetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a passphrase'**
+  String get ppSetTitle;
+
+  /// No description provided for @ppSetHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Use at least 10 characters. A few unrelated words are easy to remember and hard to guess.'**
+  String get ppSetHint;
+
+  /// No description provided for @ppPassphraseLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Passphrase'**
+  String get ppPassphraseLabel;
+
+  /// No description provided for @ppConfirmLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Type it again'**
+  String get ppConfirmLabel;
+
+  /// No description provided for @ppTooShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Use at least 10 characters.'**
+  String get ppTooShort;
+
+  /// No description provided for @ppMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'The two passphrases don\'t match.'**
+  String get ppMismatch;
+
+  /// No description provided for @ppUnderstand.
+  ///
+  /// In en, this message translates to:
+  /// **'I understand that if I lose both my passphrase and my recovery code, my synced data and backups can\'t be recovered.'**
+  String get ppUnderstand;
+
+  /// No description provided for @ppTurnOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on protection'**
+  String get ppTurnOn;
+
+  /// No description provided for @ppWorking.
+  ///
+  /// In en, this message translates to:
+  /// **'Locking your key. This takes a few seconds…'**
+  String get ppWorking;
+
+  /// No description provided for @ppRecoveryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your recovery code'**
+  String get ppRecoveryTitle;
+
+  /// No description provided for @ppRecoveryBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This is the only other way into your data if you forget your passphrase. Write it down or keep it in a password manager — somewhere other than this phone.'**
+  String get ppRecoveryBody;
+
+  /// No description provided for @ppCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get ppCopy;
+
+  /// No description provided for @ppCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Recovery code copied'**
+  String get ppCopied;
+
+  /// No description provided for @ppSavedIt.
+  ///
+  /// In en, this message translates to:
+  /// **'I\'ve saved my recovery code somewhere safe'**
+  String get ppSavedIt;
+
+  /// No description provided for @ppDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get ppDone;
+
+  /// No description provided for @ppOnTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Protection is on'**
+  String get ppOnTitle;
+
+  /// No description provided for @ppOnBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Only your passphrase or your recovery code can open your synced data and backups.'**
+  String get ppOnBody;
+
+  /// No description provided for @ppChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Change passphrase'**
+  String get ppChange;
+
+  /// No description provided for @ppNewCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Get a new recovery code'**
+  String get ppNewCode;
+
+  /// No description provided for @ppNewCodeWarn.
+  ///
+  /// In en, this message translates to:
+  /// **'Your current recovery code will stop working. Make sure you save the new one.'**
+  String get ppNewCodeWarn;
+
+  /// No description provided for @ppTurnOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn off protection'**
+  String get ppTurnOff;
+
+  /// No description provided for @ppTurnOffBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Our server will hold your key again, as before. Your data stays encrypted, but in principle we could open your synced data.'**
+  String get ppTurnOffBody;
+
+  /// No description provided for @ppLockedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock your data'**
+  String get ppLockedTitle;
+
+  /// No description provided for @ppLockedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your data is protected with a passphrase. Enter it once on this phone to open your synced data and backups.'**
+  String get ppLockedBody;
+
+  /// No description provided for @ppUnlock.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock'**
+  String get ppUnlock;
+
+  /// No description provided for @ppUseRecovery.
+  ///
+  /// In en, this message translates to:
+  /// **'Use my recovery code instead'**
+  String get ppUseRecovery;
+
+  /// No description provided for @ppUsePassphrase.
+  ///
+  /// In en, this message translates to:
+  /// **'Use my passphrase instead'**
+  String get ppUsePassphrase;
+
+  /// No description provided for @ppRecoveryLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Recovery code'**
+  String get ppRecoveryLabel;
+
+  /// No description provided for @ppWrongPassphrase.
+  ///
+  /// In en, this message translates to:
+  /// **'That passphrase isn\'t right.'**
+  String get ppWrongPassphrase;
+
+  /// No description provided for @ppWrongRecovery.
+  ///
+  /// In en, this message translates to:
+  /// **'That recovery code isn\'t right.'**
+  String get ppWrongRecovery;
+
+  /// No description provided for @ppUnlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlocked on this phone'**
+  String get ppUnlocked;
+
+  /// No description provided for @ppChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Passphrase changed'**
+  String get ppChanged;
+
+  /// No description provided for @ppTurnedOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Protection is on'**
+  String get ppTurnedOn;
+
+  /// No description provided for @ppTurnedOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Protection turned off'**
+  String get ppTurnedOff;
+
   /// No description provided for @voiceFabSettingSub.
   ///
   /// In en, this message translates to:

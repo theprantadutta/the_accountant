@@ -5322,6 +5322,184 @@ class L10nHi extends L10n {
   String get privacyIntroSettings => 'सेटिंग्स में चुनें';
 
   @override
+  String get ppTitle => 'पासफ़्रेज़ सुरक्षा';
+
+  @override
+  String get ppRowOn => 'चालू';
+
+  @override
+  String get ppRowOff => 'बंद';
+
+  @override
+  String get ppRowLocked => 'इस फ़ोन पर लॉक है';
+
+  @override
+  String get ppIntro =>
+      'आपका डेटा इस फ़ोन पर और आपके बैकअप में पहले से एन्क्रिप्ट है। पासफ़्रेज़ एक और ताला जोड़ता है, ताकि आपका सिंक किया गया डेटा और बैकअप सिर्फ़ आप खोल सकें — हम भी नहीं।';
+
+  @override
+  String get ppWithoutTitle => 'पासफ़्रेज़ के बिना (अभी जैसा है)';
+
+  @override
+  String get ppWithout1 => 'इस फ़ोन पर सब कुछ एन्क्रिप्ट है।';
+
+  @override
+  String get ppWithout2 =>
+      'बैकअप और सिंक किया गया डेटा आपके खाते से जुड़ी एक कुंजी से एन्क्रिप्ट होता है।';
+
+  @override
+  String get ppWithout3 =>
+      'नए फ़ोन पर साइन इन करें और सब कुछ वापस आ जाता है, कुछ भी याद रखने की ज़रूरत नहीं।';
+
+  @override
+  String get ppWithout4 =>
+      'वह कुंजी हमारे सर्वर पर रहती है, इसलिए सैद्धांतिक रूप से हम आपका सिंक किया गया डेटा खोल सकते हैं।';
+
+  @override
+  String get ppWithTitle => 'पासफ़्रेज़ के साथ';
+
+  @override
+  String get ppWith1 =>
+      'सिर्फ़ आपका पासफ़्रेज़ या रिकवरी कोड ही आपका सिंक किया गया डेटा और बैकअप खोल सकता है।';
+
+  @override
+  String get ppWith2 =>
+      'हमारा सर्वर आपकी कुंजी की सिर्फ़ लॉक की हुई कॉपी रखता है। हम आपका डेटा नहीं पढ़ सकते, और हमारे सर्वर में सेंध लगाने वाला कोई भी नहीं पढ़ सकता।';
+
+  @override
+  String get ppWith3 =>
+      'नए फ़ोन पर, या दोबारा इंस्टॉल करने के बाद, आपको एक बार अपना पासफ़्रेज़ डालना होगा।';
+
+  @override
+  String get ppWith4 =>
+      'यह फ़ोन ठीक वैसे ही काम करता रहेगा जैसे अभी करता है, ऑफ़लाइन भी।';
+
+  @override
+  String get ppCatchTitle => 'ध्यान रखें';
+
+  @override
+  String get ppCatchBody =>
+      'अगर आप अपना पासफ़्रेज़ भूल जाते हैं और रिकवरी कोड भी खो देते हैं, तो आपका सिंक किया गया डेटा या बैकअप कोई वापस नहीं ला सकता — न हम, न कोई और। इस फ़ोन पर जो पहले से है, वह यहाँ पढ़ा जा सकेगा।';
+
+  @override
+  String get ppAiNote =>
+      'AI फ़ीचर जवाब देने के लिए अब भी आपके वित्त का एक सारांश भेजते हैं। पासफ़्रेज़ से इसमें कोई बदलाव नहीं होता।';
+
+  @override
+  String get ppSetButton => 'पासफ़्रेज़ सेट करें';
+
+  @override
+  String get ppSetTitle => 'पासफ़्रेज़ चुनें';
+
+  @override
+  String get ppSetHint =>
+      'कम से कम 10 अक्षर इस्तेमाल करें। कुछ आपस में असंबंधित शब्द याद रखने में आसान और अंदाज़ा लगाने में मुश्किल होते हैं।';
+
+  @override
+  String get ppPassphraseLabel => 'पासफ़्रेज़';
+
+  @override
+  String get ppConfirmLabel => 'फिर से लिखें';
+
+  @override
+  String get ppTooShort => 'कम से कम 10 अक्षर इस्तेमाल करें।';
+
+  @override
+  String get ppMismatch => 'दोनों पासफ़्रेज़ मेल नहीं खाते।';
+
+  @override
+  String get ppUnderstand =>
+      'मुझे पता है कि अगर मेरा पासफ़्रेज़ और रिकवरी कोड दोनों खो गए, तो मेरा सिंक किया गया डेटा और बैकअप वापस नहीं लाया जा सकेगा।';
+
+  @override
+  String get ppTurnOn => 'सुरक्षा चालू करें';
+
+  @override
+  String get ppWorking =>
+      'आपकी कुंजी लॉक की जा रही है। इसमें कुछ सेकंड लगते हैं…';
+
+  @override
+  String get ppRecoveryTitle => 'आपका रिकवरी कोड';
+
+  @override
+  String get ppRecoveryBody =>
+      'पासफ़्रेज़ भूल जाने पर आपके डेटा तक पहुँचने का यही एकमात्र दूसरा तरीका है। इसे लिख लें या किसी पासवर्ड मैनेजर में रखें — इस फ़ोन के अलावा कहीं और।';
+
+  @override
+  String get ppCopy => 'कॉपी करें';
+
+  @override
+  String get ppCopied => 'रिकवरी कोड कॉपी हो गया';
+
+  @override
+  String get ppSavedIt =>
+      'मैंने अपना रिकवरी कोड किसी सुरक्षित जगह सेव कर लिया है';
+
+  @override
+  String get ppDone => 'हो गया';
+
+  @override
+  String get ppOnTitle => 'सुरक्षा चालू है';
+
+  @override
+  String get ppOnBody =>
+      'सिर्फ़ आपका पासफ़्रेज़ या रिकवरी कोड ही आपका सिंक किया गया डेटा और बैकअप खोल सकता है।';
+
+  @override
+  String get ppChange => 'पासफ़्रेज़ बदलें';
+
+  @override
+  String get ppNewCode => 'नया रिकवरी कोड पाएँ';
+
+  @override
+  String get ppNewCodeWarn =>
+      'आपका मौजूदा रिकवरी कोड काम करना बंद कर देगा। नया कोड ज़रूर सेव कर लें।';
+
+  @override
+  String get ppTurnOff => 'सुरक्षा बंद करें';
+
+  @override
+  String get ppTurnOffBody =>
+      'पहले की तरह हमारा सर्वर फिर से आपकी कुंजी रखेगा। आपका डेटा एन्क्रिप्ट ही रहेगा, लेकिन सैद्धांतिक रूप से हम आपका सिंक किया गया डेटा खोल सकेंगे।';
+
+  @override
+  String get ppLockedTitle => 'अपना डेटा अनलॉक करें';
+
+  @override
+  String get ppLockedBody =>
+      'आपका डेटा पासफ़्रेज़ से सुरक्षित है। अपना सिंक किया गया डेटा और बैकअप खोलने के लिए इसे इस फ़ोन पर एक बार डालें।';
+
+  @override
+  String get ppUnlock => 'अनलॉक करें';
+
+  @override
+  String get ppUseRecovery => 'इसके बजाय मेरा रिकवरी कोड इस्तेमाल करें';
+
+  @override
+  String get ppUsePassphrase => 'इसके बजाय मेरा पासफ़्रेज़ इस्तेमाल करें';
+
+  @override
+  String get ppRecoveryLabel => 'रिकवरी कोड';
+
+  @override
+  String get ppWrongPassphrase => 'यह पासफ़्रेज़ सही नहीं है।';
+
+  @override
+  String get ppWrongRecovery => 'यह रिकवरी कोड सही नहीं है।';
+
+  @override
+  String get ppUnlocked => 'इस फ़ोन पर अनलॉक हो गया';
+
+  @override
+  String get ppChanged => 'पासफ़्रेज़ बदल गया';
+
+  @override
+  String get ppTurnedOn => 'सुरक्षा चालू है';
+
+  @override
+  String get ppTurnedOff => 'सुरक्षा बंद कर दी गई';
+
+  @override
   String get voiceFabSettingSub =>
       '\'आज\' के ऊपर तैरता एक माइक, लेन-देन बोलने के लिए';
 

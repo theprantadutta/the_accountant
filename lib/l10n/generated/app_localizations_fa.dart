@@ -5328,6 +5328,182 @@ class L10nFa extends L10n {
   String get privacyIntroSettings => 'انتخاب در تنظیمات';
 
   @override
+  String get ppTitle => 'محافظت با عبارت عبور';
+
+  @override
+  String get ppRowOn => 'روشن';
+
+  @override
+  String get ppRowOff => 'خاموش';
+
+  @override
+  String get ppRowLocked => 'روی این گوشی قفل است';
+
+  @override
+  String get ppIntro =>
+      'داده‌هایتان همین حالا روی این گوشی و در نسخه‌های پشتیبانتان رمزگذاری شده است. عبارت عبور یک قفل دیگر اضافه می‌کند تا فقط خودتان بتوانید داده‌های همگام‌شده و نسخه‌های پشتیبانتان را باز کنید — حتی ما هم نمی‌توانیم.';
+
+  @override
+  String get ppWithoutTitle => 'بدون عبارت عبور (وضعیت فعلی)';
+
+  @override
+  String get ppWithout1 => 'همه‌چیز روی این گوشی رمزگذاری شده است.';
+
+  @override
+  String get ppWithout2 =>
+      'نسخه‌های پشتیبان و داده‌های همگام‌شده با کلیدی وابسته به حسابتان رمزگذاری می‌شوند.';
+
+  @override
+  String get ppWithout3 =>
+      'روی گوشی جدید وارد حسابتان شوید و همه‌چیز برمی‌گردد، بی‌آنکه لازم باشد چیزی را به خاطر بسپارید.';
+
+  @override
+  String get ppWithout4 =>
+      'این کلید روی سرور ما نگهداری می‌شود، پس در اصل ما می‌توانیم داده‌های همگام‌شده شما را باز کنیم.';
+
+  @override
+  String get ppWithTitle => 'با عبارت عبور';
+
+  @override
+  String get ppWith1 =>
+      'فقط عبارت عبور یا کد بازیابی شما می‌تواند داده‌های همگام‌شده و نسخه‌های پشتیبانتان را باز کند.';
+
+  @override
+  String get ppWith2 =>
+      'سرور ما فقط نسخه‌های قفل‌شده کلید شما را نگه می‌دارد. ما نمی‌توانیم داده‌هایتان را بخوانیم، و هر کسی هم که به سرورهای ما نفوذ کند نمی‌تواند.';
+
+  @override
+  String get ppWith3 =>
+      'روی گوشی جدید، یا پس از نصب دوباره، یک بار عبارت عبورتان را وارد می‌کنید.';
+
+  @override
+  String get ppWith4 =>
+      'این گوشی دقیقاً مثل الان کار می‌کند، حتی به‌صورت آفلاین.';
+
+  @override
+  String get ppCatchTitle => 'نکته مهم';
+
+  @override
+  String get ppCatchBody =>
+      'اگر عبارت عبورتان را فراموش کنید و کد بازیابی‌تان را هم گم کنید، هیچ‌کس نمی‌تواند داده‌های همگام‌شده یا نسخه‌های پشتیبانتان را بازیابی کند — نه ما، نه هیچ‌کس دیگر. آنچه همین حالا روی این گوشی است، اینجا همچنان قابل خواندن می‌ماند.';
+
+  @override
+  String get ppAiNote =>
+      'قابلیت‌های هوش مصنوعی همچنان خلاصه‌ای از وضعیت مالی شما را ارسال می‌کنند تا بتوانند پاسخ دهند. عبارت عبور این را تغییر نمی‌دهد.';
+
+  @override
+  String get ppSetButton => 'تنظیم عبارت عبور';
+
+  @override
+  String get ppSetTitle => 'یک عبارت عبور انتخاب کنید';
+
+  @override
+  String get ppSetHint =>
+      'دست‌کم از 10 نویسه استفاده کنید. چند کلمه بی‌ربط به هم، به خاطر سپردنشان آسان و حدس زدنشان دشوار است.';
+
+  @override
+  String get ppPassphraseLabel => 'عبارت عبور';
+
+  @override
+  String get ppConfirmLabel => 'دوباره وارد کنید';
+
+  @override
+  String get ppTooShort => 'دست‌کم از 10 نویسه استفاده کنید.';
+
+  @override
+  String get ppMismatch => 'دو عبارت عبور با هم یکسان نیستند.';
+
+  @override
+  String get ppUnderstand =>
+      'می‌دانم که اگر هم عبارت عبور و هم کد بازیابی‌ام را گم کنم، داده‌های همگام‌شده و نسخه‌های پشتیبانم قابل بازیابی نخواهند بود.';
+
+  @override
+  String get ppTurnOn => 'روشن کردن محافظت';
+
+  @override
+  String get ppWorking => 'در حال قفل کردن کلید شما. چند ثانیه طول می‌کشد…';
+
+  @override
+  String get ppRecoveryTitle => 'کد بازیابی شما';
+
+  @override
+  String get ppRecoveryBody =>
+      'اگر عبارت عبورتان را فراموش کنید، این تنها راه دیگر برای دسترسی به داده‌هایتان است. آن را یادداشت کنید یا در یک برنامه مدیریت رمز عبور نگه دارید — جایی غیر از این گوشی.';
+
+  @override
+  String get ppCopy => 'کپی';
+
+  @override
+  String get ppCopied => 'کد بازیابی کپی شد';
+
+  @override
+  String get ppSavedIt => 'کد بازیابی‌ام را جای امنی ذخیره کرده‌ام';
+
+  @override
+  String get ppDone => 'انجام شد';
+
+  @override
+  String get ppOnTitle => 'محافظت روشن است';
+
+  @override
+  String get ppOnBody =>
+      'فقط عبارت عبور یا کد بازیابی شما می‌تواند داده‌های همگام‌شده و نسخه‌های پشتیبانتان را باز کند.';
+
+  @override
+  String get ppChange => 'تغییر عبارت عبور';
+
+  @override
+  String get ppNewCode => 'دریافت کد بازیابی جدید';
+
+  @override
+  String get ppNewCodeWarn =>
+      'کد بازیابی فعلی‌تان دیگر کار نخواهد کرد. حتماً کد جدید را ذخیره کنید.';
+
+  @override
+  String get ppTurnOff => 'خاموش کردن محافظت';
+
+  @override
+  String get ppTurnOffBody =>
+      'سرور ما مانند قبل دوباره کلید شما را نگه می‌دارد. داده‌هایتان رمزگذاری‌شده می‌مانند، اما در اصل ما می‌توانیم داده‌های همگام‌شده شما را باز کنیم.';
+
+  @override
+  String get ppLockedTitle => 'باز کردن قفل داده‌ها';
+
+  @override
+  String get ppLockedBody =>
+      'داده‌هایتان با عبارت عبور محافظت می‌شوند. برای باز کردن داده‌های همگام‌شده و نسخه‌های پشتیبانتان، یک بار آن را روی این گوشی وارد کنید.';
+
+  @override
+  String get ppUnlock => 'باز کردن قفل';
+
+  @override
+  String get ppUseRecovery => 'استفاده از کد بازیابی به‌جای آن';
+
+  @override
+  String get ppUsePassphrase => 'استفاده از عبارت عبور به‌جای آن';
+
+  @override
+  String get ppRecoveryLabel => 'کد بازیابی';
+
+  @override
+  String get ppWrongPassphrase => 'این عبارت عبور درست نیست.';
+
+  @override
+  String get ppWrongRecovery => 'این کد بازیابی درست نیست.';
+
+  @override
+  String get ppUnlocked => 'قفل روی این گوشی باز شد';
+
+  @override
+  String get ppChanged => 'عبارت عبور تغییر کرد';
+
+  @override
+  String get ppTurnedOn => 'محافظت روشن شد';
+
+  @override
+  String get ppTurnedOff => 'محافظت خاموش شد';
+
+  @override
   String get voiceFabSettingSub =>
       'میکروفونی شناور روی صفحه امروز، برای گفتن تراکنش';
 

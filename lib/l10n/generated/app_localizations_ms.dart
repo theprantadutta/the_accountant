@@ -5354,6 +5354,184 @@ class L10nMs extends L10n {
   String get privacyIntroSettings => 'Pilih dalam Tetapan';
 
   @override
+  String get ppTitle => 'Perlindungan frasa laluan';
+
+  @override
+  String get ppRowOn => 'Hidup';
+
+  @override
+  String get ppRowOff => 'Mati';
+
+  @override
+  String get ppRowLocked => 'Dikunci pada telefon ini';
+
+  @override
+  String get ppIntro =>
+      'Data anda sudah pun disulitkan pada telefon ini dan dalam sandaran anda. Frasa laluan menambah satu lagi kunci, supaya hanya anda yang boleh membuka data tersegerak dan sandaran anda — malah kami pun tidak boleh.';
+
+  @override
+  String get ppWithoutTitle => 'Tanpa frasa laluan (keadaan sekarang)';
+
+  @override
+  String get ppWithout1 => 'Semua data pada telefon ini disulitkan.';
+
+  @override
+  String get ppWithout2 =>
+      'Sandaran dan data tersegerak disulitkan dengan kunci yang terikat pada akaun anda.';
+
+  @override
+  String get ppWithout3 =>
+      'Log masuk pada telefon baharu dan semuanya kembali, tanpa perlu mengingati apa-apa.';
+
+  @override
+  String get ppWithout4 =>
+      'Pelayan kami menyimpan kunci itu, jadi secara prinsipnya kami boleh membuka data tersegerak anda.';
+
+  @override
+  String get ppWithTitle => 'Dengan frasa laluan';
+
+  @override
+  String get ppWith1 =>
+      'Hanya frasa laluan atau kod pemulihan anda boleh membuka data tersegerak dan sandaran anda.';
+
+  @override
+  String get ppWith2 =>
+      'Pelayan kami hanya menyimpan salinan kunci anda yang berkunci. Kami tidak dapat membaca data anda, begitu juga sesiapa yang menceroboh pelayan kami.';
+
+  @override
+  String get ppWith3 =>
+      'Pada telefon baharu, atau selepas memasang semula aplikasi, anda hanya perlu menaip frasa laluan anda sekali.';
+
+  @override
+  String get ppWith4 =>
+      'Telefon ini terus berfungsi sama seperti sekarang, walaupun di luar talian.';
+
+  @override
+  String get ppCatchTitle => 'Kelemahannya';
+
+  @override
+  String get ppCatchBody =>
+      'Jika anda terlupa frasa laluan dan juga kehilangan kod pemulihan, tiada sesiapa dapat memulihkan data tersegerak atau sandaran anda — bukan kami, bukan sesiapa pun. Data yang sudah ada pada telefon ini kekal boleh dibaca di sini.';
+
+  @override
+  String get ppAiNote =>
+      'Ciri AI masih menghantar ringkasan kewangan anda supaya ia dapat menjawab anda. Frasa laluan tidak mengubah perkara itu.';
+
+  @override
+  String get ppSetButton => 'Tetapkan frasa laluan';
+
+  @override
+  String get ppSetTitle => 'Pilih frasa laluan';
+
+  @override
+  String get ppSetHint =>
+      'Gunakan sekurang-kurangnya 10 aksara. Beberapa perkataan yang tidak berkaitan mudah diingati dan sukar diteka.';
+
+  @override
+  String get ppPassphraseLabel => 'Frasa laluan';
+
+  @override
+  String get ppConfirmLabel => 'Taip sekali lagi';
+
+  @override
+  String get ppTooShort => 'Gunakan sekurang-kurangnya 10 aksara.';
+
+  @override
+  String get ppMismatch => 'Kedua-dua frasa laluan tidak sepadan.';
+
+  @override
+  String get ppUnderstand =>
+      'Saya faham bahawa jika saya kehilangan kedua-dua frasa laluan dan kod pemulihan saya, data tersegerak dan sandaran saya tidak dapat dipulihkan.';
+
+  @override
+  String get ppTurnOn => 'Hidupkan perlindungan';
+
+  @override
+  String get ppWorking =>
+      'Mengamankan kunci anda. Ini mengambil masa beberapa saat…';
+
+  @override
+  String get ppRecoveryTitle => 'Kod pemulihan anda';
+
+  @override
+  String get ppRecoveryBody =>
+      'Ini satu-satunya cara lain untuk membuka data anda jika anda terlupa frasa laluan. Tuliskannya atau simpan dalam pengurus kata laluan — di tempat selain telefon ini.';
+
+  @override
+  String get ppCopy => 'Salin';
+
+  @override
+  String get ppCopied => 'Kod pemulihan disalin';
+
+  @override
+  String get ppSavedIt =>
+      'Saya telah menyimpan kod pemulihan saya di tempat yang selamat';
+
+  @override
+  String get ppDone => 'Selesai';
+
+  @override
+  String get ppOnTitle => 'Perlindungan dihidupkan';
+
+  @override
+  String get ppOnBody =>
+      'Hanya frasa laluan atau kod pemulihan anda boleh membuka data tersegerak dan sandaran anda.';
+
+  @override
+  String get ppChange => 'Tukar frasa laluan';
+
+  @override
+  String get ppNewCode => 'Dapatkan kod pemulihan baharu';
+
+  @override
+  String get ppNewCodeWarn =>
+      'Kod pemulihan semasa anda akan berhenti berfungsi. Pastikan anda menyimpan kod yang baharu.';
+
+  @override
+  String get ppTurnOff => 'Matikan perlindungan';
+
+  @override
+  String get ppTurnOffBody =>
+      'Pelayan kami akan menyimpan kunci anda semula, seperti sebelum ini. Data anda kekal disulitkan, tetapi secara prinsipnya kami boleh membuka data tersegerak anda.';
+
+  @override
+  String get ppLockedTitle => 'Buka kunci data anda';
+
+  @override
+  String get ppLockedBody =>
+      'Data anda dilindungi dengan frasa laluan. Masukkannya sekali pada telefon ini untuk membuka data tersegerak dan sandaran anda.';
+
+  @override
+  String get ppUnlock => 'Buka kunci';
+
+  @override
+  String get ppUseRecovery => 'Gunakan kod pemulihan saya sebagai ganti';
+
+  @override
+  String get ppUsePassphrase => 'Gunakan frasa laluan saya sebagai ganti';
+
+  @override
+  String get ppRecoveryLabel => 'Kod pemulihan';
+
+  @override
+  String get ppWrongPassphrase => 'Frasa laluan itu tidak betul.';
+
+  @override
+  String get ppWrongRecovery => 'Kod pemulihan itu tidak betul.';
+
+  @override
+  String get ppUnlocked => 'Kunci dibuka pada telefon ini';
+
+  @override
+  String get ppChanged => 'Frasa laluan ditukar';
+
+  @override
+  String get ppTurnedOn => 'Perlindungan dihidupkan';
+
+  @override
+  String get ppTurnedOff => 'Perlindungan dimatikan';
+
+  @override
   String get voiceFabSettingSub =>
       'Mikrofon yang terapung di atas Hari ini, untuk menyebut transaksi';
 

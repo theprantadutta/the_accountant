@@ -5353,6 +5353,183 @@ class L10nPt extends L10n {
   String get privacyIntroSettings => 'Escolher nas Definições';
 
   @override
+  String get ppTitle => 'Proteção por frase-passe';
+
+  @override
+  String get ppRowOn => 'Ativada';
+
+  @override
+  String get ppRowOff => 'Desativada';
+
+  @override
+  String get ppRowLocked => 'Bloqueada neste telemóvel';
+
+  @override
+  String get ppIntro =>
+      'Os seus dados já estão encriptados neste telemóvel e nas suas cópias de segurança. Uma frase-passe acrescenta mais um cadeado, para que mais ninguém além de si possa abrir os dados sincronizados e as cópias de segurança — nem mesmo nós.';
+
+  @override
+  String get ppWithoutTitle => 'Sem frase-passe (como está agora)';
+
+  @override
+  String get ppWithout1 => 'Tudo o que está neste telemóvel está encriptado.';
+
+  @override
+  String get ppWithout2 =>
+      'As cópias de segurança e os dados sincronizados são encriptados com uma chave associada à sua conta.';
+
+  @override
+  String get ppWithout3 =>
+      'Inicie sessão num telemóvel novo e tudo volta, sem nada para memorizar.';
+
+  @override
+  String get ppWithout4 =>
+      'O nosso servidor guarda essa chave, por isso, em princípio, poderíamos abrir os seus dados sincronizados.';
+
+  @override
+  String get ppWithTitle => 'Com frase-passe';
+
+  @override
+  String get ppWith1 =>
+      'Só a sua frase-passe ou o seu código de recuperação podem abrir os dados sincronizados e as cópias de segurança.';
+
+  @override
+  String get ppWith2 =>
+      'O nosso servidor guarda apenas cópias bloqueadas da sua chave. Não conseguimos ler os seus dados, nem ninguém que invada os nossos servidores.';
+
+  @override
+  String get ppWith3 =>
+      'Num telemóvel novo, ou depois de reinstalar, introduz a sua frase-passe uma vez.';
+
+  @override
+  String get ppWith4 =>
+      'Este telemóvel continua a funcionar exatamente como agora, mesmo sem ligação.';
+
+  @override
+  String get ppCatchTitle => 'O senão';
+
+  @override
+  String get ppCatchBody =>
+      'Se se esquecer da frase-passe e também perder o código de recuperação, ninguém consegue recuperar os seus dados sincronizados nem as cópias de segurança — nem nós, nem ninguém. O que já está neste telemóvel continua legível aqui.';
+
+  @override
+  String get ppAiNote =>
+      'As funcionalidades de IA continuam a enviar um resumo das suas finanças para lhe poderem responder. Uma frase-passe não altera isso.';
+
+  @override
+  String get ppSetButton => 'Definir uma frase-passe';
+
+  @override
+  String get ppSetTitle => 'Escolha uma frase-passe';
+
+  @override
+  String get ppSetHint =>
+      'Use pelo menos 10 caracteres. Algumas palavras sem relação entre si são fáceis de lembrar e difíceis de adivinhar.';
+
+  @override
+  String get ppPassphraseLabel => 'Frase-passe';
+
+  @override
+  String get ppConfirmLabel => 'Escreva-a novamente';
+
+  @override
+  String get ppTooShort => 'Use pelo menos 10 caracteres.';
+
+  @override
+  String get ppMismatch => 'As duas frases-passe não coincidem.';
+
+  @override
+  String get ppUnderstand =>
+      'Compreendo que, se perder a frase-passe e o código de recuperação, os meus dados sincronizados e as cópias de segurança não poderão ser recuperados.';
+
+  @override
+  String get ppTurnOn => 'Ativar proteção';
+
+  @override
+  String get ppWorking => 'A bloquear a sua chave. Demora alguns segundos…';
+
+  @override
+  String get ppRecoveryTitle => 'O seu código de recuperação';
+
+  @override
+  String get ppRecoveryBody =>
+      'É a única outra forma de aceder aos seus dados se se esquecer da frase-passe. Anote-o ou guarde-o num gestor de palavras-passe — num local que não seja este telemóvel.';
+
+  @override
+  String get ppCopy => 'Copiar';
+
+  @override
+  String get ppCopied => 'Código de recuperação copiado';
+
+  @override
+  String get ppSavedIt =>
+      'Guardei o meu código de recuperação num local seguro';
+
+  @override
+  String get ppDone => 'Concluído';
+
+  @override
+  String get ppOnTitle => 'A proteção está ativada';
+
+  @override
+  String get ppOnBody =>
+      'Só a sua frase-passe ou o seu código de recuperação podem abrir os dados sincronizados e as cópias de segurança.';
+
+  @override
+  String get ppChange => 'Alterar frase-passe';
+
+  @override
+  String get ppNewCode => 'Obter um novo código de recuperação';
+
+  @override
+  String get ppNewCodeWarn =>
+      'O seu código de recuperação atual deixará de funcionar. Certifique-se de que guarda o novo.';
+
+  @override
+  String get ppTurnOff => 'Desativar proteção';
+
+  @override
+  String get ppTurnOffBody =>
+      'O nosso servidor voltará a guardar a sua chave, como antes. Os seus dados continuam encriptados, mas, em princípio, poderíamos abrir os seus dados sincronizados.';
+
+  @override
+  String get ppLockedTitle => 'Desbloqueie os seus dados';
+
+  @override
+  String get ppLockedBody =>
+      'Os seus dados estão protegidos por uma frase-passe. Introduza-a uma vez neste telemóvel para abrir os dados sincronizados e as cópias de segurança.';
+
+  @override
+  String get ppUnlock => 'Desbloquear';
+
+  @override
+  String get ppUseRecovery => 'Usar antes o código de recuperação';
+
+  @override
+  String get ppUsePassphrase => 'Usar antes a frase-passe';
+
+  @override
+  String get ppRecoveryLabel => 'Código de recuperação';
+
+  @override
+  String get ppWrongPassphrase => 'Essa frase-passe não está correta.';
+
+  @override
+  String get ppWrongRecovery => 'Esse código de recuperação não está correto.';
+
+  @override
+  String get ppUnlocked => 'Desbloqueado neste telemóvel';
+
+  @override
+  String get ppChanged => 'Frase-passe alterada';
+
+  @override
+  String get ppTurnedOn => 'A proteção está ativada';
+
+  @override
+  String get ppTurnedOff => 'Proteção desativada';
+
+  @override
   String get voiceFabSettingSub =>
       'Um microfone que flutua sobre Hoje, para dizer uma transação';
 

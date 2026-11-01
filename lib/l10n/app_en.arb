@@ -901,15 +901,33 @@
   "creditSettled": "Settled",
   "creditOverdue": "Overdue",
   "creditTabCredit": "Lent ({count})",
-  "@creditTabCredit": {"placeholders": {"count": {"type": "int"}}},
+  "@creditTabCredit": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "creditTabDebt": "Borrowed ({count})",
-  "@creditTabDebt": {"placeholders": {"count": {"type": "int"}}},
+  "@creditTabDebt": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "creditNetOutstanding": "Net outstanding",
   "creditAllSettled": "All settled",
   "creditOthersOweYou": "Others owe you",
   "creditYouOweOthers": "You owe others",
   "creditOverdueCount": "{count} overdue",
-  "@creditOverdueCount": {"placeholders": {"count": {"type": "int"}}},
+  "@creditOverdueCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "creditEmptyAll": "No money lent or borrowed",
   "creditEmptyLent": "No money lent",
   "creditEmptyBorrowed": "No money borrowed",
@@ -923,7 +941,16 @@
   "creditYouOwe": "You owe",
   "creditCollected": "Collected",
   "creditPaidOf": "Paid {paid} of {total}",
-  "@creditPaidOf": {"placeholders": {"paid": {"type": "String"}, "total": {"type": "String"}}},
+  "@creditPaidOf": {
+    "placeholders": {
+      "paid": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
   "creditRecord": "Record",
   "subRecurring": "Recurring",
   "subPaused": "Paused",
@@ -1286,7 +1313,16 @@
   "statsPeriodThisMonth": "This month",
   "statsPeriodThisYear": "This year",
   "statsCategoryCount": "{period} · {count, plural, =1{1 transaction} other{{count} transactions}}",
-  "@statsCategoryCount": {"placeholders": {"period": {"type": "String"}, "count": {"type": "int"}}},
+  "@statsCategoryCount": {
+    "placeholders": {
+      "period": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "@activitySearchFound": {
     "placeholders": {
       "count": {
@@ -1870,7 +1906,13 @@
   "settingsBillRemindersSub": "Card bills due, and EMI or savings installments coming up",
   "forecastNotifNowTitle": "You are short on money today",
   "forecastNotifNowBody": "What is due now is {amount} more than your accounts hold. Tap to see what is coming up.",
-  "@forecastNotifNowBody": {"placeholders": {"amount": {"type": "String"}}},
+  "@forecastNotifNowBody": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "@forecastNotifTitle": {
     "placeholders": {
       "day": {
@@ -2777,6 +2819,59 @@
   "privacyIntroBody": "Balances and totals are now hidden, so people nearby can't read them. Tap the eye on Today to show or hide them; the app remembers how you leave it. You can choose how the app opens in Settings.",
   "privacyIntroOk": "Got it",
   "privacyIntroSettings": "Choose in Settings",
+  "ppTitle": "Passphrase protection",
+  "ppRowOn": "On",
+  "ppRowOff": "Off",
+  "ppRowLocked": "Locked on this phone",
+  "ppIntro": "Your data is already encrypted on this phone and in your backups. A passphrase adds one more lock, so only you can open your synced data and backups — not even we can.",
+  "ppWithoutTitle": "Without a passphrase (how it is now)",
+  "ppWithout1": "Everything on this phone is encrypted.",
+  "ppWithout2": "Backups and synced data are encrypted with a key tied to your account.",
+  "ppWithout3": "Sign in on a new phone and everything comes back, with nothing to remember.",
+  "ppWithout4": "Our server holds that key, so in principle we could open your synced data.",
+  "ppWithTitle": "With a passphrase",
+  "ppWith1": "Only your passphrase or your recovery code can open your synced data and backups.",
+  "ppWith2": "Our server keeps only locked copies of your key. We can't read your data, and neither can anyone who breaks into our servers.",
+  "ppWith3": "On a new phone, or after reinstalling, you type your passphrase once.",
+  "ppWith4": "This phone keeps working exactly as it does now, even offline.",
+  "ppCatchTitle": "The catch",
+  "ppCatchBody": "If you forget your passphrase and also lose your recovery code, nobody can recover your synced data or backups — not us, not anyone. What is already on this phone stays readable here.",
+  "ppAiNote": "AI features still send a summary of your finances so they can answer you. A passphrase does not change that.",
+  "ppSetButton": "Set a passphrase",
+  "ppSetTitle": "Choose a passphrase",
+  "ppSetHint": "Use at least 10 characters. A few unrelated words are easy to remember and hard to guess.",
+  "ppPassphraseLabel": "Passphrase",
+  "ppConfirmLabel": "Type it again",
+  "ppTooShort": "Use at least 10 characters.",
+  "ppMismatch": "The two passphrases don't match.",
+  "ppUnderstand": "I understand that if I lose both my passphrase and my recovery code, my synced data and backups can't be recovered.",
+  "ppTurnOn": "Turn on protection",
+  "ppWorking": "Locking your key. This takes a few seconds…",
+  "ppRecoveryTitle": "Your recovery code",
+  "ppRecoveryBody": "This is the only other way into your data if you forget your passphrase. Write it down or keep it in a password manager — somewhere other than this phone.",
+  "ppCopy": "Copy",
+  "ppCopied": "Recovery code copied",
+  "ppSavedIt": "I've saved my recovery code somewhere safe",
+  "ppDone": "Done",
+  "ppOnTitle": "Protection is on",
+  "ppOnBody": "Only your passphrase or your recovery code can open your synced data and backups.",
+  "ppChange": "Change passphrase",
+  "ppNewCode": "Get a new recovery code",
+  "ppNewCodeWarn": "Your current recovery code will stop working. Make sure you save the new one.",
+  "ppTurnOff": "Turn off protection",
+  "ppTurnOffBody": "Our server will hold your key again, as before. Your data stays encrypted, but in principle we could open your synced data.",
+  "ppLockedTitle": "Unlock your data",
+  "ppLockedBody": "Your data is protected with a passphrase. Enter it once on this phone to open your synced data and backups.",
+  "ppUnlock": "Unlock",
+  "ppUseRecovery": "Use my recovery code instead",
+  "ppUsePassphrase": "Use my passphrase instead",
+  "ppRecoveryLabel": "Recovery code",
+  "ppWrongPassphrase": "That passphrase isn't right.",
+  "ppWrongRecovery": "That recovery code isn't right.",
+  "ppUnlocked": "Unlocked on this phone",
+  "ppChanged": "Passphrase changed",
+  "ppTurnedOn": "Protection is on",
+  "ppTurnedOff": "Protection turned off",
   "voiceFabSettingSub": "A mic that floats over Today, for saying a transaction",
   "voiceFabAskTitle": "Add a mic to your Today screen?",
   "voiceFabAskBody": "Tap it and say what you spent, like \"lunch 250 and a rickshaw 60\". You check everything before it's saved. Drag it anywhere you like.",
@@ -2787,9 +2882,27 @@
   "voiceFabHideBody": "The mic at the top of Today stays. You can bring this one back in More.",
   "voiceFabHide": "Hide it",
   "voiceReady": "{count, plural, =0{NOTHING READY} =1{1 READY TO SAVE} other{{count} READY TO SAVE}}",
-  "@voiceReady": {"placeholders": {"count": {"type": "int"}}},
+  "@voiceReady": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "voiceSaveCount": "{count, plural, =0{Nothing selected} =1{Save 1} other{Save {count}}}",
-  "@voiceSaveCount": {"placeholders": {"count": {"type": "int"}}},
+  "@voiceSaveCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "voiceSaved": "{count, plural, =1{Saved 1 transaction} other{Saved {count} transactions}}",
-  "@voiceSaved": {"placeholders": {"count": {"type": "int"}}}
+  "@voiceSaved": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }
