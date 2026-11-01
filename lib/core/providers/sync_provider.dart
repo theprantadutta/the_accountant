@@ -18,6 +18,7 @@ import 'package:the_accountant/features/transactions/providers/transaction_provi
 import 'package:the_accountant/features/transactions/providers/payment_method_provider.dart';
 import 'package:the_accountant/features/budgets/providers/budget_provider.dart';
 import 'package:the_accountant/features/dashboard/providers/financial_data_provider.dart';
+import 'package:the_accountant/core/services/sync/sync_sealer.dart';
 
 /// Provider for the SyncService instance
 final syncServiceProvider = Provider<SyncService>((ref) {
@@ -28,6 +29,9 @@ final syncServiceProvider = Provider<SyncService>((ref) {
     apiService: apiService,
     database: database,
     ref: ref,
+    // From 5.0 every synced row's amounts, titles, notes and names travel
+    // sealed under the account key; the server cannot read them.
+    sealer: SyncSealer(),
   );
 
   ref.onDispose(() => service.dispose());

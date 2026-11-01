@@ -1694,6 +1694,47 @@ class AppDatabase extends _$AppDatabase {
   // ============================================================
 
   /// Backend user id that owns this database file, or null if never claimed.
+  /// Queue every live row the server already has for one more upload, so it
+  /// goes up again sealed (app 5.0). Returns how many rows were queued.
+  ///
+  /// `updated_at` moves to now: the server stamps its own time on every save,
+  /// so a re-sent row carrying its old time would lose to the server's copy as
+  /// stale and the readable version would stay there. Content is unchanged, so
+  /// other devices taking the newer copy lose nothing.
+  Future<int> requeueSyncedRowsForSealing() async {
+    final nowSeconds = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+    var queued = 0;
+    await transaction(() async {
+      for (final table in const [
+        'wallets',
+        'categories',
+        'associated_titles',
+        'payment_methods',
+        'budgets',
+        'category_budget_limits',
+        'objectives',
+        'plans',
+        'investments',
+        'transactions',
+      ]) {
+        queued += await customUpdate(
+          'UPDATE $table SET sync_status = ${SyncStatus.pendingUpdate}, '
+          'updated_at = ? '
+          'WHERE sync_status = ${SyncStatus.synced} AND deleted_at IS NULL',
+          variables: [Variable.withInt(nowSeconds)],
+          updateKind: UpdateKind.update,
+        );
+      }
+      queued += await customUpdate(
+        'UPDATE recurring_configs SET sync_status = ${SyncStatus.pendingUpdate}, '
+        'updated_at = ? WHERE sync_status = ${SyncStatus.synced}',
+        variables: [Variable.withInt(nowSeconds)],
+        updateKind: UpdateKind.update,
+      );
+    });
+    return queued;
+  }
+
   Future<String?> getLocalStoreOwnerUserId() async {
     await _ensureLocalStoreMetaRow();
     final row = await select(localStoreMetas).getSingleOrNull();

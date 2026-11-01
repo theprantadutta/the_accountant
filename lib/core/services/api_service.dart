@@ -6,6 +6,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:logger/logger.dart';
 import 'package:the_accountant/core/services/secure_token_storage.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 /// Exception thrown when account linking is required
 class AccountLinkingRequiredException implements Exception {
@@ -102,6 +103,25 @@ class ApiService {
       path.contains('/auth/reset-password');
 
   static final ApiService _instance = ApiService._internal();
+
+  static String? _version;
+  static bool _versionLooked = false;
+
+  /// "5.0.0+40", read once from the platform. Null where there is no platform
+  /// to ask (tests). The answer is cached, not the lookup: a pending Future
+  /// started in one zone never completes in another.
+  static Future<String?> _appVersion() async {
+    if (_versionLooked) return _version;
+    try {
+      final info = await PackageInfo.fromPlatform();
+      _version = '${info.version}+${info.buildNumber}';
+    } catch (_) {
+      _version = null;
+    }
+    _versionLooked = true;
+    return _version;
+  }
+
   factory ApiService() => _instance;
 
   ApiService._internal() {
@@ -130,6 +150,11 @@ class ApiService {
             _logger.i('Token expiring soon, attempting refresh...');
             await _refreshAccessToken();
           }
+
+          // Which build is asking. From 5.0 the server can refuse to sync
+          // with apps too old to encrypt what they send.
+          final version = await _appVersion();
+          if (version != null) options.headers['X-App-Version'] = version;
 
           // Where "today" is for the server: the AI allowance resets at the
           // user's midnight, not UTC's.

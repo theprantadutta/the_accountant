@@ -18,6 +18,8 @@ import 'package:the_accountant/data/models/transaction.dart'
     show TransactionSpecialType, TransactionType;
 import 'package:the_accountant/features/premium/providers/premium_provider.dart';
 import 'package:drift/drift.dart';
+import 'package:the_accountant/core/services/sync/sync_sealer.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// Thrown to roll back a cloud restore when any record in the server payload
 /// cannot be applied. Rolling back is the whole point: a restore that clears the
@@ -80,7 +82,10 @@ class SyncService {
     required AppDatabase database,
     Ref? ref,
     SyncTransport? transport,
+    SyncSealer? sealer,
   }) : _transport = transport ?? ApiSyncTransport(apiService ?? ApiService()),
+       // ignore: prefer_initializing_formals
+       _sealer = sealer,
        // `_transport` is derived rather than assigned straight from a
        // parameter, so this constructor cannot use initialising formals for the
        // remaining fields either.
@@ -89,8 +94,29 @@ class SyncService {
        // ignore: prefer_initializing_formals
        _ref = ref;
 
+  /// Seals financial fields on the way out and opens them on the way in.
+  /// Null sends and reads rows as they are (tests, and builds before 5.0).
+  final SyncSealer? _sealer;
+
   /// Check if device is online
   Future<bool> isOnline() => _transport.isOnline();
+
+  static String _sealedResyncKey(String owner) => 'sealed_resync_v1_$owner';
+
+  /// Queue every row the server already holds to be sent again sealed, the
+  /// first time this account syncs with sealing on. The flag is per account
+  /// and set once the rows are queued: from then on the ordinary push carries
+  /// them, however many syncs that takes.
+  Future<void> _sealExistingRowsOnce() async {
+    if (_sealer == null) return;
+    final owner = await _database.getLocalStoreOwnerUserId();
+    if (owner == null) return;
+    final prefs = await SharedPreferences.getInstance();
+    if (prefs.getBool(_sealedResyncKey(owner)) ?? false) return;
+    final queued = await _database.requeueSyncedRowsForSealing();
+    await prefs.setBool(_sealedResyncKey(owner), true);
+    _logger.i('Queued $queued rows to re-upload sealed');
+  }
 
   /// Full sync operation - pushes local changes, pulls remote changes
   /// Requires Premium subscription
@@ -302,6 +328,10 @@ class SyncService {
     final changedTables = <String>{};
 
     try {
+      // Step 0 (once per account, from 5.0): everything already on the server
+      // went up readable; queue it to go up again sealed.
+      await _sealExistingRowsOnce();
+
       // Step 1: Push all local changes (chunked; see [_pushAllChanges]).
       final push = await _pushAllChanges();
       totalPushed = push.appliedCount;
@@ -716,7 +746,10 @@ class SyncService {
 
     for (var start = 0; start < allChanges.length; start += maxChangesPerPush) {
       final end = (start + maxChangesPerPush).clamp(0, allChanges.length);
-      final chunk = allChanges.sublist(start, end);
+      final plainChunk = allChanges.sublist(start, end);
+      final chunk = _sealer == null
+          ? plainChunk
+          : await _sealer.sealAll(plainChunk);
 
       final SyncPushResponse response;
       try {
@@ -1489,9 +1522,12 @@ class SyncService {
   /// Apply one pulled record. Returns whether anything local changed.
   Future<bool> _applyPulledChange(
     String tableName,
-    SyncChange change,
+    SyncChange pulled,
     _PulledEffects effects,
   ) async {
+    final change = _sealer == null
+        ? pulled
+        : await _sealer.open(tableName, pulled);
     if (change.data == null && change.operation != 'delete') return false;
 
     switch (tableName) {
