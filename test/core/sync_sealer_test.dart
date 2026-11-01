@@ -78,6 +78,27 @@ void main() {
     );
   });
 
+  test('rows from the real server, in snake_case, open too', () async {
+    final sealed = (await sealer.sealAll([_tx('t1')])).single;
+    String snake(String k) => k
+        .replaceAllMapped(RegExp('[A-Z]'), (m) => '_${m[0]!.toLowerCase()}')
+        .replaceFirst(RegExp('^_'), '');
+    final fromServer = SyncChange(
+      tableName: 'transactions',
+      entityId: 't1',
+      operation: 'update',
+      data: {for (final e in sealed.data!.entries) snake(e.key): e.value},
+    );
+    expect(fromServer.data!.containsKey('encrypted_data'), isTrue);
+
+    final opened = await sealer.open('transactions', fromServer);
+
+    expect(opened.data!['Amount'], 6000);
+    expect(opened.data!['Title'], 'Rickshaw');
+    expect(opened.data!.containsKey('amount'), isFalse);
+    expect(opened.data!.containsKey('encrypted_data'), isFalse);
+  });
+
   test('a blob moved onto another row does not open', () async {
     final sealed = (await sealer.sealAll([_tx('t1')])).single;
     final moved = SyncChange(

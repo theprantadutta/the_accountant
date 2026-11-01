@@ -72,7 +72,7 @@ class SyncSealer {
     final data = change.data;
     if (data == null) return change;
     final payloadKey = data.keys.firstWhere(
-      (k) => k.toLowerCase() == _payloadKey.toLowerCase(),
+      (k) => _sameKey(k, _payloadKey),
       orElse: () => '',
     );
     final sealed = payloadKey.isEmpty ? null : data[payloadKey];
@@ -94,13 +94,18 @@ class SyncSealer {
     );
     final fields = jsonDecode(utf8.decode(clear)) as Map<String, dynamic>;
     for (final entry in fields.entries) {
-      // The placeholder arrives under the server's casing; the real value
-      // replaces it whatever the casing.
-      opened.removeWhere((k, _) => k.toLowerCase() == entry.key.toLowerCase());
+      // The placeholder arrives under the server's naming (snake_case from
+      // the real server); the real value replaces it however it is spelled.
+      opened.removeWhere((k, _) => _sameKey(k, entry.key));
       opened[entry.key] = entry.value;
     }
     return _withData(change, opened);
   }
+
+  /// `encrypted_data`, `encryptedData` and `EncryptedData` are one key.
+  static bool _sameKey(String a, String b) =>
+      a.replaceAll('_', '').toLowerCase() ==
+      b.replaceAll('_', '').toLowerCase();
 
   static bool _carriesData(SyncChange c) =>
       c.data != null && c.operation != 'delete';
