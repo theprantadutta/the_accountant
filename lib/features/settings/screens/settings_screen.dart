@@ -37,6 +37,8 @@ import 'package:the_accountant/features/settings/screens/regional_settings_scree
 import 'package:the_accountant/features/split/screens/split_bill_screen.dart';
 import 'package:the_accountant/features/settings/screens/sync_settings_screen.dart';
 import 'package:the_accountant/features/settings/screens/theme_selection_screen.dart';
+import 'package:the_accountant/features/settings/widgets/privacy_sheets.dart'
+    show privacyStartLabel;
 import 'package:the_accountant/features/settings/widgets/settings_tile.dart'
     show PremiumBadge;
 import 'package:the_accountant/features/transactions/screens/payment_methods_screen.dart';
@@ -279,15 +281,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           'private',
           'blur',
         ],
-        row: SettingsRow.toggle(
+        // Opens the full set (how the app opens, tap to reveal) rather than
+        // flipping a switch: the eye on Today is already the quick toggle.
+        row: SettingsRow(
           key: const Key('more_privacy_hide'),
           icon: Symbols.visibility_off_rounded,
           iconColor: c.accent,
           iconBackground: c.tintOrange,
           title: l10n.privacyHideTitle,
-          subtitle: l10n.privacyHideSub,
-          value: ref.watch(amountsHiddenProvider),
-          onChanged: (v) => ref.read(privacyProvider.notifier).setHidden(v),
+          subtitle:
+              '${l10n.privacyStartTitle}: '
+              '${privacyStartLabel(ref.watch(privacyProvider).start, l10n)}',
+          onTap: () => _push(const PrivacySecurityScreen()),
         ),
       ),
       _Entry(
