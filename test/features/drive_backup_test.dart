@@ -7,6 +7,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/features/backup/domain/backup_document.dart';
 import 'package:the_accountant/features/backup/domain/backup_schedule.dart';
+import 'package:the_accountant/features/backup/domain/backup_seal.dart';
+import 'package:the_accountant/features/backup/services/backup_codec.dart';
 import 'package:the_accountant/features/backup/services/drive_backup_service.dart';
 import 'package:the_accountant/features/backup/services/drive_client.dart';
 
@@ -199,6 +201,7 @@ void main() {
   late _FakeDrive drive;
   late _StubAuthorization auth;
   late DriveBackupService service;
+  final codec = BackupCodec(key: () async => List<int>.filled(32, 7));
 
   setUp(() async {
     SharedPreferences.setMockInitialValues({});
@@ -209,6 +212,7 @@ void main() {
     service = DriveBackupService(
       database: db,
       client: DriveBackupClient(authorization: auth, httpClient: drive.client),
+      codec: codec,
     );
   });
 
@@ -260,8 +264,19 @@ void main() {
       await service.backupNow();
 
       final stored = '${drive.files.values.single['content']}';
-      final document = BackupDocument.decode(stored);
+      final document = await codec.decode(stored);
       expect(document.tables['transactions'], hasLength(1));
+    });
+
+    test('what went up is sealed: no record can be read from it', () async {
+      final wallet = await seedWallet(db, name: 'Everyday');
+      await seedTransaction(db, walletId: wallet, amount: 2500);
+
+      await service.backupNow();
+
+      final stored = '${drive.files.values.single['content']}';
+      expect(BackupSeal.isSealed(stored), isTrue);
+      expect(stored, isNot(contains('Everyday')));
     });
 
     test('the schema version travels with it', () async {

@@ -136,7 +136,7 @@ class _BackupScreenState extends ConsumerState<BackupScreen>
           device: device,
           at: document.metadata.createdAt,
         ),
-        contents: document.encode(),
+        contents: await ref.read(backupCodecProvider).encode(document),
       );
       if (saved) {
         _say('Backed up ${document.rowCount} records.');
@@ -184,7 +184,7 @@ class _BackupScreenState extends ConsumerState<BackupScreen>
 
     final BackupDocument document;
     try {
-      document = BackupDocument.decode(utf8.decode(bytes));
+      document = await ref.read(backupCodecProvider).decode(utf8.decode(bytes));
     } on BackupFormatException catch (e) {
       _say(e.message, bad: true);
       return;
@@ -569,7 +569,7 @@ class _BackupScreenState extends ConsumerState<BackupScreen>
 
     final BackupDocument document;
     try {
-      document = BackupDocument.decode(source);
+      document = await ref.read(backupCodecProvider).decode(source);
     } on BackupFormatException catch (e) {
       _say(e.message, bad: true);
       return;

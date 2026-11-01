@@ -2,6 +2,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/features/backup/domain/backup_document.dart';
 import 'package:the_accountant/features/backup/domain/backup_schedule.dart';
+import 'package:the_accountant/features/backup/services/backup_codec.dart';
 import 'package:the_accountant/features/backup/services/backup_service.dart';
 import 'package:the_accountant/features/backup/services/drive_client.dart';
 
@@ -20,16 +21,19 @@ class DriveBackupService {
     required AppDatabase database,
     required DriveBackupClient client,
     BackupService? backups,
+    BackupCodec? codec,
   }) : _db = database,
        // A named parameter cannot be a private initializing formal, so the
        // lint's suggestion is not expressible here.
        // ignore: prefer_initializing_formals
        _client = client,
-       _backups = backups ?? BackupService(database);
+       _backups = backups ?? BackupService(database),
+       _codec = codec ?? BackupCodec();
 
   final AppDatabase _db;
   final DriveBackupClient _client;
   final BackupService _backups;
+  final BackupCodec _codec;
 
   static const String _frequencyKey = 'drive_backup_frequency';
   static const String _keepKey = 'drive_backup_keep';
@@ -98,7 +102,7 @@ class DriveBackupService {
         device: device,
         at: document.metadata.createdAt,
       ),
-      content: document.encode(),
+      content: await _codec.encode(document),
       properties: {
         'schemaVersion': '${document.metadata.schemaVersion}',
         'appVersion': appVersion,
@@ -152,7 +156,7 @@ class DriveBackupService {
   /// half-placing it would be worse than refusing.
   Future<RestoreSummary> restoreFrom(String fileId) async {
     final source = await _client.download(fileId);
-    return _backups.restore(BackupDocument.decode(source));
+    return _backups.restore(await _codec.decode(source));
   }
 
   /// Run the scheduled backup if one is owed.

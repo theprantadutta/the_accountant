@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
 import 'package:the_accountant/features/backup/domain/backup_schedule.dart';
+import 'package:the_accountant/features/backup/services/backup_codec.dart';
 import 'package:the_accountant/features/backup/services/backup_service.dart';
 import 'package:the_accountant/features/backup/services/drive_backup_service.dart';
 import 'package:the_accountant/features/backup/services/drive_client.dart';
@@ -12,6 +13,9 @@ import 'package:the_accountant/features/backup/services/google_drive_authorizati
 final backupServiceProvider = Provider<BackupService>(
   (ref) => BackupService(ref.watch(databaseProvider)),
 );
+
+/// Seals backups with the account's data key, and opens sealed or plain ones.
+final backupCodecProvider = Provider<BackupCodec>((ref) => BackupCodec());
 
 final googleDriveAuthorizationProvider = Provider<GoogleDriveAuthorization>(
   (ref) => const GoogleDriveAuthorization(),
@@ -23,6 +27,7 @@ final driveBackupServiceProvider = Provider<DriveBackupService>(
     client: DriveBackupClient(
       authorization: ref.watch(googleDriveAuthorizationProvider),
     ),
+    codec: ref.watch(backupCodecProvider),
   ),
 );
 
