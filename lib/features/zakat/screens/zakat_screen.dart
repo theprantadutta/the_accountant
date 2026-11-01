@@ -140,28 +140,19 @@ class _AskCard extends ConsumerWidget {
             style: SunriseType.body.copyWith(color: c.muted, height: 1.4),
           ),
           const SizedBox(height: 14),
-          Row(
-            children: [
-              Expanded(
-                child: SunriseButton(
-                  key: const Key('zakat_i_pay'),
-                  label: l10n.zakatIPay,
-                  height: 48,
-                  onPressed: () =>
-                      _change(ref, (s) => s.copyWith(paysZakat: true)),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: SunriseButton.secondary(
-                  key: const Key('zakat_i_dont_pay'),
-                  label: l10n.zakatIDontPay,
-                  height: 48,
-                  onPressed: () =>
-                      _change(ref, (s) => s.copyWith(paysZakat: false)),
-                ),
-              ),
-            ],
+          // One answer per line: side by side, both labels were cut short.
+          SunriseButton(
+            key: const Key('zakat_i_pay'),
+            label: l10n.zakatIPay,
+            height: 48,
+            onPressed: () => _change(ref, (s) => s.copyWith(paysZakat: true)),
+          ),
+          const SizedBox(height: 10),
+          SunriseButton.secondary(
+            key: const Key('zakat_i_dont_pay'),
+            label: l10n.zakatIDontPay,
+            height: 48,
+            onPressed: () => _change(ref, (s) => s.copyWith(paysZakat: false)),
           ),
         ],
       ),
