@@ -86,7 +86,10 @@ Future<void> _handleSnooze({
 Future<void> _handleSkip(String transactionId) async {
   // Same per-account store the app is using — see BackgroundTaskService.
   final prefs = await SharedPreferences.getInstance();
-  final db = constructDbForFile(LocalStoreManager(prefs).activeStoreFile);
+  final db = constructDbForFile(
+    LocalStoreManager(prefs).activeStoreFile,
+    background: true,
+  );
   try {
     await db.customStatement(
       'UPDATE transactions SET skip_paid = 1, updated_at = ? WHERE id = ?',

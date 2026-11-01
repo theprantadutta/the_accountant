@@ -43,7 +43,10 @@ class BackgroundTaskService {
   /// instances and reminders into the wrong account's database.
   static Future<AppDatabase> _openActiveStore() async {
     final prefs = await SharedPreferences.getInstance();
-    return constructDbForFile(LocalStoreManager(prefs).activeStoreFile);
+    return constructDbForFile(
+      LocalStoreManager(prefs).activeStoreFile,
+      background: true,
+    );
   }
 
   BackgroundTaskService._();

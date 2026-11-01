@@ -17,7 +17,10 @@
     <application
         android:label="The Accountant"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:allowBackup="false"
+        android:fullBackupContent="false"
+        android:dataExtractionRules="@xml/data_extraction_rules">
         <!-- AdMob: rewarded ads only, and only when the user asks for one. -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"

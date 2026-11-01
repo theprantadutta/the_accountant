@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
+import 'package:the_accountant/data/datasources/local/store_encryption.dart';
 
 /// Default database file name (the pre-multi-account store).
 const String kDefaultDatabaseFile = 'db.sqlite';
@@ -22,18 +23,30 @@ Future<String> resolveStorePath(String fileName) async {
   return fileName;
 }
 
-/// Open the database stored in [fileName].
+/// Open the database stored in [fileName], encrypted at rest.
 ///
 /// The file name is a parameter (rather than a constant) so the app can hold a
 /// *separate* database per authenticated account — see [LocalStoreManager].
-AppDatabase constructDbForFile(String fileName, {bool logStatements = false}) {
+///
+/// [background] is for the WorkManager task and the notification actions: they
+/// may read an encrypted store but never convert one (see [prepareStoreFile]).
+AppDatabase constructDbForFile(
+  String fileName, {
+  bool logStatements = false,
+  bool background = false,
+}) {
   return AppDatabase(
     LazyDatabase(() async {
       final path = await resolveStorePath(fileName);
+      final key = await readOrCreateStoreKey();
+      prepareStoreFile(path, key, mayRepair: !background);
       return NativeDatabase.createInBackground(
         File(path),
         logStatements: logStatements,
-        setup: applyStorePragmas,
+        setup: (db) {
+          applyStoreKey(db, key);
+          applyStorePragmas(db);
+        },
       );
     }),
   );

@@ -194,3 +194,11 @@ flutter_native_splash:
   android: true
   web: false
   fullscreen: false
+
+# The local stores are encrypted at rest (lib/data/datasources/local/
+# store_encryption.dart), which needs the SQLite3MultipleCiphers build of SQLite.
+# store_encryption refuses to open a store if the plain library is loaded.
+hooks:
+  user_defines:
+    sqlite3:
+      source: sqlite3mc
