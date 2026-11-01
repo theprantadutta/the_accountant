@@ -423,7 +423,8 @@ class _SyncSettingsScreenState extends ConsumerState<SyncSettingsScreen> {
           Expanded(
             child: Text(
               'Your data syncs automatically every 15 minutes and when you open the app. '
-              'All synced data is encrypted in transit.',
+              'Amounts, names and notes are encrypted on this phone before they '
+              'sync, so our server cannot read them.',
               style: TextStyle(
                 color: AppColors.primaryAccent,
                 fontSize: 13,
