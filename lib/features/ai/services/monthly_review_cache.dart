@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
+import 'package:the_accountant/core/services/sealed_prefs.dart';
 
 /// The last monthly review written for a month, and what it was written from.
 ///
@@ -42,7 +43,10 @@ class MonthlyReviewCache {
     String current,
   ) async {
     final prefs = await SharedPreferences.getInstance();
-    final raw = prefs.getString('$_prefix${_monthKey(month)}');
+    final raw = await SealedPrefs.getString(
+      prefs,
+      '$_prefix${_monthKey(month)}',
+    );
     if (raw == null) return null;
     try {
       final saved = jsonDecode(raw) as Map<String, dynamic>;
@@ -55,7 +59,8 @@ class MonthlyReviewCache {
 
   static Future<void> save(DateTime month, String fp, String text) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(
+    await SealedPrefs.setString(
+      prefs,
       '$_prefix${_monthKey(month)}',
       jsonEncode({'fp': fp, 'text': text}),
     );

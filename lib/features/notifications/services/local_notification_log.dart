@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:the_accountant/features/notifications/models/notification_item.dart';
+import 'package:the_accountant/core/services/sealed_prefs.dart';
 
 /// The notifications this phone showed by itself, kept for the inbox.
 ///
@@ -24,7 +25,7 @@ class LocalNotificationLog {
   static Future<List<NotificationItem>> read() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.reload();
-    final raw = prefs.getString(_key);
+    final raw = await SealedPrefs.getString(prefs, _key);
     if (raw == null) return const [];
     try {
       return [
@@ -38,7 +39,8 @@ class LocalNotificationLog {
 
   static Future<void> _write(List<NotificationItem> items) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(
+    await SealedPrefs.setString(
+      prefs,
       _key,
       jsonEncode([for (final i in items.take(_max)) i.toJson()]),
     );

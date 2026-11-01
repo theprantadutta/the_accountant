@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:drift/drift.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 /// Suite-wide test configuration. `flutter_test` loads this automatically.
 Future<void> testExecutable(FutureOr<void> Function() testMain) async {
@@ -15,6 +16,10 @@ Future<void> testExecutable(FutureOr<void> Function() testMain) async {
   // The warning is therefore a false positive here, and it is silenced rather
   // than left to imply a race risk that does not exist.
   driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
+
+  // Some preferences are sealed with a key held in the platform keystore
+  // (SealedPrefs). Tests have no keystore, so they get an in-memory one.
+  FlutterSecureStorage.setMockInitialValues({});
 
   await testMain();
 }

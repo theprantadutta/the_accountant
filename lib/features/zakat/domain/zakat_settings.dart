@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:the_accountant/core/services/sealed_prefs.dart';
 
 /// What the nisab is measured against.
 ///
@@ -201,7 +202,7 @@ class ZakatSettingsStore {
 
   static Future<ZakatSettings> load([SharedPreferences? prefs]) async {
     final p = prefs ?? await SharedPreferences.getInstance();
-    final raw = p.getString(prefKey);
+    final raw = await SealedPrefs.getString(p, prefKey);
     if (raw == null) return const ZakatSettings();
     try {
       final decoded = jsonDecode(raw);
@@ -220,7 +221,7 @@ class ZakatSettingsStore {
     SharedPreferences? prefs,
   ]) async {
     final p = prefs ?? await SharedPreferences.getInstance();
-    await p.setString(prefKey, jsonEncode(settings.toJson()));
+    await SealedPrefs.setString(p, prefKey, jsonEncode(settings.toJson()));
   }
 }
 
