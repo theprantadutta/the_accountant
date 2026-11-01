@@ -40,6 +40,8 @@ import 'package:the_accountant/features/zakat/screens/zakat_screen.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:the_accountant/shared/widgets/shimmer_loading.dart';
 import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:the_accountant/features/encryption/widgets/encryption_intro.dart';
 
 /// The signed-in shell: Today, Wallets, the Add pill, Stats and More.
 ///
@@ -243,7 +245,26 @@ class _MainNavigationContainerState
   Future<void> _afterWalkthrough() async {
     await _maybeShowNotificationPrimer();
     await _maybeAskAboutVoiceFab();
+    await _maybeShowEncryptionIntro();
     await _maybeShowPrivacyIntro();
+  }
+
+  /// Says once, from 5.0, that data is now encrypted and offers the optional
+  /// passphrase. Same rules as the other one-time notes: never over another
+  /// question, another tab or a pushed screen, and one per open.
+  Future<void> _maybeShowEncryptionIntro() async {
+    if (_askedThisSession) return;
+    if (!ref.read(walkthroughProvider).hasSeenWalkthrough) return;
+    final fab = ref.read(voiceFabProvider);
+    if (!fab.loaded || !fab.asked) return;
+    if (!mounted || _currentIndex != 0) return;
+    if (!(ModalRoute.of(context)?.isCurrent ?? false)) return;
+    final prefs = await SharedPreferences.getInstance();
+    if (prefs.getBool(EncryptionIntro.seenKey) ?? false) return;
+    _askedThisSession = true;
+    await Future.delayed(const Duration(milliseconds: 600));
+    if (!mounted) return;
+    await EncryptionIntro.maybeShow(context, ref);
   }
 
   /// Whether a one-time question was put this session, so a second one waits

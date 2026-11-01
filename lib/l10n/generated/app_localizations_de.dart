@@ -5537,6 +5537,23 @@ class L10nDe extends L10n {
   String get ppTurnedOff => 'Schutz deaktiviert';
 
   @override
+  String get encIntroTitle => 'Deine Daten sind jetzt verschlüsselt';
+
+  @override
+  String get encIntroBody =>
+      'Alles auf diesem Handy wird verschlüsselt gespeichert, und deine Backups und synchronisierten Daten werden verschlüsselt, bevor sie es verlassen. Du musst nichts tun.';
+
+  @override
+  String get encIntroPassphrase =>
+      'Möchtest du ein zusätzliches Schloss? Lege eine Passphrase fest, dann kannst nur du deine synchronisierten Daten und Backups öffnen – nicht einmal wir. Das ist optional; wenn du die Passphrase und ihren Wiederherstellungscode beide verlierst, sind diese Daten nicht wiederherstellbar.';
+
+  @override
+  String get encIntroSetUp => 'Passphrase festlegen';
+
+  @override
+  String get encIntroNotNow => 'Nicht jetzt';
+
+  @override
   String get voiceFabSettingSub =>
       'Ein Mikro, das über Heute schwebt, um Buchungen zu sprechen';
 

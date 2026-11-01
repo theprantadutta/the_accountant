@@ -5556,6 +5556,23 @@ class L10nFr extends L10n {
   String get ppTurnedOff => 'Protection désactivée';
 
   @override
+  String get encIntroTitle => 'Vos données sont désormais chiffrées';
+
+  @override
+  String get encIntroBody =>
+      'Tout ce qui se trouve sur ce téléphone est stocké chiffré, et vos sauvegardes et données synchronisées sont chiffrées avant de le quitter. Vous n\'avez rien à faire.';
+
+  @override
+  String get encIntroPassphrase =>
+      'Envie d\'un verrou de plus ? Définissez une phrase secrète et vous seul pourrez ouvrir vos données synchronisées et vos sauvegardes — même pas nous. C\'est facultatif ; si vous perdez la phrase secrète et son code de récupération, ces données sont irrécupérables.';
+
+  @override
+  String get encIntroSetUp => 'Définir une phrase secrète';
+
+  @override
+  String get encIntroNotNow => 'Pas maintenant';
+
+  @override
   String get voiceFabSettingSub =>
       'Un micro flottant sur Aujourd\'hui, pour dicter une opération';
 

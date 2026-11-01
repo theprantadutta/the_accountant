@@ -5536,6 +5536,23 @@ class L10nMs extends L10n {
   String get ppTurnedOff => 'Perlindungan dimatikan';
 
   @override
+  String get encIntroTitle => 'Data anda kini disulitkan';
+
+  @override
+  String get encIntroBody =>
+      'Semua dalam telefon ini disimpan secara tersulit, dan sandaran serta data segerak anda disulitkan sebelum meninggalkannya. Anda tidak perlu buat apa-apa.';
+
+  @override
+  String get encIntroPassphrase =>
+      'Mahu kunci tambahan? Tetapkan frasa laluan dan hanya anda boleh membuka data segerak dan sandaran — kami pun tidak. Ia pilihan; jika anda hilang frasa laluan dan kod pemulihannya, data itu tidak dapat dipulihkan.';
+
+  @override
+  String get encIntroSetUp => 'Tetapkan frasa laluan';
+
+  @override
+  String get encIntroNotNow => 'Bukan sekarang';
+
+  @override
   String get voiceFabSettingSub =>
       'Mikrofon yang terapung di atas Hari ini, untuk menyebut transaksi';
 

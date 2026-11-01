@@ -5504,6 +5504,23 @@ class L10nHi extends L10n {
   String get ppTurnedOff => 'सुरक्षा बंद कर दी गई';
 
   @override
+  String get encIntroTitle => 'आपका डेटा अब एन्क्रिप्टेड है';
+
+  @override
+  String get encIntroBody =>
+      'इस फ़ोन पर सब कुछ एन्क्रिप्ट करके रखा जाता है, और आपके बैकअप और सिंक किया गया डेटा फ़ोन से बाहर जाने से पहले एन्क्रिप्ट हो जाते हैं। आपको कुछ करने की ज़रूरत नहीं है।';
+
+  @override
+  String get encIntroPassphrase =>
+      'एक और ताला चाहिए? पासफ़्रेज़ सेट करें, फिर सिंक किया गया डेटा और बैकअप सिर्फ़ आप खोल पाएंगे — हम भी नहीं। यह वैकल्पिक है; पासफ़्रेज़ और उसका रिकवरी कोड दोनों खो जाने पर वह डेटा वापस नहीं मिल सकता।';
+
+  @override
+  String get encIntroSetUp => 'पासफ़्रेज़ सेट करें';
+
+  @override
+  String get encIntroNotNow => 'अभी नहीं';
+
+  @override
   String get voiceFabSettingSub =>
       '\'आज\' के ऊपर तैरता एक माइक, लेन-देन बोलने के लिए';
 

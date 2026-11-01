@@ -5456,6 +5456,23 @@ class L10nBn extends L10n {
   String get ppTurnedOff => 'সুরক্ষা বন্ধ হয়েছে';
 
   @override
+  String get encIntroTitle => 'আপনার ডেটা এখন এনক্রিপ্টেড';
+
+  @override
+  String get encIntroBody =>
+      'এই ফোনের সবকিছু এনক্রিপ্ট করে রাখা হয়, আর আপনার ব্যাকআপ ও সিঙ্ক করা ডেটা ফোন থেকে বের হওয়ার আগেই এনক্রিপ্ট হয়। আপনাকে কিছুই করতে হবে না।';
+
+  @override
+  String get encIntroPassphrase =>
+      'আরও একটা তালা চান? একটি পাসফ্রেজ দিন, তাহলে সিঙ্ক করা ডেটা ও ব্যাকআপ শুধু আপনিই খুলতে পারবেন — আমরাও না। এটা ঐচ্ছিক; পাসফ্রেজ আর তার রিকভারি কোড দুটোই হারালে সেই ডেটা আর ফেরত পাওয়া যাবে না।';
+
+  @override
+  String get encIntroSetUp => 'পাসফ্রেজ সেট করুন';
+
+  @override
+  String get encIntroNotNow => 'এখন না';
+
+  @override
   String get voiceFabSettingSub =>
       'আজকের পাতায় ভেসে থাকা একটি মাইক, লেনদেন বলে দেওয়ার জন্য';
 

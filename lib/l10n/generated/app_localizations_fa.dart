@@ -5508,6 +5508,23 @@ class L10nFa extends L10n {
   String get ppTurnedOff => 'محافظت خاموش شد';
 
   @override
+  String get encIntroTitle => 'داده‌های شما اکنون رمزگذاری شده‌اند';
+
+  @override
+  String get encIntroBody =>
+      'همه‌چیز روی این گوشی رمزگذاری‌شده ذخیره می‌شود و پشتیبان‌ها و داده‌های همگام‌شده پیش از خروج از گوشی رمزگذاری می‌شوند. لازم نیست کاری انجام دهید.';
+
+  @override
+  String get encIntroPassphrase =>
+      'قفل بیشتری می‌خواهید؟ یک عبارت عبور تعیین کنید تا فقط خودتان بتوانید داده‌های همگام‌شده و پشتیبان‌ها را باز کنید — حتی ما هم نه. این کار اختیاری است؛ اگر عبارت عبور و کد بازیابی آن را هر دو گم کنید، آن داده‌ها قابل بازیابی نیستند.';
+
+  @override
+  String get encIntroSetUp => 'تعیین عبارت عبور';
+
+  @override
+  String get encIntroNotNow => 'حالا نه';
+
+  @override
   String get voiceFabSettingSub =>
       'میکروفونی شناور روی صفحه امروز، برای گفتن تراکنش';
 

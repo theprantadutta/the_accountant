@@ -5504,6 +5504,23 @@ class L10nEn extends L10n {
   String get ppTurnedOff => 'Protection turned off';
 
   @override
+  String get encIntroTitle => 'Your data is now encrypted';
+
+  @override
+  String get encIntroBody =>
+      'Everything on this phone is stored encrypted, and your backups and synced data are encrypted before they leave it. You don\'t need to do anything.';
+
+  @override
+  String get encIntroPassphrase =>
+      'Want an extra lock? Set a passphrase and only you can open your synced data and backups — not even we can. It\'s optional, and if you lose both the passphrase and its recovery code, that data can\'t be recovered.';
+
+  @override
+  String get encIntroSetUp => 'Set a passphrase';
+
+  @override
+  String get encIntroNotNow => 'Not now';
+
+  @override
   String get voiceFabSettingSub =>
       'A mic that floats over Today, for saying a transaction';
 

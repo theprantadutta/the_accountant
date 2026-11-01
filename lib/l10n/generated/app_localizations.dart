@@ -9794,6 +9794,36 @@ abstract class L10n {
   /// **'Protection turned off'**
   String get ppTurnedOff;
 
+  /// No description provided for @encIntroTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your data is now encrypted'**
+  String get encIntroTitle;
+
+  /// No description provided for @encIntroBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything on this phone is stored encrypted, and your backups and synced data are encrypted before they leave it. You don\'t need to do anything.'**
+  String get encIntroBody;
+
+  /// No description provided for @encIntroPassphrase.
+  ///
+  /// In en, this message translates to:
+  /// **'Want an extra lock? Set a passphrase and only you can open your synced data and backups — not even we can. It\'s optional, and if you lose both the passphrase and its recovery code, that data can\'t be recovered.'**
+  String get encIntroPassphrase;
+
+  /// No description provided for @encIntroSetUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Set a passphrase'**
+  String get encIntroSetUp;
+
+  /// No description provided for @encIntroNotNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get encIntroNotNow;
+
   /// No description provided for @voiceFabSettingSub.
   ///
   /// In en, this message translates to:

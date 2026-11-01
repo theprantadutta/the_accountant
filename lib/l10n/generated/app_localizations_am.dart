@@ -5394,6 +5394,23 @@ class L10nAm extends L10n {
   String get ppTurnedOff => 'ጥበቃው ጠፍቷል';
 
   @override
+  String get encIntroTitle => 'ውሂብዎ አሁን ተመስጥሯል';
+
+  @override
+  String get encIntroBody =>
+      'በዚህ ስልክ ላይ ያለው ሁሉ ተመስጥሮ ይቀመጣል፤ ምትኬዎችዎና የተመሳሰለው ውሂብዎም ከስልኩ ከመውጣታቸው በፊት ይመሰጠራሉ። ምንም ማድረግ አያስፈልግዎትም።';
+
+  @override
+  String get encIntroPassphrase =>
+      'ተጨማሪ ቁልፍ ይፈልጋሉ? የይለፍ ሐረግ ያዘጋጁ፤ ከዚያ የተመሳሰለ ውሂብና ምትኬዎችን እርስዎ ብቻ ይከፍታሉ — እኛም አንችልም። አማራጭ ነው፤ የይለፍ ሐረጉንና የመልሶ ማግኛ ኮዱን ሁለቱንም ካጡ ውሂቡ ሊመለስ አይችልም።';
+
+  @override
+  String get encIntroSetUp => 'የይለፍ ሐረግ ያዘጋጁ';
+
+  @override
+  String get encIntroNotNow => 'አሁን አይደለም';
+
+  @override
   String get voiceFabSettingSub => 'ግብይትን ለመናገር በዛሬ ገጽ ላይ የሚንሳፈፍ ማይክ';
 
   @override

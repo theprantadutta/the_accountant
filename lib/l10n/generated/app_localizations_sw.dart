@@ -5531,6 +5531,23 @@ class L10nSw extends L10n {
   String get ppTurnedOff => 'Ulinzi umezimwa';
 
   @override
+  String get encIntroTitle => 'Data yako sasa imesimbwa fiche';
+
+  @override
+  String get encIntroBody =>
+      'Kila kitu kwenye simu hii huhifadhiwa kwa usimbaji fiche, na nakala rudufu na data iliyosawazishwa husimbwa fiche kabla ya kuondoka humo. Huhitaji kufanya chochote.';
+
+  @override
+  String get encIntroPassphrase =>
+      'Unataka kufuli ya ziada? Weka kaulisiri na wewe tu utaweza kufungua data iliyosawazishwa na nakala rudufu — hata sisi hatutaweza. Ni hiari; ukipoteza kaulisiri na msimbo wake wa urejeshaji vyote, data hiyo haiwezi kurejeshwa.';
+
+  @override
+  String get encIntroSetUp => 'Weka kaulisiri';
+
+  @override
+  String get encIntroNotNow => 'Si sasa';
+
+  @override
   String get voiceFabSettingSub =>
       'Maikrofoni inayoelea juu ya Leo, kwa kusema muamala';
 

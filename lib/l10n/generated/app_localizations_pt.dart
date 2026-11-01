@@ -5534,6 +5534,23 @@ class L10nPt extends L10n {
   String get ppTurnedOff => 'Proteção desativada';
 
   @override
+  String get encIntroTitle => 'Os seus dados estão agora encriptados';
+
+  @override
+  String get encIntroBody =>
+      'Tudo neste telemóvel fica guardado de forma encriptada, e as suas cópias de segurança e dados sincronizados são encriptados antes de saírem dele. Não precisa de fazer nada.';
+
+  @override
+  String get encIntroPassphrase =>
+      'Quer um cadeado extra? Defina uma frase-passe e só você poderá abrir os dados sincronizados e as cópias de segurança — nem nós. É opcional; se perder a frase-passe e o código de recuperação, esses dados não podem ser recuperados.';
+
+  @override
+  String get encIntroSetUp => 'Definir frase-passe';
+
+  @override
+  String get encIntroNotNow => 'Agora não';
+
+  @override
   String get voiceFabSettingSub =>
       'Um microfone que flutua sobre Hoje, para dizer uma transação';
 
