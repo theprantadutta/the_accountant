@@ -23,6 +23,8 @@ class BackupCodec {
       key = await _key();
     } on AccountDataKeyUnavailable catch (e) {
       throw BackupFormatException(e.message);
+    } on AccountDataKeyLocked catch (e) {
+      throw BackupFormatException(e.toString());
     }
     return BackupDocument.decode(await BackupSeal.open(source, key));
   }
