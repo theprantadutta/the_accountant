@@ -3856,6 +3856,10 @@ class L10nFr extends L10n {
       'Relevés de carte à payer, et mensualités ou versements d\'épargne à venir';
 
   @override
+  String get settingsBillRemindersNote =>
+      'Les rappels de factures de carte et d\'échéances de plan sont calculés par l\'appli sur votre téléphone, pour que vos montants restent privés. Si vous n\'ouvrez pas l\'appli pendant quelques jours, un rappel peut arriver en retard ou être manqué.';
+
+  @override
   String get forecastNotifNowTitle =>
       'Il vous manque de l\'argent aujourd\'hui';
 

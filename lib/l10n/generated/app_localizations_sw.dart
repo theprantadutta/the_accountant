@@ -3839,6 +3839,10 @@ class L10nSw extends L10n {
       'Bili za kadi zinazodaiwa, na marejesho ya mkopo au akiba yanayokuja';
 
   @override
+  String get settingsBillRemindersNote =>
+      'Vikumbusho vya bili za kadi na awamu za mipango hukokotolewa na programu kwenye simu yako, ili kiasi chako kibaki cha faragha. Usipofungua programu kwa siku chache, kikumbusho kinaweza kuchelewa au kukosekana.';
+
+  @override
   String get forecastNotifNowTitle => 'Umepungukiwa pesa leo';
 
   @override

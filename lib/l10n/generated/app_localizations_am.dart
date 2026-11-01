@@ -3744,6 +3744,10 @@ class L10nAm extends L10n {
       'የሚከፈሉ የካርድ ሂሳቦች፣ እና የሚመጡ የተከፋፈለ ክፍያ ወይም የቁጠባ ክፍሎች';
 
   @override
+  String get settingsBillRemindersNote =>
+      'የካርድ ሂሳብና የዕቅድ ክፍያ አስታዋሾች በስልክዎ ላይ በመተግበሪያው ይሰላሉ፤ ስለዚህ መጠኖችዎ ግላዊ ሆነው ይቆያሉ። መተግበሪያውን ለጥቂት ቀናት ካልከፈቱ፣ አስታዋሽ ሊዘገይ ወይም ሊያመልጥ ይችላል።';
+
+  @override
   String get forecastNotifNowTitle => 'ዛሬ ገንዘብ አጥሮዎታል';
 
   @override

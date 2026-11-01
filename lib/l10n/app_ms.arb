@@ -1119,6 +1119,7 @@
   "forecastNotifTitle": "Anda mungkin kekurangan wang pada {day}",
   "settingsBillReminders": "Peringatan bil dan ansuran",
   "settingsBillRemindersSub": "Bil kad perlu dibayar, dan ansuran atau simpanan yang akan datang",
+  "settingsBillRemindersNote": "Peringatan bil kad dan ansuran pelan dikira oleh aplikasi pada telefon anda, jadi jumlah anda kekal peribadi. Jika anda tidak membuka aplikasi selama beberapa hari, peringatan mungkin lewat atau terlepas.",
   "forecastNotifNowTitle": "Anda kekurangan wang hari ini",
   "forecastNotifNowBody": "Jumlah yang perlu dibayar sekarang {amount} lebih daripada baki akaun anda. Ketik untuk melihat apa yang akan datang.",
   "forecastNotifBody": "Bayaran berjadual akan menyebabkan anda kekurangan {amount}. Ketik untuk melihat apa yang akan datang.",

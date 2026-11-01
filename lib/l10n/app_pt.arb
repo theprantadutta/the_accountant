@@ -1119,6 +1119,7 @@
   "forecastNotifTitle": "Pode ficar sem dinheiro em {day}",
   "settingsBillReminders": "Lembretes de faturas e prestações",
   "settingsBillRemindersSub": "Faturas de cartão a vencer e prestações ou poupanças a chegar",
+  "settingsBillRemindersNote": "Os lembretes de faturas do cartão e de prestações dos planos são calculados pela app no seu telemóvel, para que os seus montantes fiquem privados. Se não abrir a app durante alguns dias, um lembrete pode chegar atrasado ou falhar.",
   "forecastNotifNowTitle": "Hoje está com falta de dinheiro",
   "forecastNotifNowBody": "O que vence agora é {amount} a mais do que as suas contas têm. Toque para ver o que aí vem.",
   "forecastNotifBody": "Com os pagamentos agendados, faltariam {amount}. Toque para ver o que aí vem.",

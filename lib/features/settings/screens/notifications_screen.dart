@@ -236,6 +236,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                   // SUBSCRIPTION & PROMOTIONAL SECTION
                   SettingsSection(
                     title: L10n.of(context).settingsOtherNotifications,
+                    footer: L10n.of(context).settingsBillRemindersNote,
                     tiles: [
                       SettingsSwitchTile(
                         icon: Icons.credit_card_outlined,

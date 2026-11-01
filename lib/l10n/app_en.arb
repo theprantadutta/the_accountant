@@ -1904,6 +1904,7 @@
   "forecastNotifTitle": "You may run short on {day}",
   "settingsBillReminders": "Bill and installment reminders",
   "settingsBillRemindersSub": "Card bills due, and EMI or savings installments coming up",
+  "settingsBillRemindersNote": "Card bills and plan installments are worked out by the app on your phone, so your amounts stay private. If you don't open the app for a few days, a reminder can arrive late or be missed.",
   "forecastNotifNowTitle": "You are short on money today",
   "forecastNotifNowBody": "What is due now is {amount} more than your accounts hold. Tap to see what is coming up.",
   "@forecastNotifNowBody": {

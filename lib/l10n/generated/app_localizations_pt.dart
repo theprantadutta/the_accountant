@@ -3844,6 +3844,10 @@ class L10nPt extends L10n {
       'Faturas de cartão a vencer e prestações ou poupanças a chegar';
 
   @override
+  String get settingsBillRemindersNote =>
+      'Os lembretes de faturas do cartão e de prestações dos planos são calculados pela app no seu telemóvel, para que os seus montantes fiquem privados. Se não abrir a app durante alguns dias, um lembrete pode chegar atrasado ou falhar.';
+
+  @override
   String get forecastNotifNowTitle => 'Hoje está com falta de dinheiro';
 
   @override

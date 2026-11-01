@@ -1119,6 +1119,7 @@
   "forecastNotifTitle": "Am {day} könnte es knapp werden",
   "settingsBillReminders": "Erinnerungen an Rechnungen und Raten",
   "settingsBillRemindersSub": "Fällige Kartenabrechnungen und anstehende Raten oder Sparraten",
+  "settingsBillRemindersNote": "Kreditkartenrechnungen und Planraten berechnet die App auf deinem Handy, damit deine Beträge privat bleiben. Wenn du die App ein paar Tage nicht öffnest, kann eine Erinnerung verspätet kommen oder ausbleiben.",
   "forecastNotifNowTitle": "Heute ist dein Geld knapp",
   "forecastNotifNowBody": "Was jetzt fällig ist, übersteigt deine Konten um {amount}. Tippe, um zu sehen, was ansteht.",
   "forecastNotifBody": "Geplante Zahlungen würden dir {amount} Fehlbetrag bringen. Tippe, um zu sehen, was ansteht.",

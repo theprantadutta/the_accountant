@@ -3843,6 +3843,10 @@ class L10nMs extends L10n {
       'Bil kad perlu dibayar, dan ansuran atau simpanan yang akan datang';
 
   @override
+  String get settingsBillRemindersNote =>
+      'Peringatan bil kad dan ansuran pelan dikira oleh aplikasi pada telefon anda, jadi jumlah anda kekal peribadi. Jika anda tidak membuka aplikasi selama beberapa hari, peringatan mungkin lewat atau terlepas.';
+
+  @override
   String get forecastNotifNowTitle => 'Anda kekurangan wang hari ini';
 
   @override

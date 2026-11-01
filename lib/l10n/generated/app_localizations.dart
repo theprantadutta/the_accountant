@@ -6831,6 +6831,12 @@ abstract class L10n {
   /// **'Card bills due, and EMI or savings installments coming up'**
   String get settingsBillRemindersSub;
 
+  /// No description provided for @settingsBillRemindersNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Card bills and plan installments are worked out by the app on your phone, so your amounts stay private. If you don\'t open the app for a few days, a reminder can arrive late or be missed.'**
+  String get settingsBillRemindersNote;
+
   /// No description provided for @forecastNotifNowTitle.
   ///
   /// In en, this message translates to:

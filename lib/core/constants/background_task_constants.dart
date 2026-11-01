@@ -29,12 +29,20 @@ class BackgroundTaskConstants {
   static const String dueDateChannelDesc =
       'One-off reminders for specific transaction due dates';
 
+  /// The same channel the server's card reminders used, so the user's choice
+  /// of sound and importance for it carries over.
+  static const String billsChannelId = 'bills';
+  static const String billsChannelName = 'Card bills';
+  static const String billsChannelDesc =
+      'Credit card bills and plan installments coming due';
+
   // === Notification ID Ranges ===
   // Existing: budget=2000, daily=1001, subscription=5000, test=9999
   static const int recurringNotificationIdBase = 3000;
   static const int upcomingNotificationIdBase = 4000;
   static const int loanNotificationIdBase = 6000;
   static const int dueDateNotificationIdBase = 7000;
+  static const int billsNotificationIdBase = 8000;
 
   // === SharedPreferences Keys ===
   static const String keyReminderOffset = 'background_reminder_offset_minutes';

@@ -3822,6 +3822,10 @@ class L10nEn extends L10n {
       'Card bills due, and EMI or savings installments coming up';
 
   @override
+  String get settingsBillRemindersNote =>
+      'Card bills and plan installments are worked out by the app on your phone, so your amounts stay private. If you don\'t open the app for a few days, a reminder can arrive late or be missed.';
+
+  @override
   String get forecastNotifNowTitle => 'You are short on money today';
 
   @override

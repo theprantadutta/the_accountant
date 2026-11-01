@@ -1119,6 +1119,7 @@
   "forecastNotifTitle": "Huenda ukapungukiwa pesa {day}",
   "settingsBillReminders": "Vikumbusho vya bili na marejesho",
   "settingsBillRemindersSub": "Bili za kadi zinazodaiwa, na marejesho ya mkopo au akiba yanayokuja",
+  "settingsBillRemindersNote": "Vikumbusho vya bili za kadi na awamu za mipango hukokotolewa na programu kwenye simu yako, ili kiasi chako kibaki cha faragha. Usipofungua programu kwa siku chache, kikumbusho kinaweza kuchelewa au kukosekana.",
   "forecastNotifNowTitle": "Umepungukiwa pesa leo",
   "forecastNotifNowBody": "Kinachodaiwa sasa ni {amount} zaidi ya kilichopo kwenye akaunti zako. Gusa kuona yanayokuja.",
   "forecastNotifBody": "Malipo yaliyopangwa yatakuacha ukipungukiwa na {amount}. Gusa kuona yanayokuja.",

@@ -29,6 +29,7 @@ import 'package:the_accountant/features/notifications/models/notification_item.d
 import 'package:the_accountant/features/plans/services/plan_service.dart';
 import 'package:the_accountant/features/recurring/services/recurring_service.dart';
 import 'package:the_accountant/features/zakat/services/zakat_reminder.dart';
+import 'package:the_accountant/features/notifications/services/bill_reminders.dart';
 
 /// Core background processing service.
 /// All methods are static and self-contained — they construct their own
@@ -174,6 +175,42 @@ class BackgroundTaskService {
           channelName: BackgroundTaskConstants.recurringChannelName,
           channelDesc: BackgroundTaskConstants.recurringChannelDesc,
         );
+      }
+
+      // Card bills and plan installments, worked out here since 5.0 (the
+      // server can no longer read the amounts). Their own switch, so they run
+      // whether or not the upcoming-transaction reminders are on.
+      try {
+        final billSettings = await db.getSettings();
+        final billCurrency = {
+          for (final w in await db.getAllWallets()) w.id: w.currency,
+        };
+        var billIndex = 0;
+        await BillReminders.run(
+          db: db,
+          prefs: prefs,
+          now: DateTime.now(),
+          money: (cents, walletId) => cents.formatCurrency(
+            billCurrency[walletId] ?? billSettings?.currency ?? 'USD',
+            numberFormat: billSettings?.numberFormat ?? 'comma_dot',
+          ),
+          date: (d) => AppDateFormatter.formatDate(
+            d,
+            billSettings?.dateFormat ?? 'd MMM yyyy',
+          ),
+          show: (reminder) => notifier.showNotification(
+            id:
+                BackgroundTaskConstants.billsNotificationIdBase +
+                (billIndex++ % 100),
+            title: reminder.title,
+            body: reminder.body,
+            channelId: BackgroundTaskConstants.billsChannelId,
+            channelName: BackgroundTaskConstants.billsChannelName,
+            channelDesc: BackgroundTaskConstants.billsChannelDesc,
+          ),
+        );
+      } catch (e) {
+        debugPrint('BackgroundTaskService: bill reminders failed: $e');
       }
 
       if (!remindersEnabled) {

@@ -178,16 +178,25 @@ class SettingsSliderTile extends StatelessWidget {
 
 /// A labelled card of settings rows.
 class SettingsSection extends StatelessWidget {
-  const SettingsSection({super.key, required this.title, required this.tiles});
+  const SettingsSection({
+    super.key,
+    required this.title,
+    required this.tiles,
+    this.footer,
+  });
 
   final String title;
   final List<Widget> tiles;
+
+  /// A note under the card.
+  final String? footer;
 
   @override
   Widget build(BuildContext context) => Padding(
     padding: const EdgeInsets.only(top: SunriseSpace.section),
     child: SettingsGroup(
       label: title,
+      footer: footer,
       // The group draws its own hairlines.
       children: tiles.where((t) => t is! SettingsDivider).toList(),
     ),

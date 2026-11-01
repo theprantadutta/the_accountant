@@ -3842,6 +3842,10 @@ class L10nDe extends L10n {
       'Fällige Kartenabrechnungen und anstehende Raten oder Sparraten';
 
   @override
+  String get settingsBillRemindersNote =>
+      'Kreditkartenrechnungen und Planraten berechnet die App auf deinem Handy, damit deine Beträge privat bleiben. Wenn du die App ein paar Tage nicht öffnest, kann eine Erinnerung verspätet kommen oder ausbleiben.';
+
+  @override
   String get forecastNotifNowTitle => 'Heute ist dein Geld knapp';
 
   @override

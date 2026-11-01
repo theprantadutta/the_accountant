@@ -3819,6 +3819,10 @@ class L10nHi extends L10n {
       'देय कार्ड बिल, और आने वाली EMI या बचत की किस्तें';
 
   @override
+  String get settingsBillRemindersNote =>
+      'कार्ड बिल और प्लान की किस्तों के रिमाइंडर ऐप आपके फ़ोन पर ही तैयार करता है, ताकि आपकी रकम निजी रहे। अगर आप कुछ दिन ऐप नहीं खोलते, तो कोई रिमाइंडर देर से आ सकता है या छूट सकता है।';
+
+  @override
   String get forecastNotifNowTitle => 'आज आपके पास पैसे कम हैं';
 
   @override

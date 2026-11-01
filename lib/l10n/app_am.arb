@@ -1119,6 +1119,7 @@
   "forecastNotifTitle": "በ{day} ገንዘብ ሊያጥርዎት ይችላል",
   "settingsBillReminders": "የሂሳብ እና የክፍያ ክፍል አስታዋሾች",
   "settingsBillRemindersSub": "የሚከፈሉ የካርድ ሂሳቦች፣ እና የሚመጡ የተከፋፈለ ክፍያ ወይም የቁጠባ ክፍሎች",
+  "settingsBillRemindersNote": "የካርድ ሂሳብና የዕቅድ ክፍያ አስታዋሾች በስልክዎ ላይ በመተግበሪያው ይሰላሉ፤ ስለዚህ መጠኖችዎ ግላዊ ሆነው ይቆያሉ። መተግበሪያውን ለጥቂት ቀናት ካልከፈቱ፣ አስታዋሽ ሊዘገይ ወይም ሊያመልጥ ይችላል።",
   "forecastNotifNowTitle": "ዛሬ ገንዘብ አጥሮዎታል",
   "forecastNotifNowBody": "አሁን የሚከፈለው ሂሳቦችዎ ከያዙት በ{amount} ይበልጣል። የሚመጣውን ለማየት ይንኩ።",
   "forecastNotifBody": "የታቀዱ ክፍያዎች {amount} ያጎድሉዎታል። የሚመጣውን ለማየት ይንኩ።",

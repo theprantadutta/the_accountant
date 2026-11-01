@@ -3780,6 +3780,10 @@ class L10nBn extends L10n {
       'কার্ডের বিল, আর সামনের EMI বা সঞ্চয়ের কিস্তি';
 
   @override
+  String get settingsBillRemindersNote =>
+      'কার্ডের বিল আর প্ল্যানের কিস্তির রিমাইন্ডার আপনার ফোনেই অ্যাপ হিসাব করে, তাই আপনার টাকার অঙ্ক গোপন থাকে। কয়েক দিন অ্যাপ না খুললে কোনো রিমাইন্ডার দেরিতে আসতে পারে বা বাদ পড়তে পারে।';
+
+  @override
   String get forecastNotifNowTitle => 'আজ আপনার টাকা কম পড়ছে';
 
   @override
