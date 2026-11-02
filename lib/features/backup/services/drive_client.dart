@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -286,6 +287,8 @@ class DriveBackupClient {
     );
   }
 
+  static const Duration _requestTimeout = Duration(minutes: 2);
+
   /// Run a request with credentials attached, and turn a refusal into
   /// something worth showing.
   Future<http.Response> _send(
@@ -296,7 +299,14 @@ class DriveBackupClient {
 
     final http.Response response;
     try {
-      response = await request(headers);
+      // Generous, because a backup upload can be large on a slow line, but
+      // bounded: package:http never gives up on a stalled connection by
+      // itself, and a scheduled backup would otherwise wait for minutes.
+      response = await request(headers).timeout(_requestTimeout);
+    } on TimeoutException {
+      throw const DriveException(
+        'Google Drive is taking too long to answer. Try again later.',
+      );
     } on SocketException {
       throw const DriveException(
         'No connection to Google Drive. Try again once you are online.',
