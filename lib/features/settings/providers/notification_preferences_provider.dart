@@ -396,6 +396,13 @@ class NotificationPreferencesNotifier
     state = state.copyWith(isSyncing: true);
 
     try {
+      // Changes made while the server could not be reached go first. Applying
+      // the server's copy before them flipped the user's toggles back.
+      if (!await _flushPendingChanges()) {
+        _logger.w('Pending preference changes not sent yet; keeping local');
+        return;
+      }
+
       final response = await _apiService.get('/notifications/preferences');
       final data = response.data as Map<String, dynamic>;
 
@@ -454,9 +461,64 @@ class NotificationPreferencesNotifier
     try {
       await _apiService.put('/notifications/preferences', data: updates);
       _logger.i('Preference synced to backend');
+      // A newer value just landed; an older one still queued for the same
+      // setting must not be sent over it later.
+      await _forgetPending(updates.keys);
     } catch (e) {
       _logger.w('Failed to sync preference to backend: $e');
-      // Don't show error - local storage has the data
+      // Local storage has the change; keep it to send later, so the next
+      // load does not let the server's older copy overwrite it.
+      await _rememberPending(updates);
+    }
+  }
+
+  /// Changes the server has not acknowledged, oldest first, merged.
+  static const String _pendingKey = 'notification_prefs_pending_v1';
+
+  Future<void> _rememberPending(Map<String, dynamic> updates) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final raw = prefs.getString(_pendingKey);
+      final pending = raw == null
+          ? <String, dynamic>{}
+          : Map<String, dynamic>.from(jsonDecode(raw) as Map);
+      pending.addAll(updates);
+      await prefs.setString(_pendingKey, jsonEncode(pending));
+    } catch (e) {
+      _logger.w('Could not remember the pending preference change: $e');
+    }
+  }
+
+  Future<void> _forgetPending(Iterable<String> keys) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final raw = prefs.getString(_pendingKey);
+      if (raw == null) return;
+      final pending = Map<String, dynamic>.from(jsonDecode(raw) as Map)
+        ..removeWhere((k, _) => keys.contains(k));
+      if (pending.isEmpty) {
+        await prefs.remove(_pendingKey);
+      } else {
+        await prefs.setString(_pendingKey, jsonEncode(pending));
+      }
+    } catch (_) {}
+  }
+
+  /// Sends what is waiting. True when nothing is left to send.
+  Future<bool> _flushPendingChanges() async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString(_pendingKey);
+    if (raw == null) return true;
+    try {
+      await _apiService.put(
+        '/notifications/preferences',
+        data: jsonDecode(raw) as Map<String, dynamic>,
+      );
+      await prefs.remove(_pendingKey);
+      return true;
+    } catch (e) {
+      _logger.w('Pending preference changes still not sent: $e');
+      return false;
     }
   }
 
