@@ -70,6 +70,15 @@ class CurrencyService {
       return cached;
     }
 
+    // Offline, every conversion (one per wallet on net worth) used to try the
+    // feed again, two timeouts each. After a failure, use the stored rates
+    // for a while before asking again.
+    final lastFailure = _lastFetchFailure;
+    if (lastFailure != null &&
+        DateTime.now().difference(lastFailure) < _retryAfterFailure) {
+      return await _getRatesFromDatabase();
+    }
+
     try {
       final response = await _fetchWithFallback('/currencies/usd.json');
       if (response != null) {
@@ -84,6 +93,8 @@ class CurrencyService {
             }
           });
 
+          _lastFetchFailure = null;
+
           // Cache the result
           await _cacheRates(rates);
 
@@ -96,10 +107,16 @@ class CurrencyService {
     } catch (e) {
       debugPrint('[CurrencyService] Error fetching rates: $e');
     }
+    _lastFetchFailure = DateTime.now();
 
     // Try to get from database as fallback
     return await _getRatesFromDatabase();
   }
+
+  /// When the rate feed last failed, shared by every instance: the services
+  /// that convert each make their own.
+  static DateTime? _lastFetchFailure;
+  static const Duration _retryAfterFailure = Duration(minutes: 15);
 
   /// Get conversion rate between two currencies
   /// Checks custom rate first, then uses API rate via USD as base.
