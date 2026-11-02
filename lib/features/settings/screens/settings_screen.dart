@@ -731,6 +731,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           'lock',
           'fingerprint',
           'password',
+          'passphrase',
+          'encryption',
+          'encrypt',
+          'recovery code',
         ],
         row: SettingsRow(
           icon: Symbols.shield_lock_rounded,
