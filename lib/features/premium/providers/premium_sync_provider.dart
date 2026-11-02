@@ -74,7 +74,12 @@ final premiumIapSyncProvider = Provider<void>((ref) {
     // Backend confirms premium — sync tier/expiry, but only when something
     // actually differs so we don't rewrite SharedPreferences on every refresh.
     final tier = _mapProductIdToTier(next.currentTier);
-    if (!cached.isPremium || cached.tier != tier) {
+    // A renewal keeps the tier and moves the expiry forward. Without the
+    // expiry check the cache kept the old period end, and a paying user
+    // dropped to free whenever the app opened offline after it.
+    if (!cached.isPremium ||
+        cached.tier != tier ||
+        cached.features.expiresAt != next.expiresAt) {
       premiumNotifier.updateSubscription(
         tier: tier,
         expiresAt: next.expiresAt,

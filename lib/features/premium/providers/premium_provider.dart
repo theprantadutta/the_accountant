@@ -83,7 +83,9 @@ class PremiumNotifier extends StateNotifier<PremiumState> {
         expiresAt = DateTime.tryParse(stored.expiresAtIso!);
         // Don't restore if expired (unless lifetime)
         if (expiresAt != null &&
-            expiresAt.isBefore(DateTime.now()) &&
+            expiresAt
+                .add(PremiumFeatures.offlineGrace)
+                .isBefore(DateTime.now()) &&
             tier != SubscriptionTier.premiumLifetime) {
           await SecureTokenStorage.clearPremiumEntitlement();
           return;

@@ -131,12 +131,18 @@ class PremiumFeatures extends Equatable {
     this.purchaseId,
   });
 
+  /// How long past the cached expiry Premium keeps working. The cached date
+  /// is only as fresh as the last answer from our server; a renewal it has
+  /// not heard about yet must not lock a paying user out while they are
+  /// offline. The server still downgrades as soon as it says "free".
+  static const Duration offlineGrace = Duration(days: 3);
+
   /// Check if premium is active (not expired)
   bool get isPremiumActive {
     if (!isUnlocked) return false;
     if (tier == SubscriptionTier.premiumLifetime) return true;
     if (expiresAt == null) return isUnlocked;
-    return expiresAt!.isAfter(DateTime.now());
+    return expiresAt!.add(offlineGrace).isAfter(DateTime.now());
   }
 
   /// Check if subscription is expiring soon (within 7 days)
