@@ -175,4 +175,33 @@ void main() {
 
     expect(() => keys().read(), throwsA(isA<AccountDataKeyUnavailable>()));
   });
+
+  test('backups made offline still carry the locked key', () async {
+    await keys().read();
+    await keys().enableProtection('correct horse battery staple');
+
+    server.offline = true;
+    final locks = await keys().backupLocks();
+
+    expect(locks, isNotNull);
+    expect(locks!.wrappedKey, server.wrappedKey);
+    expect(
+      await locks.openWithPassphrase('correct horse battery staple'),
+      isNotNull,
+    );
+  });
+
+  test('an account without a passphrase puts no locks in backups', () async {
+    await keys().read();
+    expect(await keys().backupLocks(), isNull);
+  });
+
+  test('turning protection off stops backups carrying the old locks', () async {
+    final key = await keys().read();
+    await keys().enableProtection('correct horse battery staple');
+    expect(await keys().backupLocks(), isNotNull);
+
+    await server.removePassphrase(base64Encode(key));
+    expect(await keys().backupLocks(), isNull);
+  });
 }

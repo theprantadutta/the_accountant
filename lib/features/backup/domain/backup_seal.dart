@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:cryptography/cryptography.dart';
 import 'package:the_accountant/features/backup/domain/backup_document.dart';
+import 'package:the_accountant/features/encryption/domain/key_wrapping.dart';
 
 /// The encrypted wrapper around a backup.
 ///
@@ -18,6 +19,14 @@ import 'package:the_accountant/features/backup/domain/backup_document.dart';
 /// `data` is the ciphertext followed by the 16-byte tag. The format tag is bound
 /// in as associated data, so the header cannot be swapped onto other contents.
 /// Backups written before this existed are plain JSON and still restore.
+///
+/// For an account with passphrase protection the header also carries
+/// `unlock`: the account key wrapped under the passphrase and under the
+/// recovery code, with the salt and key-derivation settings — the same locked
+/// copies the server holds. With those, the backup opens with the passphrase
+/// or recovery code alone, on any phone, without our server. They reveal
+/// nothing without one of the two secrets. Older apps ignore the field, so
+/// the version is unchanged.
 class BackupSeal {
   const BackupSeal._();
 
@@ -28,7 +37,14 @@ class BackupSeal {
   static final AesGcm _cipher = AesGcm.with256bits();
 
   /// Encrypt [plaintext] (an encoded [BackupDocument]) under [key].
-  static Future<String> seal(String plaintext, List<int> key) async {
+  ///
+  /// [locks], when the account has them, let the file be opened later with
+  /// the passphrase or recovery code instead of the server.
+  static Future<String> seal(
+    String plaintext,
+    List<int> key, {
+    BackupLocks? locks,
+  }) async {
     _checkKey(key);
     final box = await _cipher.encrypt(
       utf8.encode(plaintext),
@@ -41,7 +57,20 @@ class BackupSeal {
       'cipher': _cipherName,
       'nonce': base64Encode(box.nonce),
       'data': base64Encode([...box.cipherText, ...box.mac.bytes]),
+      'unlock': ?locks?.toJson(),
     });
+  }
+
+  /// The locked key copies a sealed backup carries, or null.
+  static BackupLocks? locksOf(String source) {
+    try {
+      final raw = jsonDecode(source);
+      if (raw is! Map || raw['format'] != formatTag) return null;
+      final unlock = raw['unlock'];
+      return unlock is Map ? BackupLocks.fromJson(unlock) : null;
+    } on FormatException {
+      return null;
+    }
   }
 
   /// Whether [source] is a sealed backup rather than a plain one.
@@ -108,10 +137,7 @@ class BackupSeal {
       );
       return utf8.decode(clear);
     } on SecretBoxAuthenticationError {
-      throw const BackupFormatException(
-        'This backup belongs to a different account, or the file has been '
-        'changed. Sign in with the account that made it to restore it.',
-      );
+      throw const BackupWrongKey();
     }
   }
 
@@ -119,5 +145,67 @@ class BackupSeal {
     if (key.length != 32) {
       throw ArgumentError.value(key.length, 'key', 'must be 32 bytes');
     }
+  }
+}
+
+/// The key a sealed backup was opened with is not the one it was made with.
+class BackupWrongKey extends BackupFormatException {
+  const BackupWrongKey()
+    : super(
+        'This backup belongs to a different account, or the file has been '
+        'changed. Sign in with the account that made it to restore it.',
+      );
+}
+
+/// The account key, locked under the passphrase and under the recovery code.
+///
+/// What the server keeps for a protected account, carried in a backup so the
+/// file does not depend on the server to be opened.
+class BackupLocks {
+  const BackupLocks({
+    required this.wrappedKey,
+    required this.wrappedKeyRecovery,
+    required this.kdfSalt,
+    required this.kdfParams,
+  });
+
+  factory BackupLocks.fromJson(Map<dynamic, dynamic> json) => BackupLocks(
+    wrappedKey: json['wrappedKey'] as String,
+    wrappedKeyRecovery: json['wrappedKeyRecovery'] as String,
+    kdfSalt: json['kdfSalt'] as String,
+    kdfParams: json['kdfParams'] as String,
+  );
+
+  final String wrappedKey;
+  final String wrappedKeyRecovery;
+  final String kdfSalt;
+  final String kdfParams;
+
+  Map<String, String> toJson() => {
+    'wrappedKey': wrappedKey,
+    'wrappedKeyRecovery': wrappedKeyRecovery,
+    'kdfSalt': kdfSalt,
+    'kdfParams': kdfParams,
+  };
+
+  /// The key, or null when [passphrase] is wrong.
+  Future<List<int>?> openWithPassphrase(String passphrase) async {
+    try {
+      final wrapping = await KeyWrapping.passphraseKey(
+        passphrase,
+        base64Decode(kdfSalt),
+        KdfParams.decode(kdfParams),
+      );
+      return await KeyWrapping.unwrap(wrappedKey, wrapping);
+    } on FormatException {
+      return null;
+    }
+  }
+
+  /// The key, or null when [code] is wrong.
+  Future<List<int>?> openWithRecoveryCode(String code) async {
+    final wrapping = await KeyWrapping.recoveryKey(code);
+    if (wrapping == null) return null;
+    return KeyWrapping.unwrap(wrappedKeyRecovery, wrapping);
   }
 }

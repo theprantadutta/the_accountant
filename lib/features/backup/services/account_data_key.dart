@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:the_accountant/core/services/api_service.dart';
 import 'package:the_accountant/core/services/secure_token_storage.dart';
+import 'package:the_accountant/features/backup/domain/backup_seal.dart';
 import 'package:the_accountant/features/encryption/domain/key_wrapping.dart';
 
 /// The signed-in account's data key: what backups (and, from 5.0, synced data)
@@ -42,6 +43,55 @@ class AccountDataKey {
   );
 
   static String _slot(String userId) => 'account_data_key_v1_$userId';
+
+  /// The locked copies last seen for a protected account, so backups made
+  /// offline can still carry them.
+  static String _locksSlot(String userId) => 'account_key_locks_v1_$userId';
+
+  /// The locked key copies to put in a backup, or null when the account has
+  /// no passphrase (or nothing is known yet). Never throws: a backup is worth
+  /// making without them.
+  Future<BackupLocks?> backupLocks() async {
+    try {
+      final userId = await _currentUserId();
+      if (userId == null || userId.isEmpty) return null;
+      try {
+        await _fetch(); // refreshes the cached copy as a side effect
+      } catch (_) {
+        // Offline: fall back to what was last seen.
+      }
+      final raw = await _storage.read(key: _locksSlot(userId));
+      if (raw == null || raw.isEmpty) return null;
+      return BackupLocks.fromJson(jsonDecode(raw) as Map);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Keeps the locked copies (or forgets them once protection is off).
+  Future<void> _rememberLocks(ServerKeyState state) async {
+    final userId = await _currentUserId();
+    if (userId == null || userId.isEmpty) return;
+    if (!state.protected ||
+        state.wrappedKey == null ||
+        state.wrappedKeyRecovery == null ||
+        state.kdfSalt == null ||
+        state.kdfParams == null) {
+      await _storage.delete(key: _locksSlot(userId));
+      return;
+    }
+    await _storage.write(
+      key: _locksSlot(userId),
+      value: jsonEncode(
+        BackupLocks(
+          wrappedKey: state.wrappedKey!,
+          wrappedKeyRecovery: state.wrappedKeyRecovery!,
+          kdfSalt: state.kdfSalt!,
+          kdfParams: state.kdfParams!,
+        ).toJson(),
+      ),
+    );
+  }
 
   /// The current account's key.
   ///
@@ -147,6 +197,15 @@ class AccountDataKey {
       kdfSalt: state.kdfSalt!,
       kdfParams: state.kdfParams!,
     );
+    await _rememberLocks(
+      ServerKeyState(
+        protected: true,
+        wrappedKey: state.wrappedKey,
+        wrappedKeyRecovery: recoveryWrap,
+        kdfSalt: state.kdfSalt,
+        kdfParams: state.kdfParams,
+      ),
+    );
     return code;
   }
 
@@ -154,6 +213,7 @@ class AccountDataKey {
   Future<void> disableProtection() async {
     final key = await read();
     await _server.removePassphrase(base64Encode(key));
+    await _rememberLocks(const ServerKeyState());
   }
 
   Future<void> _publish({
@@ -182,6 +242,15 @@ class AccountDataKey {
       wrappedKeyRecovery: recoveryWrap!,
       kdfSalt: base64Encode(salt),
       kdfParams: params.encode(),
+    );
+    await _rememberLocks(
+      ServerKeyState(
+        protected: true,
+        wrappedKey: passWrap,
+        wrappedKeyRecovery: recoveryWrap,
+        kdfSalt: base64Encode(salt),
+        kdfParams: params.encode(),
+      ),
     );
   }
 
@@ -212,7 +281,13 @@ class AccountDataKey {
 
   Future<ServerKeyState> _fetch() async {
     try {
-      return await _server.fetch();
+      final state = await _server.fetch();
+      try {
+        await _rememberLocks(state);
+      } catch (_) {
+        // Only a cache for offline backups; never a reason to fail.
+      }
+      return state;
     } catch (_) {
       throw const AccountDataKeyUnavailable(
         'Connect to the internet once so your data can be encrypted, then try '
