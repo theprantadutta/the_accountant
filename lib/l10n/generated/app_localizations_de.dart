@@ -5455,6 +5455,10 @@ class L10nDe extends L10n {
       'Dein Schlüssel wird gesperrt. Das dauert ein paar Sekunden…';
 
   @override
+  String get ppMaybeSaved =>
+      'Die Verbindung ist abgebrochen, der Server hat das vielleicht schon gespeichert. Wiederhole es, bis du einen Wiederherstellungscode siehst, und bewahre diesen auf.';
+
+  @override
   String get ppRecoveryTitle => 'Dein Wiederherstellungscode';
 
   @override

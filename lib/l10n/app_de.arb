@@ -1586,6 +1586,7 @@
   "ppUnderstand": "Mir ist klar: Wenn ich sowohl meine Passphrase als auch meinen Wiederherstellungscode verliere, können meine synchronisierten Daten und Sicherungen nicht wiederhergestellt werden.",
   "ppTurnOn": "Schutz aktivieren",
   "ppWorking": "Dein Schlüssel wird gesperrt. Das dauert ein paar Sekunden…",
+  "ppMaybeSaved": "Die Verbindung ist abgebrochen, der Server hat das vielleicht schon gespeichert. Wiederhole es, bis du einen Wiederherstellungscode siehst, und bewahre diesen auf.",
   "ppRecoveryTitle": "Dein Wiederherstellungscode",
   "ppRecoveryBody": "Das ist der einzige andere Weg zu deinen Daten, falls du deine Passphrase vergisst. Schreib ihn auf oder bewahre ihn in einem Passwort-Manager auf – irgendwo anders als auf diesem Handy.",
   "ppCopy": "Kopieren",

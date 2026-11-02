@@ -1586,6 +1586,7 @@
   "ppUnderstand": "Saya faham bahawa jika saya kehilangan kedua-dua frasa laluan dan kod pemulihan saya, data tersegerak dan sandaran saya tidak dapat dipulihkan.",
   "ppTurnOn": "Hidupkan perlindungan",
   "ppWorking": "Mengamankan kunci anda. Ini mengambil masa beberapa saat…",
+  "ppMaybeSaved": "Sambungan terputus, jadi pelayan mungkin sudah menyimpannya. Ulang sehingga anda nampak kod pemulihan, dan simpan kod itu.",
   "ppRecoveryTitle": "Kod pemulihan anda",
   "ppRecoveryBody": "Ini satu-satunya cara lain untuk membuka data anda jika anda terlupa frasa laluan. Tuliskannya atau simpan dalam pengurus kata laluan — di tempat selain telefon ini.",
   "ppCopy": "Salin",

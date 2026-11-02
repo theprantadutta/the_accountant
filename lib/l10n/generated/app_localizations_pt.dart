@@ -5453,6 +5453,10 @@ class L10nPt extends L10n {
   String get ppWorking => 'A bloquear a sua chave. Demora alguns segundos…';
 
   @override
+  String get ppMaybeSaved =>
+      'A ligação caiu, por isso o servidor pode já ter guardado isto. Repita até ver um código de recuperação e guarde esse.';
+
+  @override
   String get ppRecoveryTitle => 'O seu código de recuperação';
 
   @override

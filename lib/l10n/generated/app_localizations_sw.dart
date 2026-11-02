@@ -5450,6 +5450,10 @@ class L10nSw extends L10n {
       'Inafunga ufunguo wako. Hii inachukua sekunde chache…';
 
   @override
+  String get ppMaybeSaved =>
+      'Muunganisho ulikatika, kwa hivyo seva huenda tayari imehifadhi hili. Rudia hadi uone msimbo wa kurejesha, na uhifadhi huo.';
+
+  @override
   String get ppRecoveryTitle => 'Msimbo wako wa urejeshaji';
 
   @override

@@ -5314,6 +5314,10 @@ class L10nAm extends L10n {
   String get ppWorking => 'ቁልፍዎን በመቆለፍ ላይ። ይህ ጥቂት ሰከንዶች ይወስዳል…';
 
   @override
+  String get ppMaybeSaved =>
+      'ግንኙነቱ ስለተቋረጠ አገልጋዩ ይህንን አስቀድሞ አስቀምጦት ሊሆን ይችላል። የመልሶ ማግኛ ኮድ እስኪያዩ ድረስ እንደገና ያድርጉት፣ ያንንም ያስቀምጡ።';
+
+  @override
   String get ppRecoveryTitle => 'የመልሶ ማግኛ ኮድዎ';
 
   @override

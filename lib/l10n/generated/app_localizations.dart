@@ -9644,6 +9644,12 @@ abstract class L10n {
   /// **'Locking your key. This takes a few seconds…'**
   String get ppWorking;
 
+  /// After a network error while turning on the passphrase or making a new recovery code: the server may have applied it; repeat until a code is shown.
+  ///
+  /// In en, this message translates to:
+  /// **'The connection dropped, so the server may already have saved this. Do it again until you see a recovery code, and keep that one.'**
+  String get ppMaybeSaved;
+
   /// No description provided for @ppRecoveryTitle.
   ///
   /// In en, this message translates to:

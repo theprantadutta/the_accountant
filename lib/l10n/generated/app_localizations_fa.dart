@@ -5428,6 +5428,10 @@ class L10nFa extends L10n {
   String get ppWorking => 'در حال قفل کردن کلید شما. چند ثانیه طول می‌کشد…';
 
   @override
+  String get ppMaybeSaved =>
+      'اتصال قطع شد، پس ممکن است سرور این را از قبل ذخیره کرده باشد. دوباره انجامش دهید تا کد بازیابی را ببینید، و همان را نگه دارید.';
+
+  @override
   String get ppRecoveryTitle => 'کد بازیابی شما';
 
   @override

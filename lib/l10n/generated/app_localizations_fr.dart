@@ -5476,6 +5476,10 @@ class L10nFr extends L10n {
       'Verrouillage de votre clé. Cela prend quelques secondes…';
 
   @override
+  String get ppMaybeSaved =>
+      'La connexion a été coupée : le serveur l\'a peut-être déjà enregistré. Recommencez jusqu\'à voir un code de récupération, et gardez celui-là.';
+
+  @override
   String get ppRecoveryTitle => 'Votre code de récupération';
 
   @override

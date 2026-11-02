@@ -1586,6 +1586,7 @@
   "ppUnderstand": "Je comprends que si je perds à la fois ma phrase secrète et mon code de récupération, mes données synchronisées et mes sauvegardes ne pourront pas être récupérées.",
   "ppTurnOn": "Activer la protection",
   "ppWorking": "Verrouillage de votre clé. Cela prend quelques secondes…",
+  "ppMaybeSaved": "La connexion a été coupée : le serveur l'a peut-être déjà enregistré. Recommencez jusqu'à voir un code de récupération, et gardez celui-là.",
   "ppRecoveryTitle": "Votre code de récupération",
   "ppRecoveryBody": "C'est le seul autre moyen d'accéder à vos données si vous oubliez votre phrase secrète. Notez-le ou conservez-le dans un gestionnaire de mots de passe, ailleurs que sur ce téléphone.",
   "ppCopy": "Copier",

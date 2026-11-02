@@ -1586,6 +1586,7 @@
   "ppUnderstand": "Compreendo que, se perder a frase-passe e o código de recuperação, os meus dados sincronizados e as cópias de segurança não poderão ser recuperados.",
   "ppTurnOn": "Ativar proteção",
   "ppWorking": "A bloquear a sua chave. Demora alguns segundos…",
+  "ppMaybeSaved": "A ligação caiu, por isso o servidor pode já ter guardado isto. Repita até ver um código de recuperação e guarde esse.",
   "ppRecoveryTitle": "O seu código de recuperação",
   "ppRecoveryBody": "É a única outra forma de aceder aos seus dados se se esquecer da frase-passe. Anote-o ou guarde-o num gestor de palavras-passe — num local que não seja este telemóvel.",
   "ppCopy": "Copiar",

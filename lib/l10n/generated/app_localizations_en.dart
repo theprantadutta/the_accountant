@@ -5424,6 +5424,10 @@ class L10nEn extends L10n {
   String get ppWorking => 'Locking your key. This takes a few seconds…';
 
   @override
+  String get ppMaybeSaved =>
+      'The connection dropped, so the server may already have saved this. Do it again until you see a recovery code, and keep that one.';
+
+  @override
   String get ppRecoveryTitle => 'Your recovery code';
 
   @override

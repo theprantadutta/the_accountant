@@ -2848,6 +2848,8 @@
   "ppUnderstand": "I understand that if I lose both my passphrase and my recovery code, my synced data and backups can't be recovered.",
   "ppTurnOn": "Turn on protection",
   "ppWorking": "Locking your key. This takes a few seconds…",
+  "ppMaybeSaved": "The connection dropped, so the server may already have saved this. Do it again until you see a recovery code, and keep that one.",
+  "@ppMaybeSaved": {"description": "After a network error while turning on the passphrase or making a new recovery code: the server may have applied it; repeat until a code is shown."},
   "ppRecoveryTitle": "Your recovery code",
   "ppRecoveryBody": "This is the only other way into your data if you forget your passphrase. Write it down or keep it in a password manager — somewhere other than this phone.",
   "ppCopy": "Copy",

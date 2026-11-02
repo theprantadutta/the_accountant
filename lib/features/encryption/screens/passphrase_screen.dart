@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:the_accountant/core/services/api_service.dart';
 import 'package:the_accountant/features/backup/services/account_data_key.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
@@ -114,6 +115,7 @@ class _Explainer extends ConsumerWidget {
     final code = await _withProgress(
       context,
       () => ref.read(accountDataKeyProvider).enableProtection(passphrase),
+      issuesCode: true,
     );
     if (code == null || !context.mounted) return;
     await _showRecoveryCode(context, code);
@@ -176,7 +178,11 @@ class _ProtectedHere extends ConsumerWidget {
                   confirmLabel: l10n.ppNewCode,
                 );
                 if (!go || !context.mounted) return;
-                final code = await _withProgress(context, keys.newRecoveryCode);
+                final code = await _withProgress(
+                  context,
+                  keys.newRecoveryCode,
+                  issuesCode: true,
+                );
                 if (code != null && context.mounted) {
                   await _showRecoveryCode(context, code);
                 }
@@ -676,10 +682,16 @@ class _ErrorCard extends StatelessWidget {
 
 /// Run slow key work behind a blocking progress sheet. Null when it failed,
 /// after telling the user why.
+///
+/// [issuesCode] marks work that sends a new recovery code to the server. If
+/// the reply is lost the server may have saved it anyway, and the old code
+/// (or no code) is what the user has; they are told to repeat it until a
+/// code is actually shown.
 Future<T?> _withProgress<T>(
   BuildContext context,
-  Future<T> Function() work,
-) async {
+  Future<T> Function() work, {
+  bool issuesCode = false,
+}) async {
   final l10n = L10n.of(context);
   final navigator = Navigator.of(context, rootNavigator: true);
   showSunriseSheet<void>(
@@ -710,7 +722,13 @@ Future<T?> _withProgress<T>(
     return result;
   } catch (e) {
     navigator.pop();
-    if (context.mounted) _toast(context, '$e', bad: true);
+    final uncertain =
+        issuesCode &&
+        e is ApiException &&
+        (e.isNetworkError || e.isServerError);
+    if (context.mounted) {
+      _toast(context, uncertain ? '$e ${l10n.ppMaybeSaved}' : '$e', bad: true);
+    }
     return null;
   }
 }

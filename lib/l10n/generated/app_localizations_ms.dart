@@ -5455,6 +5455,10 @@ class L10nMs extends L10n {
       'Mengamankan kunci anda. Ini mengambil masa beberapa saat…';
 
   @override
+  String get ppMaybeSaved =>
+      'Sambungan terputus, jadi pelayan mungkin sudah menyimpannya. Ulang sehingga anda nampak kod pemulihan, dan simpan kod itu.';
+
+  @override
   String get ppRecoveryTitle => 'Kod pemulihan anda';
 
   @override

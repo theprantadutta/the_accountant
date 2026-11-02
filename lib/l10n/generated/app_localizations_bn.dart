@@ -5376,6 +5376,10 @@ class L10nBn extends L10n {
   String get ppWorking => 'আপনার কী লক করা হচ্ছে। এতে কয়েক সেকেন্ড লাগে…';
 
   @override
+  String get ppMaybeSaved =>
+      'সংযোগ বিচ্ছিন্ন হয়েছে, তাই সার্ভার হয়তো এটি আগেই সেভ করেছে। রিকভারি কোড না দেখা পর্যন্ত আবার করুন, আর সেই কোডটিই রেখে দিন।';
+
+  @override
   String get ppRecoveryTitle => 'আপনার রিকভারি কোড';
 
   @override
