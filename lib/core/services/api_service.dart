@@ -124,6 +124,9 @@ class ApiService {
 
   factory ApiService() => _instance;
 
+  /// The longest a request waits for a token refresh before going ahead.
+  static const Duration _refreshCap = Duration(seconds: 8);
+
   ApiService._internal() {
     _dio.options = BaseOptions(
       baseUrl: baseUrl + apiV1,
@@ -148,7 +151,15 @@ class ApiService {
           if (!_isAuthEndpoint(options.path) &&
               await SecureTokenStorage.isTokenExpiringSoon()) {
             _logger.i('Token expiring soon, attempting refresh...');
-            await _refreshAccessToken();
+            // Capped: when our server is unreachable a refresh can hang for a
+            // full connect timeout, and every request (including the short
+            // startup checks) would wait behind it. On timeout go ahead with
+            // the token we have; a real 401 still triggers the refresh path.
+            try {
+              await _refreshAccessToken().timeout(_refreshCap);
+            } on TimeoutException {
+              _logger.w('Token refresh is taking too long - using the old token');
+            }
           }
 
           // Which build is asking. From 5.0 the server can refuse to sync
@@ -292,8 +303,8 @@ class ApiService {
     final refreshDio = Dio(
       BaseOptions(
         baseUrl: baseUrl + apiV1,
-        connectTimeout: const Duration(seconds: 30),
-        receiveTimeout: const Duration(seconds: 30),
+        connectTimeout: const Duration(seconds: 10),
+        receiveTimeout: const Duration(seconds: 15),
         headers: {'Content-Type': 'application/json'},
       ),
     );
@@ -318,7 +329,11 @@ class ApiService {
     } on DioException catch (e) {
       final status = e.response?.statusCode;
 
-      if (status == 401 || status == 403) {
+      // A 403 only ends the session when our backend said it (a JSON body).
+      // A CDN or proxy answering for a server that is down sends its own
+      // page, and logging the user out over that would be wrong.
+      final fromBackend = e.response?.data is Map;
+      if (status == 401 || (status == 403 && fromBackend)) {
         // Another flow may have rotated the token while this request was in
         // flight. If what's stored now differs from what we sent, that rotation
         // succeeded and the session is fine — use it instead of tearing down.
@@ -553,7 +568,11 @@ class ApiService {
       final response = await _dio.get(
         '/auth/me',
         options: timeout != null
-            ? Options(sendTimeout: timeout, receiveTimeout: timeout)
+            ? Options(
+                connectTimeout: timeout,
+                sendTimeout: timeout,
+                receiveTimeout: timeout,
+              )
             : null,
       );
       return response.data;
@@ -569,9 +588,16 @@ class ApiService {
   Future<void> logout({bool allDevices = false}) async {
     try {
       final refreshToken = await SecureTokenStorage.getRefreshToken();
+      // Short: the device signs out either way, and nobody should stare at
+      // the profile screen for half a minute because our server is down.
       await _dio.post(
         '/auth/logout',
         data: {'refresh_token': ?refreshToken, 'all_devices': allDevices},
+        options: Options(
+          connectTimeout: const Duration(seconds: 5),
+          sendTimeout: const Duration(seconds: 5),
+          receiveTimeout: const Duration(seconds: 5),
+        ),
       );
     } catch (e) {
       _logger.e('Logout error: $e');

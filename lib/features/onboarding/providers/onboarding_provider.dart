@@ -77,7 +77,11 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
 
     // No cache available (brand-new user) - must hit network
     try {
-      final userInfo = await _apiService.getCurrentUser();
+      // Short: with our server down a new user should not watch a spinner
+      // for a full connect timeout before the app opens.
+      final userInfo = await _apiService.getCurrentUser(
+        timeout: const Duration(seconds: 8),
+      );
       final onboardingCompleted = userInfo['onboarding_completed'] ?? false;
 
       state = state.copyWith(
