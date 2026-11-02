@@ -44,6 +44,9 @@ class ApiException implements Exception {
   /// Throttled by the auth rate limiter.
   bool get isRateLimited => statusCode == 429;
 
+  /// The server refuses this app version (HTTP 426): it must be updated.
+  bool get isUpdateRequired => statusCode == 426;
+
   @override
   String toString() => message;
 }
@@ -837,26 +840,54 @@ class ApiService {
   ApiException _handleError(DioException error) {
     final response = error.response;
     if (response != null) {
+      final status = response.statusCode;
       final data = response.data;
+      // The server refuses to sync with apps too old to encrypt what they
+      // send. Said plainly, whatever the body holds.
+      if (status == 426) {
+        return ApiException(
+          'Update The Accountant to keep syncing. Everything stays on this '
+          'phone until you do.',
+          statusCode: status,
+        );
+      }
+      // A 5xx body is a crash report or a proxy's error page, not a
+      // sentence for a person. Our server being down is not the user's
+      // fault, and their data is safe on the phone.
+      if (status != null && status >= 500) {
+        return ApiException(
+          'Our server is having trouble right now. Everything is safe on '
+          'this phone; try again in a few minutes.',
+          statusCode: status,
+        );
+      }
       final detail = data is Map && data['detail'] != null
           ? data['detail'].toString()
-          : 'Request failed (HTTP ${response.statusCode}).';
-      return ApiException(detail, statusCode: response.statusCode);
+          : 'Request failed (HTTP $status).';
+      return ApiException(detail, statusCode: status);
     }
 
+    // No answer at all. Either this phone is offline or our server is down;
+    // the message must not insist it is the user's internet.
     if (error.type == DioExceptionType.connectionTimeout ||
-        error.type == DioExceptionType.receiveTimeout) {
+        error.type == DioExceptionType.receiveTimeout ||
+        error.type == DioExceptionType.sendTimeout) {
       return const ApiException(
-        'Connection timeout. Please check your internet connection.',
+        'Our server took too long to answer. Check your connection, or try '
+        'again in a few minutes.',
       );
     }
 
     if (error.type == DioExceptionType.connectionError) {
       return const ApiException(
-        'Cannot connect to server. Please check your internet connection.',
+        'Cannot reach our server. Check your connection; if you are online, '
+        'try again in a few minutes.',
       );
     }
 
-    return ApiException('An unexpected error occurred: ${error.message}');
+    return const ApiException(
+      'Something went wrong talking to our server. Please try again.',
+    );
   }
+
 }

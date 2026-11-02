@@ -177,9 +177,11 @@ class AiChatService {
     switch (error.type) {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.receiveTimeout:
-        return 'Connection timed out. Please check your internet and try again.';
+        return 'Our server took too long to answer. Check your connection, or '
+            'try again in a few minutes.';
       case DioExceptionType.connectionError:
-        return 'Cannot connect to server. Please check your internet connection.';
+        return 'Cannot reach our server. Check your connection; if you are '
+            'online, try again in a few minutes.';
       default:
         return 'Failed to get AI response. Please try again.';
     }
